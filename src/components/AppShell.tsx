@@ -15,12 +15,17 @@ export const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) 
   const [cartOpen, setCartOpen] = useState(false);
   const [b2bOpen, setB2bOpen] = useState(false);
 
-  const isAdminRoute = pathname?.startsWith('/admin');
+  const isIsolatedOperationsRoute = 
+    pathname?.startsWith('/admin') ||
+    pathname?.startsWith('/login-staff') ||
+    pathname?.startsWith('/store') ||
+    pathname?.startsWith('/kiosk') ||
+    pathname?.startsWith('/walk-in');
 
   const cartCount = cart.reduce((acc, item) => acc + item.quantity, 0);
   const wishlistCount = wishlist.length;
 
-  if (isAdminRoute) {
+  if (isIsolatedOperationsRoute) {
     return <main className="flex-1 bg-[#0F172A]">{children}</main>;
   }
 
