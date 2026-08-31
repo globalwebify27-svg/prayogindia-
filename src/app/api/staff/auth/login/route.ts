@@ -40,8 +40,8 @@ export async function POST(request: Request) {
     const cleanIdentifier = username.trim().toLowerCase();
     let staffUserRecord: any = null;
 
-    // 2. Database Lookup if DB is configured
-    if (process.env.DATABASE_URL) {
+    // 2. Database Lookup if DB is configured (and not pointing to local dev machine)
+    if (process.env.DATABASE_URL && !process.env.DATABASE_URL.includes('localhost')) {
       try {
         staffUserRecord = await db.staffUser.findFirst({
           where: {
