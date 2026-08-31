@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Prayog India Mobile App Preview</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- FontAwesome / Lucide icons CDN -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <style>
+    :root {
+      --primary-cyan: #00AEEF;
+      --accent-yellow: #FFC20E;
+      --navy-dark: #0A192F;
+      --slate-dark: #1E293B;
+      --slate-light: #F8FAFC;
+      --border-color: #E2E8F0;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: #0F172A;
+      color: #0F172A;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px 10px;
+    }
+
+    /* Container holding simulator controls and phone */
+    .app-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+      width: 100%;
+      max-width: 480px;
+    }
+
+    /* Device Switcher / Toolbar */
+    .toolbar {
+      background: rgba(30, 41, 59, 0.8);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 10px 16px;
+      border-radius: 30px;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      color: white;
+      font-size: 13px;
+      font-weight: 600;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    }
+
+    .toolbar button {
+      background: transparent;
+      border: none;
+      color: #94A3B8;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 6px 12px;
+      border-radius: 15px;
+      transition: all 0.2s;
+    }
+
+    .toolbar button.active {
+      background: var(--primary-cyan);
+      color: white;
+    }
+
+    /* Mobile Frame Mockup (iPhone Style) */
+    .phone-frame {
+      width: 390px;
+      height: 824px;
+      background: #ffffff;
+      border-radius: 48px;
+      box-shadow: 
+        0 0 0 12px #2A364F,
+        0 0 0 14px #1E293B,
+        0 25px 50px -12px rgba(0, 0, 0, 0.7);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Dynamic Island / Notch */
+    .notch-container {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 120px;
+      height: 30px;
+      background: #000000;
+      border-bottom-left-radius: 18px;
+      border-bottom-right-radius: 18px;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .notch-camera {
+      width: 12px;
+      height: 12px;
+      background: #111;
+      border-radius: 50%;
+      margin-right: 8px;
+    }
+
+    /* Status Bar */
+    .status-bar {
+      height: 44px;
+      padding: 10px 24px 0 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+      font-weight: 700;
+      color: #000;
+      z-index: 90;
+      background: white;
+    }
+
+    /* App Header */
+    .app-header {
+      background: white;
+      padding: 12px 16px;
+      border-b: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 80;
+    }
+
+    .brand-logo {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .brand-logo .logo-icon {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, var(--primary-cyan), #0077B6);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 900;
+      font-size: 16px;
+      box-shadow: 0 4px 10px rgba(0, 174, 239, 0.3);
+    }
+
+    .brand-logo .logo-text {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .brand-logo .logo-text span:first-child {
+      font-weight: 800;
+      font-size: 16px;
+      letter-spacing: -0.5px;
+      color: var(--navy-dark);
+      line-height: 1;
+    }
+
+    .brand-logo .logo-text span:last-child {
+      font-size: 9px;
+      font-weight: 700;
+      color: var(--primary-cyan);
+      letter-spacing: 1px;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .icon-btn {
+      position: relative;
+      background: #F1F5F9;
+      border: none;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #334155;
+      font-size: 15px;
+      cursor: pointer;
+    }
+
+    .badge {
+      position: absolute;
+      top: -2px;
+      right: -2px;
+      background: var(--primary-cyan);
+      color: white;
+      font-size: 10px;
+      font-weight: 800;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid white;
+    }
+
+    .badge-yellow {
+      background: var(--accent-yellow);
+      color: #000;
+    }
+
+    /* Scrollable App Body */
+    .app-screen {
+      flex: 1;
+      overflow-y: auto;
+      background: #F8FAFC;
+      padding-bottom: 70px;
+      scrollbar-width: none;
+    }
+    .app-screen::-webkit-scrollbar {
+      display: none;
+    }
+
+    /* Search Bar Bar */
+    .search-box {
+      padding: 12px 16px;
+      background: white;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .search-input-wrapper {
+      background: #F1F5F9;
+      border-radius: 12px;
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border: 1px solid transparent;
+      transition: all 0.2s;
+    }
+
+    .search-input-wrapper:focus-within {
+      border-color: var(--primary-cyan);
+      background: white;
+      box-shadow: 0 0 0 3px rgba(0, 174, 239, 0.1);
+    }
+
+    .search-input-wrapper input {
+      border: none;
+      background: transparent;
+      outline: none;
+      width: 100%;
+      font-size: 13px;
+      color: #1E293B;
+      font-weight: 500;
+    }
+
+    /* Hero Banner Slide */
+    .hero-card {
+      margin: 14px 16px;
+      background: linear-gradient(135deg, #0A192F 0%, #1E3A8A 100%);
+      border-radius: 20px;
+      padding: 20px;
+      color: white;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 10px 20px rgba(10, 25, 47, 0.2);
+    }
+
+    .hero-card::after {
+      content: '';
+      position: absolute;
+      right: -20px;
+      bottom: -20px;
+      width: 130px;
+      height: 130px;
+      background: radial-gradient(circle, rgba(0,174,239,0.3) 0%, rgba(0,0,0,0) 70%);
+      border-radius: 50%;
+    }
+
+    .tag-gold {
+      display: inline-block;
+      background: var(--accent-yellow);
+      color: #0F172A;
+      font-size: 10px;
+      font-weight: 800;
+      padding: 3px 8px;
+      border-radius: 6px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .hero-card h2 {
+      font-size: 18px;
+      font-weight: 800;
+      line-height: 1.25;
+      margin-bottom: 6px;
+    }
+
+    .hero-card p {
+      font-size: 11px;
+      color: #94A3B8;
+      margin-bottom: 14px;
+    }
+
+    .btn-hero {
+      background: var(--primary-cyan);
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 12px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+    }
+
+    /* Horizontal Category Strip */
+    .section-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 16px 8px 16px;
+    }
+
+    .section-title h3 {
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--navy-dark);
+    }
+
+    .section-title a {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--primary-cyan);
+      text-decoration: none;
+    }
+
+    .category-scroll {
+      display: flex;
+      gap: 12px;
+      padding: 6px 16px 12px 16px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    .category-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      min-width: 68px;
+      cursor: pointer;
+    }
+
+    .cat-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 16px;
+      background: white;
+      border: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      color: var(--primary-cyan);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+    }
+
+    .category-item span {
+      font-size: 11px;
+      font-weight: 600;
+      color: #475569;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    /* Product Grid 2-column */
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      padding: 6px 16px;
+    }
+
+    .product-card {
+      background: white;
+      border-radius: 16px;
+      padding: 12px;
+      border: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+    }
+
+    .p-fav {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: 26px;
+      height: 26px;
+      background: rgba(255,255,255,0.9);
+      border-radius: 50%;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #94A3B8;
+      font-size: 12px;
+    }
+
+    .p-fav.active {
+      color: #EF4444;
+    }
+
+    .p-img {
+      width: 100%;
+      height: 100px;
+      object-fit: contain;
+      margin-bottom: 8px;
+      border-radius: 8px;
+      background: #F8FAFC;
+    }
+
+    .p-tag {
+      font-size: 9px;
+      font-weight: 700;
+      color: var(--primary-cyan);
+      text-transform: uppercase;
+      margin-bottom: 2px;
+    }
+
+    .p-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: #1E293B;
+      line-height: 1.3;
+      margin-bottom: 6px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .p-rating {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 10px;
+      font-weight: 700;
+      color: #F59E0B;
+      margin-bottom: 8px;
+    }
+
+    .p-price-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: auto;
+    }
+
+    .p-price {
+      font-size: 14px;
+      font-weight: 800;
+      color: #0F172A;
+    }
+
+    .btn-add-cart {
+      background: var(--primary-cyan);
+      color: white;
+      border: none;
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    /* B2B Institutional Card */
+    .b2b-banner {
+      margin: 16px;
+      background: linear-gradient(135deg, #1E293B 0%, #0F172A 100%);
+      border: 1px solid #334155;
+      border-radius: 16px;
+      padding: 16px;
+      color: white;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .b2b-icon {
+      width: 42px;
+      height: 42px;
+      background: rgba(255, 194, 14, 0.15);
+      border: 1px solid var(--accent-yellow);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent-yellow);
+      font-size: 18px;
+      shrink: 0;
+    }
+
+    .b2b-text h4 {
+      font-size: 13px;
+      font-weight: 800;
+      margin-bottom: 2px;
+    }
+
+    .b2b-text p {
+      font-size: 10px;
+      color: #94A3B8;
+    }
+
+    /* Bottom Navigation Bar */
+    .bottom-nav {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 64px;
+      background: white;
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding-bottom: 10px;
+      z-index: 90;
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      color: #64748B;
+      text-decoration: none;
+      font-size: 10px;
+      font-weight: 700;
+      width: 20%;
+      cursor: pointer;
+    }
+
+    .nav-item.active {
+      color: var(--primary-cyan);
+    }
+
+    .nav-item i {
+      font-size: 18px;
+    }
+
+    /* Home Indicator bar for iOS */
+    .home-indicator {
+      position: absolute;
+      bottom: 6px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 134px;
+      height: 5px;
+      background: #000;
+      border-radius: 3px;
+      z-index: 100;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-wrapper">
+    
+    <!-- Controls Toolbar -->
+    <div class="toolbar">
+      <span><i class="fa-solid fa-mobile-screen"></i> Viewport:</span>
+      <button class="active" onclick="switchView('mobile')">Mobile iOS</button>
+      <button onclick="switchView('tablet')">Android App</button>
+    </div>
+
+    <!-- Phone Simulator Container -->
+    <div class="phone-frame" id="phoneContainer">
+      
+      <!-- Notch / Dynamic Island -->
+      <div class="notch-container">
+        <div class="notch-camera"></div>
+      </div>
+
+      <!-- Status Bar -->
+      <div class="status-bar">
+        <span>9:41</span>
+        <div style="display: flex; gap: 6px; align-items: center;">
+          <i class="fa-solid fa-signal" style="font-size: 11px;"></i>
+          <i class="fa-solid fa-wifi" style="font-size: 11px;"></i>
+          <i class="fa-solid fa-battery-full" style="font-size: 13px;"></i>
+        </div>
+      </div>
+
+      <!-- App Header -->
+      <div class="app-header">
+        <div class="brand-logo">
+          <div class="logo-icon">P</div>
+          <div class="logo-text">
+            <span>PRAYOG</span>
+            <span>INDIA LABS</span>
+          </div>
+        </div>
+
+        <div class="header-actions">
+          <button class="icon-btn" onclick="toggleFav()">
+            <i class="fa-regular fa-heart"></i>
+            <span class="badge badge-yellow" id="wishlistCount">1</span>
+          </button>
+
+          <button class="icon-btn" onclick="openCart()">
+            <i class="fa-solid fa-bag-shopping"></i>
+            <span class="badge" id="cartCount">2</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Main Scrollable Screen -->
+      <div class="app-screen" id="appScreen">
+        
+        <!-- Search Box -->
+        <div class="search-box">
+          <div class="search-input-wrapper">
+            <i class="fa-solid fa-magnifying-glass" style="color: #94A3B8; font-size: 13px;"></i>
+            <input type="text" placeholder="Search Raspberry Pi, Drones, Sensors...">
+            <i class="fa-solid fa-sliders" style="color: var(--primary-cyan); font-size: 13px;"></i>
+          </div>
+        </div>
+
+        <!-- Featured Banner -->
+        <div class="hero-card">
+          <span class="tag-gold">Robotics & STEM</span>
+          <h2>Autonomous Flight & AI Robotics Kits</h2>
+          <p>Empowering innovators & labs across India with certified hardware.</p>
+          <button class="btn-hero">Explore Store <i class="fa-solid fa-arrow-right"></i></button>
+        </div>
+
+        <!-- Category Horizontal Strip -->
+        <div class="section-title">
+          <h3>Categories</h3>
+          <a href="#">See All</a>
+        </div>
+
+        <div class="category-scroll">
+          <div class="category-item">
+            <div class="cat-icon"><i class="fa-solid fa-microchip"></i></div>
+            <span>Raspberry Pi</span>
+          </div>
+          <div class="category-item">
+            <div class="cat-icon"><i class="fa-solid fa-robot"></i></div>
+            <span>Robotics</span>
+          </div>
+          <div class="category-item">
+            <div class="cat-icon"><i class="fa-solid fa-plane"></i></div>
+            <span>Drone Tech</span>
+          </div>
+          <div class="category-item">
+            <div class="cat-icon"><i class="fa-solid fa-bolt"></i></div>
+            <span>Sensors</span>
+          </div>
+          <div class="category-item">
+            <div class="cat-icon"><i class="fa-solid fa-[#00AEEF] fa-memory"></i></div>
+            <span>Arduino</span>
+          </div>
+        </div>
+
+        <!-- B2B Procurement Section Banner -->
+        <div class="b2b-banner">
+          <div class="b2b-icon">
+            <i class="fa-solid fa-building-columns"></i>
+          </div>
+          <div class="b2b-text">
+            <h4>Institutional Procurement</h4>
+            <p>Get GST invoices & bulk quotation discounts for schools & colleges.</p>
+          </div>
+        </div>
+
+        <!-- Trending Products Grid -->
+        <div class="section-title">
+          <h3>Trending Hardware</h3>
+          <a href="#">Filter</a>
+        </div>
+
+        <div class="products-grid">
+          
+          <!-- Product Card 1 -->
+          <div class="product-card">
+            <button class="p-fav active"><i class="fa-solid fa-heart"></i></button>
+            <img src="https://images.unsplash.com/photo-1517077304055-6e89abbf09b0?w=300&q=80" class="p-img" alt="Raspberry Pi">
+            <div class="p-tag">Single Board</div>
+            <div class="p-title">Raspberry Pi 5 8GB RAM Board</div>
+            <div class="p-rating"><i class="fa-solid fa-star"></i> 4.9 (128)</div>
+            <div class="p-price-row">
+              <div class="p-price">₹7,499</div>
+              <button class="btn-add-cart" onclick="addToCart()"><i class="fa-solid fa-plus"></i></button>
+            </div>
+          </div>
+
+          <!-- Product Card 2 -->
+          <div class="product-card">
+            <button class="p-fav"><i class="fa-regular fa-heart"></i></button>
+            <img src="https://images.unsplash.com/photo-1508614589041-895b88991e3e?w=300&q=80" class="p-img" alt="Drone Kit">
+            <div class="p-tag">Drone Tech</div>
+            <div class="p-title">FPV Quadcopter Frame & ESC Combo</div>
+            <div class="p-rating"><i class="fa-solid fa-star"></i> 4.8 (84)</div>
+            <div class="p-price-row">
+              <div class="p-price">₹12,999</div>
+              <button class="btn-add-cart" onclick="addToCart()"><i class="fa-solid fa-plus"></i></button>
+            </div>
+          </div>
+
+          <!-- Product Card 3 -->
+          <div class="product-card">
+            <button class="p-fav"><i class="fa-regular fa-heart"></i></button>
+            <img src="https://images.unsplash.com/photo-1563968743333-044cef800494?w=300&q=80" class="p-img" alt="Robotics Kit">
+            <div class="p-tag">AI & Robotics</div>
+            <div class="p-title">ROBOT-X Autonomous Tank Chassis</div>
+            <div class="p-rating"><i class="fa-solid fa-star"></i> 5.0 (42)</div>
+            <div class="p-price-row">
+              <div class="p-price">₹4,899</div>
+              <button class="btn-add-cart" onclick="addToCart()"><i class="fa-solid fa-plus"></i></button>
+            </div>
+          </div>
+
+          <!-- Product Card 4 -->
+          <div class="product-card">
+            <button class="p-fav"><i class="fa-regular fa-heart"></i></button>
+            <img src="https://images.unsplash.com/photo-1608564697071-ddf911d81370?w=300&q=80" class="p-img" alt="Arduino Kit">
+            <div class="p-tag">Kits</div>
+            <div class="p-title">Ultimate Starter Electronics Lab Kit</div>
+            <div class="p-rating"><i class="fa-solid fa-star"></i> 4.7 (210)</div>
+            <div class="p-price-row">
+              <div class="p-price">₹2,299</div>
+              <button class="btn-add-cart" onclick="addToCart()"><i class="fa-solid fa-plus"></i></button>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- Bottom Navigation Bar -->
+      <div class="bottom-nav">
+        <div class="nav-item active">
+          <i class="fa-solid fa-house"></i>
+          <span>Home</span>
+        </div>
+        <div class="nav-item">
+          <i class="fa-solid fa-grid-2"></i>
+          <span>Categories</span>
+        </div>
+        <div class="nav-item">
+          <i class="fa-solid fa-book-bookmark"></i>
+          <span>Learn</span>
+        </div>
+        <div class="nav-item">
+          <i class="fa-solid fa-headset"></i>
+          <span>Support</span>
+        </div>
+        <div class="nav-item">
+          <i class="fa-regular fa-user"></i>
+          <span>Profile</span>
+        </div>
+      </div>
+
+      <!-- iOS Home Indicator -->
+      <div class="home-indicator"></div>
+
+    </div>
+
+  </div>
+
+  <script>
+    let cartCount = 2;
+    function addToCart() {
+      cartCount++;
+      document.getElementById('cartCount').innerText = cartCount;
+    }
+
+    function switchView(mode) {
+      const btns = document.querySelectorAll('.toolbar button');
+      btns.forEach(b => b.classList.remove('active'));
+      event.target.classList.add('active');
+
+      const phone = document.getElementById('phoneContainer');
+      if (mode === 'tablet') {
+        phone.style.borderRadius = '32px';
+      } else {
+        phone.style.borderRadius = '48px';
+      }
+    }
+  </script>
+
+</body>
+</html>

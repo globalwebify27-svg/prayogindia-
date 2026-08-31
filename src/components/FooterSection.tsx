@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { Mail, Send, CheckCircle2, Phone, MapPin, Globe } from 'lucide-react';
@@ -75,13 +77,13 @@ export const FooterSection: React.FC = () => {
             </p>
             <div className="space-y-1.5 text-slate-300 text-[11px]">
               <div className="flex items-center gap-2">
-                <MapPin className="w-3.5 h-3.5 text-[#FFC20E]" /> New Delhi &amp; Bengaluru, India
+                <MapPin className="w-3.5 h-3.5 text-[#FFC20E]" /> Ranchi Main Hub, Patna &amp; Delhi NCR
               </div>
               <div className="flex items-center gap-2">
-                <Phone className="w-3.5 h-3.5 text-[#00AEEF]" /> +91 98765 43210
+                <Phone className="w-3.5 h-3.5 text-[#00AEEF]" /> +91 94311 02931 / +91 98765 43210
               </div>
               <div className="flex items-center gap-2">
-                <Globe className="w-3.5 h-3.5 text-[#FFC20E]" /> www.prayogindia.in
+                <Globe className="w-3.5 h-3.5 text-[#FFC20E]" /> www.prayogindia.com
               </div>
             </div>
           </div>

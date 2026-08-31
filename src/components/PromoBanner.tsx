@@ -10,7 +10,7 @@ interface PromoProps {
 
 export const PromoBanner: React.FC<PromoProps> = ({ onShopNow }) => {
   return (
-    <section className="py-6 bg-white">
+    <section id="offers" className="py-6 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="relative rounded-3xl bg-gradient-to-r from-[#0A1128] via-[#0F172A] to-[#1E56A0] overflow-hidden shadow-2xl p-8 sm:p-12 border border-[#D4AF37]/30">
           

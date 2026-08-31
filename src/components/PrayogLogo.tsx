@@ -17,21 +17,21 @@ export const PrayogLogo: React.FC<PrayogLogoProps> = ({
 }) => {
   // Scaling factors based on size prop
   const fontSizes = {
-    sm: 'text-xl',
-    md: 'text-2xl sm:text-3xl',
-    lg: 'text-3xl sm:text-4xl',
+    sm: 'text-base sm:text-xl',
+    md: 'text-lg sm:text-2xl lg:text-3xl',
+    lg: 'text-2xl sm:text-3xl lg:text-4xl',
   };
 
   const iconSizes = {
-    sm: 'w-6 h-6',
-    md: 'w-8 h-8 sm:w-9 sm:h-9',
-    lg: 'w-10 h-10 sm:w-11 sm:h-11',
+    sm: 'w-5 h-5 sm:w-6 sm:h-6',
+    md: 'w-6 h-6 sm:w-8 sm:h-8 lg:w-9 lg:h-9',
+    lg: 'w-8 h-8 sm:w-10 sm:h-10 lg:w-11 lg:h-11',
   };
 
   return (
     <div className={`inline-flex flex-col items-start select-none group cursor-pointer ${className}`}>
       {/* Top Logo Line: PRAY + Robot Head Gear Icon + G + INDIA */}
-      <div className="flex items-center gap-1 font-black tracking-tight font-sans leading-none">
+      <div className="flex items-center gap-0.5 sm:gap-1 font-black tracking-tight font-sans leading-none">
         
         {/* PRAY */}
         <span className={`text-[#00AEEF] font-extrabold uppercase ${fontSizes[size]}`}>
@@ -87,7 +87,7 @@ export const PrayogLogo: React.FC<PrayogLogoProps> = ({
         </span>
 
         {/* Space */}
-        <span className="w-1"></span>
+        <span className="w-0.5 sm:w-1"></span>
 
         {/* INDIA */}
         <span className={`text-[#FFC20E] font-extrabold uppercase ${fontSizes[size]}`}>
@@ -97,15 +97,15 @@ export const PrayogLogo: React.FC<PrayogLogoProps> = ({
 
       {/* Tagline Pill Box: "The World of ROBOTICS" */}
       {showSubtitle && (
-        <div className={`mt-0.5 px-2.5 py-0.5 rounded-full border shadow-2xs flex items-center gap-1 ${
+        <div className={`mt-0.5 px-2 sm:px-2.5 py-0.5 rounded-full border shadow-2xs flex items-center gap-1 ${
           dark 
             ? 'bg-slate-900/90 border-slate-700/80 text-slate-300' 
             : 'bg-white/95 border-slate-200 text-slate-500'
         }`}>
-          <span className="font-serif italic text-[10px] sm:text-[11px] font-medium text-slate-400">
+          <span className="font-serif italic text-[9px] sm:text-[11px] font-medium text-slate-400">
             The World of
           </span>
-          <span className="font-sans font-black tracking-widest text-[9px] sm:text-[10px] text-slate-400 uppercase">
+          <span className="font-sans font-black tracking-widest text-[8px] sm:text-[10px] text-slate-400 uppercase">
             ROBOTICS
           </span>
         </div>
