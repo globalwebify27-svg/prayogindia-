@@ -82,6 +82,7 @@ const NAV_GROUPS = [
   {
     group: 'OPERATIONS & SYSTEM',
     items: [
+      { label: 'Staff & Role RBAC', href: '/admin/staff', icon: Users },
       { label: 'Support Desk', href: '/admin/support', icon: Headset },
       { label: 'System Audit Logs', href: '/admin/audit', icon: ShieldCheck },
       { label: 'Media Library', href: '/admin/media', icon: FolderKanban },

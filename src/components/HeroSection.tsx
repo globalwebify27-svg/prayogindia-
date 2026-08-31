@@ -75,12 +75,7 @@ export const HeroSection: React.FC<HeroProps> = ({
           {/* Left Column Content & Headline - Positioned directly over landscape background video */}
           <div className="lg:col-span-6 space-y-5 sm:space-y-6 text-left">
             
-            <div className="inline-flex items-center gap-2 bg-[#00AEEF]/15 border border-[#00AEEF]/40 px-3.5 py-1 rounded-full backdrop-blur-md">
-              <Sparkles className="w-3.5 h-3.5 text-[#FFC20E]" />
-              <span className="text-[11px] font-bold text-[#00AEEF] uppercase tracking-wider">
-                NEW TECHNOLOGY LAUNCH
-              </span>
-            </div>
+
 
             <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-[1.15] text-white drop-shadow-md">
               Saw It Online? <br />

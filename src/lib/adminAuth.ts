@@ -10,15 +10,36 @@ export interface AdminSessionUser {
 }
 
 export const AUTH_ADMIN_COOKIE_NAME = 'prayog_admin_session';
+export const AUTH_STAFF_COOKIE_NAME = 'prayog_staff_session';
 
 /**
  * Server-side Helper: Extract & Verify Authenticated Admin Session
- * Returns AdminSessionUser if valid ADMIN or SUPER_ADMIN; null otherwise.
+ * Supports legacy prayog_admin_session and new prayog_staff_session (SUPER_ADMIN)
  */
 export async function getAuthenticatedAdmin(): Promise<AdminSessionUser | null> {
   const cookieStore = await cookies();
-  const sessionCookie = cookieStore.get(AUTH_ADMIN_COOKIE_NAME);
 
+  // 1. Check primary staff session cookie first
+  const staffCookie = cookieStore.get(AUTH_STAFF_COOKIE_NAME);
+  if (staffCookie?.value) {
+    try {
+      const staffUser = JSON.parse(staffCookie.value);
+      if (staffUser && staffUser.role === 'SUPER_ADMIN') {
+        return {
+          id: staffUser.id,
+          name: staffUser.name,
+          email: staffUser.email || `${staffUser.username}@prayogindia.com`,
+          phone: staffUser.phone || '',
+          role: 'ADMIN' as Role,
+        };
+      }
+    } catch {
+      // Continue to check legacy cookie
+    }
+  }
+
+  // 2. Check legacy admin session cookie
+  const sessionCookie = cookieStore.get(AUTH_ADMIN_COOKIE_NAME);
   if (!sessionCookie?.value) return null;
 
   try {

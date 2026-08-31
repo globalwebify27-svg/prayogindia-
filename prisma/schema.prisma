@@ -9,6 +9,73 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// ─────────────────────────────────────────────
+// Staff / Operations Roles
+// ─────────────────────────────────────────────
+enum StaffRole {
+  SUPER_ADMIN
+  STORE_MANAGER
+  KIOSK_USER
+}
+
+enum StaffStatus {
+  ACTIVE
+  SUSPENDED
+}
+
+// ─────────────────────────────────────────────
+// Physical Store / Branch
+// ─────────────────────────────────────────────
+model Store {
+  id                   String      @id @default(uuid())
+  code                 String      @unique // e.g. RANCHI, PATNA, DELHI
+  name                 String
+  type                 String      @default("Physical Branch Store")
+  isCentralHub         Boolean     @default(false)
+  address              String
+  city                 String
+  state                String
+  pincode              String
+  contactPhone         String
+  contactEmail         String
+  operatingHours       String      @default("10:00 AM - 8:00 PM")
+  status               String      @default("Operational") // Operational | Coming Soon | Maintenance
+  totalStockUnits      Int         @default(0)
+  monthlyWalkInRevenue Float       @default(0)
+  createdAt            DateTime    @default(now())
+  updatedAt            DateTime    @updatedAt
+
+  staff                StaffUser[]
+
+  @@index([code])
+}
+
+// ─────────────────────────────────────────────
+// Staff User Model (Admin / Manager / Kiosk)
+// Completely separate from the Customer User model
+// ─────────────────────────────────────────────
+model StaffUser {
+  id           String      @id @default(uuid())
+  name         String
+  email        String?     @unique
+  username     String      @unique
+  passwordHash String
+  role         StaffRole
+  storeId      String?     // NULL for SUPER_ADMIN
+  store        Store?      @relation(fields: [storeId], references: [id], onDelete: SetNull)
+  phone        String?
+  status       StaffStatus @default(ACTIVE)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  @@index([username])
+  @@index([storeId])
+  @@index([role])
+}
+
+// ─────────────────────────────────────────────
+// Customer Roles (unchanged)
+// ─────────────────────────────────────────────
 enum Role {
   CUSTOMER
   ADMIN
