@@ -147,12 +147,7 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
       {/* ── Main Media Viewer ── */}
       <div
         ref={mainImageRef}
-        className="relative h-80 sm:h-96 md:h-[460px] w-full rounded-3xl overflow-hidden bg-slate-50 border border-slate-200 group cursor-zoom-in"
-        onMouseEnter={() => setIsHoverZooming(true)}
-        onMouseLeave={() => setIsHoverZooming(false)}
-        onMouseMove={handleMouseMove}
-        onClick={() => activeMode === 'image' && openLightbox(selectedIdx)}
-        style={{ cursor: activeMode === 'image' ? 'zoom-in' : 'default' }}
+        className="relative h-80 sm:h-96 md:h-[460px] w-full rounded-3xl overflow-hidden bg-slate-50 border border-slate-200 group"
       >
         {activeMode === 'image' && (
           <>
@@ -162,33 +157,8 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
               alt={`${productName} image ${selectedIdx + 1}`}
               fill
               priority
-              className="object-contain p-4 transition-transform duration-300"
-              style={{
-                transformOrigin: `${mousePos.x}% ${mousePos.y}%`,
-                transform: isHoverZooming ? 'scale(1.6)' : 'scale(1)',
-              }}
+              className="object-contain p-4"
             />
-
-            {/* Top actions overlay */}
-            <div className="absolute top-3 right-3 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
-              <button
-                onClick={(e) => { e.stopPropagation(); openLightbox(selectedIdx); }}
-                className="bg-white/90 backdrop-blur-md p-2 rounded-xl text-slate-600 hover:text-[#00AEEF] hover:bg-white shadow-md transition-colors"
-                title="Open Full Resolution Lightbox"
-              >
-                <Maximize2 className="w-4 h-4" />
-              </button>
-              <a
-                href={galleryImages[selectedIdx]}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={e => e.stopPropagation()}
-                className="bg-white/90 backdrop-blur-md p-2 rounded-xl text-slate-600 hover:text-[#00AEEF] hover:bg-white shadow-md transition-colors block"
-                title="Download Full Resolution"
-              >
-                <Download className="w-4 h-4" />
-              </a>
-            </div>
 
             {/* Prev/Next arrows (only when multiple images) */}
             {galleryImages.length > 1 && (
@@ -207,11 +177,6 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
                 </button>
               </>
             )}
-
-            {/* Zoom hint badge */}
-            <div className="absolute bottom-3 left-3 bg-slate-900/70 text-white text-[9px] font-bold px-2 py-1 rounded-lg backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-              🔍 Hover to zoom · Click for fullscreen
-            </div>
 
             {/* Image counter */}
             {galleryImages.length > 1 && (
