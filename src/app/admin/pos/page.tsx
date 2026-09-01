@@ -78,119 +78,180 @@ function LiveSessionCard({
   onAccept,
   onMarkPaid,
   onCancel,
+  onPrint,
 }: {
   session: WalkInSession;
   accentColor: string;
   onAccept: () => void;
   onMarkPaid: () => void;
   onCancel: () => void;
+  onPrint: () => void;
 }) {
-  const statusColors: Record<SessionStatus, string> = {
-    PENDING: 'bg-amber-100 text-amber-800 border-amber-300',
-    ACCEPTED: 'bg-blue-100 text-blue-800 border-blue-300',
-    PROCESSING: 'bg-violet-100 text-violet-800 border-violet-300',
-    PAID: 'bg-emerald-100 text-emerald-800 border-emerald-300',
-    CANCELLED: 'bg-red-100 text-red-600 border-red-200',
+  const statusTheme: Record<SessionStatus, { badge: string; border: string; bg: string }> = {
+    PENDING: {
+      badge: 'bg-amber-500/10 text-amber-600 border-amber-300 dark:border-amber-500/30',
+      border: 'border-amber-400/80 shadow-amber-500/5',
+      bg: 'bg-white',
+    },
+    ACCEPTED: {
+      badge: 'bg-blue-500/10 text-blue-600 border-blue-300 dark:border-blue-500/30',
+      border: 'border-blue-400/80 shadow-blue-500/5',
+      bg: 'bg-white',
+    },
+    PROCESSING: {
+      badge: 'bg-purple-500/10 text-purple-600 border-purple-300 dark:border-purple-500/30',
+      border: 'border-purple-400/80 shadow-purple-500/5',
+      bg: 'bg-white',
+    },
+    PAID: {
+      badge: 'bg-emerald-500/10 text-emerald-600 border-emerald-300 dark:border-emerald-500/30',
+      border: 'border-emerald-400/80 shadow-emerald-500/5',
+      bg: 'bg-white',
+    },
+    CANCELLED: {
+      badge: 'bg-slate-500/10 text-slate-500 border-slate-200',
+      border: 'border-slate-200 opacity-60',
+      bg: 'bg-slate-50',
+    },
   };
+
   const statusLabel: Record<SessionStatus, string> = {
-    PENDING: '🔔 New Order',
-    ACCEPTED: '✅ Accepted',
-    PROCESSING: '💳 Processing Payment',
-    PAID: '✓ Paid & Complete',
-    CANCELLED: '✕ Cancelled',
+    PENDING: 'New Order',
+    ACCEPTED: 'Accepted',
+    PROCESSING: 'Processing',
+    PAID: 'Paid & Completed',
+    CANCELLED: 'Cancelled',
   };
 
   const elapsed = Math.floor((Date.now() - new Date(session.createdAt).getTime()) / 1000);
   const elapsedLabel = elapsed < 60 ? `${elapsed}s ago` : `${Math.floor(elapsed / 60)}m ago`;
+  const theme = statusTheme[session.status] || statusTheme.PENDING;
 
   return (
-    <div className={`bg-white rounded-3xl border-2 shadow-sm p-5 space-y-4 transition-all ${
-      session.status === 'PENDING' ? 'border-amber-400 shadow-amber-50' :
-      session.status === 'ACCEPTED' || session.status === 'PROCESSING' ? 'border-blue-300 shadow-blue-50' :
-      session.status === 'PAID' ? 'border-emerald-300 opacity-60' :
-      'border-slate-200 opacity-40'
-    }`}>
+    <div className={`rounded-3xl border ${theme.border} ${theme.bg} shadow-md p-5 flex flex-col justify-between space-y-4 transition-all duration-200 hover:shadow-lg`}>
       {/* Header Row */}
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <div className="flex items-center gap-2 mb-1">
-            <span className={`text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full border ${statusColors[session.status]}`}>
+      <div className="flex items-start justify-between gap-2">
+        <div className="min-w-0 flex-1 pr-1">
+          <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+            <span className={`text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full border ${theme.badge}`}>
               {statusLabel[session.status]}
             </span>
-            <span className="text-[10px] font-mono text-slate-400">{elapsedLabel}</span>
+            <span className="text-[10px] font-mono text-slate-400 flex items-center gap-1">
+              <Clock className="w-3 h-3" />
+              {elapsedLabel}
+            </span>
           </div>
-          <div className="text-sm font-black text-slate-900">{session.customerName}</div>
-          <div className="flex items-center gap-3 text-xs text-slate-500 font-medium mt-0.5">
-            <span className="flex items-center gap-1"><Phone className="w-3 h-3" />{session.customerPhone}</span>
-            {session.customerEmail && <span className="hidden sm:flex items-center gap-1"><Mail className="w-3 h-3" />{session.customerEmail}</span>}
+          <div className="text-base font-black text-slate-900 tracking-tight truncate">{session.customerName}</div>
+          <div className="flex items-center gap-2 text-xs text-slate-500 font-medium mt-0.5 flex-wrap">
+            <span className="flex items-center gap-1 font-mono text-[11px]"><Phone className="w-3 h-3 text-slate-400 shrink-0" />{session.customerPhone}</span>
+            {session.customerEmail && (
+              <span className="text-slate-400 truncate text-[11px] max-w-[120px]" title={session.customerEmail}>
+                {session.customerEmail}
+              </span>
+            )}
           </div>
         </div>
+
         <div className="text-right shrink-0">
-          <div className="text-lg font-black text-slate-900">₹{session.total.toLocaleString()}</div>
-          <div className={`text-[10px] font-bold flex items-center gap-1 justify-end ${
-            session.paymentMethod === 'CASH' ? 'text-emerald-700' : 'text-violet-700'
-          }`}>
-            {session.paymentMethod === 'CASH' ? <Banknote className="w-3 h-3" /> : <QrCodeIcon className="w-3 h-3" />}
-            {session.paymentMethod === 'CASH' ? 'Cash' : 'UPI QR'}
+          <div className="text-lg sm:text-xl font-black text-slate-900 font-mono tracking-tight">₹{session.total.toLocaleString('en-IN')}</div>
+          <div className="inline-flex items-center gap-1 text-[10px] font-bold text-slate-600 mt-1 bg-slate-100 px-2 py-0.5 rounded-lg border border-slate-200/60">
+            {session.paymentMethod === 'CASH' ? <Banknote className="w-3 h-3 text-emerald-600 shrink-0" /> : <QrCodeIcon className="w-3 h-3 text-blue-600 shrink-0" />}
+            <span className="whitespace-nowrap">{session.paymentMethod === 'CASH' ? 'Cash Desk' : 'UPI / QR'}</span>
           </div>
         </div>
       </div>
 
       {/* Items List */}
-      <div className="bg-slate-50 rounded-2xl p-3 space-y-1.5">
-        <div className="text-[10px] font-black uppercase text-slate-400 tracking-wider mb-2">Items ({session.items.length})</div>
-        {session.items.map((item, i) => (
-          <div key={i} className="flex items-center justify-between text-xs">
-            <div className="flex items-center gap-2 min-w-0">
-              <div className="relative w-8 h-8 rounded-lg overflow-hidden bg-white border border-slate-200 shrink-0">
-                <Image src={item.image} alt={item.name} fill className="object-contain p-0.5" />
+      <div className="bg-slate-50/80 border border-slate-100 rounded-2xl p-3 space-y-2">
+        <div className="flex justify-between items-center text-[10px] font-bold uppercase tracking-wider text-slate-400 pb-1 border-b border-slate-200/60">
+          <span>Items ({session.items.length})</span>
+          <span>Qty & Rate</span>
+        </div>
+        <div className="space-y-1.5 max-h-32 overflow-y-auto pr-1">
+          {session.items.map((item, i) => (
+            <div key={i} className="flex items-center justify-between text-xs">
+              <div className="flex items-center gap-2 min-w-0 pr-2">
+                <div className="relative w-7 h-7 rounded-lg overflow-hidden bg-white border border-slate-200 shrink-0 flex items-center justify-center">
+                  <Image src={item.image} alt={item.name} fill className="object-contain p-0.5" />
+                </div>
+                <span className="text-slate-700 font-semibold truncate text-[11px]">{item.name}</span>
               </div>
-              <span className="text-slate-700 font-semibold truncate">{item.name}</span>
+              <div className="text-right shrink-0 font-mono text-[11px]">
+                <span className="text-slate-500 font-medium">{item.quantity}×</span>{' '}
+                <span className="font-bold text-slate-900">₹{(item.price * item.quantity).toLocaleString('en-IN')}</span>
+              </div>
             </div>
-            <div className="text-right shrink-0 ml-2">
-              <span className="font-black text-slate-900">{item.quantity}× ₹{(item.price * item.quantity).toLocaleString()}</span>
-            </div>
+          ))}
+        </div>
+        <div className="pt-2 border-t border-slate-200/80 space-y-1 text-xs">
+          <div className="flex justify-between text-slate-500 font-medium text-[11px]">
+            <span>Taxable Subtotal:</span>
+            <span className="font-mono text-slate-700">₹{session.subtotal.toLocaleString('en-IN')}</span>
           </div>
-        ))}
-        <div className="pt-2 border-t border-slate-200 flex justify-between text-xs font-bold text-slate-700">
-          <span>Subtotal + GST (18%)</span>
-          <span>₹{session.subtotal.toLocaleString()} + ₹{session.gstAmount.toLocaleString()}</span>
+          <div className="flex justify-between text-slate-500 font-medium text-[11px]">
+            <span>GST (18%):</span>
+            <span className="font-mono text-slate-700">₹{session.gstAmount.toLocaleString('en-IN')}</span>
+          </div>
         </div>
       </div>
 
       {session.notes && (
-        <div className="bg-amber-50 border border-amber-200 rounded-xl p-2.5 text-xs text-amber-800 font-medium">
-          📝 Note: {session.notes}
+        <div className="bg-amber-50/80 border border-amber-200/60 rounded-xl p-2.5 text-xs text-amber-900 font-medium flex items-center gap-1.5">
+          <span>📝</span>
+          <span>{session.notes}</span>
         </div>
       )}
 
       {/* Action Buttons */}
-      {session.status === 'PENDING' && (
-        <div className="flex gap-2">
-          <button onClick={onAccept}
-            className="flex-1 py-2.5 rounded-xl font-extrabold text-xs text-white flex items-center justify-center gap-1.5 active:scale-95 transition-all shadow-sm"
-            style={{ background: accentColor }}>
-            <CheckCircle className="w-4 h-4" /> Accept Order
-          </button>
-          <button onClick={onCancel}
-            className="px-4 py-2.5 rounded-xl font-extrabold text-xs text-red-600 bg-red-50 border border-red-200 hover:bg-red-100 active:scale-95 transition-all">
-            <XCircle className="w-4 h-4" />
-          </button>
-        </div>
-      )}
-      {(session.status === 'ACCEPTED' || session.status === 'PROCESSING') && (
-        <div className="flex gap-2">
-          <button onClick={onMarkPaid}
-            className="flex-1 py-2.5 rounded-xl font-extrabold text-xs text-white bg-emerald-600 hover:bg-emerald-700 flex items-center justify-center gap-1.5 active:scale-95 transition-all shadow-sm">
-            <Wallet className="w-4 h-4" /> Mark as Paid & Invoice
-          </button>
-          <button
-            onClick={() => window.print()}
-            className="px-4 py-2.5 rounded-xl font-extrabold text-xs text-slate-600 bg-slate-100 hover:bg-slate-200 active:scale-95 transition-all">
-            <Printer className="w-4 h-4" />
-          </button>
-        </div>
-      )}
+      <div className="pt-1">
+        {session.status === 'PENDING' && (
+          <div className="flex items-center gap-2">
+            <button
+              onClick={onAccept}
+              className="flex-1 py-2.5 rounded-xl font-black text-xs text-white bg-[#00AEEF] hover:bg-[#0096D6] flex items-center justify-center gap-1.5 active:scale-95 transition-all shadow-md shadow-[#00AEEF]/20 cursor-pointer"
+            >
+              <CheckCircle className="w-4 h-4" /> Accept Order
+            </button>
+            <button
+              onClick={onCancel}
+              title="Decline Order"
+              className="px-3.5 py-2.5 rounded-xl font-bold text-xs text-red-600 bg-red-50 border border-red-200 hover:bg-red-100 active:scale-95 transition-all cursor-pointer"
+            >
+              <XCircle className="w-4 h-4" />
+            </button>
+          </div>
+        )}
+        {(session.status === 'ACCEPTED' || session.status === 'PROCESSING') && (
+          <div className="flex items-center gap-2">
+            <button
+              onClick={onMarkPaid}
+              className="flex-1 py-2.5 rounded-xl font-black text-xs text-white bg-emerald-600 hover:bg-emerald-700 flex items-center justify-center gap-1.5 active:scale-95 transition-all shadow-md shadow-emerald-600/20 cursor-pointer"
+            >
+              <Wallet className="w-4 h-4" /> Mark as Paid & Invoice
+            </button>
+            <button
+              onClick={onPrint}
+              title="Print Order Slip"
+              className="px-3.5 py-2.5 rounded-xl font-bold text-xs text-slate-600 bg-slate-100 hover:bg-slate-200 border border-slate-200 active:scale-95 transition-all cursor-pointer"
+            >
+              <Printer className="w-4 h-4" />
+            </button>
+          </div>
+        )}
+        {session.status === 'PAID' && (
+          <div className="flex items-center justify-between bg-emerald-50 border border-emerald-200/80 rounded-xl px-3.5 py-2 text-xs">
+            <span className="font-bold text-emerald-800 flex items-center gap-1.5">
+              <CheckCircle2 className="w-4 h-4 text-emerald-600" /> Completed & Billed
+            </span>
+            <button
+              onClick={onPrint}
+              className="text-[#00AEEF] font-black hover:underline flex items-center gap-1 text-[11px] cursor-pointer"
+            >
+              <Printer className="w-3.5 h-3.5" /> Print
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
@@ -286,6 +347,53 @@ export default function WalkInPOSPage() {
       body: JSON.stringify({ storeId: session.storeId, sessionId: session.id, updates: { status: 'PAID', invoiceNo } }),
     }).catch(() => {});
     refreshSessions();
+  };
+
+  const handlePrintLiveSession = (session: WalkInSession) => {
+    const storeNames: Record<string, string> = {
+      ranchi: 'Ranchi Main Hub (Central Stock)',
+      patna: 'Patna Physical Branch',
+      delhi: 'Delhi Physical Branch',
+    };
+    const storeIdUpper = (session.storeId.toUpperCase()) as StoreId;
+    const invNo = session.invoiceNo || generateInvoiceNo(session.storeId);
+
+    setCompletedTransaction({
+      invoiceNo: invNo,
+      orderSource: 'WALK-IN',
+      storeId: storeIdUpper,
+      deviceId: `KIOSK-${storeIdUpper}-01`,
+      customerType: 'Walk-in Customer',
+      invoiceTypeLabel: 'Standard Retail Walk-in Invoice',
+      rewardsEarned: Math.floor(session.total * 0.05),
+      total: session.total,
+      cash: session.paymentMethod === 'CASH' ? session.total : 0,
+      upi: session.paymentMethod === 'UPI' ? session.total : 0,
+      card: 0,
+      date: new Date(session.createdAt || Date.now()).toLocaleString('en-IN'),
+      store: storeNames[session.storeId] || `${storeIdUpper} Store Branch`,
+      customerName: session.customerName || 'Walk-in Customer',
+      customerPhone: session.customerPhone || '9876543210',
+      customerEmail: session.customerEmail || 'customer@prayogindia.in',
+      isB2B: false,
+      companyName: '',
+      gstin: '',
+      companyAddress: '',
+      communityOptIn: true,
+      items: session.items.map(it => ({
+        product: {
+          id: it.productId || `prod-${Date.now()}`,
+          name: it.name,
+          sku: it.sku || `SKU-${it.productId}`,
+          price: it.price,
+          category: 'Mechatronics',
+          image: it.image || '/images/products/arduino-uno.png',
+        } as any,
+        quantity: it.quantity,
+        unitPrice: it.price,
+      })),
+    });
+    setActiveTab('manual');
   };
 
   const handleCancelSession = (session: WalkInSession) => {
@@ -719,40 +827,43 @@ export default function WalkInPOSPage() {
         </div>
       )}
 
-      {/* Tab Switcher */}
-      <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-2xl w-full sm:w-auto">
-        <button
-          onClick={() => setActiveTab('live')}
-          className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl font-extrabold text-xs transition-all ${
-            activeTab === 'live' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'
-          }`}
-        >
-          <Bell className={`w-4 h-4 ${pendingCount > 0 && activeTab !== 'live' ? 'text-amber-500' : ''}`} />
-          Live Orders
-          {pendingCount > 0 && (
-            <span className="bg-red-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded-full">
-              {pendingCount}
-            </span>
-          )}
-        </button>
-        <button
-          onClick={() => setActiveTab('manual')}
-          className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl font-extrabold text-xs transition-all ${
-            activeTab === 'manual' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'
-          }`}
-        >
-          <Tablet className="w-4 h-4" />
-          Manual POS Billing
-        </button>
-      </div>
+      {/* Tab Switcher & Quick Navigation */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-slate-200/80 pb-4">
+        <div className="flex items-center gap-1.5 bg-slate-100 p-1.5 rounded-2xl w-full sm:w-auto">
+          <button
+            onClick={() => setActiveTab('live')}
+            className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl font-black text-xs transition-all cursor-pointer ${
+              activeTab === 'live'
+                ? 'bg-[#00AEEF] text-slate-950 shadow-md shadow-[#00AEEF]/20'
+                : 'text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            <Bell className={`w-4 h-4 ${pendingCount > 0 && activeTab !== 'live' ? 'text-amber-500' : ''}`} />
+            <span>Live Orders</span>
+            {pendingCount > 0 && (
+              <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${
+                activeTab === 'live' ? 'bg-slate-950 text-white' : 'bg-red-500 text-white'
+              }`}>
+                {pendingCount}
+              </span>
+            )}
+          </button>
+          <button
+            onClick={() => setActiveTab('manual')}
+            className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl font-black text-xs transition-all cursor-pointer ${
+              activeTab === 'manual'
+                ? 'bg-[#00AEEF] text-slate-950 shadow-md shadow-[#00AEEF]/20'
+                : 'text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            <Tablet className="w-4 h-4" />
+            <span>Manual POS Billing</span>
+          </button>
+        </div>
 
-      {/* LIVE ORDERS TAB */}
-      {activeTab === 'live' && (
-        <div className="space-y-4 animate-in fade-in duration-200">
-          {/* Controls */}
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-xs font-black uppercase text-slate-500 tracking-wider">Filter by Store:</span>
+        {activeTab === 'live' && (
+          <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
+            <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl">
               {([
                 { value: 'all', label: 'All Stores' },
                 { value: 'ranchi', label: 'Ranchi' },
@@ -762,24 +873,31 @@ export default function WalkInPOSPage() {
                 <button
                   key={opt.value}
                   onClick={() => setLiveStoreFilter(opt.value)}
-                  className={`px-3 py-1.5 rounded-xl font-bold text-xs transition-colors ${
+                  className={`px-3 py-1.5 rounded-lg font-bold text-xs transition-all cursor-pointer ${
                     liveStoreFilter === opt.value
-                      ? 'bg-[#0F172A] text-white shadow-sm'
-                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                      ? 'bg-slate-900 text-white shadow-sm'
+                      : 'text-slate-500 hover:text-slate-900'
                   }`}
                 >
                   {opt.label}
                 </button>
               ))}
             </div>
+
             <button
               onClick={pollServerSessions}
-              className="flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-slate-800 bg-slate-100 hover:bg-slate-200 px-3 py-2 rounded-xl transition-colors"
+              className="flex items-center gap-1.5 text-xs font-black text-slate-600 hover:text-slate-950 bg-slate-100 hover:bg-slate-200 px-3.5 py-2 rounded-xl transition-all cursor-pointer border border-slate-200"
             >
               <RefreshCw className="w-3.5 h-3.5" />
-              Refresh
+              <span>Refresh</span>
             </button>
           </div>
+        )}
+      </div>
+
+      {/* LIVE ORDERS TAB */}
+      {activeTab === 'live' && (
+        <div className="space-y-4 animate-in fade-in duration-200">
 
           {filteredSessions.length === 0 ? (
             <div className="bg-white rounded-3xl border border-slate-200 py-20 text-center">
@@ -811,6 +929,7 @@ export default function WalkInPOSPage() {
                   onAccept={() => handleAcceptSession(session)}
                   onMarkPaid={() => handleMarkPaid(session)}
                   onCancel={() => handleCancelSession(session)}
+                  onPrint={() => handlePrintLiveSession(session)}
                 />
               ))}
             </div>
@@ -1402,14 +1521,31 @@ export default function WalkInPOSPage() {
         </div>
       )}
 
-      {/* Quick Spec View Modal for in-store tablet browsing */}
-      <QuickViewModal
-        product={selectedQuickViewProduct}
-        onClose={() => setSelectedQuickViewProduct(null)}
-        onAddToCart={(prod) => {
-          handleAddToCart(prod);
-        }}
-      />
+      {/* Print-specific CSS: Print only the receipt, hide all dashboard UI */}
+      <style jsx global>{`
+        @media print {
+          body * {
+            visibility: hidden !important;
+          }
+          #thermal-receipt-area,
+          #thermal-receipt-area * {
+            visibility: visible !important;
+          }
+          #thermal-receipt-area {
+            position: absolute !important;
+            left: 0 !important;
+            top: 0 !important;
+            width: 100% !important;
+            max-width: 400px !important;
+            margin: 0 auto !important;
+            padding: 16px !important;
+            border: none !important;
+            box-shadow: none !important;
+            background: white !important;
+            color: black !important;
+          }
+        }
+      `}</style>
     </div>
   );
 }

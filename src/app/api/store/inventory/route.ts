@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { getAuthenticatedStaff, hasStoreAccess } from '@/lib/staffAuth';
 import { PRODUCTS } from '@/data/mockData';
 import { getSecurityHeaders } from '@/lib/security';
+import { getProductStockForStore } from '@/lib/inventoryEngine';
+import { StoreId } from '@/data/storeConfig';
 
 // GET /api/store/inventory - Store-scoped Inventory Data
 export async function GET(request: Request) {
@@ -26,28 +28,20 @@ export async function GET(request: Request) {
     );
   }
 
-  const activeStoreCode = staff.role === 'STORE_MANAGER' ? (staff.storeCode || 'RANCHI') : targetStore;
-
-  // Generate localized inventory quantities based on store
-  const storeStockMultipliers: Record<string, number> = {
-    RANCHI: 1.0,
-    PATNA: 0.6,
-    DELHI: 0.8,
-    MUMBAI: 0.0,
-  };
-
-  const mult = storeStockMultipliers[activeStoreCode?.toUpperCase() || 'RANCHI'] ?? 0.5;
+  const rawStore = staff.role === 'STORE_MANAGER' ? (staff.storeCode || 'RANCHI') : (targetStore || 'RANCHI');
+  const activeStoreCode = (rawStore ? rawStore.toLowerCase() : 'ranchi') as StoreId;
+  const isCentral = activeStoreCode === 'ranchi';
 
   const storeInventory = PRODUCTS.map((p: any) => {
-    const rawStock = typeof p.stock === 'number' ? p.stock : (p.inStock ? 35 : 0);
-    const localStock = Math.floor(rawStock * mult);
+    const localStock = getProductStockForStore(p.id, activeStoreCode);
     return {
       id: p.id,
       name: p.name,
       sku: p.sku,
       category: p.category,
       price: p.price,
-      storeCode: activeStoreCode,
+      storeCode: activeStoreCode.toUpperCase(),
+      isCentralInventory: isCentral,
       localStock,
       status: localStock > 10 ? 'Optimal' : localStock > 0 ? 'Low Stock' : 'Out of Stock',
       reorderThreshold: 10,
@@ -56,7 +50,8 @@ export async function GET(request: Request) {
 
   return NextResponse.json({
     success: true,
-    store: activeStoreCode,
+    store: activeStoreCode.toUpperCase(),
+    isCentralInventory: isCentral,
     data: {
       items: storeInventory,
       totalUnits: storeInventory.reduce((acc, curr) => acc + curr.localStock, 0),

@@ -295,56 +295,74 @@ export default function AdminInventoryPage() {
             </div>
           </div>
 
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
+          <div className="w-full">
+            <table className="w-full text-left text-xs border-collapse table-auto">
               <thead>
                 <tr className="border-b border-slate-200 text-slate-400 uppercase text-[10px] font-black tracking-wider">
-                  <th className="pb-3 font-black">Product &amp; SKU</th>
-                  <th className="pb-3 font-black">Ranchi Central Hub</th>
-                  <th className="pb-3 font-black">Patna Store</th>
-                  <th className="pb-3 font-black">Delhi Store</th>
-                  <th className="pb-3 font-black">Reserved Stock</th>
-                  <th className="pb-3 font-black">Total Available</th>
-                  <th className="pb-3 font-black text-right">Actions</th>
+                  <th className="py-3 pr-2 font-black">Product &amp; SKU</th>
+                  <th className="py-3 px-2 font-black text-center whitespace-nowrap bg-blue-50/60 rounded-t-xl text-blue-900">
+                    🏢 Ranchi Hub
+                  </th>
+                  <th className="py-3 px-2 font-black text-center whitespace-nowrap">
+                    🏬 Patna
+                  </th>
+                  <th className="py-3 px-2 font-black text-center whitespace-nowrap">
+                    🏬 Delhi
+                  </th>
+                  <th className="py-3 px-2 font-black text-center whitespace-nowrap text-amber-700">
+                    🔒 Reserved
+                  </th>
+                  <th className="py-3 px-2 font-black text-center whitespace-nowrap bg-emerald-50/60 rounded-t-xl text-emerald-900">
+                    📦 Total
+                  </th>
+                  <th className="py-3 pl-2 font-black text-right whitespace-nowrap">Action</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 font-medium">
                 {items.map((item) => (
                   <tr key={item.id} className="hover:bg-slate-50/80 transition-colors">
-                    <td className="py-3.5">
-                      <div className="font-extrabold text-slate-900">{item.name}</div>
-                      <div className="text-[11px] text-slate-400 font-mono font-bold">{item.sku}</div>
+                    <td className="py-3 pr-2">
+                      <div className="font-extrabold text-slate-900 line-clamp-1 text-xs">{item.name}</div>
+                      <div className="text-[10px] text-slate-400 font-mono font-bold mt-0.5">{item.sku}</div>
                     </td>
 
-                    <td className="py-3.5">
-                      <span className="font-black text-slate-900 bg-blue-50 text-blue-800 border border-blue-200 px-2.5 py-0.5 rounded-lg">
+                    <td className="py-3 px-2 text-center bg-blue-50/20">
+                      <span className="font-black text-slate-900 bg-blue-50 text-blue-800 border border-blue-200 px-2 py-0.5 rounded-lg inline-block text-[11px]">
                         {item.ranchiStock ?? item.stock} Units
                       </span>
-                      <div className="text-[9px] text-slate-400 font-bold mt-0.5">Online + Ranchi POS</div>
+                      <div className="text-[8px] text-slate-400 font-bold mt-0.5 whitespace-nowrap">Online + Ranchi</div>
                     </td>
 
-                    <td className="py-3.5 font-bold text-slate-700">
-                      {item.patnaStock ?? 12} Units
+                    <td className="py-3 px-2 text-center font-bold text-slate-700">
+                      <span className="bg-slate-100 text-slate-800 px-2 py-0.5 rounded-lg border border-slate-200/80 inline-block text-[11px]">
+                        {item.patnaStock ?? 12} Units
+                      </span>
                     </td>
 
-                    <td className="py-3.5 font-bold text-slate-700">
-                      {item.delhiStock ?? 8} Units
+                    <td className="py-3 px-2 text-center font-bold text-slate-700">
+                      <span className="bg-slate-100 text-slate-800 px-2 py-0.5 rounded-lg border border-slate-200/80 inline-block text-[11px]">
+                        {item.delhiStock ?? 8} Units
+                      </span>
                     </td>
 
-                    <td className="py-3.5 font-bold text-amber-700">
-                      {item.reservedStock ?? 2} Units
+                    <td className="py-3 px-2 text-center font-bold text-amber-700">
+                      <span className="bg-amber-50 text-amber-800 border border-amber-200/60 px-2 py-0.5 rounded-lg inline-block text-[11px]">
+                        {item.reservedStock ?? 2} Units
+                      </span>
                     </td>
 
-                    <td className="py-3.5 font-black text-emerald-700 text-sm">
-                      {(item.ranchiStock ?? item.stock) + (item.patnaStock ?? 12) + (item.delhiStock ?? 8)} Units
+                    <td className="py-3 px-2 text-center font-black text-emerald-700 bg-emerald-50/20">
+                      <span className="bg-emerald-50 text-emerald-800 border border-emerald-200 px-2 py-0.5 rounded-lg inline-block font-mono font-black text-[11px]">
+                        {(item.ranchiStock ?? item.stock) + (item.patnaStock ?? 12) + (item.delhiStock ?? 8)} Units
+                      </span>
                     </td>
 
-                    <td className="py-3.5 text-right space-x-2">
+                    <td className="py-3 pl-2 text-right whitespace-nowrap">
                       <button
                         onClick={() => handleUpdateStock(item.id, item.stock)}
-                        className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 rounded-lg text-slate-700 font-bold text-[11px] cursor-pointer"
+                        className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 rounded-lg text-slate-700 font-bold text-[11px] cursor-pointer transition-colors border border-slate-200/60"
                       >
-                        Adjust Count
+                        Adjust
                       </button>
                     </td>
                   </tr>

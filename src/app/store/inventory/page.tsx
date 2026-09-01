@@ -6,6 +6,7 @@ import { Boxes, Search, AlertTriangle, CheckCircle2, RefreshCw, Plus } from 'luc
 export default function StoreInventoryPage() {
   const [inventory, setInventory] = useState<any[]>([]);
   const [storeCode, setStoreCode] = useState('');
+  const [isCentralInventory, setIsCentralInventory] = useState(false);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
 
@@ -17,6 +18,7 @@ export default function StoreInventoryPage() {
       if (data.success) {
         setInventory(data.data.items || []);
         setStoreCode(data.store || 'STORE');
+        setIsCentralInventory(data.isCentralInventory || false);
       }
     } finally {
       setLoading(false);
@@ -39,14 +41,26 @@ export default function StoreInventoryPage() {
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <span className="bg-[#00AEEF] text-slate-950 text-[10px] font-black px-2 py-0.5 rounded-full uppercase">
+            <span className="bg-[#00AEEF] text-slate-950 text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase">
               {storeCode} Branch Stock
             </span>
-            <span className="text-xs text-slate-400 font-semibold">Inventory Control</span>
+            {isCentralInventory ? (
+              <span className="bg-emerald-950/80 border border-emerald-800/60 text-emerald-400 text-[10px] font-bold px-2 py-0.5 rounded-full">
+                ★ Central Network Inventory (Online + App + Walk-in)
+              </span>
+            ) : (
+              <span className="bg-slate-800 text-slate-400 text-[10px] font-bold px-2 py-0.5 rounded-full">
+                Independent Physical Store Stock
+              </span>
+            )}
           </div>
-          <h1 className="text-2xl font-black text-white">Local Shelf & Warehouse Inventory</h1>
+          <h1 className="text-2xl font-black text-white">
+            {isCentralInventory ? 'Central Warehouse & Local Store Inventory' : 'Store Branch Local Inventory'}
+          </h1>
           <p className="text-xs text-slate-400 mt-1">
-            Manage product quantities and safety stock thresholds for this physical store branch.
+            {isCentralInventory
+              ? 'Ranchi Main Branch serves as Central Inventory for Website orders, Mobile App orders, and Ranchi walk-in sales.'
+              : `Independent physical store stock. Sales at ${storeCode} reduce this branch's stock only.`}
           </p>
         </div>
 
@@ -56,7 +70,7 @@ export default function StoreInventoryPage() {
           className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold px-4 py-2.5 rounded-xl border border-slate-700 transition-all cursor-pointer"
         >
           <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
-          <span>Sync Local Quantities</span>
+          <span>Sync Quantities</span>
         </button>
       </div>
 

@@ -2,6 +2,7 @@
 
 import React, { useState, useRef } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { 
   Eye, 
   ChevronLeft, 
@@ -242,21 +243,23 @@ export const ProductGridSection: React.FC<ProductSectionProps> = ({
           </div>
         </div>
 
-        {/* Product Image */}
-        <div className="relative h-48 w-full mb-3 flex items-center justify-center overflow-hidden rounded-2xl bg-slate-50 p-2 border border-slate-100/80 group-hover:bg-white transition-colors">
-          <Image
-            src={product.image}
-            alt={product.name}
-            fill
-            sizes="(max-width: 640px) 256px, 288px"
-            className="object-contain p-2 group-hover:scale-105 transition-transform duration-500"
-          />
-          <div className="absolute bottom-2 left-2">
-            <span className="text-[9px] font-extrabold text-emerald-700 bg-emerald-100/90 backdrop-blur-xs px-2 py-0.5 rounded-full flex items-center gap-1 shadow-2xs">
-              <Clock className="w-2.5 h-2.5" /> 24h Dispatch
-            </span>
+        {/* Product Image Link */}
+        <Link href={`/products/${product.slug || product.id}`} className="block">
+          <div className="relative h-48 w-full mb-3 flex items-center justify-center overflow-hidden rounded-2xl bg-slate-50 p-2 border border-slate-100/80 group-hover:bg-white transition-colors cursor-pointer">
+            <Image
+              src={product.image}
+              alt={product.name}
+              fill
+              sizes="(max-width: 640px) 256px, 288px"
+              className="object-contain p-2 group-hover:scale-105 transition-transform duration-500"
+            />
+            <div className="absolute bottom-2 left-2">
+              <span className="text-[9px] font-extrabold text-emerald-700 bg-emerald-100/90 backdrop-blur-xs px-2 py-0.5 rounded-full flex items-center gap-1 shadow-2xs">
+                <Clock className="w-2.5 h-2.5" /> 24h Dispatch
+              </span>
+            </div>
           </div>
-        </div>
+        </Link>
 
         {/* Content */}
         <div className="flex-1 flex flex-col justify-between space-y-2.5">
@@ -270,14 +273,18 @@ export const ProductGridSection: React.FC<ProductSectionProps> = ({
               </div>
             </div>
 
-            <h4 className="text-xs font-bold text-slate-900 line-clamp-2 leading-snug group-hover:text-[#00AEEF] transition-colors">
-              {product.name}
-            </h4>
+            <Link href={`/products/${product.slug || product.id}`} className="block">
+              <h4 className="text-xs font-bold text-slate-900 line-clamp-2 leading-snug hover:text-[#00AEEF] transition-colors cursor-pointer">
+                {product.name}
+              </h4>
+            </Link>
 
             {product.description && (
-              <p className="text-[11px] text-slate-500 line-clamp-1 mt-1 font-medium">
-                {product.description}
-              </p>
+              <Link href={`/products/${product.slug || product.id}`} className="block">
+                <p className="text-[11px] text-slate-500 line-clamp-1 mt-1 font-medium hover:text-slate-700">
+                  {product.description}
+                </p>
+              </Link>
             )}
           </div>
 

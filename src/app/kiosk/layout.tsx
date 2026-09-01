@@ -55,30 +55,30 @@ export default function KioskLayout({ children }: { children: React.ReactNode })
   const storeName = staff?.storeName || `${storeCode} Store Branch`;
 
   return (
-    <div className="min-h-screen bg-[#070B14] text-slate-100 flex flex-col font-sans select-none">
-      {/* High-Contrast Kiosk Header */}
-      <header className="bg-slate-900/90 backdrop-blur-md border-b border-slate-800 px-4 sm:px-8 py-3.5 flex items-center justify-between sticky top-0 z-40">
-        <div className="flex items-center gap-4">
+    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans select-none">
+      {/* Sleek Modern Light Kiosk Header */}
+      <header className="bg-white/90 backdrop-blur-xl border-b border-slate-200/80 px-4 sm:px-8 py-3.5 flex items-center justify-between sticky top-0 z-40 shadow-xs">
+        <div className="flex items-center gap-3 sm:gap-4">
           <PrayogLogo size="sm" showSubtitle={false} />
           
-          <div className="flex items-center gap-2 bg-emerald-950/60 border border-emerald-800/40 px-3 py-1 rounded-full text-xs font-bold text-emerald-400">
-            <Tablet className="w-3.5 h-3.5" />
-            <span>Store Self-Checkout Terminal</span>
-            <span className="bg-emerald-400 text-slate-950 px-1.5 py-0.2 rounded font-black text-[10px]">
+          <div className="flex items-center gap-2 bg-slate-100 border border-slate-200 px-3 py-1.5 rounded-2xl text-xs font-semibold text-slate-700">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            <span className="hidden sm:inline text-slate-500">Self-Checkout</span>
+            <span className="bg-[#00AEEF] text-slate-950 px-2 py-0.5 rounded-lg font-black text-[10px] tracking-wider uppercase">
               {storeCode}
             </span>
           </div>
         </div>
 
         <div className="flex items-center gap-3">
-          <div className="hidden sm:flex items-center gap-1.5 text-xs text-slate-400">
-            <MapPin className="w-3.5 h-3.5 text-[#FFC20E]" />
-            <span>{storeName}</span>
+          <div className="hidden sm:flex items-center gap-1.5 text-xs text-slate-600 bg-slate-100 px-3 py-1.5 rounded-xl border border-slate-200">
+            <MapPin className="w-3.5 h-3.5 text-[#00AEEF]" />
+            <span className="font-semibold text-slate-800">{storeName}</span>
           </div>
 
           <button
             onClick={handleLogout}
-            className="bg-slate-800 hover:bg-red-500/20 hover:text-red-400 text-slate-400 text-xs px-3 py-1.5 rounded-xl border border-slate-700 transition-all flex items-center gap-1.5 cursor-pointer"
+            className="bg-slate-100 hover:bg-red-50 hover:text-red-600 hover:border-red-200 text-slate-600 text-xs px-3.5 py-1.5 rounded-xl border border-slate-200 transition-all flex items-center gap-1.5 cursor-pointer font-bold"
             title="Lock Kiosk Terminal"
           >
             <LogOut className="w-3.5 h-3.5" />
@@ -93,7 +93,7 @@ export default function KioskLayout({ children }: { children: React.ReactNode })
       </main>
 
       {/* Kiosk Footer */}
-      <footer className="bg-slate-950 border-t border-slate-900 py-3 px-6 text-center text-xs text-slate-500">
+      <footer className="bg-white border-t border-slate-200 py-3.5 px-6 text-center text-xs text-slate-500">
         Prayog India Store Kiosk Engine • Strictly Isolated to {storeName} ({storeCode})
       </footer>
     </div>

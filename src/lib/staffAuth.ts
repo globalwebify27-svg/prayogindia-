@@ -10,6 +10,8 @@ export interface StaffSessionUser {
   storeId: string | null;
   storeCode?: string | null;
   storeName?: string | null;
+  deviceId?: string | null;
+  deviceLabel?: string | null;
   status: StaffStatus;
 }
 
@@ -26,6 +28,8 @@ export const MOCK_STAFF_USERS: Record<string, StaffSessionUser> = {
     username: 'superadmin',
     role: 'SUPER_ADMIN' as StaffRole,
     storeId: null,
+    deviceId: 'DEV-ADMIN-01',
+    deviceLabel: 'Admin Console',
     status: 'ACTIVE' as StaffStatus,
   },
   ranchi_manager: {
@@ -37,6 +41,8 @@ export const MOCK_STAFF_USERS: Record<string, StaffSessionUser> = {
     storeId: 'str-ranchi-01',
     storeCode: 'RANCHI',
     storeName: 'Prayog India Ranchi Main Branch & Central Hub',
+    deviceId: 'TAB-RNC-MGR-01',
+    deviceLabel: 'Ranchi Manager Terminal',
     status: 'ACTIVE' as StaffStatus,
   },
   patna_manager: {
@@ -48,28 +54,60 @@ export const MOCK_STAFF_USERS: Record<string, StaffSessionUser> = {
     storeId: 'str-patna-02',
     storeCode: 'PATNA',
     storeName: 'Prayog India Patna Robotics & STEM Branch',
+    deviceId: 'TAB-PAT-MGR-01',
+    deviceLabel: 'Patna Manager Terminal',
     status: 'ACTIVE' as StaffStatus,
   },
   ranchi_kiosk: {
     id: 'staff-ranchi-kiosk',
-    name: 'Ranchi Kiosk Terminal',
+    name: 'Ranchi Tablet (Store Shopping Device #1)',
     email: null,
     username: 'ranchi_kiosk',
     role: 'KIOSK_USER' as StaffRole,
     storeId: 'str-ranchi-01',
     storeCode: 'RANCHI',
     storeName: 'Prayog India Ranchi Main Branch & Central Hub',
+    deviceId: 'TAB-RNC-KIOSK-01',
+    deviceLabel: 'Ranchi Shopping Tablet',
     status: 'ACTIVE' as StaffStatus,
   },
   patna_kiosk: {
     id: 'staff-patna-kiosk',
-    name: 'Patna Kiosk Terminal',
+    name: 'Patna Tablet (Store Shopping Device #1)',
     email: null,
     username: 'patna_kiosk',
     role: 'KIOSK_USER' as StaffRole,
     storeId: 'str-patna-02',
     storeCode: 'PATNA',
     storeName: 'Prayog India Patna Robotics & STEM Branch',
+    deviceId: 'TAB-PAT-KIOSK-01',
+    deviceLabel: 'Patna Shopping Tablet',
+    status: 'ACTIVE' as StaffStatus,
+  },
+  delhi_kiosk: {
+    id: 'staff-delhi-kiosk',
+    name: 'Delhi Tablet (Store Shopping Device #1)',
+    email: null,
+    username: 'delhi_kiosk',
+    role: 'KIOSK_USER' as StaffRole,
+    storeId: 'str-delhi-03',
+    storeCode: 'DELHI',
+    storeName: 'Prayog India NCR Innovation Center',
+    deviceId: 'TAB-DEL-KIOSK-01',
+    deviceLabel: 'Delhi Shopping Tablet',
+    status: 'ACTIVE' as StaffStatus,
+  },
+  mumbai_kiosk: {
+    id: 'staff-mumbai-kiosk',
+    name: 'Mumbai Tablet (Store Shopping Device #1)',
+    email: null,
+    username: 'mumbai_kiosk',
+    role: 'KIOSK_USER' as StaffRole,
+    storeId: 'str-mumbai-04',
+    storeCode: 'MUMBAI',
+    storeName: 'Prayog India Western Robotics Center',
+    deviceId: 'TAB-BOM-KIOSK-01',
+    deviceLabel: 'Mumbai Shopping Tablet',
     status: 'ACTIVE' as StaffStatus,
   },
 };

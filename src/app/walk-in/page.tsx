@@ -5,16 +5,18 @@ import Link from 'next/link';
 import { MapPin, Clock, Phone, ArrowRight, Store, Tablet, Shield, Wifi } from 'lucide-react';
 import { STORES, ALL_STORE_IDS } from '@/data/storeConfig';
 
-const STORE_GRADIENTS = {
+const STORE_GRADIENTS: Record<string, string> = {
   ranchi: 'from-sky-600 to-cyan-500',
   patna: 'from-violet-600 to-purple-500',
   delhi: 'from-emerald-600 to-teal-500',
+  mumbai: 'from-orange-600 to-amber-500',
 };
 
-const STORE_BG = {
+const STORE_BG: Record<string, string> = {
   ranchi: 'from-sky-50 to-cyan-50 border-sky-200',
   patna: 'from-violet-50 to-purple-50 border-violet-200',
   delhi: 'from-emerald-50 to-teal-50 border-emerald-200',
+  mumbai: 'from-orange-50 to-amber-50 border-orange-200',
 };
 
 export default function WalkInGatewayPage() {

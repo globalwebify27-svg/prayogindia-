@@ -252,30 +252,32 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ slug }) =>
         )}
       </div>
 
-      {/* ── Mobile Sticky Bottom Action Bar ── */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/97 backdrop-blur-md border-t border-slate-200 px-4 py-3 flex items-center gap-3 shadow-2xl">
-        <div className="shrink-0">
-          <span className="text-[10px] text-slate-400 font-bold block">Price</span>
-          <span className="text-base font-black text-slate-900">
-            ₹{currentPrice.toLocaleString('en-IN')}
-          </span>
+      {/* ── Mobile Sticky Bottom Action Bar (Only shows when user scrolls past top buttons) ── */}
+      {stickyBarVisible && (
+        <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200 px-4 py-3 flex items-center gap-3 shadow-2xl animate-in slide-in-from-bottom-5 duration-200">
+          <div className="shrink-0">
+            <span className="text-[10px] text-slate-400 font-bold block leading-none mb-0.5">Price</span>
+            <span className="text-sm font-black text-slate-900 leading-tight">
+              ₹{currentPrice.toLocaleString('en-IN')}
+            </span>
+          </div>
+
+          <button
+            onClick={() => storeAddToCart(product, selectedVariant || undefined)}
+            className="flex-1 bg-[#00AEEF] hover:bg-[#0096D6] text-white py-2.5 rounded-xl font-extrabold text-[11px] uppercase tracking-wider flex items-center justify-center gap-1.5 shadow-md active:scale-95 transition-all cursor-pointer"
+          >
+            <ShoppingBag className="w-3.5 h-3.5" />
+            <span>Add to Cart</span>
+          </button>
+
+          <button
+            onClick={() => storeAddToCart(product, selectedVariant || undefined)}
+            className="flex-1 bg-slate-900 hover:bg-slate-800 text-white py-2.5 rounded-xl font-extrabold text-[11px] uppercase tracking-wider flex items-center justify-center gap-1.5 shadow-md active:scale-95 transition-all cursor-pointer"
+          >
+            <span>Buy Now</span>
+          </button>
         </div>
-
-        <button
-          onClick={() => storeAddToCart(product, selectedVariant || undefined)}
-          className="flex-1 bg-[#00AEEF] hover:bg-[#0096D6] text-white py-3 rounded-2xl font-extrabold text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-md active:scale-95 transition-all cursor-pointer"
-        >
-          <ShoppingBag className="w-4 h-4" />
-          Add to Cart
-        </button>
-
-        <button
-          onClick={() => storeAddToCart(product, selectedVariant || undefined)}
-          className="flex-1 bg-slate-900 hover:bg-slate-800 text-white py-3 rounded-2xl font-extrabold text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-md active:scale-95 transition-all cursor-pointer"
-        >
-          Buy Now
-        </button>
-      </div>
+      )}
     </div>
   );
 };

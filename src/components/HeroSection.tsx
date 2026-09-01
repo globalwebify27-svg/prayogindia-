@@ -67,7 +67,23 @@ export const HeroSection: React.FC<HeroProps> = ({
         <div className="absolute inset-0 bg-gradient-to-b from-[#0B1528]/40 via-transparent to-[#0B1528]/60 z-20" />
       </div>
 
-      {/* Content Container (Layered on top of background video) */}
+      {/* Mobile-Only Robot Background Layer (Behind the text) */}
+      <div className="block lg:hidden absolute inset-0 z-0 pointer-events-none overflow-hidden">
+        {/* Robot Background Image positioned to the right/center behind text */}
+        <div className="absolute right-[-15%] top-4 w-[85%] max-w-[360px] h-[95%] opacity-35 sm:opacity-40 select-none">
+          <img
+            src="/images/robot_mobile_hero.jpg"
+            alt="Robotics Prayog India"
+            className="w-full h-full object-contain object-top"
+          />
+        </div>
+        {/* Dark & Cyan Gradient Overlays to preserve text readability */}
+        <div className="absolute inset-0 bg-gradient-to-r from-[#0B1528] via-[#0B1528]/85 to-[#0B1528]/40" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0B1528] via-transparent to-[#0B1528]/70" />
+        <div className="absolute top-1/4 right-0 w-64 h-64 bg-[#00AEEF]/15 rounded-full blur-3xl pointer-events-none" />
+      </div>
+
+      {/* Content Container (Layered on top of background video/robot) */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-20 w-full">
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center">

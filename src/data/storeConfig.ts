@@ -1,7 +1,7 @@
 // src/data/storeConfig.ts
 // Prayog India — Physical Store Configuration for Walk-in Shopping System
 
-export type StoreId = 'ranchi' | 'patna' | 'delhi';
+export type StoreId = 'ranchi' | 'patna' | 'delhi' | 'mumbai';
 
 export interface StoreConfig {
   id: StoreId;
@@ -18,6 +18,7 @@ export interface StoreConfig {
   managerDevice: string;        // Device label for manager POS
   gstin: string;
   mapUrl: string;
+  isCentralInventory?: boolean; // Ranchi Main Branch = Central Inventory for Website, Mobile App, and Ranchi Walk-in
 }
 
 export const STORES: Record<StoreId, StoreConfig> = {
@@ -36,6 +37,7 @@ export const STORES: Record<StoreId, StoreConfig> = {
     managerDevice: 'TAB-RNC-01',
     gstin: '20AAGCP8845K1Z2',
     mapUrl: 'https://maps.google.com/?q=Ranchi,Jharkhand',
+    isCentralInventory: true, // Central Inventory Hub
   },
   patna: {
     id: 'patna',
@@ -52,6 +54,7 @@ export const STORES: Record<StoreId, StoreConfig> = {
     managerDevice: 'TAB-PAT-02',
     gstin: '10AAGCP8845K1Z3',
     mapUrl: 'https://maps.google.com/?q=Patna,Bihar',
+    isCentralInventory: false,
   },
   delhi: {
     id: 'delhi',
@@ -68,10 +71,28 @@ export const STORES: Record<StoreId, StoreConfig> = {
     managerDevice: 'TAB-DEL-03',
     gstin: '07AAGCP8845K1Z4',
     mapUrl: 'https://maps.google.com/?q=Okhla,NewDelhi',
+    isCentralInventory: false,
+  },
+  mumbai: {
+    id: 'mumbai',
+    name: 'Prayog India Western Robotics Center',
+    shortName: 'Mumbai Center',
+    city: 'Mumbai, Maharashtra',
+    address: 'MIDC Andheri East, Mumbai, MH - 400093',
+    phone: '+91 98222 33344',
+    timings: '10:00 AM – 8:00 PM (Mon – Sat)',
+    terminalKey: 'PRG-MUMBAI-POS-2026',
+    kioskUrl: '/walk-in/mumbai',
+    accentColor: '#EA580C',
+    accentLight: '#FFF7ED',
+    managerDevice: 'TAB-BOM-04',
+    gstin: '27AAGCP8845K1Z5',
+    mapUrl: 'https://maps.google.com/?q=Mumbai,Maharashtra',
+    isCentralInventory: false,
   },
 };
 
-export const ALL_STORE_IDS: StoreId[] = ['ranchi', 'patna', 'delhi'];
+export const ALL_STORE_IDS: StoreId[] = ['ranchi', 'patna', 'delhi', 'mumbai'];
 
 // ─────────────────────────────────────────
 // Walk-in Session Types (shared across kiosk and POS)

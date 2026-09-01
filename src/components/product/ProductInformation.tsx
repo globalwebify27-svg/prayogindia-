@@ -177,48 +177,51 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
         const surfaceAllowed = true;
 
         return (
-          <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-4 space-y-2.5">
-            <div className="flex items-center justify-between">
-              <span className="text-[11px] font-black uppercase text-slate-900 flex items-center gap-1.5">
-                <Boxes className="w-3.5 h-3.5 text-[#00AEEF]" /> Section 27 · Freight Shipping Rules
+          <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-3.5 sm:p-4 space-y-2.5">
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-[11px] font-black uppercase text-slate-900 flex items-center gap-1.5 truncate">
+                <Boxes className="w-3.5 h-3.5 text-[#00AEEF] shrink-0" /> 
+                <span className="truncate">Freight Shipping Rules</span>
               </span>
-              <span className="text-xs font-mono font-bold text-slate-600">Weight: {weight} gm</span>
+              <span className="text-xs font-mono font-bold text-slate-600 shrink-0 bg-white px-2 py-0.5 rounded-md border border-slate-200">
+                {weight} gm
+              </span>
             </div>
 
-            <div className="grid grid-cols-2 gap-2 text-xs">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
               {/* Air Freight Indicator */}
-              <div className={`p-2.5 rounded-xl border flex items-center justify-between ${
+              <div className={`p-2.5 rounded-xl border flex items-center justify-between gap-2 ${
                 airAllowed 
                   ? 'bg-blue-50/60 border-blue-200 text-blue-900' 
                   : 'bg-red-50 border-red-200 text-red-700'
               }`}>
-                <div className="flex items-center gap-1.5 font-extrabold">
-                  <Plane className="w-3.5 h-3.5" />
-                  <span>Air Freight:</span>
+                <div className="flex items-center gap-1.5 font-bold">
+                  <Plane className="w-3.5 h-3.5 shrink-0" />
+                  <span>Air Freight</span>
                 </div>
-                <div className="flex items-center gap-1 font-black">
+                <div className="flex items-center gap-1 font-extrabold text-[11px] shrink-0">
                   {airAllowed ? (
                     <>
-                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
                       <span className="text-emerald-700">Allowed</span>
                     </>
                   ) : (
                     <>
-                      <XCircle className="w-3.5 h-3.5 text-red-600" />
-                      <span className="text-red-700">Not Allowed</span>
+                      <XCircle className="w-3.5 h-3.5 text-red-600 shrink-0" />
+                      <span className="text-red-700">Restricted</span>
                     </>
                   )}
                 </div>
               </div>
 
               {/* Surface Freight Indicator */}
-              <div className="p-2.5 rounded-xl border bg-emerald-50/60 border-emerald-200 text-emerald-900 flex items-center justify-between">
-                <div className="flex items-center gap-1.5 font-extrabold">
-                  <Truck className="w-3.5 h-3.5" />
-                  <span>Surface Freight:</span>
+              <div className="p-2.5 rounded-xl border bg-emerald-50/60 border-emerald-200 text-emerald-900 flex items-center justify-between gap-2">
+                <div className="flex items-center gap-1.5 font-bold">
+                  <Truck className="w-3.5 h-3.5 shrink-0" />
+                  <span>Surface Freight</span>
                 </div>
-                <div className="flex items-center gap-1 font-black">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                <div className="flex items-center gap-1 font-extrabold text-[11px] shrink-0">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
                   <span className="text-emerald-700">Allowed</span>
                 </div>
               </div>
@@ -227,7 +230,7 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
             {!airAllowed && (
               <p className="text-[10px] text-amber-800 bg-amber-100/70 p-2 rounded-lg font-medium flex items-center gap-1.5">
                 <AlertTriangle className="w-3.5 h-3.5 shrink-0 text-amber-600" />
-                <span>DGCA Safety Regulation: Lithium/Battery hardware cannot be transported via air freight. Automatically dispatched via surface logistics.</span>
+                <span>DGCA Safety Regulation: Lithium/Battery hardware cannot be transported via air freight. Dispatched via surface logistics.</span>
               </p>
             )}
           </div>
@@ -235,12 +238,12 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
       })()}
 
       {/* Customer Purchase Action Buttons */}
-      <div className="space-y-3 pt-4 border-t border-slate-100">
+      <div className="space-y-2.5 pt-3 border-t border-slate-100">
         {currentStock ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
             <button
               onClick={() => onAddToCart(product)}
-              className="w-full bg-[#00AEEF] hover:bg-[#0096D6] text-white py-3.5 rounded-xl font-extrabold text-xs uppercase tracking-wider transition-all shadow-md shadow-[#00AEEF]/25 flex items-center justify-center gap-2 active:scale-95"
+              className="w-full bg-[#00AEEF] hover:bg-[#0096D6] text-white py-3 rounded-xl font-extrabold text-xs uppercase tracking-wider transition-all shadow-md shadow-[#00AEEF]/25 flex items-center justify-center gap-2 active:scale-95 cursor-pointer"
             >
               <ShoppingBag className="w-4 h-4" />
               <span>Add to Cart</span>
@@ -248,7 +251,7 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
 
             <button
               onClick={() => onAddToCart(product)}
-              className="w-full bg-slate-900 hover:bg-slate-800 text-white py-3.5 rounded-xl font-extrabold text-xs uppercase tracking-wider transition-all shadow-md flex items-center justify-center gap-2 active:scale-95"
+              className="w-full bg-slate-900 hover:bg-slate-800 text-white py-3 rounded-xl font-extrabold text-xs uppercase tracking-wider transition-all shadow-md flex items-center justify-center gap-2 active:scale-95 cursor-pointer"
             >
               <span>Buy Now</span>
             </button>
@@ -263,7 +266,7 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
               href={`https://wa.me/919876543210?text=${whatsappMessage}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="w-full bg-emerald-500 hover:bg-emerald-600 text-white py-3.5 rounded-xl font-extrabold text-xs uppercase tracking-wider transition-all shadow-md flex items-center justify-center gap-2"
+              className="w-full bg-emerald-500 hover:bg-emerald-600 text-white py-3.5 rounded-xl font-extrabold text-xs uppercase tracking-wider transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
             >
               <MessageSquare className="w-4 h-4 fill-white" />
               <span>Ask Availability on WhatsApp</span>
@@ -274,7 +277,7 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
         {/* Wishlist Trigger */}
         <button
           onClick={() => onToggleWishlist(product)}
-          className={`w-full py-2.5 rounded-xl text-xs font-extrabold transition-colors border flex items-center justify-center gap-2 ${
+          className={`w-full py-2.5 rounded-xl text-xs font-extrabold transition-colors border flex items-center justify-center gap-2 cursor-pointer ${
             isWishlisted
               ? 'bg-red-50 text-[#FF3B30] border-red-200'
               : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'

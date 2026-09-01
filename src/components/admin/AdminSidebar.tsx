@@ -162,8 +162,8 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({ mobileOpen, onCloseM
 
   return (
     <>
-      {/* Desktop Persistent Sidebar */}
-      <aside className="hidden lg:block shrink-0">
+      {/* Desktop Persistent Fixed/Sticky Sidebar */}
+      <aside className="hidden lg:block shrink-0 sticky top-0 h-screen z-40">
         {content}
       </aside>
 

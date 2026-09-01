@@ -340,6 +340,53 @@ export const PRODUCTS: Product[] = [
     specs: { 'Wi-Fi': '802.11 b/g/n', Clock: '80MHz', GPIO: '10 Pins' }
   },
   {
+    id: 'esp32-devkit-v1',
+    slug: 'esp32-development-board-esp32-001',
+    name: 'ESP32 Development Board (Wi-Fi + Bluetooth Dual-Core 240MHz)',
+    sku: 'ESP32-001',
+    brand: 'Espressif Systems',
+    category: 'Arduino & Microcontrollers',
+    subcategory: 'IoT & Wireless Microcontrollers',
+    price: 499,
+    mrp: 699,
+    discount: '28% OFF',
+    gstInclusive: true,
+    rating: 4.9,
+    reviews: 580,
+    inStock: true,
+    badge: 'TOP SELLER',
+    image: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=80',
+    images: [
+      'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1553406830-ef2513450d76?auto=format&fit=crop&w=800&q=80'
+    ],
+    description: 'Centralized Product Catalogue Master: The ESP32-WROOM-32 is a powerful, generic Wi-Fi + Bluetooth + BLE MCU module for smart robotics and telemetry.',
+    features: [
+      'Dual-Core Tensilica Xtensa 32-bit LX6 Microprocessor @ 240 MHz.',
+      'Integrated 802.11 b/g/n Wi-Fi Transceiver and Bluetooth v4.2 BR/EDR and BLE.',
+      'Ultra-low power co-processor with deep sleep current below 5µA.',
+      '30 GPIO Pins with capacitive touch sensors, ADC, DAC, UART, SPI, I2C.'
+    ],
+    specs: {
+      'Microcontroller': 'ESP32-D0WDQ6 Dual-Core',
+      'Clock Speed': '240 MHz',
+      'Flash Memory': '4 MB SPI Flash',
+      'SRAM': '520 KB',
+      'Wireless Connectivity': 'Wi-Fi 802.11 b/g/n + BLE 4.2',
+      'Operating Voltage': '3.3V DC (Micro-USB 5V Input)',
+      'Digital GPIO': '30 Pins (with PWM/Interrupt)'
+    },
+    variants: [
+      { id: 'var-esp32-30p', name: '30-Pin CP2102 Edition', sku: 'ESP32-001-30P', price: 499, mrp: 699, inStock: true },
+      { id: 'var-esp32-38p', name: '38-Pin CH9102 Edition', sku: 'ESP32-001-38P', price: 549, mrp: 749, inStock: true }
+    ],
+    documents: [
+      { title: 'ESP32-WROOM-32 Official Hardware Datasheet', type: 'PDF', url: 'https://www.espressif.com/sites/default/files/documentation/esp32-wroom-32_datasheet_en.pdf' },
+      { title: 'ESP-IDF & Arduino Core Pinout Schematic', type: 'PDF', url: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf' }
+    ],
+    frequentlyBoughtTogetherIds: ['dht11-sensor', 'relay-module-4ch', 'oled-096-i2c']
+  },
+  {
     id: 'esp32-s3-devkit',
     name: 'ESP32-S3-DevKitC-1 Dual-Core 240MHz Wi-Fi + BLE 5.0',
     sku: 'PRG-ARD-009',
@@ -350,7 +397,7 @@ export const PRODUCTS: Product[] = [
     rating: 4.9,
     reviews: 130,
     inStock: true,
-    badge: 'TOP RATED',
+    badge: 'AI EDGE',
     image: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80',
     description: 'Next-generation dual-core Xtensa LX7 MCU with vector instructions for edge machine learning, 44 GPIOs, and dual USB-C ports.',
     specs: { CPU: 'Dual-core 240MHz LX7', Flash: '8MB Flash + 2MB PSRAM', USB: 'Dual USB-C (OTG + UART)' }
