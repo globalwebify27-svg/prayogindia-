@@ -6,10 +6,11 @@ export interface StaffSessionUser {
   name: string;
   email: string | null;
   username: string;
-  role: StaffRole; // 'SUPER_ADMIN' | 'STORE_MANAGER' | 'KIOSK_USER'
+  role: StaffRole; // 'SUPER_ADMIN' | 'REGIONAL_MANAGER' | 'STORE_MANAGER' | 'POS_CASHIER' | 'KIOSK_USER'
   storeId: string | null;
   storeCode?: string | null;
   storeName?: string | null;
+  allowedStoreCodes?: string[]; // For REGIONAL_MANAGER with MULTI_STORE access
   deviceId?: string | null;
   deviceLabel?: string | null;
   status: StaffStatus;
@@ -32,6 +33,20 @@ export const MOCK_STAFF_USERS: Record<string, StaffSessionUser> = {
     deviceLabel: 'Admin Console',
     status: 'ACTIVE' as StaffStatus,
   },
+  regional_east: {
+    id: 'staff-regional-east',
+    name: 'East Region Manager (Ranchi + Patna)',
+    email: 'regional.east@prayogindia.com',
+    username: 'regional_east',
+    role: 'REGIONAL_MANAGER' as StaffRole,
+    storeId: 'str-ranchi-01',
+    storeCode: 'RANCHI',
+    allowedStoreCodes: ['RANCHI', 'PATNA'],
+    storeName: 'East Regional Operations',
+    deviceId: 'TAB-REG-01',
+    deviceLabel: 'Regional Operations Tablet',
+    status: 'ACTIVE' as StaffStatus,
+  },
   ranchi_manager: {
     id: 'staff-ranchi-mgr',
     name: 'Abhishek Kumar',
@@ -45,6 +60,19 @@ export const MOCK_STAFF_USERS: Record<string, StaffSessionUser> = {
     deviceLabel: 'Ranchi Manager Terminal',
     status: 'ACTIVE' as StaffStatus,
   },
+  ranchi_pos: {
+    id: 'staff-ranchi-pos',
+    name: 'Ranchi POS Cashier',
+    email: 'ranchi.pos@prayogindia.com',
+    username: 'ranchi_pos',
+    role: 'POS_CASHIER' as StaffRole,
+    storeId: 'str-ranchi-01',
+    storeCode: 'RANCHI',
+    storeName: 'Prayog India Ranchi Main Branch & Central Hub',
+    deviceId: 'POS-RNC-01',
+    deviceLabel: 'Ranchi POS Terminal 1',
+    status: 'ACTIVE' as StaffStatus,
+  },
   patna_manager: {
     id: 'staff-patna-mgr',
     name: 'Jay Prakash',
@@ -56,6 +84,32 @@ export const MOCK_STAFF_USERS: Record<string, StaffSessionUser> = {
     storeName: 'Prayog India Patna Robotics & STEM Branch',
     deviceId: 'TAB-PAT-MGR-01',
     deviceLabel: 'Patna Manager Terminal',
+    status: 'ACTIVE' as StaffStatus,
+  },
+  patna_pos: {
+    id: 'staff-patna-pos',
+    name: 'Patna POS Cashier',
+    email: 'patna.pos@prayogindia.com',
+    username: 'patna_pos',
+    role: 'POS_CASHIER' as StaffRole,
+    storeId: 'str-patna-02',
+    storeCode: 'PATNA',
+    storeName: 'Prayog India Patna Robotics & STEM Branch',
+    deviceId: 'POS-PAT-01',
+    deviceLabel: 'Patna POS Terminal 1',
+    status: 'ACTIVE' as StaffStatus,
+  },
+  delhi_manager: {
+    id: 'staff-delhi-mgr',
+    name: 'Siddharth Varma',
+    email: 'delhi.manager@prayogindia.com',
+    username: 'delhi_manager',
+    role: 'STORE_MANAGER' as StaffRole,
+    storeId: 'str-delhi-03',
+    storeCode: 'DELHI',
+    storeName: 'Prayog India NCR Innovation Center',
+    deviceId: 'TAB-DEL-MGR-01',
+    deviceLabel: 'Delhi Manager Terminal',
     status: 'ACTIVE' as StaffStatus,
   },
   ranchi_kiosk: {
@@ -145,9 +199,10 @@ export function hasRequiredRole(user: StaffSessionUser, ...allowedRoles: StaffRo
 }
 
 /**
- * Strict Store Access Guard:
- * - SUPER_ADMIN has global access (returns true for any targetStoreId)
- * - STORE_MANAGER and KIOSK_USER only have access if user.storeId === targetStoreId or user.storeCode === targetStoreId
+ * Strict Multi-Store Access Guard:
+ * - SUPER_ADMIN has global access (ALL_STORES)
+ * - REGIONAL_MANAGER has MULTI_STORE access matching their allowedStoreCodes
+ * - STORE_MANAGER, POS_CASHIER, and KIOSK_USER have SINGLE_STORE access strictly matching their assigned storeId / storeCode
  */
 export function hasStoreAccess(user: StaffSessionUser, targetStoreId?: string | null): boolean {
   if (user.role === 'SUPER_ADMIN') {
@@ -155,17 +210,27 @@ export function hasStoreAccess(user: StaffSessionUser, targetStoreId?: string | 
   }
 
   if (!targetStoreId) {
-    // If no specific store is targeted, managers/kiosks are scoped to their own store
     return !!user.storeId;
   }
 
+  const targetUpper = targetStoreId.toUpperCase();
+
+  // Regional Manager Multi-Store Check
+  if (user.role === 'REGIONAL_MANAGER') {
+    if (user.allowedStoreCodes?.map((c) => c.toUpperCase()).includes(targetUpper)) {
+      return true;
+    }
+    return user.storeCode?.toUpperCase() === targetUpper || user.storeId === targetStoreId;
+  }
+
+  // Single Store Staff Check
   if (!user.storeId) {
     return false;
   }
 
   return (
     user.storeId === targetStoreId ||
-    user.storeCode?.toUpperCase() === targetStoreId.toUpperCase() ||
+    user.storeCode?.toUpperCase() === targetUpper ||
     targetStoreId.toLowerCase().includes(user.storeCode?.toLowerCase() || '___')
   );
 }

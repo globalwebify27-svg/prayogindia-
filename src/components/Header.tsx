@@ -32,7 +32,16 @@ import {
   Info,
   MapPin,
   Headphones,
-  LogOut
+  LogOut,
+  LayoutGrid,
+  Bot,
+  Cpu,
+  Plane,
+  Activity,
+  Wifi,
+  CircuitBoard,
+  GraduationCap,
+  Zap
 } from 'lucide-react';
 import { PrayogLogo } from './PrayogLogo';
 import { PRODUCTS } from '@/data/mockData';
@@ -69,6 +78,18 @@ interface HeaderProps {
   onOpenB2BModal?: () => void;
 }
 
+const HEADER_CATEGORIES = [
+  { name: 'All Categories', slug: 'all', href: '/categories', icon: LayoutGrid, isAll: true },
+  { name: 'Robotics Kits', slug: 'robotics', href: '/categories/robotics-kits', icon: Bot },
+  { name: 'Arduino', slug: 'arduino', href: '/categories/arduino', icon: Cpu },
+  { name: 'Drones', slug: 'drones', href: '/categories/drone-technology', icon: Plane },
+  { name: 'Sensors', slug: 'sensors', href: '/categories/sensors-modules', icon: Activity },
+  { name: 'IoT & Wireless', slug: 'iot', href: '/categories/iot-products', icon: Wifi },
+  { name: 'Dev Boards', slug: 'devboards', href: '/categories/development-boards', icon: CircuitBoard },
+  { name: 'STEM Kits', slug: 'stem', href: '/categories/stem-kits', icon: GraduationCap },
+  { name: 'Motors & Drivers', slug: 'components', href: '/categories/electronic-components', icon: Zap },
+];
+
 export const Header: React.FC<HeaderProps> = ({
   activeTab: activeTabProp,
   onSelectTab,
@@ -86,6 +107,7 @@ export const Header: React.FC<HeaderProps> = ({
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchExpanded, setSearchExpanded] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
   
   // Dropdown hover & mobile accordion states
   const [servicesDropdownOpen, setServicesDropdownOpen] = useState(false);
@@ -96,20 +118,40 @@ export const Header: React.FC<HeaderProps> = ({
   const [mobileAccountOpen, setMobileAccountOpen] = useState(false);
 
   const searchContainerRef = useRef<HTMLDivElement>(null);
+  const categoryMenuRef = useRef<HTMLDivElement>(null);
+  const mobileCategoryMenuRef = useRef<HTMLDivElement>(null);
   const accountMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
+    const handleOutside = (event: MouseEvent | TouchEvent) => {
       if (searchContainerRef.current && !searchContainerRef.current.contains(event.target as Node)) {
         setSearchExpanded(false);
       }
       if (accountMenuRef.current && !accountMenuRef.current.contains(event.target as Node)) {
         setAccountDropdownOpen(false);
       }
+      const isInsideDesktop = categoryMenuRef.current && categoryMenuRef.current.contains(event.target as Node);
+      const isInsideMobile = mobileCategoryMenuRef.current && mobileCategoryMenuRef.current.contains(event.target as Node);
+      if (!isInsideDesktop && !isInsideMobile) {
+        setCategoryDropdownOpen(false);
+      }
     };
-    document.addEventListener('mousedown', handleClickOutside);
+    const handleScroll = () => {
+      setCategoryDropdownOpen(false);
+      setSearchExpanded(false);
+      setServicesDropdownOpen(false);
+      setProductsDropdownOpen(false);
+      setAccountDropdownOpen(false);
+    };
+    document.addEventListener('mousedown', handleOutside);
+    document.addEventListener('touchstart', handleOutside, { passive: true });
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener('touchmove', handleScroll, { passive: true });
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('mousedown', handleOutside);
+      document.removeEventListener('touchstart', handleOutside);
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('touchmove', handleScroll);
     };
   }, []);
 
@@ -273,9 +315,55 @@ export const Header: React.FC<HeaderProps> = ({
             <PrayogLogo size="md" />
           </Link>
 
-          {/* Search Bar with Autocomplete Dropdown */}
-          <div ref={searchContainerRef} className="flex-1 max-w-2xl relative hidden sm:block">
-            <div className="relative flex items-center">
+          {/* Search Bar with All Categories Dropdown beside it */}
+          <div ref={searchContainerRef} className="flex-1 max-w-2xl relative hidden sm:flex items-center gap-2">
+            
+            {/* All Categories Dropdown Button Beside Search Bar */}
+            <div 
+              ref={categoryMenuRef} 
+              className="relative shrink-0"
+              onMouseEnter={() => setCategoryDropdownOpen(true)}
+              onMouseLeave={() => setCategoryDropdownOpen(false)}
+            >
+              <button
+                type="button"
+                onClick={() => setCategoryDropdownOpen(!categoryDropdownOpen)}
+                className="flex items-center gap-1.5 px-3.5 py-2 bg-[#00AEEF] hover:bg-[#0096D6] text-white rounded-full font-black text-xs shadow-xs cursor-pointer transition-all active:scale-95"
+              >
+                <LayoutGrid className="w-3.5 h-3.5" />
+                <span>All Categories</span>
+                <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${categoryDropdownOpen ? 'rotate-180' : ''}`} />
+              </button>
+
+              {/* Dropdown Menu */}
+              {categoryDropdownOpen && (
+                <div className="absolute top-full left-0 mt-2 w-64 bg-white rounded-2xl shadow-2xl border border-slate-200 p-2 z-50 animate-in fade-in slide-in-from-top-1 text-xs font-semibold text-slate-800 space-y-1">
+                  <div className="px-2.5 py-1 text-[10px] font-black uppercase text-slate-400 tracking-wider flex items-center justify-between border-b border-slate-100">
+                    <span>All Hardware Categories</span>
+                    <Link href="/categories" onClick={() => setCategoryDropdownOpen(false)} className="text-[#00AEEF] hover:underline font-bold">
+                      View All →
+                    </Link>
+                  </div>
+                  {HEADER_CATEGORIES.map(cat => (
+                    <Link
+                      key={cat.slug}
+                      href={cat.href}
+                      onClick={() => setCategoryDropdownOpen(false)}
+                      className="flex items-center justify-between p-2 rounded-xl hover:bg-[#E0F7FC] hover:text-[#00AEEF] transition-colors"
+                    >
+                      <span className="flex items-center gap-2">
+                        <cat.icon className="w-4 h-4 text-slate-500" />
+                        <span>{cat.name}</span>
+                      </span>
+                      <ChevronRight className="w-3 h-3 text-slate-400" />
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Search Input Box */}
+            <div className="flex-1 relative flex items-center">
               <div className="flex items-center overflow-hidden border rounded-full bg-[#EEF2F6] shadow-inner w-full border-[#00AEEF]/60 focus-within:border-[#00AEEF] focus-within:ring-2 focus-within:ring-[#00AEEF]/20 pl-4 pr-1 py-1 transition-all">
                 <input
                   type="text"
@@ -578,10 +666,60 @@ export const Header: React.FC<HeaderProps> = ({
 
         </div>
 
-        {/* Mobile Search Bar */}
-        <div className="sm:hidden mt-2.5 pb-0.5">
-          <div className="relative flex items-center">
-            <div className="flex items-center overflow-hidden border rounded-full bg-[#EEF2F6] shadow-inner w-full border-[#00AEEF] pl-4 pr-1 py-1">
+        {/* Mobile Search & Categories Row */}
+        <div className="sm:hidden mt-2.5 pb-0.5 flex items-center gap-2">
+          {/* Mobile All Categories Dropdown Button Beside Search */}
+          <div ref={mobileCategoryMenuRef} className="relative shrink-0">
+            <button
+              type="button"
+              onClick={() => setCategoryDropdownOpen(!categoryDropdownOpen)}
+              className="flex items-center gap-1.5 bg-[#00AEEF] hover:bg-[#0096D6] text-white px-3 py-2 rounded-full font-black text-xs shadow-xs cursor-pointer active:scale-95 transition-all"
+              aria-label="All Categories"
+            >
+              <LayoutGrid className="w-3.5 h-3.5" />
+              <span>Categories</span>
+              <ChevronDown className={`w-3 h-3 transition-transform duration-200 ${categoryDropdownOpen ? 'rotate-180' : ''}`} />
+            </button>
+
+            {/* Mobile Dropdown Flyout with Backdrop */}
+            {categoryDropdownOpen && (
+              <>
+                {/* Mobile Full Screen Touch Dismiss Backdrop */}
+                <div 
+                  className="fixed inset-0 z-40 bg-black/10 backdrop-blur-[1px]"
+                  onClick={() => setCategoryDropdownOpen(false)}
+                  onTouchStart={() => setCategoryDropdownOpen(false)}
+                />
+
+                <div className="absolute top-full left-0 mt-2 w-64 bg-white rounded-2xl shadow-2xl border border-slate-200 p-2 z-50 animate-in fade-in slide-in-from-top-1 text-xs font-semibold text-slate-800 space-y-1">
+                  <div className="px-2.5 py-1 text-[10px] font-black uppercase text-slate-400 tracking-wider flex items-center justify-between border-b border-slate-100">
+                    <span>Hardware Categories</span>
+                    <Link href="/categories" onClick={() => setCategoryDropdownOpen(false)} className="text-[#00AEEF] hover:underline font-bold">
+                      View All →
+                    </Link>
+                  </div>
+                  {HEADER_CATEGORIES.map(cat => (
+                    <Link
+                      key={cat.slug}
+                      href={cat.href}
+                      onClick={() => setCategoryDropdownOpen(false)}
+                      className="flex items-center justify-between p-2 rounded-xl hover:bg-[#E0F7FC] hover:text-[#00AEEF] transition-colors"
+                    >
+                      <span className="flex items-center gap-2">
+                        <cat.icon className="w-4 h-4 text-slate-500" />
+                        <span>{cat.name}</span>
+                      </span>
+                      <ChevronRight className="w-3 h-3 text-slate-400" />
+                    </Link>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
+
+          {/* Search Input Box */}
+          <div className="flex-1 relative flex items-center">
+            <div className="flex items-center overflow-hidden border rounded-full bg-[#EEF2F6] shadow-inner w-full border-[#00AEEF] pl-3.5 pr-1 py-1">
               <input
                 type="text"
                 value={searchQuery}
@@ -591,16 +729,16 @@ export const Header: React.FC<HeaderProps> = ({
                     router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
                   }
                 }}
-                placeholder="Search Raspberry Pi, Arduino, Drones..."
+                placeholder="Search Raspberry Pi, Arduino..."
                 className="w-full bg-transparent border-none outline-none text-xs text-slate-800 placeholder-slate-400 font-medium pr-2"
               />
               <button 
                 onClick={() => {
                   if (searchQuery.trim()) router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
                 }} 
-                className="bg-[#00AEEF] text-white w-8 h-8 rounded-full flex items-center justify-center shrink-0"
+                className="bg-[#00AEEF] text-white w-7.5 h-7.5 rounded-full flex items-center justify-center shrink-0 shadow-2xs"
               >
-                <Search className="w-4 h-4 stroke-[2.5]" />
+                <Search className="w-3.5 h-3.5 stroke-[2.5]" />
               </button>
             </div>
           </div>
@@ -615,6 +753,15 @@ export const Header: React.FC<HeaderProps> = ({
         <div className="max-w-7xl mx-auto px-6 sm:px-8 flex items-center justify-between text-[13px] font-bold text-slate-800 h-13">
           
           <div className="flex items-center gap-7">
+
+            {/* 0. All Categories Direct Link */}
+            <Link
+              href="/categories"
+              className="flex items-center gap-1.5 text-slate-800 hover:text-[#00AEEF] font-black py-3 transition-colors"
+            >
+              <LayoutGrid className="w-4 h-4 text-[#00AEEF]" />
+              <span>All Categories</span>
+            </Link>
 
             {/* 1. Home */}
             <button 

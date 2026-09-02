@@ -13,7 +13,7 @@ interface CategoryBreadcrumbProps {
 
 export const CategoryBreadcrumb: React.FC<CategoryBreadcrumbProps> = ({ items }) => {
   return (
-    <nav aria-label="Breadcrumb" className="py-3 text-xs font-semibold text-slate-500">
+    <nav aria-label="Breadcrumb" className="py-1 text-xs font-semibold text-slate-500">
       <ol className="flex items-center flex-wrap gap-1.5">
         <li className="flex items-center gap-1.5">
           <Link 

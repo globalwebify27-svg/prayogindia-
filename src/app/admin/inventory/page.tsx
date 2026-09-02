@@ -60,26 +60,24 @@ export default function AdminInventoryPage() {
 
   const fetchInventory = () => {
     setLoading(true);
-    fetch(`/api/admin/inventory?q=${encodeURIComponent(searchQuery)}&lowStock=${lowStockFilter}`)
+    fetch(`/api/admin/inventory?q=${encodeURIComponent(searchQuery)}`)
       .then(res => res.json())
       .then(data => {
         if (data.success && data.data) {
-          setItems(data.data);
-        } else {
-          // Fallback location-specific breakdown
-          setItems(PRODUCTS.map((p, idx) => ({
-            id: p.id,
-            name: p.name,
-            sku: p.sku,
-            category: p.category,
-            price: p.price,
-            stock: p.inStock ? 50 + idx * 5 : 0,
-            ranchiStock: p.inStock ? 35 + idx * 3 : 0,
-            patnaStock: p.inStock ? 10 + idx : 0,
-            delhiStock: p.inStock ? 5 + idx : 0,
-            reservedStock: 4,
-            inStock: p.inStock,
-            shippingTag: p.shippingTag || 'Standard',
+          setItems(data.data.map((item: any) => ({
+            id: item.productId || item.id,
+            name: item.name,
+            sku: item.sku,
+            category: item.category || 'Components',
+            price: item.basePrice || item.price,
+            stock: item.totalNetworkStock ?? item.stock ?? 0,
+            ranchiStock: item.storeStocks?.ranchi?.stock ?? item.ranchiStock ?? item.centralStock ?? 0,
+            patnaStock: item.storeStocks?.patna?.stock ?? item.patnaStock ?? 0,
+            delhiStock: item.storeStocks?.delhi?.stock ?? item.delhiStock ?? 0,
+            mumbaiStock: item.storeStocks?.mumbai?.stock ?? item.mumbaiStock ?? 0,
+            reservedStock: 0,
+            inStock: (item.totalNetworkStock ?? item.stock ?? 0) > 0,
+            shippingTag: 'Standard',
           })));
         }
       })
@@ -87,9 +85,36 @@ export default function AdminInventoryPage() {
       .finally(() => setLoading(false));
   };
 
+  const fetchTransactions = () => {
+    fetch('/api/admin/inventory?mode=transactions')
+      .then(res => res.json())
+      .then(data => {
+        if (data.success && data.data && data.data.length > 0) {
+          setAdjustments(data.data.map((t: any) => ({
+            id: t.id,
+            adjustmentNumber: t.id.toUpperCase(),
+            storeCode: (t.storeId || 'RANCHI').toUpperCase(),
+            storeName: t.storeId === 'ranchi' ? 'Ranchi Central Hub' : `${t.storeId.toUpperCase()} Branch`,
+            productId: t.productId,
+            productName: t.productName || t.productId,
+            sku: t.sku || '',
+            previousStock: t.quantityBefore,
+            adjustmentQuantity: t.quantityChange,
+            newStock: t.quantityAfter,
+            reason: t.notes || t.transactionType,
+            adjustedBy: t.userId || 'System',
+            timestamp: t.createdAt.replace('T', ' ').slice(0, 16),
+            notes: t.notes || '',
+          })));
+        }
+      })
+      .catch(() => {});
+  };
+
   useEffect(() => {
     fetchInventory();
-  }, [searchQuery, lowStockFilter]);
+    fetchTransactions();
+  }, [searchQuery]);
 
   const handleUpdateStock = async (productId: string, currentStock: number) => {
     const nextStock = prompt('Enter updated inventory stock count for Ranchi Central / Branch Hub:', String(currentStock));
@@ -97,83 +122,99 @@ export default function AdminInventoryPage() {
     const parsed = parseInt(nextStock, 10);
     if (isNaN(parsed) || parsed < 0) return alert('Invalid stock count. Must be 0 or greater.');
 
+    const qtyDiff = parsed - currentStock;
+
     try {
       const res = await fetch('/api/admin/inventory', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ productId, stock: parsed }),
+        body: JSON.stringify({ 
+          storeId: 'ranchi', 
+          productId, 
+          quantityChange: qtyDiff,
+          transactionType: 'ADJUSTMENT',
+          reason: 'Manager Manual Adjustment' 
+        }),
       });
       const data = await res.json();
       if (data.success) {
         fetchInventory();
+        fetchTransactions();
       } else {
-        setItems(prev => prev.map(i => i.id === productId ? { ...i, stock: parsed, ranchiStock: parsed } : i));
+        alert(data.message || 'Failed to update stock');
       }
     } catch {
-      setItems(prev => prev.map(i => i.id === productId ? { ...i, stock: parsed, ranchiStock: parsed } : i));
+      fetchInventory();
     }
   };
 
-  const handleCreateTransfer = (e: React.FormEvent) => {
+  const handleCreateTransfer = async (e: React.FormEvent) => {
     e.preventDefault();
     if (transferSource === transferDest) {
       alert('Source and destination stores must be different.');
       return;
     }
     const selectedProd = PRODUCTS.find(p => p.sku === transferProductSku) || PRODUCTS[0];
-    const newTrf: InterStoreTransfer = {
-      id: `trf-${Date.now()}`,
-      transferNumber: `TRF-${transferSource}-${transferDest}-${Math.floor(100 + Math.random() * 900)}`,
-      sourceStoreCode: transferSource,
-      sourceStoreName: transferSource === 'RANCHI' ? 'Ranchi Central Hub' : `${transferSource} Branch Store`,
-      destinationStoreCode: transferDest,
-      destinationStoreName: transferDest === 'RANCHI' ? 'Ranchi Central Hub' : `${transferDest} Branch Store`,
-      productId: selectedProd.id,
-      productName: selectedProd.name,
-      sku: selectedProd.sku,
-      quantity: Number(transferQty),
-      initiatedBy: 'Store Inventory Manager',
-      status: 'Dispatched & In Transit',
-      dispatchedAt: new Date().toISOString().replace('T', ' ').slice(0, 16),
-      courierReference: `TRF-COURIER-${Math.floor(100000 + Math.random() * 900000)}`,
-      notes: transferNotes,
-    };
+    
+    try {
+      const res = await fetch('/api/admin/transfers', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sourceStoreId: transferSource.toLowerCase(),
+          destinationStoreId: transferDest.toLowerCase(),
+          items: [{ productId: selectedProd.id, quantity: Number(transferQty) }],
+          notes: transferNotes,
+        }),
+      });
+      const data = await res.json();
 
-    setTransfers([newTrf, ...transfers]);
-    setShowTransferModal(false);
-    setActiveTab('transfers');
-    setTransferNotes('');
-    alert(`Transfer request ${newTrf.transferNumber} created successfully and marked In Transit.`);
+      if (data.success) {
+        setShowTransferModal(false);
+        setActiveTab('transfers');
+        setTransferNotes('');
+        fetchInventory();
+        fetchTransactions();
+        alert(data.message || `Transfer initiated successfully.`);
+      } else {
+        alert(data.message || 'Transfer failed.');
+      }
+    } catch {
+      alert('Transfer request failed.');
+    }
   };
 
-  const handleCreateAdjustment = (e: React.FormEvent) => {
+  const handleCreateAdjustment = async (e: React.FormEvent) => {
     e.preventDefault();
     const selectedProd = PRODUCTS.find(p => p.sku === adjustProductSku) || PRODUCTS[0];
-    const prevStock = 45;
-    const newStock = Math.max(0, prevStock + Number(adjustQuantity));
 
-    const newAdj: StockAdjustmentEntry = {
-      id: `adj-${Date.now()}`,
-      adjustmentNumber: `ADJ-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`,
-      storeCode: adjustStore,
-      storeName: adjustStore === 'RANCHI' ? 'Ranchi Central Hub' : `${adjustStore} Branch`,
-      productId: selectedProd.id,
-      productName: selectedProd.name,
-      sku: selectedProd.sku,
-      previousStock: prevStock,
-      adjustmentQuantity: Number(adjustQuantity),
-      newStock,
-      reason: adjustReason,
-      adjustedBy: 'Authorized Store Manager',
-      timestamp: new Date().toISOString().replace('T', ' ').slice(0, 16),
-      notes: adjustNotes,
-    };
+    try {
+      const res = await fetch('/api/admin/inventory', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          storeId: adjustStore.toLowerCase(),
+          productId: selectedProd.id,
+          quantityChange: Number(adjustQuantity),
+          transactionType: 'ADJUSTMENT',
+          reason: `${adjustReason} - ${adjustNotes}`,
+        }),
+      });
+      const data = await res.json();
 
-    setAdjustments([newAdj, ...adjustments]);
-    setShowAdjustModal(false);
-    setActiveTab('adjustments');
-    setAdjustNotes('');
-    alert(`Stock adjustment audit entry ${newAdj.adjustmentNumber} recorded.`);
+      if (data.success) {
+        setShowAdjustModal(false);
+        setActiveTab('adjustments');
+        setAdjustNotes('');
+        fetchInventory();
+        fetchTransactions();
+        alert(data.message || `Stock adjustment recorded.`);
+      } else {
+        alert(data.message || 'Adjustment failed.');
+      }
+    } catch {
+      alert('Stock adjustment request failed.');
+    }
   };
 
   const handleReceiveTransfer = (transferId: string) => {

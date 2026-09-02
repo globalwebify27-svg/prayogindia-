@@ -14,7 +14,9 @@ datasource db {
 // ─────────────────────────────────────────────
 enum StaffRole {
   SUPER_ADMIN
+  REGIONAL_MANAGER
   STORE_MANAGER
+  POS_CASHIER
   KIOSK_USER
 }
 
@@ -28,7 +30,7 @@ enum StaffStatus {
 // ─────────────────────────────────────────────
 model Store {
   id                   String      @id @default(uuid())
-  code                 String      @unique // e.g. RANCHI, PATNA, DELHI
+  code                 String      @unique // e.g. RANCHI, PATNA, DELHI, MUMBAI, KOLKATA
   name                 String
   type                 String      @default("Physical Branch Store")
   isCentralHub         Boolean     @default(false)
@@ -46,8 +48,141 @@ model Store {
   updatedAt            DateTime    @updatedAt
 
   staff                StaffUser[]
+  inventory            StoreInventory[]
+  productSettings      StoreProductSettings[]
+  devices              Device[]
+  transactions         InventoryTransaction[]
+  outgoingTransfers    StockTransfer[]        @relation("SourceStore")
+  incomingTransfers    StockTransfer[]        @relation("DestinationStore")
 
   @@index([code])
+}
+
+// ─────────────────────────────────────────────
+// Store-Specific Inventory (UNIQUE per Store + Product)
+// ─────────────────────────────────────────────
+model StoreInventory {
+  id                 String   @id @default(uuid())
+  storeId            String
+  store              Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  productId          String
+  product            Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  quantity           Int      @default(0)
+  reservedQuantity   Int      @default(0)
+  availableQuantity  Int      @default(0)
+  reorderLevel       Int      @default(10)
+  lowStockThreshold  Int      @default(5)
+  status             String   @default("IN_STOCK") // IN_STOCK | LOW_STOCK | OUT_OF_STOCK
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@unique([storeId, productId])
+  @@index([storeId])
+  @@index([productId])
+}
+
+// ─────────────────────────────────────────────
+// Store-Specific Product Settings / Price Overrides
+// ─────────────────────────────────────────────
+model StoreProductSettings {
+  id               String   @id @default(uuid())
+  storeId          String
+  store            Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  productId        String
+  product          Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  isEnabled        Boolean  @default(true)
+  isVisible        Boolean  @default(true)
+  priceOverride    Float?   // Optional store-specific pricing
+  reorderLevel     Int?
+  storeTaxOverride Float?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@unique([storeId, productId])
+  @@index([storeId])
+  @@index([productId])
+}
+
+// ─────────────────────────────────────────────
+// Store POS Devices & Kiosks
+// ─────────────────────────────────────────────
+model Device {
+  id          String    @id @default(uuid())
+  deviceCode  String    @unique // e.g. TAB-RNC-01, POS-PAT-01
+  storeId     String
+  store       Store     @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  deviceName  String
+  deviceType  String    @default("POS_TERMINAL") // POS_TERMINAL | KIOSK_TABLET | MANAGER_DESKTOP
+  status      String    @default("ACTIVE") // ACTIVE | INACTIVE | REVOKED
+  lastLogin   DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  transactions InventoryTransaction[]
+
+  @@index([deviceCode])
+  @@index([storeId])
+}
+
+// ─────────────────────────────────────────────
+// Complete Inventory Audit Trail / Transactions Log
+// ─────────────────────────────────────────────
+model InventoryTransaction {
+  id              String   @id @default(uuid())
+  storeId         String
+  store           Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  productId       String
+  product         Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  orderId         String?
+  transactionType String   // SALE | RESTOCK | TRANSFER_IN | TRANSFER_OUT | ADJUSTMENT | RETURN | ONLINE_FULFILLMENT
+  quantityBefore  Int
+  quantityChange  Int
+  quantityAfter   Int
+  userId          String?
+  deviceId        String?
+  device          Device?  @relation(fields: [deviceId], references: [id], onDelete: SetNull)
+  referenceId     String?
+  notes           String?
+  createdAt       DateTime @default(now())
+
+  @@index([storeId])
+  @@index([productId])
+  @@index([transactionType])
+  @@index([createdAt])
+}
+
+// ─────────────────────────────────────────────
+// Inter-Store Stock Transfers
+// ─────────────────────────────────────────────
+model StockTransfer {
+  id                 String              @id @default(uuid())
+  transferNumber     String              @unique // e.g. TR-20260902-001
+  sourceStoreId      String
+  sourceStore        Store               @relation("SourceStore", fields: [sourceStoreId], references: [id])
+  destinationStoreId String
+  destinationStore   Store               @relation("DestinationStore", fields: [destinationStoreId], references: [id])
+  status             String              @default("PENDING") // PENDING | IN_TRANSIT | COMPLETED | CANCELLED
+  requestedByUserId  String?
+  approvedByUserId   String?
+  notes              String?
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+
+  items              StockTransferItem[]
+
+  @@index([transferNumber])
+  @@index([sourceStoreId])
+  @@index([destinationStoreId])
+}
+
+model StockTransferItem {
+  id               String        @id @default(uuid())
+  transferId       String
+  transfer         StockTransfer @relation(fields: [transferId], references: [id], onDelete: Cascade)
+  productId        String
+  product          Product       @relation(fields: [productId], references: [id], onDelete: Cascade)
+  quantity         Int
+  receivedQuantity Int           @default(0)
 }
 
 // ─────────────────────────────────────────────
@@ -207,12 +342,16 @@ model Product {
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
 
-  variants       ProductVariant[]
-  images         ProductImage[]
-  cartItems      CartItem[]
-  wishlistItems  WishlistItem[]
-  orderItems     OrderItem[]
-  offerProducts  OfferProduct[]
+  variants              ProductVariant[]
+  images                ProductImage[]
+  cartItems             CartItem[]
+  wishlistItems         WishlistItem[]
+  orderItems            OrderItem[]
+  offerProducts         OfferProduct[]
+  storeInventory        StoreInventory[]
+  storeSettings         StoreProductSettings[]
+  inventoryTransactions InventoryTransaction[]
+  stockTransferItems    StockTransferItem[]
 
   @@index([slug])
   @@index([categoryId])

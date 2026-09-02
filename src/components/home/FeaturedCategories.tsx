@@ -67,8 +67,8 @@ export const FeaturedCategories: React.FC<Props> = ({
   };
 
   return (
-    <section className="py-10 bg-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+    <section className="py-6 sm:py-8 lg:py-10 bg-white">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4 sm:space-y-5">
         
         {/* Section Header */}
         <div className="flex items-center justify-between border-b border-slate-100 pb-3">

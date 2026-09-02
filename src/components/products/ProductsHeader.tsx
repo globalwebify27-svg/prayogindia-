@@ -39,37 +39,30 @@ export const ProductsHeader: React.FC<ProductsHeaderProps> = ({
   const displayTitle = title || (selectedCategory ? `Explore ${selectedCategory}` : "Explore Products");
 
   return (
-    <div className="relative overflow-hidden rounded-3xl border border-indigo-100/70 bg-[#F4F2FA] p-6 sm:p-8 md:p-10 shadow-xs mb-6 min-h-[220px]">
+    <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl border border-indigo-100/70 bg-[#F4F2FA] p-4 sm:p-6 md:p-7 shadow-xs mb-3.5 min-h-[190px] sm:min-h-[220px] flex flex-col justify-center">
       {/* Background Banner Image with Robot Arm & Glowing Circuit Traces */}
       <div className="absolute inset-0 pointer-events-none select-none">
         <Image
-          src="/images/explore_products_banner.png"
+          src="/images/robotics_arm_banner_v2.png"
           alt="Robotics & Electronics Circuit Background"
           fill
           priority
-          className="object-cover object-right md:object-center opacity-95"
+          unoptimized
+          className="object-contain object-right opacity-100"
         />
         {/* Soft Left Overlay to Ensure Text Legibility */}
-        <div className="absolute inset-0 bg-gradient-to-r from-[#F4F2FA]/90 via-[#F4F2FA]/60 to-transparent w-full md:w-3/5" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#F4F2FA] via-[#F4F2FA]/70 to-transparent w-full md:w-1/2" />
       </div>
 
       <div className="relative z-10 space-y-4 max-w-4xl">
-        {/* Top Tag & Count Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div>
-            <span className="text-[10px] font-black uppercase tracking-widest text-[#00AEEF] bg-[#E0F7FC]/90 border border-[#00AEEF]/20 px-3 py-1 rounded-md inline-block shadow-2xs">
-              Official Catalogue
-            </span>
-            <h1 className="text-3xl sm:text-4xl font-extrabold text-[#0B1528] tracking-tight mt-1.5 font-sans">
-              {displayTitle}
-            </h1>
-          </div>
-
-          <div className="self-start sm:self-auto">
-            <div className="bg-white/90 backdrop-blur-xs text-slate-700 px-4 py-1.5 rounded-full text-xs font-black border border-slate-200/80 shadow-2xs tracking-wide">
-              {totalCount} PRODUCTS
-            </div>
-          </div>
+        {/* Top Tag Header */}
+        <div>
+          <span className="text-[10px] font-black uppercase tracking-widest text-[#00AEEF] bg-[#E0F7FC]/90 border border-[#00AEEF]/20 px-3 py-1 rounded-md inline-block shadow-2xs">
+            Official Catalogue
+          </span>
+          <h1 className="text-3xl sm:text-4xl font-extrabold text-[#0B1528] tracking-tight mt-1.5 font-sans">
+            {displayTitle}
+          </h1>
         </div>
 
         {/* Description */}

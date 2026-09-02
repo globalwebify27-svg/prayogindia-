@@ -320,7 +320,14 @@ export const PRODUCTS: Product[] = [
     reviews: 64,
     inStock: true,
     badge: 'AI EDGE',
-    image: 'https://images.unsplash.com/photo-1553406830-ef2513450d76?auto=format&fit=crop&w=600&q=80',
+    image: 'https://images.unsplash.com/photo-1553406830-ef2513450d76?auto=format&fit=crop&w=800&q=80',
+    images: [
+      'https://images.unsplash.com/photo-1553406830-ef2513450d76?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1608564697071-ddf911d81370?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=800&q=80'
+    ],
+    videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
     description: 'TinyML AI edge board packed with 9-axis motion sensor, gesture sensor, digital mic, temperature and humidity sensors.',
     specs: { MCU: 'nRF52840 Cortex-M4F 64MHz', Bluetooth: 'BLE 5.0', Sensors: 'IMU, Mic, Temp, Humidity, Light' }
   },

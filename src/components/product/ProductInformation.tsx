@@ -13,7 +13,8 @@ import {
   CheckCircle2, 
   XCircle, 
   AlertTriangle,
-  Boxes
+  Boxes,
+  X
 } from 'lucide-react';
 import { Product, ProductVariant } from '@/data/mockData';
 
@@ -38,6 +39,53 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
   const currentMrp = selectedVariant ? selectedVariant.mrp : product.mrp;
   const currentSku = selectedVariant ? selectedVariant.sku : product.sku;
   const currentStock = selectedVariant ? selectedVariant.inStock : product.inStock;
+  const stockCount = React.useMemo(() => {
+    // Generate a realistic low stock count (e.g., 3-8 items) for urgency indicator
+    const code = product.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    return (code % 6) + 3;
+  }, [product.id]);
+
+  // Pincode Delivery Checker State
+  const [pincode, setPincode] = React.useState('');
+  const [pincodeStatus, setPincodeStatus] = React.useState<'idle' | 'valid' | 'invalid'>('idle');
+  const [deliveryDate, setDeliveryDate] = React.useState('');
+
+  // Price Match Modal State
+  const [showPriceMatchModal, setShowPriceMatchModal] = React.useState(false);
+  const [priceMatchForm, setPriceMatchForm] = React.useState({
+    competitorUrl: '',
+    competitorPrice: '',
+    contact: '',
+    submitted: false
+  });
+
+  // Calculate estimated delivery date (3 days ahead)
+  React.useEffect(() => {
+    const d = new Date();
+    d.setDate(d.getDate() + 3);
+    setDeliveryDate(d.toLocaleDateString('en-IN', { weekday: 'short', month: 'short', day: 'numeric' }));
+  }, []);
+
+  const handleCheckPincode = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    const cleanPin = pincode.trim();
+    if (/^\d{6}$/.test(cleanPin)) {
+      setPincodeStatus('valid');
+    } else {
+      setPincodeStatus('invalid');
+    }
+  };
+
+  const handlePriceMatchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (priceMatchForm.competitorPrice && priceMatchForm.contact) {
+      setPriceMatchForm(prev => ({ ...prev, submitted: true }));
+      setTimeout(() => {
+        setShowPriceMatchModal(false);
+        setPriceMatchForm({ competitorUrl: '', competitorPrice: '', contact: '', submitted: false });
+      }, 2500);
+    }
+  };
 
   const discountPercentage = Math.round(((currentMrp - currentPrice) / currentMrp) * 100);
 
@@ -79,9 +127,9 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
         </div>
       </div>
 
-      {/* Price & GST Hierarchy */}
-      <div className="p-4 bg-slate-50 border border-slate-200/90 rounded-2xl space-y-1">
-        <div className="flex items-baseline gap-3">
+      {/* Price & GST Hierarchy + Urgency Stock Bar */}
+      <div className="p-4 bg-slate-50 border border-slate-200/90 rounded-2xl space-y-2.5">
+        <div className="flex flex-wrap items-baseline gap-3">
           <span className="text-3xl font-black text-slate-900">
             ₹{currentPrice.toLocaleString()}
           </span>
@@ -91,14 +139,39 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
           <span className="bg-[#FF3B30] text-white text-xs font-black px-2 py-0.5 rounded-md uppercase">
             {discountPercentage}% OFF
           </span>
+          <span className="ml-auto text-xs font-bold text-slate-500">
+            Save ₹{(currentMrp - currentPrice).toLocaleString()}
+          </span>
         </div>
 
-        <div className="flex items-center justify-between text-xs pt-1">
-          <span className="text-emerald-600 font-extrabold flex items-center gap-1">
-            <ShieldCheck className="w-4 h-4" /> Price Inclusive of 18% GST (Tax Invoice Included)
+        {/* Incl. GST & Found a better price */}
+        <div className="flex items-center justify-between text-xs pt-1.5 border-t border-slate-200/70">
+          <span className="text-slate-500 font-medium">
+            Incl. GST (No Hidden Charges)
           </span>
-          <span className="font-bold text-slate-500">Save ₹{(currentMrp - currentPrice).toLocaleString()}</span>
+          <button 
+            type="button"
+            onClick={() => setShowPriceMatchModal(true)}
+            className="font-bold text-slate-900 underline hover:text-[#00AEEF] transition-colors cursor-pointer"
+          >
+            Found a better price?
+          </button>
         </div>
+
+        {/* Please hurry! Only X left in stock */}
+        {currentStock && (
+          <div className="pt-1.5 space-y-1.5">
+            <p className="text-xs font-bold text-[#E05344]">
+              Please hurry! Only {stockCount} left in stock
+            </p>
+            <div className="w-full bg-slate-200/90 h-1.5 rounded-full overflow-hidden">
+              <div 
+                className="h-full rounded-full bg-gradient-to-r from-[#E05344] via-amber-500 to-emerald-500 transition-all duration-500" 
+                style={{ width: `${Math.min(100, Math.max(20, (stockCount / 10) * 100))}%` }}
+              />
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Stock Availability Indicator & Freight Tag */}
@@ -143,6 +216,53 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
             </div>
           );
         })()}
+      </div>
+
+      {/* Pincode Delivery Availability Checker (Screenshot 2) */}
+      <div className="bg-white border border-slate-200/90 rounded-2xl p-3.5 border-l-4 border-l-[#FF7A00] shadow-sm space-y-2">
+        <form onSubmit={handleCheckPincode} className="flex items-center gap-2">
+          <input
+            type="text"
+            inputMode="numeric"
+            pattern="[0-9]*"
+            maxLength={6}
+            value={pincode}
+            onChange={(e) => {
+              const val = e.target.value.replace(/\D/g, '');
+              setPincode(val);
+              if (pincodeStatus !== 'idle') setPincodeStatus('idle');
+            }}
+            placeholder="Enter Pincode to Check Delivery"
+            className="flex-1 px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#00AEEF] focus:bg-white transition-all"
+          />
+          <button
+            type="submit"
+            className="px-5 py-2.5 bg-[#0A1128] hover:bg-slate-800 text-white text-xs font-bold rounded-xl transition-all active:scale-95 cursor-pointer shrink-0"
+          >
+            Check
+          </button>
+        </form>
+
+        {pincodeStatus === 'valid' && (
+          <div className="p-2.5 bg-emerald-50 border border-emerald-200 rounded-xl text-xs space-y-1 animate-fadeIn">
+            <div className="flex items-center gap-1.5 font-bold text-emerald-800">
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+              <span>Delivery available for {pincode}</span>
+            </div>
+            <p className="text-[11px] text-slate-600 font-medium">
+              ⚡ Estimated Delivery by <strong className="text-slate-900">{deliveryDate}</strong> • Fast 24-hr Dispatch
+            </p>
+            <p className="text-[10px] text-emerald-700 font-medium">
+              ✓ Free Shipping on prepaid orders above ₹999
+            </p>
+          </div>
+        )}
+
+        {pincodeStatus === 'invalid' && (
+          <p className="text-xs text-red-600 font-medium flex items-center gap-1 pt-0.5">
+            <AlertTriangle className="w-3.5 h-3.5 shrink-0" /> Please enter a valid 6-digit PIN code.
+          </p>
+        )}
       </div>
 
       {/* Variant Selector (if product variants exist) */}
@@ -303,6 +423,92 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
           <span>Tech Support</span>
         </div>
       </div>
+
+      {/* Found a Better Price / Price Match Modal */}
+      {showPriceMatchModal && (
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100 relative animate-scaleUp">
+            <button
+              onClick={() => setShowPriceMatchModal(false)}
+              className="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-full transition-colors cursor-pointer"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="flex items-center gap-2.5 mb-3">
+              <div className="w-9 h-9 rounded-2xl bg-[#00AEEF]/10 flex items-center justify-center text-[#00AEEF]">
+                <ShieldCheck className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="text-base font-extrabold text-slate-900">Found a better price?</h3>
+                <p className="text-xs text-slate-500">We guarantee competitive hardware pricing!</p>
+              </div>
+            </div>
+
+            {priceMatchForm.submitted ? (
+              <div className="py-8 text-center space-y-3">
+                <div className="w-12 h-12 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto">
+                  <CheckCircle2 className="w-6 h-6" />
+                </div>
+                <h4 className="text-sm font-extrabold text-slate-900">Price Match Request Submitted!</h4>
+                <p className="text-xs text-slate-500 max-w-xs mx-auto">
+                  Our team will verify the competitor URL and send you an instant discount coupon via WhatsApp / Email within 2 hours.
+                </p>
+              </div>
+            ) : (
+              <form onSubmit={handlePriceMatchSubmit} className="space-y-3.5 mt-4">
+                <div className="p-3 bg-slate-50 rounded-xl text-xs space-y-1">
+                  <span className="font-extrabold text-slate-900 block truncate">{product.name}</span>
+                  <span className="text-slate-500 text-[11px]">Our Price: <strong className="text-slate-900">₹{currentPrice.toLocaleString()}</strong></span>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-slate-700">Competitor Store Link / Website</label>
+                  <input
+                    type="url"
+                    required
+                    value={priceMatchForm.competitorUrl}
+                    onChange={(e) => setPriceMatchForm(prev => ({ ...prev, competitorUrl: e.target.value }))}
+                    placeholder="e.g. https://store.com/product"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:border-[#00AEEF] focus:bg-white"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-slate-700">Price You Found (₹)</label>
+                  <input
+                    type="number"
+                    required
+                    value={priceMatchForm.competitorPrice}
+                    onChange={(e) => setPriceMatchForm(prev => ({ ...prev, competitorPrice: e.target.value }))}
+                    placeholder="e.g. 2999"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:border-[#00AEEF] focus:bg-white"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-slate-700">Your Phone (WhatsApp) or Email</label>
+                  <input
+                    type="text"
+                    required
+                    value={priceMatchForm.contact}
+                    onChange={(e) => setPriceMatchForm(prev => ({ ...prev, contact: e.target.value }))}
+                    placeholder="e.g. 9876543210 or name@email.com"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:border-[#00AEEF] focus:bg-white"
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  className="w-full py-3 bg-[#0A1128] hover:bg-slate-800 text-white font-extrabold text-xs uppercase tracking-wider rounded-xl transition-all shadow-md active:scale-95 cursor-pointer mt-2"
+                >
+                  Submit Price Match Request
+                </button>
+              </form>
+            )}
+          </div>
+        </div>
+      )}
 
     </div>
   );

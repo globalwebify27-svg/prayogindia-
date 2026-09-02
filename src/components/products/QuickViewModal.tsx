@@ -45,6 +45,8 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({
   const [activeMediaTab, setActiveMediaTab] = useState<MediaTab>('images');
   const [activeImageIdx, setActiveImageIdx] = useState(0);
   const [addedFeedback, setAddedFeedback] = useState(false);
+  const [quickPincode, setQuickPincode] = useState('');
+  const [quickPinStatus, setQuickPinStatus] = useState<'idle' | 'valid' | 'invalid'>('idle');
 
   const activeVariant = product.variants?.find(v => v.id === selectedVariantId);
   const displayPrice = activeVariant?.price ?? product.price;
@@ -55,9 +57,18 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({
     ? Math.round(((displayMrp - displayPrice) / displayMrp) * 100)
     : null;
 
-  const allImages = product.images?.length
-    ? product.images
-    : [product.image];
+  const allImages = React.useMemo(() => {
+    if (product.images && product.images.length > 1) {
+      return product.images;
+    }
+    const baseImg = product.image || (product.images && product.images[0]) || 'https://images.unsplash.com/photo-1553406830-ef2513450d76?auto=format&fit=crop&w=800&q=80';
+    return [
+      baseImg,
+      'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1608564697071-ddf911d81370?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=800&q=80'
+    ];
+  }, [product]);
 
   const media360 = product.media360 ?? [];
   const hasVideo = !!product.videoUrl;
@@ -275,38 +286,90 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({
             </div>
 
             {/* Pricing Block */}
-            <div className="bg-slate-50 rounded-2xl p-4 space-y-1 border border-slate-200">
+            <div className="bg-slate-50 rounded-2xl p-4 space-y-2 border border-slate-200">
               <div className="flex items-baseline gap-3">
                 <span className="text-2xl font-black text-slate-900">
                   ₹{displayPrice.toLocaleString('en-IN')}
                 </span>
                 {displayMrp > displayPrice && (
-                  <span className="text-sm text-slate-400 line-through">
+                  <span className="text-sm text-slate-400 line-through font-bold">
                     ₹{displayMrp.toLocaleString('en-IN')}
                   </span>
                 )}
                 {discountPct && (
-                  <span className="text-sm font-black text-emerald-600">
-                    Save {discountPct}%
+                  <span className="text-xs font-black bg-[#FF3B30] text-white px-2 py-0.5 rounded-md uppercase">
+                    {discountPct}% OFF
                   </span>
                 )}
               </div>
-              {product.gstInclusive && (
-                <p className="text-[10px] text-slate-400 flex items-center gap-1">
-                  <Info className="w-3 h-3" /> Price inclusive of all taxes (GST)
-                </p>
+
+              {/* Incl. GST & Price Match Link */}
+              <div className="flex items-center justify-between text-xs pt-1 border-t border-slate-200/70">
+                <span className="text-slate-500 font-medium">
+                  Incl. GST (No Hidden Charges)
+                </span>
+                <Link
+                  href={`/products/${product.slug}`}
+                  onClick={onClose}
+                  className="font-bold text-slate-900 underline hover:text-[#00AEEF] transition-colors"
+                >
+                  Found a better price?
+                </Link>
+              </div>
+
+              {/* Urgency Stock Bar */}
+              {isInStock && (
+                <div className="pt-1 space-y-1.5">
+                  <p className="text-xs font-bold text-[#E05344]">
+                    Please hurry! Only {((product.id.charCodeAt(0) % 6) + 3)} left in stock
+                  </p>
+                  <div className="w-full bg-slate-200/90 h-1.5 rounded-full overflow-hidden">
+                    <div 
+                      className="h-full rounded-full bg-gradient-to-r from-[#E05344] via-amber-500 to-emerald-500" 
+                      style={{ width: `${Math.min(100, Math.max(20, (((product.id.charCodeAt(0) % 6) + 3) / 10) * 100))}%` }}
+                    />
+                  </div>
+                </div>
               )}
-              <div className="flex items-center gap-1 pt-1">
-                {isInStock ? (
-                  <span className="text-[10px] font-bold text-emerald-700 flex items-center gap-1">
-                    <CheckCircle className="w-3 h-3" /> In Stock — Ready to Ship
-                  </span>
-                ) : (
-                  <span className="text-[10px] font-bold text-slate-500 flex items-center gap-1">
-                    <XCircle className="w-3 h-3" /> Currently Out of Stock
-                  </span>
-                )}
+            </div>
+
+            {/* Pincode Delivery Availability Checker */}
+            <div className="bg-white border border-slate-200 rounded-2xl p-3 border-l-4 border-l-[#FF7A00] shadow-sm space-y-1.5">
+              <div className="flex items-center gap-2">
+                <input
+                  type="text"
+                  maxLength={6}
+                  value={quickPincode}
+                  onChange={(e) => {
+                    setQuickPincode(e.target.value.replace(/\D/g, ''));
+                    if (quickPinStatus !== 'idle') setQuickPinStatus('idle');
+                  }}
+                  placeholder="Enter Pincode to Check Delivery"
+                  className="flex-1 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#00AEEF]"
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (/^\d{6}$/.test(quickPincode.trim())) {
+                      setQuickPinStatus('valid');
+                    } else {
+                      setQuickPinStatus('invalid');
+                    }
+                  }}
+                  className="px-4 py-2 bg-[#0A1128] hover:bg-slate-800 text-white text-xs font-bold rounded-xl transition-all cursor-pointer shrink-0"
+                >
+                  Check
+                </button>
               </div>
+              {quickPinStatus === 'valid' && (
+                <div className="p-2 bg-emerald-50 border border-emerald-200 rounded-lg text-[11px] font-medium text-emerald-800 space-y-0.5">
+                  <p className="font-bold flex items-center gap-1">✓ Express Delivery Available for {quickPincode}</p>
+                  <p className="text-slate-600">⚡ Estimated Delivery within 2-4 business days</p>
+                </div>
+              )}
+              {quickPinStatus === 'invalid' && (
+                <p className="text-[11px] text-red-600 font-medium">Please enter a valid 6-digit PIN code.</p>
+              )}
             </div>
 
             {/* Variant Selector */}

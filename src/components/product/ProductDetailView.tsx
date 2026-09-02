@@ -92,7 +92,19 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ slug }) =>
   }
 
   // ── Derived data
-  const galleryImages = product.images?.length ? product.images : [product.image];
+  const galleryImages = React.useMemo(() => {
+    if (product.images && product.images.length > 1) {
+      return product.images;
+    }
+    const baseImg = product.image || (product.images && product.images[0]) || 'https://images.unsplash.com/photo-1553406830-ef2513450d76?auto=format&fit=crop&w=800&q=80';
+    return [
+      baseImg,
+      'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1608564697071-ddf911d81370?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=800&q=80'
+    ];
+  }, [product]);
+
   const currentPrice = selectedVariant?.price ?? product.price;
 
   const relatedProducts = PRODUCTS.filter(

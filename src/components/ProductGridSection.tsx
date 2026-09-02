@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { 
@@ -156,6 +156,34 @@ export const ProductGridSection: React.FC<ProductSectionProps> = ({
   // Scroll containers
   const curatedScrollRef = useRef<HTMLDivElement | null>(null);
   const categoryScrollContainers = useRef<{ [key: string]: HTMLDivElement | null }>({});
+  const jumpScrollRef = useRef<HTMLDivElement | null>(null);
+  const [isJumpPaused, setIsJumpPaused] = useState(false);
+
+  // Smooth continuous auto-scroll for Jump To category bar
+  useEffect(() => {
+    let animationId: number;
+    let lastTime: number | null = null;
+    const speed = 35; // Pixels per second for a smooth, gentle drift
+
+    const step = (time: number) => {
+      if (lastTime !== null && jumpScrollRef.current && !isJumpPaused) {
+        const delta = (time - lastTime) / 1000;
+        const container = jumpScrollRef.current;
+        const halfWidth = container.scrollWidth / 2;
+
+        container.scrollLeft += speed * delta;
+
+        if (container.scrollLeft >= halfWidth) {
+          container.scrollLeft -= halfWidth;
+        }
+      }
+      lastTime = time;
+      animationId = requestAnimationFrame(step);
+    };
+
+    animationId = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(animationId);
+  }, [isJumpPaused]);
 
   const scrollCurated = (direction: 'left' | 'right') => {
     if (curatedScrollRef.current) {
@@ -398,20 +426,36 @@ export const ProductGridSection: React.FC<ProductSectionProps> = ({
             </div>
           </div>
 
-          {/* Quick Jump Category Bar */}
-          <div className="bg-white/90 backdrop-blur-md rounded-2xl border border-slate-200/90 p-2 shadow-2xs">
-            <div className="flex items-center gap-2 overflow-x-auto scrollbar-none py-1 px-1 text-xs">
-              <span className="text-[11px] font-black uppercase tracking-wider text-slate-400 pl-2 shrink-0 flex items-center gap-1">
-                <SlidersHorizontal className="w-3 h-3 text-[#00AEEF]" /> Jump To:
-              </span>
+          {/* Quick Jump Category Bar with smooth continuous auto-scroll */}
+          <div 
+            className="bg-white/90 backdrop-blur-md rounded-2xl border border-slate-200/90 p-2 shadow-2xs relative flex items-center overflow-hidden"
+            onMouseEnter={() => setIsJumpPaused(true)}
+            onMouseLeave={() => setIsJumpPaused(false)}
+            onTouchStart={() => setIsJumpPaused(true)}
+            onTouchEnd={() => setIsJumpPaused(false)}
+          >
+            {/* Pinned "Jump To:" label badge */}
+            <div className="pl-2 pr-3 shrink-0 flex items-center gap-1.5 border-r border-slate-200/80 text-[11px] font-black uppercase tracking-wider text-slate-500 z-20 bg-white/90">
+              <SlidersHorizontal className="w-3.5 h-3.5 text-[#00AEEF]" /> 
+              <span className="whitespace-nowrap">Jump To:</span>
+            </div>
 
-              {categoryOrder.map((catName) => {
+            {/* Left and Right Fade Mask Gradients */}
+            <div className="pointer-events-none absolute left-[90px] sm:left-[100px] top-0 bottom-0 w-6 bg-gradient-to-r from-white via-white/80 to-transparent z-10" />
+            <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-white via-white/80 to-transparent z-10" />
+
+            {/* Auto-scrolling Track */}
+            <div 
+              ref={jumpScrollRef}
+              className="flex items-center gap-2 overflow-x-auto scrollbar-none py-1 pl-3 pr-8 text-xs select-none"
+            >
+              {[...categoryOrder, ...categoryOrder].map((catName, idx) => {
                 const config = CATEGORY_CONFIGS[catName];
                 const IconComponent = config ? config.Icon : PackageCheck;
 
                 return (
                   <button
-                    key={catName}
+                    key={`${catName}-${idx}`}
                     onClick={() => scrollToCategoryShelf(catName)}
                     className="shrink-0 bg-slate-50 hover:bg-[#E0F7FC] text-slate-700 hover:text-[#00AEEF] border border-slate-200/80 hover:border-[#00AEEF]/40 px-3.5 py-2 rounded-xl font-extrabold flex items-center gap-1.5 transition-all cursor-pointer shadow-2xs group"
                   >
