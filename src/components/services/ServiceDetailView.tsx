@@ -5,7 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { CategoryBreadcrumb } from '@/components/categories/CategoryBreadcrumb';
 import { ServiceEnquiryModal } from '@/components/services/ServiceEnquiryModal';
-import { SERVICES_DATA, ServiceItem } from '@/data/servicesData';
+import { SERVICES_DATA } from '@/data/servicesData';
 import { CheckCircle2, ArrowLeft, Send, MessageSquare, Maximize2, X } from 'lucide-react';
 
 interface ServiceDetailProps {

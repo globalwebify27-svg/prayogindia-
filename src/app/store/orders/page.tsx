@@ -15,8 +15,15 @@ import {
   Download,
   FileText,
   X,
-  Sparkles
+  Sparkles,
+  Wallet,
+  Banknote,
+  QrCode,
+  CreditCard,
+  Check
 } from 'lucide-react';
+
+import { getAllSessions, saveSession, generateInvoiceNo, WalkInSession, POS_BROADCAST_CHANNEL } from '@/data/storeConfig';
 
 export default function StoreOrdersPage() {
   const [orders, setOrders] = useState<any[]>([]);
@@ -24,17 +31,98 @@ export default function StoreOrdersPage() {
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
   const [selectedInvoice, setSelectedInvoice] = useState<any | null>(null);
+  const [paymentOrder, setPaymentOrder] = useState<any | null>(null);
+  const [paymentMode, setPaymentMode] = useState<'CASH' | 'UPI' | 'CARD'>('CASH');
+  const [processingPayment, setProcessingPayment] = useState(false);
 
-  useEffect(() => {
+  const fetchOrders = () => {
     fetch('/api/store/orders')
       .then(res => res.json())
       .then(data => {
         if (data.success) {
-          setOrders(data.data.items || []);
-          setStoreCode(data.store || 'STORE');
+          const apiOrders = data.data.items || [];
+          const currentStore = data.store || 'RANCHI';
+          setStoreCode(currentStore);
+
+          // Also merge live walk-in sessions for this store
+          const localSessions = getAllSessions().filter(
+            s => s.storeId.toUpperCase() === currentStore.toUpperCase()
+          );
+
+          // Convert walk-in sessions to order table structure
+          const walkInOrders = localSessions.map(s => ({
+            id: s.id,
+            storeCode: currentStore,
+            storeLocation: `${currentStore} Central Branch`,
+            customerName: s.customerName,
+            customerPhone: s.customerPhone,
+            customerEmail: s.customerEmail,
+            totalAmount: s.total,
+            status: s.status === 'PENDING' ? 'NEW KIOSK ORDER' : s.status === 'ACCEPTED' ? 'ACCEPTED' : s.status === 'PAID' ? 'PAID & BILLED' : s.status,
+            createdAt: s.createdAt,
+            items: s.items,
+            isLiveWalkIn: true,
+            isPaid: s.status === 'PAID',
+            rawSession: s,
+          }));
+
+          // Merge live walk-in orders at top (newest first)
+          const merged = [...walkInOrders, ...apiOrders];
+          setOrders(merged);
         }
       })
       .finally(() => setLoading(false));
+  };
+
+  const handleConfirmPayment = () => {
+    if (!paymentOrder) return;
+    setProcessingPayment(true);
+
+    if (paymentOrder.rawSession) {
+      const invNo = generateInvoiceNo(paymentOrder.rawSession.storeId);
+      const updated: WalkInSession = {
+        ...paymentOrder.rawSession,
+        status: 'PAID',
+        invoiceNo: invNo,
+        updatedAt: new Date().toISOString(),
+      };
+      saveSession(updated);
+
+      // Broadcast to other tabs & POS
+      if (typeof window !== 'undefined') {
+        const bc = new BroadcastChannel(POS_BROADCAST_CHANNEL);
+        bc.postMessage({ type: 'SESSION_UPDATED', session: updated });
+        bc.close();
+      }
+
+      fetch('/api/pos/sessions', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ storeId: updated.storeId, sessionId: updated.id, updates: { status: 'PAID', invoiceNo: invNo } }),
+      }).catch(() => {});
+    }
+
+    setTimeout(() => {
+      setProcessingPayment(false);
+      setPaymentOrder(null);
+      fetchOrders();
+    }, 600);
+  };
+
+  useEffect(() => {
+    fetchOrders();
+
+    // Listen for live kiosk checkout orders via BroadcastChannel
+    let bc: BroadcastChannel | null = null;
+    if (typeof window !== 'undefined') {
+      bc = new BroadcastChannel(POS_BROADCAST_CHANNEL);
+      bc.onmessage = (e) => {
+        if (e.data?.type === 'NEW_SESSION' || e.data?.type === 'SESSION_UPDATED') {
+          fetchOrders();
+        }
+      };
+    }
+    return () => bc?.close();
   }, []);
 
   const filteredOrders = orders.filter(o => 
@@ -124,21 +212,39 @@ export default function StoreOrdersPage() {
                       ₹{order.totalAmount?.toLocaleString('en-IN') || '2,499'}
                     </td>
                     <td className="px-6 py-4">
-                      <span className="inline-flex items-center gap-1 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider">
+                      <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${
+                        order.isPaid || order.status === 'PAID & BILLED' || order.status === 'DELIVERED'
+                          ? 'bg-emerald-500/10 border border-emerald-500/20 text-emerald-400'
+                          : 'bg-amber-500/10 border border-amber-500/20 text-amber-400'
+                      }`}>
                         <CheckCircle2 className="w-3 h-3" /> {order.status || 'CONFIRMED'}
                       </span>
                     </td>
                     <td className="px-6 py-4 text-slate-400 text-[11px]">
-                      {new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
+                      {new Date(order.createdAt || Date.now()).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
                     </td>
                     <td className="px-6 py-4 text-right">
-                      <button
-                        onClick={() => setSelectedInvoice(order)}
-                        className="inline-flex items-center gap-1.5 bg-[#00AEEF] hover:bg-[#0096D6] text-slate-950 text-xs font-black px-3 py-1.5 rounded-xl transition-all cursor-pointer shadow-md shadow-[#00AEEF]/20"
-                      >
-                        <FileText className="w-3.5 h-3.5" />
-                        <span>Generate Bill</span>
-                      </button>
+                      <div className="flex items-center justify-end gap-2">
+                        {(!order.isPaid && order.status !== 'PAID & BILLED') && (
+                          <button
+                            onClick={() => {
+                              setPaymentOrder(order);
+                              setPaymentMode('CASH');
+                            }}
+                            className="inline-flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black px-3 py-1.5 rounded-xl transition-all cursor-pointer shadow-md shadow-emerald-600/20 active:scale-95"
+                          >
+                            <Wallet className="w-3.5 h-3.5" />
+                            <span>Take Payment</span>
+                          </button>
+                        )}
+                        <button
+                          onClick={() => setSelectedInvoice(order)}
+                          className="inline-flex items-center gap-1.5 bg-[#00AEEF] hover:bg-[#0096D6] text-slate-950 text-xs font-black px-3 py-1.5 rounded-xl transition-all cursor-pointer shadow-md shadow-[#00AEEF]/20 active:scale-95"
+                        >
+                          <FileText className="w-3.5 h-3.5" />
+                          <span>Generate Bill</span>
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))
@@ -147,6 +253,97 @@ export default function StoreOrdersPage() {
           </table>
         </div>
       </div>
+
+      {/* ── Store Manager Take Payment Modal ── */}
+      {paymentOrder && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md">
+          <div className="w-full max-w-md bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-7 space-y-5 shadow-2xl animate-fade-in">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+                  <Wallet className="w-4 h-4" />
+                </div>
+                <div>
+                  <h2 className="text-base font-black text-white">Receive Customer Payment</h2>
+                  <p className="text-[10px] text-slate-400">Order #{paymentOrder.id}</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setPaymentOrder(null)}
+                className="text-slate-400 hover:text-white cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Amount Summary */}
+            <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 text-center space-y-1">
+              <span className="text-[11px] text-slate-400 font-bold uppercase tracking-wider">Total Amount Due</span>
+              <div className="text-3xl font-black text-emerald-400 font-mono">
+                ₹{paymentOrder.totalAmount?.toLocaleString('en-IN')}
+              </div>
+              <div className="text-xs text-slate-300 font-medium pt-1">
+                Customer: <span className="text-white font-bold">{paymentOrder.customerName || paymentOrder.user?.name}</span> ({paymentOrder.customerPhone || 'Walk-in'})
+              </div>
+            </div>
+
+            {/* Payment Method Selector */}
+            <div className="space-y-2">
+              <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                Select Received Payment Mode
+              </label>
+              <div className="grid grid-cols-3 gap-2">
+                {[
+                  { id: 'CASH', label: 'Cash Desk', icon: Banknote },
+                  { id: 'UPI', label: 'UPI / QR', icon: QrCode },
+                  { id: 'CARD', label: 'Card Swipe', icon: CreditCard },
+                ].map((mode) => {
+                  const Icon = mode.icon;
+                  const active = paymentMode === mode.id;
+                  return (
+                    <button
+                      key={mode.id}
+                      type="button"
+                      onClick={() => setPaymentMode(mode.id as any)}
+                      className={`p-3 rounded-2xl border flex flex-col items-center gap-1.5 transition-all cursor-pointer ${
+                        active
+                          ? 'bg-emerald-500/10 border-emerald-500 text-emerald-400 shadow-md shadow-emerald-500/10'
+                          : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-slate-200'
+                      }`}
+                    >
+                      <Icon className="w-5 h-5" />
+                      <span className="text-[11px] font-extrabold">{mode.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Confirm Payment Button */}
+            <div className="pt-2">
+              <button
+                type="button"
+                onClick={handleConfirmPayment}
+                disabled={processingPayment}
+                className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs py-3.5 rounded-2xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/30 cursor-pointer disabled:opacity-50 active:scale-[0.99]"
+              >
+                {processingPayment ? (
+                  <div className="flex items-center gap-2">
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    <span>Recording Payment & Generating Receipt...</span>
+                  </div>
+                ) : (
+                  <>
+                    <Check className="w-4 h-4" />
+                    <span>Confirm Received ₹{paymentOrder.totalAmount?.toLocaleString('en-IN')} & Mark Paid</span>
+                  </>
+                )}
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
 
       {/* Store Manager Official Tax Invoice Modal */}
       {selectedInvoice && (

@@ -389,7 +389,7 @@ export async function markNotificationAsRead(id: string) {
   try {
     const res = await fetch(`/api/notifications/${id}/read`, { method: 'PATCH' });
     return await res.json();
-  } catch (err) {
+  } catch {
     return { success: false, message: 'Network error.' };
   }
 }
@@ -398,7 +398,7 @@ export async function markAllNotificationsAsRead() {
   try {
     const res = await fetch('/api/notifications/read-all', { method: 'PATCH' });
     return await res.json();
-  } catch (err) {
+  } catch {
     return { success: false, message: 'Network error.' };
   }
 }

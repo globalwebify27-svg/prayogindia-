@@ -135,7 +135,8 @@ export function evaluatePromoCoupon(
   customerType: string,
   userEmail?: string,
   hasPreviousOrders: boolean = false,
-  isWalkInPos: boolean = false
+  isWalkInPos: boolean = false,
+  cartItems?: { category?: string; sku?: string; price: number; quantity: number }[]
 ): { valid: boolean; discountAmount: number; message: string } {
   if (!coupon.isActive) {
     return { valid: false, discountAmount: 0, message: 'This promo code is currently inactive.' };
@@ -189,13 +190,33 @@ export function evaluatePromoCoupon(
     }
   }
 
+  // Check Category / SKU Applicability (if specified)
+  let eligibleBaseAmount = cartTotal;
+  if (cartItems && cartItems.length > 0) {
+    if (coupon.applicableCategory && coupon.applicableCategory !== 'All') {
+      const categoryItems = cartItems.filter(item => item.category === coupon.applicableCategory);
+      if (categoryItems.length === 0) {
+        return { valid: false, discountAmount: 0, message: `This coupon is only applicable on items from "${coupon.applicableCategory}".` };
+      }
+      eligibleBaseAmount = categoryItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    }
+
+    if (coupon.applicableSku && coupon.applicableSku.trim() !== '') {
+      const skuItems = cartItems.filter(item => item.sku?.toUpperCase() === coupon.applicableSku?.toUpperCase());
+      if (skuItems.length === 0) {
+        return { valid: false, discountAmount: 0, message: `This coupon is only valid for product SKU: ${coupon.applicableSku}.` };
+      }
+      eligibleBaseAmount = skuItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    }
+  }
+
   // Calculate Discount
   let rawDiscount = 0;
   if (coupon.discountType === 'percentage') {
-    rawDiscount = Math.round((cartTotal * coupon.discountValue) / 100);
+    rawDiscount = Math.round((eligibleBaseAmount * coupon.discountValue) / 100);
     rawDiscount = Math.min(rawDiscount, coupon.maxDiscountAmount);
   } else {
-    rawDiscount = Math.min(coupon.discountValue, coupon.maxDiscountAmount, cartTotal);
+    rawDiscount = Math.min(coupon.discountValue, coupon.maxDiscountAmount, eligibleBaseAmount);
   }
 
   return {

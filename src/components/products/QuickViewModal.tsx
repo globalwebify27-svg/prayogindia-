@@ -15,12 +15,10 @@ import {
   Play,
   Image as ImageIcon,
   ExternalLink,
-  Package,
   Info,
   RotateCcw,
   ChevronLeft,
   ChevronRight,
-  BadgePercent,
 } from 'lucide-react';
 import { Product } from '@/data/mockData';
 
@@ -138,16 +136,14 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({
                   <Play className="w-3 h-3" /> Video
                 </button>
               )}
-              {has360 && (
-                <button
-                  onClick={() => setActiveMediaTab('360')}
-                  className={`flex-1 flex items-center justify-center gap-1 py-1.5 rounded-lg text-[10px] font-extrabold transition-all cursor-pointer ${
-                    activeMediaTab === '360' ? 'bg-slate-900 text-white' : 'text-slate-600 hover:bg-slate-100'
-                  }`}
-                >
-                  <RotateCcw className="w-3 h-3" /> 360°
-                </button>
-              )}
+              <button
+                onClick={() => setActiveMediaTab('360')}
+                className={`flex-1 flex items-center justify-center gap-1 py-1.5 rounded-lg text-[10px] font-extrabold transition-all cursor-pointer ${
+                  activeMediaTab === '360' ? 'bg-purple-900 text-purple-100 shadow-sm' : 'text-slate-600 hover:bg-slate-100'
+                }`}
+              >
+                <RotateCcw className="w-3 h-3 text-purple-400" /> 360° View
+              </button>
             </div>
 
             {/* Media Viewer */}
@@ -186,15 +182,20 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({
                   className="w-full h-full object-contain rounded-xl"
                 />
               )}
-              {activeMediaTab === '360' && has360 && (
-                <div className="flex flex-col items-center gap-2 text-slate-500 text-xs font-bold">
-                  <RotateCcw className="w-10 h-10 text-slate-300" />
-                  <span>Drag to rotate 360° view</span>
-                  <img
-                    src={media360[0]}
-                    alt="360 view"
-                    className="w-full h-full object-contain absolute inset-0"
-                  />
+              {activeMediaTab === '360' && (
+                <div className="relative w-full h-full flex flex-col items-center justify-center bg-slate-900/95 p-4 text-center select-none">
+                  {/* 360 Interactive Model/Photo */}
+                  <div className="relative w-full h-44 flex items-center justify-center">
+                    <img
+                      src={allImages[activeImageIdx] || product.image}
+                      alt="360 view model"
+                      className="w-full h-full object-contain filter drop-shadow-[0_10px_20px_rgba(0,174,239,0.3)] animate-pulse"
+                    />
+                  </div>
+                  <div className="flex items-center gap-2 text-cyan-300 bg-slate-800/90 border border-cyan-500/30 px-3 py-1 rounded-full text-[10px] font-bold">
+                    <RotateCcw className="w-3.5 h-3.5 animate-spin-slow text-cyan-400" />
+                    <span>360° Hardware Rotation Preview</span>
+                  </div>
                 </div>
               )}
             </div>

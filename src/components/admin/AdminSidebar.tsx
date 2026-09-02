@@ -28,7 +28,10 @@ import {
   Layers,
   Lock,
   BarChart3,
-  MessageSquare
+  MessageSquare,
+  DollarSign,
+  Percent,
+  Hash
 } from 'lucide-react';
 
 interface AdminSidebarProps {
@@ -47,8 +50,13 @@ const NAV_GROUPS = [
     group: 'CATALOG & PROCUREMENT',
     items: [
       { label: 'Products & Specs', href: '/admin/products', icon: Package },
+      { label: 'Categories', href: '/admin/categories', icon: FolderTree },
+      { label: 'Subcategories', href: '/admin/categories?tab=subcategories', icon: FolderTree },
+      { label: 'Bulk Price Update', href: '/admin/bulk-edit?mode=price', icon: DollarSign },
+      { label: 'Bulk Discount Update', href: '/admin/bulk-edit?mode=discount', icon: Percent },
+      { label: 'Bulk GST Update', href: '/admin/bulk-edit?mode=gst', icon: Tag },
+      { label: 'Bulk SKU Update', href: '/admin/bulk-edit?mode=sku', icon: Hash },
       { label: 'Bulk Catalogue Editor', href: '/admin/bulk-edit', icon: Layers },
-      { label: 'Category Hierarchy', href: '/admin/categories', icon: FolderTree },
       { label: 'Product Relationships', href: '/admin/relationships', icon: Link2 },
       { label: 'Multi-Location Stock', href: '/admin/inventory', icon: Boxes },
       { label: 'Physical Store Branches', href: '/admin/stores', icon: Building2 },
@@ -57,11 +65,11 @@ const NAV_GROUPS = [
     ],
   },
   {
-    group: 'SALES, POS & INVOICING',
+    group: 'SALES & FINANCIAL DOCUMENTS',
     items: [
       { label: 'Orders & Fulfillment', href: '/admin/orders', icon: ShoppingBag },
+      { label: 'Sales Documents (Quotes & Invoices)', href: '/admin/quotations', icon: FileText },
       { label: 'Walk-in POS Desk', href: '/admin/pos', icon: Tablet },
-      { label: 'Sales Quotations & B2B', href: '/admin/quotations', icon: FileText },
       { label: 'Executive Incentives', href: '/admin/incentives', icon: Award },
       { label: 'Order Profit & Margins', href: '/admin/profit', icon: Lock },
       { label: 'Rewards & Loyalty', href: '/admin/rewards', icon: Award },

@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { 
   Layers, 
   Search, 
@@ -16,31 +17,75 @@ import {
   Save, 
   AlertTriangle,
   ArrowRight,
-  ShieldCheck
+  ShieldCheck,
+  FolderTree,
+  TrendingUp,
+  PackageCheck,
+  Building2,
+  FolderSync
 } from 'lucide-react';
 import { PRODUCTS, Product } from '@/data/mockData';
 
-export default function AdminBulkEditPage() {
+type BulkAction = 
+  | 'PRICE_PERCENT' 
+  | 'PRICE_FLAT' 
+  | 'MRP_UPDATE' 
+  | 'DISCOUNT_PERCENT' 
+  | 'GST_RATE' 
+  | 'SKU_PREFIX' 
+  | 'CATEGORY_UPDATE' 
+  | 'STOCK_UPDATE';
+
+function BulkEditContent() {
+  const searchParams = useSearchParams();
+  const initialMode = searchParams.get('mode');
+
   const [products, setProducts] = useState<Product[]>(PRODUCTS);
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
+  const [selectedSubcategory, setSelectedSubcategory] = useState<string>('All');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedProductIds, setSelectedProductIds] = useState<string[]>([]);
 
   // Bulk Operation Drawer / Modal State
-  const [bulkActionType, setBulkActionType] = useState<
-    'PRICE_PERCENT' | 'PRICE_FLAT' | 'MRP_UPDATE' | 'DISCOUNT_PERCENT' | 'GST_RATE' | 'SKU_PREFIX' | 'STOCK_INCREMENT'
-  >('PRICE_PERCENT');
+  const [bulkActionType, setBulkActionType] = useState<BulkAction>('PRICE_PERCENT');
   const [bulkActionValue, setBulkActionValue] = useState('10');
+  const [targetCategory, setTargetCategory] = useState('Arduino & Microcontrollers');
   const [showApplyModal, setShowApplyModal] = useState(false);
   const [successNotice, setSuccessNotice] = useState<string | null>(null);
 
-  // Categories extraction
+  // Synchronize initial mode from URL search query (e.g. ?mode=price, ?mode=discount, ?mode=gst, ?mode=sku)
+  useEffect(() => {
+    if (initialMode === 'price') {
+      setBulkActionType('PRICE_PERCENT');
+      setBulkActionValue('10');
+    } else if (initialMode === 'discount') {
+      setBulkActionType('DISCOUNT_PERCENT');
+      setBulkActionValue('15');
+    } else if (initialMode === 'gst') {
+      setBulkActionType('GST_RATE');
+      setBulkActionValue('18');
+    } else if (initialMode === 'sku') {
+      setBulkActionType('SKU_PREFIX');
+      setBulkActionValue('PRG-2026');
+    }
+  }, [initialMode]);
+
+  // Categories & Subcategories extraction
   const categories = ['All', ...Array.from(new Set(PRODUCTS.map(p => p.category)))];
+  
+  const availableSubcategories = ['All', ...Array.from(
+    new Set(
+      PRODUCTS
+        .filter(p => selectedCategory === 'All' || p.category === selectedCategory)
+        .map(p => p.subcategory || 'General')
+    )
+  )];
 
   const filteredProducts = products.filter(p => {
     const matchesCat = selectedCategory === 'All' || p.category === selectedCategory;
+    const matchesSubcat = selectedSubcategory === 'All' || (p.subcategory || 'General') === selectedSubcategory;
     const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase()) || p.sku.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesCat && matchesSearch;
+    return matchesCat && matchesSubcat && matchesSearch;
   });
 
   const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -64,43 +109,70 @@ export default function AdminBulkEditPage() {
       return;
     }
 
-    const val = parseFloat(bulkActionValue);
+    const numVal = parseFloat(bulkActionValue);
 
     setProducts(prev => prev.map(prod => {
       if (!selectedProductIds.includes(prod.id)) return prod;
 
-      let updated = { ...prod };
+      const updated = { ...prod };
 
       switch (bulkActionType) {
-        case 'PRICE_PERCENT':
-          // e.g. +10% price increase
-          const newPrice = Math.round(prod.price * (1 + val / 100));
+        case 'PRICE_PERCENT': {
+          // Bulk Selling Price Percentage Update (e.g. supplier cost hike +10% or -5%)
+          const newPrice = Math.round(prod.price * (1 + numVal / 100));
           updated.price = Math.max(1, newPrice);
-          break;
-        case 'PRICE_FLAT':
-          // e.g. +₹50
-          updated.price = Math.max(1, prod.price + val);
-          break;
-        case 'MRP_UPDATE':
-          // Set MRP as multiplier or flat
-          updated.mrp = Math.round(prod.price * (1 + val / 100));
-          break;
-        case 'DISCOUNT_PERCENT':
-          updated.discount = `${Math.round(val)}% OFF`;
-          break;
-        case 'GST_RATE':
-          // @ts-ignore
-          updated.gstPercent = Math.round(val);
-          break;
-        case 'SKU_PREFIX':
-          if (!prod.sku.startsWith(bulkActionValue)) {
-            updated.sku = `${bulkActionValue}-${prod.sku}`;
+          if (updated.mrp < updated.price) {
+            updated.mrp = Math.round(updated.price * 1.25);
           }
           break;
-        case 'STOCK_INCREMENT':
-          // @ts-ignore
-          updated.stock = Math.max(0, (prod.stock || 20) + val);
+        }
+        case 'PRICE_FLAT': {
+          // Bulk Selling Price Flat Update (e.g. +₹100)
+          updated.price = Math.max(1, prod.price + numVal);
+          if (updated.mrp < updated.price) {
+            updated.mrp = Math.round(updated.price * 1.2);
+          }
           break;
+        }
+        case 'MRP_UPDATE': {
+          // Bulk MRP Update (% markup above selling price)
+          updated.mrp = Math.round(prod.price * (1 + numVal / 100));
+          break;
+        }
+        case 'DISCOUNT_PERCENT': {
+          // Bulk Discount % and Tag update
+          const discPercent = Math.max(0, Math.min(99, numVal));
+          updated.discount = `${Math.round(discPercent)}% OFF`;
+          updated.price = Math.round(prod.mrp * (1 - discPercent / 100));
+          break;
+        }
+        case 'GST_RATE': {
+          // Bulk GST Rate update (e.g. 18%, 12%, 5%, 0%)
+          // @ts-ignore
+          updated.gstPercent = Math.round(numVal);
+          break;
+        }
+        case 'SKU_PREFIX': {
+          // Bulk SKU Standardization (e.g. PRG-2026-ARD-001)
+          const cleanPrefix = bulkActionValue.trim().toUpperCase();
+          if (cleanPrefix && !prod.sku.startsWith(cleanPrefix)) {
+            updated.sku = `${cleanPrefix}-${prod.sku.replace(/^PRG-/, '')}`;
+          }
+          break;
+        }
+        case 'CATEGORY_UPDATE': {
+          // Bulk Category reassignment
+          updated.category = targetCategory;
+          break;
+        }
+        case 'STOCK_UPDATE': {
+          // Bulk Stock increment or direct set
+          const currentStock = (prod as any).stock || 25;
+          const newStock = Math.max(0, currentStock + numVal);
+          (updated as any).stock = newStock;
+          updated.inStock = newStock > 0;
+          break;
+        }
       }
 
       return updated;
@@ -119,14 +191,14 @@ export default function AdminBulkEditPage() {
         <div>
           <div className="flex items-center gap-2">
             <span className="text-[10px] font-black uppercase tracking-widest text-[#00AEEF] bg-[#E0F7FC] px-3.5 py-1 rounded-full border border-[#00AEEF]/20">
-              Section 47 · Bulk Product Catalogue Management
+              Bulk Product Management Engine
             </span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight mt-1">
-            Bulk Catalogue Operations &amp; Price Updates
+            Bulk Catalogue &amp; Batch Operations
           </h1>
           <p className="text-xs text-slate-500">
-            Apply 1-click batch updates across categories for Selling Prices, MRP, Discount %, GST rates (18%, 12%, 5%), and SKU standardizers.
+            Execute batch selling price adjustments, MRP markups, seasonal discount launches, GST tax standardization, SKU formatting, and category migrations.
           </p>
         </div>
 
@@ -146,7 +218,7 @@ export default function AdminBulkEditPage() {
           }`}
         >
           <Sparkles className="w-4 h-4 text-[#FFC20E]" />
-          <span>Apply Bulk Action ({selectedProductIds.length})</span>
+          <span>Apply Bulk Operation ({selectedProductIds.length})</span>
         </button>
       </div>
 
@@ -158,22 +230,122 @@ export default function AdminBulkEditPage() {
         </div>
       )}
 
-      {/* 2. Bulk Action Quick Bar */}
+      {/* 2. Business Use-Case Shortcuts */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+        {[
+          {
+            title: 'Supplier Cost Change',
+            desc: '+8% Selling Price',
+            icon: TrendingUp,
+            color: 'text-amber-600 bg-amber-50 border-amber-200',
+            action: () => {
+              setBulkActionType('PRICE_PERCENT');
+              setBulkActionValue('8');
+              if (selectedProductIds.length > 0) setShowApplyModal(true);
+            }
+          },
+          {
+            title: 'Category Clearance Offer',
+            desc: '25% Seasonal Discount',
+            icon: Percent,
+            color: 'text-blue-600 bg-blue-50 border-blue-200',
+            action: () => {
+              setBulkActionType('DISCOUNT_PERCENT');
+              setBulkActionValue('25');
+              if (selectedProductIds.length > 0) setShowApplyModal(true);
+            }
+          },
+          {
+            title: 'GST Rate Compliance',
+            desc: 'Set GST to 18%',
+            icon: Tag,
+            color: 'text-purple-600 bg-purple-50 border-purple-200',
+            action: () => {
+              setBulkActionType('GST_RATE');
+              setBulkActionValue('18');
+              if (selectedProductIds.length > 0) setShowApplyModal(true);
+            }
+          },
+          {
+            title: 'SKU Standardization',
+            desc: 'Prefix: PRG-2026',
+            icon: Hash,
+            color: 'text-emerald-600 bg-emerald-50 border-emerald-200',
+            action: () => {
+              setBulkActionType('SKU_PREFIX');
+              setBulkActionValue('PRG-2026');
+              if (selectedProductIds.length > 0) setShowApplyModal(true);
+            }
+          },
+          {
+            title: 'Shelf Restock Batch',
+            desc: '+50 Units Stock',
+            icon: Boxes,
+            color: 'text-cyan-600 bg-cyan-50 border-cyan-200',
+            action: () => {
+              setBulkActionType('STOCK_UPDATE');
+              setBulkActionValue('50');
+              if (selectedProductIds.length > 0) setShowApplyModal(true);
+            }
+          },
+        ].map((shortcut, i) => {
+          const Icon = shortcut.icon;
+          return (
+            <button
+              key={i}
+              type="button"
+              onClick={shortcut.action}
+              className={`p-3.5 rounded-2xl border text-left flex flex-col justify-between transition-all hover:shadow-sm active:scale-95 cursor-pointer ${shortcut.color}`}
+            >
+              <div className="flex items-center justify-between w-full">
+                <Icon className="w-4 h-4" />
+                <span className="text-[10px] font-black uppercase">Batch Preset</span>
+              </div>
+              <div className="mt-2">
+                <div className="font-extrabold text-xs text-slate-900 leading-tight">{shortcut.title}</div>
+                <div className="text-[11px] font-medium text-slate-600 mt-0.5">{shortcut.desc}</div>
+              </div>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* 3. Category & Subcategory Filtering Bar */}
       <div className="bg-white border border-slate-200 rounded-3xl p-5 shadow-2xs space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-4">
           
-          {/* Category Filter */}
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-bold text-slate-500">Filter Category:</span>
-            <select
-              value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
-              className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 text-xs font-bold text-slate-900 focus:outline-none focus:border-[#00AEEF]"
-            >
-              {categories.map((c) => (
-                <option key={c} value={c}>{c}</option>
-              ))}
-            </select>
+          <div className="flex flex-wrap items-center gap-3">
+            {/* Category Filter */}
+            <div className="flex items-center gap-1.5">
+              <FolderTree className="w-4 h-4 text-slate-400" />
+              <span className="text-xs font-bold text-slate-500">Category:</span>
+              <select
+                value={selectedCategory}
+                onChange={(e) => {
+                  setSelectedCategory(e.target.value);
+                  setSelectedSubcategory('All');
+                }}
+                className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 text-xs font-bold text-slate-900 focus:outline-none focus:border-[#00AEEF]"
+              >
+                {categories.map((c) => (
+                  <option key={c} value={c}>{c}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Subcategory Filter */}
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs font-bold text-slate-500">Subcategory:</span>
+              <select
+                value={selectedSubcategory}
+                onChange={(e) => setSelectedSubcategory(e.target.value)}
+                className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 text-xs font-bold text-slate-900 focus:outline-none focus:border-[#00AEEF]"
+              >
+                {availableSubcategories.map((sc) => (
+                  <option key={sc} value={sc}>{sc}</option>
+                ))}
+              </select>
+            </div>
           </div>
 
           {/* Search SKU or Name */}
@@ -183,7 +355,7 @@ export default function AdminBulkEditPage() {
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search products in view..."
+              placeholder="Search by SKU or name..."
               className="w-full bg-slate-50 border border-slate-200 pl-9 pr-3 py-1.5 rounded-xl text-xs font-bold text-slate-900 focus:outline-none"
             />
           </div>
@@ -195,7 +367,7 @@ export default function AdminBulkEditPage() {
         </div>
       </div>
 
-      {/* 3. Products Batch Table */}
+      {/* 4. Products Batch Table */}
       <div className="bg-white rounded-3xl border border-slate-200 p-6 shadow-2xs space-y-4">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
@@ -210,12 +382,12 @@ export default function AdminBulkEditPage() {
                   />
                 </th>
                 <th className="pb-3 font-black">Product Name &amp; SKU</th>
-                <th className="pb-3 font-black">Category</th>
+                <th className="pb-3 font-black">Category &amp; Subcategory</th>
                 <th className="pb-3 font-black text-right">Selling Price</th>
                 <th className="pb-3 font-black text-right">MRP</th>
                 <th className="pb-3 font-black text-right">Discount</th>
                 <th className="pb-3 font-black text-center">GST %</th>
-                <th className="pb-3 font-black text-center">Freight Modes</th>
+                <th className="pb-3 font-black text-center">Stock Status</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 font-medium text-slate-700">
@@ -242,8 +414,9 @@ export default function AdminBulkEditPage() {
                       <div className="font-mono text-[10px] text-slate-400 font-bold">{p.sku}</div>
                     </td>
 
-                    <td className="py-3.5 font-semibold text-slate-600">
-                      {p.category}
+                    <td className="py-3.5">
+                      <div className="font-semibold text-slate-700">{p.category}</div>
+                      <div className="text-[10px] text-slate-400">{p.subcategory || 'General'}</div>
                     </td>
 
                     <td className="py-3.5 text-right font-black text-slate-900 text-sm">
@@ -266,8 +439,10 @@ export default function AdminBulkEditPage() {
                     </td>
 
                     <td className="py-3.5 text-center">
-                      <span className="text-[9px] font-black uppercase bg-slate-100 px-2 py-0.5 rounded text-slate-700">
-                        {p.shippingTag || 'Standard'}
+                      <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-full ${
+                        p.inStock ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'
+                      }`}>
+                        {p.inStock ? 'In Stock' : 'Out of Stock'}
                       </span>
                     </td>
                   </tr>
@@ -278,7 +453,7 @@ export default function AdminBulkEditPage() {
         </div>
       </div>
 
-      {/* 4. Bulk Edit Configuration Modal */}
+      {/* 5. Bulk Edit Configuration Modal */}
       {showApplyModal && (
         <div className="fixed inset-0 z-50 overflow-hidden flex items-center justify-center p-4">
           <div onClick={() => setShowApplyModal(false)} className="fixed inset-0 bg-slate-950/70 backdrop-blur-xs animate-in fade-in" />
@@ -287,7 +462,7 @@ export default function AdminBulkEditPage() {
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div>
                 <span className="text-[10px] font-black uppercase tracking-widest text-[#00AEEF]">
-                  Section 47 Batch Action
+                  Bulk Product Editor
                 </span>
                 <h3 className="text-base font-black text-slate-900 uppercase">
                   Execute Bulk Operation
@@ -300,40 +475,56 @@ export default function AdminBulkEditPage() {
 
             <form onSubmit={handleApplyBulkUpdate} className="space-y-4">
               <div>
-                <label className="block font-bold text-slate-700 mb-1">Select Operation Type *</label>
+                <label className="block font-bold text-slate-700 mb-1">Select Bulk Operation Type *</label>
                 <select
                   value={bulkActionType}
                   onChange={(e) => setBulkActionType(e.target.value as any)}
-                  className="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl font-bold text-slate-900"
+                  className="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl font-bold text-slate-900 focus:outline-none"
                 >
-                  <option value="PRICE_PERCENT">Bulk Selling Price Adjustment (+ / - %)</option>
-                  <option value="PRICE_FLAT">Bulk Selling Price Adjustment (+ / - Flat ₹)</option>
-                  <option value="MRP_UPDATE">Bulk MRP Multiplier (% above selling price)</option>
-                  <option value="DISCOUNT_PERCENT">Bulk Discount Tag Update (%)</option>
-                  <option value="GST_RATE">Bulk GST Rate Update (18%, 12%, 5%, 28%)</option>
+                  <option value="PRICE_PERCENT">Bulk Selling Price Update (+ / - %)</option>
+                  <option value="PRICE_FLAT">Bulk Selling Price Update (+ / - Flat ₹)</option>
+                  <option value="MRP_UPDATE">Bulk MRP Markup (% above Selling Price)</option>
+                  <option value="DISCOUNT_PERCENT">Bulk Discount Percentage Update (%)</option>
+                  <option value="GST_RATE">Bulk GST Tax Rate Update (18%, 12%, 5%, 0%)</option>
                   <option value="SKU_PREFIX">Bulk SKU Code Standardization (Add Prefix)</option>
-                  <option value="STOCK_INCREMENT">Bulk Location Stock Increment</option>
+                  <option value="CATEGORY_UPDATE">Bulk Category / Department Reassignment</option>
+                  <option value="STOCK_UPDATE">Bulk Stock Quantity Increment (+ Units)</option>
                 </select>
               </div>
 
-              <div>
-                <label className="block font-bold text-slate-700 mb-1">
-                  {bulkActionType === 'SKU_PREFIX' ? 'SKU Prefix String' : 'Adjustment Value'} *
-                </label>
-                <input
-                  type={bulkActionType === 'SKU_PREFIX' ? 'text' : 'number'}
-                  required
-                  value={bulkActionValue}
-                  onChange={(e) => setBulkActionValue(e.target.value)}
-                  placeholder={bulkActionType === 'SKU_PREFIX' ? 'PRG-2026' : '10'}
-                  className="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl font-bold text-slate-900"
-                />
-              </div>
+              {bulkActionType === 'CATEGORY_UPDATE' ? (
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">Target Category *</label>
+                  <select
+                    value={targetCategory}
+                    onChange={(e) => setTargetCategory(e.target.value)}
+                    className="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl font-bold text-slate-900 focus:outline-none"
+                  >
+                    {categories.filter(c => c !== 'All').map((c) => (
+                      <option key={c} value={c}>{c}</option>
+                    ))}
+                  </select>
+                </div>
+              ) : (
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">
+                    {bulkActionType === 'SKU_PREFIX' ? 'SKU Prefix Code (e.g. PRG-2026)' : 'Operation Parameter Value'} *
+                  </label>
+                  <input
+                    type={bulkActionType === 'SKU_PREFIX' ? 'text' : 'number'}
+                    required
+                    value={bulkActionValue}
+                    onChange={(e) => setBulkActionValue(e.target.value)}
+                    placeholder={bulkActionType === 'SKU_PREFIX' ? 'PRG-2026' : '10'}
+                    className="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl font-bold text-slate-900 focus:outline-none uppercase"
+                  />
+                </div>
+              )}
 
               <div className="bg-blue-50 border border-blue-200 p-3 rounded-2xl text-blue-900 text-[11px] font-medium space-y-1">
-                <span className="font-bold block">Summary of Action:</span>
+                <span className="font-bold block">Scope Summary:</span>
                 <p>
-                  Will apply to <strong>{selectedProductIds.length}</strong> selected hardware products matching category "{selectedCategory}".
+                  Will modify <strong>{selectedProductIds.length}</strong> selected hardware products under category "{selectedCategory}" {selectedSubcategory !== 'All' ? `> "${selectedSubcategory}"` : ''}.
                 </p>
               </div>
 
@@ -347,7 +538,7 @@ export default function AdminBulkEditPage() {
                 </button>
                 <button
                   type="submit"
-                  className="bg-[#00AEEF] hover:bg-[#0096D6] text-white px-6 py-2.5 rounded-xl font-black uppercase tracking-wider shadow-md active:scale-95"
+                  className="bg-[#00AEEF] hover:bg-[#0096D6] text-white px-6 py-2.5 rounded-xl font-black uppercase tracking-wider shadow-md active:scale-95 cursor-pointer"
                 >
                   Commit Batch Update
                 </button>
@@ -360,3 +551,12 @@ export default function AdminBulkEditPage() {
     </div>
   );
 }
+
+export default function AdminBulkEditPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-center text-slate-400 font-bold">Loading Bulk Product Editor...</div>}>
+      <BulkEditContent />
+    </Suspense>
+  );
+}
+

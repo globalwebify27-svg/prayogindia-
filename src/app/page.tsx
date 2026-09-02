@@ -142,8 +142,13 @@ export default function Home() {
             {/* 1. Shop by Category */}
             <ShopByCategory onSelectCategory={handleCategoryNavigation} />
 
-            {/* 2. Featured Categories */}
-            <FeaturedCategories onSelectCategory={handleCategoryNavigation} />
+            {/* 2. Featured Products */}
+            <FeaturedCategories
+              onSelectCategory={handleCategoryNavigation}
+              onAddToCart={handleAddToCart}
+              onToggleWishlist={handleToggleWishlist}
+              wishlistIds={wishlistIds}
+            />
 
             {/* 3. Trending Products / Category Sliders */}
             <ProductGridSection

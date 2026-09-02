@@ -69,6 +69,11 @@ export const ServiceEnquiryModal: React.FC<ServiceEnquiryModalProps> = ({
 
         {!submitted ? (
           <form onSubmit={handleSubmit} className="space-y-4 text-xs">
+            {apiError && (
+              <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 font-bold text-xs">
+                {apiError}
+              </div>
+            )}
             
             {/* Auto-populated Service Field */}
             <div className="space-y-1">

@@ -176,7 +176,7 @@ function StaffLoginForm() {
                   <Store className="w-3 h-3" /> Store Mgr
                 </div>
                 <div className="text-[10px] text-slate-400 font-mono mt-0.5 truncate">@ranchi_mgr</div>
-                <div className="text-[9px] text-slate-500 mt-0.5">/store</div>
+                <div className="text-[9px] text-slate-500 mt-0.5">/storemanager/ranchi</div>
               </button>
 
               <button

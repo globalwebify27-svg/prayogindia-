@@ -108,90 +108,37 @@ export const ShopByCategory: React.FC<Props> = ({ onSelectCategory }) => {
           </div>
 
           <div className="flex items-center gap-3">
-            <div className="flex items-center gap-1.5 mr-2">
-              <button
-                onClick={() => scrollManual('left')}
-                aria-label="Slide left"
-                className="w-8 h-8 rounded-full border border-slate-200 bg-white hover:bg-[#00AEEF] text-slate-600 hover:text-white flex items-center justify-center transition-colors shadow-2xs cursor-pointer"
-              >
-                <ChevronLeft className="w-4 h-4" />
-              </button>
-              <button
-                onClick={() => scrollManual('right')}
-                aria-label="Slide right"
-                className="w-8 h-8 rounded-full border border-slate-200 bg-white hover:bg-[#00AEEF] text-slate-600 hover:text-white flex items-center justify-center transition-colors shadow-2xs cursor-pointer"
-              >
-                <ChevronRight className="w-4 h-4" />
-              </button>
-            </div>
-
             <button 
               onClick={() => onSelectCategory?.('all')}
               className="text-xs sm:text-sm font-extrabold text-[#00AEEF] hover:underline flex items-center gap-1 group cursor-pointer"
             >
-              <span>Explore All</span> <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              <span>Explore All Categories</span> <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </button>
           </div>
         </div>
 
-        {/* Sleek Custom Tech Badges / Filter Pills (Replaces generic emojis) */}
-        <div className="flex items-center gap-2.5 overflow-x-auto pb-2 scrollbar-none text-xs">
-          {QUICK_FILTERS.map((filt, idx) => {
-            const Icon = filt.icon;
-            const isActive = activeFilter === filt.query;
-
-            return (
-              <button
-                key={idx}
-                onClick={() => {
-                  setActiveFilter(filt.query);
-                  onSelectCategory?.(filt.query);
-                }}
-                className={`flex items-center gap-2 px-3.5 py-2 rounded-2xl font-bold text-xs whitespace-nowrap transition-all duration-200 border cursor-pointer shadow-2xs group active:scale-95 ${
-                  isActive
-                    ? 'bg-[#0F172A] text-white border-slate-800 shadow-md ring-2 ring-[#00AEEF]/30'
-                    : 'bg-slate-50/80 hover:bg-white text-slate-700 border-slate-200 hover:border-[#00AEEF]/40 hover:text-[#00AEEF]'
-                }`}
-              >
-                <span className={`w-5 h-5 rounded-lg flex items-center justify-center transition-all ${
-                  isActive
-                    ? 'bg-[#00AEEF] text-white shadow-xs'
-                    : `${filt.accent} group-hover:scale-110`
-                }`}>
-                  <Icon className="w-3.5 h-3.5" />
-                </span>
-                <span className="tracking-tight">{filt.label}</span>
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Automatic Infinite Circular Sliding Cards Carousel Container */}
-        <div 
-          ref={scrollRef}
-          onMouseEnter={() => setIsPaused(true)}
-          onMouseLeave={() => setIsPaused(false)}
-          className="flex items-stretch gap-4 overflow-x-auto scrollbar-none pb-4 pt-1" 
-          style={{ scrollbarWidth: 'none' }}
-        >
-          {INFINITE_CATEGORIES.map((cat, idx) => {
+        {/* Categories Grid - 2 Rows (4 columns on desktop / tablet, 2 on mobile) */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-5 pt-1">
+          {CATEGORIES.map((cat) => {
             const Icon = cat.IconComponent;
             return (
               <div
-                key={`${cat.id}-${idx}`}
+                key={cat.id}
                 onClick={() => onSelectCategory?.(cat.name)}
-                className="w-44 sm:w-52 shrink-0 bg-slate-50 hover:bg-[#E0F7FC]/40 border border-slate-200/80 hover:border-[#00AEEF]/40 rounded-2xl p-4 cursor-pointer transition-all duration-300 hover:shadow-xl group flex flex-col justify-between"
+                className="bg-slate-50/80 hover:bg-[#E0F7FC]/40 border border-slate-200/80 hover:border-[#00AEEF]/50 rounded-2xl p-4 cursor-pointer transition-all duration-300 hover:shadow-xl hover:-translate-y-1 group flex flex-col justify-between"
               >
+                {/* Top: Icon & Count Badge */}
                 <div className="flex items-center justify-between mb-3">
                   <div className="w-10 h-10 rounded-xl bg-white border border-slate-200/80 flex items-center justify-center shadow-2xs group-hover:bg-[#00AEEF] transition-colors">
                     <Icon className="w-5 h-5 text-[#00AEEF] group-hover:text-white transition-colors" />
                   </div>
-                  <span className="text-[10px] font-bold text-slate-400 bg-white px-2 py-0.5 rounded-full border border-slate-100">
+                  <span className="text-[11px] font-bold text-slate-500 bg-white px-2.5 py-1 rounded-full border border-slate-200/70 shadow-2xs">
                     {cat.count}
                   </span>
                 </div>
 
-                <div className="relative h-24 w-full mb-3 rounded-xl overflow-hidden bg-white p-1 border border-slate-100">
+                {/* Category Image */}
+                <div className="relative h-28 sm:h-32 w-full mb-3 rounded-xl overflow-hidden bg-white p-1 border border-slate-100 shadow-2xs">
                   <Image
                     src={cat.image}
                     alt={cat.name}
@@ -200,10 +147,12 @@ export const ShopByCategory: React.FC<Props> = ({ onSelectCategory }) => {
                   />
                 </div>
 
-                <div>
-                  <h3 className="text-xs sm:text-sm font-extrabold text-slate-900 group-hover:text-[#00AEEF] transition-colors leading-tight">
+                {/* Category Name */}
+                <div className="flex items-center justify-between gap-1">
+                  <h3 className="text-xs sm:text-sm font-black text-slate-900 group-hover:text-[#00AEEF] transition-colors leading-tight">
                     {cat.name}
                   </h3>
+                  <ArrowRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-[#00AEEF] group-hover:translate-x-1 transition-all opacity-0 group-hover:opacity-100 shrink-0" />
                 </div>
               </div>
             );

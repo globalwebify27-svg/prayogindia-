@@ -1,5 +1,3 @@
-import bcrypt from 'bcryptjs';
-
 export interface UserRecord {
   id: string;
   name: string;

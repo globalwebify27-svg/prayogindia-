@@ -395,6 +395,18 @@ export default function AdminOffersPage() {
                 </div>
               </div>
 
+              {/* Product SKU Specific Restriction (Optional) */}
+              <div>
+                <label className="block font-bold text-slate-700 mb-1">Specific Product SKU (Optional)</label>
+                <input
+                  type="text"
+                  value={formData.applicableSku || ''}
+                  onChange={(e) => setFormData({ ...formData, applicableSku: e.target.value.toUpperCase().trim() })}
+                  placeholder="e.g. PRG-ARD-001 (Leave blank for all products in category)"
+                  className="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl font-mono text-xs font-bold text-slate-900 focus:outline-none uppercase"
+                />
+              </div>
+
               {/* Row 3: Discount Type & Value */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div>

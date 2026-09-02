@@ -44,10 +44,12 @@ import {
   ExternalLink,
   RefreshCw,
   QrCode as QrCodeIcon,
-  Wallet
+  Wallet,
+  Calendar
 } from 'lucide-react';
 import { PRODUCTS, Product } from '@/data/mockData';
 import { QuickViewModal } from '@/components/Modals';
+import { getProductStockForStore, deductStoreInventory } from '@/lib/inventoryEngine';
 import {
   WalkInSession, SessionStatus,
   getAllSessions, saveSession, generateInvoiceNo,
@@ -124,7 +126,8 @@ function LiveSessionCard({
   };
 
   const elapsed = Math.floor((Date.now() - new Date(session.createdAt).getTime()) / 1000);
-  const elapsedLabel = elapsed < 60 ? `${elapsed}s ago` : `${Math.floor(elapsed / 60)}m ago`;
+  const elapsedLabel = elapsed < 60 ? `${elapsed}s ago` : elapsed < 3600 ? `${Math.floor(elapsed / 60)}m ago` : `${Math.floor(elapsed / 3600)}h ago`;
+  const formattedTime = new Date(session.createdAt).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
   const theme = statusTheme[session.status] || statusTheme.PENDING;
 
   return (
@@ -133,12 +136,12 @@ function LiveSessionCard({
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0 flex-1 pr-1">
           <div className="flex items-center gap-2 mb-1.5 flex-wrap">
-            <span className={`text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full border ${theme.badge}`}>
+            <span className={`text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full border ${theme.badge}`}>
               {statusLabel[session.status]}
             </span>
-            <span className="text-[10px] font-mono text-slate-400 flex items-center gap-1">
-              <Clock className="w-3 h-3" />
-              {elapsedLabel}
+            <span className="text-[10px] font-mono text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md flex items-center gap-1 font-semibold">
+              <Clock className="w-3 h-3 text-slate-400" />
+              {formattedTime} · {elapsedLabel}
             </span>
           </div>
           <div className="text-base font-black text-slate-900 tracking-tight truncate">{session.customerName}</div>
@@ -571,10 +574,20 @@ export default function WalkInPOSPage() {
   });
 
   const handleAddToCart = (product: Product) => {
+    const storeStock = getProductStockForStore(product.id, selectedStore);
+    if (storeStock <= 0) {
+      alert(`Cannot add "${product.name}" to cart: Out of stock at ${selectedStore.toUpperCase()} store (Available: 0). Central product catalogue is available but this branch has 0 inventory.`);
+      return;
+    }
+
     setPosCart((prev) => {
       const existing = prev.find((item) => item.product.id === product.id);
       if (existing) {
         const newQty = existing.quantity + 1;
+        if (newQty > storeStock) {
+          alert(`Cannot exceed available store inventory! Maximum available at ${selectedStore.toUpperCase()}: ${storeStock} units.`);
+          return prev;
+        }
         const { unitPrice: newPrice } = calculateCustomerPrice(product.price, customerType, newQty);
         return prev.map((item) =>
           item.product.id === product.id ? { ...item, quantity: newQty, unitPrice: newPrice } : item
@@ -586,12 +599,18 @@ export default function WalkInPOSPage() {
   };
 
   const handleUpdateQuantity = (productId: string, delta: number) => {
+    const storeStock = getProductStockForStore(productId, selectedStore);
+
     setPosCart((prev) =>
       prev
         .map((item) => {
           if (item.product.id === productId) {
             const newQty = item.quantity + delta;
             if (newQty <= 0) return null;
+            if (newQty > storeStock) {
+              alert(`Cannot exceed available store stock (${storeStock} units at ${selectedStore.toUpperCase()}).`);
+              return item;
+            }
             const { unitPrice: newPrice } = calculateCustomerPrice(item.product.price, customerType, newQty);
             return { ...item, quantity: newQty, unitPrice: newPrice };
           }
@@ -621,6 +640,16 @@ export default function WalkInPOSPage() {
     const ruleCode = getCustomerTypeCode(customerType);
     const typeRule = CUSTOMER_TYPE_RULES[ruleCode];
     const { coinsEarned } = calculateEarnedRewards(grandTotal, customerType);
+
+    // Deduct stock specifically from the active physical store branch
+    posCart.forEach((item) => {
+      deductStoreInventory({
+        productId: item.product.id,
+        quantity: item.quantity,
+        orderSource: 'WALK_IN',
+        storeId: selectedStore,
+      });
+    });
 
     setCompletedTransaction({
       invoiceNo: `POS-${currentStoreId}-${Date.now().toString().slice(-6)}`,
@@ -896,46 +925,94 @@ export default function WalkInPOSPage() {
       </div>
 
       {/* LIVE ORDERS TAB */}
-      {activeTab === 'live' && (
-        <div className="space-y-4 animate-in fade-in duration-200">
+      {activeTab === 'live' && (() => {
+        // Sort newest first by date
+        const sortedSessions = [...filteredSessions].sort(
+          (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
 
-          {filteredSessions.length === 0 ? (
-            <div className="bg-white rounded-3xl border border-slate-200 py-20 text-center">
-              <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4 border border-slate-200">
-                <ShoppingBag className="w-8 h-8 text-slate-300" />
+        // Group sessions by date
+        const groupedByDate: Record<string, WalkInSession[]> = {};
+        sortedSessions.forEach((s) => {
+          const dateObj = new Date(s.createdAt);
+          const today = new Date();
+          const yesterday = new Date(today);
+          yesterday.setDate(yesterday.getDate() - 1);
+
+          let dateKey = dateObj.toLocaleDateString('en-IN', {
+            weekday: 'short',
+            day: 'numeric',
+            month: 'short',
+            year: 'numeric',
+          });
+
+          if (dateObj.toDateString() === today.toDateString()) {
+            dateKey = 'Today';
+          } else if (dateObj.toDateString() === yesterday.toDateString()) {
+            dateKey = 'Yesterday';
+          }
+
+          if (!groupedByDate[dateKey]) groupedByDate[dateKey] = [];
+          groupedByDate[dateKey].push(s);
+        });
+
+        return (
+          <div className="space-y-6 animate-in fade-in duration-200">
+            {sortedSessions.length === 0 ? (
+              <div className="bg-white rounded-3xl border border-slate-200 py-20 text-center">
+                <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4 border border-slate-200">
+                  <ShoppingBag className="w-8 h-8 text-slate-300" />
+                </div>
+                <p className="text-sm font-bold text-slate-500">No customer orders yet</p>
+                <p className="text-xs text-slate-400 mt-1 max-w-xs mx-auto">
+                  When a customer submits an order from the kiosk, it will appear here instantly.
+                </p>
+                <div className="mt-6 flex items-center justify-center gap-3 flex-wrap">
+                  {(['ranchi', 'patna', 'delhi'] as const).map((sid) => (
+                    <a key={sid} href={`/walk-in/${sid}`} target="_blank" rel="noopener noreferrer"
+                      className="flex items-center gap-1.5 text-xs font-extrabold text-[#00AEEF] bg-[#E0F7FC] px-3 py-2 rounded-xl hover:bg-[#00AEEF] hover:text-white transition-colors">
+                      <Store className="w-3.5 h-3.5" />
+                      Open {sid.charAt(0).toUpperCase() + sid.slice(1)} Kiosk
+                      <ExternalLink className="w-3 h-3" />
+                    </a>
+                  ))}
+                </div>
               </div>
-              <p className="text-sm font-bold text-slate-500">No customer orders yet</p>
-              <p className="text-xs text-slate-400 mt-1 max-w-xs mx-auto">
-                When a customer submits an order from the kiosk, it will appear here instantly.
-              </p>
-              <div className="mt-6 flex items-center justify-center gap-3 flex-wrap">
-                {(['ranchi', 'patna', 'delhi'] as const).map((sid) => (
-                  <a key={sid} href={`/walk-in/${sid}`} target="_blank" rel="noopener noreferrer"
-                    className="flex items-center gap-1.5 text-xs font-extrabold text-[#00AEEF] bg-[#E0F7FC] px-3 py-2 rounded-xl hover:bg-[#00AEEF] hover:text-white transition-colors">
-                    <Store className="w-3.5 h-3.5" />
-                    Open {sid.charAt(0).toUpperCase() + sid.slice(1)} Kiosk
-                    <ExternalLink className="w-3 h-3" />
-                  </a>
-                ))}
-              </div>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
-              {filteredSessions.map((session) => (
-                <LiveSessionCard
-                  key={session.id}
-                  session={session}
-                  accentColor="#00AEEF"
-                  onAccept={() => handleAcceptSession(session)}
-                  onMarkPaid={() => handleMarkPaid(session)}
-                  onCancel={() => handleCancelSession(session)}
-                  onPrint={() => handlePrintLiveSession(session)}
-                />
-              ))}
-            </div>
-          )}
-        </div>
-      )}
+            ) : (
+              Object.entries(groupedByDate).map(([dateLabel, sessionsInGroup]) => (
+                <div key={dateLabel} className="space-y-3">
+                  {/* Date Section Header */}
+                  <div className="flex items-center gap-2 pt-2">
+                    <div className="flex items-center gap-1.5 bg-slate-200/80 px-3 py-1 rounded-full text-xs font-black text-slate-800">
+                      <Calendar className="w-3.5 h-3.5 text-[#00AEEF]" />
+                      <span>{dateLabel}</span>
+                    </div>
+                    <div className="h-px bg-slate-200 flex-1" />
+                    <span className="text-[11px] font-bold text-slate-400">
+                      {sessionsInGroup.length} order{sessionsInGroup.length > 1 ? 's' : ''}
+                    </span>
+                  </div>
+
+                  {/* Orders Grid for this date */}
+                  <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
+                    {sessionsInGroup.map((session) => (
+                      <LiveSessionCard
+                        key={session.id}
+                        session={session}
+                        accentColor="#00AEEF"
+                        onAccept={() => handleAcceptSession(session)}
+                        onMarkPaid={() => handleMarkPaid(session)}
+                        onCancel={() => handleCancelSession(session)}
+                        onPrint={() => handlePrintLiveSession(session)}
+                      />
+                    ))}
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        );
+      })()}
 
       {/* MANUAL POS BILLING TAB */}
       {activeTab === 'manual' && (
@@ -1148,58 +1225,74 @@ export default function WalkInPOSPage() {
 
             {/* Product Quick-Click Grid */}
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 max-h-[600px] overflow-y-auto pr-1">
-              {filteredProducts.map((product) => (
-                <div
-                  key={product.id}
-                  className="bg-white border border-slate-200 rounded-2xl p-3 hover:border-[#00AEEF] hover:shadow-md transition-all flex flex-col justify-between group relative"
-                >
-                  <div className="cursor-pointer" onClick={() => handleAddToCart(product)}>
-                    <div className="relative h-24 w-full rounded-xl overflow-hidden bg-slate-50 mb-2">
-                      <Image src={product.image} alt={product.name} fill className="object-contain p-1" />
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setSelectedQuickViewProduct(product);
-                        }}
-                        title="View Full Technical Specifications"
-                        className="absolute top-1.5 right-1.5 w-6 h-6 bg-white/90 hover:bg-white text-slate-600 hover:text-[#00AEEF] rounded-full flex items-center justify-center shadow-xs transition-colors z-10 cursor-pointer"
-                      >
-                        <Eye className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-                    <div className="flex items-center justify-between gap-1 mb-0.5">
-                      <span className="text-[9px] font-mono font-bold text-slate-400 uppercase">{product.sku}</span>
-                      <span className="text-[8px] font-black uppercase px-1.5 py-0.2 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">
-                        {product.inStock ? 'In Store' : 'Out of Stock'}
-                      </span>
-                    </div>
-                    <h3 className="text-xs font-bold text-slate-900 line-clamp-2 leading-tight group-hover:text-[#00AEEF]">
-                      {product.name}
-                    </h3>
-                  </div>
+              {filteredProducts.map((product) => {
+                const storeStock = getProductStockForStore(product.id, selectedStore);
+                const isStoreAvailable = storeStock > 0;
 
-                  <div className="mt-2 pt-2 border-t border-slate-100 flex items-center justify-between">
-                    <span className="text-xs font-extrabold text-slate-900">₹{product.price.toLocaleString()}</span>
-                    <div className="flex items-center gap-1">
-                      <button 
-                        onClick={() => setSelectedQuickViewProduct(product)}
-                        title="Specs"
-                        className="w-6 h-6 rounded-lg bg-slate-100 text-slate-500 hover:bg-[#00AEEF]/20 hover:text-[#00AEEF] flex items-center justify-center transition-colors cursor-pointer"
-                      >
-                        <Info className="w-3.5 h-3.5" />
-                      </button>
-                      <button 
-                        onClick={() => handleAddToCart(product)}
-                        title="Add to Bill"
-                        className="w-6 h-6 rounded-lg bg-[#00AEEF]/10 text-[#00AEEF] group-hover:bg-[#00AEEF] group-hover:text-white flex items-center justify-center transition-colors cursor-pointer"
-                      >
-                        <Plus className="w-3.5 h-3.5" />
-                      </button>
+                return (
+                  <div
+                    key={product.id}
+                    className={`bg-white border rounded-2xl p-3 hover:shadow-md transition-all flex flex-col justify-between group relative ${
+                      isStoreAvailable ? 'border-slate-200 hover:border-[#00AEEF]' : 'border-red-200 bg-slate-50/60 opacity-75'
+                    }`}
+                  >
+                    <div className="cursor-pointer" onClick={() => handleAddToCart(product)}>
+                      <div className="relative h-24 w-full rounded-xl overflow-hidden bg-slate-50 mb-2">
+                        <Image src={product.image} alt={product.name} fill className="object-contain p-1" />
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedQuickViewProduct(product);
+                          }}
+                          title="View Full Technical Specifications"
+                          className="absolute top-1.5 right-1.5 w-6 h-6 bg-white/90 hover:bg-white text-slate-600 hover:text-[#00AEEF] rounded-full flex items-center justify-center shadow-xs transition-colors z-10 cursor-pointer"
+                        >
+                          <Eye className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                      <div className="flex items-center justify-between gap-1 mb-0.5">
+                        <span className="text-[9px] font-mono font-bold text-slate-400 uppercase">{product.sku}</span>
+                        <span className={`text-[8px] font-black uppercase px-1.5 py-0.5 rounded border ${
+                          isStoreAvailable
+                            ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                            : 'bg-red-50 text-red-700 border-red-200'
+                        }`}>
+                          {isStoreAvailable ? `${selectedStore.toUpperCase()}: ${storeStock} in stock` : `${selectedStore.toUpperCase()}: OUT OF STOCK`}
+                        </span>
+                      </div>
+                      <h3 className="text-xs font-bold text-slate-900 line-clamp-2 leading-tight group-hover:text-[#00AEEF]">
+                        {product.name}
+                      </h3>
+                    </div>
+
+                    <div className="mt-2 pt-2 border-t border-slate-100 flex items-center justify-between">
+                      <span className="text-xs font-extrabold text-slate-900">₹{product.price.toLocaleString()}</span>
+                      <div className="flex items-center gap-1">
+                        <button 
+                          onClick={() => setSelectedQuickViewProduct(product)}
+                          title="Specs"
+                          className="w-6 h-6 rounded-lg bg-slate-100 text-slate-500 hover:bg-[#00AEEF]/20 hover:text-[#00AEEF] flex items-center justify-center transition-colors cursor-pointer"
+                        >
+                          <Info className="w-3.5 h-3.5" />
+                        </button>
+                        <button 
+                          onClick={() => handleAddToCart(product)}
+                          disabled={!isStoreAvailable}
+                          title={isStoreAvailable ? 'Add to Bill' : 'Out of Stock at this store'}
+                          className={`w-6 h-6 rounded-lg flex items-center justify-center transition-colors ${
+                            isStoreAvailable
+                              ? 'bg-[#00AEEF]/10 text-[#00AEEF] group-hover:bg-[#00AEEF] group-hover:text-white cursor-pointer'
+                              : 'bg-slate-100 text-slate-300 cursor-not-allowed'
+                          }`}
+                        >
+                          <Plus className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
 
           </div>

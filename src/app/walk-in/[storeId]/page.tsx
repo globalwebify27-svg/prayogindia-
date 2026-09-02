@@ -7,13 +7,15 @@ import {
   Search, Plus, Minus, Trash2, ShoppingCart, ChevronRight, X,
   CheckCircle2, Banknote, QrCode, User, Phone, Mail, ArrowLeft,
   Store, Package, ScanBarcode, Sparkles, Clock, MapPin,
-  MessageSquare, ChevronDown, Tag
+  MessageSquare, ChevronDown, Tag, Zap, Lock, KeyRound, AlertCircle,
+  Tablet, ShieldCheck, LogOut
 } from 'lucide-react';
 import {
   STORES, StoreId, WalkInSession, WalkInCartItem, PaymentMethod,
   saveSession, generateSessionId, generateInvoiceNo, POS_BROADCAST_CHANNEL
 } from '@/data/storeConfig';
 import { PRODUCTS, Product } from '@/data/mockData';
+import { QuickViewModal } from '@/components/products/QuickViewModal';
 
 // ─────────────────────────────────────────────────────
 // Cart item in kiosk state
@@ -37,6 +39,7 @@ function KioskHeader({
   view,
   onCartClick,
   onBack,
+  onLock,
 }: {
   store: typeof STORES[StoreId];
   cartCount: number;
@@ -44,6 +47,7 @@ function KioskHeader({
   view: KioskView;
   onCartClick: () => void;
   onBack: () => void;
+  onLock?: () => void;
 }) {
   const storeData = store;
   return (
@@ -64,32 +68,44 @@ function KioskHeader({
         </div>
       </div>
 
-      {view === 'browse' && (
-        <button
-          onClick={onCartClick}
-          className="relative flex items-center gap-2 text-white font-extrabold text-xs px-4 py-2.5 rounded-2xl shadow-lg active:scale-95 transition-all"
-          style={{ background: cartCount > 0 ? storeData.accentColor : '#94A3B8' }}
-        >
-          <ShoppingCart className="w-4 h-4" />
-          <span className="hidden sm:inline">Cart</span>
-          {cartCount > 0 && (
-            <>
-              <span className="hidden sm:inline">·</span>
-              <span className="hidden sm:inline">₹{cartTotal.toLocaleString()}</span>
-              <span className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 text-white text-[10px] font-black rounded-full flex items-center justify-center shadow">
-                {cartCount}
-              </span>
-            </>
-          )}
-        </button>
-      )}
+      <div className="flex items-center gap-2">
+        {view === 'browse' && (
+          <button
+            onClick={onCartClick}
+            className="relative flex items-center gap-2 text-white font-extrabold text-xs px-4 py-2 rounded-xl shadow-md active:scale-95 transition-all cursor-pointer"
+            style={{ background: cartCount > 0 ? storeData.accentColor : '#64748B' }}
+          >
+            <ShoppingCart className="w-4 h-4" />
+            <span className="hidden sm:inline">Cart</span>
+            {cartCount > 0 && (
+              <>
+                <span className="hidden sm:inline">·</span>
+                <span className="hidden sm:inline">₹{cartTotal.toLocaleString()}</span>
+                <span className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 text-white text-[10px] font-black rounded-full flex items-center justify-center shadow">
+                  {cartCount}
+                </span>
+              </>
+            )}
+          </button>
+        )}
 
-      {view === 'browse' && (
-        <div className="text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-full hidden sm:flex items-center gap-1.5 shrink-0">
-          <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-          Staff Online
-        </div>
-      )}
+        {view === 'browse' && (
+          <div className="text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-full hidden sm:flex items-center gap-1.5 shrink-0">
+            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+            Staff Online
+          </div>
+        )}
+
+        {onLock && (
+          <button
+            onClick={onLock}
+            title="Lock Kiosk Device (Manager Login Required)"
+            className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 transition-colors cursor-pointer shrink-0"
+          >
+            <Lock className="w-4 h-4" />
+          </button>
+        )}
+      </div>
     </header>
   );
 }
@@ -103,16 +119,24 @@ function ProductCard({
   accentColor,
   onAdd,
   onRemove,
+  onBuyNow,
+  onOpenDetail,
 }: {
   product: Product;
   quantity: number;
   accentColor: string;
   onAdd: () => void;
   onRemove: () => void;
+  onBuyNow: () => void;
+  onOpenDetail: () => void;
 }) {
   return (
     <div className="bg-white rounded-2xl border border-slate-200 hover:border-slate-300 hover:shadow-md transition-all duration-200 flex flex-col overflow-hidden group">
-      <div className="relative h-36 sm:h-44 bg-slate-50 overflow-hidden">
+      {/* Product Image Area - Clickable to View Multiple Images & 360 View */}
+      <div 
+        onClick={onOpenDetail}
+        className="relative h-36 sm:h-44 bg-slate-50 overflow-hidden cursor-pointer"
+      >
         <Image src={product.image} alt={product.name} fill className="object-contain p-3 group-hover:scale-105 transition-transform duration-300" />
         {!product.inStock && (
           <div className="absolute inset-0 bg-white/70 flex items-center justify-center">
@@ -127,10 +151,18 @@ function ProductCard({
             <span className="bg-red-500 text-white text-[9px] font-black px-2 py-0.5 rounded-full">{product.discount}</span>
           </div>
         )}
+        <div className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-slate-900/75 backdrop-blur-xs text-white text-[9px] font-bold px-2 py-0.5 rounded-md flex items-center gap-1 shadow-sm">
+          <span>Photos & 360°</span>
+        </div>
       </div>
 
       <div className="p-3 flex flex-col flex-1 gap-2">
-        <h3 className="text-xs font-extrabold text-slate-900 leading-tight line-clamp-2">{product.name}</h3>
+        <h3 
+          onClick={onOpenDetail}
+          className="text-xs font-extrabold text-slate-900 leading-tight line-clamp-2 cursor-pointer hover:text-[#00AEEF] transition-colors"
+        >
+          {product.name}
+        </h3>
         <div className="flex items-baseline gap-2 mt-auto">
           <span className="text-sm font-black text-slate-900">₹{product.price.toLocaleString()}</span>
           <span className="text-[11px] text-slate-400 line-through">₹{product.mrp.toLocaleString()}</span>
@@ -138,23 +170,39 @@ function ProductCard({
 
         {product.inStock ? (
           quantity === 0 ? (
-            <button
-              onClick={onAdd}
-              className="w-full py-2.5 rounded-xl font-extrabold text-xs text-white transition-all active:scale-95 shadow-sm hover:shadow-md flex items-center justify-center gap-1.5"
-              style={{ background: accentColor }}
-            >
-              <Plus className="w-3.5 h-3.5" />
-              Add to Cart
-            </button>
-          ) : (
-            <div className="flex items-center justify-between bg-slate-100 rounded-xl px-1 py-1">
-              <button onClick={onRemove} className="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center hover:bg-slate-50 transition-colors active:scale-90">
-                <Minus className="w-3.5 h-3.5 text-slate-700" />
+            <div className="grid grid-cols-2 gap-1.5 pt-1">
+              <button
+                onClick={onAdd}
+                className="py-2.5 px-1 rounded-xl font-extrabold text-[11px] text-white transition-all active:scale-95 shadow-sm hover:shadow-md flex items-center justify-center gap-1 cursor-pointer"
+                style={{ background: accentColor }}
+              >
+                <Plus className="w-3 h-3 shrink-0" />
+                <span className="truncate">Add to Cart</span>
               </button>
-              <span className="font-black text-slate-900 text-sm w-8 text-center">{quantity}</span>
-              <button onClick={onAdd} className="w-8 h-8 rounded-xl flex items-center justify-center text-white transition-colors active:scale-90"
-                style={{ background: accentColor }}>
-                <Plus className="w-3.5 h-3.5" />
+              <button
+                onClick={onBuyNow}
+                className="py-2.5 px-1 rounded-xl font-extrabold text-[11px] bg-slate-900 hover:bg-slate-800 text-white transition-all active:scale-95 shadow-sm hover:shadow-md flex items-center justify-center text-center cursor-pointer"
+              >
+                <span>Buy Now</span>
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 gap-1.5 pt-1">
+              <div className="flex items-center justify-between bg-slate-100 rounded-xl px-1 py-0.5">
+                <button onClick={onRemove} className="w-7 h-7 rounded-lg bg-white border border-slate-200 flex items-center justify-center hover:bg-slate-50 transition-colors active:scale-90 cursor-pointer">
+                  <Minus className="w-3 h-3 text-slate-700" />
+                </button>
+                <span className="font-black text-slate-900 text-xs w-6 text-center">{quantity}</span>
+                <button onClick={onAdd} className="w-7 h-7 rounded-lg flex items-center justify-center text-white transition-colors active:scale-90 cursor-pointer"
+                  style={{ background: accentColor }}>
+                  <Plus className="w-3 h-3" />
+                </button>
+              </div>
+              <button
+                onClick={onBuyNow}
+                className="py-2 px-1 rounded-xl font-extrabold text-[11px] bg-slate-900 hover:bg-slate-800 text-white transition-all active:scale-95 shadow-sm hover:shadow-md flex items-center justify-center text-center cursor-pointer"
+              >
+                <span>Checkout</span>
               </button>
             </div>
           )
@@ -174,6 +222,14 @@ export default function StoreKioskPage() {
   const storeId = (params?.storeId as StoreId) || 'ranchi';
   const store = STORES[storeId] || STORES.ranchi;
 
+  // ── Kiosk Device Unlock / Manager Authentication State ──
+  const [isDeviceUnlocked, setIsDeviceUnlocked] = useState<boolean>(false);
+  const [checkingAuth, setCheckingAuth] = useState<boolean>(true);
+  const [kioskUsername, setKioskUsername] = useState<string>(`${storeId}_kiosk`);
+  const [kioskPassword, setKioskPassword] = useState<string>('kiosk123');
+  const [loginError, setLoginError] = useState<string>('');
+  const [loginLoading, setLoginLoading] = useState<boolean>(false);
+
   const [view, setView] = useState<KioskView>('browse');
   const [cart, setCart] = useState<KioskCartItem[]>([]);
   const [search, setSearch] = useState('');
@@ -190,11 +246,59 @@ export default function StoreKioskPage() {
   const broadcastRef = useRef<BroadcastChannel | null>(null);
 
   useEffect(() => {
+    // Check if tablet was previously unlocked by the Store Manager
     if (typeof window !== 'undefined') {
+      const savedAuth = localStorage.getItem(`prayog_kiosk_unlocked_${storeId}`);
+      if (savedAuth === 'true') {
+        setIsDeviceUnlocked(true);
+      }
+      setCheckingAuth(false);
       broadcastRef.current = new BroadcastChannel(POS_BROADCAST_CHANNEL);
     }
     return () => broadcastRef.current?.close();
-  }, []);
+  }, [storeId]);
+
+  // Handle Store Manager / Kiosk Staff device login
+  const handleUnlockKiosk = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoginError('');
+    setLoginLoading(true);
+
+    try {
+      const res = await fetch('/api/staff/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: kioskUsername, password: kioskPassword }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        setLoginError(data.message || 'Invalid manager-assigned credentials for this kiosk.');
+        setLoginLoading(false);
+        return;
+      }
+
+      // Save unlocked state for this kiosk tablet
+      if (typeof window !== 'undefined') {
+        localStorage.setItem(`prayog_kiosk_unlocked_${storeId}`, 'true');
+      }
+      setIsDeviceUnlocked(true);
+      setLoginLoading(false);
+    } catch {
+      setLoginError('Authentication failed. Please check network connection.');
+      setLoginLoading(false);
+    }
+  };
+
+  const handleLockKiosk = () => {
+    if (confirm('Lock this kiosk tablet? Store manager will need to login again.')) {
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem(`prayog_kiosk_unlocked_${storeId}`);
+      }
+      setIsDeviceUnlocked(false);
+    }
+  };
 
   // Derived values
   const filteredProducts = PRODUCTS.filter((p) => {
@@ -366,6 +470,11 @@ export default function StoreKioskPage() {
                     accentColor={store.accentColor}
                     onAdd={() => addToCart(p)}
                     onRemove={() => removeFromCart(p)}
+                    onBuyNow={() => {
+                      addToCart(p);
+                      setView('cart');
+                    }}
+                    onOpenDetail={() => setShowProductDetail(p)}
                   />
                 ))}
               </div>
@@ -697,6 +806,128 @@ export default function StoreKioskPage() {
     </div>
   );
 
+  if (checkingAuth) {
+    return (
+      <div className="min-h-screen bg-[#0A0F1D] flex items-center justify-center text-white">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-8 h-8 border-3 border-[#00AEEF] border-t-transparent rounded-full animate-spin" />
+          <span className="text-xs font-bold text-slate-400">Verifying Device Status...</span>
+        </div>
+      </div>
+    );
+  }
+
+  // ── 1. KIOSK LOCKED: Store Manager Setup & Login Form ──
+  if (!isDeviceUnlocked) {
+    return (
+      <div className="min-h-screen bg-[#0A0F1D] flex flex-col justify-center items-center p-4 sm:p-6 relative overflow-hidden font-sans">
+        {/* Glow */}
+        <div 
+          className="absolute -top-40 -left-40 w-96 h-96 rounded-full blur-3xl pointer-events-none opacity-20"
+          style={{ background: store.accentColor }} 
+        />
+        <div className="absolute -bottom-40 -right-40 w-96 h-96 bg-[#00AEEF]/10 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="w-full max-w-md relative z-10">
+          <div className="bg-slate-900/95 border border-slate-800 backdrop-blur-xl rounded-3xl p-6 sm:p-8 shadow-2xl shadow-black/50 space-y-6">
+            
+            {/* Header */}
+            <div className="flex flex-col items-center text-center space-y-2.5">
+              <div 
+                className="w-14 h-14 rounded-2xl flex items-center justify-center text-white shadow-lg border border-white/10"
+                style={{ background: store.accentColor }}
+              >
+                <Tablet className="w-7 h-7" />
+              </div>
+
+              <div>
+                <span 
+                  className="text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-full text-white inline-block mb-1"
+                  style={{ background: store.accentColor }}
+                >
+                  {store.shortName} · In-Store Kiosk
+                </span>
+                <h1 className="text-xl font-black text-white tracking-tight">
+                  Device Authentication Required
+                </h1>
+                <p className="text-xs text-slate-400 mt-1 font-medium">
+                  Enter the store manager-assigned kiosk credentials to unlock this tablet for customer shopping.
+                </p>
+              </div>
+            </div>
+
+            {/* Error banner */}
+            {loginError && (
+              <div className="bg-red-500/10 border border-red-500/30 text-red-300 text-xs p-3.5 rounded-xl flex items-start gap-2.5 font-medium">
+                <AlertCircle className="w-4 h-4 shrink-0 text-red-400 mt-0.5" />
+                <span>{loginError}</span>
+              </div>
+            )}
+
+            {/* Manager Login Form */}
+            <form onSubmit={handleUnlockKiosk} className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-slate-300 mb-1.5 uppercase tracking-wider">
+                  Kiosk Device Username
+                </label>
+                <div className="relative">
+                  <input
+                    type="text"
+                    required
+                    value={kioskUsername}
+                    onChange={(e) => setKioskUsername(e.target.value)}
+                    placeholder={`e.g. ${storeId}_kiosk`}
+                    className="w-full bg-slate-950/80 border border-slate-800 rounded-xl px-4 py-3 pl-10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-[#00AEEF] transition-all font-mono"
+                  />
+                  <User className="w-4 h-4 text-slate-500 absolute left-3.5 top-3.5" />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-300 mb-1.5 uppercase tracking-wider">
+                  Device Security Password
+                </label>
+                <div className="relative">
+                  <input
+                    type="password"
+                    required
+                    value={kioskPassword}
+                    onChange={(e) => setKioskPassword(e.target.value)}
+                    placeholder="••••••••••••"
+                    className="w-full bg-slate-950/80 border border-slate-800 rounded-xl px-4 py-3 pl-10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-[#00AEEF] transition-all"
+                  />
+                  <Lock className="w-4 h-4 text-slate-500 absolute left-3.5 top-3.5" />
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                disabled={loginLoading}
+                className="w-full text-white font-black text-xs py-3.5 rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg cursor-pointer disabled:opacity-50 mt-2 active:scale-[0.99]"
+                style={{ background: store.accentColor }}
+              >
+                {loginLoading ? (
+                  <span>Unlocking Terminal...</span>
+                ) : (
+                  <>
+                    <ShieldCheck className="w-4 h-4" />
+                    <span>Unlock Kiosk for Customers</span>
+                  </>
+                )}
+              </button>
+            </form>
+
+            <div className="text-center pt-2 border-t border-slate-800/80 text-[10px] text-slate-500">
+              Assigned Store: <span className="font-bold text-slate-300">{store.city}</span> · Managed by Branch Store Manager
+            </div>
+
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ── 2. KIOSK UNLOCKED: Customer Shopping Screen ──
   return (
     <div className="min-h-screen bg-slate-100 flex flex-col" style={{ '--accent': store.accentColor } as React.CSSProperties}>
       <KioskHeader
@@ -706,6 +937,7 @@ export default function StoreKioskPage() {
         view={view}
         onCartClick={() => setView('cart')}
         onBack={() => setView(view === 'checkout' ? 'cart' : 'browse')}
+        onLock={handleLockKiosk}
       />
 
       <main className="flex-1 flex flex-col min-h-0 overflow-hidden">
@@ -714,6 +946,17 @@ export default function StoreKioskPage() {
         {view === 'checkout' && renderCheckoutView()}
         {view === 'success' && renderSuccessView()}
       </main>
+
+      {/* ── Full Multiple Images, Video & 360° View Modal ── */}
+      {showProductDetail && (
+        <QuickViewModal
+          product={showProductDetail}
+          onClose={() => setShowProductDetail(null)}
+          onAddToCart={(prod) => {
+            addToCart(prod);
+          }}
+        />
+      )}
     </div>
   );
 }

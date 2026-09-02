@@ -4,7 +4,7 @@ import React from 'react';
 import { CategoryBreadcrumb } from '@/components/categories/CategoryBreadcrumb';
 import { ServiceCard } from '@/components/services/ServiceCard';
 import { SERVICES_DATA } from '@/data/servicesData';
-import { ShieldCheck, Award, Wrench, Users, MessageSquare } from 'lucide-react';
+import { ShieldCheck, Award, Wrench, Users } from 'lucide-react';
 
 export const ServicesLandingView: React.FC = () => {
   return (

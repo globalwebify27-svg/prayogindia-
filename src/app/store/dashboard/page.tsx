@@ -17,6 +17,8 @@ import {
   RefreshCw
 } from 'lucide-react';
 
+import { getAllSessions } from '@/data/storeConfig';
+
 export default function StoreDashboardPage() {
   const [storeData, setStoreData] = useState<any>(null);
   const [inventoryStats, setInventoryStats] = useState<any>(null);
@@ -38,8 +40,24 @@ export default function StoreDashboardPage() {
         setInventoryStats(invData.data);
       }
       if (ordData.success) {
-        setOrders(ordData.data.items || []);
-        setStoreData({ code: ordData.store });
+        const currentStore = ordData.store || 'RANCHI';
+        const apiOrders = ordData.data.items || [];
+        
+        // Merge live kiosk walk-in orders for this branch
+        const localSessions = getAllSessions().filter(
+          s => s.storeId.toUpperCase() === currentStore.toUpperCase()
+        ).map(s => ({
+          id: s.id,
+          storeCode: currentStore,
+          storeLocation: `${currentStore} Central Branch`,
+          customerName: s.customerName,
+          totalAmount: s.total,
+          status: s.status === 'PENDING' ? 'NEW KIOSK' : s.status,
+          items: s.items,
+        }));
+
+        setOrders([...localSessions, ...apiOrders]);
+        setStoreData({ code: currentStore });
       }
     } catch (err) {
       console.error('Failed to load store dashboard data:', err);

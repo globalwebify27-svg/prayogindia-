@@ -275,7 +275,13 @@ export const CheckoutView: React.FC = () => {
         activeCustomerType,
         user?.email,
         false,
-        false
+        false,
+        cart.map(item => ({
+          category: item.product.category,
+          sku: item.product.sku,
+          price: item.product.price,
+          quantity: item.quantity,
+        }))
       );
 
       if (evaluation.valid) {

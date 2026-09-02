@@ -200,7 +200,11 @@ function ProductsContent() {
       />
 
       {/* Page Header */}
-      <ProductsHeader totalCount={filteredProducts.length} />
+      <ProductsHeader 
+        totalCount={filteredProducts.length} 
+        selectedCategory={selectedCategory}
+        onSelectCategory={setSelectedCategory}
+      />
 
       {/* ── Search Box with Suggestions ── */}
       <div className="relative max-w-2xl w-full">

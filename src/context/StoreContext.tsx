@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { Product, ProductVariant, PRODUCTS } from '@/data/mockData';
+import { Product, ProductVariant } from '@/data/mockData';
 import { CustomerType } from '@/data/customerTypes';
 
 export interface CartItem {
@@ -50,7 +50,6 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [cart, setCart] = useState<CartItem[]>([]);
   const [wishlist, setWishlist] = useState<Product[]>([]);
   const [cartNotification, setCartNotification] = useState<{ id: string; product: Product; variant?: ProductVariant; quantity: number } | null>(null);
-  const [isLoaded, setIsLoaded] = useState(false);
 
   // Initialize session from server HTTP cookie
   useEffect(() => {
@@ -67,8 +66,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           });
         }
       })
-      .catch(() => {})
-      .finally(() => setIsLoaded(true));
+      .catch(() => {});
   }, []);
 
   const addToCart = (product: Product, variant?: ProductVariant, quantity = 1) => {
