@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
+import React, { useState } from "react";
+import Link from "next/link";
+import Image from "next/image";
 import {
   Star,
   Heart,
@@ -14,8 +14,8 @@ import {
   XCircle,
   BadgePercent,
   Info,
-} from 'lucide-react';
-import { Product } from '@/data/mockData';
+} from "lucide-react";
+import { Product } from "@/data/mockData";
 
 interface ProductCardProps {
   product: Product;
@@ -32,23 +32,28 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   onQuickView,
   isWishlisted = false,
 }) => {
-  const [selectedVariantId, setSelectedVariantId] = useState<string | undefined>(
-    product.variants?.[0]?.id
-  );
+  const [selectedVariantId, setSelectedVariantId] = useState<
+    string | undefined
+  >(product.variants?.[0]?.id);
 
-  const activeVariant = product.variants?.find(v => v.id === selectedVariantId);
+  const activeVariant = product.variants?.find(
+    (v) => v.id === selectedVariantId,
+  );
 
   const displayPrice = activeVariant?.price ?? product.price;
   const displayMrp = activeVariant?.mrp ?? product.mrp;
   const isInStock = activeVariant ? activeVariant.inStock : product.inStock;
 
-  const discountPct = displayMrp > displayPrice
-    ? Math.round(((displayMrp - displayPrice) / displayMrp) * 100)
-    : null;
+  const discountPct =
+    displayMrp > displayPrice
+      ? Math.round(((displayMrp - displayPrice) / displayMrp) * 100)
+      : null;
 
   // Short tech spec pills — up to 3 entries from specs
   const specPills = product.specs
-    ? Object.entries(product.specs).slice(0, 3).map(([key, val]) => `${key}: ${val}`)
+    ? Object.entries(product.specs)
+        .slice(0, 3)
+        .map(([key, val]) => `${key}: ${val}`)
     : [];
 
   return (
@@ -78,13 +83,15 @@ export const ProductCard: React.FC<ProductCardProps> = ({
               onClick={() => onToggleWishlist(product)}
               className={`w-7 h-7 rounded-full flex items-center justify-center shadow-sm transition-colors cursor-pointer ${
                 isWishlisted
-                  ? 'bg-red-500 text-white'
-                  : 'bg-white/90 text-slate-400 hover:text-red-500 hover:bg-white'
+                  ? "bg-red-500 text-white"
+                  : "bg-white/90 text-slate-400 hover:text-red-500 hover:bg-white"
               }`}
               title="Add to Wishlist"
               aria-label="Wishlist"
             >
-              <Heart className={`w-3.5 h-3.5 ${isWishlisted ? 'fill-current' : ''}`} />
+              <Heart
+                className={`w-3.5 h-3.5 ${isWishlisted ? "fill-current" : ""}`}
+              />
             </button>
           )}
           {onQuickView && (
@@ -114,7 +121,6 @@ export const ProductCard: React.FC<ProductCardProps> = ({
 
       {/* ── Card Body ── */}
       <div className="flex-1 flex flex-col justify-between px-3.5 pb-3.5 pt-2 space-y-2">
-
         {/* SKU + Rating Row */}
         <div className="flex items-center justify-between">
           <span className="text-[9px] font-mono font-bold text-slate-400 uppercase tracking-wider">
@@ -122,13 +128,20 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           </span>
           <div className="flex items-center gap-0.5 text-amber-500">
             <Star className="w-3 h-3 fill-current" />
-            <span className="text-[10px] font-extrabold text-slate-700">{product.rating}</span>
-            <span className="text-[9px] text-slate-400 font-semibold">({product.reviews})</span>
+            <span className="text-[10px] font-extrabold text-slate-700">
+              {product.rating}
+            </span>
+            <span className="text-[9px] text-slate-400 font-semibold">
+              ({product.reviews})
+            </span>
           </div>
         </div>
 
         {/* Product Name */}
-        <Link href={`/products/${product.slug || product.id}`} className="block">
+        <Link
+          href={`/products/${product.slug || product.id}`}
+          className="block"
+        >
           <h3 className="text-xs font-bold text-slate-900 line-clamp-2 leading-snug group-hover:text-[#00AEEF] transition-colors">
             {product.name}
           </h3>
@@ -157,8 +170,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({
                 onClick={() => setSelectedVariantId(v.id)}
                 className={`text-[9px] font-bold px-2 py-0.5 rounded-lg border transition-all cursor-pointer ${
                   selectedVariantId === v.id
-                    ? 'bg-[#00AEEF] text-white border-[#00AEEF]'
-                    : 'bg-slate-50 text-slate-600 border-slate-200 hover:border-[#00AEEF]/50'
+                    ? "bg-[#00AEEF] text-white border-[#00AEEF]"
+                    : "bg-slate-50 text-slate-600 border-slate-200 hover:border-[#00AEEF]/50"
                 }`}
               >
                 {v.name}
@@ -172,11 +185,11 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           <div>
             <div className="flex items-baseline gap-1.5">
               <span className="text-sm font-extrabold text-slate-900">
-                ₹{displayPrice.toLocaleString('en-IN')}
+                ₹{displayPrice.toLocaleString("en-IN")}
               </span>
               {displayMrp > displayPrice && (
                 <span className="text-[10px] text-slate-400 line-through font-medium">
-                  ₹{displayMrp.toLocaleString('en-IN')}
+                  ₹{displayMrp.toLocaleString("en-IN")}
                 </span>
               )}
             </div>
@@ -190,14 +203,18 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           <span
             className={`text-[9px] font-bold flex items-center gap-0.5 px-1.5 py-0.5 rounded-md ${
               isInStock
-                ? 'bg-emerald-50 text-emerald-700'
-                : 'bg-slate-100 text-slate-500'
+                ? "bg-emerald-50 text-emerald-700"
+                : "bg-slate-100 text-slate-500"
             }`}
           >
             {isInStock ? (
-              <><CheckCircle className="w-2.5 h-2.5" /> In Stock</>
+              <>
+                <CheckCircle className="w-2.5 h-2.5" /> In Stock
+              </>
             ) : (
-              <><XCircle className="w-2.5 h-2.5" /> Out of Stock</>
+              <>
+                <XCircle className="w-2.5 h-2.5" /> Out of Stock
+              </>
             )}
           </span>
         </div>
@@ -225,7 +242,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         ) : (
           <a
             href={`https://wa.me/919876543210?text=${encodeURIComponent(
-              `Hi Prayog India, I am interested in ${product.name} (SKU: ${product.sku}). Please notify me when it's back in stock.`
+              `Hi Prayog India, I am interested in ${product.name} (SKU: ${product.sku}). Please notify me when it's back in stock.`,
             )}`}
             target="_blank"
             rel="noopener noreferrer"

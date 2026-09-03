@@ -1,16 +1,19 @@
-import { NextResponse } from 'next/server';
-import { db } from '@/lib/db';
-import { getAuthenticatedAdmin } from '@/lib/adminAuth';
-import { OrderStatus } from '@prisma/client';
+import { NextResponse } from "next/server";
+import { db } from "@/lib/db";
+import { getAuthenticatedAdmin } from "@/lib/adminAuth";
+import { OrderStatus } from "@prisma/client";
 
 // PATCH /api/admin/orders/[id] - Update Order Status & Courier Tracking Assignment
 export async function PATCH(
   request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const admin = await getAuthenticatedAdmin();
   if (!admin) {
-    return NextResponse.json({ success: false, message: 'Forbidden' }, { status: 403 });
+    return NextResponse.json(
+      { success: false, message: "Forbidden" },
+      { status: 403 },
+    );
   }
 
   const resolvedParams = await params;
@@ -22,7 +25,10 @@ export async function PATCH(
 
     if (process.env.DATABASE_URL) {
       const updateData: any = {};
-      if (status && Object.values(OrderStatus).includes(status as OrderStatus)) {
+      if (
+        status &&
+        Object.values(OrderStatus).includes(status as OrderStatus)
+      ) {
         updateData.status = status as OrderStatus;
       }
 
@@ -40,29 +46,32 @@ export async function PATCH(
             courierName,
             trackingNumber,
             trackingUrl: trackingUrl || null,
-            status: 'In Transit',
+            status: "In Transit",
           },
           update: {
             courierName,
             trackingNumber,
             trackingUrl: trackingUrl || null,
-            status: 'In Transit',
+            status: "In Transit",
           },
         });
       }
 
       return NextResponse.json({
         success: true,
-        message: 'Order updated successfully.',
+        message: "Order updated successfully.",
         data: updatedOrder,
       });
     }
 
     return NextResponse.json({
       success: true,
-      message: 'Order updated (Mock Mode).',
+      message: "Order updated (Mock Mode).",
     });
   } catch (error: any) {
-    return NextResponse.json({ success: false, message: error.message }, { status: 500 });
+    return NextResponse.json(
+      { success: false, message: error.message },
+      { status: 500 },
+    );
   }
 }

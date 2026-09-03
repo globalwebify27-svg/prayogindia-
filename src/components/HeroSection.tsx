@@ -1,18 +1,25 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { motion } from 'framer-motion';
-import { ArrowRight, Sparkles, Box, ShieldCheck, Headphones, Cpu, Zap, Radio, Layers } from 'lucide-react';
+import React from "react";
+import { motion } from "framer-motion";
+import {
+  ArrowRight,
+  Sparkles,
+  Box,
+  ShieldCheck,
+  Headphones,
+  Cpu,
+  Zap,
+  Radio,
+  Layers,
+} from "lucide-react";
 
 interface HeroProps {
   onExploreProducts: () => void;
   onExploreSolutions: () => void;
 }
 
-const HERO_VIDEOS = [
-  '/videos/hero_background.mp4',
-  '/videos/hero_video_2.mp4',
-];
+const HERO_VIDEOS = ["/videos/hero_background.mp4", "/videos/hero_video_2.mp4"];
 
 export const HeroSection: React.FC<HeroProps> = ({
   onExploreProducts,
@@ -43,20 +50,21 @@ export const HeroSection: React.FC<HeroProps> = ({
 
   return (
     <section className="bg-[#0B1528] text-white pt-8 pb-14 sm:pt-12 sm:pb-18 lg:pt-14 lg:pb-20 relative border-b border-slate-800 overflow-hidden min-h-[460px] sm:min-h-[500px] lg:min-h-[520px] flex items-center">
-      
       {/* Background Video Layer - Disabled on Mobile (hidden lg:block), Active on Desktop */}
       <div className="hidden lg:block absolute inset-y-0 right-0 w-[65%] h-full z-0 pointer-events-none overflow-hidden">
         {HERO_VIDEOS.map((videoSrc, idx) => (
           <video
             key={videoSrc}
-            ref={(el) => { videoRefs.current[idx] = el; }}
+            ref={(el) => {
+              videoRefs.current[idx] = el;
+            }}
             src={videoSrc}
             autoPlay={idx === 0}
             muted
             playsInline
             onEnded={() => handleVideoEnded(idx)}
             className={`absolute inset-0 w-full h-full object-cover object-center brightness-110 contrast-105 transition-opacity duration-1000 ${
-              idx === currentVideoIndex ? 'opacity-95 z-10' : 'opacity-0 z-0'
+              idx === currentVideoIndex ? "opacity-95 z-10" : "opacity-0 z-0"
             }`}
           />
         ))}
@@ -85,14 +93,9 @@ export const HeroSection: React.FC<HeroProps> = ({
 
       {/* Content Container (Layered on top of background video/robot) */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-20 w-full">
-
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center">
-          
           {/* Left Column Content & Headline - Positioned directly over landscape background video */}
           <div className="lg:col-span-6 space-y-5 sm:space-y-6 text-left">
-            
-
-
             <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-[1.15] text-white drop-shadow-md">
               Saw It Online? <br />
               <span className="text-[#00AEEF]">Now Build Your Own</span> <br />
@@ -100,7 +103,9 @@ export const HeroSection: React.FC<HeroProps> = ({
             </h1>
 
             <p className="text-slate-200 text-sm sm:text-base max-w-lg font-normal leading-relaxed drop-shadow-sm">
-              Explore 10,000+ authentic robotics components, Raspberry Pi 5, drones, STEM lab kits, and microcontrollers built for students, makers & industries.
+              Explore 10,000+ authentic robotics components, Raspberry Pi 5,
+              drones, STEM lab kits, and microcontrollers built for students,
+              makers & industries.
             </p>
 
             {/* Clean Solid CTA Buttons */}
@@ -148,63 +153,63 @@ export const HeroSection: React.FC<HeroProps> = ({
                 </div>
               </div>
             </div>
-
           </div>
 
           {/* Right Column Overlay Container for Floating Info Badges (Desktop) */}
           <div className="hidden lg:flex lg:col-span-6 relative items-center justify-end h-full min-h-[420px]">
-            
             {/* Clean Dark Stacked Info Badges Floating over full-height video */}
             <div className="flex flex-col gap-2.5 z-20">
-              
-              <motion.div 
+              <motion.div
                 whileHover={{ x: -4 }}
                 className="bg-[#0F1C33]/80 backdrop-blur-md p-3 rounded-xl border border-slate-700/60 flex items-center gap-3 w-44 shadow-xl"
               >
                 <div className="w-7 h-7 rounded-lg bg-[#00AEEF]/15 text-[#00AEEF] flex items-center justify-center shrink-0">
                   <Cpu className="w-3.5 h-3.5" />
                 </div>
-                <span className="text-[11px] font-medium text-slate-200 leading-tight">Latest Tech Components</span>
+                <span className="text-[11px] font-medium text-slate-200 leading-tight">
+                  Latest Tech Components
+                </span>
               </motion.div>
 
-              <motion.div 
+              <motion.div
                 whileHover={{ x: -4 }}
                 className="bg-[#0F1C33]/80 backdrop-blur-md p-3 rounded-xl border border-slate-700/60 flex items-center gap-3 w-44 shadow-xl"
               >
                 <div className="w-7 h-7 rounded-lg bg-[#FFC20E]/15 text-[#FFC20E] flex items-center justify-center shrink-0">
                   <Zap className="w-3.5 h-3.5" />
                 </div>
-                <span className="text-[11px] font-medium text-slate-200 leading-tight">Pan-India Fast Delivery</span>
+                <span className="text-[11px] font-medium text-slate-200 leading-tight">
+                  Pan-India Fast Delivery
+                </span>
               </motion.div>
 
-              <motion.div 
+              <motion.div
                 whileHover={{ x: -4 }}
                 className="bg-[#0F1C33]/80 backdrop-blur-md p-3 rounded-xl border border-slate-700/60 flex items-center gap-3 w-44 shadow-xl"
               >
                 <div className="w-7 h-7 rounded-lg bg-[#00AEEF]/15 text-[#00AEEF] flex items-center justify-center shrink-0">
                   <Headphones className="w-3.5 h-3.5" />
                 </div>
-                <span className="text-[11px] font-medium text-slate-200 leading-tight">Expert Support & Guidance</span>
+                <span className="text-[11px] font-medium text-slate-200 leading-tight">
+                  Expert Support & Guidance
+                </span>
               </motion.div>
 
-              <motion.div 
+              <motion.div
                 whileHover={{ x: -4 }}
                 className="bg-[#0F1C33]/80 backdrop-blur-md p-3 rounded-xl border border-slate-700/60 flex items-center gap-3 w-44 shadow-xl"
               >
                 <div className="w-7 h-7 rounded-lg bg-[#FFC20E]/15 text-[#FFC20E] flex items-center justify-center shrink-0">
                   <Radio className="w-3.5 h-3.5" />
                 </div>
-                <span className="text-[11px] font-medium text-slate-200 leading-tight">For Students & Makers</span>
+                <span className="text-[11px] font-medium text-slate-200 leading-tight">
+                  For Students & Makers
+                </span>
               </motion.div>
-
             </div>
-
           </div>
-
         </div>
-
       </div>
-
     </section>
   );
 };

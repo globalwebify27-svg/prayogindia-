@@ -1,6 +1,6 @@
-import { Metadata } from 'next';
-import { SERVICES_DATA } from '@/data/servicesData';
-import { ServiceDetailView } from '@/components/services/ServiceDetailView';
+import { Metadata } from "next";
+import { SERVICES_DATA } from "@/data/servicesData";
+import { ServiceDetailView } from "@/components/services/ServiceDetailView";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -8,10 +8,16 @@ interface Props {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const service = SERVICES_DATA.find(s => s.slug === slug || s.id === slug) || SERVICES_DATA[0];
+  const service =
+    SERVICES_DATA.find((s) => s.slug === slug || s.id === slug) ||
+    SERVICES_DATA[0];
 
-  const title = service ? `${service.name} | Prayog India Services` : 'Service Details | Prayog India';
-  const description = service ? service.shortDescription : 'Turnkey technology and educational lab setup services.';
+  const title = service
+    ? `${service.name} | Prayog India Services`
+    : "Service Details | Prayog India";
+  const description = service
+    ? service.shortDescription
+    : "Turnkey technology and educational lab setup services.";
 
   return {
     title,

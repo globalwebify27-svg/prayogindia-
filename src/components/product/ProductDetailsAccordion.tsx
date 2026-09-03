@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { CheckCircle2, ChevronRight } from 'lucide-react';
+import React from "react";
+import { CheckCircle2, ChevronRight } from "lucide-react";
 
 interface ProductDetailsTabProps {
   description: string;
@@ -22,7 +22,6 @@ export const ProductDetailsAccordion: React.FC<ProductDetailsTabProps> = ({
 }) => {
   return (
     <div className="space-y-10 border-t border-slate-200 pt-10 text-slate-900">
-
       {/* 1. Product Description */}
       <section id="description" className="space-y-3">
         <h2 className="text-xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2">
@@ -84,7 +83,7 @@ export const ProductDetailsAccordion: React.FC<ProductDetailsTabProps> = ({
               <div
                 key={idx}
                 className={`flex items-center gap-3 px-4 py-3 text-xs font-bold text-slate-800 ${
-                  idx > 0 ? 'border-t border-slate-100' : ''
+                  idx > 0 ? "border-t border-slate-100" : ""
                 }`}
               >
                 <div className="w-5 h-5 rounded-full bg-[#00AEEF]/10 text-[#00AEEF] text-[9px] font-black flex items-center justify-center shrink-0">
@@ -98,7 +97,11 @@ export const ProductDetailsAccordion: React.FC<ProductDetailsTabProps> = ({
       )}
 
       {/* 5. Technical Specifications Table */}
-      <section id="specifications" ref={specsRef} className="space-y-4 scroll-mt-24">
+      <section
+        id="specifications"
+        ref={specsRef}
+        className="space-y-4 scroll-mt-24"
+      >
         <h2 className="text-xl font-extrabold text-slate-900 tracking-tight">
           Technical Specifications
         </h2>
@@ -118,7 +121,7 @@ export const ProductDetailsAccordion: React.FC<ProductDetailsTabProps> = ({
               {Object.entries(specs).map(([key, val], idx) => (
                 <tr
                   key={key}
-                  className={`${idx % 2 === 0 ? 'bg-slate-50/70' : 'bg-white'} hover:bg-[#E0F7FC]/50 transition-colors`}
+                  className={`${idx % 2 === 0 ? "bg-slate-50/70" : "bg-white"} hover:bg-[#E0F7FC]/50 transition-colors`}
                 >
                   <td className="py-3 px-5 font-bold text-slate-600 border-b border-slate-100 w-1/3">
                     {key}
@@ -132,7 +135,6 @@ export const ProductDetailsAccordion: React.FC<ProductDetailsTabProps> = ({
           </table>
         </div>
       </section>
-
     </div>
   );
 };

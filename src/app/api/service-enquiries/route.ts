@@ -1,7 +1,7 @@
-import { NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
-import { db } from '@/lib/db';
-import { AuthSessionUser } from '@/lib/authUtils';
+import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
+import { db } from "@/lib/db";
+import { AuthSessionUser } from "@/lib/authUtils";
 
 // Simple In-Memory Rate Limiting Tracker to prevent spam abuse
 const rateLimitMap = new Map<string, { count: number; lastReset: number }>();
@@ -27,7 +27,7 @@ function checkRateLimit(identifier: string): boolean {
 
 async function getAuthenticatedUser(): Promise<AuthSessionUser | null> {
   const cookieStore = await cookies();
-  const sessionCookie = cookieStore.get('prayog_customer_session');
+  const sessionCookie = cookieStore.get("prayog_customer_session");
   if (!sessionCookie?.value) return null;
   try {
     return JSON.parse(sessionCookie.value);
@@ -48,35 +48,64 @@ export async function POST(request: Request) {
     const { serviceId, serviceName, name, email, phone, message } = body;
 
     // 1. Rate Limiting Check
-    const ipIdentifier = user?.id || email || 'anonymous-ip';
+    const ipIdentifier = user?.id || email || "anonymous-ip";
     if (!checkRateLimit(ipIdentifier)) {
       return NextResponse.json(
-        { success: false, message: 'Too many enquiry requests. Please wait a minute before trying again.' },
-        { status: 429 }
+        {
+          success: false,
+          message:
+            "Too many enquiry requests. Please wait a minute before trying again.",
+        },
+        { status: 429 },
       );
     }
 
     // 2. Strict Input Validation
-    if (!name || typeof name !== 'string' || name.trim().length < 2) {
-      return NextResponse.json({ success: false, message: 'Valid contact person name is required.' }, { status: 400 });
+    if (!name || typeof name !== "string" || name.trim().length < 2) {
+      return NextResponse.json(
+        { success: false, message: "Valid contact person name is required." },
+        { status: 400 },
+      );
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!email || typeof email !== 'string' || !emailRegex.test(email.trim())) {
-      return NextResponse.json({ success: false, message: 'Valid email address is required.' }, { status: 400 });
+    if (!email || typeof email !== "string" || !emailRegex.test(email.trim())) {
+      return NextResponse.json(
+        { success: false, message: "Valid email address is required." },
+        { status: 400 },
+      );
     }
 
-    const phoneDigits = String(phone || '').replace(/\D/g, '');
+    const phoneDigits = String(phone || "").replace(/\D/g, "");
     if (!phone || phoneDigits.length < 10 || phoneDigits.length > 15) {
-      return NextResponse.json({ success: false, message: 'Valid 10-digit mobile phone number is required.' }, { status: 400 });
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Valid 10-digit mobile phone number is required.",
+        },
+        { status: 400 },
+      );
     }
 
-    if (!message || typeof message !== 'string' || message.trim().length < 5) {
-      return NextResponse.json({ success: false, message: 'Please enter details about your requirement (at least 5 characters).' }, { status: 400 });
+    if (!message || typeof message !== "string" || message.trim().length < 5) {
+      return NextResponse.json(
+        {
+          success: false,
+          message:
+            "Please enter details about your requirement (at least 5 characters).",
+        },
+        { status: 400 },
+      );
     }
 
     if (message.length > 2000) {
-      return NextResponse.json({ success: false, message: 'Enquiry message is too long (maximum 2000 characters).' }, { status: 400 });
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Enquiry message is too long (maximum 2000 characters).",
+        },
+        { status: 400 },
+      );
     }
 
     if (process.env.DATABASE_URL) {
@@ -88,7 +117,7 @@ export async function POST(request: Request) {
         });
       } else if (serviceName) {
         matchedService = await db.service.findFirst({
-          where: { name: { contains: serviceName, mode: 'insensitive' } },
+          where: { name: { contains: serviceName, mode: "insensitive" } },
         });
       }
 
@@ -111,7 +140,7 @@ export async function POST(request: Request) {
 
         return NextResponse.json({
           success: true,
-          message: 'Service enquiry submitted successfully.',
+          message: "Service enquiry submitted successfully.",
           data: enquiryRecord,
         });
       }
@@ -120,10 +149,10 @@ export async function POST(request: Request) {
     // Mock Mode Fallback Response
     return NextResponse.json({
       success: true,
-      message: 'Service enquiry submitted successfully (Mock Mode).',
+      message: "Service enquiry submitted successfully (Mock Mode).",
       data: {
         id: `enq-${Date.now()}`,
-        serviceName: serviceName || 'Turnkey STEM Service',
+        serviceName: serviceName || "Turnkey STEM Service",
         name,
         email,
         phone,
@@ -131,11 +160,13 @@ export async function POST(request: Request) {
         createdAt: new Date().toISOString(),
       },
     });
-
   } catch (error: any) {
     return NextResponse.json(
-      { success: false, message: error.message || 'Failed to submit service enquiry.' },
-      { status: 500 }
+      {
+        success: false,
+        message: error.message || "Failed to submit service enquiry.",
+      },
+      { status: 500 },
     );
   }
 }
@@ -147,14 +178,17 @@ export async function POST(request: Request) {
 export async function GET() {
   const user = await getAuthenticatedUser();
   if (!user) {
-    return NextResponse.json({ success: false, message: 'Unauthenticated' }, { status: 401 });
+    return NextResponse.json(
+      { success: false, message: "Unauthenticated" },
+      { status: 401 },
+    );
   }
 
   if (process.env.DATABASE_URL) {
     try {
       const enquiries = await db.serviceEnquiry.findMany({
         where: { userId: user.id },
-        orderBy: { createdAt: 'desc' },
+        orderBy: { createdAt: "desc" },
         include: {
           service: true,
         },
@@ -165,13 +199,19 @@ export async function GET() {
         data: enquiries,
       });
     } catch (error: any) {
-      return NextResponse.json({ success: false, message: error.message || 'Failed to fetch enquiries.' }, { status: 500 });
+      return NextResponse.json(
+        {
+          success: false,
+          message: error.message || "Failed to fetch enquiries.",
+        },
+        { status: 500 },
+      );
     }
   }
 
   return NextResponse.json({
     success: true,
     data: [],
-    source: 'mock',
+    source: "mock",
   });
 }

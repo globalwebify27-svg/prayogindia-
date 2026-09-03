@@ -1,42 +1,46 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { PrayogLogo } from '@/components/PrayogLogo';
-import { StaffSessionUser } from '@/lib/staffAuth';
-import { MapPin, LogOut, Tablet, ShieldCheck } from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { PrayogLogo } from "@/components/PrayogLogo";
+import { StaffSessionUser } from "@/lib/staffAuth";
+import { MapPin, LogOut, Tablet, ShieldCheck } from "lucide-react";
 
-export default function KioskLayout({ children }: { children: React.ReactNode }) {
+export default function KioskLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const router = useRouter();
   const [staff, setStaff] = useState<StaffSessionUser | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('/api/staff/auth/me')
-      .then(res => {
+    fetch("/api/staff/auth/me")
+      .then((res) => {
         if (!res.ok) {
-          router.replace('/login-staff');
+          router.replace("/login-staff");
           return null;
         }
         return res.json();
       })
-      .then(data => {
+      .then((data) => {
         if (data?.success && data?.user) {
           setStaff(data.user);
         } else {
-          router.replace('/login-staff');
+          router.replace("/login-staff");
         }
       })
-      .catch(() => router.replace('/login-staff'))
+      .catch(() => router.replace("/login-staff"))
       .finally(() => setLoading(false));
   }, [router]);
 
   const handleLogout = async () => {
     try {
-      await fetch('/api/staff/auth/logout', { method: 'POST' });
-      router.replace('/login-staff');
+      await fetch("/api/staff/auth/logout", { method: "POST" });
+      router.replace("/login-staff");
     } catch {
-      router.replace('/login-staff');
+      router.replace("/login-staff");
     }
   };
 
@@ -45,13 +49,15 @@ export default function KioskLayout({ children }: { children: React.ReactNode })
       <div className="min-h-screen bg-slate-950 flex items-center justify-center text-white font-sans">
         <div className="flex flex-col items-center gap-3">
           <div className="w-10 h-10 border-4 border-[#00AEEF] border-t-transparent rounded-full animate-spin" />
-          <span className="text-xs font-bold tracking-wider text-slate-300">Initializing Prayog Store Kiosk...</span>
+          <span className="text-xs font-bold tracking-wider text-slate-300">
+            Initializing Prayog Store Kiosk...
+          </span>
         </div>
       </div>
     );
   }
 
-  const storeCode = staff?.storeCode || 'RANCHI';
+  const storeCode = staff?.storeCode || "RANCHI";
   const storeName = staff?.storeName || `${storeCode} Store Branch`;
 
   return (
@@ -60,10 +66,12 @@ export default function KioskLayout({ children }: { children: React.ReactNode })
       <header className="bg-white/90 backdrop-blur-xl border-b border-slate-200/80 px-4 sm:px-8 py-3.5 flex items-center justify-between sticky top-0 z-40 shadow-xs">
         <div className="flex items-center gap-3 sm:gap-4">
           <PrayogLogo size="sm" showSubtitle={false} />
-          
+
           <div className="flex items-center gap-2 bg-slate-100 border border-slate-200 px-3 py-1.5 rounded-2xl text-xs font-semibold text-slate-700">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="hidden sm:inline text-slate-500">Self-Checkout</span>
+            <span className="hidden sm:inline text-slate-500">
+              Self-Checkout
+            </span>
             <span className="bg-[#00AEEF] text-slate-950 px-2 py-0.5 rounded-lg font-black text-[10px] tracking-wider uppercase">
               {storeCode}
             </span>
@@ -94,7 +102,8 @@ export default function KioskLayout({ children }: { children: React.ReactNode })
 
       {/* Kiosk Footer */}
       <footer className="bg-white border-t border-slate-200 py-3.5 px-6 text-center text-xs text-slate-500">
-        Prayog India Store Kiosk Engine • Strictly Isolated to {storeName} ({storeCode})
+        Prayog India Store Kiosk Engine • Strictly Isolated to {storeName} (
+        {storeCode})
       </footer>
     </div>
   );

@@ -1,9 +1,13 @@
-import { NextResponse } from 'next/server';
-import { getAuthenticatedStaff, hasStoreAccess } from '@/lib/staffAuth';
-import { MOCK_CUSTOMER_ORDERS } from '@/data/accountData';
-import { getSecurityHeaders } from '@/lib/security';
-import { validateCartForStore, deductStoreInventory, getProductPriceForStore } from '@/lib/inventoryEngine';
-import { StoreId, STORES } from '@/data/storeConfig';
+import { NextResponse } from "next/server";
+import { getAuthenticatedStaff, hasStoreAccess } from "@/lib/staffAuth";
+import { MOCK_CUSTOMER_ORDERS } from "@/data/accountData";
+import { getSecurityHeaders } from "@/lib/security";
+import {
+  validateCartForStore,
+  deductStoreInventory,
+  getProductPriceForStore,
+} from "@/lib/inventoryEngine";
+import { StoreId, STORES } from "@/data/storeConfig";
 
 // In-memory persistent order record store
 const STORE_ORDERS_LOG: any[] = [];
@@ -15,47 +19,52 @@ export async function GET(request: Request) {
 
   if (!staff) {
     return NextResponse.json(
-      { success: false, message: 'Unauthorized. Staff session required.' },
-      { status: 401, headers }
+      { success: false, message: "Unauthorized. Staff session required." },
+      { status: 401, headers },
     );
   }
 
   const { searchParams } = new URL(request.url);
-  const requestedStore = searchParams.get('storeId') || staff.storeCode || staff.storeId;
+  const requestedStore =
+    searchParams.get("storeId") || staff.storeCode || staff.storeId;
 
   // Enforce Backend Store Authorization Check
   if (!hasStoreAccess(staff, requestedStore)) {
     return NextResponse.json(
-      { success: false, message: 'Forbidden: You do not have permission to view data from other stores.' },
-      { status: 403, headers }
+      {
+        success: false,
+        message:
+          "Forbidden: You do not have permission to view data from other stores.",
+      },
+      { status: 403, headers },
     );
   }
 
-  const activeStoreCode = (staff.role === 'SUPER_ADMIN' ? (requestedStore || 'RANCHI') : (staff.storeCode || 'RANCHI')).toUpperCase();
+  const activeStoreCode = (
+    staff.role === "SUPER_ADMIN"
+      ? requestedStore || "RANCHI"
+      : staff.storeCode || "RANCHI"
+  ).toUpperCase();
   const storeId = activeStoreCode.toLowerCase() as StoreId;
 
-  const dynamicOrders = STORE_ORDERS_LOG.filter((o) => o.storeCode?.toUpperCase() === activeStoreCode);
-
-  // Filter orders by store prefix or identifier
-  const mockOrders = MOCK_CUSTOMER_ORDERS.map((order, idx) => ({
-    ...order,
-    id: `ORD-${activeStoreCode}-${1000 + idx}`,
-    storeCode: activeStoreCode,
-    storeLocation: STORES[storeId]?.name || `${activeStoreCode} Branch`,
-  }));
-
-  const allOrders = [...dynamicOrders, ...mockOrders];
+  // Strictly filter only local in-store walk-in POS orders for this branch
+  // Website and Mobile App orders are isolated to Super Admin only.
+  const dynamicOrders = STORE_ORDERS_LOG.filter(
+    (o) =>
+      o.storeCode?.toUpperCase() === activeStoreCode &&
+      o.orderSource === "WALK_IN",
+  );
 
   return NextResponse.json(
     {
       success: true,
       store: activeStoreCode,
       data: {
-        items: allOrders,
-        total: allOrders.length,
+        items: dynamicOrders,
+        total: dynamicOrders.length,
       },
     },
-    { headers }
+    { headers },
   );
 }
 
@@ -66,8 +75,11 @@ export async function POST(request: Request) {
 
   if (!staff) {
     return NextResponse.json(
-      { success: false, message: 'Unauthorized. Active POS/Staff session required.' },
-      { status: 401, headers }
+      {
+        success: false,
+        message: "Unauthorized. Active POS/Staff session required.",
+      },
+      { status: 401, headers },
     );
   }
 
@@ -76,45 +88,57 @@ export async function POST(request: Request) {
     const {
       storeId: rawStoreId,
       items,
-      customerName = 'Walk-in Customer',
-      customerPhone = '',
-      customerEmail = '',
-      paymentMethod = 'CASH',
+      customerName = "Walk-in Customer",
+      customerPhone = "",
+      customerEmail = "",
+      paymentMethod = "CASH",
       discount = 0,
-      notes = '',
+      notes = "",
     } = body;
 
     // Backend derives and validates store authorization
-    const targetStore = (staff.role === 'SUPER_ADMIN' ? (rawStoreId || staff.storeCode || 'ranchi') : (staff.storeCode || staff.storeId || 'ranchi')).toLowerCase() as StoreId;
+    const targetStore = (
+      staff.role === "SUPER_ADMIN"
+        ? rawStoreId || staff.storeCode || "ranchi"
+        : staff.storeCode || staff.storeId || "ranchi"
+    ).toLowerCase() as StoreId;
 
     if (!hasStoreAccess(staff, targetStore)) {
       return NextResponse.json(
-        { success: false, message: 'Forbidden. You do not have authority to place orders for this store.' },
-        { status: 403, headers }
+        {
+          success: false,
+          message:
+            "Forbidden. You do not have authority to place orders for this store.",
+        },
+        { status: 403, headers },
       );
     }
 
     if (!items || !Array.isArray(items) || items.length === 0) {
       return NextResponse.json(
-        { success: false, message: 'Cart items cannot be empty.' },
-        { status: 400, headers }
+        { success: false, message: "Cart items cannot be empty." },
+        { status: 400, headers },
       );
     }
 
     // 1. Authoritative Backend Cart Stock Validation
     const validation = validateCartForStore({
       storeId: targetStore,
-      items: items.map((i: any) => ({ productId: i.productId || i.id, quantity: i.quantity })),
+      items: items.map((i: any) => ({
+        productId: i.productId || i.id,
+        quantity: i.quantity,
+      })),
     });
 
     if (!validation.valid) {
       return NextResponse.json(
         {
           success: false,
-          message: 'Order validation failed: One or more products have insufficient stock.',
+          message:
+            "Order validation failed: One or more products have insufficient stock.",
           errors: validation.errors,
         },
-        { status: 400, headers }
+        { status: 400, headers },
       );
     }
 
@@ -133,17 +157,17 @@ export async function POST(request: Request) {
       const deductionResult = deductStoreInventory({
         productId: pid,
         quantity: qty,
-        orderSource: 'WALK_IN',
+        orderSource: "WALK_IN",
         storeId: targetStore,
         orderId,
         userId: staff.id,
-        deviceId: staff.deviceId || 'POS-DEFAULT',
+        deviceId: staff.deviceId || "POS-DEFAULT",
       });
 
       if (!deductionResult.success) {
         return NextResponse.json(
           { success: false, message: deductionResult.message },
-          { status: 400, headers }
+          { status: 400, headers },
         );
       }
 
@@ -170,14 +194,14 @@ export async function POST(request: Request) {
       storeId: targetStore,
       storeCode: targetStore.toUpperCase(),
       storeLocation: STORES[targetStore]?.name || `${targetStore} Store`,
-      deviceId: staff.deviceId || 'POS-01',
+      deviceId: staff.deviceId || "POS-01",
       cashierId: staff.id,
       cashierName: staff.name,
       customerName,
       customerPhone,
       customerEmail,
-      customerType: 'WALK_IN',
-      orderSource: 'WALK_IN',
+      customerType: "WALK_IN",
+      orderSource: "WALK_IN",
       items: processedItems,
       subtotal,
       discount,
@@ -185,8 +209,8 @@ export async function POST(request: Request) {
       totalAmount: grandTotal,
       grandTotal,
       paymentMethod,
-      paymentStatus: 'PAID',
-      orderStatus: 'DELIVERED',
+      paymentStatus: "PAID",
+      orderStatus: "DELIVERED",
       notes,
       createdAt: new Date().toISOString(),
     };
@@ -199,12 +223,15 @@ export async function POST(request: Request) {
         message: `Walk-in order ${orderId} placed and inventory successfully deducted from ${STORES[targetStore]?.name}.`,
         order: orderRecord,
       },
-      { headers }
+      { headers },
     );
   } catch (error: any) {
     return NextResponse.json(
-      { success: false, message: error.message || 'Failed to process POS walk-in order' },
-      { status: 500, headers }
+      {
+        success: false,
+        message: error.message || "Failed to process POS walk-in order",
+      },
+      { status: 500, headers },
     );
   }
 }

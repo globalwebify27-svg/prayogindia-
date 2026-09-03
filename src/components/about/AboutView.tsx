@@ -1,17 +1,24 @@
-'use client';
+"use client";
 
-import React from 'react';
-import Link from 'next/link';
-import { CategoryBreadcrumb } from '@/components/categories/CategoryBreadcrumb';
-import { COMPANY_INFO } from '@/data/companyData';
-import { ShieldCheck, Target, Eye, Wrench, BookOpen, ShoppingBag, ArrowRight } from 'lucide-react';
+import React from "react";
+import Link from "next/link";
+import { CategoryBreadcrumb } from "@/components/categories/CategoryBreadcrumb";
+import { COMPANY_INFO } from "@/data/companyData";
+import {
+  ShieldCheck,
+  Target,
+  Eye,
+  Wrench,
+  BookOpen,
+  ShoppingBag,
+  ArrowRight,
+} from "lucide-react";
 
 export const AboutView: React.FC = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-12 animate-in fade-in duration-300">
-      
       {/* 1. Breadcrumb */}
-      <CategoryBreadcrumb items={[{ label: 'About Prayog India' }]} />
+      <CategoryBreadcrumb items={[{ label: "About Prayog India" }]} />
 
       {/* 2. Header */}
       <div className="py-6 border-b border-slate-100 space-y-2">
@@ -28,7 +35,9 @@ export const AboutView: React.FC = () => {
 
       {/* 3. Company Introduction */}
       <section className="bg-slate-50 border border-slate-200/80 rounded-3xl p-6 sm:p-10 space-y-4">
-        <h2 className="text-xl font-extrabold text-slate-900 tracking-tight">Our Identity & Mission</h2>
+        <h2 className="text-xl font-extrabold text-slate-900 tracking-tight">
+          Our Identity & Mission
+        </h2>
         <p className="text-xs sm:text-sm text-slate-700 leading-relaxed max-w-4xl">
           {COMPANY_INFO.description}
         </p>
@@ -60,21 +69,30 @@ export const AboutView: React.FC = () => {
       {/* 5. What We Do (Connections to Products, Services, Learning Hub) */}
       <section className="space-y-6">
         <div>
-          <h2 className="text-xl font-extrabold text-slate-900 tracking-tight">What We Do</h2>
-          <p className="text-xs text-slate-500">Connecting hardware, education, and engineering services.</p>
+          <h2 className="text-xl font-extrabold text-slate-900 tracking-tight">
+            What We Do
+          </h2>
+          <p className="text-xs text-slate-500">
+            Connecting hardware, education, and engineering services.
+          </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          
           <div className="bg-white rounded-3xl border border-slate-200 p-6 space-y-3 shadow-2xs flex flex-col justify-between">
             <div className="space-y-2">
               <ShoppingBag className="w-6 h-6 text-[#00AEEF]" />
-              <h4 className="text-base font-extrabold text-slate-900">100% Genuine Hardware</h4>
+              <h4 className="text-base font-extrabold text-slate-900">
+                100% Genuine Hardware
+              </h4>
               <p className="text-xs text-slate-600 leading-relaxed">
-                Official distributor of Arduino, Raspberry Pi, flight controllers, LiDAR sensors, and electronic components.
+                Official distributor of Arduino, Raspberry Pi, flight
+                controllers, LiDAR sensors, and electronic components.
               </p>
             </div>
-            <Link href="/products" className="text-xs font-bold text-[#00AEEF] hover:underline flex items-center gap-1 pt-2">
+            <Link
+              href="/products"
+              className="text-xs font-bold text-[#00AEEF] hover:underline flex items-center gap-1 pt-2"
+            >
               <span>Explore Products Catalogue</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </Link>
@@ -83,12 +101,18 @@ export const AboutView: React.FC = () => {
           <div className="bg-white rounded-3xl border border-slate-200 p-6 space-y-3 shadow-2xs flex flex-col justify-between">
             <div className="space-y-2">
               <Wrench className="w-6 h-6 text-[#00AEEF]" />
-              <h4 className="text-base font-extrabold text-slate-900">Turnkey Lab Setup Services</h4>
+              <h4 className="text-base font-extrabold text-slate-900">
+                Turnkey Lab Setup Services
+              </h4>
               <p className="text-xs text-slate-600 leading-relaxed">
-                STEM labs, Robotics mechatronics setup, UAV Drone flight centers, and custom R&D industrial engineering projects.
+                STEM labs, Robotics mechatronics setup, UAV Drone flight
+                centers, and custom R&D industrial engineering projects.
               </p>
             </div>
-            <Link href="/services" className="text-xs font-bold text-[#00AEEF] hover:underline flex items-center gap-1 pt-2">
+            <Link
+              href="/services"
+              className="text-xs font-bold text-[#00AEEF] hover:underline flex items-center gap-1 pt-2"
+            >
               <span>Explore Lab Services</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </Link>
@@ -97,25 +121,34 @@ export const AboutView: React.FC = () => {
           <div className="bg-white rounded-3xl border border-slate-200 p-6 space-y-3 shadow-2xs flex flex-col justify-between">
             <div className="space-y-2">
               <BookOpen className="w-6 h-6 text-[#00AEEF]" />
-              <h4 className="text-base font-extrabold text-slate-900">Learning Hub & Tutorials</h4>
+              <h4 className="text-base font-extrabold text-slate-900">
+                Learning Hub & Tutorials
+              </h4>
               <p className="text-xs text-slate-600 leading-relaxed">
-                Curriculum manuals, pinout references, sensor tutorials, and educator workshop certifications.
+                Curriculum manuals, pinout references, sensor tutorials, and
+                educator workshop certifications.
               </p>
             </div>
-            <Link href="/learning-hub" className="text-xs font-bold text-[#00AEEF] hover:underline flex items-center gap-1 pt-2">
+            <Link
+              href="/learning-hub"
+              className="text-xs font-bold text-[#00AEEF] hover:underline flex items-center gap-1 pt-2"
+            >
               <span>Explore Learning Hub</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
-
         </div>
       </section>
 
       {/* 6. Contact CTA */}
       <div className="bg-slate-900 text-white rounded-3xl p-8 sm:p-10 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-xl">
         <div className="space-y-1 text-center sm:text-left">
-          <h3 className="text-xl font-extrabold text-white">Have an Institutional Query?</h3>
-          <p className="text-xs text-slate-400">Speak directly with our mechatronics engineers and lab setup team.</p>
+          <h3 className="text-xl font-extrabold text-white">
+            Have an Institutional Query?
+          </h3>
+          <p className="text-xs text-slate-400">
+            Speak directly with our mechatronics engineers and lab setup team.
+          </p>
         </div>
 
         <Link
@@ -125,7 +158,6 @@ export const AboutView: React.FC = () => {
           Contact Our Team
         </Link>
       </div>
-
     </div>
   );
 };

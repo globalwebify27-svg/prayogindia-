@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import React, { useRef, useEffect } from 'react';
-import * as THREE from 'three';
+import React, { useRef, useEffect } from "react";
+import * as THREE from "three";
 
 export const DroneCanvas3D: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -36,10 +36,25 @@ export const DroneCanvas3D: React.FC = () => {
     // 5. Construct 3D Quadcopter Drone Geometry
     const droneGroup = new THREE.Group();
 
-    const bodyMat = new THREE.MeshStandardMaterial({ color: 0x111827, metalness: 0.9, roughness: 0.2 });
-    const armMat = new THREE.MeshStandardMaterial({ color: 0x374151, metalness: 0.8, roughness: 0.3 });
-    const propMat = new THREE.MeshBasicMaterial({ color: 0x0088ff, opacity: 0.8, transparent: true });
-    const cameraMat = new THREE.MeshStandardMaterial({ color: 0x00f0ff, metalness: 0.95 });
+    const bodyMat = new THREE.MeshStandardMaterial({
+      color: 0x111827,
+      metalness: 0.9,
+      roughness: 0.2,
+    });
+    const armMat = new THREE.MeshStandardMaterial({
+      color: 0x374151,
+      metalness: 0.8,
+      roughness: 0.3,
+    });
+    const propMat = new THREE.MeshBasicMaterial({
+      color: 0x0088ff,
+      opacity: 0.8,
+      transparent: true,
+    });
+    const cameraMat = new THREE.MeshStandardMaterial({
+      color: 0x00f0ff,
+      metalness: 0.95,
+    });
 
     // Main Frame Body
     const bodyGeo = new THREE.BoxGeometry(0.7, 0.2, 0.7);
@@ -98,7 +113,7 @@ export const DroneCanvas3D: React.FC = () => {
       targetRotationX = 0.3 - y * 0.5;
     };
 
-    container.addEventListener('mousemove', handleMouseMove);
+    container.addEventListener("mousemove", handleMouseMove);
 
     // 7. Animation Loop with High Speed Propeller Rotation & Hover Float
     let clock = new THREE.Clock();
@@ -113,7 +128,7 @@ export const DroneCanvas3D: React.FC = () => {
 
       // High-speed propeller spin
       propGroupArray.forEach((prop, i) => {
-        prop.rotation.y += (i % 2 === 0 ? 0.4 : -0.4);
+        prop.rotation.y += i % 2 === 0 ? 0.4 : -0.4;
       });
 
       // Smooth mouse rotation tilt
@@ -128,7 +143,7 @@ export const DroneCanvas3D: React.FC = () => {
     // 8. Cleanup
     return () => {
       cancelAnimationFrame(animId);
-      container.removeEventListener('mousemove', handleMouseMove);
+      container.removeEventListener("mousemove", handleMouseMove);
       if (container.contains(renderer.domElement)) {
         container.removeChild(renderer.domElement);
       }
@@ -137,8 +152,8 @@ export const DroneCanvas3D: React.FC = () => {
   }, []);
 
   return (
-    <div 
-      ref={containerRef} 
+    <div
+      ref={containerRef}
       className="w-full h-full min-h-[300px] cursor-grab active:cursor-grabbing flex items-center justify-center"
       title="Hover or move mouse over to tilt 3D Flight Drone in real-time"
     />

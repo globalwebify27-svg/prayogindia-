@@ -1,9 +1,15 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { ShoppingBag, MapPin, Truck, ShieldCheck, CreditCard } from 'lucide-react';
+import React from "react";
+import {
+  ShoppingBag,
+  MapPin,
+  Truck,
+  ShieldCheck,
+  CreditCard,
+} from "lucide-react";
 
-export type CheckoutStep = 'address' | 'delivery' | 'review' | 'payment';
+export type CheckoutStep = "address" | "delivery" | "review" | "payment";
 
 interface CheckoutHeaderProps {
   currentStep: CheckoutStep;
@@ -15,10 +21,10 @@ export const CheckoutHeaderProps: React.FC<CheckoutHeaderProps> = ({
   onStepClick,
 }) => {
   const steps: Array<{ id: CheckoutStep; label: string; icon: any }> = [
-    { id: 'address', label: '1. Shipping Address', icon: MapPin },
-    { id: 'delivery', label: '2. Delivery Method', icon: Truck },
-    { id: 'review', label: '3. Order Review', icon: ShieldCheck },
-    { id: 'payment', label: '4. Payment Mode', icon: CreditCard },
+    { id: "address", label: "1. Shipping Address", icon: MapPin },
+    { id: "delivery", label: "2. Delivery Method", icon: Truck },
+    { id: "review", label: "3. Order Review", icon: ShieldCheck },
+    { id: "payment", label: "4. Payment Mode", icon: CreditCard },
   ];
 
   return (
@@ -45,11 +51,13 @@ export const CheckoutHeaderProps: React.FC<CheckoutHeaderProps> = ({
               onClick={() => onStepClick(step.id)}
               className={`p-3 rounded-2xl border text-left flex items-center gap-2.5 transition-all ${
                 isActive
-                  ? 'bg-[#E0F7FC] border-[#00AEEF] text-[#00AEEF] shadow-xs'
-                  : 'bg-slate-50 border-slate-200 text-slate-500 hover:bg-slate-100'
+                  ? "bg-[#E0F7FC] border-[#00AEEF] text-[#00AEEF] shadow-xs"
+                  : "bg-slate-50 border-slate-200 text-slate-500 hover:bg-slate-100"
               }`}
             >
-              <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-[#00AEEF]' : 'text-slate-400'}`} />
+              <Icon
+                className={`w-4 h-4 shrink-0 ${isActive ? "text-[#00AEEF]" : "text-slate-400"}`}
+              />
               <span className="text-xs font-bold truncate">{step.label}</span>
             </button>
           );

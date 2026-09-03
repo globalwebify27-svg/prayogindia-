@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import React from 'react';
-import Image from 'next/image';
-import { CartItem } from '@/context/StoreContext';
-import { Tag, ShieldCheck, Truck, Award } from 'lucide-react';
+import React from "react";
+import Image from "next/image";
+import { CartItem } from "@/context/StoreContext";
+import { Tag, ShieldCheck, Truck, Award } from "lucide-react";
 
 interface CheckoutSummaryProps {
   cart: CartItem[];
@@ -33,15 +33,23 @@ export const CheckoutOrderSummary: React.FC<CheckoutSummaryProps> = ({
   rewardPointsAvailable,
 }) => {
   const catalogueSavings = Math.max(0, mrpTotal - subtotal);
-  const totalDiscounts = catalogueSavings + couponDiscount + (useRewardPoints ? rewardDiscount : 0);
-  const grandTotal = Math.max(0, subtotal - couponDiscount - (useRewardPoints ? rewardDiscount : 0) + selectedShippingFee);
+  const totalDiscounts =
+    catalogueSavings + couponDiscount + (useRewardPoints ? rewardDiscount : 0);
+  const grandTotal = Math.max(
+    0,
+    subtotal -
+      couponDiscount -
+      (useRewardPoints ? rewardDiscount : 0) +
+      selectedShippingFee,
+  );
 
   return (
     <div className="bg-slate-900 text-white rounded-3xl p-6 sm:p-7 border border-slate-800 shadow-2xl space-y-6">
-      
       <h3 className="text-lg font-black tracking-tight text-white border-b border-slate-800 pb-3 flex items-center justify-between">
         <span>Order Summary</span>
-        <span className="text-xs text-slate-400 font-bold">{cart.reduce((a, b) => a + b.quantity, 0)} Items</span>
+        <span className="text-xs text-slate-400 font-bold">
+          {cart.reduce((a, b) => a + b.quantity, 0)} Items
+        </span>
       </h3>
 
       {/* Product Mini List */}
@@ -49,17 +57,32 @@ export const CheckoutOrderSummary: React.FC<CheckoutSummaryProps> = ({
         {cart.map((item) => {
           const price = item.variant ? item.variant.price : item.product.price;
           return (
-            <div key={`${item.product.id}-${item.variant?.id}`} className="flex items-center justify-between gap-3 text-xs">
+            <div
+              key={`${item.product.id}-${item.variant?.id}`}
+              className="flex items-center justify-between gap-3 text-xs"
+            >
               <div className="flex items-center gap-2.5 min-w-0">
                 <div className="relative w-10 h-10 rounded-xl bg-white p-1 shrink-0 overflow-hidden">
-                  <Image src={item.product.image} alt={item.product.name} fill className="object-contain" />
+                  <Image
+                    src={item.product.image}
+                    alt={item.product.name}
+                    fill
+                    className="object-contain"
+                  />
                 </div>
                 <div className="min-w-0">
-                  <h4 className="font-bold text-white truncate">{item.product.name}</h4>
-                  <span className="text-[10px] text-slate-400">Qty: {item.quantity} {item.variant ? `(${item.variant.name})` : ''}</span>
+                  <h4 className="font-bold text-white truncate">
+                    {item.product.name}
+                  </h4>
+                  <span className="text-[10px] text-slate-400">
+                    Qty: {item.quantity}{" "}
+                    {item.variant ? `(${item.variant.name})` : ""}
+                  </span>
                 </div>
               </div>
-              <span className="font-extrabold text-white shrink-0">₹{(price * item.quantity).toLocaleString()}</span>
+              <span className="font-extrabold text-white shrink-0">
+                ₹{(price * item.quantity).toLocaleString()}
+              </span>
             </div>
           );
         })}
@@ -71,8 +94,12 @@ export const CheckoutOrderSummary: React.FC<CheckoutSummaryProps> = ({
           <div className="flex items-center gap-2">
             <Award className="w-4 h-4 text-[#FFC20E]" />
             <div>
-              <span className="font-bold text-white block">Use Reward Points</span>
-              <span className="text-[10px] text-slate-400">{rewardPointsAvailable} pts (₹{rewardDiscount} OFF)</span>
+              <span className="font-bold text-white block">
+                Use Reward Points
+              </span>
+              <span className="text-[10px] text-slate-400">
+                {rewardPointsAvailable} pts (₹{rewardDiscount} OFF)
+              </span>
             </div>
           </div>
           <input
@@ -88,7 +115,9 @@ export const CheckoutOrderSummary: React.FC<CheckoutSummaryProps> = ({
       <div className="space-y-2 text-xs text-slate-300 pt-2 border-t border-slate-800 font-medium">
         <div className="flex justify-between">
           <span>Product Catalogue MRP</span>
-          <span className="line-through text-slate-500 font-bold">₹{mrpTotal.toLocaleString()}</span>
+          <span className="line-through text-slate-500 font-bold">
+            ₹{mrpTotal.toLocaleString()}
+          </span>
         </div>
 
         <div className="flex justify-between text-emerald-400 font-bold">
@@ -98,7 +127,9 @@ export const CheckoutOrderSummary: React.FC<CheckoutSummaryProps> = ({
 
         <div className="flex justify-between">
           <span>Subtotal</span>
-          <span className="font-bold text-white">₹{subtotal.toLocaleString()}</span>
+          <span className="font-bold text-white">
+            ₹{subtotal.toLocaleString()}
+          </span>
         </div>
 
         {couponDiscount > 0 && (
@@ -123,7 +154,9 @@ export const CheckoutOrderSummary: React.FC<CheckoutSummaryProps> = ({
         <div className="flex justify-between text-slate-400">
           <span>Shipping & Freight</span>
           <span className="text-emerald-400 font-bold">
-            {selectedShippingFee === 0 ? 'FREE Express' : `₹${selectedShippingFee}`}
+            {selectedShippingFee === 0
+              ? "FREE Express"
+              : `₹${selectedShippingFee}`}
           </span>
         </div>
 
@@ -137,7 +170,6 @@ export const CheckoutOrderSummary: React.FC<CheckoutSummaryProps> = ({
         <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
         <span>Official GST Tax Invoice & Pan-India Dispatch Warranty</span>
       </div>
-
     </div>
   );
 };

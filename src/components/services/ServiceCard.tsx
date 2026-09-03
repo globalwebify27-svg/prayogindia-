@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import React from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
-import { ServiceItem } from '@/data/servicesData';
-import { ArrowRight, CheckCircle2 } from 'lucide-react';
+import React from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { ServiceItem } from "@/data/servicesData";
+import { ArrowRight, CheckCircle2 } from "lucide-react";
 
 interface ServiceCardProps {
   service: ServiceItem;
@@ -13,7 +13,6 @@ interface ServiceCardProps {
 export const ServiceCard: React.FC<ServiceCardProps> = ({ service }) => {
   return (
     <div className="bg-white rounded-3xl border border-slate-200/90 overflow-hidden shadow-2xs hover:border-[#00AEEF]/50 hover:shadow-xl transition-all duration-300 flex flex-col justify-between group">
-      
       <div>
         {/* Service Image */}
         <div className="relative h-48 w-full bg-slate-100 overflow-hidden">
@@ -38,7 +37,10 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({ service }) => {
           {/* Feature Highlights */}
           <div className="space-y-1.5 pt-2">
             {service.features.slice(0, 2).map((feat, idx) => (
-              <div key={idx} className="flex items-start gap-2 text-[11px] font-semibold text-slate-700">
+              <div
+                key={idx}
+                className="flex items-start gap-2 text-[11px] font-semibold text-slate-700"
+              >
                 <CheckCircle2 className="w-3.5 h-3.5 text-[#00AEEF] shrink-0 mt-0.5" />
                 <span className="truncate">{feat}</span>
               </div>
@@ -57,7 +59,6 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({ service }) => {
           <ArrowRight className="w-4 h-4 text-[#00AEEF]" />
         </Link>
       </div>
-
     </div>
   );
 };

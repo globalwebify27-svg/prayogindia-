@@ -1,60 +1,65 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { 
-  COURIER_PROVIDERS, 
-  INITIAL_SHIPMENTS, 
-  ShipmentManifest, 
-  CourierPartner, 
+import React, { useState } from "react";
+import {
+  COURIER_PROVIDERS,
+  INITIAL_SHIPMENTS,
+  ShipmentManifest,
+  CourierPartner,
   checkPincodeServiceability,
-  PinServiceabilityResult
-} from '@/data/logisticsData';
-import { 
+  PinServiceabilityResult,
+} from "@/data/logisticsData";
+import {
   DEFAULT_SHIPPING_RATE_TABLE,
   ConfigurableShippingRateTable,
   WeightSlabRate,
   calculatePreciseShippingCharge,
-  ShippingZone
-} from '@/data/shippingRateCalculation';
-import { 
-  Truck, 
-  Plus, 
-  Edit2, 
-  Trash2, 
-  CheckCircle2, 
-  ShieldCheck, 
-  Sparkles, 
-  Search, 
-  Filter, 
-  FileText, 
-  ExternalLink, 
-  X, 
-  MapPin, 
-  Box, 
-  RefreshCw, 
-  Printer, 
+  ShippingZone,
+} from "@/data/shippingRateCalculation";
+import {
+  Truck,
+  Plus,
+  Edit2,
+  Trash2,
+  CheckCircle2,
+  ShieldCheck,
+  Sparkles,
+  Search,
+  Filter,
+  FileText,
+  ExternalLink,
+  X,
+  MapPin,
+  Box,
+  RefreshCw,
+  Printer,
   AlertTriangle,
   Plane,
   XCircle,
   Clock,
   Layers,
   Scale,
-  DollarSign
-} from 'lucide-react';
+  DollarSign,
+} from "lucide-react";
 
 export default function AdminLogisticsPage() {
-  const [shipments, setShipments] = useState<ShipmentManifest[]>(INITIAL_SHIPMENTS);
+  const [shipments, setShipments] =
+    useState<ShipmentManifest[]>(INITIAL_SHIPMENTS);
   const [couriers, setCouriers] = useState<CourierPartner[]>(COURIER_PROVIDERS);
-  const [rateTable, setRateTable] = useState<ConfigurableShippingRateTable>(DEFAULT_SHIPPING_RATE_TABLE);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [filterStatus, setFilterStatus] = useState<string>('All');
+  const [rateTable, setRateTable] = useState<ConfigurableShippingRateTable>(
+    DEFAULT_SHIPPING_RATE_TABLE,
+  );
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filterStatus, setFilterStatus] = useState<string>("All");
 
   // Section 28 Dynamic Simulator State
   const [simWeightGm, setSimWeightGm] = useState(250);
-  const [simCity, setSimCity] = useState('Ranchi');
-  const [simPin, setSimPin] = useState('834001');
-  const [simCourier, setSimCourier] = useState('DELHIVERY');
-  const [simMode, setSimMode] = useState<'Air Freight' | 'Surface Freight'>('Surface Freight');
+  const [simCity, setSimCity] = useState("Ranchi");
+  const [simPin, setSimPin] = useState("834001");
+  const [simCourier, setSimCourier] = useState("DELHIVERY");
+  const [simMode, setSimMode] = useState<"Air Freight" | "Surface Freight">(
+    "Surface Freight",
+  );
   const [simIsBattery, setSimIsBattery] = useState(false);
   const [simSubtotal, setSimSubtotal] = useState(1200);
 
@@ -63,16 +68,19 @@ export default function AdminLogisticsPage() {
 
   // New Shipment / AWB Generation Modal
   const [showManifestModal, setShowManifestModal] = useState(false);
-  const [selectedShipmentForLabel, setSelectedShipmentForLabel] = useState<ShipmentManifest | null>(null);
+  const [selectedShipmentForLabel, setSelectedShipmentForLabel] =
+    useState<ShipmentManifest | null>(null);
 
   // Form State for creating shipment
-  const [manifestOrderNo, setManifestOrderNo] = useState('');
-  const [manifestCustomer, setManifestCustomer] = useState('');
-  const [manifestPhone, setManifestPhone] = useState('');
-  const [manifestCity, setManifestCity] = useState('Bengaluru');
-  const [manifestPincode, setManifestPincode] = useState('560100');
-  const [manifestCourier, setManifestCourier] = useState('DELHIVERY');
-  const [manifestMode, setManifestMode] = useState<'Surface Ground' | 'Air Priority'>('Surface Ground');
+  const [manifestOrderNo, setManifestOrderNo] = useState("");
+  const [manifestCustomer, setManifestCustomer] = useState("");
+  const [manifestPhone, setManifestPhone] = useState("");
+  const [manifestCity, setManifestCity] = useState("Bengaluru");
+  const [manifestPincode, setManifestPincode] = useState("560100");
+  const [manifestCourier, setManifestCourier] = useState("DELHIVERY");
+  const [manifestMode, setManifestMode] = useState<
+    "Surface Ground" | "Air Priority"
+  >("Surface Ground");
   const [manifestWeight, setManifestWeight] = useState(1.2);
   const [manifestLength, setManifestLength] = useState(25);
   const [manifestBreadth, setManifestBreadth] = useState(18);
@@ -93,25 +101,31 @@ export default function AdminLogisticsPage() {
     e.preventDefault();
     if (!editingSlab) return;
 
-    setRateTable(prev => ({
+    setRateTable((prev) => ({
       ...prev,
-      slabs: prev.slabs.map(s => s.id === editingSlab.id ? editingSlab : s),
+      slabs: prev.slabs.map((s) => (s.id === editingSlab.id ? editingSlab : s)),
     }));
     setEditingSlab(null);
   };
 
   const handleCreateShipment = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!manifestOrderNo.trim() || !manifestCustomer.trim() || !manifestPincode.trim()) return;
+    if (
+      !manifestOrderNo.trim() ||
+      !manifestCustomer.trim() ||
+      !manifestPincode.trim()
+    )
+      return;
 
-    const courierObj = couriers.find(c => c.code === manifestCourier) || couriers[0];
+    const courierObj =
+      couriers.find((c) => c.code === manifestCourier) || couriers[0];
     const generatedAwb = `${courierObj.code.slice(0, 3)}-${Math.floor(10000000 + Math.random() * 90000000)}IN`;
 
     const newShipment: ShipmentManifest = {
       id: `shp-${Date.now()}`,
       orderNumber: manifestOrderNo.toUpperCase().trim(),
       customerName: manifestCustomer.trim(),
-      customerPhone: manifestPhone.trim() || '+91 98765 00000',
+      customerPhone: manifestPhone.trim() || "+91 98765 00000",
       deliveryCity: manifestCity.trim(),
       pincode: manifestPincode.trim(),
       courierPartner: courierObj.name,
@@ -122,39 +136,47 @@ export default function AdminLogisticsPage() {
       lengthCm: Number(manifestLength),
       breadthCm: Number(manifestBreadth),
       heightCm: Number(manifestHeight),
-      shippingCharge: Math.round(courierObj.baseRatePer500g * Math.ceil(Number(manifestWeight) / 0.5)),
-      status: 'Manifest Created',
+      shippingCharge: Math.round(
+        courierObj.baseRatePer500g * Math.ceil(Number(manifestWeight) / 0.5),
+      ),
+      status: "Manifest Created",
       labelGenerated: true,
       labelUrl: `/labels/${generatedAwb}.pdf`,
-      createdAt: new Date().toISOString().replace('T', ' ').slice(0, 16),
-      estimatedDelivery: new Date(Date.now() + courierObj.avgDeliveryDays * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      createdAt: new Date().toISOString().replace("T", " ").slice(0, 16),
+      estimatedDelivery: new Date(
+        Date.now() + courierObj.avgDeliveryDays * 24 * 60 * 60 * 1000,
+      )
+        .toISOString()
+        .split("T")[0],
     };
 
     setShipments([newShipment, ...shipments]);
     setShowManifestModal(false);
-    setManifestOrderNo('');
-    setManifestCustomer('');
+    setManifestOrderNo("");
+    setManifestCustomer("");
   };
 
   const handleCancelShipment = (id: string) => {
-    if (confirm('Cancel this courier AWB dispatch manifest?')) {
-      setShipments(prev => prev.map(s => s.id === id ? { ...s, status: 'Cancelled' } : s));
+    if (confirm("Cancel this courier AWB dispatch manifest?")) {
+      setShipments((prev) =>
+        prev.map((s) => (s.id === id ? { ...s, status: "Cancelled" } : s)),
+      );
     }
   };
 
-  const filteredShipments = shipments.filter(s => {
-    const matchesSearch = s.orderNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
+  const filteredShipments = shipments.filter((s) => {
+    const matchesSearch =
+      s.orderNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
       s.awbNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
       s.customerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
       s.deliveryCity.toLowerCase().includes(searchQuery.toLowerCase()) ||
       s.pincode.includes(searchQuery);
-    const matchesStatus = filterStatus === 'All' || s.status === filterStatus;
+    const matchesStatus = filterStatus === "All" || s.status === filterStatus;
     return matchesSearch && matchesStatus;
   });
 
   return (
     <div className="p-6 sm:p-8 space-y-8 animate-in fade-in duration-300">
-      
       {/* 1. Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
@@ -167,7 +189,9 @@ export default function AdminLogisticsPage() {
             Shipping Rates &amp; Carrier Dispatch
           </h1>
           <p className="text-xs text-slate-500">
-            Calculate accurate shipping charges based on weight slabs (0–500g: ₹80, 500g–1kg: ₹120, 1kg–2kg: ₹180), shipping zones, courier partners, freight modes, and product restrictions.
+            Calculate accurate shipping charges based on weight slabs (0–500g:
+            ₹80, 500g–1kg: ₹120, 1kg–2kg: ₹180), shipping zones, courier
+            partners, freight modes, and product restrictions.
           </p>
         </div>
 
@@ -185,12 +209,17 @@ export default function AdminLogisticsPage() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
           <div>
             <h2 className="text-sm font-black text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
-              <Scale className="w-4 h-4 text-[#00AEEF]" /> Section 28 Weight Slab Rate Table (Configurable)
+              <Scale className="w-4 h-4 text-[#00AEEF]" /> Section 28 Weight
+              Slab Rate Table (Configurable)
             </h2>
-            <p className="text-xs text-slate-500">Configurable base rates per gram slab, zone multipliers, and DGCA battery handling charges.</p>
+            <p className="text-xs text-slate-500">
+              Configurable base rates per gram slab, zone multipliers, and DGCA
+              battery handling charges.
+            </p>
           </div>
           <span className="text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-full">
-            Free Shipping Threshold: ₹{rateTable.freeShippingThreshold.toLocaleString()}
+            Free Shipping Threshold: ₹
+            {rateTable.freeShippingThreshold.toLocaleString()}
           </span>
         </div>
 
@@ -201,7 +230,9 @@ export default function AdminLogisticsPage() {
               className="bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-2 relative"
             >
               <div className="flex items-center justify-between">
-                <span className="font-extrabold text-slate-900 text-xs">{slab.label}</span>
+                <span className="font-extrabold text-slate-900 text-xs">
+                  {slab.label}
+                </span>
                 <button
                   onClick={() => setEditingSlab(slab)}
                   className="p-1.5 hover:bg-white rounded-lg text-slate-500 hover:text-slate-900 transition-colors"
@@ -213,13 +244,42 @@ export default function AdminLogisticsPage() {
 
               <div className="text-2xl font-black text-slate-900 flex items-baseline gap-1">
                 <span>₹{slab.baseRateRupees}</span>
-                <span className="text-[10px] text-slate-400 font-bold uppercase">Base Surcharge</span>
+                <span className="text-[10px] text-slate-400 font-bold uppercase">
+                  Base Surcharge
+                </span>
               </div>
 
               <div className="text-[10px] text-slate-500 space-y-0.5 border-t border-slate-200/80 pt-2">
-                <div className="flex justify-between"><span>Within Ranchi:</span><strong>₹{Math.round(slab.baseRateRupees * slab.zoneMultipliers['Within City (Ranchi)'])}</strong></div>
-                <div className="flex justify-between"><span>Metro to Metro:</span><strong>₹{Math.round(slab.baseRateRupees * slab.zoneMultipliers['Metro to Metro'])}</strong></div>
-                <div className="flex justify-between"><span>Rest of India:</span><strong>₹{Math.round(slab.baseRateRupees * slab.zoneMultipliers['Rest of India'])}</strong></div>
+                <div className="flex justify-between">
+                  <span>Within Ranchi:</span>
+                  <strong>
+                    ₹
+                    {Math.round(
+                      slab.baseRateRupees *
+                        slab.zoneMultipliers["Within City (Ranchi)"],
+                    )}
+                  </strong>
+                </div>
+                <div className="flex justify-between">
+                  <span>Metro to Metro:</span>
+                  <strong>
+                    ₹
+                    {Math.round(
+                      slab.baseRateRupees *
+                        slab.zoneMultipliers["Metro to Metro"],
+                    )}
+                  </strong>
+                </div>
+                <div className="flex justify-between">
+                  <span>Rest of India:</span>
+                  <strong>
+                    ₹
+                    {Math.round(
+                      slab.baseRateRupees *
+                        slab.zoneMultipliers["Rest of India"],
+                    )}
+                  </strong>
+                </div>
               </div>
             </div>
           ))}
@@ -230,14 +290,19 @@ export default function AdminLogisticsPage() {
       <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-2xs space-y-4">
         <div className="flex items-center justify-between border-b border-slate-100 pb-3">
           <h2 className="text-sm font-black text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
-            <Layers className="w-4 h-4 text-[#00AEEF]" /> Section 28 Live Shipping Charge Calculator Simulator
+            <Layers className="w-4 h-4 text-[#00AEEF]" /> Section 28 Live
+            Shipping Charge Calculator Simulator
           </h2>
-          <span className="text-xs text-slate-400 font-bold">Multi-Parameter Dynamic Calculation</span>
+          <span className="text-xs text-slate-400 font-bold">
+            Multi-Parameter Dynamic Calculation
+          </span>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-6 gap-3 text-xs">
           <div>
-            <label className="block font-bold text-slate-700 mb-1">Weight (Grams)</label>
+            <label className="block font-bold text-slate-700 mb-1">
+              Weight (Grams)
+            </label>
             <input
               type="number"
               value={simWeightGm}
@@ -247,18 +312,22 @@ export default function AdminLogisticsPage() {
           </div>
 
           <div>
-            <label className="block font-bold text-slate-700 mb-1">Destination PIN</label>
+            <label className="block font-bold text-slate-700 mb-1">
+              Destination PIN
+            </label>
             <input
               type="text"
               maxLength={6}
               value={simPin}
-              onChange={(e) => setSimPin(e.target.value.replace(/\D/g, ''))}
+              onChange={(e) => setSimPin(e.target.value.replace(/\D/g, ""))}
               className="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl font-mono font-bold text-slate-900"
             />
           </div>
 
           <div>
-            <label className="block font-bold text-slate-700 mb-1">Destination City</label>
+            <label className="block font-bold text-slate-700 mb-1">
+              Destination City
+            </label>
             <input
               type="text"
               value={simCity}
@@ -268,7 +337,9 @@ export default function AdminLogisticsPage() {
           </div>
 
           <div>
-            <label className="block font-bold text-slate-700 mb-1">Courier Partner</label>
+            <label className="block font-bold text-slate-700 mb-1">
+              Courier Partner
+            </label>
             <select
               value={simCourier}
               onChange={(e) => setSimCourier(e.target.value)}
@@ -282,7 +353,9 @@ export default function AdminLogisticsPage() {
           </div>
 
           <div>
-            <label className="block font-bold text-slate-700 mb-1">Freight Mode</label>
+            <label className="block font-bold text-slate-700 mb-1">
+              Freight Mode
+            </label>
             <select
               value={simMode}
               onChange={(e) => setSimMode(e.target.value as any)}
@@ -294,7 +367,9 @@ export default function AdminLogisticsPage() {
           </div>
 
           <div>
-            <label className="block font-bold text-slate-700 mb-1">Order Subtotal (₹)</label>
+            <label className="block font-bold text-slate-700 mb-1">
+              Order Subtotal (₹)
+            </label>
             <input
               type="number"
               value={simSubtotal}
@@ -313,7 +388,10 @@ export default function AdminLogisticsPage() {
               onChange={(e) => setSimIsBattery(e.target.checked)}
               className="w-4 h-4 rounded text-amber-600 accent-amber-600"
             />
-            <span>Contains LiPo / Lithium Battery or Hazardous Item (+₹{rateTable.hazardousSurcharge} Dangerous Goods Handling Fee)</span>
+            <span>
+              Contains LiPo / Lithium Battery or Hazardous Item (+₹
+              {rateTable.hazardousSurcharge} Dangerous Goods Handling Fee)
+            </span>
           </label>
         </div>
 
@@ -321,21 +399,35 @@ export default function AdminLogisticsPage() {
         <div className="bg-[#E0F7FC]/30 border border-[#00AEEF]/30 rounded-2xl p-4 flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="space-y-1 text-xs">
             <div className="flex items-center gap-2">
-              <span className="font-black text-slate-900">Computed Zone: {simResult.zone}</span>
-              <span className="text-[10px] bg-slate-100 px-2 py-0.5 rounded font-bold">Weight Slab: {simResult.slabLabel}</span>
+              <span className="font-black text-slate-900">
+                Computed Zone: {simResult.zone}
+              </span>
+              <span className="text-[10px] bg-slate-100 px-2 py-0.5 rounded font-bold">
+                Weight Slab: {simResult.slabLabel}
+              </span>
             </div>
             <p className="text-slate-500">
-              Base: ₹{simResult.baseRate} × Zone Mult ({simResult.zoneMultiplier}) × Courier ({simResult.courierMultiplier}) {simResult.hazardousFee > 0 && `+ Hazardous Fee (₹${simResult.hazardousFee})`}
+              Base: ₹{simResult.baseRate} × Zone Mult (
+              {simResult.zoneMultiplier}) × Courier (
+              {simResult.courierMultiplier}){" "}
+              {simResult.hazardousFee > 0 &&
+                `+ Hazardous Fee (₹${simResult.hazardousFee})`}
             </p>
           </div>
 
           <div className="text-right">
-            <span className="text-[10px] uppercase font-bold text-slate-400 block">Final Calculated Shipping Charge</span>
+            <span className="text-[10px] uppercase font-bold text-slate-400 block">
+              Final Calculated Shipping Charge
+            </span>
             <div className="text-2xl font-black text-slate-900">
               {simResult.isFreeThresholdApplied ? (
-                <span className="text-emerald-600">FREE (Order &gt; ₹2,000)</span>
+                <span className="text-emerald-600">
+                  FREE (Order &gt; ₹2,000)
+                </span>
               ) : (
-                <span className="text-[#00AEEF]">₹{simResult.chargeRupees}</span>
+                <span className="text-[#00AEEF]">
+                  ₹{simResult.chargeRupees}
+                </span>
               )}
             </div>
           </div>
@@ -347,9 +439,12 @@ export default function AdminLogisticsPage() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
           <div>
             <h2 className="text-sm font-black text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
-              <Box className="w-4 h-4 text-[#00AEEF]" /> Active Shipments &amp; Live Manifests
+              <Box className="w-4 h-4 text-[#00AEEF]" /> Active Shipments &amp;
+              Live Manifests
             </h2>
-            <p className="text-xs text-slate-500">Live courier tracking, AWB assignments, and shipping labels.</p>
+            <p className="text-xs text-slate-500">
+              Live courier tracking, AWB assignments, and shipping labels.
+            </p>
           </div>
 
           <div className="flex flex-col sm:flex-row items-center gap-3">
@@ -393,43 +488,71 @@ export default function AdminLogisticsPage() {
             </thead>
             <tbody className="divide-y divide-slate-100">
               {filteredShipments.map((shp) => (
-                <tr key={shp.id} className="hover:bg-slate-50/80 transition-colors">
+                <tr
+                  key={shp.id}
+                  className="hover:bg-slate-50/80 transition-colors"
+                >
                   <td className="py-3.5">
-                    <div className="font-mono font-black text-slate-900">{shp.orderNumber}</div>
-                    <div className="text-slate-600 font-semibold">{shp.customerName}</div>
-                    <div className="text-[10px] text-slate-400">{shp.customerPhone}</div>
+                    <div className="font-mono font-black text-slate-900">
+                      {shp.orderNumber}
+                    </div>
+                    <div className="text-slate-600 font-semibold">
+                      {shp.customerName}
+                    </div>
+                    <div className="text-[10px] text-slate-400">
+                      {shp.customerPhone}
+                    </div>
                   </td>
 
                   <td className="py-3.5">
-                    <div className="font-extrabold text-slate-900">{shp.deliveryCity}</div>
-                    <div className="text-[10px] text-slate-500 font-mono">PIN: {shp.pincode}</div>
-                    <div className="text-[10px] text-slate-400">Est: {shp.estimatedDelivery}</div>
+                    <div className="font-extrabold text-slate-900">
+                      {shp.deliveryCity}
+                    </div>
+                    <div className="text-[10px] text-slate-500 font-mono">
+                      PIN: {shp.pincode}
+                    </div>
+                    <div className="text-[10px] text-slate-400">
+                      Est: {shp.estimatedDelivery}
+                    </div>
                   </td>
 
                   <td className="py-3.5">
-                    <div className="font-extrabold text-slate-900">{shp.courierPartner}</div>
+                    <div className="font-extrabold text-slate-900">
+                      {shp.courierPartner}
+                    </div>
                     <div className="font-mono text-xs font-black text-[#00AEEF] flex items-center gap-1">
                       <span>{shp.awbNumber}</span>
                     </div>
-                    <div className="text-[10px] text-slate-400 font-bold uppercase">{shp.mode}</div>
+                    <div className="text-[10px] text-slate-400 font-bold uppercase">
+                      {shp.mode}
+                    </div>
                   </td>
 
                   <td className="py-3.5">
-                    <div className="font-extrabold text-slate-900">{shp.weightKg} kg</div>
-                    <div className="text-[10px] text-slate-400">{shp.lengthCm}x{shp.breadthCm}x{shp.heightCm} cm</div>
-                    <div className="text-xs font-black text-emerald-600">₹{shp.shippingCharge}</div>
+                    <div className="font-extrabold text-slate-900">
+                      {shp.weightKg} kg
+                    </div>
+                    <div className="text-[10px] text-slate-400">
+                      {shp.lengthCm}x{shp.breadthCm}x{shp.heightCm} cm
+                    </div>
+                    <div className="text-xs font-black text-emerald-600">
+                      ₹{shp.shippingCharge}
+                    </div>
                   </td>
 
                   <td className="py-3.5">
-                    <span className={`text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full ${
-                      shp.status === 'Delivered'
-                        ? 'bg-emerald-100 text-emerald-800'
-                        : shp.status === 'In Transit' || shp.status === 'Out for Delivery'
-                        ? 'bg-[#E0F7FC] text-[#00AEEF]'
-                        : shp.status === 'Cancelled'
-                        ? 'bg-red-100 text-red-800'
-                        : 'bg-amber-100 text-amber-800'
-                    }`}>
+                    <span
+                      className={`text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full ${
+                        shp.status === "Delivered"
+                          ? "bg-emerald-100 text-emerald-800"
+                          : shp.status === "In Transit" ||
+                              shp.status === "Out for Delivery"
+                            ? "bg-[#E0F7FC] text-[#00AEEF]"
+                            : shp.status === "Cancelled"
+                              ? "bg-red-100 text-red-800"
+                              : "bg-amber-100 text-amber-800"
+                      }`}
+                    >
                       {shp.status}
                     </span>
                   </td>
@@ -444,15 +567,16 @@ export default function AdminLogisticsPage() {
                       <span>Label</span>
                     </button>
 
-                    {shp.status !== 'Delivered' && shp.status !== 'Cancelled' && (
-                      <button
-                        onClick={() => handleCancelShipment(shp.id)}
-                        className="p-2 bg-red-50 hover:bg-red-100 rounded-xl text-red-600 transition-colors inline-flex items-center font-bold text-[11px]"
-                        title="Cancel Shipment"
-                      >
-                        <XCircle className="w-3.5 h-3.5" />
-                      </button>
-                    )}
+                    {shp.status !== "Delivered" &&
+                      shp.status !== "Cancelled" && (
+                        <button
+                          onClick={() => handleCancelShipment(shp.id)}
+                          className="p-2 bg-red-50 hover:bg-red-100 rounded-xl text-red-600 transition-colors inline-flex items-center font-bold text-[11px]"
+                          title="Cancel Shipment"
+                        >
+                          <XCircle className="w-3.5 h-3.5" />
+                        </button>
+                      )}
                   </td>
                 </tr>
               ))}
@@ -464,7 +588,10 @@ export default function AdminLogisticsPage() {
       {/* Edit Slab Modal */}
       {editingSlab && (
         <div className="fixed inset-0 z-50 overflow-hidden flex items-center justify-center p-4">
-          <div onClick={() => setEditingSlab(null)} className="fixed inset-0 bg-slate-950/70 backdrop-blur-xs" />
+          <div
+            onClick={() => setEditingSlab(null)}
+            className="fixed inset-0 bg-slate-950/70 backdrop-blur-xs"
+          />
           <div className="relative max-w-sm w-full bg-white rounded-3xl p-6 shadow-2xl z-10 space-y-4 text-xs">
             <h3 className="text-sm font-black text-slate-900 uppercase">
               Edit {editingSlab.label} Base Rate
@@ -472,12 +599,19 @@ export default function AdminLogisticsPage() {
 
             <form onSubmit={handleSaveSlabRate} className="space-y-3">
               <div>
-                <label className="block font-bold text-slate-700 mb-1">Base Surcharge (₹)</label>
+                <label className="block font-bold text-slate-700 mb-1">
+                  Base Surcharge (₹)
+                </label>
                 <input
                   type="number"
                   required
                   value={editingSlab.baseRateRupees}
-                  onChange={(e) => setEditingSlab({ ...editingSlab, baseRateRupees: Number(e.target.value) })}
+                  onChange={(e) =>
+                    setEditingSlab({
+                      ...editingSlab,
+                      baseRateRupees: Number(e.target.value),
+                    })
+                  }
                   className="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl font-bold text-slate-900"
                 />
               </div>
@@ -505,9 +639,11 @@ export default function AdminLogisticsPage() {
       {/* Create Shipment & Generate AWB Modal */}
       {showManifestModal && (
         <div className="fixed inset-0 z-50 overflow-hidden flex items-center justify-center p-4">
-          <div onClick={() => setShowManifestModal(false)} className="fixed inset-0 bg-slate-950/70 backdrop-blur-xs" />
+          <div
+            onClick={() => setShowManifestModal(false)}
+            className="fixed inset-0 bg-slate-950/70 backdrop-blur-xs"
+          />
           <div className="relative max-w-xl w-full bg-white rounded-3xl p-6 sm:p-8 shadow-2xl z-10 space-y-4 text-xs max-h-[90vh] overflow-y-auto">
-            
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div>
                 <span className="text-[10px] font-black uppercase tracking-widest text-[#00AEEF]">
@@ -517,7 +653,10 @@ export default function AdminLogisticsPage() {
                   Create Shipment Manifest &amp; Generate AWB
                 </h3>
               </div>
-              <button onClick={() => setShowManifestModal(false)} className="text-slate-400 hover:text-slate-700">
+              <button
+                onClick={() => setShowManifestModal(false)}
+                className="text-slate-400 hover:text-slate-700"
+              >
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -525,7 +664,9 @@ export default function AdminLogisticsPage() {
             <form onSubmit={handleCreateShipment} className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1">Order Number *</label>
+                  <label className="block font-bold text-slate-700 mb-1">
+                    Order Number *
+                  </label>
                   <input
                     type="text"
                     required
@@ -537,7 +678,9 @@ export default function AdminLogisticsPage() {
                 </div>
 
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1">Customer Full Name *</label>
+                  <label className="block font-bold text-slate-700 mb-1">
+                    Customer Full Name *
+                  </label>
                   <input
                     type="text"
                     required
@@ -549,7 +692,9 @@ export default function AdminLogisticsPage() {
                 </div>
 
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1">Mobile Number *</label>
+                  <label className="block font-bold text-slate-700 mb-1">
+                    Mobile Number *
+                  </label>
                   <input
                     type="tel"
                     required
@@ -563,7 +708,9 @@ export default function AdminLogisticsPage() {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1">Destination City *</label>
+                  <label className="block font-bold text-slate-700 mb-1">
+                    Destination City *
+                  </label>
                   <input
                     type="text"
                     required
@@ -574,13 +721,17 @@ export default function AdminLogisticsPage() {
                 </div>
 
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1">Destination 6-Digit PIN *</label>
+                  <label className="block font-bold text-slate-700 mb-1">
+                    Destination 6-Digit PIN *
+                  </label>
                   <input
                     type="text"
                     required
                     maxLength={6}
                     value={manifestPincode}
-                    onChange={(e) => setManifestPincode(e.target.value.replace(/\D/g, ''))}
+                    onChange={(e) =>
+                      setManifestPincode(e.target.value.replace(/\D/g, ""))
+                    }
                     className="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl font-mono font-bold text-slate-900 focus:outline-none"
                   />
                 </div>
@@ -588,7 +739,9 @@ export default function AdminLogisticsPage() {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1">Select Courier Partner</label>
+                  <label className="block font-bold text-slate-700 mb-1">
+                    Select Courier Partner
+                  </label>
                   <select
                     value={manifestCourier}
                     onChange={(e) => setManifestCourier(e.target.value)}
@@ -603,21 +756,29 @@ export default function AdminLogisticsPage() {
                 </div>
 
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1">Freight Dispatch Mode</label>
+                  <label className="block font-bold text-slate-700 mb-1">
+                    Freight Dispatch Mode
+                  </label>
                   <select
                     value={manifestMode}
                     onChange={(e) => setManifestMode(e.target.value as any)}
                     className="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl font-bold text-slate-900 focus:outline-none"
                   >
-                    <option value="Surface Ground">Surface Ground Logistics (DGCA Battery Safe)</option>
-                    <option value="Air Priority">Air Priority Aviation Express</option>
+                    <option value="Surface Ground">
+                      Surface Ground Logistics (DGCA Battery Safe)
+                    </option>
+                    <option value="Air Priority">
+                      Air Priority Aviation Express
+                    </option>
                   </select>
                 </div>
               </div>
 
               <div className="grid grid-cols-4 gap-2">
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1">Weight (Kg)</label>
+                  <label className="block font-bold text-slate-700 mb-1">
+                    Weight (Kg)
+                  </label>
                   <input
                     type="number"
                     step="0.1"
@@ -627,7 +788,9 @@ export default function AdminLogisticsPage() {
                   />
                 </div>
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1">Length (cm)</label>
+                  <label className="block font-bold text-slate-700 mb-1">
+                    Length (cm)
+                  </label>
                   <input
                     type="number"
                     value={manifestLength}
@@ -636,7 +799,9 @@ export default function AdminLogisticsPage() {
                   />
                 </div>
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1">Breadth (cm)</label>
+                  <label className="block font-bold text-slate-700 mb-1">
+                    Breadth (cm)
+                  </label>
                   <input
                     type="number"
                     value={manifestBreadth}
@@ -645,7 +810,9 @@ export default function AdminLogisticsPage() {
                   />
                 </div>
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1">Height (cm)</label>
+                  <label className="block font-bold text-slate-700 mb-1">
+                    Height (cm)
+                  </label>
                   <input
                     type="number"
                     value={manifestHeight}
@@ -678,14 +845,19 @@ export default function AdminLogisticsPage() {
       {/* Printable Shipping Label Preview Modal */}
       {selectedShipmentForLabel && (
         <div className="fixed inset-0 z-50 overflow-hidden flex items-center justify-center p-4">
-          <div onClick={() => setSelectedShipmentForLabel(null)} className="fixed inset-0 bg-slate-950/70 backdrop-blur-xs" />
+          <div
+            onClick={() => setSelectedShipmentForLabel(null)}
+            className="fixed inset-0 bg-slate-950/70 backdrop-blur-xs"
+          />
           <div className="relative max-w-md w-full bg-white rounded-3xl p-6 shadow-2xl z-10 space-y-4 text-xs">
-            
             <div className="flex items-center justify-between border-b border-slate-200 pb-3">
               <span className="font-mono font-black text-sm text-slate-900">
                 SHIPPING LABEL PREVIEW
               </span>
-              <button onClick={() => setSelectedShipmentForLabel(null)} className="text-slate-400 hover:text-slate-700">
+              <button
+                onClick={() => setSelectedShipmentForLabel(null)}
+                className="text-slate-400 hover:text-slate-700"
+              >
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -693,12 +865,20 @@ export default function AdminLogisticsPage() {
             <div className="border-2 border-dashed border-slate-300 p-5 rounded-2xl bg-slate-50/60 space-y-4">
               <div className="flex items-center justify-between border-b border-slate-200 pb-2">
                 <div>
-                  <h4 className="font-black text-slate-900 text-sm">PRAYOG INDIA</h4>
-                  <span className="text-[10px] text-slate-500">Logistics Hub, Ranchi</span>
+                  <h4 className="font-black text-slate-900 text-sm">
+                    PRAYOG INDIA
+                  </h4>
+                  <span className="text-[10px] text-slate-500">
+                    Logistics Hub, Ranchi
+                  </span>
                 </div>
                 <div className="text-right">
-                  <span className="text-xs font-black text-slate-900 uppercase">{selectedShipmentForLabel.courierCode}</span>
-                  <div className="text-[10px] font-bold text-emerald-700">{selectedShipmentForLabel.mode}</div>
+                  <span className="text-xs font-black text-slate-900 uppercase">
+                    {selectedShipmentForLabel.courierCode}
+                  </span>
+                  <div className="text-[10px] font-bold text-emerald-700">
+                    {selectedShipmentForLabel.mode}
+                  </div>
                 </div>
               </div>
 
@@ -712,22 +892,39 @@ export default function AdminLogisticsPage() {
               </div>
 
               <div className="space-y-1 bg-white p-3 rounded-xl border border-slate-200">
-                <span className="text-[10px] font-black uppercase text-slate-400 block">Deliver Consignment To:</span>
-                <div className="font-black text-slate-900 text-xs">{selectedShipmentForLabel.customerName}</div>
-                <div className="text-slate-600 font-semibold">{selectedShipmentForLabel.deliveryCity} — {selectedShipmentForLabel.pincode}</div>
-                <div className="text-slate-500 text-[11px]">Tel: {selectedShipmentForLabel.customerPhone}</div>
+                <span className="text-[10px] font-black uppercase text-slate-400 block">
+                  Deliver Consignment To:
+                </span>
+                <div className="font-black text-slate-900 text-xs">
+                  {selectedShipmentForLabel.customerName}
+                </div>
+                <div className="text-slate-600 font-semibold">
+                  {selectedShipmentForLabel.deliveryCity} —{" "}
+                  {selectedShipmentForLabel.pincode}
+                </div>
+                <div className="text-slate-500 text-[11px]">
+                  Tel: {selectedShipmentForLabel.customerPhone}
+                </div>
               </div>
 
               <div className="flex justify-between items-center text-[10px] text-slate-500 pt-1">
-                <span>Order Ref: <strong>{selectedShipmentForLabel.orderNumber}</strong></span>
-                <span>Weight: <strong>{selectedShipmentForLabel.weightKg} KG</strong></span>
+                <span>
+                  Order Ref:{" "}
+                  <strong>{selectedShipmentForLabel.orderNumber}</strong>
+                </span>
+                <span>
+                  Weight:{" "}
+                  <strong>{selectedShipmentForLabel.weightKg} KG</strong>
+                </span>
               </div>
             </div>
 
             <div className="flex justify-end gap-2 pt-2">
               <button
                 onClick={() => {
-                  alert(`Sending thermal print job for AWB ${selectedShipmentForLabel.awbNumber}...`);
+                  alert(
+                    `Sending thermal print job for AWB ${selectedShipmentForLabel.awbNumber}...`,
+                  );
                   setSelectedShipmentForLabel(null);
                 }}
                 className="w-full bg-[#00AEEF] hover:bg-[#0096D6] text-white py-3 rounded-xl font-black uppercase tracking-wider flex items-center justify-center gap-2 shadow-md cursor-pointer"
@@ -736,11 +933,9 @@ export default function AdminLogisticsPage() {
                 <span>Print Thermal Shipping Label</span>
               </button>
             </div>
-
           </div>
         </div>
       )}
-
     </div>
   );
 }

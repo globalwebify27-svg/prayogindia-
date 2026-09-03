@@ -1,16 +1,16 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect, useRef } from 'react';
-import Link from 'next/link';
-import { CategoryBreadcrumb } from '@/components/categories/CategoryBreadcrumb';
-import { ProductGallery } from '@/components/product/ProductGallery';
-import { ProductInformation } from '@/components/product/ProductInformation';
-import { ProductDetailsAccordion } from '@/components/product/ProductDetailsAccordion';
-import { ProductDocuments } from '@/components/product/ProductDocuments';
-import { ProductReviewsSection } from '@/components/product/ProductReviewsSection';
-import { ProductRecommendations } from '@/components/product/ProductRecommendations';
-import { PRODUCTS, Product, ProductVariant } from '@/data/mockData';
-import { useStore } from '@/context/StoreContext';
+import React, { useState, useEffect, useRef } from "react";
+import Link from "next/link";
+import { CategoryBreadcrumb } from "@/components/categories/CategoryBreadcrumb";
+import { ProductGallery } from "@/components/product/ProductGallery";
+import { ProductInformation } from "@/components/product/ProductInformation";
+import { ProductDetailsAccordion } from "@/components/product/ProductDetailsAccordion";
+import { ProductDocuments } from "@/components/product/ProductDocuments";
+import { ProductReviewsSection } from "@/components/product/ProductReviewsSection";
+import { ProductRecommendations } from "@/components/product/ProductRecommendations";
+import { PRODUCTS, Product, ProductVariant } from "@/data/mockData";
+import { useStore } from "@/context/StoreContext";
 import {
   ShoppingBag,
   ArrowLeft,
@@ -21,39 +21,61 @@ import {
   Package,
   Boxes,
   Link2,
-} from 'lucide-react';
+} from "lucide-react";
 
 interface ProductDetailViewProps {
   slug: string;
 }
 
 // ── Section anchor tab types
-type SectionTab = 'overview' | 'specs' | 'documents' | 'reviews' | 'related';
+type SectionTab = "overview" | "specs" | "documents" | "reviews" | "related";
 
-const SECTION_TABS: { id: SectionTab; label: string; icon: React.ReactNode }[] = [
-  { id: 'overview',   label: 'Overview',    icon: <BookOpen className="w-3.5 h-3.5" /> },
-  { id: 'specs',      label: 'Specs',       icon: <List className="w-3.5 h-3.5" /> },
-  { id: 'documents',  label: 'Downloads',   icon: <Package className="w-3.5 h-3.5" /> },
-  { id: 'reviews',    label: 'Reviews',     icon: <Star className="w-3.5 h-3.5" /> },
-  { id: 'related',    label: 'Related',     icon: <Link2 className="w-3.5 h-3.5" /> },
-];
+const SECTION_TABS: { id: SectionTab; label: string; icon: React.ReactNode }[] =
+  [
+    {
+      id: "overview",
+      label: "Overview",
+      icon: <BookOpen className="w-3.5 h-3.5" />,
+    },
+    { id: "specs", label: "Specs", icon: <List className="w-3.5 h-3.5" /> },
+    {
+      id: "documents",
+      label: "Downloads",
+      icon: <Package className="w-3.5 h-3.5" />,
+    },
+    { id: "reviews", label: "Reviews", icon: <Star className="w-3.5 h-3.5" /> },
+    {
+      id: "related",
+      label: "Related",
+      icon: <Link2 className="w-3.5 h-3.5" />,
+    },
+  ];
 
-export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ slug }) => {
+export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
+  slug,
+}) => {
   // ── Product lookup
-  const product = PRODUCTS.find(
-    p =>
-      (p.slug && p.slug === slug) ||
-      p.id === slug ||
-      p.name.toLowerCase().replace(/[^a-z0-9]+/g, '-') === slug
-  ) ?? PRODUCTS[0];
+  const product =
+    PRODUCTS.find(
+      (p) =>
+        (p.slug && p.slug === slug) ||
+        p.id === slug ||
+        p.name.toLowerCase().replace(/[^a-z0-9]+/g, "-") === slug,
+    ) ?? PRODUCTS[0];
 
   const isInvalidSlug = !product;
 
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(
-    product?.variants && product.variants.length > 0 ? product.variants[0] : null
+    product?.variants && product.variants.length > 0
+      ? product.variants[0]
+      : null,
   );
-  const { wishlist, addToCart: storeAddToCart, toggleWishlist: storeToggleWishlist } = useStore();
-  const [activeSection, setActiveSection] = useState<SectionTab>('overview');
+  const {
+    wishlist,
+    addToCart: storeAddToCart,
+    toggleWishlist: storeToggleWishlist,
+  } = useStore();
+  const [activeSection, setActiveSection] = useState<SectionTab>("overview");
   const [stickyBarVisible, setStickyBarVisible] = useState(false);
 
   // Refs for each section scroll target
@@ -66,8 +88,8 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ slug }) =>
   // Sticky bar visibility on scroll
   useEffect(() => {
     const handleScroll = () => setStickyBarVisible(window.scrollY > 400);
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   if (isInvalidSlug) {
@@ -76,9 +98,12 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ slug }) =>
         <div className="w-16 h-16 rounded-2xl bg-red-50 text-[#FF3B30] flex items-center justify-center mx-auto border border-red-200">
           <PackageSearch className="w-8 h-8" />
         </div>
-        <h1 className="text-2xl font-black text-slate-900">Product Not Found</h1>
+        <h1 className="text-2xl font-black text-slate-900">
+          Product Not Found
+        </h1>
         <p className="text-xs text-slate-500 max-w-sm mx-auto">
-          The requested hardware component could not be located in our catalogue.
+          The requested hardware component could not be located in our
+          catalogue.
         </p>
         <Link
           href="/products"
@@ -96,50 +121,82 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ slug }) =>
     if (product.images && product.images.length > 1) {
       return product.images;
     }
-    const baseImg = product.image || (product.images && product.images[0]) || 'https://images.unsplash.com/photo-1553406830-ef2513450d76?auto=format&fit=crop&w=800&q=80';
+    const baseImg =
+      product.image ||
+      (product.images && product.images[0]) ||
+      "https://images.unsplash.com/photo-1553406830-ef2513450d76?auto=format&fit=crop&w=800&q=80";
     return [
       baseImg,
-      'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1608564697071-ddf911d81370?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=800&q=80'
+      "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1608564697071-ddf911d81370?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=800&q=80",
     ];
   }, [product]);
 
   const currentPrice = selectedVariant?.price ?? product.price;
 
   const relatedProducts = PRODUCTS.filter(
-    p => p.id !== product.id && (
-      p.category === product.category ||
-      (product.relatedProductIds?.includes(p.id))
-    )
+    (p) =>
+      p.id !== product.id &&
+      (p.category === product.category ||
+        product.relatedProductIds?.includes(p.id)),
   ).slice(0, 6);
 
-  const frequentlyBoughtTogether = PRODUCTS.filter(
-    p => product.frequentlyBoughtTogetherIds?.includes(p.id)
+  const frequentlyBoughtTogether = PRODUCTS.filter((p) =>
+    product.frequentlyBoughtTogetherIds?.includes(p.id),
   ).slice(0, 4);
 
-  const recommendedAccessories = PRODUCTS.filter(
-    p => product.recommendedAccessoryIds?.includes(p.id)
+  const recommendedAccessories = PRODUCTS.filter((p) =>
+    product.recommendedAccessoryIds?.includes(p.id),
   ).slice(0, 4);
 
   const similarProducts = PRODUCTS.filter(
-    p => p.id !== product.id &&
+    (p) =>
+      p.id !== product.id &&
       p.category === product.category &&
-      !relatedProducts.find(r => r.id === p.id)
+      !relatedProducts.find((r) => r.id === p.id),
   ).slice(0, 4);
 
   const recoGroups = [
     ...(frequentlyBoughtTogether.length > 0
-      ? [{ id: 'fbt', label: 'Frequently Bought Together', subtitle: 'Pair these for your build.', products: frequentlyBoughtTogether }]
+      ? [
+          {
+            id: "fbt",
+            label: "Frequently Bought Together",
+            subtitle: "Pair these for your build.",
+            products: frequentlyBoughtTogether,
+          },
+        ]
       : []),
     ...(relatedProducts.length > 0
-      ? [{ id: 'related', label: 'Related Products', subtitle: 'From the same category.', products: relatedProducts }]
+      ? [
+          {
+            id: "related",
+            label: "Related Products",
+            subtitle: "From the same category.",
+            products: relatedProducts,
+          },
+        ]
       : []),
     ...(similarProducts.length > 0
-      ? [{ id: 'similar', label: 'Similar Products', subtitle: 'Comparable hardware alternatives.', products: similarProducts }]
+      ? [
+          {
+            id: "similar",
+            label: "Similar Products",
+            subtitle: "Comparable hardware alternatives.",
+            products: similarProducts,
+          },
+        ]
       : []),
     ...(recommendedAccessories.length > 0
-      ? [{ id: 'accessories', label: 'Recommended Accessories', subtitle: 'Essential add-ons for this product.', products: recommendedAccessories }]
+      ? [
+          {
+            id: "accessories",
+            label: "Recommended Accessories",
+            subtitle: "Essential add-ons for this product.",
+            products: recommendedAccessories,
+          },
+        ]
       : []),
   ];
 
@@ -155,8 +212,9 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ slug }) =>
     const ref = refMap[section];
     if (ref.current) {
       const offset = 100;
-      const top = ref.current.getBoundingClientRect().top + window.scrollY - offset;
-      window.scrollTo({ top, behavior: 'smooth' });
+      const top =
+        ref.current.getBoundingClientRect().top + window.scrollY - offset;
+      window.scrollTo({ top, behavior: "smooth" });
     }
   };
 
@@ -164,18 +222,25 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ slug }) =>
     storeToggleWishlist(prod);
   };
 
-  const isProductWishlisted = wishlist.some(p => p.id === product.id);
+  const isProductWishlisted = wishlist.some((p) => p.id === product.id);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-10 animate-in fade-in duration-300 pb-24 lg:pb-6">
-
       {/* ── Breadcrumb ── */}
       <CategoryBreadcrumb
         items={[
-          { label: 'Products', href: '/products' },
-          { label: product.category, href: `/products?category=${encodeURIComponent(product.category)}` },
+          { label: "Products", href: "/products" },
+          {
+            label: product.category,
+            href: `/products?category=${encodeURIComponent(product.category)}`,
+          },
           ...(product.subcategory
-            ? [{ label: product.subcategory, href: `/products?category=${encodeURIComponent(product.subcategory)}` }]
+            ? [
+                {
+                  label: product.subcategory,
+                  href: `/products?category=${encodeURIComponent(product.subcategory)}`,
+                },
+              ]
             : []),
           { label: product.name },
         ]}
@@ -184,18 +249,18 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ slug }) =>
       {/* ── Sticky Section Tab Bar ── */}
       <div
         className={`sticky top-16 z-30 bg-white/95 backdrop-blur-md border-b border-slate-200 transition-all duration-300 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 ${
-          stickyBarVisible ? 'shadow-md' : ''
+          stickyBarVisible ? "shadow-md" : ""
         }`}
       >
         <div className="flex items-center gap-1 overflow-x-auto scrollbar-none py-2">
-          {SECTION_TABS.map(tab => (
+          {SECTION_TABS.map((tab) => (
             <button
               key={tab.id}
               onClick={() => scrollToSection(tab.id)}
               className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-[11px] font-extrabold transition-all cursor-pointer whitespace-nowrap ${
                 activeSection === tab.id
-                  ? 'bg-[#00AEEF] text-white shadow-sm shadow-[#00AEEF]/20'
-                  : 'text-slate-600 hover:bg-slate-100'
+                  ? "bg-[#00AEEF] text-white shadow-sm shadow-[#00AEEF]/20"
+                  : "text-slate-600 hover:bg-slate-100"
               }`}
             >
               {tab.icon}
@@ -207,7 +272,6 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ slug }) =>
 
       {/* ── 2-Column Top Section: Gallery + Info ── */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 xl:gap-12 items-start">
-
         {/* Left — Gallery (sticky on desktop) */}
         <div className="lg:col-span-6 lg:sticky lg:top-28">
           <ProductGallery
@@ -268,14 +332,18 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ slug }) =>
       {stickyBarVisible && (
         <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200 px-4 py-3 flex items-center gap-3 shadow-2xl animate-in slide-in-from-bottom-5 duration-200">
           <div className="shrink-0">
-            <span className="text-[10px] text-slate-400 font-bold block leading-none mb-0.5">Price</span>
+            <span className="text-[10px] text-slate-400 font-bold block leading-none mb-0.5">
+              Price
+            </span>
             <span className="text-sm font-black text-slate-900 leading-tight">
-              ₹{currentPrice.toLocaleString('en-IN')}
+              ₹{currentPrice.toLocaleString("en-IN")}
             </span>
           </div>
 
           <button
-            onClick={() => storeAddToCart(product, selectedVariant || undefined)}
+            onClick={() =>
+              storeAddToCart(product, selectedVariant || undefined)
+            }
             className="flex-1 bg-[#00AEEF] hover:bg-[#0096D6] text-white py-2.5 rounded-xl font-extrabold text-[11px] uppercase tracking-wider flex items-center justify-center gap-1.5 shadow-md active:scale-95 transition-all cursor-pointer"
           >
             <ShoppingBag className="w-3.5 h-3.5" />
@@ -283,7 +351,9 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ slug }) =>
           </button>
 
           <button
-            onClick={() => storeAddToCart(product, selectedVariant || undefined)}
+            onClick={() =>
+              storeAddToCart(product, selectedVariant || undefined)
+            }
             className="flex-1 bg-slate-900 hover:bg-slate-800 text-white py-2.5 rounded-xl font-extrabold text-[11px] uppercase tracking-wider flex items-center justify-center gap-1.5 shadow-md active:scale-95 transition-all cursor-pointer"
           >
             <span>Buy Now</span>

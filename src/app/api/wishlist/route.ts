@@ -1,12 +1,12 @@
-import { NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
-import { db } from '@/lib/db';
-import { PRODUCTS } from '@/data/mockData';
-import { AuthSessionUser } from '@/lib/authUtils';
+import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
+import { db } from "@/lib/db";
+import { PRODUCTS } from "@/data/mockData";
+import { AuthSessionUser } from "@/lib/authUtils";
 
 async function getAuthenticatedUser(): Promise<AuthSessionUser | null> {
   const cookieStore = await cookies();
-  const sessionCookie = cookieStore.get('prayog_customer_session');
+  const sessionCookie = cookieStore.get("prayog_customer_session");
   if (!sessionCookie?.value) return null;
   try {
     return JSON.parse(sessionCookie.value);
@@ -19,7 +19,10 @@ async function getAuthenticatedUser(): Promise<AuthSessionUser | null> {
 export async function GET() {
   const user = await getAuthenticatedUser();
   if (!user) {
-    return NextResponse.json({ success: false, message: 'Unauthenticated' }, { status: 401 });
+    return NextResponse.json(
+      { success: false, message: "Unauthenticated" },
+      { status: 401 },
+    );
   }
 
   if (process.env.DATABASE_URL) {
@@ -47,14 +50,16 @@ export async function GET() {
       });
     }
 
-    const items = wishlist.items.map(item => ({
+    const items = wishlist.items.map((item) => ({
       id: item.id,
       productId: item.productId,
       name: item.product.name,
       slug: item.product.slug,
       price: item.product.price,
       mrp: item.product.mrp,
-      image: item.product.images[0]?.imageUrl || 'https://images.unsplash.com/photo-1553406830-ef2513450d76?auto=format&fit=crop&w=600&q=80',
+      image:
+        item.product.images[0]?.imageUrl ||
+        "https://images.unsplash.com/photo-1553406830-ef2513450d76?auto=format&fit=crop&w=600&q=80",
       inStock: item.product.inStock,
     }));
 
@@ -64,14 +69,14 @@ export async function GET() {
         id: wishlist.id,
         items,
       },
-      source: 'database',
+      source: "database",
     });
   }
 
   return NextResponse.json({
     success: true,
     data: { items: [] },
-    source: 'mock',
+    source: "mock",
   });
 }
 
@@ -79,15 +84,20 @@ export async function GET() {
 export async function DELETE() {
   const user = await getAuthenticatedUser();
   if (!user) {
-    return NextResponse.json({ success: false, message: 'Unauthenticated' }, { status: 401 });
+    return NextResponse.json(
+      { success: false, message: "Unauthenticated" },
+      { status: 401 },
+    );
   }
 
   if (process.env.DATABASE_URL) {
-    const wishlist = await db.wishlist.findUnique({ where: { userId: user.id } });
+    const wishlist = await db.wishlist.findUnique({
+      where: { userId: user.id },
+    });
     if (wishlist) {
       await db.wishlistItem.deleteMany({ where: { wishlistId: wishlist.id } });
     }
   }
 
-  return NextResponse.json({ success: true, message: 'Wishlist cleared.' });
+  return NextResponse.json({ success: true, message: "Wishlist cleared." });
 }

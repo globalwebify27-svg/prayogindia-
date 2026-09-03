@@ -1,20 +1,20 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect, Suspense } from 'react';
-import { useSearchParams } from 'next/navigation';
-import { 
-  Layers, 
-  Search, 
-  Filter, 
-  CheckCircle2, 
-  Percent, 
-  DollarSign, 
-  Tag, 
-  Hash, 
-  Boxes, 
-  RefreshCw, 
-  Sparkles, 
-  Save, 
+import React, { useState, useEffect, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
+import {
+  Layers,
+  Search,
+  Filter,
+  CheckCircle2,
+  Percent,
+  DollarSign,
+  Tag,
+  Hash,
+  Boxes,
+  RefreshCw,
+  Sparkles,
+  Save,
   AlertTriangle,
   ArrowRight,
   ShieldCheck,
@@ -22,170 +22,187 @@ import {
   TrendingUp,
   PackageCheck,
   Building2,
-  FolderSync
-} from 'lucide-react';
-import { PRODUCTS, Product } from '@/data/mockData';
+  FolderSync,
+} from "lucide-react";
+import { PRODUCTS, Product } from "@/data/mockData";
 
-type BulkAction = 
-  | 'PRICE_PERCENT' 
-  | 'PRICE_FLAT' 
-  | 'MRP_UPDATE' 
-  | 'DISCOUNT_PERCENT' 
-  | 'GST_RATE' 
-  | 'SKU_PREFIX' 
-  | 'CATEGORY_UPDATE' 
-  | 'STOCK_UPDATE';
+type BulkAction =
+  | "PRICE_PERCENT"
+  | "PRICE_FLAT"
+  | "MRP_UPDATE"
+  | "DISCOUNT_PERCENT"
+  | "GST_RATE"
+  | "SKU_PREFIX"
+  | "CATEGORY_UPDATE"
+  | "STOCK_UPDATE";
 
 function BulkEditContent() {
   const searchParams = useSearchParams();
-  const initialMode = searchParams.get('mode');
+  const initialMode = searchParams.get("mode");
 
   const [products, setProducts] = useState<Product[]>(PRODUCTS);
-  const [selectedCategory, setSelectedCategory] = useState<string>('All');
-  const [selectedSubcategory, setSelectedSubcategory] = useState<string>('All');
-  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState<string>("All");
+  const [selectedSubcategory, setSelectedSubcategory] = useState<string>("All");
+  const [searchQuery, setSearchQuery] = useState("");
   const [selectedProductIds, setSelectedProductIds] = useState<string[]>([]);
 
   // Bulk Operation Drawer / Modal State
-  const [bulkActionType, setBulkActionType] = useState<BulkAction>('PRICE_PERCENT');
-  const [bulkActionValue, setBulkActionValue] = useState('10');
-  const [targetCategory, setTargetCategory] = useState('Arduino & Microcontrollers');
+  const [bulkActionType, setBulkActionType] =
+    useState<BulkAction>("PRICE_PERCENT");
+  const [bulkActionValue, setBulkActionValue] = useState("10");
+  const [targetCategory, setTargetCategory] = useState(
+    "Arduino & Microcontrollers",
+  );
   const [showApplyModal, setShowApplyModal] = useState(false);
   const [successNotice, setSuccessNotice] = useState<string | null>(null);
 
   // Synchronize initial mode from URL search query (e.g. ?mode=price, ?mode=discount, ?mode=gst, ?mode=sku)
   useEffect(() => {
-    if (initialMode === 'price') {
-      setBulkActionType('PRICE_PERCENT');
-      setBulkActionValue('10');
-    } else if (initialMode === 'discount') {
-      setBulkActionType('DISCOUNT_PERCENT');
-      setBulkActionValue('15');
-    } else if (initialMode === 'gst') {
-      setBulkActionType('GST_RATE');
-      setBulkActionValue('18');
-    } else if (initialMode === 'sku') {
-      setBulkActionType('SKU_PREFIX');
-      setBulkActionValue('PRG-2026');
+    if (initialMode === "price") {
+      setBulkActionType("PRICE_PERCENT");
+      setBulkActionValue("10");
+    } else if (initialMode === "discount") {
+      setBulkActionType("DISCOUNT_PERCENT");
+      setBulkActionValue("15");
+    } else if (initialMode === "gst") {
+      setBulkActionType("GST_RATE");
+      setBulkActionValue("18");
+    } else if (initialMode === "sku") {
+      setBulkActionType("SKU_PREFIX");
+      setBulkActionValue("PRG-2026");
     }
   }, [initialMode]);
 
   // Categories & Subcategories extraction
-  const categories = ['All', ...Array.from(new Set(PRODUCTS.map(p => p.category)))];
-  
-  const availableSubcategories = ['All', ...Array.from(
-    new Set(
-      PRODUCTS
-        .filter(p => selectedCategory === 'All' || p.category === selectedCategory)
-        .map(p => p.subcategory || 'General')
-    )
-  )];
+  const categories = [
+    "All",
+    ...Array.from(new Set(PRODUCTS.map((p) => p.category))),
+  ];
 
-  const filteredProducts = products.filter(p => {
-    const matchesCat = selectedCategory === 'All' || p.category === selectedCategory;
-    const matchesSubcat = selectedSubcategory === 'All' || (p.subcategory || 'General') === selectedSubcategory;
-    const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase()) || p.sku.toLowerCase().includes(searchQuery.toLowerCase());
+  const availableSubcategories = [
+    "All",
+    ...Array.from(
+      new Set(
+        PRODUCTS.filter(
+          (p) => selectedCategory === "All" || p.category === selectedCategory,
+        ).map((p) => p.subcategory || "General"),
+      ),
+    ),
+  ];
+
+  const filteredProducts = products.filter((p) => {
+    const matchesCat =
+      selectedCategory === "All" || p.category === selectedCategory;
+    const matchesSubcat =
+      selectedSubcategory === "All" ||
+      (p.subcategory || "General") === selectedSubcategory;
+    const matchesSearch =
+      p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      p.sku.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesCat && matchesSubcat && matchesSearch;
   });
 
   const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.checked) {
-      setSelectedProductIds(filteredProducts.map(p => p.id));
+      setSelectedProductIds(filteredProducts.map((p) => p.id));
     } else {
       setSelectedProductIds([]);
     }
   };
 
   const handleToggleProduct = (id: string) => {
-    setSelectedProductIds(prev => 
-      prev.includes(id) ? prev.filter(pId => pId !== id) : [...prev, id]
+    setSelectedProductIds((prev) =>
+      prev.includes(id) ? prev.filter((pId) => pId !== id) : [...prev, id],
     );
   };
 
   const handleApplyBulkUpdate = (e: React.FormEvent) => {
     e.preventDefault();
     if (selectedProductIds.length === 0) {
-      alert('Please select at least one product to apply bulk update.');
+      alert("Please select at least one product to apply bulk update.");
       return;
     }
 
     const numVal = parseFloat(bulkActionValue);
 
-    setProducts(prev => prev.map(prod => {
-      if (!selectedProductIds.includes(prod.id)) return prod;
+    setProducts((prev) =>
+      prev.map((prod) => {
+        if (!selectedProductIds.includes(prod.id)) return prod;
 
-      const updated = { ...prod };
+        const updated = { ...prod };
 
-      switch (bulkActionType) {
-        case 'PRICE_PERCENT': {
-          // Bulk Selling Price Percentage Update (e.g. supplier cost hike +10% or -5%)
-          const newPrice = Math.round(prod.price * (1 + numVal / 100));
-          updated.price = Math.max(1, newPrice);
-          if (updated.mrp < updated.price) {
-            updated.mrp = Math.round(updated.price * 1.25);
+        switch (bulkActionType) {
+          case "PRICE_PERCENT": {
+            // Bulk Selling Price Percentage Update (e.g. supplier cost hike +10% or -5%)
+            const newPrice = Math.round(prod.price * (1 + numVal / 100));
+            updated.price = Math.max(1, newPrice);
+            if (updated.mrp < updated.price) {
+              updated.mrp = Math.round(updated.price * 1.25);
+            }
+            break;
           }
-          break;
-        }
-        case 'PRICE_FLAT': {
-          // Bulk Selling Price Flat Update (e.g. +₹100)
-          updated.price = Math.max(1, prod.price + numVal);
-          if (updated.mrp < updated.price) {
-            updated.mrp = Math.round(updated.price * 1.2);
+          case "PRICE_FLAT": {
+            // Bulk Selling Price Flat Update (e.g. +₹100)
+            updated.price = Math.max(1, prod.price + numVal);
+            if (updated.mrp < updated.price) {
+              updated.mrp = Math.round(updated.price * 1.2);
+            }
+            break;
           }
-          break;
-        }
-        case 'MRP_UPDATE': {
-          // Bulk MRP Update (% markup above selling price)
-          updated.mrp = Math.round(prod.price * (1 + numVal / 100));
-          break;
-        }
-        case 'DISCOUNT_PERCENT': {
-          // Bulk Discount % and Tag update
-          const discPercent = Math.max(0, Math.min(99, numVal));
-          updated.discount = `${Math.round(discPercent)}% OFF`;
-          updated.price = Math.round(prod.mrp * (1 - discPercent / 100));
-          break;
-        }
-        case 'GST_RATE': {
-          // Bulk GST Rate update (e.g. 18%, 12%, 5%, 0%)
-          // @ts-ignore
-          updated.gstPercent = Math.round(numVal);
-          break;
-        }
-        case 'SKU_PREFIX': {
-          // Bulk SKU Standardization (e.g. PRG-2026-ARD-001)
-          const cleanPrefix = bulkActionValue.trim().toUpperCase();
-          if (cleanPrefix && !prod.sku.startsWith(cleanPrefix)) {
-            updated.sku = `${cleanPrefix}-${prod.sku.replace(/^PRG-/, '')}`;
+          case "MRP_UPDATE": {
+            // Bulk MRP Update (% markup above selling price)
+            updated.mrp = Math.round(prod.price * (1 + numVal / 100));
+            break;
           }
-          break;
+          case "DISCOUNT_PERCENT": {
+            // Bulk Discount % and Tag update
+            const discPercent = Math.max(0, Math.min(99, numVal));
+            updated.discount = `${Math.round(discPercent)}% OFF`;
+            updated.price = Math.round(prod.mrp * (1 - discPercent / 100));
+            break;
+          }
+          case "GST_RATE": {
+            // Bulk GST Rate update (e.g. 18%, 12%, 5%, 0%)
+            // @ts-ignore
+            updated.gstPercent = Math.round(numVal);
+            break;
+          }
+          case "SKU_PREFIX": {
+            // Bulk SKU Standardization (e.g. PRG-2026-ARD-001)
+            const cleanPrefix = bulkActionValue.trim().toUpperCase();
+            if (cleanPrefix && !prod.sku.startsWith(cleanPrefix)) {
+              updated.sku = `${cleanPrefix}-${prod.sku.replace(/^PRG-/, "")}`;
+            }
+            break;
+          }
+          case "CATEGORY_UPDATE": {
+            // Bulk Category reassignment
+            updated.category = targetCategory;
+            break;
+          }
+          case "STOCK_UPDATE": {
+            // Bulk Stock increment or direct set
+            const currentStock = (prod as any).stock || 25;
+            const newStock = Math.max(0, currentStock + numVal);
+            (updated as any).stock = newStock;
+            updated.inStock = newStock > 0;
+            break;
+          }
         }
-        case 'CATEGORY_UPDATE': {
-          // Bulk Category reassignment
-          updated.category = targetCategory;
-          break;
-        }
-        case 'STOCK_UPDATE': {
-          // Bulk Stock increment or direct set
-          const currentStock = (prod as any).stock || 25;
-          const newStock = Math.max(0, currentStock + numVal);
-          (updated as any).stock = newStock;
-          updated.inStock = newStock > 0;
-          break;
-        }
-      }
 
-      return updated;
-    }));
+        return updated;
+      }),
+    );
 
     setShowApplyModal(false);
-    setSuccessNotice(`Successfully applied ${bulkActionType} to ${selectedProductIds.length} products!`);
+    setSuccessNotice(
+      `Successfully applied ${bulkActionType} to ${selectedProductIds.length} products!`,
+    );
     setTimeout(() => setSuccessNotice(null), 5000);
   };
 
   return (
     <div className="p-6 sm:p-8 space-y-8 animate-in fade-in duration-300">
-      
       {/* 1. Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
@@ -198,14 +215,16 @@ function BulkEditContent() {
             Bulk Catalogue &amp; Batch Operations
           </h1>
           <p className="text-xs text-slate-500">
-            Execute batch selling price adjustments, MRP markups, seasonal discount launches, GST tax standardization, SKU formatting, and category migrations.
+            Execute batch selling price adjustments, MRP markups, seasonal
+            discount launches, GST tax standardization, SKU formatting, and
+            category migrations.
           </p>
         </div>
 
         <button
           onClick={() => {
             if (selectedProductIds.length === 0) {
-              alert('Select products using checkboxes first.');
+              alert("Select products using checkboxes first.");
               return;
             }
             setShowApplyModal(true);
@@ -213,8 +232,8 @@ function BulkEditContent() {
           disabled={selectedProductIds.length === 0}
           className={`px-5 py-2.5 rounded-2xl font-black text-xs uppercase tracking-wider flex items-center gap-1.5 shadow-md transition-all ${
             selectedProductIds.length > 0
-              ? 'bg-[#00AEEF] hover:bg-[#0096D6] text-white active:scale-95 cursor-pointer'
-              : 'bg-slate-200 text-slate-400 cursor-not-allowed'
+              ? "bg-[#00AEEF] hover:bg-[#0096D6] text-white active:scale-95 cursor-pointer"
+              : "bg-slate-200 text-slate-400 cursor-not-allowed"
           }`}
         >
           <Sparkles className="w-4 h-4 text-[#FFC20E]" />
@@ -234,59 +253,59 @@ function BulkEditContent() {
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
         {[
           {
-            title: 'Supplier Cost Change',
-            desc: '+8% Selling Price',
+            title: "Supplier Cost Change",
+            desc: "+8% Selling Price",
             icon: TrendingUp,
-            color: 'text-amber-600 bg-amber-50 border-amber-200',
+            color: "text-amber-600 bg-amber-50 border-amber-200",
             action: () => {
-              setBulkActionType('PRICE_PERCENT');
-              setBulkActionValue('8');
+              setBulkActionType("PRICE_PERCENT");
+              setBulkActionValue("8");
               if (selectedProductIds.length > 0) setShowApplyModal(true);
-            }
+            },
           },
           {
-            title: 'Category Clearance Offer',
-            desc: '25% Seasonal Discount',
+            title: "Category Clearance Offer",
+            desc: "25% Seasonal Discount",
             icon: Percent,
-            color: 'text-blue-600 bg-blue-50 border-blue-200',
+            color: "text-blue-600 bg-blue-50 border-blue-200",
             action: () => {
-              setBulkActionType('DISCOUNT_PERCENT');
-              setBulkActionValue('25');
+              setBulkActionType("DISCOUNT_PERCENT");
+              setBulkActionValue("25");
               if (selectedProductIds.length > 0) setShowApplyModal(true);
-            }
+            },
           },
           {
-            title: 'GST Rate Compliance',
-            desc: 'Set GST to 18%',
+            title: "GST Rate Compliance",
+            desc: "Set GST to 18%",
             icon: Tag,
-            color: 'text-purple-600 bg-purple-50 border-purple-200',
+            color: "text-purple-600 bg-purple-50 border-purple-200",
             action: () => {
-              setBulkActionType('GST_RATE');
-              setBulkActionValue('18');
+              setBulkActionType("GST_RATE");
+              setBulkActionValue("18");
               if (selectedProductIds.length > 0) setShowApplyModal(true);
-            }
+            },
           },
           {
-            title: 'SKU Standardization',
-            desc: 'Prefix: PRG-2026',
+            title: "SKU Standardization",
+            desc: "Prefix: PRG-2026",
             icon: Hash,
-            color: 'text-emerald-600 bg-emerald-50 border-emerald-200',
+            color: "text-emerald-600 bg-emerald-50 border-emerald-200",
             action: () => {
-              setBulkActionType('SKU_PREFIX');
-              setBulkActionValue('PRG-2026');
+              setBulkActionType("SKU_PREFIX");
+              setBulkActionValue("PRG-2026");
               if (selectedProductIds.length > 0) setShowApplyModal(true);
-            }
+            },
           },
           {
-            title: 'Shelf Restock Batch',
-            desc: '+50 Units Stock',
+            title: "Shelf Restock Batch",
+            desc: "+50 Units Stock",
             icon: Boxes,
-            color: 'text-cyan-600 bg-cyan-50 border-cyan-200',
+            color: "text-cyan-600 bg-cyan-50 border-cyan-200",
             action: () => {
-              setBulkActionType('STOCK_UPDATE');
-              setBulkActionValue('50');
+              setBulkActionType("STOCK_UPDATE");
+              setBulkActionValue("50");
               if (selectedProductIds.length > 0) setShowApplyModal(true);
-            }
+            },
           },
         ].map((shortcut, i) => {
           const Icon = shortcut.icon;
@@ -299,11 +318,17 @@ function BulkEditContent() {
             >
               <div className="flex items-center justify-between w-full">
                 <Icon className="w-4 h-4" />
-                <span className="text-[10px] font-black uppercase">Batch Preset</span>
+                <span className="text-[10px] font-black uppercase">
+                  Batch Preset
+                </span>
               </div>
               <div className="mt-2">
-                <div className="font-extrabold text-xs text-slate-900 leading-tight">{shortcut.title}</div>
-                <div className="text-[11px] font-medium text-slate-600 mt-0.5">{shortcut.desc}</div>
+                <div className="font-extrabold text-xs text-slate-900 leading-tight">
+                  {shortcut.title}
+                </div>
+                <div className="text-[11px] font-medium text-slate-600 mt-0.5">
+                  {shortcut.desc}
+                </div>
               </div>
             </button>
           );
@@ -313,36 +338,43 @@ function BulkEditContent() {
       {/* 3. Category & Subcategory Filtering Bar */}
       <div className="bg-white border border-slate-200 rounded-3xl p-5 shadow-2xs space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-4">
-          
           <div className="flex flex-wrap items-center gap-3">
             {/* Category Filter */}
             <div className="flex items-center gap-1.5">
               <FolderTree className="w-4 h-4 text-slate-400" />
-              <span className="text-xs font-bold text-slate-500">Category:</span>
+              <span className="text-xs font-bold text-slate-500">
+                Category:
+              </span>
               <select
                 value={selectedCategory}
                 onChange={(e) => {
                   setSelectedCategory(e.target.value);
-                  setSelectedSubcategory('All');
+                  setSelectedSubcategory("All");
                 }}
                 className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 text-xs font-bold text-slate-900 focus:outline-none focus:border-[#00AEEF]"
               >
                 {categories.map((c) => (
-                  <option key={c} value={c}>{c}</option>
+                  <option key={c} value={c}>
+                    {c}
+                  </option>
                 ))}
               </select>
             </div>
 
             {/* Subcategory Filter */}
             <div className="flex items-center gap-1.5">
-              <span className="text-xs font-bold text-slate-500">Subcategory:</span>
+              <span className="text-xs font-bold text-slate-500">
+                Subcategory:
+              </span>
               <select
                 value={selectedSubcategory}
                 onChange={(e) => setSelectedSubcategory(e.target.value)}
                 className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 text-xs font-bold text-slate-900 focus:outline-none focus:border-[#00AEEF]"
               >
                 {availableSubcategories.map((sc) => (
-                  <option key={sc} value={sc}>{sc}</option>
+                  <option key={sc} value={sc}>
+                    {sc}
+                  </option>
                 ))}
               </select>
             </div>
@@ -362,7 +394,11 @@ function BulkEditContent() {
 
           {/* Selection Counter */}
           <div className="text-xs font-bold text-slate-600">
-            Selected <strong className="text-[#00AEEF]">{selectedProductIds.length}</strong> of {filteredProducts.length} items
+            Selected{" "}
+            <strong className="text-[#00AEEF]">
+              {selectedProductIds.length}
+            </strong>{" "}
+            of {filteredProducts.length} items
           </div>
         </div>
       </div>
@@ -376,7 +412,10 @@ function BulkEditContent() {
                 <th className="pb-3 w-8">
                   <input
                     type="checkbox"
-                    checked={selectedProductIds.length > 0 && selectedProductIds.length === filteredProducts.length}
+                    checked={
+                      selectedProductIds.length > 0 &&
+                      selectedProductIds.length === filteredProducts.length
+                    }
                     onChange={handleSelectAll}
                     className="rounded text-[#00AEEF] accent-[#00AEEF]"
                   />
@@ -397,7 +436,7 @@ function BulkEditContent() {
                   <tr
                     key={p.id}
                     className={`transition-colors ${
-                      isSelected ? 'bg-blue-50/40' : 'hover:bg-slate-50/80'
+                      isSelected ? "bg-blue-50/40" : "hover:bg-slate-50/80"
                     }`}
                   >
                     <td className="py-3.5">
@@ -410,13 +449,21 @@ function BulkEditContent() {
                     </td>
 
                     <td className="py-3.5">
-                      <div className="font-extrabold text-slate-900">{p.name}</div>
-                      <div className="font-mono text-[10px] text-slate-400 font-bold">{p.sku}</div>
+                      <div className="font-extrabold text-slate-900">
+                        {p.name}
+                      </div>
+                      <div className="font-mono text-[10px] text-slate-400 font-bold">
+                        {p.sku}
+                      </div>
                     </td>
 
                     <td className="py-3.5">
-                      <div className="font-semibold text-slate-700">{p.category}</div>
-                      <div className="text-[10px] text-slate-400">{p.subcategory || 'General'}</div>
+                      <div className="font-semibold text-slate-700">
+                        {p.category}
+                      </div>
+                      <div className="text-[10px] text-slate-400">
+                        {p.subcategory || "General"}
+                      </div>
                     </td>
 
                     <td className="py-3.5 text-right font-black text-slate-900 text-sm">
@@ -429,7 +476,7 @@ function BulkEditContent() {
 
                     <td className="py-3.5 text-right">
                       <span className="font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded text-[10px]">
-                        {p.discount || '20% OFF'}
+                        {p.discount || "20% OFF"}
                       </span>
                     </td>
 
@@ -439,10 +486,14 @@ function BulkEditContent() {
                     </td>
 
                     <td className="py-3.5 text-center">
-                      <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-full ${
-                        p.inStock ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'
-                      }`}>
-                        {p.inStock ? 'In Stock' : 'Out of Stock'}
+                      <span
+                        className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-full ${
+                          p.inStock
+                            ? "bg-emerald-100 text-emerald-800"
+                            : "bg-red-100 text-red-800"
+                        }`}
+                      >
+                        {p.inStock ? "In Stock" : "Out of Stock"}
                       </span>
                     </td>
                   </tr>
@@ -456,9 +507,11 @@ function BulkEditContent() {
       {/* 5. Bulk Edit Configuration Modal */}
       {showApplyModal && (
         <div className="fixed inset-0 z-50 overflow-hidden flex items-center justify-center p-4">
-          <div onClick={() => setShowApplyModal(false)} className="fixed inset-0 bg-slate-950/70 backdrop-blur-xs animate-in fade-in" />
+          <div
+            onClick={() => setShowApplyModal(false)}
+            className="fixed inset-0 bg-slate-950/70 backdrop-blur-xs animate-in fade-in"
+          />
           <div className="relative max-w-md w-full bg-white rounded-3xl p-6 sm:p-7 shadow-2xl z-10 space-y-4 text-xs animate-in zoom-in-95">
-            
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div>
                 <span className="text-[10px] font-black uppercase tracking-widest text-[#00AEEF]">
@@ -468,54 +521,86 @@ function BulkEditContent() {
                   Execute Bulk Operation
                 </h3>
               </div>
-              <button onClick={() => setShowApplyModal(false)} className="text-slate-400 hover:text-slate-700">
+              <button
+                onClick={() => setShowApplyModal(false)}
+                className="text-slate-400 hover:text-slate-700"
+              >
                 ✕
               </button>
             </div>
 
             <form onSubmit={handleApplyBulkUpdate} className="space-y-4">
               <div>
-                <label className="block font-bold text-slate-700 mb-1">Select Bulk Operation Type *</label>
+                <label className="block font-bold text-slate-700 mb-1">
+                  Select Bulk Operation Type *
+                </label>
                 <select
                   value={bulkActionType}
                   onChange={(e) => setBulkActionType(e.target.value as any)}
                   className="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl font-bold text-slate-900 focus:outline-none"
                 >
-                  <option value="PRICE_PERCENT">Bulk Selling Price Update (+ / - %)</option>
-                  <option value="PRICE_FLAT">Bulk Selling Price Update (+ / - Flat ₹)</option>
-                  <option value="MRP_UPDATE">Bulk MRP Markup (% above Selling Price)</option>
-                  <option value="DISCOUNT_PERCENT">Bulk Discount Percentage Update (%)</option>
-                  <option value="GST_RATE">Bulk GST Tax Rate Update (18%, 12%, 5%, 0%)</option>
-                  <option value="SKU_PREFIX">Bulk SKU Code Standardization (Add Prefix)</option>
-                  <option value="CATEGORY_UPDATE">Bulk Category / Department Reassignment</option>
-                  <option value="STOCK_UPDATE">Bulk Stock Quantity Increment (+ Units)</option>
+                  <option value="PRICE_PERCENT">
+                    Bulk Selling Price Update (+ / - %)
+                  </option>
+                  <option value="PRICE_FLAT">
+                    Bulk Selling Price Update (+ / - Flat ₹)
+                  </option>
+                  <option value="MRP_UPDATE">
+                    Bulk MRP Markup (% above Selling Price)
+                  </option>
+                  <option value="DISCOUNT_PERCENT">
+                    Bulk Discount Percentage Update (%)
+                  </option>
+                  <option value="GST_RATE">
+                    Bulk GST Tax Rate Update (18%, 12%, 5%, 0%)
+                  </option>
+                  <option value="SKU_PREFIX">
+                    Bulk SKU Code Standardization (Add Prefix)
+                  </option>
+                  <option value="CATEGORY_UPDATE">
+                    Bulk Category / Department Reassignment
+                  </option>
+                  <option value="STOCK_UPDATE">
+                    Bulk Stock Quantity Increment (+ Units)
+                  </option>
                 </select>
               </div>
 
-              {bulkActionType === 'CATEGORY_UPDATE' ? (
+              {bulkActionType === "CATEGORY_UPDATE" ? (
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1">Target Category *</label>
+                  <label className="block font-bold text-slate-700 mb-1">
+                    Target Category *
+                  </label>
                   <select
                     value={targetCategory}
                     onChange={(e) => setTargetCategory(e.target.value)}
                     className="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl font-bold text-slate-900 focus:outline-none"
                   >
-                    {categories.filter(c => c !== 'All').map((c) => (
-                      <option key={c} value={c}>{c}</option>
-                    ))}
+                    {categories
+                      .filter((c) => c !== "All")
+                      .map((c) => (
+                        <option key={c} value={c}>
+                          {c}
+                        </option>
+                      ))}
                   </select>
                 </div>
               ) : (
                 <div>
                   <label className="block font-bold text-slate-700 mb-1">
-                    {bulkActionType === 'SKU_PREFIX' ? 'SKU Prefix Code (e.g. PRG-2026)' : 'Operation Parameter Value'} *
+                    {bulkActionType === "SKU_PREFIX"
+                      ? "SKU Prefix Code (e.g. PRG-2026)"
+                      : "Operation Parameter Value"}{" "}
+                    *
                   </label>
                   <input
-                    type={bulkActionType === 'SKU_PREFIX' ? 'text' : 'number'}
+                    type={bulkActionType === "SKU_PREFIX" ? "text" : "number"}
                     required
                     value={bulkActionValue}
                     onChange={(e) => setBulkActionValue(e.target.value)}
-                    placeholder={bulkActionType === 'SKU_PREFIX' ? 'PRG-2026' : '10'}
+                    placeholder={
+                      bulkActionType === "SKU_PREFIX" ? "PRG-2026" : "10"
+                    }
                     className="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl font-bold text-slate-900 focus:outline-none uppercase"
                   />
                 </div>
@@ -524,7 +609,12 @@ function BulkEditContent() {
               <div className="bg-blue-50 border border-blue-200 p-3 rounded-2xl text-blue-900 text-[11px] font-medium space-y-1">
                 <span className="font-bold block">Scope Summary:</span>
                 <p>
-                  Will modify <strong>{selectedProductIds.length}</strong> selected hardware products under category "{selectedCategory}" {selectedSubcategory !== 'All' ? `> "${selectedSubcategory}"` : ''}.
+                  Will modify <strong>{selectedProductIds.length}</strong>{" "}
+                  selected hardware products under category "{selectedCategory}"{" "}
+                  {selectedSubcategory !== "All"
+                    ? `> "${selectedSubcategory}"`
+                    : ""}
+                  .
                 </p>
               </div>
 
@@ -547,16 +637,20 @@ function BulkEditContent() {
           </div>
         </div>
       )}
-
     </div>
   );
 }
 
 export default function AdminBulkEditPage() {
   return (
-    <Suspense fallback={<div className="p-8 text-center text-slate-400 font-bold">Loading Bulk Product Editor...</div>}>
+    <Suspense
+      fallback={
+        <div className="p-8 text-center text-slate-400 font-bold">
+          Loading Bulk Product Editor...
+        </div>
+      }
+    >
       <BulkEditContent />
     </Suspense>
   );
 }
-

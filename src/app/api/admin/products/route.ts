@@ -1,29 +1,35 @@
-import { NextResponse } from 'next/server';
-import { db } from '@/lib/db';
-import { getAuthenticatedAdmin } from '@/lib/adminAuth';
-import { PRODUCTS } from '@/data/mockData';
+import { NextResponse } from "next/server";
+import { db } from "@/lib/db";
+import { getAuthenticatedAdmin } from "@/lib/adminAuth";
+import { PRODUCTS } from "@/data/mockData";
 
 // GET /api/admin/products - List All Products for Admin Management
 export async function GET(request: Request) {
   const admin = await getAuthenticatedAdmin();
   if (!admin) {
-    return NextResponse.json({ success: false, message: 'Forbidden' }, { status: 403 });
+    return NextResponse.json(
+      { success: false, message: "Forbidden" },
+      { status: 403 },
+    );
   }
 
   const { searchParams } = new URL(request.url);
-  const q = searchParams.get('q')?.trim();
-  const category = searchParams.get('category');
-  const page = Math.max(1, parseInt(searchParams.get('page') || '1', 10));
-  const limit = Math.min(50, Math.max(1, parseInt(searchParams.get('limit') || '15', 10)));
+  const q = searchParams.get("q")?.trim();
+  const category = searchParams.get("category");
+  const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
+  const limit = Math.min(
+    50,
+    Math.max(1, parseInt(searchParams.get("limit") || "15", 10)),
+  );
 
   if (process.env.DATABASE_URL) {
     try {
       const where: any = {};
-      if (category && category !== 'all') where.categoryId = category;
+      if (category && category !== "all") where.categoryId = category;
       if (q) {
         where.OR = [
-          { name: { contains: q, mode: 'insensitive' } },
-          { sku: { contains: q, mode: 'insensitive' } },
+          { name: { contains: q, mode: "insensitive" } },
+          { sku: { contains: q, mode: "insensitive" } },
         ];
       }
 
@@ -31,7 +37,7 @@ export async function GET(request: Request) {
         db.product.findMany({
           where,
           include: { category: true, images: true, variants: true },
-          orderBy: { createdAt: 'desc' },
+          orderBy: { createdAt: "desc" },
           skip: (page - 1) * limit,
           take: limit,
         }),
@@ -40,17 +46,32 @@ export async function GET(request: Request) {
 
       return NextResponse.json({
         success: true,
-        data: { items, total, page, limit, totalPages: Math.ceil(total / limit) },
+        data: {
+          items,
+          total,
+          page,
+          limit,
+          totalPages: Math.ceil(total / limit),
+        },
       });
     } catch (error: any) {
-      return NextResponse.json({ success: false, message: error.message }, { status: 500 });
+      return NextResponse.json(
+        { success: false, message: error.message },
+        { status: 500 },
+      );
     }
   }
 
   // Mock Fallback
   let items = [...PRODUCTS];
-  if (q) items = items.filter(p => p.name.toLowerCase().includes(q.toLowerCase()) || p.sku.toLowerCase().includes(q.toLowerCase()));
-  if (category && category !== 'all') items = items.filter(p => p.category === category);
+  if (q)
+    items = items.filter(
+      (p) =>
+        p.name.toLowerCase().includes(q.toLowerCase()) ||
+        p.sku.toLowerCase().includes(q.toLowerCase()),
+    );
+  if (category && category !== "all")
+    items = items.filter((p) => p.category === category);
 
   return NextResponse.json({
     success: true,
@@ -68,18 +89,36 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   const admin = await getAuthenticatedAdmin();
   if (!admin) {
-    return NextResponse.json({ success: false, message: 'Forbidden' }, { status: 403 });
+    return NextResponse.json(
+      { success: false, message: "Forbidden" },
+      { status: 403 },
+    );
   }
 
   try {
     const body = await request.json();
-    const { name, categoryId, price, mrp, stock, sku, description, brand = 'Prayog India' } = body;
+    const {
+      name,
+      categoryId,
+      price,
+      mrp,
+      stock,
+      sku,
+      description,
+      brand = "Prayog India",
+    } = body;
 
     if (!name || !price || !sku || !description) {
-      return NextResponse.json({ success: false, message: 'Required product fields missing.' }, { status: 400 });
+      return NextResponse.json(
+        { success: false, message: "Required product fields missing." },
+        { status: 400 },
+      );
     }
 
-    const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+    const slug = name
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)+/g, "");
 
     if (process.env.DATABASE_URL) {
       // Find default category if categoryId not provided
@@ -90,7 +129,10 @@ export async function POST(request: Request) {
       }
 
       if (!targetCatId) {
-        return NextResponse.json({ success: false, message: 'Category required to create product.' }, { status: 400 });
+        return NextResponse.json(
+          { success: false, message: "Category required to create product." },
+          { status: 400 },
+        );
       }
 
       const createdProduct = await db.product.create({
@@ -110,17 +152,20 @@ export async function POST(request: Request) {
 
       return NextResponse.json({
         success: true,
-        message: 'Product created successfully.',
+        message: "Product created successfully.",
         data: createdProduct,
       });
     }
 
     return NextResponse.json({
       success: true,
-      message: 'Product created (Mock Mode).',
+      message: "Product created (Mock Mode).",
       data: { id: `prod-mock-${Date.now()}`, name, slug, price, stock, sku },
     });
   } catch (error: any) {
-    return NextResponse.json({ success: false, message: error.message }, { status: 500 });
+    return NextResponse.json(
+      { success: false, message: error.message },
+      { status: 500 },
+    );
   }
 }

@@ -1,11 +1,11 @@
-import { NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
-import { AuthSessionUser } from '@/lib/authUtils';
-import { getStorageService } from '@/lib/storage';
+import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
+import { AuthSessionUser } from "@/lib/authUtils";
+import { getStorageService } from "@/lib/storage";
 
 async function getAuthenticatedUser(): Promise<AuthSessionUser | null> {
   const cookieStore = await cookies();
-  const sessionCookie = cookieStore.get('prayog_customer_session');
+  const sessionCookie = cookieStore.get("prayog_customer_session");
   if (!sessionCookie?.value) return null;
   try {
     return JSON.parse(sessionCookie.value);
@@ -20,25 +20,34 @@ async function getAuthenticatedUser(): Promise<AuthSessionUser | null> {
  */
 export async function GET(
   request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const resolvedParams = await params;
   const keyOrId = decodeURIComponent(resolvedParams.id);
 
   if (!keyOrId) {
-    return NextResponse.json({ success: false, message: 'Media ID or key is required.' }, { status: 400 });
+    return NextResponse.json(
+      { success: false, message: "Media ID or key is required." },
+      { status: 400 },
+    );
   }
 
   // 1. If key is a private support attachment path (support/user-id/...)
-  if (keyOrId.startsWith('support/')) {
+  if (keyOrId.startsWith("support/")) {
     const user = await getAuthenticatedUser();
     if (!user) {
-      return NextResponse.json({ success: false, message: 'Unauthenticated' }, { status: 401 });
+      return NextResponse.json(
+        { success: false, message: "Unauthenticated" },
+        { status: 401 },
+      );
     }
 
     // Customer Isolation Check: Verify storage key belongs to authenticated user
     if (!keyOrId.includes(`/${user.id}/`)) {
-      return NextResponse.json({ success: false, message: 'Media file not found.' }, { status: 404 });
+      return NextResponse.json(
+        { success: false, message: "Media file not found." },
+        { status: 404 },
+      );
     }
 
     const storageService = getStorageService();

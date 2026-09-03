@@ -9,19 +9,19 @@
 // DEVICE = STORE-SPECIFIC
 // USER ACCESS = STORE-SCOPED
 
-import { StoreId, STORES } from '@/data/storeConfig';
-import { PRODUCTS, Product } from '@/data/mockData';
+import { StoreId, STORES } from "@/data/storeConfig";
+import { PRODUCTS, Product } from "@/data/mockData";
 
-export type TransactionType = 
-  | 'SALE' 
-  | 'RESTOCK' 
-  | 'TRANSFER_IN' 
-  | 'TRANSFER_OUT' 
-  | 'ADJUSTMENT' 
-  | 'RETURN' 
-  | 'ONLINE_FULFILLMENT';
+export type TransactionType =
+  | "SALE"
+  | "RESTOCK"
+  | "TRANSFER_IN"
+  | "TRANSFER_OUT"
+  | "ADJUSTMENT"
+  | "RETURN"
+  | "ONLINE_FULFILLMENT";
 
-export type StockStatus = 'IN_STOCK' | 'LOW_STOCK' | 'OUT_OF_STOCK';
+export type StockStatus = "IN_STOCK" | "LOW_STOCK" | "OUT_OF_STOCK";
 
 export interface StoreInventoryRecord {
   id: string;
@@ -71,7 +71,7 @@ export interface StockTransferRecord {
   transferNumber: string;
   sourceStoreId: StoreId;
   destinationStoreId: StoreId;
-  status: 'PENDING' | 'IN_TRANSIT' | 'COMPLETED' | 'CANCELLED';
+  status: "PENDING" | "IN_TRANSIT" | "COMPLETED" | "CANCELLED";
   items: Array<{
     productId: string;
     productName: string;
@@ -124,27 +124,37 @@ function makeInventoryKey(storeId: StoreId, productId: string): string {
  * Proportions: Ranchi (Central) = 100, Patna = 20, Delhi = 15, Mumbai = 10
  */
 export function initializeStoreInventory(): void {
-  const storeIds: StoreId[] = ['ranchi', 'patna', 'delhi', 'mumbai'];
+  const storeIds: StoreId[] = ["ranchi", "patna", "delhi", "mumbai"];
 
   PRODUCTS.forEach((product: any) => {
-    const baseStock = typeof product.stock === 'number' ? product.stock : (product.inStock ? 100 : 0);
+    const baseStock =
+      typeof product.stock === "number"
+        ? product.stock
+        : product.inStock
+          ? 100
+          : 0;
 
     storeIds.forEach((storeId) => {
       const key = makeInventoryKey(storeId, product.id);
       if (!STORE_INVENTORY_TABLE.has(key)) {
         let qty = 0;
-        if (storeId === 'ranchi') {
+        if (storeId === "ranchi") {
           qty = baseStock;
-        } else if (storeId === 'patna') {
-          qty = Math.max(0, Math.floor(baseStock * 0.20));
-        } else if (storeId === 'delhi') {
+        } else if (storeId === "patna") {
+          qty = Math.max(0, Math.floor(baseStock * 0.2));
+        } else if (storeId === "delhi") {
           qty = Math.max(0, Math.floor(baseStock * 0.15));
-        } else if (storeId === 'mumbai') {
-          qty = Math.max(0, Math.floor(baseStock * 0.10));
+        } else if (storeId === "mumbai") {
+          qty = Math.max(0, Math.floor(baseStock * 0.1));
         }
 
         const lowThreshold = 5;
-        const status: StockStatus = qty === 0 ? 'OUT_OF_STOCK' : qty <= lowThreshold ? 'LOW_STOCK' : 'IN_STOCK';
+        const status: StockStatus =
+          qty === 0
+            ? "OUT_OF_STOCK"
+            : qty <= lowThreshold
+              ? "LOW_STOCK"
+              : "IN_STOCK";
 
         STORE_INVENTORY_TABLE.set(key, {
           id: `inv-${storeId}-${product.id}`,
@@ -173,7 +183,10 @@ initializeStoreInventory();
 /**
  * Get single product stock for a specific store.
  */
-export function getProductStockForStore(productId: string, storeId: StoreId = 'ranchi'): number {
+export function getProductStockForStore(
+  productId: string,
+  storeId: StoreId = "ranchi",
+): number {
   if (STORE_INVENTORY_TABLE.size === 0) initializeStoreInventory();
   const key = makeInventoryKey(storeId, productId);
   const record = STORE_INVENTORY_TABLE.get(key);
@@ -183,10 +196,13 @@ export function getProductStockForStore(productId: string, storeId: StoreId = 'r
 /**
  * Get product price for a specific store (resolving store_product_settings price override).
  */
-export function getProductPriceForStore(productId: string, storeId: StoreId = 'ranchi'): number {
+export function getProductPriceForStore(
+  productId: string,
+  storeId: StoreId = "ranchi",
+): number {
   const key = makeInventoryKey(storeId, productId);
   const settings = STORE_SETTINGS_TABLE.get(key);
-  if (settings && typeof settings.priceOverride === 'number') {
+  if (settings && typeof settings.priceOverride === "number") {
     return settings.priceOverride;
   }
   const product = PRODUCTS.find((p) => p.id === productId);
@@ -210,19 +226,19 @@ export function getStoreInventory(storeId: StoreId) {
       availableQuantity: 0,
       reorderLevel: 10,
       lowStockThreshold: 5,
-      status: 'OUT_OF_STOCK' as StockStatus,
+      status: "OUT_OF_STOCK" as StockStatus,
       updatedAt: new Date().toISOString(),
     };
 
     const price = getProductPriceForStore(product.id, storeId);
-    const isCentral = storeId === 'ranchi';
+    const isCentral = storeId === "ranchi";
 
     return {
       id: product.id,
       name: product.name,
       sku: product.sku,
       category: product.category,
-      brand: product.brand || 'Prayog India',
+      brand: product.brand || "Prayog India",
       price,
       basePrice: product.price,
       mrp: product.mrp,
@@ -250,12 +266,16 @@ export function searchStoreProducts(params: {
   category?: string;
   inStockOnly?: boolean;
 }) {
-  const { storeId, query = '', category, inStockOnly = false } = params;
+  const { storeId, query = "", category, inStockOnly = false } = params;
   const inventory = getStoreInventory(storeId);
   const q = query.toLowerCase().trim();
 
   return inventory.filter((item) => {
-    if (category && category !== 'all' && item.category.toLowerCase() !== category.toLowerCase()) {
+    if (
+      category &&
+      category !== "all" &&
+      item.category.toLowerCase() !== category.toLowerCase()
+    ) {
       return false;
     }
     if (inStockOnly && item.availableQuantity <= 0) {
@@ -284,7 +304,10 @@ export function validateCartForStore(params: {
   for (const item of items) {
     const product = PRODUCTS.find((p) => p.id === item.productId);
     if (!product) {
-      errors.push({ productId: item.productId, message: `Product not found in global catalog.` });
+      errors.push({
+        productId: item.productId,
+        message: `Product not found in global catalog.`,
+      });
       continue;
     }
 
@@ -309,19 +332,33 @@ export function validateCartForStore(params: {
 export function deductStoreInventory(params: {
   productId: string;
   quantity: number;
-  orderSource: 'ONLINE_WEB' | 'MOBILE_APP' | 'WALK_IN';
+  orderSource: "ONLINE_WEB" | "MOBILE_APP" | "WALK_IN";
   storeId?: StoreId;
   orderId?: string;
   userId?: string;
   deviceId?: string;
-}): { success: boolean; deductedFrom: StoreId; remainingStock: number; message: string } {
-  const { productId, quantity, orderSource, storeId, orderId, userId, deviceId } = params;
+}): {
+  success: boolean;
+  deductedFrom: StoreId;
+  remainingStock: number;
+  message: string;
+} {
+  const {
+    productId,
+    quantity,
+    orderSource,
+    storeId,
+    orderId,
+    userId,
+    deviceId,
+  } = params;
 
   if (STORE_INVENTORY_TABLE.size === 0) initializeStoreInventory();
 
   // Determine authoritative store target
   // Online Web & Mobile App dispatch from Central Hub (Ranchi)
-  const targetStore: StoreId = orderSource === 'WALK_IN' ? (storeId || 'ranchi') : 'ranchi';
+  const targetStore: StoreId =
+    orderSource === "WALK_IN" ? storeId || "ranchi" : "ranchi";
   const key = makeInventoryKey(targetStore, productId);
   const record = STORE_INVENTORY_TABLE.get(key);
 
@@ -338,7 +375,12 @@ export function deductStoreInventory(params: {
 
   const updatedQty = currentStock - quantity;
   const lowThreshold = record?.lowStockThreshold ?? 5;
-  const newStatus: StockStatus = updatedQty === 0 ? 'OUT_OF_STOCK' : updatedQty <= lowThreshold ? 'LOW_STOCK' : 'IN_STOCK';
+  const newStatus: StockStatus =
+    updatedQty === 0
+      ? "OUT_OF_STOCK"
+      : updatedQty <= lowThreshold
+        ? "LOW_STOCK"
+        : "IN_STOCK";
 
   if (record) {
     record.quantity = updatedQty;
@@ -357,7 +399,7 @@ export function deductStoreInventory(params: {
     productName: product?.name,
     sku: product?.sku,
     orderId: orderId || null,
-    transactionType: orderSource === 'WALK_IN' ? 'SALE' : 'ONLINE_FULFILLMENT',
+    transactionType: orderSource === "WALK_IN" ? "SALE" : "ONLINE_FULFILLMENT",
     quantityBefore: currentStock,
     quantityChange: -quantity,
     quantityAfter: updatedQty,
@@ -390,7 +432,15 @@ export function adjustStoreInventory(params: {
   userId?: string;
   deviceId?: string;
 }): { success: boolean; newQuantity: number; message: string } {
-  const { storeId, productId, quantityChange, transactionType, reason, userId, deviceId } = params;
+  const {
+    storeId,
+    productId,
+    quantityChange,
+    transactionType,
+    reason,
+    userId,
+    deviceId,
+  } = params;
 
   if (STORE_INVENTORY_TABLE.size === 0) initializeStoreInventory();
 
@@ -407,7 +457,7 @@ export function adjustStoreInventory(params: {
       availableQuantity: 0,
       reorderLevel: 10,
       lowStockThreshold: 5,
-      status: 'OUT_OF_STOCK',
+      status: "OUT_OF_STOCK",
       updatedAt: new Date().toISOString(),
     };
     STORE_INVENTORY_TABLE.set(key, record);
@@ -419,7 +469,12 @@ export function adjustStoreInventory(params: {
 
   record.quantity = newQuantity;
   record.availableQuantity = Math.max(0, newQuantity - record.reservedQuantity);
-  record.status = newQuantity === 0 ? 'OUT_OF_STOCK' : newQuantity <= lowThreshold ? 'LOW_STOCK' : 'IN_STOCK';
+  record.status =
+    newQuantity === 0
+      ? "OUT_OF_STOCK"
+      : newQuantity <= lowThreshold
+        ? "LOW_STOCK"
+        : "IN_STOCK";
   record.updatedAt = new Date().toISOString();
 
   const product = PRODUCTS.find((p) => p.id === productId);
@@ -461,7 +516,10 @@ export function transferStockBetweenStores(params: {
   const { sourceStoreId, destinationStoreId, items, userId, notes } = params;
 
   if (sourceStoreId === destinationStoreId) {
-    return { success: false, message: 'Source and Destination stores cannot be identical.' };
+    return {
+      success: false,
+      message: "Source and Destination stores cannot be identical.",
+    };
   }
 
   // Pre-validate source stock
@@ -477,20 +535,20 @@ export function transferStockBetweenStores(params: {
   }
 
   const transferNumber = `TR-${Date.now().toString().slice(-6)}-${Math.floor(100 + Math.random() * 900)}`;
-  const transferItems: StockTransferRecord['items'] = [];
+  const transferItems: StockTransferRecord["items"] = [];
 
   // Execute atomic transfer
   for (const item of items) {
     const p = PRODUCTS.find((x) => x.id === item.productId);
     const prodName = p?.name || item.productId;
-    const sku = p?.sku || '';
+    const sku = p?.sku || "";
 
     // 1. Deduct from Source
     adjustStoreInventory({
       storeId: sourceStoreId,
       productId: item.productId,
       quantityChange: -item.quantity,
-      transactionType: 'TRANSFER_OUT',
+      transactionType: "TRANSFER_OUT",
       reason: `Stock Transfer ${transferNumber} to ${STORES[destinationStoreId]?.name}`,
       userId,
     });
@@ -500,7 +558,7 @@ export function transferStockBetweenStores(params: {
       storeId: destinationStoreId,
       productId: item.productId,
       quantityChange: item.quantity,
-      transactionType: 'TRANSFER_IN',
+      transactionType: "TRANSFER_IN",
       reason: `Stock Transfer ${transferNumber} from ${STORES[sourceStoreId]?.name}`,
       userId,
     });
@@ -519,7 +577,7 @@ export function transferStockBetweenStores(params: {
     transferNumber,
     sourceStoreId,
     destinationStoreId,
-    status: 'COMPLETED',
+    status: "COMPLETED",
     items: transferItems,
     requestedByUserId: userId,
     approvedByUserId: userId,
@@ -540,13 +598,15 @@ export function transferStockBetweenStores(params: {
 /**
  * Get multi-store matrix of product stock.
  */
-export function getProductMultiStoreBreakdown(productId: string): MultiStoreProductStock | null {
+export function getProductMultiStoreBreakdown(
+  productId: string,
+): MultiStoreProductStock | null {
   if (STORE_INVENTORY_TABLE.size === 0) initializeStoreInventory();
 
   const prod = PRODUCTS.find((p) => p.id === productId);
   if (!prod) return null;
 
-  const storeIds: StoreId[] = ['ranchi', 'patna', 'delhi', 'mumbai'];
+  const storeIds: StoreId[] = ["ranchi", "patna", "delhi", "mumbai"];
   const storeStocks = {} as Record<StoreId, StoreStockEntry>;
 
   let totalNetworkStock = 0;
@@ -556,7 +616,7 @@ export function getProductMultiStoreBreakdown(productId: string): MultiStoreProd
     const rec = STORE_INVENTORY_TABLE.get(key);
     const stock = rec?.quantity ?? 0;
     const available = rec?.availableQuantity ?? 0;
-    const status = rec?.status ?? 'OUT_OF_STOCK';
+    const status = rec?.status ?? "OUT_OF_STOCK";
     const price = getProductPriceForStore(prod.id, sId);
 
     totalNetworkStock += stock;
@@ -564,7 +624,7 @@ export function getProductMultiStoreBreakdown(productId: string): MultiStoreProd
     storeStocks[sId] = {
       storeId: sId,
       storeName: STORES[sId]?.name || sId,
-      isCentral: sId === 'ranchi',
+      isCentral: sId === "ranchi",
       stock,
       allocated: rec?.reservedQuantity ?? 0,
       available,
@@ -589,7 +649,9 @@ export function getProductMultiStoreBreakdown(productId: string): MultiStoreProd
  */
 export function getMultiStoreInventoryMatrix() {
   if (STORE_INVENTORY_TABLE.size === 0) initializeStoreInventory();
-  return PRODUCTS.map((product) => getProductMultiStoreBreakdown(product.id)).filter(Boolean);
+  return PRODUCTS.map((product) =>
+    getProductMultiStoreBreakdown(product.id),
+  ).filter(Boolean);
 }
 
 /**

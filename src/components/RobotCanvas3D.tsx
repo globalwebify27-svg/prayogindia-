@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import React, { useRef, useEffect } from 'react';
-import * as THREE from 'three';
+import React, { useRef, useEffect } from "react";
+import * as THREE from "three";
 
 export const RobotCanvas3D: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -49,7 +49,11 @@ export const RobotCanvas3D: React.FC = () => {
     });
 
     const glowMaterial = new THREE.MeshBasicMaterial({ color: 0x00d2ff });
-    const silverMaterial = new THREE.MeshStandardMaterial({ color: 0x99bbdd, metalness: 0.95, roughness: 0.1 });
+    const silverMaterial = new THREE.MeshStandardMaterial({
+      color: 0x99bbdd,
+      metalness: 0.95,
+      roughness: 0.1,
+    });
 
     // Head
     const headGeo = new THREE.SphereGeometry(0.35, 16, 16);
@@ -113,7 +117,11 @@ export const RobotCanvas3D: React.FC = () => {
 
     // Holographic Orbital Rings underneath
     const ringGeo = new THREE.TorusGeometry(0.8, 0.015, 16, 64);
-    const ringMat = new THREE.MeshBasicMaterial({ color: 0x0088ff, opacity: 0.6, transparent: true });
+    const ringMat = new THREE.MeshBasicMaterial({
+      color: 0x0088ff,
+      opacity: 0.6,
+      transparent: true,
+    });
     const ring = new THREE.Mesh(ringGeo, ringMat);
     ring.rotation.x = Math.PI / 2;
     ring.position.y = -0.75;
@@ -133,7 +141,7 @@ export const RobotCanvas3D: React.FC = () => {
       targetRotationX = -y * 0.4;
     };
 
-    container.addEventListener('mousemove', handleMouseMove);
+    container.addEventListener("mousemove", handleMouseMove);
 
     // 7. Render Loop with Continuous Floating Motion
     let clock = new THREE.Clock();
@@ -161,7 +169,7 @@ export const RobotCanvas3D: React.FC = () => {
     // 8. Cleanup
     return () => {
       cancelAnimationFrame(animId);
-      container.removeEventListener('mousemove', handleMouseMove);
+      container.removeEventListener("mousemove", handleMouseMove);
       if (container.contains(renderer.domElement)) {
         container.removeChild(renderer.domElement);
       }
@@ -170,8 +178,8 @@ export const RobotCanvas3D: React.FC = () => {
   }, []);
 
   return (
-    <div 
-      ref={containerRef} 
+    <div
+      ref={containerRef}
       className="w-full h-full min-h-[300px] cursor-grab active:cursor-grabbing flex items-center justify-center"
       title="Hover or move mouse over to tilt 3D Robot in real-time"
     />

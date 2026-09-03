@@ -8,15 +8,20 @@ export class ApiError extends Error {
   statusCode: number;
   errors?: Record<string, string[]>;
 
-  constructor(message: string, statusCode: number, errors?: Record<string, string[]>) {
+  constructor(
+    message: string,
+    statusCode: number,
+    errors?: Record<string, string[]>,
+  ) {
     super(message);
-    this.name = 'ApiError';
+    this.name = "ApiError";
     this.statusCode = statusCode;
     this.errors = errors;
   }
 }
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api";
 
 /**
  * Universal API Client Wrapper for future Production Backend Integration.
@@ -24,13 +29,15 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/a
  */
 export async function apiClient<T>(
   endpoint: string,
-  options: RequestInit = {}
+  options: RequestInit = {},
 ): Promise<T> {
-  const url = endpoint.startsWith('http') ? endpoint : `${API_BASE_URL}${endpoint.startsWith('/') ? '' : '/'}${endpoint}`;
+  const url = endpoint.startsWith("http")
+    ? endpoint
+    : `${API_BASE_URL}${endpoint.startsWith("/") ? "" : "/"}${endpoint}`;
 
   const headers: HeadersInit = {
-    'Content-Type': 'application/json',
-    'Accept': 'application/json',
+    "Content-Type": "application/json",
+    Accept: "application/json",
     ...(options.headers || {}),
   };
 
@@ -62,8 +69,9 @@ export async function apiClient<T>(
       throw err;
     }
     throw new ApiError(
-      err.message || 'Network error occurred. Please check your internet connection.',
-      0
+      err.message ||
+        "Network error occurred. Please check your internet connection.",
+      0,
     );
   }
 }

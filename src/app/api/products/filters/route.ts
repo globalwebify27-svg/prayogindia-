@@ -1,6 +1,6 @@
-import { NextResponse } from 'next/server';
-import { db } from '@/lib/db';
-import { PRODUCTS, CATEGORIES } from '@/data/mockData';
+import { NextResponse } from "next/server";
+import { db } from "@/lib/db";
+import { PRODUCTS, CATEGORIES } from "@/data/mockData";
 
 /**
  * GET /api/products/filters
@@ -28,20 +28,23 @@ export async function GET() {
           },
           totalInStock,
           sortOptions: [
-            { label: 'Newest Arrivals', value: 'newest' },
-            { label: 'Price: Low to High', value: 'price-asc' },
-            { label: 'Price: High to Low', value: 'price-desc' },
-            { label: 'Name: A to Z', value: 'name' },
+            { label: "Newest Arrivals", value: "newest" },
+            { label: "Price: Low to High", value: "price-asc" },
+            { label: "Price: High to Low", value: "price-desc" },
+            { label: "Name: A to Z", value: "name" },
           ],
         },
       });
     } catch (error) {
-      console.warn('Database query failed for product filters, falling back to mock dataset', error);
+      console.warn(
+        "Database query failed for product filters, falling back to mock dataset",
+        error,
+      );
     }
   }
 
   // Fallback Mock Dataset
-  const prices = PRODUCTS.map(p => p.price);
+  const prices = PRODUCTS.map((p) => p.price);
   const minPrice = Math.min(...prices);
   const maxPrice = Math.max(...prices);
 
@@ -53,12 +56,12 @@ export async function GET() {
         min: minPrice,
         max: maxPrice,
       },
-      totalInStock: PRODUCTS.filter(p => p.inStock).length,
+      totalInStock: PRODUCTS.filter((p) => p.inStock).length,
       sortOptions: [
-        { label: 'Newest Arrivals', value: 'newest' },
-        { label: 'Price: Low to High', value: 'price-asc' },
-        { label: 'Price: High to Low', value: 'price-desc' },
-        { label: 'Name: A to Z', value: 'name' },
+        { label: "Newest Arrivals", value: "newest" },
+        { label: "Price: Low to High", value: "price-asc" },
+        { label: "Price: High to Low", value: "price-desc" },
+        { label: "Name: A to Z", value: "name" },
       ],
     },
   });

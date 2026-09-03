@@ -1,14 +1,14 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
-import { 
-  Package, 
-  AlertTriangle, 
-  CheckCircle2, 
-  RefreshCw, 
-  Search, 
-  MapPin, 
-  ArrowRightLeft, 
+import React, { useState, useEffect } from "react";
+import {
+  Package,
+  AlertTriangle,
+  CheckCircle2,
+  RefreshCw,
+  Search,
+  MapPin,
+  ArrowRightLeft,
   ShieldCheck,
   Building2,
   Boxes,
@@ -20,65 +20,83 @@ import {
   X,
   History,
   TrendingDown,
-  Check
-} from 'lucide-react';
-import { 
-  INITIAL_STOCK_TRANSFERS, 
-  INITIAL_STOCK_ADJUSTMENTS, 
-  InterStoreTransfer, 
-  StockAdjustmentEntry 
-} from '@/data/inventoryTransfersData';
-import { PRODUCTS } from '@/data/mockData';
+  Check,
+} from "lucide-react";
+import {
+  INITIAL_STOCK_TRANSFERS,
+  INITIAL_STOCK_ADJUSTMENTS,
+  InterStoreTransfer,
+  StockAdjustmentEntry,
+} from "@/data/inventoryTransfersData";
+import { PRODUCTS } from "@/data/mockData";
 
 export default function AdminInventoryPage() {
   const [items, setItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [lowStockFilter, setLowStockFilter] = useState(false);
-  const [selectedLocation, setSelectedLocation] = useState<'all' | 'ranchi' | 'patna' | 'delhi'>('all');
-  const [activeTab, setActiveTab] = useState<'stock' | 'transfers' | 'adjustments'>('stock');
+  const [selectedLocation, setSelectedLocation] = useState<
+    "all" | "ranchi" | "patna" | "delhi"
+  >("all");
+  const [activeTab, setActiveTab] = useState<
+    "stock" | "transfers" | "adjustments"
+  >("stock");
 
   // Transfers & Adjustments State
-  const [transfers, setTransfers] = useState<InterStoreTransfer[]>(INITIAL_STOCK_TRANSFERS);
-  const [adjustments, setAdjustments] = useState<StockAdjustmentEntry[]>(INITIAL_STOCK_ADJUSTMENTS);
+  const [transfers, setTransfers] = useState<InterStoreTransfer[]>(
+    INITIAL_STOCK_TRANSFERS,
+  );
+  const [adjustments, setAdjustments] = useState<StockAdjustmentEntry[]>(
+    INITIAL_STOCK_ADJUSTMENTS,
+  );
 
   // Transfer Wizard Modal State
   const [showTransferModal, setShowTransferModal] = useState(false);
-  const [transferSource, setTransferSource] = useState('RANCHI');
-  const [transferDest, setTransferDest] = useState('PATNA');
+  const [transferSource, setTransferSource] = useState("RANCHI");
+  const [transferDest, setTransferDest] = useState("PATNA");
   const [transferProductSku, setTransferProductSku] = useState(PRODUCTS[0].sku);
   const [transferQty, setTransferQty] = useState(10);
-  const [transferNotes, setTransferNotes] = useState('');
+  const [transferNotes, setTransferNotes] = useState("");
 
   // Adjustment Modal State
   const [showAdjustModal, setShowAdjustModal] = useState(false);
-  const [adjustStore, setAdjustStore] = useState('RANCHI');
+  const [adjustStore, setAdjustStore] = useState("RANCHI");
   const [adjustProductSku, setAdjustProductSku] = useState(PRODUCTS[0].sku);
   const [adjustQuantity, setAdjustQuantity] = useState(-1);
-  const [adjustReason, setAdjustReason] = useState<StockAdjustmentEntry['reason']>('Damaged goods');
-  const [adjustNotes, setAdjustNotes] = useState('');
+  const [adjustReason, setAdjustReason] =
+    useState<StockAdjustmentEntry["reason"]>("Damaged goods");
+  const [adjustNotes, setAdjustNotes] = useState("");
 
   const fetchInventory = () => {
     setLoading(true);
     fetch(`/api/admin/inventory?q=${encodeURIComponent(searchQuery)}`)
-      .then(res => res.json())
-      .then(data => {
+      .then((res) => res.json())
+      .then((data) => {
         if (data.success && data.data) {
-          setItems(data.data.map((item: any) => ({
-            id: item.productId || item.id,
-            name: item.name,
-            sku: item.sku,
-            category: item.category || 'Components',
-            price: item.basePrice || item.price,
-            stock: item.totalNetworkStock ?? item.stock ?? 0,
-            ranchiStock: item.storeStocks?.ranchi?.stock ?? item.ranchiStock ?? item.centralStock ?? 0,
-            patnaStock: item.storeStocks?.patna?.stock ?? item.patnaStock ?? 0,
-            delhiStock: item.storeStocks?.delhi?.stock ?? item.delhiStock ?? 0,
-            mumbaiStock: item.storeStocks?.mumbai?.stock ?? item.mumbaiStock ?? 0,
-            reservedStock: 0,
-            inStock: (item.totalNetworkStock ?? item.stock ?? 0) > 0,
-            shippingTag: 'Standard',
-          })));
+          setItems(
+            data.data.map((item: any) => ({
+              id: item.productId || item.id,
+              name: item.name,
+              sku: item.sku,
+              category: item.category || "Components",
+              price: item.basePrice || item.price,
+              stock: item.totalNetworkStock ?? item.stock ?? 0,
+              ranchiStock:
+                item.storeStocks?.ranchi?.stock ??
+                item.ranchiStock ??
+                item.centralStock ??
+                0,
+              patnaStock:
+                item.storeStocks?.patna?.stock ?? item.patnaStock ?? 0,
+              delhiStock:
+                item.storeStocks?.delhi?.stock ?? item.delhiStock ?? 0,
+              mumbaiStock:
+                item.storeStocks?.mumbai?.stock ?? item.mumbaiStock ?? 0,
+              reservedStock: 0,
+              inStock: (item.totalNetworkStock ?? item.stock ?? 0) > 0,
+              shippingTag: "Standard",
+            })),
+          );
         }
       })
       .catch(() => {})
@@ -86,26 +104,31 @@ export default function AdminInventoryPage() {
   };
 
   const fetchTransactions = () => {
-    fetch('/api/admin/inventory?mode=transactions')
-      .then(res => res.json())
-      .then(data => {
+    fetch("/api/admin/inventory?mode=transactions")
+      .then((res) => res.json())
+      .then((data) => {
         if (data.success && data.data && data.data.length > 0) {
-          setAdjustments(data.data.map((t: any) => ({
-            id: t.id,
-            adjustmentNumber: t.id.toUpperCase(),
-            storeCode: (t.storeId || 'RANCHI').toUpperCase(),
-            storeName: t.storeId === 'ranchi' ? 'Ranchi Central Hub' : `${t.storeId.toUpperCase()} Branch`,
-            productId: t.productId,
-            productName: t.productName || t.productId,
-            sku: t.sku || '',
-            previousStock: t.quantityBefore,
-            adjustmentQuantity: t.quantityChange,
-            newStock: t.quantityAfter,
-            reason: t.notes || t.transactionType,
-            adjustedBy: t.userId || 'System',
-            timestamp: t.createdAt.replace('T', ' ').slice(0, 16),
-            notes: t.notes || '',
-          })));
+          setAdjustments(
+            data.data.map((t: any) => ({
+              id: t.id,
+              adjustmentNumber: t.id.toUpperCase(),
+              storeCode: (t.storeId || "RANCHI").toUpperCase(),
+              storeName:
+                t.storeId === "ranchi"
+                  ? "Ranchi Central Hub"
+                  : `${t.storeId.toUpperCase()} Branch`,
+              productId: t.productId,
+              productName: t.productName || t.productId,
+              sku: t.sku || "",
+              previousStock: t.quantityBefore,
+              adjustmentQuantity: t.quantityChange,
+              newStock: t.quantityAfter,
+              reason: t.notes || t.transactionType,
+              adjustedBy: t.userId || "System",
+              timestamp: t.createdAt.replace("T", " ").slice(0, 16),
+              notes: t.notes || "",
+            })),
+          );
         }
       })
       .catch(() => {});
@@ -117,23 +140,27 @@ export default function AdminInventoryPage() {
   }, [searchQuery]);
 
   const handleUpdateStock = async (productId: string, currentStock: number) => {
-    const nextStock = prompt('Enter updated inventory stock count for Ranchi Central / Branch Hub:', String(currentStock));
+    const nextStock = prompt(
+      "Enter updated inventory stock count for Ranchi Central / Branch Hub:",
+      String(currentStock),
+    );
     if (nextStock === null) return;
     const parsed = parseInt(nextStock, 10);
-    if (isNaN(parsed) || parsed < 0) return alert('Invalid stock count. Must be 0 or greater.');
+    if (isNaN(parsed) || parsed < 0)
+      return alert("Invalid stock count. Must be 0 or greater.");
 
     const qtyDiff = parsed - currentStock;
 
     try {
-      const res = await fetch('/api/admin/inventory', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          storeId: 'ranchi', 
-          productId, 
+      const res = await fetch("/api/admin/inventory", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          storeId: "ranchi",
+          productId,
           quantityChange: qtyDiff,
-          transactionType: 'ADJUSTMENT',
-          reason: 'Manager Manual Adjustment' 
+          transactionType: "ADJUSTMENT",
+          reason: "Manager Manual Adjustment",
         }),
       });
       const data = await res.json();
@@ -141,7 +168,7 @@ export default function AdminInventoryPage() {
         fetchInventory();
         fetchTransactions();
       } else {
-        alert(data.message || 'Failed to update stock');
+        alert(data.message || "Failed to update stock");
       }
     } catch {
       fetchInventory();
@@ -151,19 +178,22 @@ export default function AdminInventoryPage() {
   const handleCreateTransfer = async (e: React.FormEvent) => {
     e.preventDefault();
     if (transferSource === transferDest) {
-      alert('Source and destination stores must be different.');
+      alert("Source and destination stores must be different.");
       return;
     }
-    const selectedProd = PRODUCTS.find(p => p.sku === transferProductSku) || PRODUCTS[0];
-    
+    const selectedProd =
+      PRODUCTS.find((p) => p.sku === transferProductSku) || PRODUCTS[0];
+
     try {
-      const res = await fetch('/api/admin/transfers', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const res = await fetch("/api/admin/transfers", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           sourceStoreId: transferSource.toLowerCase(),
           destinationStoreId: transferDest.toLowerCase(),
-          items: [{ productId: selectedProd.id, quantity: Number(transferQty) }],
+          items: [
+            { productId: selectedProd.id, quantity: Number(transferQty) },
+          ],
           notes: transferNotes,
         }),
       });
@@ -171,32 +201,33 @@ export default function AdminInventoryPage() {
 
       if (data.success) {
         setShowTransferModal(false);
-        setActiveTab('transfers');
-        setTransferNotes('');
+        setActiveTab("transfers");
+        setTransferNotes("");
         fetchInventory();
         fetchTransactions();
         alert(data.message || `Transfer initiated successfully.`);
       } else {
-        alert(data.message || 'Transfer failed.');
+        alert(data.message || "Transfer failed.");
       }
     } catch {
-      alert('Transfer request failed.');
+      alert("Transfer request failed.");
     }
   };
 
   const handleCreateAdjustment = async (e: React.FormEvent) => {
     e.preventDefault();
-    const selectedProd = PRODUCTS.find(p => p.sku === adjustProductSku) || PRODUCTS[0];
+    const selectedProd =
+      PRODUCTS.find((p) => p.sku === adjustProductSku) || PRODUCTS[0];
 
     try {
-      const res = await fetch('/api/admin/inventory', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+      const res = await fetch("/api/admin/inventory", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           storeId: adjustStore.toLowerCase(),
           productId: selectedProd.id,
           quantityChange: Number(adjustQuantity),
-          transactionType: 'ADJUSTMENT',
+          transactionType: "ADJUSTMENT",
           reason: `${adjustReason} - ${adjustNotes}`,
         }),
       });
@@ -204,49 +235,55 @@ export default function AdminInventoryPage() {
 
       if (data.success) {
         setShowAdjustModal(false);
-        setActiveTab('adjustments');
-        setAdjustNotes('');
+        setActiveTab("adjustments");
+        setAdjustNotes("");
         fetchInventory();
         fetchTransactions();
         alert(data.message || `Stock adjustment recorded.`);
       } else {
-        alert(data.message || 'Adjustment failed.');
+        alert(data.message || "Adjustment failed.");
       }
     } catch {
-      alert('Stock adjustment request failed.');
+      alert("Stock adjustment request failed.");
     }
   };
 
   const handleReceiveTransfer = (transferId: string) => {
-    setTransfers(prev => prev.map(t => {
-      if (t.id === transferId) {
-        return {
-          ...t,
-          status: 'Received & Stock Updated',
-          receivedAt: new Date().toISOString().replace('T', ' ').slice(0, 16),
-        };
-      }
-      return t;
-    }));
-    alert('Stock received! Destination branch inventory has been updated automatically.');
+    setTransfers((prev) =>
+      prev.map((t) => {
+        if (t.id === transferId) {
+          return {
+            ...t,
+            status: "Received & Stock Updated",
+            receivedAt: new Date().toISOString().replace("T", " ").slice(0, 16),
+          };
+        }
+        return t;
+      }),
+    );
+    alert(
+      "Stock received! Destination branch inventory has been updated automatically.",
+    );
   };
 
   return (
     <div className="p-6 sm:p-8 space-y-8 animate-in fade-in duration-300">
-      
       {/* 1. Header with Multi-Store Principle */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
             <span className="text-[10px] font-black uppercase tracking-widest text-[#00AEEF] bg-[#E0F7FC] px-3.5 py-1 rounded-full border border-[#00AEEF]/20">
-              Section 37–42 · Multi-Location Inventory &amp; Inter-Store Transfers
+              Section 37–42 · Multi-Location Inventory &amp; Inter-Store
+              Transfers
             </span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight mt-1">
             Multi-Store Stock &amp; Inventory Engine
           </h1>
           <p className="text-xs text-slate-500">
-            Ranchi Main Hub acts as central inventory for Website, App, and Ranchi Store. Independent branch stocks in Patna, Delhi, and Mumbai with inter-store transfer pipelines.
+            Ranchi Main Hub acts as central inventory for Website, App, and
+            Ranchi Store. Independent branch stocks in Patna, Delhi, and Mumbai
+            with inter-store transfer pipelines.
           </p>
         </div>
 
@@ -272,11 +309,11 @@ export default function AdminInventoryPage() {
       {/* 2. Navigation Tabs */}
       <div className="flex items-center gap-2 border-b border-slate-200 pb-2">
         <button
-          onClick={() => setActiveTab('stock')}
+          onClick={() => setActiveTab("stock")}
           className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer ${
-            activeTab === 'stock'
-              ? 'bg-[#00AEEF] text-white shadow-xs'
-              : 'text-slate-600 hover:bg-slate-100'
+            activeTab === "stock"
+              ? "bg-[#00AEEF] text-white shadow-xs"
+              : "text-slate-600 hover:bg-slate-100"
           }`}
         >
           <Boxes className="w-3.5 h-3.5 inline mr-1.5" />
@@ -284,11 +321,11 @@ export default function AdminInventoryPage() {
         </button>
 
         <button
-          onClick={() => setActiveTab('transfers')}
+          onClick={() => setActiveTab("transfers")}
           className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer ${
-            activeTab === 'transfers'
-              ? 'bg-[#00AEEF] text-white shadow-xs'
-              : 'text-slate-600 hover:bg-slate-100'
+            activeTab === "transfers"
+              ? "bg-[#00AEEF] text-white shadow-xs"
+              : "text-slate-600 hover:bg-slate-100"
           }`}
         >
           <Truck className="w-3.5 h-3.5 inline mr-1.5" />
@@ -296,11 +333,11 @@ export default function AdminInventoryPage() {
         </button>
 
         <button
-          onClick={() => setActiveTab('adjustments')}
+          onClick={() => setActiveTab("adjustments")}
           className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer ${
-            activeTab === 'adjustments'
-              ? 'bg-[#00AEEF] text-white shadow-xs'
-              : 'text-slate-600 hover:bg-slate-100'
+            activeTab === "adjustments"
+              ? "bg-[#00AEEF] text-white shadow-xs"
+              : "text-slate-600 hover:bg-slate-100"
           }`}
         >
           <History className="w-3.5 h-3.5 inline mr-1.5" />
@@ -309,7 +346,7 @@ export default function AdminInventoryPage() {
       </div>
 
       {/* 3. Tab 1: Location-Wise Stock Pool */}
-      {activeTab === 'stock' && (
+      {activeTab === "stock" && (
         <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-2xs space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
             <div className="relative w-full sm:w-72">
@@ -356,22 +393,33 @@ export default function AdminInventoryPage() {
                   <th className="py-3 px-2 font-black text-center whitespace-nowrap bg-emerald-50/60 rounded-t-xl text-emerald-900">
                     📦 Total
                   </th>
-                  <th className="py-3 pl-2 font-black text-right whitespace-nowrap">Action</th>
+                  <th className="py-3 pl-2 font-black text-right whitespace-nowrap">
+                    Action
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 font-medium">
                 {items.map((item) => (
-                  <tr key={item.id} className="hover:bg-slate-50/80 transition-colors">
+                  <tr
+                    key={item.id}
+                    className="hover:bg-slate-50/80 transition-colors"
+                  >
                     <td className="py-3 pr-2">
-                      <div className="font-extrabold text-slate-900 line-clamp-1 text-xs">{item.name}</div>
-                      <div className="text-[10px] text-slate-400 font-mono font-bold mt-0.5">{item.sku}</div>
+                      <div className="font-extrabold text-slate-900 line-clamp-1 text-xs">
+                        {item.name}
+                      </div>
+                      <div className="text-[10px] text-slate-400 font-mono font-bold mt-0.5">
+                        {item.sku}
+                      </div>
                     </td>
 
                     <td className="py-3 px-2 text-center bg-blue-50/20">
                       <span className="font-black text-slate-900 bg-blue-50 text-blue-800 border border-blue-200 px-2 py-0.5 rounded-lg inline-block text-[11px]">
                         {item.ranchiStock ?? item.stock} Units
                       </span>
-                      <div className="text-[8px] text-slate-400 font-bold mt-0.5 whitespace-nowrap">Online + Ranchi</div>
+                      <div className="text-[8px] text-slate-400 font-bold mt-0.5 whitespace-nowrap">
+                        Online + Ranchi
+                      </div>
                     </td>
 
                     <td className="py-3 px-2 text-center font-bold text-slate-700">
@@ -394,7 +442,10 @@ export default function AdminInventoryPage() {
 
                     <td className="py-3 px-2 text-center font-black text-emerald-700 bg-emerald-50/20">
                       <span className="bg-emerald-50 text-emerald-800 border border-emerald-200 px-2 py-0.5 rounded-lg inline-block font-mono font-black text-[11px]">
-                        {(item.ranchiStock ?? item.stock) + (item.patnaStock ?? 12) + (item.delhiStock ?? 8)} Units
+                        {(item.ranchiStock ?? item.stock) +
+                          (item.patnaStock ?? 12) +
+                          (item.delhiStock ?? 8)}{" "}
+                        Units
                       </span>
                     </td>
 
@@ -415,14 +466,17 @@ export default function AdminInventoryPage() {
       )}
 
       {/* 4. Tab 2: Inter-Store Transfers */}
-      {activeTab === 'transfers' && (
+      {activeTab === "transfers" && (
         <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-2xs space-y-4">
           <div className="flex items-center justify-between border-b border-slate-100 pb-3">
             <div>
               <h3 className="text-sm font-black text-slate-900 uppercase">
                 Active Store-to-Store Stock Transfers
               </h3>
-              <p className="text-xs text-slate-500">Track dispatch, transit courier AWB, and receiving store confirmations.</p>
+              <p className="text-xs text-slate-500">
+                Track dispatch, transit courier AWB, and receiving store
+                confirmations.
+              </p>
             </div>
             <button
               onClick={() => setShowTransferModal(true)}
@@ -447,15 +501,24 @@ export default function AdminInventoryPage() {
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {transfers.map((trf) => (
-                  <tr key={trf.id} className="hover:bg-slate-50/80 transition-colors">
+                  <tr
+                    key={trf.id}
+                    className="hover:bg-slate-50/80 transition-colors"
+                  >
                     <td className="py-3.5">
-                      <div className="font-mono font-black text-slate-900">{trf.transferNumber}</div>
-                      <div className="text-[10px] text-slate-400">{trf.dispatchedAt}</div>
+                      <div className="font-mono font-black text-slate-900">
+                        {trf.transferNumber}
+                      </div>
+                      <div className="text-[10px] text-slate-400">
+                        {trf.dispatchedAt}
+                      </div>
                     </td>
 
                     <td className="py-3.5 font-bold text-slate-900">
                       <div>{trf.productName}</div>
-                      <span className="font-mono text-[10px] text-slate-400">{trf.sku}</span>
+                      <span className="font-mono text-[10px] text-slate-400">
+                        {trf.sku}
+                      </span>
                     </td>
 
                     <td className="py-3.5 font-semibold text-slate-700">
@@ -471,17 +534,19 @@ export default function AdminInventoryPage() {
                     </td>
 
                     <td className="py-3.5">
-                      <span className={`text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full ${
-                        trf.status === 'Received & Stock Updated'
-                          ? 'bg-emerald-100 text-emerald-800'
-                          : 'bg-blue-100 text-blue-800'
-                      }`}>
+                      <span
+                        className={`text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full ${
+                          trf.status === "Received & Stock Updated"
+                            ? "bg-emerald-100 text-emerald-800"
+                            : "bg-blue-100 text-blue-800"
+                        }`}
+                      >
                         {trf.status}
                       </span>
                     </td>
 
                     <td className="py-3.5 text-right">
-                      {trf.status === 'Dispatched & In Transit' && (
+                      {trf.status === "Dispatched & In Transit" && (
                         <button
                           onClick={() => handleReceiveTransfer(trf.id)}
                           className="px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-black text-[10px] uppercase tracking-wider cursor-pointer shadow-xs"
@@ -499,14 +564,17 @@ export default function AdminInventoryPage() {
       )}
 
       {/* 5. Tab 3: Stock Adjustment Audit Trail */}
-      {activeTab === 'adjustments' && (
+      {activeTab === "adjustments" && (
         <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-2xs space-y-4">
           <div className="flex items-center justify-between border-b border-slate-100 pb-3">
             <div>
               <h3 className="text-sm font-black text-slate-900 uppercase">
                 Section 42 Stock Adjustment Audit Log
               </h3>
-              <p className="text-xs text-slate-500">Every damaged, lost, or corrected unit creates an immutable audit record.</p>
+              <p className="text-xs text-slate-500">
+                Every damaged, lost, or corrected unit creates an immutable
+                audit record.
+              </p>
             </div>
             <button
               onClick={() => setShowAdjustModal(true)}
@@ -531,10 +599,17 @@ export default function AdminInventoryPage() {
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {adjustments.map((adj) => (
-                  <tr key={adj.id} className="hover:bg-slate-50/80 transition-colors">
+                  <tr
+                    key={adj.id}
+                    className="hover:bg-slate-50/80 transition-colors"
+                  >
                     <td className="py-3.5">
-                      <div className="font-mono font-black text-slate-900">{adj.adjustmentNumber}</div>
-                      <div className="text-[10px] text-slate-400">{adj.timestamp}</div>
+                      <div className="font-mono font-black text-slate-900">
+                        {adj.adjustmentNumber}
+                      </div>
+                      <div className="text-[10px] text-slate-400">
+                        {adj.timestamp}
+                      </div>
                     </td>
 
                     <td className="py-3.5 font-bold text-slate-700">
@@ -543,33 +618,53 @@ export default function AdminInventoryPage() {
 
                     <td className="py-3.5 font-bold text-slate-900">
                       <div>{adj.productName}</div>
-                      <span className="font-mono text-[10px] text-slate-400">{adj.sku}</span>
+                      <span className="font-mono text-[10px] text-slate-400">
+                        {adj.sku}
+                      </span>
                     </td>
 
                     <td className="py-3.5">
-                      <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-md ${
-                        adj.reason === 'Damaged goods' || adj.reason === 'Lost goods'
-                          ? 'bg-red-100 text-red-800'
-                          : 'bg-emerald-100 text-emerald-800'
-                      }`}>
+                      <span
+                        className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-md ${
+                          adj.reason === "Damaged goods" ||
+                          adj.reason === "Lost goods"
+                            ? "bg-red-100 text-red-800"
+                            : "bg-emerald-100 text-emerald-800"
+                        }`}
+                      >
                         {adj.reason}
                       </span>
                     </td>
 
                     <td className="py-3.5 font-black text-slate-900">
-                      <span className="text-slate-400 line-through mr-1">{adj.previousStock}</span>
-                      <span className={adj.adjustmentQuantity < 0 ? 'text-red-600' : 'text-emerald-600'}>
-                        {adj.adjustmentQuantity > 0 ? `+${adj.adjustmentQuantity}` : adj.adjustmentQuantity}
+                      <span className="text-slate-400 line-through mr-1">
+                        {adj.previousStock}
                       </span>
-                      <span className="ml-1 text-slate-900">({adj.newStock})</span>
+                      <span
+                        className={
+                          adj.adjustmentQuantity < 0
+                            ? "text-red-600"
+                            : "text-emerald-600"
+                        }
+                      >
+                        {adj.adjustmentQuantity > 0
+                          ? `+${adj.adjustmentQuantity}`
+                          : adj.adjustmentQuantity}
+                      </span>
+                      <span className="ml-1 text-slate-900">
+                        ({adj.newStock})
+                      </span>
                     </td>
 
                     <td className="py-3.5 font-medium text-slate-600">
                       {adj.adjustedBy}
                     </td>
 
-                    <td className="py-3.5 text-right font-medium text-slate-500 max-w-xs truncate" title={adj.notes}>
-                      {adj.notes || '—'}
+                    <td
+                      className="py-3.5 text-right font-medium text-slate-500 max-w-xs truncate"
+                      title={adj.notes}
+                    >
+                      {adj.notes || "—"}
                     </td>
                   </tr>
                 ))}
@@ -582,13 +677,19 @@ export default function AdminInventoryPage() {
       {/* Transfer Wizard Modal */}
       {showTransferModal && (
         <div className="fixed inset-0 z-50 overflow-hidden flex items-center justify-center p-4">
-          <div onClick={() => setShowTransferModal(false)} className="fixed inset-0 bg-slate-950/70 backdrop-blur-xs animate-in fade-in" />
+          <div
+            onClick={() => setShowTransferModal(false)}
+            className="fixed inset-0 bg-slate-950/70 backdrop-blur-xs animate-in fade-in"
+          />
           <div className="relative max-w-md w-full bg-white rounded-3xl p-6 sm:p-7 shadow-2xl z-10 space-y-4 text-xs animate-in zoom-in-95">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <h3 className="text-base font-black text-slate-900 uppercase">
                 Initiate Inter-Store Stock Transfer
               </h3>
-              <button onClick={() => setShowTransferModal(false)} className="text-slate-400 hover:text-slate-700">
+              <button
+                onClick={() => setShowTransferModal(false)}
+                className="text-slate-400 hover:text-slate-700"
+              >
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -596,7 +697,9 @@ export default function AdminInventoryPage() {
             <form onSubmit={handleCreateTransfer} className="space-y-3">
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1">Source Store *</label>
+                  <label className="block font-bold text-slate-700 mb-1">
+                    Source Store *
+                  </label>
                   <select
                     value={transferSource}
                     onChange={(e) => setTransferSource(e.target.value)}
@@ -609,7 +712,9 @@ export default function AdminInventoryPage() {
                 </div>
 
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1">Destination Store *</label>
+                  <label className="block font-bold text-slate-700 mb-1">
+                    Destination Store *
+                  </label>
                   <select
                     value={transferDest}
                     onChange={(e) => setTransferDest(e.target.value)}
@@ -623,13 +728,15 @@ export default function AdminInventoryPage() {
               </div>
 
               <div>
-                <label className="block font-bold text-slate-700 mb-1">Select Product *</label>
+                <label className="block font-bold text-slate-700 mb-1">
+                  Select Product *
+                </label>
                 <select
                   value={transferProductSku}
                   onChange={(e) => setTransferProductSku(e.target.value)}
                   className="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl font-bold text-slate-900"
                 >
-                  {PRODUCTS.map(p => (
+                  {PRODUCTS.map((p) => (
                     <option key={p.sku} value={p.sku}>
                       {p.name} ({p.sku})
                     </option>
@@ -638,7 +745,9 @@ export default function AdminInventoryPage() {
               </div>
 
               <div>
-                <label className="block font-bold text-slate-700 mb-1">Transfer Units (Qty) *</label>
+                <label className="block font-bold text-slate-700 mb-1">
+                  Transfer Units (Qty) *
+                </label>
                 <input
                   type="number"
                   min={1}
@@ -650,7 +759,9 @@ export default function AdminInventoryPage() {
               </div>
 
               <div>
-                <label className="block font-bold text-slate-700 mb-1">Transfer Notes / Reason</label>
+                <label className="block font-bold text-slate-700 mb-1">
+                  Transfer Notes / Reason
+                </label>
                 <input
                   type="text"
                   value={transferNotes}
@@ -683,13 +794,19 @@ export default function AdminInventoryPage() {
       {/* Stock Adjustment Modal */}
       {showAdjustModal && (
         <div className="fixed inset-0 z-50 overflow-hidden flex items-center justify-center p-4">
-          <div onClick={() => setShowAdjustModal(false)} className="fixed inset-0 bg-slate-950/70 backdrop-blur-xs animate-in fade-in" />
+          <div
+            onClick={() => setShowAdjustModal(false)}
+            className="fixed inset-0 bg-slate-950/70 backdrop-blur-xs animate-in fade-in"
+          />
           <div className="relative max-w-md w-full bg-white rounded-3xl p-6 sm:p-7 shadow-2xl z-10 space-y-4 text-xs animate-in zoom-in-95">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <h3 className="text-base font-black text-slate-900 uppercase">
                 Record Section 42 Stock Adjustment
               </h3>
-              <button onClick={() => setShowAdjustModal(false)} className="text-slate-400 hover:text-slate-700">
+              <button
+                onClick={() => setShowAdjustModal(false)}
+                className="text-slate-400 hover:text-slate-700"
+              >
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -697,7 +814,9 @@ export default function AdminInventoryPage() {
             <form onSubmit={handleCreateAdjustment} className="space-y-3">
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1">Store Location *</label>
+                  <label className="block font-bold text-slate-700 mb-1">
+                    Store Location *
+                  </label>
                   <select
                     value={adjustStore}
                     onChange={(e) => setAdjustStore(e.target.value)}
@@ -710,7 +829,9 @@ export default function AdminInventoryPage() {
                 </div>
 
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1">Reason *</label>
+                  <label className="block font-bold text-slate-700 mb-1">
+                    Reason *
+                  </label>
                   <select
                     value={adjustReason}
                     onChange={(e) => setAdjustReason(e.target.value as any)}
@@ -718,22 +839,28 @@ export default function AdminInventoryPage() {
                   >
                     <option value="Damaged goods">Damaged goods</option>
                     <option value="Lost goods">Lost goods</option>
-                    <option value="Physical count correction">Physical count correction</option>
+                    <option value="Physical count correction">
+                      Physical count correction
+                    </option>
                     <option value="Returns">Returns</option>
-                    <option value="Internal consumption">Internal consumption</option>
+                    <option value="Internal consumption">
+                      Internal consumption
+                    </option>
                     <option value="Manual correction">Manual correction</option>
                   </select>
                 </div>
               </div>
 
               <div>
-                <label className="block font-bold text-slate-700 mb-1">Select Product *</label>
+                <label className="block font-bold text-slate-700 mb-1">
+                  Select Product *
+                </label>
                 <select
                   value={adjustProductSku}
                   onChange={(e) => setAdjustProductSku(e.target.value)}
                   className="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl font-bold text-slate-900"
                 >
-                  {PRODUCTS.map(p => (
+                  {PRODUCTS.map((p) => (
                     <option key={p.sku} value={p.sku}>
                       {p.name} ({p.sku})
                     </option>
@@ -742,7 +869,9 @@ export default function AdminInventoryPage() {
               </div>
 
               <div>
-                <label className="block font-bold text-slate-700 mb-1">Quantity Adjustment (+ or -) *</label>
+                <label className="block font-bold text-slate-700 mb-1">
+                  Quantity Adjustment (+ or -) *
+                </label>
                 <input
                   type="number"
                   required
@@ -754,7 +883,9 @@ export default function AdminInventoryPage() {
               </div>
 
               <div>
-                <label className="block font-bold text-slate-700 mb-1">Audit Notes / Incident Detail</label>
+                <label className="block font-bold text-slate-700 mb-1">
+                  Audit Notes / Incident Detail
+                </label>
                 <input
                   type="text"
                   required
@@ -784,7 +915,6 @@ export default function AdminInventoryPage() {
           </div>
         </div>
       )}
-
     </div>
   );
 }

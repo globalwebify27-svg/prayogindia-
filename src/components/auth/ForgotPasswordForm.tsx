@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import Link from 'next/link';
-import { Mail, ArrowRight, CheckCircle2, ArrowLeft } from 'lucide-react';
+import React, { useState } from "react";
+import Link from "next/link";
+import { Mail, ArrowRight, CheckCircle2, ArrowLeft } from "lucide-react";
 
 export const ForgotPasswordForm: React.FC = () => {
-  const [identifier, setIdentifier] = useState('');
+  const [identifier, setIdentifier] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -14,7 +14,7 @@ export const ForgotPasswordForm: React.FC = () => {
     setError(null);
 
     if (!identifier.trim()) {
-      setError('Please enter your registered Email or Mobile Number.');
+      setError("Please enter your registered Email or Mobile Number.");
       return;
     }
 
@@ -23,7 +23,6 @@ export const ForgotPasswordForm: React.FC = () => {
 
   return (
     <div className="max-w-md w-full mx-auto bg-white rounded-3xl border border-slate-200 p-8 shadow-xl space-y-6 text-slate-900">
-      
       {!submitted ? (
         <>
           <div className="space-y-1 text-center">
@@ -34,7 +33,8 @@ export const ForgotPasswordForm: React.FC = () => {
               Forgot Password?
             </h1>
             <p className="text-xs text-slate-500">
-              Enter your registered Email Address or Mobile Number. We will issue password reset instructions.
+              Enter your registered Email Address or Mobile Number. We will
+              issue password reset instructions.
             </p>
           </div>
 
@@ -46,7 +46,9 @@ export const ForgotPasswordForm: React.FC = () => {
 
           <form onSubmit={handleSubmit} className="space-y-4 text-xs">
             <div className="space-y-1">
-              <label className="font-bold text-slate-700 block">Email or Mobile Number</label>
+              <label className="font-bold text-slate-700 block">
+                Email or Mobile Number
+              </label>
               <div className="relative">
                 <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                 <input
@@ -74,19 +76,25 @@ export const ForgotPasswordForm: React.FC = () => {
           <div className="w-14 h-14 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto border border-emerald-200">
             <CheckCircle2 className="w-8 h-8" />
           </div>
-          <h2 className="text-xl font-black text-slate-900">Reset Request Submitted</h2>
+          <h2 className="text-xl font-black text-slate-900">
+            Reset Request Submitted
+          </h2>
           <p className="text-xs text-slate-600 max-w-xs mx-auto leading-relaxed">
-            If an account exists for <strong className="text-slate-900">{identifier}</strong>, a password reset link or verification code has been dispatched.
+            If an account exists for{" "}
+            <strong className="text-slate-900">{identifier}</strong>, a password
+            reset link or verification code has been dispatched.
           </p>
         </div>
       )}
 
       <div className="text-center pt-2 border-t border-slate-100">
-        <Link href="/login" className="inline-flex items-center gap-1 text-xs font-bold text-slate-600 hover:text-[#00AEEF]">
+        <Link
+          href="/login"
+          className="inline-flex items-center gap-1 text-xs font-bold text-slate-600 hover:text-[#00AEEF]"
+        >
           <ArrowLeft className="w-4 h-4" /> Back to Sign In
         </Link>
       </div>
-
     </div>
   );
 };

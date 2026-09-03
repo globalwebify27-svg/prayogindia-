@@ -1,19 +1,22 @@
-import { NextResponse } from 'next/server';
-import { db } from '@/lib/db';
-import { normalizeEmail, verifyPassword, sanitizeUser } from '@/lib/authUtils';
-import { UserDB } from '@/lib/userDB';
-import { checkRateLimit, getSecurityHeaders } from '@/lib/security';
+import { NextResponse } from "next/server";
+import { db } from "@/lib/db";
+import { normalizeEmail, verifyPassword, sanitizeUser } from "@/lib/authUtils";
+import { UserDB } from "@/lib/userDB";
+import { checkRateLimit, getSecurityHeaders } from "@/lib/security";
 
 export async function POST(request: Request) {
   const headers = getSecurityHeaders();
-  const clientIp = request.headers.get('x-forwarded-for') || '127.0.0.1';
+  const clientIp = request.headers.get("x-forwarded-for") || "127.0.0.1";
 
   // Rate Limiting (5 attempts per minute per IP to mitigate brute force)
   const rateLimit = checkRateLimit(`login:${clientIp}`, 5, 60 * 1000);
   if (!rateLimit.allowed) {
     return NextResponse.json(
-      { success: false, message: `Too many login attempts. Please try again in ${rateLimit.resetInSeconds} seconds.` },
-      { status: 429, headers }
+      {
+        success: false,
+        message: `Too many login attempts. Please try again in ${rateLimit.resetInSeconds} seconds.`,
+      },
+      { status: 429, headers },
     );
   }
 
@@ -22,17 +25,21 @@ export async function POST(request: Request) {
     const { email, password } = body;
 
     // 1. Mandatory Input Checks
-    if (!email || typeof email !== 'string' || !email.trim()) {
+    if (!email || typeof email !== "string" || !email.trim()) {
       return NextResponse.json(
-        { success: false, message: 'Please enter your registered email address or mobile number.' },
-        { status: 400, headers }
+        {
+          success: false,
+          message:
+            "Please enter your registered email address or mobile number.",
+        },
+        { status: 400, headers },
       );
     }
 
-    if (!password || typeof password !== 'string' || password.length < 6) {
+    if (!password || typeof password !== "string" || password.length < 6) {
       return NextResponse.json(
-        { success: false, message: 'Password must be at least 6 characters.' },
-        { status: 400, headers }
+        { success: false, message: "Password must be at least 6 characters." },
+        { status: 400, headers },
       );
     }
 
@@ -53,19 +60,29 @@ export async function POST(request: Request) {
     // 4. If user not found in any store -> Return generic authentication failure
     if (!userRecord && !dbUser) {
       return NextResponse.json(
-        { success: false, message: 'No account found with this email/mobile. Please check your credentials or register.' },
-        { status: 401, headers }
+        {
+          success: false,
+          message:
+            "No account found with this email/mobile. Please check your credentials or register.",
+        },
+        { status: 401, headers },
       );
     }
 
     // 5. Verify Password Hash using bcrypt
-    const targetHash: string = userRecord ? userRecord.passwordHash : (dbUser?.passwordHash || '');
+    const targetHash: string = userRecord
+      ? userRecord.passwordHash
+      : dbUser?.passwordHash || "";
     const isValidPassword = await verifyPassword(password, targetHash);
 
     if (!isValidPassword) {
       return NextResponse.json(
-        { success: false, message: 'Incorrect password. Please verify and try again or use "Forgot Password".' },
-        { status: 401, headers }
+        {
+          success: false,
+          message:
+            'Incorrect password. Please verify and try again or use "Forgot Password".',
+        },
+        { status: 401, headers },
       );
     }
 
@@ -80,48 +97,50 @@ export async function POST(request: Request) {
           companyName: userRecord.companyName,
           gstin: userRecord.gstin,
           rewardPoints: userRecord.rewardPoints,
-          role: 'CUSTOMER' as const,
+          role: "CUSTOMER" as const,
         }
       : dbUser
-      ? sanitizeUser({
-          id: dbUser.id,
-          name: dbUser.name,
-          email: dbUser.email,
-          phone: dbUser.phone,
-          role: dbUser.role || 'CUSTOMER',
-        })
-      : null;
+        ? sanitizeUser({
+            id: dbUser.id,
+            name: dbUser.name,
+            email: dbUser.email,
+            phone: dbUser.phone,
+            role: dbUser.role || "CUSTOMER",
+          })
+        : null;
 
     if (!userPayload) {
       return NextResponse.json(
-        { success: false, message: 'Failed to process user session.' },
-        { status: 500, headers }
+        { success: false, message: "Failed to process user session." },
+        { status: 500, headers },
       );
     }
 
     // 7. Set HttpOnly Customer Session Cookie
     const response = NextResponse.json({
       success: true,
-      message: 'Login successful.',
+      message: "Login successful.",
       user: userPayload,
     });
 
     response.cookies.set({
-      name: 'prayog_customer_session',
+      name: "prayog_customer_session",
       value: JSON.stringify(userPayload),
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      path: '/',
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
       maxAge: 60 * 60 * 24 * 7, // 7 Days
     });
 
     return response;
-
   } catch (error: any) {
     return NextResponse.json(
-      { success: false, message: 'Authentication server error. Please try again.' },
-      { status: 500, headers }
+      {
+        success: false,
+        message: "Authentication server error. Please try again.",
+      },
+      { status: 500, headers },
     );
   }
 }

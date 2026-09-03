@@ -1,18 +1,21 @@
-'use client';
+"use client";
 
-import React from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
-import { motion } from 'framer-motion';
-import { ArrowRight } from 'lucide-react';
-import { CategoryData } from '@/data/categories';
+import React from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { motion } from "framer-motion";
+import { ArrowRight } from "lucide-react";
+import { CategoryData } from "@/data/categories";
 
 interface CategoryCardProps {
   category: CategoryData;
   index?: number;
 }
 
-export const CategoryCard: React.FC<CategoryCardProps> = ({ category, index = 0 }) => {
+export const CategoryCard: React.FC<CategoryCardProps> = ({
+  category,
+  index = 0,
+}) => {
   return (
     <motion.div
       initial={{ opacity: 0, y: 15 }}
@@ -20,7 +23,7 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({ category, index = 0 
       transition={{ duration: 0.3, delay: index * 0.05 }}
       viewport={{ once: true }}
     >
-      <Link 
+      <Link
         href={`/categories/${category.slug}`}
         className="group bg-white rounded-3xl border border-slate-200/90 p-5 flex flex-col justify-between hover:border-[#00AEEF]/50 hover:shadow-xl transition-all duration-300 relative overflow-hidden block h-full focus:outline-none focus:ring-2 focus:ring-[#00AEEF]"
       >

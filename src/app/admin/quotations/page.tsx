@@ -1,27 +1,28 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { 
-  FileText, 
-  Plus, 
-  Printer, 
-  Send, 
-  CheckCircle2, 
-  Clock, 
-  Building2, 
-  Download, 
-  Trash2, 
+import React, { useState } from "react";
+import {
+  FileText,
+  Plus,
+  Printer,
+  Send,
+  CheckCircle2,
+  Clock,
+  Building2,
+  Download,
+  Trash2,
   Search,
   ArrowRight,
   ShieldCheck,
   Eye,
   CreditCard,
   Edit3,
-  Save
-} from 'lucide-react';
-import { PRODUCTS, Product } from '@/data/mockData';
+  Save,
+} from "lucide-react";
+import { PRODUCTS, Product } from "@/data/mockData";
 
-export type DocStage = 'QUOTATION' | 'PROFORMA_INVOICE' | 'PAYMENT_RECEIVED' | 'TAX_INVOICE';
+export type DocStage =
+  "QUOTATION" | "PROFORMA_INVOICE" | "PAYMENT_RECEIVED" | "TAX_INVOICE";
 
 export interface QuotationItem {
   productId: string;
@@ -35,7 +36,14 @@ export interface QuotationItem {
 export interface QuotationDoc {
   id: string;
   quoteNumber: string;
-  institutionType: 'School' | 'College' | 'University' | 'STEM Lab' | 'Corporate' | 'Industrial' | 'Government / Tender';
+  institutionType:
+    | "School"
+    | "College"
+    | "University"
+    | "STEM Lab"
+    | "Corporate"
+    | "Industrial"
+    | "Government / Tender";
   companyName: string;
   customerName: string;
   customerMobile: string;
@@ -56,59 +64,106 @@ export interface QuotationDoc {
 
 const MOCK_QUOTATIONS: QuotationDoc[] = [
   {
-    id: 'q-101',
-    quoteNumber: 'PRG-QT-2026-0042',
-    institutionType: 'University',
-    companyName: 'IIT Delhi Robotics & AI Research Lab',
-    customerName: 'Dr. Rajesh Vardhan',
-    customerEmail: 'robotics.lab@iitd.ac.in',
-    customerMobile: '9876543210',
-    gstin: '07AAAAI0000A1Z5',
-    billingAddress: 'Hauz Khas, New Delhi, Delhi - 110016',
-    shippingAddress: 'Department of Electrical & Robotics Engineering, Lab #402, IIT Delhi, New Delhi - 110016',
-    status: 'PROFORMA_INVOICE',
-    date: '24 Aug 2026',
-    validUntil: '24 Sep 2026',
+    id: "q-101",
+    quoteNumber: "PRG-QT-2026-0042",
+    institutionType: "University",
+    companyName: "IIT Delhi Robotics & AI Research Lab",
+    customerName: "Dr. Rajesh Vardhan",
+    customerEmail: "robotics.lab@iitd.ac.in",
+    customerMobile: "9876543210",
+    gstin: "07AAAAI0000A1Z5",
+    billingAddress: "Hauz Khas, New Delhi, Delhi - 110016",
+    shippingAddress:
+      "Department of Electrical & Robotics Engineering, Lab #402, IIT Delhi, New Delhi - 110016",
+    status: "PROFORMA_INVOICE",
+    date: "24 Aug 2026",
+    validUntil: "24 Sep 2026",
     gstRate: 18,
     shippingCharge: 350,
     items: [
-      { productId: 'rpi-5-8gb', name: 'Raspberry Pi 5 Model B (8GB RAM)', sku: 'PRG-RPI-508', unitPrice: 8999, quantity: 10, discountPct: 5 },
-      { productId: 'pixhawk-fc', name: 'Pixhawk 6C Autopilot Flight Controller Unit', sku: 'PRG-UAV-601', unitPrice: 14500, quantity: 5, discountPct: 8 },
+      {
+        productId: "rpi-5-8gb",
+        name: "Raspberry Pi 5 Model B (8GB RAM)",
+        sku: "PRG-RPI-508",
+        unitPrice: 8999,
+        quantity: 10,
+        discountPct: 5,
+      },
+      {
+        productId: "pixhawk-fc",
+        name: "Pixhawk 6C Autopilot Flight Controller Unit",
+        sku: "PRG-UAV-601",
+        unitPrice: 14500,
+        quantity: 5,
+        discountPct: 8,
+      },
     ],
-    notes: 'Institutional research grant procurement with 1-year hardware warranty support.',
-    terms: '1. 100% Advance payment via NEFT/RTGS for dispatch.\n2. Delivery within 5 working days from PO confirmation.\n3. Goods once sold are covered under Prayog 1-Year OEM replacement warranty.',
-    paymentReference: 'NEFT-IITD-8899201',
+    notes:
+      "Institutional research grant procurement with 1-year hardware warranty support.",
+    terms:
+      "1. 100% Advance payment via NEFT/RTGS for dispatch.\n2. Delivery within 5 working days from PO confirmation.\n3. Goods once sold are covered under Prayog 1-Year OEM replacement warranty.",
+    paymentReference: "NEFT-IITD-8899201",
   },
   {
-    id: 'q-102',
-    quoteNumber: 'PRG-QT-2026-0043',
-    institutionType: 'School',
-    companyName: 'Delhi Public School STEM Innovation Wing',
-    customerName: 'Vikram Singh',
-    customerEmail: 'stem@dpschool.org',
-    customerMobile: '9812345678',
-    gstin: '20BBBBB1111B2Z6',
-    billingAddress: 'Main Road, Sector 4, Bokaro / Ranchi Hub, Jharkhand - 827004',
-    shippingAddress: 'Tinkering Lab, Central Campus, Delhi Public School, Jharkhand - 827004',
-    status: 'QUOTATION',
-    date: '26 Aug 2026',
-    validUntil: '26 Sep 2026',
+    id: "q-102",
+    quoteNumber: "PRG-QT-2026-0043",
+    institutionType: "School",
+    companyName: "Delhi Public School STEM Innovation Wing",
+    customerName: "Vikram Singh",
+    customerEmail: "stem@dpschool.org",
+    customerMobile: "9812345678",
+    gstin: "20BBBBB1111B2Z6",
+    billingAddress:
+      "Main Road, Sector 4, Bokaro / Ranchi Hub, Jharkhand - 827004",
+    shippingAddress:
+      "Tinkering Lab, Central Campus, Delhi Public School, Jharkhand - 827004",
+    status: "QUOTATION",
+    date: "26 Aug 2026",
+    validUntil: "26 Sep 2026",
     gstRate: 18,
     shippingCharge: 500,
     items: [
-      { productId: 'prayog-stem-robot-kit', name: 'PRAYOG Dilay-Bot 4WD Autonomous Robotics Kit', sku: 'PRG-KIT-100', unitPrice: 4999, quantity: 25, discountPct: 10 },
-      { productId: 'ard-uno-r3', name: 'Arduino UNO R3 Official Board', sku: 'PRG-ARD-001', unitPrice: 1499, quantity: 50, discountPct: 12 },
+      {
+        productId: "prayog-stem-robot-kit",
+        name: "PRAYOG Dilay-Bot 4WD Autonomous Robotics Kit",
+        sku: "PRG-KIT-100",
+        unitPrice: 4999,
+        quantity: 25,
+        discountPct: 10,
+      },
+      {
+        productId: "ard-uno-r3",
+        name: "Arduino UNO R3 Official Board",
+        sku: "PRG-ARD-001",
+        unitPrice: 1499,
+        quantity: 50,
+        discountPct: 12,
+      },
     ],
-    notes: 'Includes teacher training workshop vouchers and lab assembly curriculum.',
-    terms: '1. Prices valid for 30 days from quote date.\n2. GST 18% as applicable for educational STEM hardware kits.\n3. Onsite lab installation support included in Ranchi / Delhi NCR.',
+    notes:
+      "Includes teacher training workshop vouchers and lab assembly curriculum.",
+    terms:
+      "1. Prices valid for 30 days from quote date.\n2. GST 18% as applicable for educational STEM hardware kits.\n3. Onsite lab installation support included in Ranchi / Delhi NCR.",
   },
 ];
 
 const STAGES: { stage: DocStage; label: string; subtitle: string }[] = [
-  { stage: 'QUOTATION', label: '1. QUOTATION', subtitle: 'Draft / Editable' },
-  { stage: 'PROFORMA_INVOICE', label: '2. PROFORMA INVOICE', subtitle: 'Payment Notice' },
-  { stage: 'PAYMENT_RECEIVED', label: '3. PAYMENT RECEIVED', subtitle: 'Verification' },
-  { stage: 'TAX_INVOICE', label: '4. TAX INVOICE', subtitle: 'Final GST Invoice' },
+  { stage: "QUOTATION", label: "1. QUOTATION", subtitle: "Draft / Editable" },
+  {
+    stage: "PROFORMA_INVOICE",
+    label: "2. PROFORMA INVOICE",
+    subtitle: "Payment Notice",
+  },
+  {
+    stage: "PAYMENT_RECEIVED",
+    label: "3. PAYMENT RECEIVED",
+    subtitle: "Verification",
+  },
+  {
+    stage: "TAX_INVOICE",
+    label: "4. TAX INVOICE",
+    subtitle: "Final GST Invoice",
+  },
 ];
 
 export default function QuotationsPage() {
@@ -118,39 +173,67 @@ export default function QuotationsPage() {
   const [isEditingDoc, setIsEditingDoc] = useState(false);
 
   // New Quote Form State with Complete Quotation Fields
-  const [instType, setInstType] = useState<QuotationDoc['institutionType']>('University');
-  const [compName, setCompName] = useState('');
-  const [custName, setCustName] = useState('');
-  const [custEmail, setCustEmail] = useState('');
-  const [custMobile, setCustMobile] = useState('');
-  const [gstinInput, setGstinInput] = useState('');
-  const [billingAddr, setBillingAddr] = useState('');
-  const [shippingAddr, setShippingAddr] = useState('');
+  const [instType, setInstType] =
+    useState<QuotationDoc["institutionType"]>("University");
+  const [compName, setCompName] = useState("");
+  const [custName, setCustName] = useState("");
+  const [custEmail, setCustEmail] = useState("");
+  const [custMobile, setCustMobile] = useState("");
+  const [gstinInput, setGstinInput] = useState("");
+  const [billingAddr, setBillingAddr] = useState("");
+  const [shippingAddr, setShippingAddr] = useState("");
   const [validDays, setValidDays] = useState(30);
   const [shippingFee, setShippingFee] = useState(0);
-  const [notes, setNotes] = useState('');
+  const [notes, setNotes] = useState("");
   const [terms, setTerms] = useState(
-    '1. 100% Advance payment against Proforma Invoice.\n2. Delivery within 3-5 days via Surface / Air Express.\n3. Standard 1-Year OEM warranty with dedicated engineer support.'
+    "1. 100% Advance payment against Proforma Invoice.\n2. Delivery within 3-5 days via Surface / Air Express.\n3. Standard 1-Year OEM warranty with dedicated engineer support.",
   );
   const [gstRate, setGstRate] = useState(18);
   const [items, setItems] = useState<QuotationItem[]>([
-    { productId: PRODUCTS[0].id, name: PRODUCTS[0].name, sku: PRODUCTS[0].sku, unitPrice: PRODUCTS[0].price, quantity: 5, discountPct: 5 },
-    { productId: PRODUCTS[1].id, name: PRODUCTS[1].name, sku: PRODUCTS[1].sku, unitPrice: PRODUCTS[1].price, quantity: 2, discountPct: 0 }
+    {
+      productId: PRODUCTS[0].id,
+      name: PRODUCTS[0].name,
+      sku: PRODUCTS[0].sku,
+      unitPrice: PRODUCTS[0].price,
+      quantity: 5,
+      discountPct: 5,
+    },
+    {
+      productId: PRODUCTS[1].id,
+      name: PRODUCTS[1].name,
+      sku: PRODUCTS[1].sku,
+      unitPrice: PRODUCTS[1].price,
+      quantity: 2,
+      discountPct: 0,
+    },
   ]);
 
   const handleAddItem = (product: Product) => {
-    setItems(prev => [
+    setItems((prev) => [
       ...prev,
-      { productId: product.id, name: product.name, sku: product.sku, unitPrice: product.price, quantity: 1, discountPct: 0 }
+      {
+        productId: product.id,
+        name: product.name,
+        sku: product.sku,
+        unitPrice: product.price,
+        quantity: 1,
+        discountPct: 0,
+      },
     ]);
   };
 
   const handleRemoveItem = (index: number) => {
-    setItems(prev => prev.filter((_, i) => i !== index));
+    setItems((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const handleUpdateItem = (index: number, field: keyof QuotationItem, val: any) => {
-    setItems(prev => prev.map((item, i) => i === index ? { ...item, [field]: val } : item));
+  const handleUpdateItem = (
+    index: number,
+    field: keyof QuotationItem,
+    val: any,
+  ) => {
+    setItems((prev) =>
+      prev.map((item, i) => (i === index ? { ...item, [field]: val } : item)),
+    );
   };
 
   const handleCreateQuotation = (e: React.FormEvent) => {
@@ -159,21 +242,33 @@ export default function QuotationsPage() {
       id: `q-${Date.now()}`,
       quoteNumber: `PRG-QT-2026-${Math.floor(1000 + Math.random() * 9000)}`,
       institutionType: instType,
-      companyName: compName || 'Apex Institute of Technology',
-      customerName: custName || 'Procurement Officer',
-      customerEmail: custEmail || 'procure@institution.edu',
-      customerMobile: custMobile || '9876543210',
-      gstin: gstinInput || '20AAAAA0000A1Z5',
-      billingAddress: billingAddr || 'Campus Administrative Block, Main Road, City',
-      shippingAddress: shippingAddr || billingAddr || 'Central Receiving & Robotics Lab, City',
-      status: 'QUOTATION',
-      date: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
-      validUntil: new Date(Date.now() + validDays * 86400000).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
+      companyName: compName || "Apex Institute of Technology",
+      customerName: custName || "Procurement Officer",
+      customerEmail: custEmail || "procure@institution.edu",
+      customerMobile: custMobile || "9876543210",
+      gstin: gstinInput || "20AAAAA0000A1Z5",
+      billingAddress:
+        billingAddr || "Campus Administrative Block, Main Road, City",
+      shippingAddress:
+        shippingAddr || billingAddr || "Central Receiving & Robotics Lab, City",
+      status: "QUOTATION",
+      date: new Date().toLocaleDateString("en-GB", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+      }),
+      validUntil: new Date(
+        Date.now() + validDays * 86400000,
+      ).toLocaleDateString("en-GB", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+      }),
       gstRate: gstRate || 18,
       shippingCharge: Number(shippingFee) || 0,
       items: [...items],
-      notes: notes || 'Official Prayog India Institutional Quotation.',
-      terms: terms || 'Standard academic procurement terms.',
+      notes: notes || "Official Prayog India Institutional Quotation.",
+      terms: terms || "Standard academic procurement terms.",
     };
 
     setQuotations([newDoc, ...quotations]);
@@ -182,20 +277,24 @@ export default function QuotationsPage() {
   };
 
   const handleAdvanceStatus = (docId: string) => {
-    setQuotations(prev => prev.map(doc => {
-      if (doc.id === docId) {
-        let nextStatus: DocStage = 'PROFORMA_INVOICE';
-        if (doc.status === 'QUOTATION') nextStatus = 'PROFORMA_INVOICE';
-        else if (doc.status === 'PROFORMA_INVOICE') nextStatus = 'PAYMENT_RECEIVED';
-        else if (doc.status === 'PAYMENT_RECEIVED') nextStatus = 'TAX_INVOICE';
-        else nextStatus = 'TAX_INVOICE';
+    setQuotations((prev) =>
+      prev.map((doc) => {
+        if (doc.id === docId) {
+          let nextStatus: DocStage = "PROFORMA_INVOICE";
+          if (doc.status === "QUOTATION") nextStatus = "PROFORMA_INVOICE";
+          else if (doc.status === "PROFORMA_INVOICE")
+            nextStatus = "PAYMENT_RECEIVED";
+          else if (doc.status === "PAYMENT_RECEIVED")
+            nextStatus = "TAX_INVOICE";
+          else nextStatus = "TAX_INVOICE";
 
-        const updated: QuotationDoc = { ...doc, status: nextStatus };
-        if (selectedDoc?.id === docId) setSelectedDoc(updated);
-        return updated;
-      }
-      return doc;
-    }));
+          const updated: QuotationDoc = { ...doc, status: nextStatus };
+          if (selectedDoc?.id === docId) setSelectedDoc(updated);
+          return updated;
+        }
+        return doc;
+      }),
+    );
   };
 
   const calcDocSubtotal = (docItems: QuotationItem[]) => {
@@ -207,21 +306,26 @@ export default function QuotationsPage() {
 
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
-      
       {/* Top Header */}
       <div className="bg-[#0F172A] text-white p-6 rounded-3xl border border-slate-800 shadow-xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <span className="bg-[#00AEEF] text-white text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full">
             48. SALES DOCUMENTS MODULE
           </span>
-          <h1 className="text-2xl font-black text-white mt-1">Sales Documents (Quotations &amp; Tax Invoices)</h1>
+          <h1 className="text-2xl font-black text-white mt-1">
+            Sales Documents (Quotations &amp; Tax Invoices)
+          </h1>
           <p className="text-xs text-slate-400">
-            Official B2B &amp; institutional workflow: Quotation → Convert to Proforma Invoice → Payment Received → Generate Tax Invoice.
+            Official B2B &amp; institutional workflow: Quotation → Convert to
+            Proforma Invoice → Payment Received → Generate Tax Invoice.
           </p>
         </div>
 
         <button
-          onClick={() => { setIsCreatingNew(true); setSelectedDoc(null); }}
+          onClick={() => {
+            setIsCreatingNew(true);
+            setSelectedDoc(null);
+          }}
           className="bg-[#00AEEF] hover:bg-[#0096D6] text-white text-xs font-extrabold px-4 py-2.5 rounded-2xl flex items-center gap-2 shadow-md cursor-pointer transition-all active:scale-95"
         >
           <Plus className="w-4 h-4" />
@@ -235,8 +339,12 @@ export default function QuotationsPage() {
           {STAGES.map((s, idx) => (
             <React.Fragment key={s.stage}>
               <div className="flex-1 bg-slate-50 border border-slate-200 p-3 rounded-2xl text-center space-y-0.5">
-                <span className="text-[11px] font-black text-slate-900 uppercase block">{s.label}</span>
-                <span className="text-[10px] text-slate-500 font-medium block">{s.subtitle}</span>
+                <span className="text-[11px] font-black text-slate-900 uppercase block">
+                  {s.label}
+                </span>
+                <span className="text-[10px] text-slate-500 font-medium block">
+                  {s.subtitle}
+                </span>
               </div>
               {idx < STAGES.length - 1 && (
                 <ArrowRight className="w-4 h-4 text-slate-400 shrink-0" />
@@ -249,10 +357,14 @@ export default function QuotationsPage() {
       {/* Main Content Area: Create Form / Document Viewer / Master List */}
       {isCreatingNew ? (
         /* Create New Quotation Form */
-        <form onSubmit={handleCreateQuotation} className="bg-white rounded-3xl border border-slate-200 p-6 shadow-xs space-y-6">
+        <form
+          onSubmit={handleCreateQuotation}
+          className="bg-white rounded-3xl border border-slate-200 p-6 shadow-xs space-y-6"
+        >
           <div className="flex items-center justify-between border-b border-slate-100 pb-3">
             <h2 className="text-sm font-black uppercase text-slate-900 flex items-center gap-2">
-              <Building2 className="w-4 h-4 text-[#00AEEF]" /> Create Institutional Quotation Draft
+              <Building2 className="w-4 h-4 text-[#00AEEF]" /> Create
+              Institutional Quotation Draft
             </h2>
             <button
               type="button"
@@ -266,23 +378,33 @@ export default function QuotationsPage() {
           {/* Client & Organization Details */}
           <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 text-xs">
             <div>
-              <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">Target Sector / Organization Type *</label>
+              <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">
+                Target Sector / Organization Type *
+              </label>
               <select
                 value={instType}
                 onChange={(e) => setInstType(e.target.value as any)}
                 className="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl font-bold text-slate-800 focus:outline-none focus:border-[#00AEEF]"
               >
                 <option value="School">School (K-12 / ATL / STEM)</option>
-                <option value="College">College (Engineering / Polytechnic)</option>
+                <option value="College">
+                  College (Engineering / Polytechnic)
+                </option>
                 <option value="University">University / Research Lab</option>
                 <option value="STEM Lab">STEM Lab & Innovation Center</option>
                 <option value="Corporate">Corporate Customer</option>
-                <option value="Industrial">Industrial / Automation Client</option>
-                <option value="Government / Tender">Government / Tender Procurement</option>
+                <option value="Industrial">
+                  Industrial / Automation Client
+                </option>
+                <option value="Government / Tender">
+                  Government / Tender Procurement
+                </option>
               </select>
             </div>
             <div>
-              <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">Company / Organization Name *</label>
+              <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">
+                Company / Organization Name *
+              </label>
               <input
                 type="text"
                 required
@@ -293,7 +415,9 @@ export default function QuotationsPage() {
               />
             </div>
             <div>
-              <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">Customer / Contact Person *</label>
+              <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">
+                Customer / Contact Person *
+              </label>
               <input
                 type="text"
                 required
@@ -304,7 +428,9 @@ export default function QuotationsPage() {
               />
             </div>
             <div>
-              <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">Customer Mobile *</label>
+              <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">
+                Customer Mobile *
+              </label>
               <input
                 type="tel"
                 required
@@ -318,7 +444,9 @@ export default function QuotationsPage() {
 
           <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 text-xs">
             <div>
-              <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">Customer Email *</label>
+              <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">
+                Customer Email *
+              </label>
               <input
                 type="email"
                 required
@@ -329,7 +457,9 @@ export default function QuotationsPage() {
               />
             </div>
             <div>
-              <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">GST Number (15 Digits)</label>
+              <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">
+                GST Number (15 Digits)
+              </label>
               <input
                 type="text"
                 placeholder="07AAAAI0000A1Z5"
@@ -339,20 +469,28 @@ export default function QuotationsPage() {
               />
             </div>
             <div>
-              <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">Applicable GST %</label>
+              <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">
+                Applicable GST %
+              </label>
               <select
                 value={gstRate}
                 onChange={(e) => setGstRate(Number(e.target.value))}
                 className="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl font-bold text-slate-800 focus:outline-none focus:border-[#00AEEF]"
               >
-                <option value={18}>18% GST (Standard Electronics & Hardware)</option>
-                <option value={12}>12% GST (Educational Kits Concession)</option>
+                <option value={18}>
+                  18% GST (Standard Electronics & Hardware)
+                </option>
+                <option value={12}>
+                  12% GST (Educational Kits Concession)
+                </option>
                 <option value={5}>5% GST (Special Research Category)</option>
                 <option value={0}>0% GST (Tax Exempt SEZ / Export)</option>
               </select>
             </div>
             <div>
-              <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">Quote Validity (Days)</label>
+              <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">
+                Quote Validity (Days)
+              </label>
               <select
                 value={validDays}
                 onChange={(e) => setValidDays(Number(e.target.value))}
@@ -369,7 +507,9 @@ export default function QuotationsPage() {
           {/* Addresses & Shipping */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
             <div>
-              <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">Billing Address *</label>
+              <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">
+                Billing Address *
+              </label>
               <textarea
                 rows={2}
                 required
@@ -380,7 +520,9 @@ export default function QuotationsPage() {
               />
             </div>
             <div>
-              <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">Shipping / Lab Delivery Address</label>
+              <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">
+                Shipping / Lab Delivery Address
+              </label>
               <textarea
                 rows={2}
                 placeholder="Robotics Lab #402, Technology Building, City - Pin (Leave blank if same as billing)"
@@ -390,7 +532,9 @@ export default function QuotationsPage() {
               />
             </div>
             <div>
-              <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">Freight / Shipping Fee (₹)</label>
+              <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">
+                Freight / Shipping Fee (₹)
+              </label>
               <input
                 type="number"
                 min="0"
@@ -399,14 +543,18 @@ export default function QuotationsPage() {
                 onChange={(e) => setShippingFee(Number(e.target.value))}
                 className="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl font-bold text-slate-800 focus:outline-none focus:border-[#00AEEF]"
               />
-              <p className="text-[10px] text-slate-400 mt-1">Air Express / Surface courier logistics fee.</p>
+              <p className="text-[10px] text-slate-400 mt-1">
+                Air Express / Surface courier logistics fee.
+              </p>
             </div>
           </div>
 
           {/* Line Items Table */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <h3 className="text-xs font-black uppercase text-slate-900">Line Items & Hardware Pricing</h3>
+              <h3 className="text-xs font-black uppercase text-slate-900">
+                Line Items & Hardware Pricing
+              </h3>
               <div className="flex gap-2">
                 {PRODUCTS.slice(0, 4).map((prod) => (
                   <button
@@ -415,7 +563,7 @@ export default function QuotationsPage() {
                     onClick={() => handleAddItem(prod)}
                     className="bg-slate-100 hover:bg-[#E0F7FC] hover:text-[#00AEEF] text-[10px] font-bold px-2.5 py-1 rounded-lg border border-slate-200 transition-colors cursor-pointer"
                   >
-                    + {prod.name.split(' ')[0]}
+                    + {prod.name.split(" ")[0]}
                   </button>
                 ))}
               </div>
@@ -431,16 +579,29 @@ export default function QuotationsPage() {
               </div>
 
               {items.map((item, idx) => (
-                <div key={idx} className="p-3 grid grid-cols-12 gap-2 items-center">
+                <div
+                  key={idx}
+                  className="p-3 grid grid-cols-12 gap-2 items-center"
+                >
                   <div className="col-span-5">
-                    <h4 className="font-extrabold text-slate-900 truncate">{item.name}</h4>
-                    <span className="text-[10px] text-slate-400 font-mono">{item.sku}</span>
+                    <h4 className="font-extrabold text-slate-900 truncate">
+                      {item.name}
+                    </h4>
+                    <span className="text-[10px] text-slate-400 font-mono">
+                      {item.sku}
+                    </span>
                   </div>
                   <div className="col-span-2 text-right">
                     <input
                       type="number"
                       value={item.unitPrice}
-                      onChange={(e) => handleUpdateItem(idx, 'unitPrice', Number(e.target.value))}
+                      onChange={(e) =>
+                        handleUpdateItem(
+                          idx,
+                          "unitPrice",
+                          Number(e.target.value),
+                        )
+                      }
                       className="w-24 bg-slate-50 p-1.5 rounded-lg text-right font-bold border border-slate-200"
                     />
                   </div>
@@ -449,7 +610,13 @@ export default function QuotationsPage() {
                       type="number"
                       min={1}
                       value={item.quantity}
-                      onChange={(e) => handleUpdateItem(idx, 'quantity', Number(e.target.value))}
+                      onChange={(e) =>
+                        handleUpdateItem(
+                          idx,
+                          "quantity",
+                          Number(e.target.value),
+                        )
+                      }
                       className="w-16 bg-slate-50 p-1.5 rounded-lg text-center font-bold border border-slate-200"
                     />
                   </div>
@@ -459,7 +626,13 @@ export default function QuotationsPage() {
                       min={0}
                       max={50}
                       value={item.discountPct}
-                      onChange={(e) => handleUpdateItem(idx, 'discountPct', Number(e.target.value))}
+                      onChange={(e) =>
+                        handleUpdateItem(
+                          idx,
+                          "discountPct",
+                          Number(e.target.value),
+                        )
+                      }
                       className="w-16 bg-slate-50 p-1.5 rounded-lg text-right font-bold border border-slate-200"
                     />
                   </div>
@@ -480,7 +653,9 @@ export default function QuotationsPage() {
           {/* Notes & Terms */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
             <div>
-              <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">Custom Notes / Scope of Work</label>
+              <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">
+                Custom Notes / Scope of Work
+              </label>
               <textarea
                 rows={3}
                 value={notes}
@@ -490,7 +665,9 @@ export default function QuotationsPage() {
               />
             </div>
             <div>
-              <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">Terms & Conditions</label>
+              <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">
+                Terms & Conditions
+              </label>
               <textarea
                 rows={3}
                 value={terms}
@@ -511,35 +688,40 @@ export default function QuotationsPage() {
       ) : selectedDoc ? (
         /* Document Detail & Printable Letterhead Preview */
         <div className="bg-white rounded-3xl border border-slate-200 p-8 shadow-xl space-y-6 text-slate-900 animate-in fade-in duration-200">
-          
           {/* Status Progression Bar */}
           <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 pb-4">
             <div className="flex items-center gap-2">
-              <span className={`text-xs font-black uppercase px-3 py-1 rounded-full ${
-                selectedDoc.status === 'TAX_INVOICE'
-                  ? 'bg-emerald-100 text-emerald-800'
-                  : selectedDoc.status === 'PAYMENT_RECEIVED'
-                  ? 'bg-purple-100 text-purple-800'
-                  : selectedDoc.status === 'PROFORMA_INVOICE'
-                  ? 'bg-blue-100 text-blue-800'
-                  : 'bg-amber-100 text-amber-800'
-              }`}>
-                {selectedDoc.status.replace('_', ' ')}
+              <span
+                className={`text-xs font-black uppercase px-3 py-1 rounded-full ${
+                  selectedDoc.status === "TAX_INVOICE"
+                    ? "bg-emerald-100 text-emerald-800"
+                    : selectedDoc.status === "PAYMENT_RECEIVED"
+                      ? "bg-purple-100 text-purple-800"
+                      : selectedDoc.status === "PROFORMA_INVOICE"
+                        ? "bg-blue-100 text-blue-800"
+                        : "bg-amber-100 text-amber-800"
+                }`}
+              >
+                {selectedDoc.status.replace("_", " ")}
               </span>
-              <span className="font-mono font-bold text-slate-500 text-xs">{selectedDoc.quoteNumber}</span>
+              <span className="font-mono font-bold text-slate-500 text-xs">
+                {selectedDoc.quoteNumber}
+              </span>
             </div>
 
             <div className="flex items-center gap-2">
-              {selectedDoc.status !== 'TAX_INVOICE' && (
+              {selectedDoc.status !== "TAX_INVOICE" && (
                 <button
                   onClick={() => handleAdvanceStatus(selectedDoc.id)}
                   className="bg-slate-900 hover:bg-slate-800 text-white text-xs font-extrabold px-4 py-2 rounded-xl flex items-center gap-1.5 shadow-xs cursor-pointer active:scale-95"
                 >
                   <span>
-                    Advance to {
-                      selectedDoc.status === 'QUOTATION' ? 'Proforma Invoice' : 
-                      selectedDoc.status === 'PROFORMA_INVOICE' ? 'Payment Received' : 'Tax Invoice (Final GST)'
-                    }
+                    Advance to{" "}
+                    {selectedDoc.status === "QUOTATION"
+                      ? "Proforma Invoice"
+                      : selectedDoc.status === "PROFORMA_INVOICE"
+                        ? "Payment Received"
+                        : "Tax Invoice (Final GST)"}
                   </span>
                   <ArrowRight className="w-3.5 h-3.5 text-[#FFC20E]" />
                 </button>
@@ -562,19 +744,34 @@ export default function QuotationsPage() {
           </div>
 
           {/* Official Letterhead Printable Area */}
-          <div id="quotation-print-sheet" className="p-8 border border-slate-200 rounded-3xl bg-slate-50/50 space-y-6 font-sans shadow-inner">
-            
+          <div
+            id="quotation-print-sheet"
+            className="p-8 border border-slate-200 rounded-3xl bg-slate-50/50 space-y-6 font-sans shadow-inner"
+          >
             <div className="flex justify-between items-start border-b border-slate-200 pb-4">
               <div>
-                <h2 className="text-2xl font-black text-slate-900 tracking-wide">PRAYOG INDIA</h2>
-                <p className="text-xs text-slate-500 font-medium">Official Robotics, UAV & STEM Institutional Solutions Provider</p>
-                <p className="text-[11px] text-slate-400 font-mono">Ranchi Central Hub • GSTIN: 20AABCP1234F1Z9 • Email: b2b@prayogindia.in</p>
+                <h2 className="text-2xl font-black text-slate-900 tracking-wide">
+                  PRAYOG INDIA
+                </h2>
+                <p className="text-xs text-slate-500 font-medium">
+                  Official Robotics, UAV & STEM Institutional Solutions Provider
+                </p>
+                <p className="text-[11px] text-slate-400 font-mono">
+                  Ranchi Central Hub • GSTIN: 20AABCP1234F1Z9 • Email:
+                  b2b@prayogindia.in
+                </p>
               </div>
 
               <div className="text-right text-xs font-mono">
-                <span className="font-black text-slate-900 block text-base">{selectedDoc.quoteNumber}</span>
-                <span className="text-slate-500 block">Issue Date: {selectedDoc.date}</span>
-                <span className="text-slate-500 block">Valid Until: {selectedDoc.validUntil}</span>
+                <span className="font-black text-slate-900 block text-base">
+                  {selectedDoc.quoteNumber}
+                </span>
+                <span className="text-slate-500 block">
+                  Issue Date: {selectedDoc.date}
+                </span>
+                <span className="text-slate-500 block">
+                  Valid Until: {selectedDoc.validUntil}
+                </span>
               </div>
             </div>
 
@@ -582,29 +779,52 @@ export default function QuotationsPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="bg-white p-4 rounded-2xl border border-slate-200 text-xs space-y-1">
                 <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-black uppercase text-[#00AEEF]">Billed Institution / Client:</span>
+                  <span className="text-[10px] font-black uppercase text-[#00AEEF]">
+                    Billed Institution / Client:
+                  </span>
                   <span className="text-[9px] font-black uppercase bg-slate-100 text-slate-700 px-2 py-0.5 rounded-full border border-slate-200">
-                    {selectedDoc.institutionType || 'University / STEM'}
+                    {selectedDoc.institutionType || "University / STEM"}
                   </span>
                 </div>
-                <h3 className="font-extrabold text-slate-900 text-base">{selectedDoc.companyName}</h3>
-                <p className="text-slate-700 font-semibold">Attn: {selectedDoc.customerName}</p>
-                <p className="text-slate-600">Mobile: <strong>{selectedDoc.customerMobile}</strong> • Email: {selectedDoc.customerEmail}</p>
-                <p className="text-slate-500 font-mono text-[11px]">GSTIN: <strong>{selectedDoc.gstin}</strong></p>
+                <h3 className="font-extrabold text-slate-900 text-base">
+                  {selectedDoc.companyName}
+                </h3>
+                <p className="text-slate-700 font-semibold">
+                  Attn: {selectedDoc.customerName}
+                </p>
+                <p className="text-slate-600">
+                  Mobile: <strong>{selectedDoc.customerMobile}</strong> • Email:{" "}
+                  {selectedDoc.customerEmail}
+                </p>
+                <p className="text-slate-500 font-mono text-[11px]">
+                  GSTIN: <strong>{selectedDoc.gstin}</strong>
+                </p>
                 <div className="pt-1 text-slate-600">
-                  <span className="font-bold text-slate-700 block">Billing Address:</span>
-                  <p className="text-[11px] leading-relaxed">{selectedDoc.billingAddress}</p>
+                  <span className="font-bold text-slate-700 block">
+                    Billing Address:
+                  </span>
+                  <p className="text-[11px] leading-relaxed">
+                    {selectedDoc.billingAddress}
+                  </p>
                 </div>
               </div>
 
               <div className="bg-white p-4 rounded-2xl border border-slate-200 text-xs space-y-1">
-                <span className="text-[10px] font-black uppercase text-emerald-600">Lab Delivery / Shipping Address:</span>
+                <span className="text-[10px] font-black uppercase text-emerald-600">
+                  Lab Delivery / Shipping Address:
+                </span>
                 <p className="text-[11px] leading-relaxed text-slate-700 pt-1">
                   {selectedDoc.shippingAddress || selectedDoc.billingAddress}
                 </p>
                 <div className="pt-2 text-[11px] text-slate-500 border-t border-slate-100 mt-2 space-y-0.5">
-                  <p><strong>Logistics Mode:</strong> Surface / Air Express Insured Freight</p>
-                  <p><strong>Estimated Transit:</strong> 3-5 Working Days from PO Confirmation</p>
+                  <p>
+                    <strong>Logistics Mode:</strong> Surface / Air Express
+                    Insured Freight
+                  </p>
+                  <p>
+                    <strong>Estimated Transit:</strong> 3-5 Working Days from PO
+                    Confirmation
+                  </p>
                 </div>
               </div>
             </div>
@@ -629,17 +849,31 @@ export default function QuotationsPage() {
                     const net = gross - disc;
                     return (
                       <tr key={idx} className="hover:bg-slate-50">
-                        <td className="p-3 font-mono text-slate-400">{idx + 1}</td>
+                        <td className="p-3 font-mono text-slate-400">
+                          {idx + 1}
+                        </td>
                         <td className="p-3">
-                          <span className="font-extrabold text-slate-900 block">{it.name}</span>
-                          <span className="text-[10px] text-slate-400 font-mono">SKU: {it.sku}</span>
+                          <span className="font-extrabold text-slate-900 block">
+                            {it.name}
+                          </span>
+                          <span className="text-[10px] text-slate-400 font-mono">
+                            SKU: {it.sku}
+                          </span>
                         </td>
-                        <td className="p-3 text-right font-mono">₹{it.unitPrice.toLocaleString()}</td>
-                        <td className="p-3 text-center font-bold">{it.quantity}</td>
+                        <td className="p-3 text-right font-mono">
+                          ₹{it.unitPrice.toLocaleString()}
+                        </td>
+                        <td className="p-3 text-center font-bold">
+                          {it.quantity}
+                        </td>
                         <td className="p-3 text-right font-bold text-emerald-600">
-                          {it.discountPct > 0 ? `${it.discountPct}% (-₹${Math.round(disc).toLocaleString()})` : '—'}
+                          {it.discountPct > 0
+                            ? `${it.discountPct}% (-₹${Math.round(disc).toLocaleString()})`
+                            : "—"}
                         </td>
-                        <td className="p-3 text-right font-extrabold text-slate-900 font-mono">₹{Math.round(net).toLocaleString()}</td>
+                        <td className="p-3 text-right font-extrabold text-slate-900 font-mono">
+                          ₹{Math.round(net).toLocaleString()}
+                        </td>
                       </tr>
                     );
                   })}
@@ -651,17 +885,24 @@ export default function QuotationsPage() {
             <div className="flex flex-col sm:flex-row justify-between items-start gap-6 pt-2">
               <div className="text-xs text-slate-600 max-w-sm space-y-2 flex-1">
                 <div>
-                  <p className="font-bold text-slate-800">Custom Notes & Remarks:</p>
-                  <p className="text-[11px] leading-relaxed text-slate-600">{selectedDoc.notes}</p>
+                  <p className="font-bold text-slate-800">
+                    Custom Notes & Remarks:
+                  </p>
+                  <p className="text-[11px] leading-relaxed text-slate-600">
+                    {selectedDoc.notes}
+                  </p>
                 </div>
                 <div>
-                  <p className="font-bold text-slate-800">Terms & Conditions:</p>
+                  <p className="font-bold text-slate-800">
+                    Terms & Conditions:
+                  </p>
                   <pre className="text-[10px] whitespace-pre-wrap font-sans text-slate-500 bg-white p-2.5 rounded-xl border border-slate-200">
                     {selectedDoc.terms}
                   </pre>
                 </div>
                 <p className="text-[10px] text-slate-400 pt-1">
-                  Authorized Signatory: Prayog India Institutional Procurement & B2B Division
+                  Authorized Signatory: Prayog India Institutional Procurement &
+                  B2B Division
                 </p>
               </div>
 
@@ -675,19 +916,29 @@ export default function QuotationsPage() {
                     <>
                       <div className="flex justify-between text-slate-500">
                         <span>Taxable Items Subtotal:</span>
-                        <span className="font-mono">₹{sub.toLocaleString()}</span>
+                        <span className="font-mono">
+                          ₹{sub.toLocaleString()}
+                        </span>
                       </div>
                       <div className="flex justify-between text-slate-500">
                         <span>GST ({selectedDoc.gstRate}%):</span>
-                        <span className="font-mono">+₹{gst.toLocaleString()}</span>
+                        <span className="font-mono">
+                          +₹{gst.toLocaleString()}
+                        </span>
                       </div>
                       <div className="flex justify-between text-slate-500">
                         <span>Shipping / Freight:</span>
-                        <span className="font-mono">{shipping > 0 ? `+₹${shipping.toLocaleString()}` : 'FREE'}</span>
+                        <span className="font-mono">
+                          {shipping > 0
+                            ? `+₹${shipping.toLocaleString()}`
+                            : "FREE"}
+                        </span>
                       </div>
                       <div className="flex justify-between text-base font-black text-slate-900 pt-1.5 border-t border-slate-200">
                         <span>Grand Total:</span>
-                        <span className="text-[#00AEEF] font-mono">₹{total.toLocaleString()}</span>
+                        <span className="text-[#00AEEF] font-mono">
+                          ₹{total.toLocaleString()}
+                        </span>
                       </div>
                     </>
                   );
@@ -695,14 +946,17 @@ export default function QuotationsPage() {
               </div>
             </div>
           </div>
-
         </div>
       ) : (
         /* Quotation Master List */
         <div className="bg-white rounded-3xl border border-slate-200 shadow-xs overflow-hidden">
           <div className="p-4 border-b border-slate-100 flex items-center justify-between">
-            <h2 className="text-xs font-black uppercase text-slate-900">Active B2B Sales Document Pipeline</h2>
-            <span className="text-xs text-slate-400 font-bold">{quotations.length} records</span>
+            <h2 className="text-xs font-black uppercase text-slate-900">
+              Active B2B Sales Document Pipeline
+            </h2>
+            <span className="text-xs text-slate-400 font-bold">
+              {quotations.length} records
+            </span>
           </div>
 
           <div className="divide-y divide-slate-100">
@@ -718,30 +972,43 @@ export default function QuotationsPage() {
                 >
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
-                      <span className="font-mono font-black text-slate-900 text-xs">{doc.quoteNumber}</span>
-                      <span className={`text-[9px] font-black uppercase px-2.5 py-0.5 rounded-full ${
-                        doc.status === 'TAX_INVOICE'
-                          ? 'bg-emerald-100 text-emerald-800'
-                          : doc.status === 'PAYMENT_RECEIVED'
-                          ? 'bg-purple-100 text-purple-800'
-                          : doc.status === 'PROFORMA_INVOICE'
-                          ? 'bg-blue-100 text-blue-800'
-                          : 'bg-amber-100 text-amber-800'
-                      }`}>
-                        {doc.status.replace('_', ' ')}
+                      <span className="font-mono font-black text-slate-900 text-xs">
+                        {doc.quoteNumber}
+                      </span>
+                      <span
+                        className={`text-[9px] font-black uppercase px-2.5 py-0.5 rounded-full ${
+                          doc.status === "TAX_INVOICE"
+                            ? "bg-emerald-100 text-emerald-800"
+                            : doc.status === "PAYMENT_RECEIVED"
+                              ? "bg-purple-100 text-purple-800"
+                              : doc.status === "PROFORMA_INVOICE"
+                                ? "bg-blue-100 text-blue-800"
+                                : "bg-amber-100 text-amber-800"
+                        }`}
+                      >
+                        {doc.status.replace("_", " ")}
                       </span>
                       <span className="text-[9px] font-bold uppercase bg-slate-100 text-slate-600 px-2 py-0.5 rounded-md border border-slate-200">
-                        {doc.institutionType || 'University'}
+                        {doc.institutionType || "University"}
                       </span>
                     </div>
-                    <h3 className="text-sm font-bold text-slate-900">{doc.companyName}</h3>
-                    <p className="text-xs text-slate-500">{doc.items.length} hardware items • Attn: {doc.customerName} ({doc.customerMobile})</p>
+                    <h3 className="text-sm font-bold text-slate-900">
+                      {doc.companyName}
+                    </h3>
+                    <p className="text-xs text-slate-500">
+                      {doc.items.length} hardware items • Attn:{" "}
+                      {doc.customerName} ({doc.customerMobile})
+                    </p>
                   </div>
 
                   <div className="flex items-center gap-4">
                     <div className="text-right">
-                      <span className="text-sm font-black text-slate-900 block font-mono">₹{total.toLocaleString()}</span>
-                      <span className="text-[10px] text-slate-400 block font-medium">Valid until {doc.validUntil}</span>
+                      <span className="text-sm font-black text-slate-900 block font-mono">
+                        ₹{total.toLocaleString()}
+                      </span>
+                      <span className="text-[10px] text-slate-400 block font-medium">
+                        Valid until {doc.validUntil}
+                      </span>
                     </div>
                     <button className="w-8 h-8 rounded-xl bg-slate-100 hover:bg-[#00AEEF] hover:text-white flex items-center justify-center transition-colors">
                       <Eye className="w-4 h-4" />
@@ -753,7 +1020,6 @@ export default function QuotationsPage() {
           </div>
         </div>
       )}
-
     </div>
   );
 }

@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import React, { useState, useMemo } from 'react';
-import Image from 'next/image';
+import React, { useState, useMemo } from "react";
+import Image from "next/image";
 import {
   Link2,
   ShoppingCart,
@@ -28,21 +28,21 @@ import {
   CheckCircle2,
   History,
   ChevronDown,
-} from 'lucide-react';
-import { PRODUCTS, Product } from '@/data/mockData';
+} from "lucide-react";
+import { PRODUCTS, Product } from "@/data/mockData";
 
 // ────────────────────────────────────────────────────────────────
 // TYPES
 // ────────────────────────────────────────────────────────────────
 type RelationshipType =
-  | 'related'
-  | 'frequentlyBoughtTogether'
-  | 'recommendedAccessories'
-  | 'similar'
-  | 'recentlyViewed'
-  | 'trending'
-  | 'bestSellers'
-  | 'personalized';
+  | "related"
+  | "frequentlyBoughtTogether"
+  | "recommendedAccessories"
+  | "similar"
+  | "recentlyViewed"
+  | "trending"
+  | "bestSellers"
+  | "personalized";
 
 interface RelationshipConfig {
   id: RelationshipType;
@@ -63,78 +63,84 @@ type RelationshipMap = Record<string, Record<RelationshipType, string[]>>;
 // ────────────────────────────────────────────────────────────────
 const RELATIONSHIP_CONFIGS: RelationshipConfig[] = [
   {
-    id: 'related',
-    label: 'Related Products',
-    description: 'Products from the same category or compatible with this item.',
+    id: "related",
+    label: "Related Products",
+    description:
+      "Products from the same category or compatible with this item.",
     icon: <Link2 className="w-4 h-4" />,
-    color: 'text-[#00AEEF]',
-    badgeColor: 'bg-[#E0F7FC] text-[#00AEEF] border-[#00AEEF]/20',
+    color: "text-[#00AEEF]",
+    badgeColor: "bg-[#E0F7FC] text-[#00AEEF] border-[#00AEEF]/20",
     maxItems: 12,
   },
   {
-    id: 'frequentlyBoughtTogether',
-    label: 'Frequently Bought Together',
-    description: 'Products customers commonly purchase alongside this item.',
+    id: "frequentlyBoughtTogether",
+    label: "Frequently Bought Together",
+    description: "Products customers commonly purchase alongside this item.",
     icon: <ShoppingCart className="w-4 h-4" />,
-    color: 'text-emerald-600',
-    badgeColor: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+    color: "text-emerald-600",
+    badgeColor: "bg-emerald-50 text-emerald-700 border-emerald-200",
     maxItems: 6,
   },
   {
-    id: 'recommendedAccessories',
-    label: 'Recommended Accessories',
-    description: 'Cables, tools, mounts, and add-ons that complement this product.',
+    id: "recommendedAccessories",
+    label: "Recommended Accessories",
+    description:
+      "Cables, tools, mounts, and add-ons that complement this product.",
     icon: <Puzzle className="w-4 h-4" />,
-    color: 'text-purple-600',
-    badgeColor: 'bg-purple-50 text-purple-700 border-purple-200',
+    color: "text-purple-600",
+    badgeColor: "bg-purple-50 text-purple-700 border-purple-200",
     maxItems: 8,
   },
   {
-    id: 'similar',
-    label: 'Similar Products',
-    description: 'Alternative or comparable hardware options customers may consider.',
+    id: "similar",
+    label: "Similar Products",
+    description:
+      "Alternative or comparable hardware options customers may consider.",
     icon: <Package className="w-4 h-4" />,
-    color: 'text-orange-600',
-    badgeColor: 'bg-orange-50 text-orange-700 border-orange-200',
+    color: "text-orange-600",
+    badgeColor: "bg-orange-50 text-orange-700 border-orange-200",
     maxItems: 8,
   },
   {
-    id: 'recentlyViewed',
-    label: 'Recently Viewed',
-    description: 'Automatically populated from customer browsing session history.',
+    id: "recentlyViewed",
+    label: "Recently Viewed",
+    description:
+      "Automatically populated from customer browsing session history.",
     icon: <History className="w-4 h-4" />,
-    color: 'text-slate-500',
-    badgeColor: 'bg-slate-100 text-slate-600 border-slate-200',
+    color: "text-slate-500",
+    badgeColor: "bg-slate-100 text-slate-600 border-slate-200",
     isAutomatic: true,
     maxItems: 8,
   },
   {
-    id: 'trending',
-    label: 'Trending Products',
-    description: 'Products with high view and purchase velocity in last 7 days.',
+    id: "trending",
+    label: "Trending Products",
+    description:
+      "Products with high view and purchase velocity in last 7 days.",
     icon: <TrendingUp className="w-4 h-4" />,
-    color: 'text-rose-600',
-    badgeColor: 'bg-rose-50 text-rose-700 border-rose-200',
+    color: "text-rose-600",
+    badgeColor: "bg-rose-50 text-rose-700 border-rose-200",
     isAutomatic: true,
     maxItems: 10,
   },
   {
-    id: 'bestSellers',
-    label: 'Best Sellers',
-    description: 'Top-selling products by revenue in the last 30 days.',
+    id: "bestSellers",
+    label: "Best Sellers",
+    description: "Top-selling products by revenue in the last 30 days.",
     icon: <Award className="w-4 h-4" />,
-    color: 'text-amber-600',
-    badgeColor: 'bg-amber-50 text-amber-700 border-amber-200',
+    color: "text-amber-600",
+    badgeColor: "bg-amber-50 text-amber-700 border-amber-200",
     isAutomatic: true,
     maxItems: 10,
   },
   {
-    id: 'personalized',
-    label: 'Personalized Recommendations',
-    description: 'AI-generated suggestions based on customer purchase history and preferences.',
+    id: "personalized",
+    label: "Personalized Recommendations",
+    description:
+      "AI-generated suggestions based on customer purchase history and preferences.",
     icon: <Sparkles className="w-4 h-4" />,
-    color: 'text-indigo-600',
-    badgeColor: 'bg-indigo-50 text-indigo-700 border-indigo-200',
+    color: "text-indigo-600",
+    badgeColor: "bg-indigo-50 text-indigo-700 border-indigo-200",
     isAutomatic: true,
     maxItems: 8,
   },
@@ -143,7 +149,7 @@ const RELATIONSHIP_CONFIGS: RelationshipConfig[] = [
 // Initialize from product data
 function buildInitialMap(): RelationshipMap {
   const map: RelationshipMap = {};
-  PRODUCTS.forEach(p => {
+  PRODUCTS.forEach((p) => {
     map[p.id] = {
       related: p.relatedProductIds ?? [],
       frequentlyBoughtTogether: p.frequentlyBoughtTogetherIds ?? [],
@@ -172,26 +178,40 @@ const PickerProductRow: React.FC<{
     onClick={onToggle}
     className={`w-full flex items-center gap-3 p-2.5 rounded-xl transition-all cursor-pointer text-left border ${
       isSelected
-        ? 'bg-[#E0F7FC] border-[#00AEEF]/40'
-        : 'bg-white border-transparent hover:bg-slate-50 hover:border-slate-200'
+        ? "bg-[#E0F7FC] border-[#00AEEF]/40"
+        : "bg-white border-transparent hover:bg-slate-50 hover:border-slate-200"
     }`}
   >
     <span className="shrink-0">
-      {isSelected
-        ? <CheckSquare className="w-4 h-4 text-[#00AEEF]" />
-        : <Square className="w-4 h-4 text-slate-300" />}
+      {isSelected ? (
+        <CheckSquare className="w-4 h-4 text-[#00AEEF]" />
+      ) : (
+        <Square className="w-4 h-4 text-slate-300" />
+      )}
     </span>
     <div className="relative w-9 h-9 shrink-0 rounded-lg overflow-hidden bg-slate-100 border border-slate-200">
-      <img src={product.image} alt={product.name} className="w-full h-full object-contain p-0.5" />
+      <img
+        src={product.image}
+        alt={product.name}
+        className="w-full h-full object-contain p-0.5"
+      />
     </div>
     <div className="flex-1 min-w-0">
-      <div className="text-[11px] font-bold text-slate-900 line-clamp-1">{product.name}</div>
+      <div className="text-[11px] font-bold text-slate-900 line-clamp-1">
+        {product.name}
+      </div>
       <div className="flex items-center gap-2 mt-0.5">
-        <span className="text-[9px] font-mono text-slate-400">{product.sku}</span>
+        <span className="text-[9px] font-mono text-slate-400">
+          {product.sku}
+        </span>
         <span className="text-[9px] text-slate-400">·</span>
-        <span className="text-[9px] font-bold text-slate-600">₹{product.price.toLocaleString('en-IN')}</span>
-        <span className={`text-[9px] font-bold ${product.inStock ? 'text-emerald-600' : 'text-red-500'}`}>
-          {product.inStock ? '✓ In Stock' : '✗ OOS'}
+        <span className="text-[9px] font-bold text-slate-600">
+          ₹{product.price.toLocaleString("en-IN")}
+        </span>
+        <span
+          className={`text-[9px] font-bold ${product.inStock ? "text-emerald-600" : "text-red-500"}`}
+        >
+          {product.inStock ? "✓ In Stock" : "✗ OOS"}
         </span>
       </div>
     </div>
@@ -206,12 +226,20 @@ const SelectedProductChip: React.FC<{
 }> = ({ product, onRemove, index }) => (
   <div className="flex items-center gap-2 bg-white border border-slate-200 rounded-xl px-3 py-2 group hover:border-[#00AEEF]/40 hover:bg-slate-50 transition-all">
     <GripVertical className="w-3.5 h-3.5 text-slate-300 cursor-grab" />
-    <span className="text-[10px] font-black text-slate-300 w-4 text-center">{index + 1}</span>
+    <span className="text-[10px] font-black text-slate-300 w-4 text-center">
+      {index + 1}
+    </span>
     <div className="relative w-8 h-8 rounded-lg overflow-hidden bg-slate-100 shrink-0">
-      <img src={product.image} alt={product.name} className="w-full h-full object-contain" />
+      <img
+        src={product.image}
+        alt={product.name}
+        className="w-full h-full object-contain"
+      />
     </div>
     <div className="flex-1 min-w-0">
-      <div className="text-[11px] font-bold text-slate-900 line-clamp-1">{product.name}</div>
+      <div className="text-[11px] font-bold text-slate-900 line-clamp-1">
+        {product.name}
+      </div>
       <div className="text-[9px] font-mono text-slate-400">{product.sku}</div>
     </div>
     <button
@@ -233,37 +261,41 @@ const RelationshipPanel: React.FC<{
   onBack: () => void;
   onSave: () => void;
 }> = ({ sourceProduct, relationships, onUpdate, onBack, onSave }) => {
-  const [activeTab, setActiveTab] = useState<RelationshipType>('related');
-  const [pickerQuery, setPickerQuery] = useState('');
+  const [activeTab, setActiveTab] = useState<RelationshipType>("related");
+  const [pickerQuery, setPickerQuery] = useState("");
   const [savedFlash, setSavedFlash] = useState(false);
 
-  const activeConfig = RELATIONSHIP_CONFIGS.find(c => c.id === activeTab)!;
+  const activeConfig = RELATIONSHIP_CONFIGS.find((c) => c.id === activeTab)!;
   const currentIds = relationships[activeTab] ?? [];
   const currentProducts = currentIds
-    .map(id => PRODUCTS.find(p => p.id === id))
+    .map((id) => PRODUCTS.find((p) => p.id === id))
     .filter(Boolean) as Product[];
 
   const pickerResults = useMemo(() => {
     const q = pickerQuery.toLowerCase();
     return PRODUCTS.filter(
-      p =>
+      (p) =>
         p.id !== sourceProduct.id &&
         !currentIds.includes(p.id) &&
-        (q === '' ||
+        (q === "" ||
           p.name.toLowerCase().includes(q) ||
           p.sku.toLowerCase().includes(q) ||
           p.category.toLowerCase().includes(q) ||
-          (p.brand?.toLowerCase().includes(q) ?? false))
+          (p.brand?.toLowerCase().includes(q) ?? false)),
     ).slice(0, 30);
   }, [pickerQuery, currentIds, sourceProduct.id]);
 
   const handleAdd = (id: string) => {
-    if (currentIds.includes(id) || currentIds.length >= activeConfig.maxItems) return;
+    if (currentIds.includes(id) || currentIds.length >= activeConfig.maxItems)
+      return;
     onUpdate(activeTab, [...currentIds, id]);
   };
 
   const handleRemove = (id: string) => {
-    onUpdate(activeTab, currentIds.filter(x => x !== id));
+    onUpdate(
+      activeTab,
+      currentIds.filter((x) => x !== id),
+    );
   };
 
   const handleSave = () => {
@@ -274,7 +306,6 @@ const RelationshipPanel: React.FC<{
 
   return (
     <div className="space-y-5 animate-in fade-in duration-200">
-
       {/* Header */}
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div className="flex items-center gap-3">
@@ -287,11 +318,19 @@ const RelationshipPanel: React.FC<{
           <div>
             <div className="flex items-center gap-2">
               <div className="relative w-10 h-10 rounded-xl overflow-hidden bg-slate-100 border border-slate-200 shrink-0">
-                <img src={sourceProduct.image} alt={sourceProduct.name} className="w-full h-full object-contain p-0.5" />
+                <img
+                  src={sourceProduct.image}
+                  alt={sourceProduct.name}
+                  className="w-full h-full object-contain p-0.5"
+                />
               </div>
               <div>
-                <p className="text-[10px] font-mono font-bold text-slate-400">{sourceProduct.sku}</p>
-                <h2 className="text-sm font-black text-slate-900 line-clamp-1">{sourceProduct.name}</h2>
+                <p className="text-[10px] font-mono font-bold text-slate-400">
+                  {sourceProduct.sku}
+                </p>
+                <h2 className="text-sm font-black text-slate-900 line-clamp-1">
+                  {sourceProduct.name}
+                </h2>
               </div>
             </div>
           </div>
@@ -301,33 +340,48 @@ const RelationshipPanel: React.FC<{
           onClick={handleSave}
           className={`flex items-center gap-2 px-5 py-2.5 rounded-2xl text-xs font-black uppercase tracking-wider transition-all active:scale-95 cursor-pointer shadow-md ${
             savedFlash
-              ? 'bg-emerald-600 text-white shadow-emerald-200'
-              : 'bg-[#00AEEF] hover:bg-[#0096D6] text-white shadow-[#00AEEF]/20'
+              ? "bg-emerald-600 text-white shadow-emerald-200"
+              : "bg-[#00AEEF] hover:bg-[#0096D6] text-white shadow-[#00AEEF]/20"
           }`}
         >
-          {savedFlash ? <><CheckCircle2 className="w-4 h-4" /> Saved!</> : <><Save className="w-4 h-4" /> Save Relationships</>}
+          {savedFlash ? (
+            <>
+              <CheckCircle2 className="w-4 h-4" /> Saved!
+            </>
+          ) : (
+            <>
+              <Save className="w-4 h-4" /> Save Relationships
+            </>
+          )}
         </button>
       </div>
 
       {/* Relationship Type Tabs */}
       <div className="flex flex-wrap gap-2">
-        {RELATIONSHIP_CONFIGS.map(config => {
+        {RELATIONSHIP_CONFIGS.map((config) => {
           const count = (relationships[config.id] ?? []).length;
           return (
             <button
               key={config.id}
-              onClick={() => { setActiveTab(config.id); setPickerQuery(''); }}
+              onClick={() => {
+                setActiveTab(config.id);
+                setPickerQuery("");
+              }}
               className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-[11px] font-extrabold transition-all cursor-pointer border ${
                 activeTab === config.id
-                  ? 'bg-slate-900 text-white border-slate-900 shadow-sm'
-                  : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300'
+                  ? "bg-slate-900 text-white border-slate-900 shadow-sm"
+                  : "bg-white text-slate-600 border-slate-200 hover:border-slate-300"
               }`}
             >
               {config.icon}
               <span>{config.label}</span>
-              <span className={`ml-1 text-[9px] font-black px-1.5 py-0.5 rounded-md ${
-                activeTab === config.id ? 'bg-white/20 text-white' : config.badgeColor
-              } border`}>
+              <span
+                className={`ml-1 text-[9px] font-black px-1.5 py-0.5 rounded-md ${
+                  activeTab === config.id
+                    ? "bg-white/20 text-white"
+                    : config.badgeColor
+                } border`}
+              >
                 {count}/{config.maxItems}
               </span>
             </button>
@@ -337,23 +391,30 @@ const RelationshipPanel: React.FC<{
 
       {/* Active Tab Content */}
       <div className="bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-xs">
-
         {/* Tab Description Banner */}
-        <div className={`px-5 py-3.5 border-b border-slate-100 flex items-center justify-between gap-3 ${
-          activeConfig.isAutomatic ? 'bg-slate-50' : 'bg-gradient-to-r from-slate-50 to-white'
-        }`}>
+        <div
+          className={`px-5 py-3.5 border-b border-slate-100 flex items-center justify-between gap-3 ${
+            activeConfig.isAutomatic
+              ? "bg-slate-50"
+              : "bg-gradient-to-r from-slate-50 to-white"
+          }`}
+        >
           <div className="flex items-center gap-2">
             <span className={`${activeConfig.color}`}>{activeConfig.icon}</span>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-xs font-black text-slate-900">{activeConfig.label}</span>
+                <span className="text-xs font-black text-slate-900">
+                  {activeConfig.label}
+                </span>
                 {activeConfig.isAutomatic && (
                   <span className="bg-amber-100 text-amber-800 text-[9px] font-black px-2 py-0.5 rounded-full border border-amber-200 flex items-center gap-1">
                     <RefreshCw className="w-2.5 h-2.5" /> AUTO
                   </span>
                 )}
               </div>
-              <p className="text-[10px] text-slate-500 font-medium">{activeConfig.description}</p>
+              <p className="text-[10px] text-slate-500 font-medium">
+                {activeConfig.description}
+              </p>
             </div>
           </div>
           <span className="text-[10px] font-bold text-slate-400 shrink-0">
@@ -368,57 +429,98 @@ const RelationshipPanel: React.FC<{
               <RefreshCw className="w-7 h-7 text-amber-600" />
             </div>
             <div>
-              <h4 className="text-sm font-extrabold text-slate-900">{activeConfig.label}</h4>
+              <h4 className="text-sm font-extrabold text-slate-900">
+                {activeConfig.label}
+              </h4>
               <p className="text-xs text-slate-500 max-w-sm mt-1">
-                This module is <strong>automatically managed</strong> by the Prayog India engine based on real-time order data, browsing sessions, and AI signals.
+                This module is <strong>automatically managed</strong> by the
+                Prayog India engine based on real-time order data, browsing
+                sessions, and AI signals.
               </p>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-2 text-left">
-              {activeConfig.id === 'trending' && (
+              {activeConfig.id === "trending" && (
                 <>
                   <div className="bg-rose-50 border border-rose-200 rounded-xl p-3 text-xs">
-                    <div className="font-black text-rose-700 mb-1">View Velocity</div>
-                    <div className="text-rose-600 font-medium">Last 7-day page view count</div>
+                    <div className="font-black text-rose-700 mb-1">
+                      View Velocity
+                    </div>
+                    <div className="text-rose-600 font-medium">
+                      Last 7-day page view count
+                    </div>
                   </div>
                   <div className="bg-rose-50 border border-rose-200 rounded-xl p-3 text-xs">
-                    <div className="font-black text-rose-700 mb-1">Cart Add Rate</div>
-                    <div className="text-rose-600 font-medium">% of views leading to add-to-cart</div>
+                    <div className="font-black text-rose-700 mb-1">
+                      Cart Add Rate
+                    </div>
+                    <div className="text-rose-600 font-medium">
+                      % of views leading to add-to-cart
+                    </div>
                   </div>
                   <div className="bg-rose-50 border border-rose-200 rounded-xl p-3 text-xs">
-                    <div className="font-black text-rose-700 mb-1">Search Rank</div>
-                    <div className="text-rose-600 font-medium">Frequency in search queries</div>
+                    <div className="font-black text-rose-700 mb-1">
+                      Search Rank
+                    </div>
+                    <div className="text-rose-600 font-medium">
+                      Frequency in search queries
+                    </div>
                   </div>
                 </>
               )}
-              {activeConfig.id === 'bestSellers' && (
+              {activeConfig.id === "bestSellers" && (
                 <>
                   <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs">
-                    <div className="font-black text-amber-700 mb-1">Revenue (30d)</div>
-                    <div className="text-amber-600 font-medium">Sales revenue in last 30 days</div>
+                    <div className="font-black text-amber-700 mb-1">
+                      Revenue (30d)
+                    </div>
+                    <div className="text-amber-600 font-medium">
+                      Sales revenue in last 30 days
+                    </div>
                   </div>
                   <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs">
-                    <div className="font-black text-amber-700 mb-1">Units Sold</div>
-                    <div className="text-amber-600 font-medium">Total quantity dispatched</div>
+                    <div className="font-black text-amber-700 mb-1">
+                      Units Sold
+                    </div>
+                    <div className="text-amber-600 font-medium">
+                      Total quantity dispatched
+                    </div>
                   </div>
                   <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs">
-                    <div className="font-black text-amber-700 mb-1">Category Rank</div>
-                    <div className="text-amber-600 font-medium">Rank within category</div>
+                    <div className="font-black text-amber-700 mb-1">
+                      Category Rank
+                    </div>
+                    <div className="text-amber-600 font-medium">
+                      Rank within category
+                    </div>
                   </div>
                 </>
               )}
-              {(activeConfig.id === 'personalized' || activeConfig.id === 'recentlyViewed') && (
+              {(activeConfig.id === "personalized" ||
+                activeConfig.id === "recentlyViewed") && (
                 <>
                   <div className="bg-indigo-50 border border-indigo-200 rounded-xl p-3 text-xs">
-                    <div className="font-black text-indigo-700 mb-1">Session History</div>
-                    <div className="text-indigo-600 font-medium">Customer browsing sessions</div>
+                    <div className="font-black text-indigo-700 mb-1">
+                      Session History
+                    </div>
+                    <div className="text-indigo-600 font-medium">
+                      Customer browsing sessions
+                    </div>
                   </div>
                   <div className="bg-indigo-50 border border-indigo-200 rounded-xl p-3 text-xs">
-                    <div className="font-black text-indigo-700 mb-1">Purchase History</div>
-                    <div className="text-indigo-600 font-medium">Previous orders & repeat buys</div>
+                    <div className="font-black text-indigo-700 mb-1">
+                      Purchase History
+                    </div>
+                    <div className="text-indigo-600 font-medium">
+                      Previous orders & repeat buys
+                    </div>
                   </div>
                   <div className="bg-indigo-50 border border-indigo-200 rounded-xl p-3 text-xs">
-                    <div className="font-black text-indigo-700 mb-1">Similar Customers</div>
-                    <div className="text-indigo-600 font-medium">Collaborative filtering model</div>
+                    <div className="font-black text-indigo-700 mb-1">
+                      Similar Customers
+                    </div>
+                    <div className="text-indigo-600 font-medium">
+                      Collaborative filtering model
+                    </div>
                   </div>
                 </>
               )}
@@ -430,12 +532,13 @@ const RelationshipPanel: React.FC<{
         ) : (
           /* Manual Selection Layout */
           <div className="grid grid-cols-1 lg:grid-cols-2 divide-y lg:divide-y-0 lg:divide-x divide-slate-100">
-
             {/* Left — Selected Products */}
             <div className="p-5 space-y-3">
               <div className="flex items-center justify-between">
                 <h4 className="text-xs font-extrabold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
-                  <span className={activeConfig.color}>{activeConfig.icon}</span>
+                  <span className={activeConfig.color}>
+                    {activeConfig.icon}
+                  </span>
                   Selected ({currentProducts.length}/{activeConfig.maxItems})
                 </h4>
                 {currentProducts.length > 0 && (
@@ -452,7 +555,8 @@ const RelationshipPanel: React.FC<{
                 <div className="border-2 border-dashed border-slate-200 rounded-2xl p-6 text-center text-xs text-slate-400 font-semibold">
                   <Plus className="w-6 h-6 text-slate-300 mx-auto mb-2" />
                   No products selected yet.
-                  <br />Search and add products from the right panel.
+                  <br />
+                  Search and add products from the right panel.
                 </div>
               ) : (
                 <div className="space-y-2 max-h-80 overflow-y-auto pr-1 scrollbar-thin scrollbar-track-slate-50 scrollbar-thumb-slate-200">
@@ -469,7 +573,8 @@ const RelationshipPanel: React.FC<{
 
               {currentIds.length >= activeConfig.maxItems && (
                 <p className="text-[10px] font-bold text-amber-700 bg-amber-50 px-3 py-2 rounded-xl border border-amber-200">
-                  ⚠️ Maximum {activeConfig.maxItems} products reached for this relationship type.
+                  ⚠️ Maximum {activeConfig.maxItems} products reached for this
+                  relationship type.
                 </p>
               )}
             </div>
@@ -486,13 +591,13 @@ const RelationshipPanel: React.FC<{
                 <input
                   type="text"
                   value={pickerQuery}
-                  onChange={e => setPickerQuery(e.target.value)}
+                  onChange={(e) => setPickerQuery(e.target.value)}
                   placeholder="Search by name, SKU, brand, or category..."
                   className="w-full pl-9 pr-9 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-900 focus:outline-none focus:border-[#00AEEF]"
                 />
                 {pickerQuery && (
                   <button
-                    onClick={() => setPickerQuery('')}
+                    onClick={() => setPickerQuery("")}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 cursor-pointer"
                   >
                     <X className="w-3.5 h-3.5" />
@@ -507,7 +612,7 @@ const RelationshipPanel: React.FC<{
                     No products found matching your search.
                   </div>
                 ) : (
-                  pickerResults.map(prod => (
+                  pickerResults.map((prod) => (
                     <PickerProductRow
                       key={prod.id}
                       product={prod}
@@ -519,10 +624,10 @@ const RelationshipPanel: React.FC<{
               </div>
 
               <p className="text-[10px] text-slate-400 font-medium">
-                Showing {pickerResults.length} available products · {currentIds.length} already selected
+                Showing {pickerResults.length} available products ·{" "}
+                {currentIds.length} already selected
               </p>
             </div>
-
           </div>
         )}
       </div>
@@ -531,8 +636,11 @@ const RelationshipPanel: React.FC<{
       <div className="bg-[#0F172A] text-white rounded-2xl px-5 py-4 flex flex-col sm:flex-row items-start sm:items-center gap-3 text-xs">
         <Info className="w-4 h-4 text-[#00AEEF] shrink-0 mt-0.5 sm:mt-0" />
         <p className="text-slate-300 font-medium leading-relaxed">
-          <strong className="text-white">Section 13 Rule:</strong> Manually configured relationships (Related, FBT, Accessories, Similar) take priority over algorithmic suggestions.
-          The store front shows manual selections first, then auto-generated suggestions to fill remaining slots up to the display limit.
+          <strong className="text-white">Section 13 Rule:</strong> Manually
+          configured relationships (Related, FBT, Accessories, Similar) take
+          priority over algorithmic suggestions. The store front shows manual
+          selections first, then auto-generated suggestions to fill remaining
+          slots up to the display limit.
         </p>
       </div>
     </div>
@@ -543,33 +651,35 @@ const RelationshipPanel: React.FC<{
 // MAIN PAGE — Product Relationships Manager
 // ────────────────────────────────────────────────────────────────
 export default function AdminRelationshipsPage() {
-  const [relationshipMap, setRelationshipMap] = useState<RelationshipMap>(buildInitialMap);
+  const [relationshipMap, setRelationshipMap] =
+    useState<RelationshipMap>(buildInitialMap);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [filterCategory, setFilterCategory] = useState('');
-  const [savedMessage, setSavedMessage] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filterCategory, setFilterCategory] = useState("");
+  const [savedMessage, setSavedMessage] = useState("");
 
   const categories = useMemo(() => {
-    const cats = new Set(PRODUCTS.map(p => p.category));
+    const cats = new Set(PRODUCTS.map((p) => p.category));
     return Array.from(cats).sort();
   }, []);
 
   const filteredProducts = useMemo(() => {
     const q = searchQuery.toLowerCase();
-    return PRODUCTS.filter(p => {
+    return PRODUCTS.filter((p) => {
       const matchesSearch =
-        q === '' ||
+        q === "" ||
         p.name.toLowerCase().includes(q) ||
         p.sku.toLowerCase().includes(q) ||
         (p.brand?.toLowerCase().includes(q) ?? false);
-      const matchesCategory = filterCategory === '' || p.category === filterCategory;
+      const matchesCategory =
+        filterCategory === "" || p.category === filterCategory;
       return matchesSearch && matchesCategory;
     });
   }, [searchQuery, filterCategory]);
 
   const handleUpdate = (type: RelationshipType, ids: string[]) => {
     if (!selectedProduct) return;
-    setRelationshipMap(prev => ({
+    setRelationshipMap((prev) => ({
       ...prev,
       [selectedProduct.id]: {
         ...prev[selectedProduct.id],
@@ -579,17 +689,21 @@ export default function AdminRelationshipsPage() {
   };
 
   const handleSave = () => {
-    setSavedMessage(`Relationships saved for "${selectedProduct?.name}" successfully.`);
-    setTimeout(() => setSavedMessage(''), 3000);
+    setSavedMessage(
+      `Relationships saved for "${selectedProduct?.name}" successfully.`,
+    );
+    setTimeout(() => setSavedMessage(""), 3000);
   };
 
   const getTotalRelationships = (productId: string): number => {
     const rel = relationshipMap[productId];
     if (!rel) return 0;
-    return (rel.related?.length ?? 0) +
+    return (
+      (rel.related?.length ?? 0) +
       (rel.frequentlyBoughtTogether?.length ?? 0) +
       (rel.recommendedAccessories?.length ?? 0) +
-      (rel.similar?.length ?? 0);
+      (rel.similar?.length ?? 0)
+    );
   };
 
   // ── Show relationship panel if a product is selected
@@ -603,7 +717,10 @@ export default function AdminRelationshipsPage() {
         )}
         <RelationshipPanel
           sourceProduct={selectedProduct}
-          relationships={relationshipMap[selectedProduct.id] ?? {} as Record<RelationshipType, string[]>}
+          relationships={
+            relationshipMap[selectedProduct.id] ??
+            ({} as Record<RelationshipType, string[]>)
+          }
           onUpdate={handleUpdate}
           onBack={() => setSelectedProduct(null)}
           onSave={handleSave}
@@ -615,7 +732,6 @@ export default function AdminRelationshipsPage() {
   // ── Main product list view
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
-
       {/* ── Page Header ── */}
       <div className="bg-[#0F172A] text-white rounded-3xl p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border border-slate-800">
         <div>
@@ -623,35 +739,55 @@ export default function AdminRelationshipsPage() {
             <span className="bg-[#00AEEF] text-white text-[9px] font-black uppercase px-2 py-0.5 rounded-full">
               SECTION 13 · PRODUCT INTELLIGENCE
             </span>
-            <span className="text-[10px] text-slate-400 font-bold">8 Relationship Modules</span>
+            <span className="text-[10px] text-slate-400 font-bold">
+              8 Relationship Modules
+            </span>
           </div>
-          <h1 className="text-2xl font-black text-white">Related Products & Recommendations</h1>
+          <h1 className="text-2xl font-black text-white">
+            Related Products & Recommendations
+          </h1>
           <p className="text-xs text-slate-400 max-w-2xl mt-1">
-            Manually configure product relationships (Related, FBT, Accessories, Similar) and view the status of auto-managed modules (Trending, Best Sellers, Personalized, Recently Viewed).
+            Manually configure product relationships (Related, FBT, Accessories,
+            Similar) and view the status of auto-managed modules (Trending, Best
+            Sellers, Personalized, Recently Viewed).
           </p>
         </div>
       </div>
 
       {/* ── Relationship Module Status Cards ── */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        {RELATIONSHIP_CONFIGS.map(config => (
-          <div key={config.id} className="bg-white border border-slate-200 rounded-2xl p-4 space-y-2">
+        {RELATIONSHIP_CONFIGS.map((config) => (
+          <div
+            key={config.id}
+            className="bg-white border border-slate-200 rounded-2xl p-4 space-y-2"
+          >
             <div className="flex items-center justify-between">
               <span className={`${config.color}`}>{config.icon}</span>
-              {config.isAutomatic
-                ? <span className="text-[9px] font-black bg-amber-50 text-amber-700 border border-amber-200 px-1.5 py-0.5 rounded-full">AUTO</span>
-                : <span className="text-[9px] font-black bg-[#E0F7FC] text-[#00AEEF] border border-[#00AEEF]/20 px-1.5 py-0.5 rounded-full">MANUAL</span>}
+              {config.isAutomatic ? (
+                <span className="text-[9px] font-black bg-amber-50 text-amber-700 border border-amber-200 px-1.5 py-0.5 rounded-full">
+                  AUTO
+                </span>
+              ) : (
+                <span className="text-[9px] font-black bg-[#E0F7FC] text-[#00AEEF] border border-[#00AEEF]/20 px-1.5 py-0.5 rounded-full">
+                  MANUAL
+                </span>
+              )}
             </div>
-            <div className="text-sm font-black text-slate-900">{config.label.split(' ')[0]}</div>
-            <div className="text-[10px] text-slate-500 font-medium line-clamp-2">{config.description}</div>
-            <div className="text-[10px] font-bold text-slate-400">Max {config.maxItems} per product</div>
+            <div className="text-sm font-black text-slate-900">
+              {config.label.split(" ")[0]}
+            </div>
+            <div className="text-[10px] text-slate-500 font-medium line-clamp-2">
+              {config.description}
+            </div>
+            <div className="text-[10px] font-bold text-slate-400">
+              Max {config.maxItems} per product
+            </div>
           </div>
         ))}
       </div>
 
       {/* ── Product List with Relationship Summary ── */}
       <div className="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-xs">
-
         {/* Toolbar */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 p-4 border-b border-slate-100">
           <div className="relative flex-1 max-w-sm">
@@ -659,19 +795,21 @@ export default function AdminRelationshipsPage() {
             <input
               type="text"
               value={searchQuery}
-              onChange={e => setSearchQuery(e.target.value)}
+              onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search products by name, SKU, or brand..."
               className="w-full pl-9 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-900 focus:outline-none focus:border-[#00AEEF]"
             />
           </div>
           <select
             value={filterCategory}
-            onChange={e => setFilterCategory(e.target.value)}
+            onChange={(e) => setFilterCategory(e.target.value)}
             className="text-xs font-bold text-slate-800 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 focus:outline-none focus:border-[#00AEEF] cursor-pointer shrink-0"
           >
             <option value="">All Categories</option>
-            {categories.map(cat => (
-              <option key={cat} value={cat}>{cat}</option>
+            {categories.map((cat) => (
+              <option key={cat} value={cat}>
+                {cat}
+              </option>
             ))}
           </select>
           <span className="text-xs text-slate-400 font-bold shrink-0">
@@ -695,7 +833,7 @@ export default function AdminRelationshipsPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {filteredProducts.map(prod => {
+              {filteredProducts.map((prod) => {
                 const rel = relationshipMap[prod.id] ?? {};
                 const relatedCount = rel.related?.length ?? 0;
                 const fbtCount = rel.frequentlyBoughtTogether?.length ?? 0;
@@ -704,17 +842,27 @@ export default function AdminRelationshipsPage() {
                 const total = relatedCount + fbtCount + accCount + simCount;
 
                 return (
-                  <tr key={prod.id} className="hover:bg-slate-50 transition-colors group">
-
+                  <tr
+                    key={prod.id}
+                    className="hover:bg-slate-50 transition-colors group"
+                  >
                     {/* Product Info */}
                     <td className="px-5 py-3">
                       <div className="flex items-center gap-3">
                         <div className="relative w-10 h-10 rounded-xl overflow-hidden bg-slate-100 border border-slate-200 shrink-0">
-                          <img src={prod.image} alt={prod.name} className="w-full h-full object-contain p-0.5" />
+                          <img
+                            src={prod.image}
+                            alt={prod.name}
+                            className="w-full h-full object-contain p-0.5"
+                          />
                         </div>
                         <div>
-                          <div className="font-bold text-slate-900 line-clamp-1 max-w-[220px]">{prod.name}</div>
-                          <div className="text-[10px] font-mono text-slate-400 mt-0.5">{prod.sku}</div>
+                          <div className="font-bold text-slate-900 line-clamp-1 max-w-[220px]">
+                            {prod.name}
+                          </div>
+                          <div className="text-[10px] font-mono text-slate-400 mt-0.5">
+                            {prod.sku}
+                          </div>
                         </div>
                       </div>
                     </td>
@@ -722,43 +870,55 @@ export default function AdminRelationshipsPage() {
                     {/* Category */}
                     <td className="px-4 py-3">
                       <span className="text-[10px] font-bold text-slate-500 bg-slate-100 px-2 py-1 rounded-lg whitespace-nowrap">
-                        {prod.category.split(' ')[0]}
+                        {prod.category.split(" ")[0]}
                       </span>
                     </td>
 
                     {/* Related */}
                     <td className="px-4 py-3">
-                      <span className={`text-[11px] font-extrabold ${relatedCount > 0 ? 'text-[#00AEEF]' : 'text-slate-300'}`}>
+                      <span
+                        className={`text-[11px] font-extrabold ${relatedCount > 0 ? "text-[#00AEEF]" : "text-slate-300"}`}
+                      >
                         {relatedCount}
                       </span>
                     </td>
 
                     {/* FBT */}
                     <td className="px-4 py-3">
-                      <span className={`text-[11px] font-extrabold ${fbtCount > 0 ? 'text-emerald-600' : 'text-slate-300'}`}>
+                      <span
+                        className={`text-[11px] font-extrabold ${fbtCount > 0 ? "text-emerald-600" : "text-slate-300"}`}
+                      >
                         {fbtCount}
                       </span>
                     </td>
 
                     {/* Accessories */}
                     <td className="px-4 py-3">
-                      <span className={`text-[11px] font-extrabold ${accCount > 0 ? 'text-purple-600' : 'text-slate-300'}`}>
+                      <span
+                        className={`text-[11px] font-extrabold ${accCount > 0 ? "text-purple-600" : "text-slate-300"}`}
+                      >
                         {accCount}
                       </span>
                     </td>
 
                     {/* Similar */}
                     <td className="px-4 py-3">
-                      <span className={`text-[11px] font-extrabold ${simCount > 0 ? 'text-orange-500' : 'text-slate-300'}`}>
+                      <span
+                        className={`text-[11px] font-extrabold ${simCount > 0 ? "text-orange-500" : "text-slate-300"}`}
+                      >
                         {simCount}
                       </span>
                     </td>
 
                     {/* Total Badge */}
                     <td className="px-4 py-3">
-                      <span className={`text-[10px] font-black px-2 py-1 rounded-lg ${
-                        total > 0 ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-400'
-                      }`}>
+                      <span
+                        className={`text-[10px] font-black px-2 py-1 rounded-lg ${
+                          total > 0
+                            ? "bg-slate-900 text-white"
+                            : "bg-slate-100 text-slate-400"
+                        }`}
+                      >
                         {total} links
                       </span>
                     </td>
@@ -781,7 +941,6 @@ export default function AdminRelationshipsPage() {
           </table>
         </div>
       </div>
-
     </div>
   );
 }

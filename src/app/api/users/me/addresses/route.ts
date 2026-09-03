@@ -1,12 +1,12 @@
-import { NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
-import { db } from '@/lib/db';
-import { AuthSessionUser } from '@/lib/authUtils';
-import { MOCK_SAVED_ADDRESSES, Address } from '@/data/accountData';
+import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
+import { db } from "@/lib/db";
+import { AuthSessionUser } from "@/lib/authUtils";
+import { MOCK_SAVED_ADDRESSES, Address } from "@/data/accountData";
 
 async function getAuthenticatedUser(): Promise<AuthSessionUser | null> {
   const cookieStore = await cookies();
-  const sessionCookie = cookieStore.get('prayog_customer_session');
+  const sessionCookie = cookieStore.get("prayog_customer_session");
   if (!sessionCookie?.value) return null;
   try {
     return JSON.parse(sessionCookie.value);
@@ -19,13 +19,16 @@ async function getAuthenticatedUser(): Promise<AuthSessionUser | null> {
 export async function GET() {
   const user = await getAuthenticatedUser();
   if (!user) {
-    return NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 401 });
+    return NextResponse.json(
+      { success: false, message: "Unauthorized" },
+      { status: 401 },
+    );
   }
 
   if (process.env.DATABASE_URL) {
     const dbAddresses = await db.address.findMany({
       where: { userId: user.id },
-      orderBy: { createdAt: 'desc' },
+      orderBy: { createdAt: "desc" },
     });
     return NextResponse.json({ success: true, data: dbAddresses });
   }
@@ -37,7 +40,10 @@ export async function GET() {
 export async function POST(request: Request) {
   const user = await getAuthenticatedUser();
   if (!user) {
-    return NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 401 });
+    return NextResponse.json(
+      { success: false, message: "Unauthorized" },
+      { status: 401 },
+    );
   }
 
   try {
@@ -46,8 +52,8 @@ export async function POST(request: Request) {
 
     if (!name || !phone || !street || !city || !state || !pincode) {
       return NextResponse.json(
-        { success: false, message: 'Missing required address fields.' },
-        { status: 400 }
+        { success: false, message: "Missing required address fields." },
+        { status: 400 },
       );
     }
 
@@ -59,7 +65,7 @@ export async function POST(request: Request) {
       city,
       state,
       pincode,
-      type: type || 'Home',
+      type: type || "Home",
       isDefault: Boolean(isDefault),
     };
 
@@ -81,7 +87,7 @@ export async function POST(request: Request) {
           city,
           state,
           pincode,
-          type: type || 'Home',
+          type: type || "Home",
           isDefault: Boolean(isDefault),
         },
       });
@@ -90,11 +96,10 @@ export async function POST(request: Request) {
     }
 
     return NextResponse.json({ success: true, data: newAddress });
-
   } catch (error: any) {
     return NextResponse.json(
-      { success: false, message: error.message || 'Failed to save address.' },
-      { status: 500 }
+      { success: false, message: error.message || "Failed to save address." },
+      { status: 500 },
     );
   }
 }

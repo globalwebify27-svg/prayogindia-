@@ -1,12 +1,12 @@
-import { Metadata } from 'next';
-import { SupportTicketDetailView } from '@/components/account/SupportTicketDetailView';
+import { Metadata } from "next";
+import { SupportTicketDetailView } from "@/components/account/SupportTicketDetailView";
 
 interface Props {
   params: Promise<{ id: string }>;
 }
 
 export const metadata: Metadata = {
-  title: 'Support Ticket Details | Prayog India Store',
+  title: "Support Ticket Details | Prayog India Store",
   robots: { index: false, follow: false },
 };
 

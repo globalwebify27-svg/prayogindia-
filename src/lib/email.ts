@@ -12,17 +12,27 @@ export interface EmailMessage {
 
 export interface EmailService {
   send(message: EmailMessage): Promise<boolean>;
-  sendTemplate(to: string, templateType: string, data: Record<string, any>): Promise<boolean>;
+  sendTemplate(
+    to: string,
+    templateType: string,
+    data: Record<string, any>,
+  ): Promise<boolean>;
 }
 
 // 1. Development / Console Email Service Implementation
 export class ConsoleEmailService implements EmailService {
   async send(message: EmailMessage): Promise<boolean> {
-    console.log(`[EMAIL DISPATCH] To: ${message.to} | Subject: "${message.subject}"`);
+    console.log(
+      `[EMAIL DISPATCH] To: ${message.to} | Subject: "${message.subject}"`,
+    );
     return true;
   }
 
-  async sendTemplate(to: string, templateType: string, data: Record<string, any>): Promise<boolean> {
+  async sendTemplate(
+    to: string,
+    templateType: string,
+    data: Record<string, any>,
+  ): Promise<boolean> {
     const rendered = renderEmailTemplate(templateType, data);
     return await this.send({
       to,
@@ -38,21 +48,27 @@ export class SmtpEmailService implements EmailService {
   private fromAddress: string;
 
   constructor() {
-    this.fromAddress = process.env.EMAIL_FROM || 'support@prayogindia.com';
+    this.fromAddress = process.env.EMAIL_FROM || "support@prayogindia.com";
   }
 
   async send(message: EmailMessage): Promise<boolean> {
     try {
       // SMTP transport integration placeholder
-      console.log(`[SMTP EMAIL SENT] From: ${this.fromAddress} -> To: ${message.to} | "${message.subject}"`);
+      console.log(
+        `[SMTP EMAIL SENT] From: ${this.fromAddress} -> To: ${message.to} | "${message.subject}"`,
+      );
       return true;
     } catch (err) {
-      console.error('[SMTP EMAIL FAILURE] Failed to send email via SMTP', err);
+      console.error("[SMTP EMAIL FAILURE] Failed to send email via SMTP", err);
       return false; // Return false without throwing error so transactions don't roll back
     }
   }
 
-  async sendTemplate(to: string, templateType: string, data: Record<string, any>): Promise<boolean> {
+  async sendTemplate(
+    to: string,
+    templateType: string,
+    data: Record<string, any>,
+  ): Promise<boolean> {
     const rendered = renderEmailTemplate(templateType, data);
     return await this.send({
       to,
@@ -64,9 +80,12 @@ export class SmtpEmailService implements EmailService {
 }
 
 // 3. Email Template Renderer
-export function renderEmailTemplate(templateType: string, data: Record<string, any>): { subject: string; html: string; text: string } {
+export function renderEmailTemplate(
+  templateType: string,
+  data: Record<string, any>,
+): { subject: string; html: string; text: string } {
   switch (templateType) {
-    case 'ORDER_PLACED':
+    case "ORDER_PLACED":
       return {
         subject: `Order Confirmation #${data.orderNumber} - Prayog India`,
         html: `
@@ -82,7 +101,7 @@ export function renderEmailTemplate(templateType: string, data: Record<string, a
         text: `Order Confirmation #${data.orderNumber}\nGrand Total: ₹${data.totalAmount}\nShipping Address: ${data.shippingAddress}`,
       };
 
-    case 'SUPPORT_REPLY':
+    case "SUPPORT_REPLY":
       return {
         subject: `New Reply on Support Ticket #${data.ticketNumber} - Prayog India`,
         html: `
@@ -98,7 +117,7 @@ export function renderEmailTemplate(templateType: string, data: Record<string, a
         text: `New Reply on Support Ticket #${data.ticketNumber}: "${data.messageSnippet}"`,
       };
 
-    case 'SERVICE_ENQUIRY_RECEIVED':
+    case "SERVICE_ENQUIRY_RECEIVED":
       return {
         subject: `Service Enquiry Received - Prayog India`,
         html: `
@@ -115,16 +134,16 @@ export function renderEmailTemplate(templateType: string, data: Record<string, a
     default:
       return {
         subject: `Notification from Prayog India`,
-        html: `<p>${data.message || 'You have a new update.'}</p>`,
-        text: `${data.message || 'You have a new update.'}`,
+        html: `<p>${data.message || "You have a new update."}</p>`,
+        text: `${data.message || "You have a new update."}`,
       };
   }
 }
 
 // 4. Factory Getter
 export function getEmailService(): EmailService {
-  const provider = (process.env.EMAIL_PROVIDER || 'console').toLowerCase();
-  if (provider === 'smtp' || provider === 'sendgrid' || provider === 'resend') {
+  const provider = (process.env.EMAIL_PROVIDER || "console").toLowerCase();
+  if (provider === "smtp" || provider === "sendgrid" || provider === "resend") {
     return new SmtpEmailService();
   }
   return new ConsoleEmailService();

@@ -9,22 +9,25 @@ export interface SMSResponse {
   error?: string;
 }
 
-export async function sendSMS(phone: string, otpCode: string): Promise<SMSResponse> {
-  const cleanPhone = phone.replace(/\D/g, '').slice(-10);
+export async function sendSMS(
+  phone: string,
+  otpCode: string,
+): Promise<SMSResponse> {
+  const cleanPhone = phone.replace(/\D/g, "").slice(-10);
 
   // 1. Check if Fast2SMS API Key configured
   const fast2smsKey = process.env.FAST2SMS_API_KEY;
   if (fast2smsKey) {
     try {
-      const res = await fetch('https://www.fast2sms.com/dev/bulkV2', {
-        method: 'POST',
+      const res = await fetch("https://www.fast2sms.com/dev/bulkV2", {
+        method: "POST",
         headers: {
           authorization: fast2smsKey,
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           variables_values: otpCode,
-          route: 'otp',
+          route: "otp",
           numbers: cleanPhone,
         }),
       });
@@ -32,9 +35,12 @@ export async function sendSMS(phone: string, otpCode: string): Promise<SMSRespon
       if (data?.return) {
         return { success: true, messageId: data.request_id };
       }
-      return { success: false, error: data?.message || 'Fast2SMS dispatch failed' };
+      return {
+        success: false,
+        error: data?.message || "Fast2SMS dispatch failed",
+      };
     } catch (err: any) {
-      console.error('Fast2SMS Error:', err);
+      console.error("Fast2SMS Error:", err);
     }
   }
 
@@ -44,28 +50,36 @@ export async function sendSMS(phone: string, otpCode: string): Promise<SMSRespon
   const twilioPhone = process.env.TWILIO_PHONE_NUMBER;
   if (twilioSid && twilioToken && twilioPhone) {
     try {
-      const auth = Buffer.from(`${twilioSid}:${twilioToken}`).toString('base64');
+      const auth = Buffer.from(`${twilioSid}:${twilioToken}`).toString(
+        "base64",
+      );
       const params = new URLSearchParams({
         To: `+91${cleanPhone}`,
         From: twilioPhone,
         Body: `Your Prayog India verification code is ${otpCode}. Valid for 10 minutes. Please do not share this code.`,
       });
 
-      const res = await fetch(`https://api.twilio.com/2010-04-01/Accounts/${twilioSid}/Messages.json`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Basic ${auth}`,
-          'Content-Type': 'application/x-www-form-urlencoded',
+      const res = await fetch(
+        `https://api.twilio.com/2010-04-01/Accounts/${twilioSid}/Messages.json`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Basic ${auth}`,
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+          body: params.toString(),
         },
-        body: params.toString(),
-      });
+      );
       const data = await res.json();
       if (data?.sid) {
         return { success: true, messageId: data.sid };
       }
-      return { success: false, error: data?.message || 'Twilio dispatch failed' };
+      return {
+        success: false,
+        error: data?.message || "Twilio dispatch failed",
+      };
     } catch (err: any) {
-      console.error('Twilio Error:', err);
+      console.error("Twilio Error:", err);
     }
   }
 

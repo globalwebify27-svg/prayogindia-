@@ -1,40 +1,54 @@
-import { NextResponse } from 'next/server';
-import { getAuthenticatedStaff } from '@/lib/staffAuth';
-import { getAuthenticatedAdmin } from '@/lib/adminAuth';
-import { 
-  getMultiStoreInventoryMatrix, 
-  getStoreInventory, 
-  adjustStoreInventory, 
+import { NextResponse } from "next/server";
+import { getAuthenticatedStaff } from "@/lib/staffAuth";
+import { getAuthenticatedAdmin } from "@/lib/adminAuth";
+import {
+  getMultiStoreInventoryMatrix,
+  getStoreInventory,
+  adjustStoreInventory,
   getInventoryTransactions,
-  TransactionType 
-} from '@/lib/inventoryEngine';
-import { StoreId, ALL_STORE_IDS } from '@/data/storeConfig';
-import { getSecurityHeaders } from '@/lib/security';
+  TransactionType,
+} from "@/lib/inventoryEngine";
+import { StoreId, ALL_STORE_IDS } from "@/data/storeConfig";
+import { getSecurityHeaders } from "@/lib/security";
 
 // GET /api/admin/inventory - Multi-Store Matrix & Audit Trail
 export async function GET(request: Request) {
   const headers = getSecurityHeaders();
-  const staff = (await getAuthenticatedStaff()) || (await getAuthenticatedAdmin());
+  const staff =
+    (await getAuthenticatedStaff()) || (await getAuthenticatedAdmin());
 
-  if (!staff || (staff.role !== 'SUPER_ADMIN' && staff.role !== 'REGIONAL_MANAGER' && staff.role !== 'STORE_MANAGER')) {
+  if (
+    !staff ||
+    (staff.role !== "SUPER_ADMIN" &&
+      staff.role !== "REGIONAL_MANAGER" &&
+      staff.role !== "STORE_MANAGER")
+  ) {
     return NextResponse.json(
-      { success: false, message: 'Forbidden. Admin or Manager access required.' },
-      { status: 403, headers }
+      {
+        success: false,
+        message: "Forbidden. Admin or Manager access required.",
+      },
+      { status: 403, headers },
     );
   }
 
   const { searchParams } = new URL(request.url);
-  const mode = searchParams.get('mode'); // 'matrix' | 'store' | 'transactions'
-  const storeIdParam = searchParams.get('storeId');
-  const storeId = (storeIdParam?.toLowerCase() || (staff.storeCode?.toLowerCase() || 'ranchi')) as StoreId;
-  const q = searchParams.get('q')?.toLowerCase().trim() || '';
+  const mode = searchParams.get("mode"); // 'matrix' | 'store' | 'transactions'
+  const storeIdParam = searchParams.get("storeId");
+  const storeId = (storeIdParam?.toLowerCase() ||
+    staff.storeCode?.toLowerCase() ||
+    "ranchi") as StoreId;
+  const q = searchParams.get("q")?.toLowerCase().trim() || "";
 
   // 1. Audit Trail Transactions Log
-  if (mode === 'transactions') {
+  if (mode === "transactions") {
     const transactions = getInventoryTransactions({
-      storeId: storeIdParam ? (storeIdParam.toLowerCase() as StoreId) : undefined,
-      transactionType: (searchParams.get('type') as TransactionType) || undefined,
-      limit: parseInt(searchParams.get('limit') || '100', 10),
+      storeId: storeIdParam
+        ? (storeIdParam.toLowerCase() as StoreId)
+        : undefined,
+      transactionType:
+        (searchParams.get("type") as TransactionType) || undefined,
+      limit: parseInt(searchParams.get("limit") || "100", 10),
     });
 
     return NextResponse.json(
@@ -43,19 +57,19 @@ export async function GET(request: Request) {
         data: transactions,
         total: transactions.length,
       },
-      { headers }
+      { headers },
     );
   }
 
   // 2. Single Store View
-  if (mode === 'store') {
+  if (mode === "store") {
     let items = getStoreInventory(storeId);
     if (q) {
       items = items.filter(
         (i) =>
           i.name.toLowerCase().includes(q) ||
           i.sku.toLowerCase().includes(q) ||
-          i.category.toLowerCase().includes(q)
+          i.category.toLowerCase().includes(q),
       );
     }
 
@@ -66,11 +80,12 @@ export async function GET(request: Request) {
         data: {
           items,
           totalUnits: items.reduce((sum, item) => sum + item.quantity, 0),
-          lowStockCount: items.filter((i) => i.status === 'LOW_STOCK').length,
-          outOfStockCount: items.filter((i) => i.status === 'OUT_OF_STOCK').length,
+          lowStockCount: items.filter((i) => i.status === "LOW_STOCK").length,
+          outOfStockCount: items.filter((i) => i.status === "OUT_OF_STOCK")
+            .length,
         },
       },
-      { headers }
+      { headers },
     );
   }
 
@@ -79,8 +94,7 @@ export async function GET(request: Request) {
   if (q) {
     matrix = matrix.filter(
       (m: any) =>
-        m.name.toLowerCase().includes(q) ||
-        m.sku.toLowerCase().includes(q)
+        m.name.toLowerCase().includes(q) || m.sku.toLowerCase().includes(q),
     );
   }
 
@@ -91,19 +105,28 @@ export async function GET(request: Request) {
       totalProducts: matrix.length,
       data: matrix,
     },
-    { headers }
+    { headers },
   );
 }
 
 // PATCH /api/admin/inventory - Store-Specific Stock Adjustment with Audit Trail
 export async function PATCH(request: Request) {
   const headers = getSecurityHeaders();
-  const staff = (await getAuthenticatedStaff()) || (await getAuthenticatedAdmin());
+  const staff =
+    (await getAuthenticatedStaff()) || (await getAuthenticatedAdmin());
 
-  if (!staff || (staff.role !== 'SUPER_ADMIN' && staff.role !== 'STORE_MANAGER' && staff.role !== 'REGIONAL_MANAGER')) {
+  if (
+    !staff ||
+    (staff.role !== "SUPER_ADMIN" &&
+      staff.role !== "STORE_MANAGER" &&
+      staff.role !== "REGIONAL_MANAGER")
+  ) {
     return NextResponse.json(
-      { success: false, message: 'Forbidden. Admin or Manager access required.' },
-      { status: 403, headers }
+      {
+        success: false,
+        message: "Forbidden. Admin or Manager access required.",
+      },
+      { status: 403, headers },
     );
   }
 
@@ -113,16 +136,20 @@ export async function PATCH(request: Request) {
       storeId: rawStoreId,
       productId,
       quantityChange,
-      transactionType = 'ADJUSTMENT',
-      reason = 'Manual Inventory Adjustment',
+      transactionType = "ADJUSTMENT",
+      reason = "Manual Inventory Adjustment",
     } = body;
 
-    const storeId = (rawStoreId || staff.storeCode || 'ranchi').toLowerCase() as StoreId;
+    const storeId = (
+      rawStoreId ||
+      staff.storeCode ||
+      "ranchi"
+    ).toLowerCase() as StoreId;
 
-    if (!productId || typeof quantityChange !== 'number') {
+    if (!productId || typeof quantityChange !== "number") {
       return NextResponse.json(
-        { success: false, message: 'Invalid productId or quantityChange.' },
-        { status: 400, headers }
+        { success: false, message: "Invalid productId or quantityChange." },
+        { status: 400, headers },
       );
     }
 
@@ -133,7 +160,7 @@ export async function PATCH(request: Request) {
       transactionType,
       reason,
       userId: staff.id,
-      deviceId: staff.deviceId || 'ADMIN-CONSOLE',
+      deviceId: staff.deviceId || "ADMIN-CONSOLE",
     });
 
     return NextResponse.json(
@@ -142,12 +169,15 @@ export async function PATCH(request: Request) {
         message: result.message,
         data: result,
       },
-      { headers }
+      { headers },
     );
   } catch (error: any) {
     return NextResponse.json(
-      { success: false, message: error.message || 'Failed to adjust inventory' },
-      { status: 500, headers }
+      {
+        success: false,
+        message: error.message || "Failed to adjust inventory",
+      },
+      { status: 500, headers },
     );
   }
 }

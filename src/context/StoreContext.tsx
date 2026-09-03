@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { Product, ProductVariant } from '@/data/mockData';
-import { CustomerType } from '@/data/customerTypes';
+import React, { createContext, useContext, useState, useEffect } from "react";
+import { Product, ProductVariant } from "@/data/mockData";
+import { CustomerType } from "@/data/customerTypes";
 
 export interface CartItem {
   product: Product;
@@ -29,11 +29,24 @@ interface StoreContextType {
   setCustomerType: (type: CustomerType) => void;
   cart: CartItem[];
   wishlist: Product[];
-  cartNotification: { id: string; product: Product; variant?: ProductVariant; quantity: number } | null;
+  cartNotification: {
+    id: string;
+    product: Product;
+    variant?: ProductVariant;
+    quantity: number;
+  } | null;
   dismissCartNotification: () => void;
-  addToCart: (product: Product, variant?: ProductVariant, quantity?: number) => void;
+  addToCart: (
+    product: Product,
+    variant?: ProductVariant,
+    quantity?: number,
+  ) => void;
   removeFromCart: (productId: string, variantId?: string) => void;
-  updateQuantity: (productId: string, delta: number, variantId?: string) => void;
+  updateQuantity: (
+    productId: string,
+    delta: number,
+    variantId?: string,
+  ) => void;
   clearCart: () => void;
   toggleWishlist: (product: Product) => void;
   moveToCart: (product: Product) => void;
@@ -45,23 +58,30 @@ interface StoreContextType {
 
 const StoreContext = createContext<StoreContextType | undefined>(undefined);
 
-export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const [user, setUser] = useState<CustomerUser | null>(null);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [wishlist, setWishlist] = useState<Product[]>([]);
-  const [cartNotification, setCartNotification] = useState<{ id: string; product: Product; variant?: ProductVariant; quantity: number } | null>(null);
+  const [cartNotification, setCartNotification] = useState<{
+    id: string;
+    product: Product;
+    variant?: ProductVariant;
+    quantity: number;
+  } | null>(null);
 
   // Initialize session from server HTTP cookie
   useEffect(() => {
-    fetch('/api/auth/me')
-      .then(res => (res.ok ? res.json() : null))
-      .then(data => {
+    fetch("/api/auth/me")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
         if (data?.success && data?.user) {
           setUser({
             name: data.user.name,
             email: data.user.email,
-            phone: data.user.phone || '+91 98765 43210',
-            customerType: 'Registered Customer',
+            phone: data.user.phone || "+91 98765 43210",
+            customerType: "Registered Customer",
             rewardPoints: 1250,
           });
         }
@@ -69,10 +89,15 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       .catch(() => {});
   }, []);
 
-  const addToCart = (product: Product, variant?: ProductVariant, quantity = 1) => {
-    setCart(prev => {
+  const addToCart = (
+    product: Product,
+    variant?: ProductVariant,
+    quantity = 1,
+  ) => {
+    setCart((prev) => {
       const existingIdx = prev.findIndex(
-        item => item.product.id === product.id && item.variant?.id === variant?.id
+        (item) =>
+          item.product.id === product.id && item.variant?.id === variant?.id,
       );
 
       if (existingIdx > -1) {
@@ -94,7 +119,9 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     });
 
     setTimeout(() => {
-      setCartNotification(current => (current?.id === toastId ? null : current));
+      setCartNotification((current) =>
+        current?.id === toastId ? null : current,
+      );
     }, 4000);
   };
 
@@ -103,34 +130,46 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   };
 
   const removeFromCart = (productId: string, variantId?: string) => {
-    setCart(prev =>
+    setCart((prev) =>
       prev.filter(
-        item => !(item.product.id === productId && (!variantId || item.variant?.id === variantId))
-      )
+        (item) =>
+          !(
+            item.product.id === productId &&
+            (!variantId || item.variant?.id === variantId)
+          ),
+      ),
     );
   };
 
-  const updateQuantity = (productId: string, delta: number, variantId?: string) => {
-    setCart(prev =>
-      prev
-        .map(item => {
-          if (item.product.id === productId && (!variantId || item.variant?.id === variantId)) {
-            const newQty = item.quantity + delta;
-            return newQty > 0 ? { ...item, quantity: newQty } : null;
-          }
-          return item;
-        })
-        .filter(Boolean) as CartItem[]
+  const updateQuantity = (
+    productId: string,
+    delta: number,
+    variantId?: string,
+  ) => {
+    setCart(
+      (prev) =>
+        prev
+          .map((item) => {
+            if (
+              item.product.id === productId &&
+              (!variantId || item.variant?.id === variantId)
+            ) {
+              const newQty = item.quantity + delta;
+              return newQty > 0 ? { ...item, quantity: newQty } : null;
+            }
+            return item;
+          })
+          .filter(Boolean) as CartItem[],
     );
   };
 
   const clearCart = () => setCart([]);
 
   const toggleWishlist = (product: Product) => {
-    setWishlist(prev => {
-      const exists = prev.some(p => p.id === product.id);
+    setWishlist((prev) => {
+      const exists = prev.some((p) => p.id === product.id);
       if (exists) {
-        return prev.filter(p => p.id !== product.id);
+        return prev.filter((p) => p.id !== product.id);
       }
       return [...prev, product];
     });
@@ -142,19 +181,22 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const moveToWishlist = (product: Product, variantId?: string) => {
     removeFromCart(product.id, variantId);
-    if (!wishlist.some(p => p.id === product.id)) {
-      setWishlist(prev => [...prev, product]);
+    if (!wishlist.some((p) => p.id === product.id)) {
+      setWishlist((prev) => [...prev, product]);
     }
   };
 
-  const isWishlisted = (productId: string) => wishlist.some(p => p.id === productId);
+  const isWishlisted = (productId: string) =>
+    wishlist.some((p) => p.id === productId);
 
   const mergeGuestCart = (guestCart: CartItem[]) => {
-    setCart(prev => {
+    setCart((prev) => {
       const merged = [...prev];
-      guestCart.forEach(gItem => {
+      guestCart.forEach((gItem) => {
         const idx = merged.findIndex(
-          m => m.product.id === gItem.product.id && m.variant?.id === gItem.variant?.id
+          (m) =>
+            m.product.id === gItem.product.id &&
+            m.variant?.id === gItem.variant?.id,
         );
         if (idx > -1) {
           merged[idx].quantity += gItem.quantity;
@@ -171,32 +213,36 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   };
 
   const logoutUser = () => {
-    fetch('/api/auth/logout', { method: 'POST' }).catch(() => {});
+    fetch("/api/auth/logout", { method: "POST" }).catch(() => {});
     setUser(null);
   };
 
   const updateUser = (data: Partial<CustomerUser>) => {
-    setUser(prev => (prev ? { ...prev, ...data } : null));
+    setUser((prev) => (prev ? { ...prev, ...data } : null));
   };
 
   const setCustomerType = (type: CustomerType) => {
-    setUser(prev =>
+    setUser((prev) =>
       prev
         ? { ...prev, customerType: type }
         : {
-            name: 'Guest Customer',
-            email: 'guest@prayog.in',
-            phone: '',
+            name: "Guest Customer",
+            email: "guest@prayog.in",
+            phone: "",
             customerType: type,
             rewardPoints: 0,
-          }
+          },
     );
   };
 
   const redeemRewardPoints = (pointsToRedeem: number): number => {
     if (!user || user.rewardPoints < pointsToRedeem) return 0;
     const discountAmount = pointsToRedeem * 0.5; // 1 point = ₹0.50
-    setUser(prev => prev ? { ...prev, rewardPoints: prev.rewardPoints - pointsToRedeem } : null);
+    setUser((prev) =>
+      prev
+        ? { ...prev, rewardPoints: prev.rewardPoints - pointsToRedeem }
+        : null,
+    );
     return discountAmount;
   };
 
@@ -233,7 +279,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 export const useStore = () => {
   const context = useContext(StoreContext);
   if (!context) {
-    throw new Error('useStore must be used within a StoreProvider');
+    throw new Error("useStore must be used within a StoreProvider");
   }
   return context;
 };

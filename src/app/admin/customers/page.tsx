@@ -1,18 +1,18 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { 
-  Users, 
-  Mail, 
-  Phone, 
-  Calendar, 
-  Search, 
-  Building2, 
-  ShoppingBag, 
-  Headset, 
-  MessageSquare, 
-  CheckCircle2, 
-  Sparkles, 
+import React, { useState } from "react";
+import {
+  Users,
+  Mail,
+  Phone,
+  Calendar,
+  Search,
+  Building2,
+  ShoppingBag,
+  Headset,
+  MessageSquare,
+  CheckCircle2,
+  Sparkles,
   FileText,
   Tag,
   Gift,
@@ -24,14 +24,14 @@ import {
   X,
   Store,
   UserCheck,
-  UserX
-} from 'lucide-react';
-import { 
-  CustomerTypeCode, 
-  CustomerType, 
-  CUSTOMER_TYPE_RULES, 
-  CustomerTypeRule 
-} from '@/data/customerTypes';
+  UserX,
+} from "lucide-react";
+import {
+  CustomerTypeCode,
+  CustomerType,
+  CUSTOMER_TYPE_RULES,
+  CustomerTypeRule,
+} from "@/data/customerTypes";
 
 interface CustomerRecord {
   id: string;
@@ -53,150 +53,157 @@ interface CustomerRecord {
 
 const MOCK_CUSTOMERS: CustomerRecord[] = [
   {
-    id: 'usr-1',
-    name: 'Dr. Rajesh Vardhan',
-    email: 'robotics.lab@iitd.ac.in',
-    phone: '+91 98765 43210',
-    type: 'B2B',
-    companyName: 'IIT Delhi Robotics & AI Lab',
-    gstin: '07AAAAI0000A1Z5',
+    id: "usr-1",
+    name: "Dr. Rajesh Vardhan",
+    email: "robotics.lab@iitd.ac.in",
+    phone: "+91 98765 43210",
+    type: "B2B",
+    companyName: "IIT Delhi Robotics & AI Lab",
+    gstin: "07AAAAI0000A1Z5",
     rewardPoints: 4900,
     totalOrders: 6,
     totalSpend: 245000,
     openTickets: 0,
     communityOptIn: true,
-    registeredDate: '15 Jan 2026',
-    lastActive: 'Today at 02:40 PM',
+    registeredDate: "15 Jan 2026",
+    lastActive: "Today at 02:40 PM",
   },
   {
-    id: 'usr-2',
-    name: 'Vikram Singh',
-    email: 'stem@dpschool.org',
-    phone: '+91 98123 45678',
-    type: 'B2B',
-    companyName: 'Delhi Public School STEM Wing',
-    gstin: '20BBBBB1111B2Z6',
+    id: "usr-2",
+    name: "Vikram Singh",
+    email: "stem@dpschool.org",
+    phone: "+91 98123 45678",
+    type: "B2B",
+    companyName: "Delhi Public School STEM Wing",
+    gstin: "20BBBBB1111B2Z6",
     rewardPoints: 3780,
     totalOrders: 4,
     totalSpend: 189000,
     openTickets: 1,
     communityOptIn: true,
-    registeredDate: '02 Feb 2026',
-    lastActive: 'Yesterday',
+    registeredDate: "02 Feb 2026",
+    lastActive: "Yesterday",
   },
   {
-    id: 'usr-3',
-    name: 'Ananya Sharma',
-    email: 'ananya.robotics@gmail.com',
-    phone: '+91 97777 66655',
-    type: 'REGISTERED',
+    id: "usr-3",
+    name: "Ananya Sharma",
+    email: "ananya.robotics@gmail.com",
+    phone: "+91 97777 66655",
+    type: "REGISTERED",
     rewardPoints: 1250,
     totalOrders: 8,
     totalSpend: 28400,
     openTickets: 0,
     communityOptIn: true,
-    registeredDate: '18 Feb 2026',
-    lastActive: '2 days ago',
+    registeredDate: "18 Feb 2026",
+    lastActive: "2 days ago",
   },
   {
-    id: 'usr-4',
-    name: 'Rohan Verma',
-    email: 'rohan.drone@outlook.com',
-    phone: '+91 98333 44455',
-    type: 'B2C',
+    id: "usr-4",
+    name: "Rohan Verma",
+    email: "rohan.drone@outlook.com",
+    phone: "+91 98333 44455",
+    type: "B2C",
     rewardPoints: 290,
     totalOrders: 3,
     totalSpend: 14500,
     openTickets: 0,
     communityOptIn: false,
-    registeredDate: '10 Mar 2026',
-    lastActive: '1 week ago',
+    registeredDate: "10 Mar 2026",
+    lastActive: "1 week ago",
   },
   {
-    id: 'usr-5',
-    name: 'Amit Kumar (Walk-in Buyer)',
-    email: 'amit.pos@prayogindia.com',
-    phone: '+91 98222 11100',
-    type: 'WALK_IN',
-    storeLocation: 'Ranchi Experience Center (TAB-RNC-01)',
+    id: "usr-5",
+    name: "Amit Kumar (Walk-in Buyer)",
+    email: "amit.pos@prayogindia.com",
+    phone: "+91 98222 11100",
+    type: "WALK_IN",
+    storeLocation: "Ranchi Experience Center (TAB-RNC-01)",
     rewardPoints: 340,
     totalOrders: 2,
     totalSpend: 17200,
     openTickets: 0,
     communityOptIn: true,
-    registeredDate: '12 Aug 2026',
-    lastActive: 'Today at 11:15 AM',
+    registeredDate: "12 Aug 2026",
+    lastActive: "Today at 11:15 AM",
   },
   {
-    id: 'usr-6',
-    name: 'Neha Gupta (Guest Checkout)',
-    email: 'neha.guest@gmail.com',
-    phone: '+91 98444 33322',
-    type: 'GUEST',
+    id: "usr-6",
+    name: "Neha Gupta (Guest Checkout)",
+    email: "neha.guest@gmail.com",
+    phone: "+91 98444 33322",
+    type: "GUEST",
     rewardPoints: 75, // Escrow
     totalOrders: 1,
     totalSpend: 7500,
     openTickets: 0,
     communityOptIn: false,
-    registeredDate: '24 Aug 2026',
-    lastActive: '3 days ago',
+    registeredDate: "24 Aug 2026",
+    lastActive: "3 days ago",
   },
   {
-    id: 'usr-7',
-    name: 'Prof. S. K. Roy',
-    email: 'skroy@iitb.ac.in',
-    phone: '+91 98999 88877',
-    type: 'REGISTERED',
-    companyName: 'IIT Bombay Mechatronics',
+    id: "usr-7",
+    name: "Prof. S. K. Roy",
+    email: "skroy@iitb.ac.in",
+    phone: "+91 98999 88877",
+    type: "REGISTERED",
+    companyName: "IIT Bombay Mechatronics",
     rewardPoints: 3200,
     totalOrders: 12,
     totalSpend: 72000,
     openTickets: 0,
     communityOptIn: true,
-    registeredDate: '10 Jan 2026',
-    lastActive: 'Today at 09:30 AM',
+    registeredDate: "10 Jan 2026",
+    lastActive: "Today at 09:30 AM",
   },
   {
-    id: 'usr-8',
-    name: 'Rajesh Ranjan (In-Store)',
-    email: 'rajesh.patna@yahoo.com',
-    phone: '+91 98111 22334',
-    type: 'WALK_IN',
-    storeLocation: 'Patna Tech Store (TAB-PAT-02)',
+    id: "usr-8",
+    name: "Rajesh Ranjan (In-Store)",
+    email: "rajesh.patna@yahoo.com",
+    phone: "+91 98111 22334",
+    type: "WALK_IN",
+    storeLocation: "Patna Tech Store (TAB-PAT-02)",
     rewardPoints: 180,
     totalOrders: 3,
     totalSpend: 8900,
     openTickets: 0,
     communityOptIn: true,
-    registeredDate: '20 Aug 2026',
-    lastActive: 'Yesterday at 04:20 PM',
+    registeredDate: "20 Aug 2026",
+    lastActive: "Yesterday at 04:20 PM",
   },
 ];
 
-type FilterType = 'ALL' | CustomerTypeCode | 'COMMUNITY';
+type FilterType = "ALL" | CustomerTypeCode | "COMMUNITY";
 
 export default function AdminCustomersPage() {
   const [customers, setCustomers] = useState<CustomerRecord[]>(MOCK_CUSTOMERS);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedFilter, setSelectedFilter] = useState<FilterType>('ALL');
-  const [activeRuleModal, setActiveRuleModal] = useState<CustomerTypeRule | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedFilter, setSelectedFilter] = useState<FilterType>("ALL");
+  const [activeRuleModal, setActiveRuleModal] =
+    useState<CustomerTypeRule | null>(null);
 
-  const filteredCustomers = customers.filter(c => {
-    const matchesSearch = c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+  const filteredCustomers = customers.filter((c) => {
+    const matchesSearch =
+      c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       c.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
       c.phone.includes(searchQuery) ||
-      (c.companyName && c.companyName.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (c.companyName &&
+        c.companyName.toLowerCase().includes(searchQuery.toLowerCase())) ||
       (c.gstin && c.gstin.toLowerCase().includes(searchQuery.toLowerCase())) ||
-      (c.storeLocation && c.storeLocation.toLowerCase().includes(searchQuery.toLowerCase()));
+      (c.storeLocation &&
+        c.storeLocation.toLowerCase().includes(searchQuery.toLowerCase()));
 
-    if (selectedFilter === 'ALL') return matchesSearch;
-    if (selectedFilter === 'COMMUNITY') return matchesSearch && c.communityOptIn;
+    if (selectedFilter === "ALL") return matchesSearch;
+    if (selectedFilter === "COMMUNITY")
+      return matchesSearch && c.communityOptIn;
     return matchesSearch && c.type === selectedFilter;
   });
 
   // Calculate Customer Type Breakdown Reports
-  const typeStats = (['B2C', 'B2B', 'WALK_IN', 'REGISTERED', 'GUEST'] as CustomerTypeCode[]).map(code => {
-    const records = customers.filter(c => c.type === code);
+  const typeStats = (
+    ["B2C", "B2B", "WALK_IN", "REGISTERED", "GUEST"] as CustomerTypeCode[]
+  ).map((code) => {
+    const records = customers.filter((c) => c.type === code);
     const count = records.length;
     const totalSpend = records.reduce((sum, c) => sum + c.totalSpend, 0);
     const totalOrders = records.reduce((sum, c) => sum + c.totalOrders, 0);
@@ -213,7 +220,6 @@ export default function AdminCustomersPage() {
 
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
-      
       {/* Top Banner */}
       <div className="bg-[#0F172A] text-white p-6 sm:p-8 rounded-3xl border border-slate-800 shadow-xl flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
         <div className="space-y-2">
@@ -221,13 +227,17 @@ export default function AdminCustomersPage() {
             <span className="bg-[#00AEEF] text-white text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full">
               SECTION 2.2 CUSTOMER TYPES & ATTRIBUTION
             </span>
-            <span className="text-xs text-slate-400 font-bold">CRM & Classification Engine</span>
+            <span className="text-xs text-slate-400 font-bold">
+              CRM & Classification Engine
+            </span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-black text-white">
             Customer Types, Pricing & Rules Engine
           </h1>
           <p className="text-xs sm:text-sm text-slate-300 max-w-2xl font-medium">
-            Manage all 5 customer types: B2C, B2B, Walk-in, Registered, and Guest with automated attribution for pricing, promotions, invoices, reports, and applicable rewards.
+            Manage all 5 customer types: B2C, B2B, Walk-in, Registered, and
+            Guest with automated attribution for pricing, promotions, invoices,
+            reports, and applicable rewards.
           </p>
         </div>
 
@@ -245,52 +255,68 @@ export default function AdminCustomersPage() {
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <span className="text-xs font-black uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-            <TrendingUp className="w-3.5 h-3.5 text-[#00AEEF]" /> Customer Type Segmentation & Channel Performance
+            <TrendingUp className="w-3.5 h-3.5 text-[#00AEEF]" /> Customer Type
+            Segmentation & Channel Performance
           </span>
           <span className="text-xs font-bold text-slate-500">
-            Total LTV: ₹{customers.reduce((sum, c) => sum + c.totalSpend, 0).toLocaleString()}
+            Total LTV: ₹
+            {customers
+              .reduce((sum, c) => sum + c.totalSpend, 0)
+              .toLocaleString()}
           </span>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5">
-          {typeStats.map(({ code, rule, count, totalSpend, totalOrders, avgOrder }) => (
-            <div
-              key={code}
-              onClick={() => setActiveRuleModal(rule)}
-              className="bg-white p-4 rounded-3xl border border-slate-200 shadow-2xs hover:border-[#00AEEF] hover:shadow-md transition-all cursor-pointer space-y-3 group"
-            >
-              <div className="flex items-center justify-between">
-                <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-full border ${rule.badgeBg} ${rule.badgeColor} ${rule.badgeBorder}`}>
-                  {rule.name}
-                </span>
-                <ChevronRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-[#00AEEF] group-hover:translate-x-0.5 transition-transform" />
-              </div>
+          {typeStats.map(
+            ({ code, rule, count, totalSpend, totalOrders, avgOrder }) => (
+              <div
+                key={code}
+                onClick={() => setActiveRuleModal(rule)}
+                className="bg-white p-4 rounded-3xl border border-slate-200 shadow-2xs hover:border-[#00AEEF] hover:shadow-md transition-all cursor-pointer space-y-3 group"
+              >
+                <div className="flex items-center justify-between">
+                  <span
+                    className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-full border ${rule.badgeBg} ${rule.badgeColor} ${rule.badgeBorder}`}
+                  >
+                    {rule.name}
+                  </span>
+                  <ChevronRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-[#00AEEF] group-hover:translate-x-0.5 transition-transform" />
+                </div>
 
-              <div>
-                <div className="text-xl font-black text-slate-900">
-                  ₹{totalSpend.toLocaleString()}
+                <div>
+                  <div className="text-xl font-black text-slate-900">
+                    ₹{totalSpend.toLocaleString()}
+                  </div>
+                  <div className="text-[11px] text-slate-500 font-semibold mt-0.5">
+                    {count} Accounts • {totalOrders} Orders
+                  </div>
                 </div>
-                <div className="text-[11px] text-slate-500 font-semibold mt-0.5">
-                  {count} Accounts • {totalOrders} Orders
-                </div>
-              </div>
 
-              <div className="pt-2 border-t border-slate-100 space-y-1 text-[10px]">
-                <div className="flex justify-between text-slate-600">
-                  <span>Pricing Rule:</span>
-                  <span className="font-bold text-slate-900">{rule.pricing.discountPercent > 0 ? `-${rule.pricing.discountPercent}% Tier` : 'Retail'}</span>
-                </div>
-                <div className="flex justify-between text-slate-600">
-                  <span>Invoice:</span>
-                  <span className="font-bold text-slate-800 truncate max-w-[110px]">{rule.invoice.label.split(' ')[0]}</span>
-                </div>
-                <div className="flex justify-between text-slate-600">
-                  <span>Rewards:</span>
-                  <span className="font-bold text-emerald-600">{rule.rewards.coinsPerHundredRs} Coin/₹100</span>
+                <div className="pt-2 border-t border-slate-100 space-y-1 text-[10px]">
+                  <div className="flex justify-between text-slate-600">
+                    <span>Pricing Rule:</span>
+                    <span className="font-bold text-slate-900">
+                      {rule.pricing.discountPercent > 0
+                        ? `-${rule.pricing.discountPercent}% Tier`
+                        : "Retail"}
+                    </span>
+                  </div>
+                  <div className="flex justify-between text-slate-600">
+                    <span>Invoice:</span>
+                    <span className="font-bold text-slate-800 truncate max-w-[110px]">
+                      {rule.invoice.label.split(" ")[0]}
+                    </span>
+                  </div>
+                  <div className="flex justify-between text-slate-600">
+                    <span>Rewards:</span>
+                    <span className="font-bold text-emerald-600">
+                      {rule.rewards.coinsPerHundredRs} Coin/₹100
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ),
+          )}
         </div>
       </div>
 
@@ -308,27 +334,36 @@ export default function AdminCustomersPage() {
         </div>
 
         <div className="flex gap-1.5 overflow-x-auto scrollbar-none w-full sm:w-auto pb-1 sm:pb-0 text-xs">
-          {(['ALL', 'B2C', 'B2B', 'WALK_IN', 'REGISTERED', 'GUEST'] as FilterType[]).map((tab) => (
+          {(
+            [
+              "ALL",
+              "B2C",
+              "B2B",
+              "WALK_IN",
+              "REGISTERED",
+              "GUEST",
+            ] as FilterType[]
+          ).map((tab) => (
             <button
               key={tab}
               onClick={() => setSelectedFilter(tab)}
               className={`px-3 py-1.5 rounded-xl font-extrabold whitespace-nowrap transition-colors cursor-pointer ${
                 selectedFilter === tab
-                  ? 'bg-[#00AEEF] text-white shadow-xs'
-                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                  ? "bg-[#00AEEF] text-white shadow-xs"
+                  : "bg-slate-100 text-slate-600 hover:bg-slate-200"
               }`}
             >
-              {tab === 'ALL' 
-                ? 'All Types' 
-                : tab === 'B2C' 
-                ? 'B2C' 
-                : tab === 'B2B' 
-                ? 'B2B' 
-                : tab === 'WALK_IN' 
-                ? 'Walk-in' 
-                : tab === 'REGISTERED' 
-                ? 'Registered' 
-                : 'Guest'}
+              {tab === "ALL"
+                ? "All Types"
+                : tab === "B2C"
+                  ? "B2C"
+                  : tab === "B2B"
+                    ? "B2B"
+                    : tab === "WALK_IN"
+                      ? "Walk-in"
+                      : tab === "REGISTERED"
+                        ? "Registered"
+                        : "Guest"}
             </button>
           ))}
         </div>
@@ -355,11 +390,20 @@ export default function AdminCustomersPage() {
                 const rule = CUSTOMER_TYPE_RULES[c.type];
 
                 return (
-                  <tr key={c.id} className="hover:bg-slate-50/80 transition-colors">
+                  <tr
+                    key={c.id}
+                    className="hover:bg-slate-50/80 transition-colors"
+                  >
                     <td className="p-4 space-y-0.5">
-                      <span className="font-bold text-slate-900 text-xs block">{c.name}</span>
-                      <span className="text-[11px] text-slate-500 block">{c.email}</span>
-                      <span className="text-[10px] text-slate-400 font-mono block">{c.phone}</span>
+                      <span className="font-bold text-slate-900 text-xs block">
+                        {c.name}
+                      </span>
+                      <span className="text-[11px] text-slate-500 block">
+                        {c.email}
+                      </span>
+                      <span className="text-[10px] text-slate-400 font-mono block">
+                        {c.phone}
+                      </span>
                     </td>
 
                     <td className="p-4">
@@ -375,18 +419,27 @@ export default function AdminCustomersPage() {
                     <td className="p-4 space-y-0.5">
                       {c.companyName ? (
                         <>
-                          <span className="font-extrabold text-slate-800 block text-xs">{c.companyName}</span>
-                          <span className="text-[10px] text-slate-400 font-mono block">GSTIN: {c.gstin}</span>
+                          <span className="font-extrabold text-slate-800 block text-xs">
+                            {c.companyName}
+                          </span>
+                          <span className="text-[10px] text-slate-400 font-mono block">
+                            GSTIN: {c.gstin}
+                          </span>
                         </>
                       ) : c.storeLocation ? (
                         <>
                           <span className="font-extrabold text-slate-800 block text-xs flex items-center gap-1">
-                            <Store className="w-3 h-3 text-amber-600" /> POS Walk-in
+                            <Store className="w-3 h-3 text-amber-600" /> POS
+                            Walk-in
                           </span>
-                          <span className="text-[10px] text-slate-400 font-mono block">{c.storeLocation}</span>
+                          <span className="text-[10px] text-slate-400 font-mono block">
+                            {c.storeLocation}
+                          </span>
                         </>
                       ) : (
-                        <span className="text-slate-400 text-[11px]">Online Consumer Portal</span>
+                        <span className="text-slate-400 text-[11px]">
+                          Online Consumer Portal
+                        </span>
                       )}
                     </td>
 
@@ -397,13 +450,16 @@ export default function AdminCustomersPage() {
                       </div>
                       <div className="flex items-center gap-1 text-slate-600">
                         <FileText className="w-3 h-3 text-purple-500" />
-                        <span className="truncate max-w-[130px]">{rule.invoice.label}</span>
+                        <span className="truncate max-w-[130px]">
+                          {rule.invoice.label}
+                        </span>
                       </div>
                     </td>
 
                     <td className="p-4 text-center font-bold text-slate-900">
                       <span className="inline-flex items-center gap-1 bg-slate-100 px-2 py-0.5 rounded-md">
-                        <ShoppingBag className="w-3 h-3 text-[#00AEEF]" /> {c.totalOrders}
+                        <ShoppingBag className="w-3 h-3 text-[#00AEEF]" />{" "}
+                        {c.totalOrders}
                       </span>
                     </td>
 
@@ -419,7 +475,7 @@ export default function AdminCustomersPage() {
 
                     <td className="p-4 text-right space-x-1.5">
                       <a
-                        href={`https://wa.me/${c.phone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(`Hi ${c.name}, greetings from Prayog India! How can we assist with your hardware requirements?`)}`}
+                        href={`https://wa.me/${c.phone.replace(/[^0-9]/g, "")}?text=${encodeURIComponent(`Hi ${c.name}, greetings from Prayog India! How can we assist with your hardware requirements?`)}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="p-2 rounded-xl bg-emerald-50 text-emerald-600 hover:bg-emerald-500 hover:text-white transition-colors inline-flex items-center gap-1 text-[11px] font-bold shadow-2xs"
@@ -443,12 +499,18 @@ export default function AdminCustomersPage() {
             {/* Header */}
             <div className="p-6 bg-slate-900 text-white flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <span className={`text-xs font-black uppercase px-3 py-1 rounded-full border ${activeRuleModal.badgeBg} ${activeRuleModal.badgeColor} ${activeRuleModal.badgeBorder}`}>
+                <span
+                  className={`text-xs font-black uppercase px-3 py-1 rounded-full border ${activeRuleModal.badgeBg} ${activeRuleModal.badgeColor} ${activeRuleModal.badgeBorder}`}
+                >
                   {activeRuleModal.name}
                 </span>
                 <div>
-                  <h3 className="text-lg font-black text-white">Rule Attribution & Benefits</h3>
-                  <p className="text-xs text-slate-400">Specification 2.2 Customer Type Configuration</p>
+                  <h3 className="text-lg font-black text-white">
+                    Rule Attribution & Benefits
+                  </h3>
+                  <p className="text-xs text-slate-400">
+                    Specification 2.2 Customer Type Configuration
+                  </p>
                 </div>
               </div>
 
@@ -468,7 +530,6 @@ export default function AdminCustomersPage() {
 
               {/* 5 Pillars of Attribution */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-                
                 {/* 1. Pricing Rule */}
                 <div className="p-4 rounded-2xl bg-amber-50/60 border border-amber-200/80 space-y-1.5">
                   <div className="flex items-center gap-1.5 text-amber-900 font-extrabold text-xs">
@@ -483,7 +544,8 @@ export default function AdminCustomersPage() {
                   </p>
                   {activeRuleModal.pricing.discountPercent > 0 && (
                     <span className="inline-block bg-amber-100 text-amber-800 text-[10px] font-black px-2 py-0.5 rounded">
-                      {activeRuleModal.pricing.discountPercent}% Applicable Tier Discount
+                      {activeRuleModal.pricing.discountPercent}% Applicable Tier
+                      Discount
                     </span>
                   )}
                 </div>
@@ -499,7 +561,10 @@ export default function AdminCustomersPage() {
                   </p>
                   <div className="flex flex-wrap gap-1 mt-1">
                     {activeRuleModal.promotions.eligibleCoupons.map((code) => (
-                      <span key={code} className="bg-white border border-blue-200 text-blue-800 font-mono text-[10px] font-bold px-2 py-0.5 rounded">
+                      <span
+                        key={code}
+                        className="bg-white border border-blue-200 text-blue-800 font-mono text-[10px] font-bold px-2 py-0.5 rounded"
+                      >
                         {code}
                       </span>
                     ))}
@@ -541,10 +606,17 @@ export default function AdminCustomersPage() {
                     <span>5. Reports & Analytics Segmentation</span>
                   </div>
                   <p className="text-[11px] text-slate-600">
-                    Attributed channel: <strong className="text-slate-900">{activeRuleModal.reports.channelAttribution}</strong> • Segment: <strong className="text-slate-900">{activeRuleModal.reports.segmentName}</strong>. {activeRuleModal.reports.description}
+                    Attributed channel:{" "}
+                    <strong className="text-slate-900">
+                      {activeRuleModal.reports.channelAttribution}
+                    </strong>{" "}
+                    • Segment:{" "}
+                    <strong className="text-slate-900">
+                      {activeRuleModal.reports.segmentName}
+                    </strong>
+                    . {activeRuleModal.reports.description}
                   </p>
                 </div>
-
               </div>
             </div>
 
@@ -560,7 +632,6 @@ export default function AdminCustomersPage() {
           </div>
         </div>
       )}
-
     </div>
   );
 }

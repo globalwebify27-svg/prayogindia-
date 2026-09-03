@@ -1,12 +1,12 @@
-import { Metadata } from 'next';
-import { OrderDetailView } from '@/components/account/OrderDetailView';
+import { Metadata } from "next";
+import { OrderDetailView } from "@/components/account/OrderDetailView";
 
 interface Props {
   params: Promise<{ id: string }>;
 }
 
 export const metadata: Metadata = {
-  title: 'Order Details | Prayog India Store',
+  title: "Order Details | Prayog India Store",
   robots: { index: false, follow: false },
 };
 

@@ -1,37 +1,43 @@
-'use client';
+"use client";
 
-import React from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
-import { BookOpen, Clock, ArrowRight, Sparkles, Code, Cpu } from 'lucide-react';
+import React from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { BookOpen, Clock, ArrowRight, Sparkles, Code, Cpu } from "lucide-react";
 
 const BLOG_POSTS = [
   {
-    id: 'guide-1',
-    slug: 'raspberry-pi-5-ai-vision',
-    title: 'Building Real-time Object Detection with Raspberry Pi 5 & OpenCV',
-    category: 'Computer Vision & AI',
-    readTime: '6 min read',
-    image: 'https://images.unsplash.com/photo-1608564697071-ddf911d81370?auto=format&fit=crop&w=600&q=80',
-    summary: 'Step-by-step setup for camera module 3, YOLOv8 inference, and GPIO hardware triggers.',
+    id: "guide-1",
+    slug: "raspberry-pi-5-ai-vision",
+    title: "Building Real-time Object Detection with Raspberry Pi 5 & OpenCV",
+    category: "Computer Vision & AI",
+    readTime: "6 min read",
+    image:
+      "https://images.unsplash.com/photo-1608564697071-ddf911d81370?auto=format&fit=crop&w=600&q=80",
+    summary:
+      "Step-by-step setup for camera module 3, YOLOv8 inference, and GPIO hardware triggers.",
   },
   {
-    id: 'guide-2',
-    slug: 'pixhawk-6c-ardupilot-setup',
-    title: 'Complete Pixhawk 6C Autonomous Drone Calibration Guide',
-    category: 'Drone Autopilot & UAV',
-    readTime: '8 min read',
-    image: 'https://images.unsplash.com/photo-1527977966376-1c8408f9f108?auto=format&fit=crop&w=600&q=80',
-    summary: 'Compass calibration, MavLink telemetry pairing, and fail-safe return-to-launch configurations.',
+    id: "guide-2",
+    slug: "pixhawk-6c-ardupilot-setup",
+    title: "Complete Pixhawk 6C Autonomous Drone Calibration Guide",
+    category: "Drone Autopilot & UAV",
+    readTime: "8 min read",
+    image:
+      "https://images.unsplash.com/photo-1527977966376-1c8408f9f108?auto=format&fit=crop&w=600&q=80",
+    summary:
+      "Compass calibration, MavLink telemetry pairing, and fail-safe return-to-launch configurations.",
   },
   {
-    id: 'guide-3',
-    slug: 'esp32-lorawan-iot-gateway',
-    title: 'Long-Range Smart Farm Telemetry with ESP32 & SX1278 LoRa',
-    category: 'IoT & Wireless',
-    readTime: '5 min read',
-    image: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80',
-    summary: 'Transmit soil moisture & temperature sensor telemetry up to 10km with low power consumption.',
+    id: "guide-3",
+    slug: "esp32-lorawan-iot-gateway",
+    title: "Long-Range Smart Farm Telemetry with ESP32 & SX1278 LoRa",
+    category: "IoT & Wireless",
+    readTime: "5 min read",
+    image:
+      "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80",
+    summary:
+      "Transmit soil moisture & temperature sensor telemetry up to 10km with low power consumption.",
   },
 ];
 
@@ -39,18 +45,19 @@ export const KnowledgeCenterSection: React.FC = () => {
   return (
     <section className="py-12 bg-white border-t border-slate-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
-        
         {/* Section Header */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
           <div>
             <span className="text-[11px] font-black uppercase tracking-widest text-[#00AEEF] flex items-center gap-1.5">
-              <BookOpen className="w-3.5 h-3.5" /> PRAYOG KNOWLEDGE CENTER & DIY GUIDES
+              <BookOpen className="w-3.5 h-3.5" /> PRAYOG KNOWLEDGE CENTER & DIY
+              GUIDES
             </span>
             <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight mt-1">
               Developer Tutorials & Hardware Guides
             </h2>
             <p className="text-xs text-slate-500 font-medium mt-0.5">
-              Learn how to wire, code, and deploy robotics, drone autopilots, and IoT systems.
+              Learn how to wire, code, and deploy robotics, drone autopilots,
+              and IoT systems.
             </p>
           </div>
 
@@ -110,7 +117,6 @@ export const KnowledgeCenterSection: React.FC = () => {
             </Link>
           ))}
         </div>
-
       </div>
     </section>
   );

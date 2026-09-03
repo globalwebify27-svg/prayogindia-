@@ -1,26 +1,40 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { Header } from '@/components/Header';
-import { FooterSection } from '@/components/FooterSection';
-import { CartDrawer } from '@/components/CartDrawer';
-import { CartToast } from '@/components/CartToast';
-import { B2BModal } from '@/components/Modals';
-import { useStore } from '@/context/StoreContext';
-import { usePathname } from 'next/navigation';
+import React, { useState } from "react";
+import { Header } from "@/components/Header";
+import { FooterSection } from "@/components/FooterSection";
+import { CartDrawer } from "@/components/CartDrawer";
+import { CartToast } from "@/components/CartToast";
+import { B2BModal } from "@/components/Modals";
+import { useStore } from "@/context/StoreContext";
+import { usePathname } from "next/navigation";
 
-export const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const AppShell: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const pathname = usePathname();
-  const { cart, wishlist, cartNotification, dismissCartNotification, updateQuantity, removeFromCart } = useStore();
+  const {
+    cart,
+    wishlist,
+    cartNotification,
+    dismissCartNotification,
+    updateQuantity,
+    removeFromCart,
+  } = useStore();
   const [cartOpen, setCartOpen] = useState(false);
   const [b2bOpen, setB2bOpen] = useState(false);
 
-  const isIsolatedOperationsRoute = 
-    pathname?.startsWith('/admin') ||
-    pathname?.startsWith('/login-staff') ||
-    pathname?.startsWith('/store') ||
-    pathname?.startsWith('/kiosk') ||
-    pathname?.startsWith('/walk-in');
+  const isIsolatedOperationsRoute =
+    pathname?.startsWith("/admin") ||
+    pathname?.startsWith("/login-staff") ||
+    pathname?.startsWith("/store") ||
+    pathname?.startsWith("/kiosk") ||
+    pathname?.startsWith("/walk-in") ||
+    pathname?.includes("/storemanager") ||
+    pathname?.includes("/device") ||
+    pathname === "/login" ||
+    pathname === "/register" ||
+    pathname === "/forgot-password";
 
   const cartCount = cart.reduce((acc, item) => acc + item.quantity, 0);
   const wishlistCount = wishlist.length;
@@ -40,9 +54,7 @@ export const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) 
         onOpenB2BModal={() => setB2bOpen(true)}
       />
 
-      <main className="flex-1">
-        {children}
-      </main>
+      <main className="flex-1">{children}</main>
 
       <FooterSection />
 
@@ -58,10 +70,7 @@ export const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) 
         }}
       />
 
-      <B2BModal
-        isOpen={b2bOpen}
-        onClose={() => setB2bOpen(false)}
-      />
+      <B2BModal isOpen={b2bOpen} onClose={() => setB2bOpen(false)} />
 
       <CartToast
         notification={cartNotification}

@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { Search, X } from 'lucide-react';
+import React from "react";
+import { Search, X } from "lucide-react";
 
 interface CategorySearchProps {
   searchQuery: string;
@@ -12,7 +12,7 @@ interface CategorySearchProps {
 export const CategorySearch: React.FC<CategorySearchProps> = ({
   searchQuery,
   onSearchChange,
-  onClear
+  onClear,
 }) => {
   return (
     <div className="relative max-w-md w-full my-6">

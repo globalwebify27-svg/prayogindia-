@@ -1,18 +1,28 @@
-import React from 'react';
-import { FileText, Download, ExternalLink } from 'lucide-react';
-import { ProductDocument } from '@/data/mockData';
+import React from "react";
+import { FileText, Download, ExternalLink } from "lucide-react";
+import { ProductDocument } from "@/data/mockData";
 
 interface ProductDocumentsProps {
   documents?: ProductDocument[];
 }
 
-export const ProductDocuments: React.FC<ProductDocumentsProps> = ({ documents }) => {
+export const ProductDocuments: React.FC<ProductDocumentsProps> = ({
+  documents,
+}) => {
   if (!documents || documents.length === 0) return null;
 
   return (
-    <section id="documents" className="space-y-3 border-t border-slate-200 pt-8">
-      <h2 className="text-xl font-extrabold text-slate-900 tracking-tight">Datasheets & Downloads</h2>
-      <p className="text-xs text-slate-500">Download official engineering schematics, pinout diagrams, and programming manuals.</p>
+    <section
+      id="documents"
+      className="space-y-3 border-t border-slate-200 pt-8"
+    >
+      <h2 className="text-xl font-extrabold text-slate-900 tracking-tight">
+        Datasheets & Downloads
+      </h2>
+      <p className="text-xs text-slate-500">
+        Download official engineering schematics, pinout diagrams, and
+        programming manuals.
+      </p>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-w-4xl">
         {documents.map((doc, idx) => (
@@ -31,7 +41,9 @@ export const ProductDocuments: React.FC<ProductDocumentsProps> = ({ documents })
                 <h4 className="text-xs font-bold text-slate-900 group-hover:text-[#00AEEF] transition-colors leading-snug">
                   {doc.title}
                 </h4>
-                <span className="text-[10px] text-slate-400 font-extrabold uppercase">{doc.type} Document</span>
+                <span className="text-[10px] text-slate-400 font-extrabold uppercase">
+                  {doc.type} Document
+                </span>
               </div>
             </div>
 

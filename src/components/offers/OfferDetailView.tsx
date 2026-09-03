@@ -1,31 +1,33 @@
-'use client';
+"use client";
 
-import React from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
-import { CategoryBreadcrumb } from '@/components/categories/CategoryBreadcrumb';
-import { ProductCard } from '@/components/products/ProductCard';
-import { OFFERS_DATA } from '@/data/offersData';
-import { PRODUCTS } from '@/data/mockData';
-import { Calendar, Tag, ArrowLeft, ShieldCheck } from 'lucide-react';
+import React from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { CategoryBreadcrumb } from "@/components/categories/CategoryBreadcrumb";
+import { ProductCard } from "@/components/products/ProductCard";
+import { OFFERS_DATA } from "@/data/offersData";
+import { PRODUCTS } from "@/data/mockData";
+import { Calendar, Tag, ArrowLeft, ShieldCheck } from "lucide-react";
 
 interface OfferDetailProps {
   slug: string;
 }
 
 export const OfferDetailView: React.FC<OfferDetailProps> = ({ slug }) => {
-  const offer = OFFERS_DATA.find(o => o.slug === slug || o.id === slug) || OFFERS_DATA[0];
+  const offer =
+    OFFERS_DATA.find((o) => o.slug === slug || o.id === slug) || OFFERS_DATA[0];
 
-  const eligibleProducts = PRODUCTS.filter(p => offer.productIds.includes(p.id));
+  const eligibleProducts = PRODUCTS.filter((p) =>
+    offer.productIds.includes(p.id),
+  );
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-10 animate-in fade-in duration-300">
-      
       {/* 1. Breadcrumb */}
       <CategoryBreadcrumb
         items={[
-          { label: 'Offers & Deals', href: '/offers' },
-          { label: offer.title }
+          { label: "Offers & Deals", href: "/offers" },
+          { label: offer.title },
         ]}
       />
 
@@ -61,20 +63,29 @@ export const OfferDetailView: React.FC<OfferDetailProps> = ({ slug }) => {
       {/* 3. Campaign Voucher Details Bar */}
       <div className="bg-slate-50 border border-slate-200 p-5 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-xs">
         <div className="space-y-1">
-          <span className="text-[10px] font-black uppercase text-slate-400 block">Customer Eligibility</span>
-          <span className="font-extrabold text-slate-900">{offer.customerEligibility || 'All Customers'}</span>
+          <span className="text-[10px] font-black uppercase text-slate-400 block">
+            Customer Eligibility
+          </span>
+          <span className="font-extrabold text-slate-900">
+            {offer.customerEligibility || "All Customers"}
+          </span>
         </div>
 
         {offer.couponCode && (
           <div className="space-y-1">
-            <span className="text-[10px] font-black uppercase text-slate-400 block">Checkout Voucher Code</span>
+            <span className="text-[10px] font-black uppercase text-slate-400 block">
+              Checkout Voucher Code
+            </span>
             <span className="bg-[#E0F7FC] text-[#00AEEF] border border-[#00AEEF]/30 px-3 py-1 rounded-xl font-mono font-black">
               {offer.couponCode}
             </span>
           </div>
         )}
 
-        <Link href="/offers" className="text-xs font-bold text-[#00AEEF] hover:underline flex items-center gap-1 self-start sm:self-auto">
+        <Link
+          href="/offers"
+          className="text-xs font-bold text-[#00AEEF] hover:underline flex items-center gap-1 self-start sm:self-auto"
+        >
           <ArrowLeft className="w-4 h-4" /> Back to All Offers
         </Link>
       </div>
@@ -91,7 +102,6 @@ export const OfferDetailView: React.FC<OfferDetailProps> = ({ slug }) => {
           ))}
         </div>
       </div>
-
     </div>
   );
 };

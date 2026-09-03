@@ -1,8 +1,8 @@
-import { NextResponse } from 'next/server';
-import { db } from '@/lib/db';
-import { getAuthenticatedStaff, hasRequiredRole } from '@/lib/staffAuth';
-import { INITIAL_STORES } from '@/data/storesData';
-import { getSecurityHeaders } from '@/lib/security';
+import { NextResponse } from "next/server";
+import { db } from "@/lib/db";
+import { getAuthenticatedStaff, hasRequiredRole } from "@/lib/staffAuth";
+import { INITIAL_STORES } from "@/data/storesData";
+import { getSecurityHeaders } from "@/lib/security";
 
 // GET /api/admin/stores - List all stores (SUPER_ADMIN sees all, STORE_MANAGER sees own)
 export async function GET() {
@@ -10,13 +10,16 @@ export async function GET() {
   const staff = await getAuthenticatedStaff();
 
   if (!staff) {
-    return NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 401, headers });
+    return NextResponse.json(
+      { success: false, message: "Unauthorized" },
+      { status: 401, headers },
+    );
   }
 
   if (process.env.DATABASE_URL) {
     try {
       const where: any = {};
-      if (staff.role === 'STORE_MANAGER' && staff.storeId) {
+      if (staff.role === "STORE_MANAGER" && staff.storeId) {
         where.id = staff.storeId;
       }
 
@@ -33,19 +36,24 @@ export async function GET() {
             },
           },
         },
-        orderBy: { code: 'asc' },
+        orderBy: { code: "asc" },
       });
 
       return NextResponse.json({ success: true, data: stores }, { headers });
     } catch (dbErr) {
-      console.warn('Database error fetching stores, falling back to mock:', dbErr);
+      console.warn(
+        "Database error fetching stores, falling back to mock:",
+        dbErr,
+      );
     }
   }
 
   // Fallback to static stores data
   let stores = [...INITIAL_STORES];
-  if (staff.role === 'STORE_MANAGER' && staff.storeCode) {
-    stores = stores.filter(s => s.code === staff.storeCode || s.id === staff.storeId);
+  if (staff.role === "STORE_MANAGER" && staff.storeCode) {
+    stores = stores.filter(
+      (s) => s.code === staff.storeCode || s.id === staff.storeId,
+    );
   }
 
   return NextResponse.json({ success: true, data: stores }, { headers });
@@ -56,10 +64,10 @@ export async function POST(request: Request) {
   const headers = getSecurityHeaders();
   const staff = await getAuthenticatedStaff();
 
-  if (!staff || !hasRequiredRole(staff, 'SUPER_ADMIN')) {
+  if (!staff || !hasRequiredRole(staff, "SUPER_ADMIN")) {
     return NextResponse.json(
-      { success: false, message: 'Forbidden. Super Admin access required.' },
-      { status: 403, headers }
+      { success: false, message: "Forbidden. Super Admin access required." },
+      { status: 403, headers },
     );
   }
 
@@ -68,7 +76,7 @@ export async function POST(request: Request) {
     const {
       code,
       name,
-      type = 'Physical Branch Store',
+      type = "Physical Branch Store",
       isCentralHub = false,
       address,
       city,
@@ -76,13 +84,17 @@ export async function POST(request: Request) {
       pincode,
       contactPhone,
       contactEmail,
-      operatingHours = '10:00 AM - 8:00 PM',
+      operatingHours = "10:00 AM - 8:00 PM",
     } = body;
 
     if (!code || !name || !address || !city || !state || !pincode) {
       return NextResponse.json(
-        { success: false, message: 'Code, name, address, city, state, and pincode are required.' },
-        { status: 400, headers }
+        {
+          success: false,
+          message:
+            "Code, name, address, city, state, and pincode are required.",
+        },
+        { status: 400, headers },
       );
     }
 
@@ -99,30 +111,35 @@ export async function POST(request: Request) {
           city,
           state,
           pincode,
-          contactPhone: contactPhone || '',
-          contactEmail: contactEmail || '',
+          contactPhone: contactPhone || "",
+          contactEmail: contactEmail || "",
           operatingHours,
-          status: 'Operational',
+          status: "Operational",
         },
       });
 
-      return NextResponse.json({
-        success: true,
-        message: `Store "${name}" (${cleanCode}) created successfully.`,
-        data: created,
-      }, { headers });
+      return NextResponse.json(
+        {
+          success: true,
+          message: `Store "${name}" (${cleanCode}) created successfully.`,
+          data: created,
+        },
+        { headers },
+      );
     }
 
-    return NextResponse.json({
-      success: true,
-      message: `Store ${cleanCode} created (Dev Mock).`,
-      data: { id: `str-${Date.now()}`, code: cleanCode, name, city },
-    }, { headers });
-
+    return NextResponse.json(
+      {
+        success: true,
+        message: `Store ${cleanCode} created (Dev Mock).`,
+        data: { id: `str-${Date.now()}`, code: cleanCode, name, city },
+      },
+      { headers },
+    );
   } catch (error: any) {
     return NextResponse.json(
-      { success: false, message: error.message || 'Failed to create store.' },
-      { status: 500, headers }
+      { success: false, message: error.message || "Failed to create store." },
+      { status: 500, headers },
     );
   }
 }

@@ -1,9 +1,19 @@
-'use client';
+"use client";
 
-import React from 'react';
-import Image from 'next/image';
-import { INDUSTRIES, LEARNING_HUB, TESTIMONIALS } from '@/data/mockData';
-import { ArrowRight, Star, GraduationCap, CheckCircle2, Shield, Truck, Headset, Award, Layers } from 'lucide-react';
+import React from "react";
+import Image from "next/image";
+import { INDUSTRIES, LEARNING_HUB, TESTIMONIALS } from "@/data/mockData";
+import {
+  ArrowRight,
+  Star,
+  GraduationCap,
+  CheckCircle2,
+  Shield,
+  Truck,
+  Headset,
+  Award,
+  Layers,
+} from "lucide-react";
 
 interface AdditionalSectionsProps {
   onOpenB2BModal: () => void;
@@ -11,7 +21,10 @@ interface AdditionalSectionsProps {
 
 export const IndustriesSection: React.FC = () => {
   return (
-    <section id="industries" className="py-8 bg-slate-50/60 border-t border-slate-100">
+    <section
+      id="industries"
+      className="py-8 bg-slate-50/60 border-t border-slate-100"
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-3xl mx-auto mb-12">
           <div className="inline-block bg-blue-50 text-[#1E56A0] text-xs font-extrabold tracking-widest uppercase px-3.5 py-1 rounded-full mb-3">
@@ -35,7 +48,7 @@ export const IndustriesSection: React.FC = () => {
                 className="object-cover group-hover:scale-110 transition-transform duration-500"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-[#0A1128]/90 via-[#0A1128]/40 to-transparent"></div>
-              
+
               <div className="absolute bottom-5 left-5 right-5 text-white">
                 <h3 className="text-lg font-bold group-hover:text-[#D4AF37] transition-colors mb-1">
                   {ind.title}
@@ -70,9 +83,17 @@ export const LearningHubSection: React.FC = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {LEARNING_HUB.map((item) => (
-            <div key={item.id} className="bg-white rounded-3xl overflow-hidden border border-slate-100 shadow-card-premium hover:shadow-card-hover transition-all duration-300 flex flex-col justify-between group">
+            <div
+              key={item.id}
+              className="bg-white rounded-3xl overflow-hidden border border-slate-100 shadow-card-premium hover:shadow-card-hover transition-all duration-300 flex flex-col justify-between group"
+            >
               <div className="relative h-44 w-full bg-slate-100 overflow-hidden">
-                <Image src={item.image} alt={item.title} fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
+                <Image
+                  src={item.image}
+                  alt={item.title}
+                  fill
+                  className="object-cover group-hover:scale-105 transition-transform duration-500"
+                />
                 <span className="absolute top-3 left-3 bg-[#0A1128] text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider">
                   {item.category}
                 </span>
@@ -106,35 +127,70 @@ export const LearningHubSection: React.FC = () => {
 
 export const WhyPrayogSection: React.FC = () => {
   const features = [
-    { title: 'Authentic Technology Products', desc: 'Direct sourcing from certified manufacturers with 100% component verification.', icon: Shield },
-    { title: 'Expert Engineering Support', desc: 'Dedicated technical support engineers for circuit debugging & UAV setup.', icon: Headset },
-    { title: 'STEM & Robotics Learning', desc: 'Step-by-step schematics, sample codes, and instructional video guides.', icon: GraduationCap },
-    { title: 'Fast & Reliable Delivery', desc: 'Express Pan-India courier dispatch with real-time tracking.', icon: Truck },
-    { title: 'B2B & Institutional Support', desc: 'GST invoice compliance, bulk quotation desk & educational discounts.', icon: Award },
-    { title: 'Professional Tech Solutions', desc: 'Custom robotics hardware design and drone payload customization.', icon: Layers }
+    {
+      title: "Authentic Technology Products",
+      desc: "Direct sourcing from certified manufacturers with 100% component verification.",
+      icon: Shield,
+    },
+    {
+      title: "Expert Engineering Support",
+      desc: "Dedicated technical support engineers for circuit debugging & UAV setup.",
+      icon: Headset,
+    },
+    {
+      title: "STEM & Robotics Learning",
+      desc: "Step-by-step schematics, sample codes, and instructional video guides.",
+      icon: GraduationCap,
+    },
+    {
+      title: "Fast & Reliable Delivery",
+      desc: "Express Pan-India courier dispatch with real-time tracking.",
+      icon: Truck,
+    },
+    {
+      title: "B2B & Institutional Support",
+      desc: "GST invoice compliance, bulk quotation desk & educational discounts.",
+      icon: Award,
+    },
+    {
+      title: "Professional Tech Solutions",
+      desc: "Custom robotics hardware design and drone payload customization.",
+      icon: Layers,
+    },
   ];
 
   return (
-    <section id="why-prayog" className="py-8 bg-slate-50/70 border-y border-slate-100">
+    <section
+      id="why-prayog"
+      className="py-8 bg-slate-50/70 border-y border-slate-100"
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-3xl mx-auto mb-14">
           <h2 className="text-3xl sm:text-4xl font-extrabold text-[#0A1128] tracking-tight">
             More Than a Store. A Technology Ecosystem.
           </h2>
           <p className="text-slate-600 text-base mt-3">
-            Prayog India by Dilay Robotics provides complete end-to-end hardware procurement, STEM learning resources, and technical support.
+            Prayog India by Dilay Robotics provides complete end-to-end hardware
+            procurement, STEM learning resources, and technical support.
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {features.map((f, idx) => (
-            <div key={idx} className="bg-white p-6 rounded-3xl border border-slate-100 shadow-card-premium flex items-start gap-4">
+            <div
+              key={idx}
+              className="bg-white p-6 rounded-3xl border border-slate-100 shadow-card-premium flex items-start gap-4"
+            >
               <div className="w-12 h-12 rounded-2xl bg-blue-50 text-[#1E56A0] flex items-center justify-center shrink-0">
                 <f.icon className="w-6 h-6" />
               </div>
               <div>
-                <h3 className="text-base font-bold text-[#0A1128] mb-1">{f.title}</h3>
-                <p className="text-xs text-slate-500 leading-relaxed">{f.desc}</p>
+                <h3 className="text-base font-bold text-[#0A1128] mb-1">
+                  {f.title}
+                </h3>
+                <p className="text-xs text-slate-500 leading-relaxed">
+                  {f.desc}
+                </p>
               </div>
             </div>
           ))}
@@ -144,7 +200,9 @@ export const WhyPrayogSection: React.FC = () => {
   );
 };
 
-export const B2BSection: React.FC<AdditionalSectionsProps> = ({ onOpenB2BModal }) => {
+export const B2BSection: React.FC<AdditionalSectionsProps> = ({
+  onOpenB2BModal,
+}) => {
   return (
     <section className="py-8 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -157,7 +215,9 @@ export const B2BSection: React.FC<AdditionalSectionsProps> = ({ onOpenB2BModal }
               Technology Solutions for Institutions & Businesses
             </h2>
             <p className="text-slate-200 text-sm sm:text-base leading-relaxed mb-6">
-              From schools and universities to corporate and industrial customers, access customized technology procurement, bulk pricing, and turnkey STEM lab solutions.
+              From schools and universities to corporate and industrial
+              customers, access customized technology procurement, bulk pricing,
+              and turnkey STEM lab solutions.
             </p>
             <div className="flex flex-wrap items-center gap-4">
               <button
@@ -190,69 +250,75 @@ export const B2BSection: React.FC<AdditionalSectionsProps> = ({ onOpenB2BModal }
 export const TestimonialsSection: React.FC = () => {
   const VERIFIED_REVIEWS = [
     {
-      id: 'rev-1',
-      name: 'Dr. Arindam Bose',
-      role: 'Robotics Lab Lead',
-      institution: 'IIT Kharagpur',
+      id: "rev-1",
+      name: "Dr. Arindam Bose",
+      role: "Robotics Lab Lead",
+      institution: "IIT Kharagpur",
       rating: 5,
-      comment: 'Ordered 15 sets of Pixhawk 6C and SimonK ESCs for our UAV swarm testing. Ranchi dispatch arrived within 24 hours with authentic GST tax invoice. Outstanding build quality.',
-      product: 'Pixhawk 6C Autopilot',
-      buildImage: 'https://images.unsplash.com/photo-1527977966376-1c8408f9f108?auto=format&fit=crop&w=400&q=80',
+      comment:
+        "Ordered 15 sets of Pixhawk 6C and SimonK ESCs for our UAV swarm testing. Ranchi dispatch arrived within 24 hours with authentic GST tax invoice. Outstanding build quality.",
+      product: "Pixhawk 6C Autopilot",
+      buildImage:
+        "https://images.unsplash.com/photo-1527977966376-1c8408f9f108?auto=format&fit=crop&w=400&q=80",
       verified: true,
-      mediaType: 'photo'
+      mediaType: "photo",
     },
     {
-      id: 'rev-2',
-      name: 'Sneha Kulkarni',
-      role: 'STEM Coordinator',
-      institution: 'St. Xavier High School',
+      id: "rev-2",
+      name: "Sneha Kulkarni",
+      role: "STEM Coordinator",
+      institution: "St. Xavier High School",
       rating: 5,
-      comment: 'The Dilay-Bot 4WD Robotics starter kits made our ATL lab workshop an absolute success. Students assembled obstacle avoiders in under 3 hours using the included manuals.',
-      product: 'PRAYOG Dilay-Bot Kit',
-      buildImage: 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&w=400&q=80',
+      comment:
+        "The Dilay-Bot 4WD Robotics starter kits made our ATL lab workshop an absolute success. Students assembled obstacle avoiders in under 3 hours using the included manuals.",
+      product: "PRAYOG Dilay-Bot Kit",
+      buildImage:
+        "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&w=400&q=80",
       verified: true,
-      mediaType: 'photo'
+      mediaType: "photo",
     },
     {
-      id: 'rev-3',
-      name: 'Rohan Deshmukh',
-      role: 'IoT Embedded Developer',
-      institution: 'Apex IoT Labs',
+      id: "rev-3",
+      name: "Rohan Deshmukh",
+      role: "IoT Embedded Developer",
+      institution: "Apex IoT Labs",
       rating: 5,
-      comment: 'Best supplier for genuine Raspberry Pi 5 8GB and dual-core ESP32 boards. Flashed firmware instantly without driver errors. Will definitely reorder for industrial projects.',
-      product: 'Raspberry Pi 5 (8GB)',
-      buildImage: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=400&q=80',
+      comment:
+        "Best supplier for genuine Raspberry Pi 5 8GB and dual-core ESP32 boards. Flashed firmware instantly without driver errors. Will definitely reorder for industrial projects.",
+      product: "Raspberry Pi 5 (8GB)",
+      buildImage:
+        "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=400&q=80",
       verified: true,
-      mediaType: 'video'
-    }
+      mediaType: "video",
+    },
   ];
 
   return (
     <section className="py-12 bg-slate-50/70 border-t border-slate-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
-        
         {/* Section Header */}
         <div className="text-center max-w-2xl mx-auto space-y-2">
           <div className="inline-flex items-center gap-1 bg-[#E0F7FC] text-[#00AEEF] text-[11px] font-black tracking-widest uppercase px-3.5 py-1 rounded-full">
-            <CheckCircle2 className="w-3.5 h-3.5" /> VERIFIED CUSTOMER REVIEWS & BUILDS
+            <CheckCircle2 className="w-3.5 h-3.5" /> VERIFIED CUSTOMER REVIEWS &
+            BUILDS
           </div>
           <h2 className="text-3xl font-black text-slate-900">
             Trusted by 5,000+ Innovators, Labs & Schools
           </h2>
           <p className="text-xs text-slate-500 font-medium">
-            Real customer hardware setups, verified ratings, and project builds across India.
+            Real customer hardware setups, verified ratings, and project builds
+            across India.
           </p>
         </div>
 
         {/* Reviews Grid with Build Photo Media */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {VERIFIED_REVIEWS.map((t) => (
-            <div 
-              key={t.id} 
+            <div
+              key={t.id}
               className="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm hover:shadow-xl hover:border-[#00AEEF]/40 transition-all duration-300 flex flex-col justify-between space-y-4 group"
             >
               <div className="space-y-3">
-                
                 {/* Rating & Verified Badge */}
                 <div className="flex items-center justify-between">
                   <div className="flex text-amber-400 gap-0.5">
@@ -283,24 +349,25 @@ export const TestimonialsSection: React.FC = () => {
                     Customer Project Build
                   </span>
                 </div>
-
               </div>
 
               {/* Author & Product Info */}
               <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
                 <div>
-                  <div className="text-xs font-black text-slate-900">{t.name}</div>
-                  <div className="text-[10px] text-slate-400 font-semibold">{t.role} • {t.institution}</div>
+                  <div className="text-xs font-black text-slate-900">
+                    {t.name}
+                  </div>
+                  <div className="text-[10px] text-slate-400 font-semibold">
+                    {t.role} • {t.institution}
+                  </div>
                 </div>
                 <span className="text-[10px] font-bold bg-slate-100 text-slate-700 px-2.5 py-1 rounded-lg">
                   {t.product}
                 </span>
               </div>
-
             </div>
           ))}
         </div>
-
       </div>
     </section>
   );

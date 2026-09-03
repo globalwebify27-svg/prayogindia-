@@ -1,35 +1,45 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import Image from 'next/image';
-import Link from 'next/link';
-import { CategoryBreadcrumb } from '@/components/categories/CategoryBreadcrumb';
-import { ServiceEnquiryModal } from '@/components/services/ServiceEnquiryModal';
-import { SERVICES_DATA } from '@/data/servicesData';
-import { CheckCircle2, ArrowLeft, Send, MessageSquare, Maximize2, X } from 'lucide-react';
+import React, { useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { CategoryBreadcrumb } from "@/components/categories/CategoryBreadcrumb";
+import { ServiceEnquiryModal } from "@/components/services/ServiceEnquiryModal";
+import { SERVICES_DATA } from "@/data/servicesData";
+import {
+  CheckCircle2,
+  ArrowLeft,
+  Send,
+  MessageSquare,
+  Maximize2,
+  X,
+} from "lucide-react";
 
 interface ServiceDetailProps {
   slug: string;
 }
 
 export const ServiceDetailView: React.FC<ServiceDetailProps> = ({ slug }) => {
-  const service = SERVICES_DATA.find(s => s.slug === slug || s.id === slug) || SERVICES_DATA[0];
+  const service =
+    SERVICES_DATA.find((s) => s.slug === slug || s.id === slug) ||
+    SERVICES_DATA[0];
 
   const [enquiryOpen, setEnquiryOpen] = useState(false);
-  const [selectedGalleryImg, setSelectedGalleryImg] = useState<string | null>(null);
+  const [selectedGalleryImg, setSelectedGalleryImg] = useState<string | null>(
+    null,
+  );
 
   const whatsappMessage = encodeURIComponent(
-    `Hi Prayog India, I am interested in "${service.name}". Please share complete proposal brochure, BOQ, and installation details.`
+    `Hi Prayog India, I am interested in "${service.name}". Please share complete proposal brochure, BOQ, and installation details.`,
   );
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-10 animate-in fade-in duration-300">
-      
       {/* 1. Breadcrumb */}
       <CategoryBreadcrumb
         items={[
-          { label: 'Services', href: '/services' },
-          { label: service.name }
+          { label: "Services", href: "/services" },
+          { label: service.name },
         ]}
       />
 
@@ -86,7 +96,9 @@ export const ServiceDetailView: React.FC<ServiceDetailProps> = ({ slug }) => {
 
       {/* 4. Service Description */}
       <section className="space-y-3">
-        <h2 className="text-xl font-extrabold text-slate-900 tracking-tight">Overview & Description</h2>
+        <h2 className="text-xl font-extrabold text-slate-900 tracking-tight">
+          Overview & Description
+        </h2>
         <p className="text-xs sm:text-sm text-slate-600 leading-relaxed max-w-4xl">
           {service.description}
         </p>
@@ -94,10 +106,15 @@ export const ServiceDetailView: React.FC<ServiceDetailProps> = ({ slug }) => {
 
       {/* 5. Features Grid */}
       <section className="space-y-4">
-        <h2 className="text-xl font-extrabold text-slate-900 tracking-tight">Key Service Features</h2>
+        <h2 className="text-xl font-extrabold text-slate-900 tracking-tight">
+          Key Service Features
+        </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-4xl">
           {service.features.map((feat, idx) => (
-            <div key={idx} className="bg-white p-4 rounded-2xl border border-slate-200/90 text-xs font-bold text-slate-800 flex items-start gap-3 shadow-2xs">
+            <div
+              key={idx}
+              className="bg-white p-4 rounded-2xl border border-slate-200/90 text-xs font-bold text-slate-800 flex items-start gap-3 shadow-2xs"
+            >
               <CheckCircle2 className="w-4 h-4 text-[#00AEEF] shrink-0 mt-0.5" />
               <span>{feat}</span>
             </div>
@@ -107,10 +124,15 @@ export const ServiceDetailView: React.FC<ServiceDetailProps> = ({ slug }) => {
 
       {/* 6. Target Applications */}
       <section className="space-y-4">
-        <h2 className="text-xl font-extrabold text-slate-900 tracking-tight">Target Applications & Beneficiaries</h2>
+        <h2 className="text-xl font-extrabold text-slate-900 tracking-tight">
+          Target Applications & Beneficiaries
+        </h2>
         <div className="flex flex-wrap gap-2.5 max-w-4xl">
           {service.applications.map((app, idx) => (
-            <span key={idx} className="bg-[#E0F7FC] text-[#00AEEF] text-xs font-extrabold px-3.5 py-2 rounded-xl border border-[#00AEEF]/20">
+            <span
+              key={idx}
+              className="bg-[#E0F7FC] text-[#00AEEF] text-xs font-extrabold px-3.5 py-2 rounded-xl border border-[#00AEEF]/20"
+            >
               {app}
             </span>
           ))}
@@ -120,7 +142,9 @@ export const ServiceDetailView: React.FC<ServiceDetailProps> = ({ slug }) => {
       {/* 7. Installation Gallery */}
       {service.gallery && service.gallery.length > 0 && (
         <section className="space-y-4">
-          <h2 className="text-xl font-extrabold text-slate-900 tracking-tight">Service & Setup Gallery</h2>
+          <h2 className="text-xl font-extrabold text-slate-900 tracking-tight">
+            Service & Setup Gallery
+          </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
             {service.gallery.map((img, idx) => (
               <div
@@ -128,7 +152,12 @@ export const ServiceDetailView: React.FC<ServiceDetailProps> = ({ slug }) => {
                 onClick={() => setSelectedGalleryImg(img)}
                 className="relative h-48 rounded-2xl overflow-hidden bg-slate-100 border border-slate-200 cursor-pointer group"
               >
-                <Image src={img} alt={`Gallery image ${idx + 1}`} fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
+                <Image
+                  src={img}
+                  alt={`Gallery image ${idx + 1}`}
+                  fill
+                  className="object-cover group-hover:scale-105 transition-transform duration-500"
+                />
                 <div className="absolute top-3 right-3 bg-slate-900/70 p-1.5 rounded-lg text-white opacity-0 group-hover:opacity-100 transition-opacity">
                   <Maximize2 className="w-4 h-4" />
                 </div>
@@ -141,12 +170,23 @@ export const ServiceDetailView: React.FC<ServiceDetailProps> = ({ slug }) => {
       {/* Gallery Lightbox Modal */}
       {selectedGalleryImg && (
         <div className="fixed inset-0 z-50 overflow-hidden flex items-center justify-center p-4">
-          <div onClick={() => setSelectedGalleryImg(null)} className="fixed inset-0 bg-slate-950/80 backdrop-blur-md" />
+          <div
+            onClick={() => setSelectedGalleryImg(null)}
+            className="fixed inset-0 bg-slate-950/80 backdrop-blur-md"
+          />
           <div className="relative max-w-4xl w-full h-[70vh] bg-white rounded-3xl overflow-hidden p-4 z-10">
-            <button onClick={() => setSelectedGalleryImg(null)} className="absolute top-4 right-4 bg-slate-100 p-2 rounded-full z-20">
+            <button
+              onClick={() => setSelectedGalleryImg(null)}
+              className="absolute top-4 right-4 bg-slate-100 p-2 rounded-full z-20"
+            >
               <X className="w-5 h-5 text-slate-700" />
             </button>
-            <Image src={selectedGalleryImg} alt="Preview" fill className="object-contain" />
+            <Image
+              src={selectedGalleryImg}
+              alt="Preview"
+              fill
+              className="object-contain"
+            />
           </div>
         </div>
       )}
@@ -157,7 +197,6 @@ export const ServiceDetailView: React.FC<ServiceDetailProps> = ({ slug }) => {
         onClose={() => setEnquiryOpen(false)}
         serviceName={service.name}
       />
-
     </div>
   );
 };

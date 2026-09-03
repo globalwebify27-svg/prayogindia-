@@ -1,20 +1,20 @@
-'use client';
+"use client";
 
-import React, { useState, useRef, useEffect } from 'react';
-import Image from 'next/image';
-import Link from 'next/link';
-import { 
-  Eye, 
-  ChevronLeft, 
-  ChevronRight, 
-  Clock, 
-  Star, 
-  Heart, 
-  Flame, 
-  Sparkles, 
-  Trophy, 
-  Target, 
-  Layers, 
+import React, { useState, useRef, useEffect } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import {
+  Eye,
+  ChevronLeft,
+  ChevronRight,
+  Clock,
+  Star,
+  Heart,
+  Flame,
+  Sparkles,
+  Trophy,
+  Target,
+  Layers,
   ArrowRight,
   Cpu,
   Plane,
@@ -26,12 +26,12 @@ import {
   Zap,
   CheckCircle2,
   SlidersHorizontal,
-  PackageCheck
-} from 'lucide-react';
-import { PRODUCTS, Product } from '@/data/mockData';
+  PackageCheck,
+} from "lucide-react";
+import { PRODUCTS, Product } from "@/data/mockData";
 
-type ViewMode = 'all_categories' | 'curated';
-type CuratedTab = 'trending' | 'new_arrivals' | 'best_sellers' | 'recommended';
+type ViewMode = "all_categories" | "curated";
+type CuratedTab = "trending" | "new_arrivals" | "best_sellers" | "recommended";
 
 interface CategoryConfig {
   name: string;
@@ -43,69 +43,77 @@ interface CategoryConfig {
 }
 
 const CATEGORY_CONFIGS: Record<string, CategoryConfig> = {
-  'Arduino & Microcontrollers': {
-    name: 'Arduino & Microcontrollers',
-    slug: 'arduino-development-boards',
+  "Arduino & Microcontrollers": {
+    name: "Arduino & Microcontrollers",
+    slug: "arduino-development-boards",
     Icon: Cpu,
-    accent: 'text-amber-600',
-    badgeBg: 'bg-amber-50 text-amber-700 border-amber-200',
-    description: 'Official UNO R4 WiFi, Mega 2560, Nano Type-C, ESP32 & dev boards for rapid prototyping.',
+    accent: "text-amber-600",
+    badgeBg: "bg-amber-50 text-amber-700 border-amber-200",
+    description:
+      "Official UNO R4 WiFi, Mega 2560, Nano Type-C, ESP32 & dev boards for rapid prototyping.",
   },
-  'Drones & UAV Parts': {
-    name: 'Drones & UAV Parts',
-    slug: 'drone-technology',
+  "Drones & UAV Parts": {
+    name: "Drones & UAV Parts",
+    slug: "drone-technology",
     Icon: Plane,
-    accent: 'text-sky-600',
-    badgeBg: 'bg-sky-50 text-sky-700 border-sky-200',
-    description: 'Pixhawk 6C autopilots, BLDC motors, 50A ESC stacks, FPV cameras, props & frames.',
+    accent: "text-sky-600",
+    badgeBg: "bg-sky-50 text-sky-700 border-sky-200",
+    description:
+      "Pixhawk 6C autopilots, BLDC motors, 50A ESC stacks, FPV cameras, props & frames.",
   },
-  'Robotics & DIY Kits': {
-    name: 'Robotics & DIY Kits',
-    slug: 'robotics',
+  "Robotics & DIY Kits": {
+    name: "Robotics & DIY Kits",
+    slug: "robotics",
     Icon: Bot,
-    accent: 'text-blue-600',
-    badgeBg: 'bg-blue-50 text-blue-700 border-blue-200',
-    description: '6-DOF manipulator arms, Mecanum rovers, ROS 2 SLAM platforms & metal gear servos.',
+    accent: "text-blue-600",
+    badgeBg: "bg-blue-50 text-blue-700 border-blue-200",
+    description:
+      "6-DOF manipulator arms, Mecanum rovers, ROS 2 SLAM platforms & metal gear servos.",
   },
-  'IoT & Wireless Modules': {
-    name: 'IoT & Wireless Modules',
-    slug: 'iot',
+  "IoT & Wireless Modules": {
+    name: "IoT & Wireless Modules",
+    slug: "iot",
     Icon: Wifi,
-    accent: 'text-teal-600',
-    badgeBg: 'bg-teal-50 text-teal-700 border-teal-200',
-    description: 'Ra-02 LoRa 433MHz, Bluetooth HC-05, ESP32-CAM, 8-channel relays & Zigbee mesh.',
+    accent: "text-teal-600",
+    badgeBg: "bg-teal-50 text-teal-700 border-teal-200",
+    description:
+      "Ra-02 LoRa 433MHz, Bluetooth HC-05, ESP32-CAM, 8-channel relays & Zigbee mesh.",
   },
-  'Sensors & Electronic Modules': {
-    name: 'Sensors & Electronic Modules',
-    slug: 'sensors-modules',
+  "Sensors & Electronic Modules": {
+    name: "Sensors & Electronic Modules",
+    slug: "sensors-modules",
     Icon: Activity,
-    accent: 'text-rose-600',
-    badgeBg: 'bg-rose-50 text-rose-700 border-rose-200',
-    description: 'Precision LiDAR, ToF lasers, 6-DOF IMU gyros, barometric weather & gas detectors.',
+    accent: "text-rose-600",
+    badgeBg: "bg-rose-50 text-rose-700 border-rose-200",
+    description:
+      "Precision LiDAR, ToF lasers, 6-DOF IMU gyros, barometric weather & gas detectors.",
   },
-  'Single Board Computers & Dev Boards': {
-    name: 'Single Board Computers & Dev Boards',
-    slug: 'arduino-development-boards',
+  "Single Board Computers & Dev Boards": {
+    name: "Single Board Computers & Dev Boards",
+    slug: "arduino-development-boards",
     Icon: CircuitBoard,
-    accent: 'text-purple-600',
-    badgeBg: 'bg-purple-50 text-purple-700 border-purple-200',
-    description: 'Raspberry Pi 5 8GB, NVIDIA Jetson Orin Nano, STM32 Nucleo, Orange Pi & Teensy.',
+    accent: "text-purple-600",
+    badgeBg: "bg-purple-50 text-purple-700 border-purple-200",
+    description:
+      "Raspberry Pi 5 8GB, NVIDIA Jetson Orin Nano, STM32 Nucleo, Orange Pi & Teensy.",
   },
-  'STEM & Educational Kits': {
-    name: 'STEM & Educational Kits',
-    slug: 'stem-kits',
+  "STEM & Educational Kits": {
+    name: "STEM & Educational Kits",
+    slug: "stem-kits",
     Icon: GraduationCap,
-    accent: 'text-emerald-600',
-    badgeBg: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-    description: 'Atal Tinkering Lab (ATL) starter packs, DIY solar rovers, snap circuits & smart city models.',
+    accent: "text-emerald-600",
+    badgeBg: "bg-emerald-50 text-emerald-700 border-emerald-200",
+    description:
+      "Atal Tinkering Lab (ATL) starter packs, DIY solar rovers, snap circuits & smart city models.",
   },
-  'Motors, Steppers & Drivers': {
-    name: 'Motors, Steppers & Drivers',
-    slug: 'electronic-components',
+  "Motors, Steppers & Drivers": {
+    name: "Motors, Steppers & Drivers",
+    slug: "electronic-components",
     Icon: Zap,
-    accent: 'text-orange-600',
-    badgeBg: 'bg-orange-50 text-orange-700 border-orange-200',
-    description: 'NEMA 17 high torque steppers, TB6600 drivers, RS-775 motors, planetary gearboxes & shields.',
+    accent: "text-orange-600",
+    badgeBg: "bg-orange-50 text-orange-700 border-orange-200",
+    description:
+      "NEMA 17 high torque steppers, TB6600 drivers, RS-775 motors, planetary gearboxes & shields.",
   },
 };
 
@@ -124,38 +132,49 @@ export const ProductGridSection: React.FC<ProductSectionProps> = ({
   wishlistIds = [],
   onSeeAll,
 }) => {
-  const [viewMode, setViewMode] = useState<ViewMode>('all_categories');
-  const [activeCuratedTab, setActiveCuratedTab] = useState<CuratedTab>('trending');
+  const [viewMode, setViewMode] = useState<ViewMode>("all_categories");
+  const [activeCuratedTab, setActiveCuratedTab] =
+    useState<CuratedTab>("trending");
 
   // Curated Lists Logic
   const trendingProducts = PRODUCTS.filter(
-    (p) => p.badge?.includes('HOT') || p.reviews > 300 || p.price > 4000
+    (p) => p.badge?.includes("HOT") || p.reviews > 300 || p.price > 4000,
   );
   const newArrivals = PRODUCTS.filter(
-    (p) => p.badge?.includes('NEW') || p.id.includes('rpi-5') || p.id.includes('jetson') || p.id.includes('r4')
+    (p) =>
+      p.badge?.includes("NEW") ||
+      p.id.includes("rpi-5") ||
+      p.id.includes("jetson") ||
+      p.id.includes("r4"),
   );
   const bestSellers = PRODUCTS.filter(
-    (p) => p.badge?.includes('BESTSELLER') || p.rating >= 4.9 || p.reviews > 400
+    (p) =>
+      p.badge?.includes("BESTSELLER") || p.rating >= 4.9 || p.reviews > 400,
   );
   const recommendedHardware = PRODUCTS.filter(
-    (p) => p.badge?.includes('TOP RATED') || p.category.includes('Sensors') || p.category.includes('Robotics')
+    (p) =>
+      p.badge?.includes("TOP RATED") ||
+      p.category.includes("Sensors") ||
+      p.category.includes("Robotics"),
   );
 
   // Distinct Ordered Categories
   const categoryOrder = [
-    'Arduino & Microcontrollers',
-    'Drones & UAV Parts',
-    'Robotics & DIY Kits',
-    'IoT & Wireless Modules',
-    'Sensors & Electronic Modules',
-    'Single Board Computers & Dev Boards',
-    'STEM & Educational Kits',
-    'Motors, Steppers & Drivers',
+    "Arduino & Microcontrollers",
+    "Drones & UAV Parts",
+    "Robotics & DIY Kits",
+    "IoT & Wireless Modules",
+    "Sensors & Electronic Modules",
+    "Single Board Computers & Dev Boards",
+    "STEM & Educational Kits",
+    "Motors, Steppers & Drivers",
   ];
 
   // Scroll containers
   const curatedScrollRef = useRef<HTMLDivElement | null>(null);
-  const categoryScrollContainers = useRef<{ [key: string]: HTMLDivElement | null }>({});
+  const categoryScrollContainers = useRef<{
+    [key: string]: HTMLDivElement | null;
+  }>({});
   const jumpScrollRef = useRef<HTMLDivElement | null>(null);
   const [isJumpPaused, setIsJumpPaused] = useState(false);
 
@@ -185,40 +204,47 @@ export const ProductGridSection: React.FC<ProductSectionProps> = ({
     return () => cancelAnimationFrame(animationId);
   }, [isJumpPaused]);
 
-  const scrollCurated = (direction: 'left' | 'right') => {
+  const scrollCurated = (direction: "left" | "right") => {
     if (curatedScrollRef.current) {
-      const scrollAmount = direction === 'left' ? -360 : 360;
-      curatedScrollRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+      const scrollAmount = direction === "left" ? -360 : 360;
+      curatedScrollRef.current.scrollBy({
+        left: scrollAmount,
+        behavior: "smooth",
+      });
     }
   };
 
-  const scrollCategory = (category: string, direction: 'left' | 'right') => {
+  const scrollCategory = (category: string, direction: "left" | "right") => {
     const container = categoryScrollContainers.current[category];
     if (container) {
-      const scrollAmount = direction === 'left' ? -360 : 360;
-      container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+      const scrollAmount = direction === "left" ? -360 : 360;
+      container.scrollBy({ left: scrollAmount, behavior: "smooth" });
     }
   };
 
   const scrollToCategoryShelf = (catName: string) => {
-    setViewMode('all_categories');
-    const elementId = `shelf-${catName.toLowerCase().replace(/[^a-z0-9]/g, '-')}`;
+    setViewMode("all_categories");
+    const elementId = `shelf-${catName.toLowerCase().replace(/[^a-z0-9]/g, "-")}`;
     const el = document.getElementById(elementId);
     if (el) {
-      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      el.scrollIntoView({ behavior: "smooth", block: "start" });
     }
   };
 
   const getActiveCuratedList = () => {
     switch (activeCuratedTab) {
-      case 'trending':
-        return trendingProducts.length > 0 ? trendingProducts : PRODUCTS.slice(0, 10);
-      case 'new_arrivals':
+      case "trending":
+        return trendingProducts.length > 0
+          ? trendingProducts
+          : PRODUCTS.slice(0, 10);
+      case "new_arrivals":
         return newArrivals.length > 0 ? newArrivals : PRODUCTS.slice(2, 12);
-      case 'best_sellers':
+      case "best_sellers":
         return bestSellers.length > 0 ? bestSellers : PRODUCTS.slice(0, 10);
-      case 'recommended':
-        return recommendedHardware.length > 0 ? recommendedHardware : PRODUCTS.slice(4, 14);
+      case "recommended":
+        return recommendedHardware.length > 0
+          ? recommendedHardware
+          : PRODUCTS.slice(4, 14);
       default:
         return PRODUCTS.slice(0, 10);
     }
@@ -252,12 +278,16 @@ export const ProductGridSection: React.FC<ProductSectionProps> = ({
               <button
                 onClick={() => onToggleWishlist(product)}
                 className={`p-1.5 rounded-full transition-colors cursor-pointer ${
-                  isWishlisted ? 'text-[#FF3B30] bg-red-50' : 'text-slate-400 hover:text-slate-700 hover:bg-slate-100'
+                  isWishlisted
+                    ? "text-[#FF3B30] bg-red-50"
+                    : "text-slate-400 hover:text-slate-700 hover:bg-slate-100"
                 }`}
                 title="Add to Wishlist"
                 aria-label="Wishlist"
               >
-                <Heart className={`w-4 h-4 ${isWishlisted ? 'fill-current' : ''}`} />
+                <Heart
+                  className={`w-4 h-4 ${isWishlisted ? "fill-current" : ""}`}
+                />
               </button>
             )}
             <button
@@ -272,7 +302,10 @@ export const ProductGridSection: React.FC<ProductSectionProps> = ({
         </div>
 
         {/* Product Image Link */}
-        <Link href={`/products/${product.slug || product.id}`} className="block">
+        <Link
+          href={`/products/${product.slug || product.id}`}
+          className="block"
+        >
           <div className="relative h-48 w-full mb-3 flex items-center justify-center overflow-hidden rounded-2xl bg-slate-50 p-2 border border-slate-100/80 group-hover:bg-white transition-colors cursor-pointer">
             <Image
               src={product.image}
@@ -297,18 +330,26 @@ export const ProductGridSection: React.FC<ProductSectionProps> = ({
               <div className="flex items-center text-amber-500 font-extrabold gap-0.5">
                 <Star className="w-3 h-3 fill-current" />
                 <span>{product.rating}</span>
-                <span className="text-slate-400 font-normal">({product.reviews})</span>
+                <span className="text-slate-400 font-normal">
+                  ({product.reviews})
+                </span>
               </div>
             </div>
 
-            <Link href={`/products/${product.slug || product.id}`} className="block">
+            <Link
+              href={`/products/${product.slug || product.id}`}
+              className="block"
+            >
               <h4 className="text-xs font-bold text-slate-900 line-clamp-2 leading-snug hover:text-[#00AEEF] transition-colors cursor-pointer">
                 {product.name}
               </h4>
             </Link>
 
             {product.description && (
-              <Link href={`/products/${product.slug || product.id}`} className="block">
+              <Link
+                href={`/products/${product.slug || product.id}`}
+                className="block"
+              >
                 <p className="text-[11px] text-slate-500 line-clamp-1 mt-1 font-medium hover:text-slate-700">
                   {product.description}
                 </p>
@@ -365,9 +406,11 @@ export const ProductGridSection: React.FC<ProductSectionProps> = ({
   };
 
   return (
-    <section id="featured-products" className="py-12 bg-slate-50/70 border-b border-slate-200/80 scroll-mt-20">
+    <section
+      id="featured-products"
+      className="py-12 bg-slate-50/70 border-b border-slate-200/80 scroll-mt-20"
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
-        
         {/* Main Section Header */}
         <div className="space-y-4">
           <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
@@ -384,7 +427,8 @@ export const ProductGridSection: React.FC<ProductSectionProps> = ({
                 Explore Every Category Shelf
               </h2>
               <p className="text-xs sm:text-sm text-slate-500 font-semibold mt-1 max-w-2xl">
-                Browse certified developer components, flight kits, sensors, and robotics modules per category with pan-India express dispatch.
+                Browse certified developer components, flight kits, sensors, and
+                robotics modules per category with pan-India express dispatch.
               </p>
             </div>
 
@@ -392,11 +436,11 @@ export const ProductGridSection: React.FC<ProductSectionProps> = ({
             <div className="flex items-center gap-2 self-start lg:self-auto flex-wrap">
               <div className="bg-white border border-slate-200 p-1 rounded-2xl flex items-center shadow-2xs text-xs font-extrabold">
                 <button
-                  onClick={() => setViewMode('all_categories')}
+                  onClick={() => setViewMode("all_categories")}
                   className={`px-3.5 py-2 rounded-xl transition-all flex items-center gap-1.5 cursor-pointer ${
-                    viewMode === 'all_categories'
-                      ? 'bg-slate-900 text-white shadow-xs'
-                      : 'text-slate-600 hover:text-slate-900'
+                    viewMode === "all_categories"
+                      ? "bg-slate-900 text-white shadow-xs"
+                      : "text-slate-600 hover:text-slate-900"
                   }`}
                 >
                   <Layers className="w-3.5 h-3.5" />
@@ -404,11 +448,11 @@ export const ProductGridSection: React.FC<ProductSectionProps> = ({
                 </button>
 
                 <button
-                  onClick={() => setViewMode('curated')}
+                  onClick={() => setViewMode("curated")}
                   className={`px-3.5 py-2 rounded-xl transition-all flex items-center gap-1.5 cursor-pointer ${
-                    viewMode === 'curated'
-                      ? 'bg-[#00AEEF] text-white shadow-xs'
-                      : 'text-slate-600 hover:text-slate-900'
+                    viewMode === "curated"
+                      ? "bg-[#00AEEF] text-white shadow-xs"
+                      : "text-slate-600 hover:text-slate-900"
                   }`}
                 >
                   <Sparkles className="w-3.5 h-3.5" />
@@ -417,7 +461,7 @@ export const ProductGridSection: React.FC<ProductSectionProps> = ({
               </div>
 
               <button
-                onClick={() => onSeeAll?.('all')}
+                onClick={() => onSeeAll?.("all")}
                 className="text-xs sm:text-sm font-extrabold text-[#00AEEF] hover:text-[#0086B8] hover:underline flex items-center gap-1 group/seeall px-3 py-2 cursor-pointer"
               >
                 <span>Full Catalogue</span>
@@ -427,7 +471,7 @@ export const ProductGridSection: React.FC<ProductSectionProps> = ({
           </div>
 
           {/* Quick Jump Category Bar with smooth continuous auto-scroll */}
-          <div 
+          <div
             className="bg-white/90 backdrop-blur-md rounded-2xl border border-slate-200/90 p-2 shadow-2xs relative flex items-center overflow-hidden"
             onMouseEnter={() => setIsJumpPaused(true)}
             onMouseLeave={() => setIsJumpPaused(false)}
@@ -436,7 +480,7 @@ export const ProductGridSection: React.FC<ProductSectionProps> = ({
           >
             {/* Pinned "Jump To:" label badge */}
             <div className="pl-2 pr-3 shrink-0 flex items-center gap-1.5 border-r border-slate-200/80 text-[11px] font-black uppercase tracking-wider text-slate-500 z-20 bg-white/90">
-              <SlidersHorizontal className="w-3.5 h-3.5 text-[#00AEEF]" /> 
+              <SlidersHorizontal className="w-3.5 h-3.5 text-[#00AEEF]" />
               <span className="whitespace-nowrap">Jump To:</span>
             </div>
 
@@ -445,7 +489,7 @@ export const ProductGridSection: React.FC<ProductSectionProps> = ({
             <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-white via-white/80 to-transparent z-10" />
 
             {/* Auto-scrolling Track */}
-            <div 
+            <div
               ref={jumpScrollRef}
               className="flex items-center gap-2 overflow-x-auto scrollbar-none py-1 pl-3 pr-8 text-xs select-none"
             >
@@ -466,23 +510,24 @@ export const ProductGridSection: React.FC<ProductSectionProps> = ({
               })}
             </div>
           </div>
-
         </div>
 
         {/* ==================================================== */}
         {/* VIEW 1: All Category Shelves */}
         {/* ==================================================== */}
-        {viewMode === 'all_categories' ? (
+        {viewMode === "all_categories" ? (
           <div className="space-y-16 animate-in fade-in duration-300">
             {categoryOrder.map((category) => {
-              const categoryProducts = PRODUCTS.filter((p) => p.category === category);
+              const categoryProducts = PRODUCTS.filter(
+                (p) => p.category === category,
+              );
               const config = CATEGORY_CONFIGS[category];
               const IconComp = config?.Icon || PackageCheck;
-              const elementId = `shelf-${category.toLowerCase().replace(/[^a-z0-9]/g, '-')}`;
+              const elementId = `shelf-${category.toLowerCase().replace(/[^a-z0-9]/g, "-")}`;
 
               return (
-                <div 
-                  key={category} 
+                <div
+                  key={category}
                   id={elementId}
                   className="space-y-4 relative group/section scroll-mt-24"
                 >
@@ -505,7 +550,7 @@ export const ProductGridSection: React.FC<ProductSectionProps> = ({
                     </div>
 
                     {/* See All Category Link */}
-                    <button 
+                    <button
                       onClick={() => onSeeAll?.(category)}
                       className="text-xs sm:text-sm font-black text-[#00AEEF] hover:text-[#0086B8] hover:underline transition-colors flex items-center gap-1 group/seeall cursor-pointer self-start sm:self-auto shrink-0 pl-10 sm:pl-0"
                     >
@@ -518,7 +563,7 @@ export const ProductGridSection: React.FC<ProductSectionProps> = ({
                   <div className="relative">
                     {/* Left Scroll Button */}
                     <button
-                      onClick={() => scrollCategory(category, 'left')}
+                      onClick={() => scrollCategory(category, "left")}
                       className="absolute -left-4 top-1/2 -translate-y-1/2 z-20 w-11 h-11 bg-white/95 border border-slate-200 rounded-full shadow-xl flex items-center justify-center text-slate-700 hover:bg-[#00AEEF] hover:text-white hover:border-[#00AEEF] transition-all opacity-0 group-hover/section:opacity-100 hidden sm:flex cursor-pointer"
                       aria-label={`Scroll ${category} Left`}
                     >
@@ -527,7 +572,7 @@ export const ProductGridSection: React.FC<ProductSectionProps> = ({
 
                     {/* Right Scroll Button */}
                     <button
-                      onClick={() => scrollCategory(category, 'right')}
+                      onClick={() => scrollCategory(category, "right")}
                       className="absolute -right-4 top-1/2 -translate-y-1/2 z-20 w-11 h-11 bg-white/95 border border-slate-200 rounded-full shadow-xl flex items-center justify-center text-slate-700 hover:bg-[#00AEEF] hover:text-white hover:border-[#00AEEF] transition-all opacity-0 group-hover/section:opacity-100 hidden sm:flex cursor-pointer"
                       aria-label={`Scroll ${category} Right`}
                     >
@@ -536,11 +581,15 @@ export const ProductGridSection: React.FC<ProductSectionProps> = ({
 
                     {/* Scroll Track */}
                     <div
-                      ref={(el) => { categoryScrollContainers.current[category] = el; }}
+                      ref={(el) => {
+                        categoryScrollContainers.current[category] = el;
+                      }}
                       className="flex items-stretch gap-4 overflow-x-auto scrollbar-none pb-4 pt-1 px-1 scroll-smooth"
-                      style={{ scrollbarWidth: 'none' }}
+                      style={{ scrollbarWidth: "none" }}
                     >
-                      {categoryProducts.map((product) => renderProductCard(product))}
+                      {categoryProducts.map((product) =>
+                        renderProductCard(product),
+                      )}
                     </div>
                   </div>
                 </div>
@@ -555,50 +604,58 @@ export const ProductGridSection: React.FC<ProductSectionProps> = ({
             {/* Curated Sub-tabs Bar */}
             <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none text-xs">
               <button
-                onClick={() => setActiveCuratedTab('trending')}
+                onClick={() => setActiveCuratedTab("trending")}
                 className={`px-4 py-2.5 rounded-2xl font-extrabold flex items-center gap-1.5 transition-all whitespace-nowrap cursor-pointer ${
-                  activeCuratedTab === 'trending'
-                    ? 'bg-gradient-to-r from-[#FF3B30] to-rose-600 text-white shadow-md shadow-red-500/20'
-                    : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
+                  activeCuratedTab === "trending"
+                    ? "bg-gradient-to-r from-[#FF3B30] to-rose-600 text-white shadow-md shadow-red-500/20"
+                    : "bg-white text-slate-700 hover:bg-slate-100 border border-slate-200"
                 }`}
               >
-                <Flame className={`w-4 h-4 ${activeCuratedTab === 'trending' ? 'text-amber-300' : 'text-[#FF3B30]'}`} />
+                <Flame
+                  className={`w-4 h-4 ${activeCuratedTab === "trending" ? "text-amber-300" : "text-[#FF3B30]"}`}
+                />
                 <span>Trending Products</span>
               </button>
 
               <button
-                onClick={() => setActiveCuratedTab('new_arrivals')}
+                onClick={() => setActiveCuratedTab("new_arrivals")}
                 className={`px-4 py-2.5 rounded-2xl font-extrabold flex items-center gap-1.5 transition-all whitespace-nowrap cursor-pointer ${
-                  activeCuratedTab === 'new_arrivals'
-                    ? 'bg-gradient-to-r from-[#00AEEF] to-cyan-600 text-white shadow-md shadow-[#00AEEF]/20'
-                    : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
+                  activeCuratedTab === "new_arrivals"
+                    ? "bg-gradient-to-r from-[#00AEEF] to-cyan-600 text-white shadow-md shadow-[#00AEEF]/20"
+                    : "bg-white text-slate-700 hover:bg-slate-100 border border-slate-200"
                 }`}
               >
-                <Sparkles className={`w-4 h-4 ${activeCuratedTab === 'new_arrivals' ? 'text-amber-300' : 'text-[#00AEEF]'}`} />
+                <Sparkles
+                  className={`w-4 h-4 ${activeCuratedTab === "new_arrivals" ? "text-amber-300" : "text-[#00AEEF]"}`}
+                />
                 <span>New Arrivals</span>
               </button>
 
               <button
-                onClick={() => setActiveCuratedTab('best_sellers')}
+                onClick={() => setActiveCuratedTab("best_sellers")}
                 className={`px-4 py-2.5 rounded-2xl font-extrabold flex items-center gap-1.5 transition-all whitespace-nowrap cursor-pointer ${
-                  activeCuratedTab === 'best_sellers'
-                    ? 'bg-gradient-to-r from-amber-500 to-orange-600 text-white shadow-md shadow-amber-500/20'
-                    : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
+                  activeCuratedTab === "best_sellers"
+                    ? "bg-gradient-to-r from-amber-500 to-orange-600 text-white shadow-md shadow-amber-500/20"
+                    : "bg-white text-slate-700 hover:bg-slate-100 border border-slate-200"
                 }`}
               >
-                <Trophy className={`w-4 h-4 ${activeCuratedTab === 'best_sellers' ? 'text-amber-200' : 'text-amber-500'}`} />
+                <Trophy
+                  className={`w-4 h-4 ${activeCuratedTab === "best_sellers" ? "text-amber-200" : "text-amber-500"}`}
+                />
                 <span>Best Sellers</span>
               </button>
 
               <button
-                onClick={() => setActiveCuratedTab('recommended')}
+                onClick={() => setActiveCuratedTab("recommended")}
                 className={`px-4 py-2.5 rounded-2xl font-extrabold flex items-center gap-1.5 transition-all whitespace-nowrap cursor-pointer ${
-                  activeCuratedTab === 'recommended'
-                    ? 'bg-gradient-to-r from-emerald-600 to-teal-700 text-white shadow-md shadow-emerald-500/20'
-                    : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
+                  activeCuratedTab === "recommended"
+                    ? "bg-gradient-to-r from-emerald-600 to-teal-700 text-white shadow-md shadow-emerald-500/20"
+                    : "bg-white text-slate-700 hover:bg-slate-100 border border-slate-200"
                 }`}
               >
-                <Target className={`w-4 h-4 ${activeCuratedTab === 'recommended' ? 'text-emerald-200' : 'text-emerald-600'}`} />
+                <Target
+                  className={`w-4 h-4 ${activeCuratedTab === "recommended" ? "text-emerald-200" : "text-emerald-600"}`}
+                />
                 <span>Recommended Hardware</span>
               </button>
             </div>
@@ -606,7 +663,7 @@ export const ProductGridSection: React.FC<ProductSectionProps> = ({
             {/* Curated Track Carousel */}
             <div className="relative group/curated">
               <button
-                onClick={() => scrollCurated('left')}
+                onClick={() => scrollCurated("left")}
                 className="absolute -left-4 top-1/2 -translate-y-1/2 z-20 w-11 h-11 bg-white/95 border border-slate-200 rounded-full shadow-xl flex items-center justify-center text-slate-700 hover:bg-[#00AEEF] hover:text-white hover:border-[#00AEEF] transition-all opacity-0 group-hover/curated:opacity-100 hidden sm:flex cursor-pointer"
                 aria-label="Previous"
               >
@@ -614,7 +671,7 @@ export const ProductGridSection: React.FC<ProductSectionProps> = ({
               </button>
 
               <button
-                onClick={() => scrollCurated('right')}
+                onClick={() => scrollCurated("right")}
                 className="absolute -right-4 top-1/2 -translate-y-1/2 z-20 w-11 h-11 bg-white/95 border border-slate-200 rounded-full shadow-xl flex items-center justify-center text-slate-700 hover:bg-[#00AEEF] hover:text-white hover:border-[#00AEEF] transition-all opacity-0 group-hover/curated:opacity-100 hidden sm:flex cursor-pointer"
                 aria-label="Next"
               >
@@ -624,14 +681,15 @@ export const ProductGridSection: React.FC<ProductSectionProps> = ({
               <div
                 ref={curatedScrollRef}
                 className="flex items-stretch gap-4 overflow-x-auto scrollbar-none pb-4 pt-1 px-1 scroll-smooth"
-                style={{ scrollbarWidth: 'none' }}
+                style={{ scrollbarWidth: "none" }}
               >
-                {getActiveCuratedList().map((product) => renderProductCard(product))}
+                {getActiveCuratedList().map((product) =>
+                  renderProductCard(product),
+                )}
               </div>
             </div>
           </div>
         )}
-
       </div>
     </section>
   );

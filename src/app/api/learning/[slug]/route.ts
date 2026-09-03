@@ -1,6 +1,6 @@
-import { NextResponse } from 'next/server';
-import { db } from '@/lib/db';
-import { LEARNING_RESOURCES } from '@/data/learningData';
+import { NextResponse } from "next/server";
+import { db } from "@/lib/db";
+import { LEARNING_RESOURCES } from "@/data/learningData";
 
 /**
  * GET /api/learning/[slug]
@@ -8,23 +8,23 @@ import { LEARNING_RESOURCES } from '@/data/learningData';
  */
 export async function GET(
   request: Request,
-  { params }: { params: Promise<{ slug: string }> }
+  { params }: { params: Promise<{ slug: string }> },
 ) {
   const resolvedParams = await params;
   const slug = resolvedParams.slug;
 
   if (!slug) {
-    return NextResponse.json({ success: false, message: 'Learning slug is required.' }, { status: 400 });
+    return NextResponse.json(
+      { success: false, message: "Learning slug is required." },
+      { status: 400 },
+    );
   }
 
   if (process.env.DATABASE_URL) {
     try {
       const item = await db.learningContent.findFirst({
         where: {
-          OR: [
-            { slug },
-            { id: slug },
-          ],
+          OR: [{ slug }, { id: slug }],
         },
       });
 
@@ -35,13 +35,18 @@ export async function GET(
         });
       }
     } catch (error) {
-      console.warn('Database lookup failed for learning slug', error);
+      console.warn("Database lookup failed for learning slug", error);
     }
   }
 
-  const mockItem = LEARNING_RESOURCES.find(l => l.slug === slug || l.id === slug);
+  const mockItem = LEARNING_RESOURCES.find(
+    (l) => l.slug === slug || l.id === slug,
+  );
   if (!mockItem) {
-    return NextResponse.json({ success: false, message: 'Learning resource not found.' }, { status: 404 });
+    return NextResponse.json(
+      { success: false, message: "Learning resource not found." },
+      { status: 404 },
+    );
   }
 
   return NextResponse.json({

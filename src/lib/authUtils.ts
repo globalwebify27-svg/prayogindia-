@@ -1,11 +1,11 @@
-import bcrypt from 'bcryptjs';
+import bcrypt from "bcryptjs";
 
 export interface AuthSessionUser {
   id: string;
   name: string;
   email: string;
   phone: string;
-  role: 'CUSTOMER';
+  role: "CUSTOMER";
 }
 
 /**
@@ -26,14 +26,17 @@ export async function hashPassword(password: string): Promise<string> {
 /**
  * Utility: Verify Plaintext Password against stored bcrypt hash
  */
-export async function verifyPassword(password: string, hash: string): Promise<boolean> {
+export async function verifyPassword(
+  password: string,
+  hash: string,
+): Promise<boolean> {
   return await bcrypt.compare(password, hash);
 }
 
 /**
  * Cookie-based Session Cookie Name
  */
-export const AUTH_COOKIE_NAME = 'prayog_customer_session';
+export const AUTH_COOKIE_NAME = "prayog_customer_session";
 
 /**
  * Helper to build safe user payload excluding password hashes
@@ -50,6 +53,6 @@ export function sanitizeUser(user: {
     name: user.name,
     email: user.email,
     phone: user.phone,
-    role: 'CUSTOMER',
+    role: "CUSTOMER",
   };
 }

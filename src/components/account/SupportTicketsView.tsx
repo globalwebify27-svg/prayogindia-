@@ -1,22 +1,33 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { MOCK_SUPPORT_TICKETS, SupportTicket } from '@/data/accountData';
-import { createSupportTicket, addSupportMessage } from '@/lib/apiServices';
-import { Headphones, Plus, Send, MessageSquare, CheckCircle2, Clock } from 'lucide-react';
+import React, { useState } from "react";
+import { MOCK_SUPPORT_TICKETS, SupportTicket } from "@/data/accountData";
+import { createSupportTicket, addSupportMessage } from "@/lib/apiServices";
+import {
+  Headphones,
+  Plus,
+  Send,
+  MessageSquare,
+  CheckCircle2,
+  Clock,
+} from "lucide-react";
 
 export const SupportTicketsView: React.FC = () => {
   const [tickets, setTickets] = useState<SupportTicket[]>(MOCK_SUPPORT_TICKETS);
-  const [selectedTicket, setSelectedTicket] = useState<SupportTicket | null>(null);
+  const [selectedTicket, setSelectedTicket] = useState<SupportTicket | null>(
+    null,
+  );
   const [showCreateForm, setShowCreateForm] = useState(false);
 
   // New Ticket Form State
-  const [subject, setSubject] = useState('');
-  const [category, setCategory] = useState<'Hardware Inquiry' | 'Lab Setup' | 'Order Tracking' | 'Technical Support'>('Technical Support');
-  const [message, setMessage] = useState('');
+  const [subject, setSubject] = useState("");
+  const [category, setCategory] = useState<
+    "Hardware Inquiry" | "Lab Setup" | "Order Tracking" | "Technical Support"
+  >("Technical Support");
+  const [message, setMessage] = useState("");
 
   // Reply State
-  const [replyText, setReplyText] = useState('');
+  const [replyText, setReplyText] = useState("");
 
   const handleCreateTicket = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,26 +38,28 @@ export const SupportTicketsView: React.FC = () => {
         ticketNumber: result.data.ticketNumber || `TKT-2026-OK`,
         subject: result.data.subject || subject,
         category: category as any,
-        status: 'Open',
-        createdDate: 'Just Now',
+        status: "Open",
+        createdDate: "Just Now",
         messages: result.data.messages?.map((m: any) => ({
           sender: m.sender,
           text: m.text,
-          timestamp: 'Just Now',
+          timestamp: "Just Now",
         })) || [
           {
-            sender: 'Customer',
+            sender: "Customer",
             text: message,
-            timestamp: 'Just Now',
-          }
-        ]
+            timestamp: "Just Now",
+          },
+        ],
       };
       setTickets([newTkt, ...tickets]);
       setShowCreateForm(false);
-      setSubject('');
-      setMessage('');
+      setSubject("");
+      setMessage("");
     } else {
-      alert(`Ticket submission response: ${result.message || 'Error creating ticket.'}`);
+      alert(
+        `Ticket submission response: ${result.message || "Error creating ticket."}`,
+      );
     }
   };
 
@@ -56,36 +69,40 @@ export const SupportTicketsView: React.FC = () => {
 
     const result = await addSupportMessage(selectedTicket.id, replyText);
 
-    const updated = tickets.map(t => {
+    const updated = tickets.map((t) => {
       if (t.id === selectedTicket.id) {
         return {
           ...t,
-          status: 'Open' as const,
+          status: "Open" as const,
           messages: [
             ...t.messages,
             {
-              sender: 'Customer' as const,
+              sender: "Customer" as const,
               text: replyText,
-              timestamp: 'Just Now'
-            }
-          ]
+              timestamp: "Just Now",
+            },
+          ],
         };
       }
       return t;
     });
 
     setTickets(updated);
-    setSelectedTicket(updated.find(t => t.id === selectedTicket.id) || null);
-    setReplyText('');
+    setSelectedTicket(updated.find((t) => t.id === selectedTicket.id) || null);
+    setReplyText("");
   };
 
   return (
     <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-2xs space-y-6 text-slate-900">
-      
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-xl font-extrabold text-slate-900 tracking-tight">Technical Support & Helpdesk</h2>
-          <p className="text-xs text-slate-500">Submit hardware setup inquiries, sensor troubleshooting tickets, or order help desk requests.</p>
+          <h2 className="text-xl font-extrabold text-slate-900 tracking-tight">
+            Technical Support & Helpdesk
+          </h2>
+          <p className="text-xs text-slate-500">
+            Submit hardware setup inquiries, sensor troubleshooting tickets, or
+            order help desk requests.
+          </p>
         </div>
 
         <button
@@ -102,8 +119,13 @@ export const SupportTicketsView: React.FC = () => {
 
       {/* New Ticket Form */}
       {showCreateForm && (
-        <form onSubmit={handleCreateTicket} className="bg-slate-50 border border-slate-200 p-5 rounded-2xl space-y-4 text-xs">
-          <h3 className="font-extrabold text-slate-900 text-sm">Create New Technical Support Ticket</h3>
+        <form
+          onSubmit={handleCreateTicket}
+          className="bg-slate-50 border border-slate-200 p-5 rounded-2xl space-y-4 text-xs"
+        >
+          <h3 className="font-extrabold text-slate-900 text-sm">
+            Create New Technical Support Ticket
+          </h3>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-1">
@@ -134,7 +156,9 @@ export const SupportTicketsView: React.FC = () => {
           </div>
 
           <div className="space-y-1">
-            <label className="font-bold text-slate-700">Detailed Query / Message</label>
+            <label className="font-bold text-slate-700">
+              Detailed Query / Message
+            </label>
             <textarea
               required
               rows={4}
@@ -146,10 +170,17 @@ export const SupportTicketsView: React.FC = () => {
           </div>
 
           <div className="flex items-center gap-3">
-            <button type="submit" className="bg-slate-900 text-white px-5 py-2 rounded-xl font-bold text-xs hover:bg-[#00AEEF]">
+            <button
+              type="submit"
+              className="bg-slate-900 text-white px-5 py-2 rounded-xl font-bold text-xs hover:bg-[#00AEEF]"
+            >
               Submit Ticket
             </button>
-            <button type="button" onClick={() => setShowCreateForm(false)} className="text-slate-500 font-bold hover:underline">
+            <button
+              type="button"
+              onClick={() => setShowCreateForm(false)}
+              className="text-slate-500 font-bold hover:underline"
+            >
               Cancel
             </button>
           </div>
@@ -161,10 +192,17 @@ export const SupportTicketsView: React.FC = () => {
         <div className="space-y-4 border-t border-slate-100 pt-4">
           <div className="flex items-center justify-between">
             <div>
-              <span className="text-[10px] font-mono font-bold text-slate-400">{selectedTicket.ticketNumber}</span>
-              <h3 className="text-base font-extrabold text-slate-900">{selectedTicket.subject}</h3>
+              <span className="text-[10px] font-mono font-bold text-slate-400">
+                {selectedTicket.ticketNumber}
+              </span>
+              <h3 className="text-base font-extrabold text-slate-900">
+                {selectedTicket.subject}
+              </h3>
             </div>
-            <button onClick={() => setSelectedTicket(null)} className="text-xs font-bold text-[#00AEEF] hover:underline">
+            <button
+              onClick={() => setSelectedTicket(null)}
+              className="text-xs font-bold text-[#00AEEF] hover:underline"
+            >
               ← Back to All Tickets
             </button>
           </div>
@@ -175,9 +213,9 @@ export const SupportTicketsView: React.FC = () => {
               <div
                 key={idx}
                 className={`p-3 rounded-2xl text-xs space-y-1 max-w-xl ${
-                  msg.sender === 'Customer'
-                    ? 'bg-[#00AEEF] text-white ml-auto'
-                    : 'bg-white text-slate-800 border border-slate-200'
+                  msg.sender === "Customer"
+                    ? "bg-[#00AEEF] text-white ml-auto"
+                    : "bg-white text-slate-800 border border-slate-200"
                 }`}
               >
                 <div className="flex items-center justify-between text-[10px] opacity-80 font-bold">
@@ -199,7 +237,10 @@ export const SupportTicketsView: React.FC = () => {
               onChange={(e) => setReplyText(e.target.value)}
               className="flex-1 bg-slate-50 border border-slate-200 p-3 rounded-xl text-xs focus:outline-none"
             />
-            <button type="submit" className="bg-slate-900 hover:bg-[#00AEEF] text-white px-4 rounded-xl text-xs font-extrabold flex items-center gap-1.5">
+            <button
+              type="submit"
+              className="bg-slate-900 hover:bg-[#00AEEF] text-white px-4 rounded-xl text-xs font-extrabold flex items-center gap-1.5"
+            >
               <Send className="w-3.5 h-3.5" />
               <span>Reply</span>
             </button>
@@ -216,13 +257,19 @@ export const SupportTicketsView: React.FC = () => {
             >
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="text-xs font-black text-slate-900">{tkt.ticketNumber}</span>
+                  <span className="text-xs font-black text-slate-900">
+                    {tkt.ticketNumber}
+                  </span>
                   <span className="bg-slate-200 text-slate-700 text-[10px] font-bold px-2 py-0.5 rounded">
                     {tkt.category}
                   </span>
                 </div>
-                <h4 className="text-xs font-bold text-slate-800 mt-1">{tkt.subject}</h4>
-                <p className="text-[10px] text-slate-400 mt-0.5">Created on {tkt.createdDate}</p>
+                <h4 className="text-xs font-bold text-slate-800 mt-1">
+                  {tkt.subject}
+                </h4>
+                <p className="text-[10px] text-slate-400 mt-0.5">
+                  Created on {tkt.createdDate}
+                </p>
               </div>
 
               <div className="flex items-center gap-3 shrink-0">
@@ -234,7 +281,6 @@ export const SupportTicketsView: React.FC = () => {
           ))}
         </div>
       )}
-
     </div>
   );
 };

@@ -1,5 +1,14 @@
-import { redirect } from 'next/navigation';
+"use client";
 
-export default async function AdminPage() {
-  redirect('/admin/dashboard');
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+
+export default function AdminPage() {
+  const router = useRouter();
+
+  useEffect(() => {
+    router.replace("/admin/dashboard");
+  }, [router]);
+
+  return null;
 }

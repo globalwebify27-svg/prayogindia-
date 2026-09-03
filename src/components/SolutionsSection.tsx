@@ -1,19 +1,20 @@
-'use client';
+"use client";
 
-import React from 'react';
-import Image from 'next/image';
-import { ArrowRight, CheckCircle2 } from 'lucide-react';
-import { SOLUTIONS } from '@/data/mockData';
+import React from "react";
+import Image from "next/image";
+import { ArrowRight, CheckCircle2 } from "lucide-react";
+import { SOLUTIONS } from "@/data/mockData";
 
 interface SolutionsProps {
   onSelectSolution: (solutionTitle: string) => void;
 }
 
-export const SolutionsSection: React.FC<SolutionsProps> = ({ onSelectSolution }) => {
+export const SolutionsSection: React.FC<SolutionsProps> = ({
+  onSelectSolution,
+}) => {
   return (
     <section id="solutions" className="py-8 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-14">
           <div className="inline-block bg-blue-50 text-[#1E56A0] text-xs font-extrabold tracking-widest uppercase px-3.5 py-1 rounded-full mb-3">
@@ -23,7 +24,9 @@ export const SolutionsSection: React.FC<SolutionsProps> = ({ onSelectSolution })
             Technology for Every Journey
           </h2>
           <p className="text-slate-600 text-base mt-3">
-            Custom engineered robotics architectures, aerial UAV solutions, and AI edge vision tailored for institutional, industrial and research applications.
+            Custom engineered robotics architectures, aerial UAV solutions, and
+            AI edge vision tailored for institutional, industrial and research
+            applications.
           </p>
         </div>
 
@@ -65,7 +68,10 @@ export const SolutionsSection: React.FC<SolutionsProps> = ({ onSelectSolution })
                   {/* Highlights Bullet List */}
                   <div className="space-y-2 mb-6">
                     {sol.highlights.map((h, i) => (
-                      <div key={i} className="flex items-center gap-2 text-xs font-semibold text-slate-800">
+                      <div
+                        key={i}
+                        className="flex items-center gap-2 text-xs font-semibold text-slate-800"
+                      >
                         <CheckCircle2 className="w-4 h-4 text-[#1E56A0] shrink-0" />
                         <span>{h}</span>
                       </div>
@@ -84,7 +90,6 @@ export const SolutionsSection: React.FC<SolutionsProps> = ({ onSelectSolution })
             </div>
           ))}
         </div>
-
       </div>
     </section>
   );

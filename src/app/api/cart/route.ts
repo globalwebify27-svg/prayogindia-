@@ -1,12 +1,12 @@
-import { NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
-import { db } from '@/lib/db';
-import { PRODUCTS, Product } from '@/data/mockData';
-import { AuthSessionUser } from '@/lib/authUtils';
+import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
+import { db } from "@/lib/db";
+import { PRODUCTS, Product } from "@/data/mockData";
+import { AuthSessionUser } from "@/lib/authUtils";
 
 async function getAuthenticatedUser(): Promise<AuthSessionUser | null> {
   const cookieStore = await cookies();
-  const sessionCookie = cookieStore.get('prayog_customer_session');
+  const sessionCookie = cookieStore.get("prayog_customer_session");
   if (!sessionCookie?.value) return null;
   try {
     return JSON.parse(sessionCookie.value);
@@ -19,7 +19,10 @@ async function getAuthenticatedUser(): Promise<AuthSessionUser | null> {
 export async function GET() {
   const user = await getAuthenticatedUser();
   if (!user) {
-    return NextResponse.json({ success: false, message: 'Unauthenticated' }, { status: 401 });
+    return NextResponse.json(
+      { success: false, message: "Unauthenticated" },
+      { status: 401 },
+    );
   }
 
   if (process.env.DATABASE_URL) {
@@ -49,14 +52,16 @@ export async function GET() {
       });
     }
 
-    const formattedItems = cart.items.map(item => {
+    const formattedItems = cart.items.map((item) => {
       const unitPrice = item.variant ? item.variant.price : item.product.price;
       return {
         id: item.id,
         productId: item.productId,
         variantId: item.variantId,
         name: item.product.name,
-        image: item.product.images[0]?.imageUrl || 'https://images.unsplash.com/photo-1553406830-ef2513450d76?auto=format&fit=crop&w=600&q=80',
+        image:
+          item.product.images[0]?.imageUrl ||
+          "https://images.unsplash.com/photo-1553406830-ef2513450d76?auto=format&fit=crop&w=600&q=80",
         unitPrice,
         lineTotal: unitPrice * item.quantity,
         quantity: item.quantity,
@@ -64,7 +69,10 @@ export async function GET() {
       };
     });
 
-    const subtotal = formattedItems.reduce((acc, curr) => acc + curr.lineTotal, 0);
+    const subtotal = formattedItems.reduce(
+      (acc, curr) => acc + curr.lineTotal,
+      0,
+    );
 
     return NextResponse.json({
       success: true,
@@ -73,7 +81,7 @@ export async function GET() {
         items: formattedItems,
         subtotal,
       },
-      source: 'database',
+      source: "database",
     });
   }
 
@@ -84,7 +92,7 @@ export async function GET() {
       items: [],
       subtotal: 0,
     },
-    source: 'mock',
+    source: "mock",
   });
 }
 
@@ -92,7 +100,10 @@ export async function GET() {
 export async function DELETE() {
   const user = await getAuthenticatedUser();
   if (!user) {
-    return NextResponse.json({ success: false, message: 'Unauthenticated' }, { status: 401 });
+    return NextResponse.json(
+      { success: false, message: "Unauthenticated" },
+      { status: 401 },
+    );
   }
 
   if (process.env.DATABASE_URL) {
@@ -102,5 +113,8 @@ export async function DELETE() {
     }
   }
 
-  return NextResponse.json({ success: true, message: 'Cart cleared successfully.' });
+  return NextResponse.json({
+    success: true,
+    message: "Cart cleared successfully.",
+  });
 }

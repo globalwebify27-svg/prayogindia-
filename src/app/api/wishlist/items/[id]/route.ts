@@ -1,7 +1,7 @@
-import { NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
-import { db } from '@/lib/db';
-import { AuthSessionUser } from '@/lib/authUtils';
+import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
+import { db } from "@/lib/db";
+import { AuthSessionUser } from "@/lib/authUtils";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -9,7 +9,7 @@ interface Props {
 
 async function getAuthenticatedUser(): Promise<AuthSessionUser | null> {
   const cookieStore = await cookies();
-  const sessionCookie = cookieStore.get('prayog_customer_session');
+  const sessionCookie = cookieStore.get("prayog_customer_session");
   if (!sessionCookie?.value) return null;
   try {
     return JSON.parse(sessionCookie.value);
@@ -22,7 +22,10 @@ async function getAuthenticatedUser(): Promise<AuthSessionUser | null> {
 export async function DELETE(request: Request, { params }: Props) {
   const user = await getAuthenticatedUser();
   if (!user) {
-    return NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 401 });
+    return NextResponse.json(
+      { success: false, message: "Unauthorized" },
+      { status: 401 },
+    );
   }
 
   try {
@@ -37,16 +40,27 @@ export async function DELETE(request: Request, { params }: Props) {
       });
 
       if (!item) {
-        return NextResponse.json({ success: false, message: 'Wishlist item not found or forbidden.' }, { status: 404 });
+        return NextResponse.json(
+          { success: false, message: "Wishlist item not found or forbidden." },
+          { status: 404 },
+        );
       }
 
       await db.wishlistItem.delete({ where: { id: item.id } });
-      return NextResponse.json({ success: true, message: 'Removed from wishlist.' });
+      return NextResponse.json({
+        success: true,
+        message: "Removed from wishlist.",
+      });
     }
 
-    return NextResponse.json({ success: true, message: 'Removed from wishlist (Mock Mode).' });
-
+    return NextResponse.json({
+      success: true,
+      message: "Removed from wishlist (Mock Mode).",
+    });
   } catch (error: any) {
-    return NextResponse.json({ success: false, message: 'Failed to remove wishlist item.' }, { status: 500 });
+    return NextResponse.json(
+      { success: false, message: "Failed to remove wishlist item." },
+      { status: 500 },
+    );
   }
 }

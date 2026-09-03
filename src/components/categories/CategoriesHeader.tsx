@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 interface CategoriesHeaderProps {
   title?: string;
@@ -7,7 +7,7 @@ interface CategoriesHeaderProps {
 
 export const CategoriesHeader: React.FC<CategoriesHeaderProps> = ({
   title = "Explore Categories",
-  description = "Explore robotics, electronics, STEM, IoT and technology products."
+  description = "Explore robotics, electronics, STEM, IoT and technology products.",
 }) => {
   return (
     <div className="py-6 sm:py-8 space-y-2 border-b border-slate-100">

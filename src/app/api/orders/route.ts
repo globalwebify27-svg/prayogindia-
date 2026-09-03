@@ -1,13 +1,13 @@
-import { NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
-import { db } from '@/lib/db';
-import { AuthSessionUser } from '@/lib/authUtils';
-import { NotificationService } from '@/lib/notifications';
-import { OrderStatus } from '@prisma/client';
+import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
+import { db } from "@/lib/db";
+import { AuthSessionUser } from "@/lib/authUtils";
+import { NotificationService } from "@/lib/notifications";
+import { OrderStatus } from "@prisma/client";
 
 async function getAuthenticatedUser(): Promise<AuthSessionUser | null> {
   const cookieStore = await cookies();
-  const sessionCookie = cookieStore.get('prayog_customer_session');
+  const sessionCookie = cookieStore.get("prayog_customer_session");
   if (!sessionCookie?.value) return null;
   try {
     return JSON.parse(sessionCookie.value);
@@ -37,15 +37,15 @@ function generateOrderNumber(): string {
  */
 export async function POST(request: Request) {
   let user: AuthSessionUser | null = await getAuthenticatedUser();
-  
+
   // If guest customer checkout, fallback to Guest Account representation
   if (!user) {
     user = {
-      id: 'usr-guest-checkout',
-      name: 'Guest Customer',
-      email: 'guest.checkout@prayogindia.com',
-      phone: '+91 98000 00000',
-      role: 'CUSTOMER' as any,
+      id: "usr-guest-checkout",
+      name: "Guest Customer",
+      email: "guest.checkout@prayogindia.com",
+      phone: "+91 98000 00000",
+      role: "CUSTOMER" as any,
     };
   }
 
@@ -58,13 +58,16 @@ export async function POST(request: Request) {
       const mockOrderNumber = generateOrderNumber();
       return NextResponse.json({
         success: true,
-        message: 'Order created successfully (Mock Mode).',
+        message: "Order created successfully (Mock Mode).",
         data: {
           id: `ord-mock-${Date.now()}`,
           orderNumber: mockOrderNumber,
-          status: 'ORDER_PLACED',
+          status: "ORDER_PLACED",
           totalAmount: 1499,
-          shippingAddress: typeof customAddressInput === 'string' ? customAddressInput : 'Prayog Tech Hub, Bengaluru - 560100',
+          shippingAddress:
+            typeof customAddressInput === "string"
+              ? customAddressInput
+              : "Prayog Tech Hub, Bengaluru - 560100",
           createdAt: new Date().toISOString(),
         },
       });
@@ -79,8 +82,8 @@ export async function POST(request: Request) {
           name: user.name,
           email: user.email,
           phone: user.phone,
-          passwordHash: 'GUEST_ACCOUNT_NO_PASSWORD',
-          role: 'CUSTOMER',
+          passwordHash: "GUEST_ACCOUNT_NO_PASSWORD",
+          role: "CUSTOMER",
         },
       });
     }
@@ -104,7 +107,9 @@ export async function POST(request: Request) {
 
     // Auto-populate guest cart with first available DB products if guest cart is empty
     if (!cart || cart.items.length === 0) {
-      const firstProd = await db.product.findFirst({ where: { inStock: true } });
+      const firstProd = await db.product.findFirst({
+        where: { inStock: true },
+      });
       if (firstProd) {
         if (!cart) {
           cart = await db.cart.create({
@@ -143,37 +148,48 @@ export async function POST(request: Request) {
 
     if (!cart || cart.items.length === 0) {
       return NextResponse.json(
-        { success: false, message: 'Cart is empty. Add products before creating an order.' },
-        { status: 422 }
+        {
+          success: false,
+          message: "Cart is empty. Add products before creating an order.",
+        },
+        { status: 422 },
       );
     }
 
     // 2. Resolve Shipping Address & Snapshot String
-    let addressSnapshotString = '';
+    let addressSnapshotString = "";
     if (addressId) {
       const dbAddress = await db.address.findFirst({
         where: { id: addressId, userId: dbUser.id },
       });
       if (dbAddress) {
         addressSnapshotString = `${dbAddress.name}, Phone: ${dbAddress.phone}, ${dbAddress.street}, ${dbAddress.city}, ${dbAddress.state} - ${dbAddress.pincode} (${dbAddress.type})`;
-      } else if (typeof customAddressInput === 'string' && customAddressInput.trim().length > 5) {
+      } else if (
+        typeof customAddressInput === "string" &&
+        customAddressInput.trim().length > 5
+      ) {
         addressSnapshotString = customAddressInput.trim();
       } else {
-        addressSnapshotString = 'Prayog Tech Hub, Bengaluru - 560100 (Default Shipping)';
+        addressSnapshotString =
+          "Prayog Tech Hub, Bengaluru - 560100 (Default Shipping)";
       }
-    } else if (typeof customAddressInput === 'string' && customAddressInput.trim().length > 5) {
+    } else if (
+      typeof customAddressInput === "string" &&
+      customAddressInput.trim().length > 5
+    ) {
       addressSnapshotString = customAddressInput.trim();
     } else {
       // Fallback to customer's default address or first address
       const defaultAddr = await db.address.findFirst({
         where: { userId: dbUser.id },
-        orderBy: { isDefault: 'desc' },
+        orderBy: { isDefault: "desc" },
       });
 
       if (defaultAddr) {
         addressSnapshotString = `${defaultAddr.name}, Phone: ${defaultAddr.phone}, ${defaultAddr.street}, ${defaultAddr.city}, ${defaultAddr.state} - ${defaultAddr.pincode} (${defaultAddr.type})`;
       } else {
-        addressSnapshotString = 'Prayog Tech Hub, Bengaluru - 560100 (Default Shipping)';
+        addressSnapshotString =
+          "Prayog Tech Hub, Bengaluru - 560100 (Default Shipping)";
       }
     }
 
@@ -192,8 +208,11 @@ export async function POST(request: Request) {
       // Validate Product Status
       if (!item.product || !item.product.inStock) {
         return NextResponse.json(
-          { success: false, message: `Product "${item.product?.name || 'Item'}" is out of stock.` },
-          { status: 422 }
+          {
+            success: false,
+            message: `Product "${item.product?.name || "Item"}" is out of stock.`,
+          },
+          { status: 422 },
         );
       }
 
@@ -203,11 +222,16 @@ export async function POST(request: Request) {
       let availableStock = item.product.stock;
 
       if (item.variantId) {
-        const matchingVariant = item.product.variants.find(v => v.id === item.variantId);
+        const matchingVariant = item.product.variants.find(
+          (v) => v.id === item.variantId,
+        );
         if (!matchingVariant) {
           return NextResponse.json(
-            { success: false, message: `Selected variant for "${item.product.name}" is invalid.` },
-            { status: 400 }
+            {
+              success: false,
+              message: `Selected variant for "${item.product.name}" is invalid.`,
+            },
+            { status: 400 },
           );
         }
         trustedPrice = matchingVariant.price;
@@ -218,8 +242,11 @@ export async function POST(request: Request) {
       // Stock Check
       if (item.quantity <= 0) {
         return NextResponse.json(
-          { success: false, message: `Invalid item quantity ${item.quantity} for "${item.product.name}".` },
-          { status: 400 }
+          {
+            success: false,
+            message: `Invalid item quantity ${item.quantity} for "${item.product.name}".`,
+          },
+          { status: 400 },
         );
       }
 
@@ -229,7 +256,7 @@ export async function POST(request: Request) {
             success: false,
             message: `Insufficient stock for "${item.product.name}". Available: ${availableStock}, requested: ${item.quantity}.`,
           },
-          { status: 422 }
+          { status: 422 },
         );
       }
 
@@ -253,7 +280,9 @@ export async function POST(request: Request) {
 
     // Generate Unique Order Number
     let newOrderNumber = generateOrderNumber();
-    const existingOrderNum = await db.order.findUnique({ where: { orderNumber: newOrderNumber } });
+    const existingOrderNum = await db.order.findUnique({
+      where: { orderNumber: newOrderNumber },
+    });
     if (existingOrderNum) {
       newOrderNumber = `${newOrderNumber}-${Math.floor(Math.random() * 100)}`;
     }
@@ -291,7 +320,7 @@ export async function POST(request: Request) {
     // Trigger Non-Blocking Customer Notification & Optional Email (B9)
     NotificationService.createNotification({
       userId: user.id,
-      type: 'ORDER_PLACED',
+      type: "ORDER_PLACED",
       title: `Order Placed: ${newOrder.orderNumber}`,
       message: `Your hardware order #${newOrder.orderNumber} for ₹${newOrder.totalAmount} has been placed successfully.`,
       data: {
@@ -301,19 +330,22 @@ export async function POST(request: Request) {
         shippingAddress: newOrder.shippingAddress,
       },
       customerEmail: user.email,
-    }).catch(err => {
-      console.warn('Non-blocking order notification trigger failed', err);
+    }).catch((err) => {
+      console.warn("Non-blocking order notification trigger failed", err);
     });
 
     return NextResponse.json({
       success: true,
-      message: 'Order created successfully.',
+      message: "Order created successfully.",
       data: newOrder,
     });
   } catch (error: any) {
     return NextResponse.json(
-      { success: false, message: error.message || 'Failed to process order creation.' },
-      { status: 500 }
+      {
+        success: false,
+        message: error.message || "Failed to process order creation.",
+      },
+      { status: 500 },
     );
   }
 }
@@ -325,13 +357,19 @@ export async function POST(request: Request) {
 export async function GET(request: Request) {
   const user = await getAuthenticatedUser();
   if (!user) {
-    return NextResponse.json({ success: false, message: 'Unauthenticated' }, { status: 401 });
+    return NextResponse.json(
+      { success: false, message: "Unauthenticated" },
+      { status: 401 },
+    );
   }
 
   const { searchParams } = new URL(request.url);
-  const page = Math.max(1, parseInt(searchParams.get('page') || '1', 10));
-  const limit = Math.min(50, Math.max(1, parseInt(searchParams.get('limit') || '10', 10)));
-  const statusFilter = searchParams.get('status');
+  const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
+  const limit = Math.min(
+    50,
+    Math.max(1, parseInt(searchParams.get("limit") || "10", 10)),
+  );
+  const statusFilter = searchParams.get("status");
 
   if (!process.env.DATABASE_URL) {
     return NextResponse.json({
@@ -343,13 +381,16 @@ export async function GET(request: Request) {
         total: 0,
         totalPages: 0,
       },
-      source: 'mock',
+      source: "mock",
     });
   }
 
   try {
     const whereClause: any = { userId: user.id };
-    if (statusFilter && Object.values(OrderStatus).includes(statusFilter as OrderStatus)) {
+    if (
+      statusFilter &&
+      Object.values(OrderStatus).includes(statusFilter as OrderStatus)
+    ) {
       whereClause.status = statusFilter as OrderStatus;
     }
 
@@ -358,7 +399,7 @@ export async function GET(request: Request) {
 
     const orders = await db.order.findMany({
       where: whereClause,
-      orderBy: { createdAt: 'desc' },
+      orderBy: { createdAt: "desc" },
       skip: (page - 1) * limit,
       take: limit,
       include: {
@@ -387,8 +428,11 @@ export async function GET(request: Request) {
     });
   } catch (error: any) {
     return NextResponse.json(
-      { success: false, message: error.message || 'Failed to fetch customer orders.' },
-      { status: 500 }
+      {
+        success: false,
+        message: error.message || "Failed to fetch customer orders.",
+      },
+      { status: 500 },
     );
   }
 }

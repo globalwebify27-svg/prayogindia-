@@ -1,36 +1,43 @@
-'use client';
+"use client";
 
-import React from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
-import { CategoryBreadcrumb } from '@/components/categories/CategoryBreadcrumb';
-import { ProductCard } from '@/components/products/ProductCard';
-import { CategoryData, CATEGORIES_DATA } from '@/data/categories';
-import { PRODUCTS } from '@/data/mockData';
-import { ArrowRight, ChevronRight, Layers } from 'lucide-react';
+import React from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { CategoryBreadcrumb } from "@/components/categories/CategoryBreadcrumb";
+import { ProductCard } from "@/components/products/ProductCard";
+import { CategoryData, CATEGORIES_DATA } from "@/data/categories";
+import { PRODUCTS } from "@/data/mockData";
+import { ArrowRight, ChevronRight, Layers } from "lucide-react";
 
 interface CategoryDetailProps {
   categorySlug: string;
 }
 
-export const CategoryDetailView: React.FC<CategoryDetailProps> = ({ categorySlug }) => {
+export const CategoryDetailView: React.FC<CategoryDetailProps> = ({
+  categorySlug,
+}) => {
   // Find category data by slug
-  const category = CATEGORIES_DATA.find(c => c.slug === categorySlug || c.slugAlias === categorySlug) || CATEGORIES_DATA[0];
+  const category =
+    CATEGORIES_DATA.find(
+      (c) => c.slug === categorySlug || c.slugAlias === categorySlug,
+    ) || CATEGORIES_DATA[0];
 
   // Filter products for this category
   const categoryProducts = PRODUCTS.filter(
-    p => p.category.toLowerCase().includes(category.name.toLowerCase()) ||
-         category.subcategories.some(sub => p.name.toLowerCase().includes(sub.name.toLowerCase()))
+    (p) =>
+      p.category.toLowerCase().includes(category.name.toLowerCase()) ||
+      category.subcategories.some((sub) =>
+        p.name.toLowerCase().includes(sub.name.toLowerCase()),
+      ),
   );
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-10 animate-in fade-in duration-300">
-      
       {/* 1. Breadcrumb */}
       <CategoryBreadcrumb
         items={[
-          { label: 'Categories', href: '/categories' },
-          { label: category.name }
+          { label: "Categories", href: "/categories" },
+          { label: category.name },
         ]}
       />
 
@@ -65,7 +72,9 @@ export const CategoryDetailView: React.FC<CategoryDetailProps> = ({ categorySlug
             <Layers className="w-5 h-5 text-[#00AEEF]" />
             <span>Subcategories in {category.name}</span>
           </h2>
-          <span className="text-xs font-bold text-slate-400">{category.subcategories.length} Subcategories</span>
+          <span className="text-xs font-bold text-slate-400">
+            {category.subcategories.length} Subcategories
+          </span>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -108,7 +117,10 @@ export const CategoryDetailView: React.FC<CategoryDetailProps> = ({ categorySlug
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {(categoryProducts.length > 0 ? categoryProducts : PRODUCTS.slice(0, 4)).map((prod) => (
+          {(categoryProducts.length > 0
+            ? categoryProducts
+            : PRODUCTS.slice(0, 4)
+          ).map((prod) => (
             <ProductCard key={prod.id} product={prod} />
           ))}
         </div>
@@ -116,9 +128,14 @@ export const CategoryDetailView: React.FC<CategoryDetailProps> = ({ categorySlug
 
       {/* 5. Related Categories */}
       <div className="space-y-4 pt-6 border-t border-slate-100">
-        <h3 className="text-lg font-black text-slate-900">Related Categories</h3>
-        <div className="flex items-center gap-3 overflow-x-auto scrollbar-none py-2" style={{ scrollbarWidth: 'none' }}>
-          {CATEGORIES_DATA.filter(c => c.id !== category.id).map((rel) => (
+        <h3 className="text-lg font-black text-slate-900">
+          Related Categories
+        </h3>
+        <div
+          className="flex items-center gap-3 overflow-x-auto scrollbar-none py-2"
+          style={{ scrollbarWidth: "none" }}
+        >
+          {CATEGORIES_DATA.filter((c) => c.id !== category.id).map((rel) => (
             <Link
               key={rel.id}
               href={`/categories/${rel.slug}`}
@@ -130,7 +147,6 @@ export const CategoryDetailView: React.FC<CategoryDetailProps> = ({ categorySlug
           ))}
         </div>
       </div>
-
     </div>
   );
 };

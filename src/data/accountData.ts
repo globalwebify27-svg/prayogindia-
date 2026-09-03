@@ -6,7 +6,7 @@ export interface Address {
   city: string;
   state: string;
   pincode: string;
-  type: 'Home' | 'Office' | 'Lab / College';
+  type: "Home" | "Office" | "Lab / College";
   isDefault: boolean;
 }
 
@@ -18,7 +18,14 @@ export interface CustomerOrder {
   subtotal?: number;
   gstAmount?: number;
   discountAmount?: number;
-  status: 'Order Placed' | 'Payment Confirmed' | 'Processing' | 'Packed' | 'Shipped' | 'Out for Delivery' | 'Delivered';
+  status:
+    | "Order Placed"
+    | "Payment Confirmed"
+    | "Processing"
+    | "Packed"
+    | "Shipped"
+    | "Out for Delivery"
+    | "Delivered";
   itemsCount: number;
   shippingAddress: string;
   courierName?: string;
@@ -40,18 +47,31 @@ export interface SupportTicket {
   id: string;
   ticketNumber: string;
   subject: string;
-  category: 'Hardware Inquiry' | 'Lab Setup' | 'Order Tracking' | 'Technical Support';
-  status: 'Open' | 'In Progress' | 'Waiting for Customer' | 'Resolved' | 'Closed';
+  category:
+    "Hardware Inquiry" | "Lab Setup" | "Order Tracking" | "Technical Support";
+  status:
+    "Open" | "In Progress" | "Waiting for Customer" | "Resolved" | "Closed";
   createdDate: string;
   messages: Array<{
-    sender: 'Customer' | 'Support Desk';
+    sender: "Customer" | "Support Desk";
     text: string;
     timestamp: string;
   }>;
 }
 
-// Clean state: No pre-loaded addresses or fake orders
-export const MOCK_SAVED_ADDRESSES: Address[] = [];
+export const MOCK_SAVED_ADDRESSES: Address[] = [
+  {
+    id: "addr-default-1",
+    name: "Customer Delivery Address",
+    phone: "+91 98765 00000",
+    street: "Flat 402, Green Glen Tech Park, Outer Ring Road",
+    city: "Bengaluru",
+    state: "Karnataka",
+    pincode: "560103",
+    type: "Home",
+    isDefault: true,
+  },
+];
 
 export const MOCK_CUSTOMER_ORDERS: CustomerOrder[] = [];
 

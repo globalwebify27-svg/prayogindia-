@@ -1,15 +1,15 @@
-import { NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
-import { AuthSessionUser } from '@/lib/authUtils';
+import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
+import { AuthSessionUser } from "@/lib/authUtils";
 
 export async function GET() {
   const cookieStore = await cookies();
-  const sessionCookie = cookieStore.get('prayog_customer_session');
+  const sessionCookie = cookieStore.get("prayog_customer_session");
 
   if (!sessionCookie || !sessionCookie.value) {
     return NextResponse.json(
-      { success: false, message: 'Unauthenticated.' },
-      { status: 401 }
+      { success: false, message: "Unauthenticated." },
+      { status: 401 },
     );
   }
 
@@ -21,8 +21,8 @@ export async function GET() {
     });
   } catch {
     return NextResponse.json(
-      { success: false, message: 'Invalid session.' },
-      { status: 401 }
+      { success: false, message: "Invalid session." },
+      { status: 401 },
     );
   }
 }

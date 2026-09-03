@@ -1,6 +1,6 @@
-import { NextResponse } from 'next/server';
-import { db } from '@/lib/db';
-import { CATEGORIES, PRODUCTS } from '@/data/mockData';
+import { NextResponse } from "next/server";
+import { db } from "@/lib/db";
+import { CATEGORIES, PRODUCTS } from "@/data/mockData";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -27,12 +27,21 @@ export async function GET(request: Request, { params }: Props) {
       }
     }
 
-    const category = CATEGORIES.find(c => c.id === slug || c.name.toLowerCase().replace(/[^a-z0-9]+/g, '-') === slug);
+    const category = CATEGORIES.find(
+      (c) =>
+        c.id === slug ||
+        c.name.toLowerCase().replace(/[^a-z0-9]+/g, "-") === slug,
+    );
     if (!category) {
-      return NextResponse.json({ success: false, message: 'Category not found' }, { status: 404 });
+      return NextResponse.json(
+        { success: false, message: "Category not found" },
+        { status: 404 },
+      );
     }
 
-    const categoryProducts = PRODUCTS.filter(p => p.category.toLowerCase() === category.name.toLowerCase());
+    const categoryProducts = PRODUCTS.filter(
+      (p) => p.category.toLowerCase() === category.name.toLowerCase(),
+    );
 
     return NextResponse.json({
       success: true,
@@ -41,8 +50,10 @@ export async function GET(request: Request, { params }: Props) {
         products: categoryProducts,
       },
     });
-
   } catch (error: any) {
-    return NextResponse.json({ success: false, message: 'Failed to fetch category details' }, { status: 500 });
+    return NextResponse.json(
+      { success: false, message: "Failed to fetch category details" },
+      { status: 500 },
+    );
   }
 }

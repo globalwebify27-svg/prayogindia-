@@ -1,30 +1,30 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
-import { useRouter } from 'next/navigation';
-import { useStore } from '@/context/StoreContext';
-import { MOCK_CUSTOMER_ORDERS, CustomerOrder } from '@/data/accountData';
-import { PRODUCTS } from '@/data/mockData';
-import { 
-  Truck, 
-  CheckCircle2, 
-  Clock, 
-  ArrowLeft, 
-  FileText, 
-  RotateCcw, 
-  RefreshCw, 
-  XCircle, 
-  MessageSquare, 
+import React, { useState } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { useStore } from "@/context/StoreContext";
+import { MOCK_CUSTOMER_ORDERS, CustomerOrder } from "@/data/accountData";
+import { PRODUCTS } from "@/data/mockData";
+import {
+  Truck,
+  CheckCircle2,
+  Clock,
+  ArrowLeft,
+  FileText,
+  RotateCcw,
+  RefreshCw,
+  XCircle,
+  MessageSquare,
   ExternalLink,
   ShieldCheck,
   CreditCard,
   PhoneCall,
   Sparkles,
   DollarSign,
-  AlertCircle
-} from 'lucide-react';
+  AlertCircle,
+} from "lucide-react";
 
 interface OrderDetailProps {
   orderId: string;
@@ -38,17 +38,17 @@ export const OrderDetailView: React.FC<OrderDetailProps> = ({ orderId }) => {
   const fallbackOrder: CustomerOrder = {
     id: orderId,
     orderNumber: `PRG-2026-${orderId.slice(-4).toUpperCase()}`,
-    date: 'Today',
+    date: "Today",
     totalAmount: 4999,
     subtotal: 4236,
     gstAmount: 763,
     discountAmount: 0,
-    status: 'Payment Confirmed',
+    status: "Payment Confirmed",
     itemsCount: 1,
-    shippingAddress: 'Your verified delivery address',
-    courierName: 'Delhivery Surface Cargo',
-    trackingNumber: 'DEL-99228811IN',
-    trackingUrl: 'https://www.delhivery.com',
+    shippingAddress: "Your verified delivery address",
+    courierName: "Delhivery Surface Cargo",
+    trackingNumber: "DEL-99228811IN",
+    trackingUrl: "https://www.delhivery.com",
     isCancelable: true,
     isReturnable: true,
     items: [
@@ -59,38 +59,55 @@ export const OrderDetailView: React.FC<OrderDetailProps> = ({ orderId }) => {
         quantity: 1,
         price: PRODUCTS[0].price,
         image: PRODUCTS[0].image,
-      }
-    ]
+      },
+    ],
   };
 
-  const order = orders.find(o => o.id === orderId || o.orderNumber === orderId) || fallbackOrder;
+  const order =
+    orders.find((o) => o.id === orderId || o.orderNumber === orderId) ||
+    fallbackOrder;
 
   // Request Modals State
-  const [modalType, setModalType] = useState<'cancel' | 'return' | 'replacement' | 'refund' | null>(null);
-  const [requestReason, setRequestReason] = useState('');
-  const [requestSubmittedMessage, setRequestSubmittedMessage] = useState<string | null>(null);
+  const [modalType, setModalType] = useState<
+    "cancel" | "return" | "replacement" | "refund" | null
+  >(null);
+  const [requestReason, setRequestReason] = useState("");
+  const [requestSubmittedMessage, setRequestSubmittedMessage] = useState<
+    string | null
+  >(null);
 
   // Section 21 Exact Order Timeline Flow:
   // Order Placed -> Payment Confirmed -> Processing -> Packed -> Shipped. Out for Delivery -> Delivered
   const timelineSteps: Array<{ key: string; label: string; sub: string }> = [
-    { key: 'placed', label: 'Order Placed', sub: 'Order recorded' },
-    { key: 'payment', label: 'Payment Confirmed', sub: 'UPI/Card Verified' },
-    { key: 'processing', label: 'Processing', sub: 'Warehouse QA' },
-    { key: 'packed', label: 'Packed', sub: 'Tamper-proof Box' },
-    { key: 'shipped_out', label: 'Shipped · Out for Delivery', sub: 'Surface/Air Courier' },
-    { key: 'delivered', label: 'Delivered', sub: 'Doorstep Handover' },
+    { key: "placed", label: "Order Placed", sub: "Order recorded" },
+    { key: "payment", label: "Payment Confirmed", sub: "UPI/Card Verified" },
+    { key: "processing", label: "Processing", sub: "Warehouse QA" },
+    { key: "packed", label: "Packed", sub: "Tamper-proof Box" },
+    {
+      key: "shipped_out",
+      label: "Shipped · Out for Delivery",
+      sub: "Surface/Air Courier",
+    },
+    { key: "delivered", label: "Delivered", sub: "Doorstep Handover" },
   ];
 
-  const getStepIndex = (status: CustomerOrder['status']) => {
+  const getStepIndex = (status: CustomerOrder["status"]) => {
     switch (status) {
-      case 'Order Placed': return 0;
-      case 'Payment Confirmed': return 1;
-      case 'Processing': return 2;
-      case 'Packed': return 3;
-      case 'Shipped':
-      case 'Out for Delivery': return 4;
-      case 'Delivered': return 5;
-      default: return 1;
+      case "Order Placed":
+        return 0;
+      case "Payment Confirmed":
+        return 1;
+      case "Processing":
+        return 2;
+      case "Packed":
+        return 3;
+      case "Shipped":
+      case "Out for Delivery":
+        return 4;
+      case "Delivered":
+        return 5;
+      default:
+        return 1;
     }
   };
 
@@ -98,28 +115,39 @@ export const OrderDetailView: React.FC<OrderDetailProps> = ({ orderId }) => {
 
   // Reorder Handler
   const handleReorder = () => {
-    order.items.forEach(item => {
-      const matchProduct = PRODUCTS.find(p => p.sku === item.sku || p.id === item.id) || PRODUCTS[0];
+    order.items.forEach((item) => {
+      const matchProduct =
+        PRODUCTS.find((p) => p.sku === item.sku || p.id === item.id) ||
+        PRODUCTS[0];
       addToCart(matchProduct, undefined, item.quantity);
     });
-    router.push('/cart');
+    router.push("/cart");
   };
 
   const handleCancelOrderSubmit = () => {
-    setOrders(prev => prev.map(o => o.id === order.id ? { ...o, status: 'Order Placed', isCancelable: false } : o));
-    setRequestSubmittedMessage(`Order #${order.orderNumber} cancellation request has been logged. Our dispatch desk will process your instant refund.`);
+    setOrders((prev) =>
+      prev.map((o) =>
+        o.id === order.id
+          ? { ...o, status: "Order Placed", isCancelable: false }
+          : o,
+      ),
+    );
+    setRequestSubmittedMessage(
+      `Order #${order.orderNumber} cancellation request has been logged. Our dispatch desk will process your instant refund.`,
+    );
     setModalType(null);
   };
 
   const handleRequestSubmit = () => {
-    setRequestSubmittedMessage(`Your ${modalType?.toUpperCase()} request for Order #${order.orderNumber} has been logged with ticket reference. Our support team will respond within 4 business hours.`);
+    setRequestSubmittedMessage(
+      `Your ${modalType?.toUpperCase()} request for Order #${order.orderNumber} has been logged with ticket reference. Our support team will respond within 4 business hours.`,
+    );
     setModalType(null);
-    setRequestReason('');
+    setRequestReason("");
   };
 
   return (
     <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-2xs space-y-8 text-slate-900 animate-in fade-in duration-300">
-      
       {/* 1. Header with Breadcrumb & Quick Actions */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
         <div>
@@ -131,13 +159,19 @@ export const OrderDetailView: React.FC<OrderDetailProps> = ({ orderId }) => {
           <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight mt-1">
             Order #{order.orderNumber}
           </h1>
-          <p className="text-xs text-slate-400 font-semibold">Placed on {order.date} • {order.items.length} Item(s)</p>
+          <p className="text-xs text-slate-400 font-semibold">
+            Placed on {order.date} • {order.items.length} Item(s)
+          </p>
         </div>
 
         <div className="flex flex-wrap items-center gap-2.5 self-start sm:self-auto">
           {/* Download Invoice Button */}
           <button
-            onClick={() => alert(`Downloading Official GST Tax Invoice PDF for ${order.orderNumber}...`)}
+            onClick={() =>
+              alert(
+                `Downloading Official GST Tax Invoice PDF for ${order.orderNumber}...`,
+              )
+            }
             className="bg-slate-900 hover:bg-[#00AEEF] text-white px-4 py-2.5 rounded-2xl text-xs font-black flex items-center gap-1.5 transition-all shadow-md active:scale-95 cursor-pointer"
           >
             <FileText className="w-4 h-4 text-[#FFC20E]" />
@@ -167,7 +201,8 @@ export const OrderDetailView: React.FC<OrderDetailProps> = ({ orderId }) => {
       <div className="space-y-4 bg-slate-50 border border-slate-200 rounded-3xl p-6 shadow-2xs">
         <div className="flex items-center justify-between">
           <h3 className="text-xs font-black uppercase text-slate-900 tracking-wider flex items-center gap-1.5">
-            <Clock className="w-4 h-4 text-[#00AEEF]" /> Live Order Progression Timeline
+            <Clock className="w-4 h-4 text-[#00AEEF]" /> Live Order Progression
+            Timeline
           </h3>
           <span className="bg-[#E0F7FC] text-[#00AEEF] text-xs font-black px-3.5 py-1 rounded-full border border-[#00AEEF]/20">
             {order.status}
@@ -185,10 +220,10 @@ export const OrderDetailView: React.FC<OrderDetailProps> = ({ orderId }) => {
                 key={step.key}
                 className={`p-3.5 rounded-2xl border text-center space-y-1 transition-all ${
                   isCurrent
-                    ? 'bg-[#E0F7FC] border-[#00AEEF] text-[#00AEEF] ring-2 ring-[#00AEEF]/20 shadow-xs'
+                    ? "bg-[#E0F7FC] border-[#00AEEF] text-[#00AEEF] ring-2 ring-[#00AEEF]/20 shadow-xs"
                     : isCompleted
-                    ? 'bg-white border-emerald-300 text-emerald-700'
-                    : 'bg-slate-100 border-slate-200 text-slate-400'
+                      ? "bg-white border-emerald-300 text-emerald-700"
+                      : "bg-slate-100 border-slate-200 text-slate-400"
                 }`}
               >
                 <div className="flex items-center justify-center">
@@ -198,8 +233,12 @@ export const OrderDetailView: React.FC<OrderDetailProps> = ({ orderId }) => {
                     <Clock className="w-5 h-5 text-slate-300" />
                   )}
                 </div>
-                <div className="text-xs font-extrabold leading-tight mt-1">{step.label}</div>
-                <div className="text-[10px] opacity-75 font-semibold">{step.sub}</div>
+                <div className="text-xs font-extrabold leading-tight mt-1">
+                  {step.label}
+                </div>
+                <div className="text-[10px] opacity-75 font-semibold">
+                  {step.sub}
+                </div>
               </div>
             );
           })}
@@ -216,17 +255,23 @@ export const OrderDetailView: React.FC<OrderDetailProps> = ({ orderId }) => {
           <div className="bg-slate-50 border border-slate-200/80 p-4 rounded-2xl space-y-2 text-xs">
             <div className="flex justify-between items-center">
               <span className="text-slate-500 font-bold">Payment Gateway:</span>
-              <span className="font-black text-slate-900">UPI / QR (Razorpay Confirmed)</span>
+              <span className="font-black text-slate-900">
+                UPI / QR (Razorpay Confirmed)
+              </span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-slate-500 font-bold">Transaction Status:</span>
+              <span className="text-slate-500 font-bold">
+                Transaction Status:
+              </span>
               <span className="bg-emerald-100 text-emerald-800 text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full">
                 PAID IN FULL (₹{order.totalAmount.toLocaleString()})
               </span>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-slate-500 font-bold">GST Tax Invoice:</span>
-              <span className="text-purple-700 font-bold">18% Input Tax Credit Eligible</span>
+              <span className="text-purple-700 font-bold">
+                18% Input Tax Credit Eligible
+              </span>
             </div>
           </div>
         </div>
@@ -234,19 +279,28 @@ export const OrderDetailView: React.FC<OrderDetailProps> = ({ orderId }) => {
         {/* Courier Dispatch & Tracking Card */}
         <div className="bg-white border border-slate-200 rounded-3xl p-5 space-y-3 shadow-2xs">
           <h3 className="text-xs font-black uppercase text-slate-900 tracking-wider flex items-center gap-1.5">
-            <Truck className="w-4 h-4 text-[#00AEEF]" /> Courier Shipment Tracking
+            <Truck className="w-4 h-4 text-[#00AEEF]" /> Courier Shipment
+            Tracking
           </h3>
           <div className="bg-slate-50 border border-slate-200/80 p-4 rounded-2xl space-y-2 text-xs">
             <div className="flex justify-between items-center">
-              <span className="text-slate-500 font-bold">Logistics Partner:</span>
-              <span className="font-black text-slate-900">{order.courierName || 'Delhivery Surface Cargo'}</span>
+              <span className="text-slate-500 font-bold">
+                Logistics Partner:
+              </span>
+              <span className="font-black text-slate-900">
+                {order.courierName || "Delhivery Surface Cargo"}
+              </span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-slate-500 font-bold">AWB Tracking Number:</span>
-              <span className="font-mono font-black text-slate-900">{order.trackingNumber || 'DEL-88771122IN'}</span>
+              <span className="text-slate-500 font-bold">
+                AWB Tracking Number:
+              </span>
+              <span className="font-mono font-black text-slate-900">
+                {order.trackingNumber || "DEL-88771122IN"}
+              </span>
             </div>
             <a
-              href={order.trackingUrl || 'https://www.delhivery.com'}
+              href={order.trackingUrl || "https://www.delhivery.com"}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1.5 text-xs font-black text-[#00AEEF] hover:underline pt-1"
@@ -260,20 +314,36 @@ export const OrderDetailView: React.FC<OrderDetailProps> = ({ orderId }) => {
 
       {/* 4. Ordered Items Breakdown */}
       <div className="space-y-3">
-        <h3 className="text-xs font-black uppercase text-slate-900 tracking-wider">Ordered Products ({order.items.length})</h3>
+        <h3 className="text-xs font-black uppercase text-slate-900 tracking-wider">
+          Ordered Products ({order.items.length})
+        </h3>
         <div className="bg-slate-50 border border-slate-200 rounded-3xl p-5 space-y-4">
           {order.items.map((item, idx) => (
-            <div key={idx} className="flex items-center justify-between gap-4 border-b border-slate-200/70 pb-3 last:border-0 last:pb-0">
+            <div
+              key={idx}
+              className="flex items-center justify-between gap-4 border-b border-slate-200/70 pb-3 last:border-0 last:pb-0"
+            >
               <div className="flex items-center gap-3 min-w-0">
                 <div className="relative w-14 h-14 rounded-2xl bg-white border border-slate-200 p-1 shrink-0">
-                  <Image src={item.image} alt={item.name} fill className="object-contain p-1" />
+                  <Image
+                    src={item.image}
+                    alt={item.name}
+                    fill
+                    className="object-contain p-1"
+                  />
                 </div>
                 <div className="min-w-0">
-                  <h4 className="text-xs font-bold text-slate-900 truncate">{item.name}</h4>
-                  <span className="text-[10px] text-slate-400 font-mono block">SKU: {item.sku} | Quantity: {item.quantity}</span>
+                  <h4 className="text-xs font-bold text-slate-900 truncate">
+                    {item.name}
+                  </h4>
+                  <span className="text-[10px] text-slate-400 font-mono block">
+                    SKU: {item.sku} | Quantity: {item.quantity}
+                  </span>
                 </div>
               </div>
-              <span className="text-sm font-extrabold text-slate-900 shrink-0">₹{item.price.toLocaleString()}</span>
+              <span className="text-sm font-extrabold text-slate-900 shrink-0">
+                ₹{item.price.toLocaleString()}
+              </span>
             </div>
           ))}
         </div>
@@ -282,18 +352,33 @@ export const OrderDetailView: React.FC<OrderDetailProps> = ({ orderId }) => {
       {/* 5. Delivery Address & Historical Price Summary */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2 text-xs">
         <div className="space-y-2">
-          <h4 className="font-extrabold uppercase text-slate-900">Delivery Address</h4>
+          <h4 className="font-extrabold uppercase text-slate-900">
+            Delivery Address
+          </h4>
           <p className="text-slate-700 leading-relaxed bg-slate-50 p-4 rounded-2xl border border-slate-200 font-medium">
             {order.shippingAddress}
           </p>
         </div>
 
         <div className="space-y-2">
-          <h4 className="font-extrabold uppercase text-slate-900">Payment Breakdown</h4>
+          <h4 className="font-extrabold uppercase text-slate-900">
+            Payment Breakdown
+          </h4>
           <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-1.5 font-semibold text-slate-600">
-            <div className="flex justify-between"><span>Subtotal</span><span>₹{(order.subtotal || order.totalAmount * 0.82).toLocaleString()}</span></div>
-            <div className="flex justify-between text-emerald-600"><span>18% GST Tax Invoice</span><span>Included</span></div>
-            <div className="flex justify-between text-emerald-600"><span>Freight Shipping</span><span>FREE Express</span></div>
+            <div className="flex justify-between">
+              <span>Subtotal</span>
+              <span>
+                ₹{(order.subtotal || order.totalAmount * 0.82).toLocaleString()}
+              </span>
+            </div>
+            <div className="flex justify-between text-emerald-600">
+              <span>18% GST Tax Invoice</span>
+              <span>Included</span>
+            </div>
+            <div className="flex justify-between text-emerald-600">
+              <span>Freight Shipping</span>
+              <span>FREE Express</span>
+            </div>
             <div className="flex justify-between text-slate-900 font-black text-sm pt-2 border-t border-slate-200">
               <span>Grand Total Paid</span>
               <span>₹{order.totalAmount.toLocaleString()}</span>
@@ -304,7 +389,9 @@ export const OrderDetailView: React.FC<OrderDetailProps> = ({ orderId }) => {
 
       {/* 6. Section 21 Customer Order Actions (Cancel, Return, Replacement, Refund, Support, WhatsApp) */}
       <div className="pt-6 border-t border-slate-100 space-y-4">
-        <h3 className="text-xs font-black uppercase text-slate-900 tracking-wider">Customer Order Actions</h3>
+        <h3 className="text-xs font-black uppercase text-slate-900 tracking-wider">
+          Customer Order Actions
+        </h3>
 
         <div className="flex flex-wrap items-center gap-3">
           {/* Reorder Action */}
@@ -319,7 +406,7 @@ export const OrderDetailView: React.FC<OrderDetailProps> = ({ orderId }) => {
           {/* Cancel Order Action */}
           {order.isCancelable && (
             <button
-              onClick={() => setModalType('cancel')}
+              onClick={() => setModalType("cancel")}
               className="bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 px-4 py-2.5 rounded-2xl font-bold text-xs flex items-center gap-1.5 transition-colors cursor-pointer"
             >
               <XCircle className="w-4 h-4" />
@@ -329,7 +416,7 @@ export const OrderDetailView: React.FC<OrderDetailProps> = ({ orderId }) => {
 
           {/* Request Return */}
           <button
-            onClick={() => setModalType('return')}
+            onClick={() => setModalType("return")}
             className="bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-200 px-4 py-2.5 rounded-2xl font-bold text-xs flex items-center gap-1.5 transition-colors cursor-pointer"
           >
             <RotateCcw className="w-4 h-4 text-[#00AEEF]" />
@@ -338,7 +425,7 @@ export const OrderDetailView: React.FC<OrderDetailProps> = ({ orderId }) => {
 
           {/* Request Replacement */}
           <button
-            onClick={() => setModalType('replacement')}
+            onClick={() => setModalType("replacement")}
             className="bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-200 px-4 py-2.5 rounded-2xl font-bold text-xs flex items-center gap-1.5 transition-colors cursor-pointer"
           >
             <RefreshCw className="w-4 h-4 text-purple-600" />
@@ -347,7 +434,7 @@ export const OrderDetailView: React.FC<OrderDetailProps> = ({ orderId }) => {
 
           {/* Request Refund */}
           <button
-            onClick={() => setModalType('refund')}
+            onClick={() => setModalType("refund")}
             className="bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-200 px-4 py-2.5 rounded-2xl font-bold text-xs flex items-center gap-1.5 transition-colors cursor-pointer"
           >
             <DollarSign className="w-4 h-4 text-emerald-600" />
@@ -368,24 +455,33 @@ export const OrderDetailView: React.FC<OrderDetailProps> = ({ orderId }) => {
       {/* Action Request Modal (Cancel, Return, Replacement, Refund) */}
       {modalType && (
         <div className="fixed inset-0 z-50 overflow-hidden flex items-center justify-center p-4">
-          <div onClick={() => setModalType(null)} className="fixed inset-0 bg-slate-950/70 backdrop-blur-xs" />
+          <div
+            onClick={() => setModalType(null)}
+            className="fixed inset-0 bg-slate-950/70 backdrop-blur-xs"
+          />
           <div className="relative max-w-md w-full bg-white rounded-3xl p-6 shadow-2xl z-10 space-y-4 text-xs">
             <h3 className="text-base font-black text-slate-900 uppercase tracking-tight">
-              {modalType === 'cancel' ? 'Cancel Hardware Order' : `Request ${modalType.toUpperCase()}`}
+              {modalType === "cancel"
+                ? "Cancel Hardware Order"
+                : `Request ${modalType.toUpperCase()}`}
             </h3>
 
-            {modalType === 'cancel' ? (
+            {modalType === "cancel" ? (
               <p className="text-slate-600 leading-relaxed font-semibold">
-                Are you sure you want to cancel Order <strong>#{order.orderNumber}</strong>? Your refund will be credited back to your original payment method.
+                Are you sure you want to cancel Order{" "}
+                <strong>#{order.orderNumber}</strong>? Your refund will be
+                credited back to your original payment method.
               </p>
             ) : (
               <div className="space-y-2">
-                <label className="font-extrabold text-slate-700 block">Reason for {modalType}</label>
+                <label className="font-extrabold text-slate-700 block">
+                  Reason for {modalType}
+                </label>
                 <textarea
                   required
                   rows={3}
                   value={requestReason}
-                  onChange={e => setRequestReason(e.target.value)}
+                  onChange={(e) => setRequestReason(e.target.value)}
                   placeholder={`Describe reason for ${modalType} (e.g. damaged in transit, defective sensor, incorrect kit component)...`}
                   className="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl focus:outline-none focus:border-[#00AEEF] font-semibold text-slate-900"
                 />
@@ -402,7 +498,11 @@ export const OrderDetailView: React.FC<OrderDetailProps> = ({ orderId }) => {
               </button>
               <button
                 type="button"
-                onClick={modalType === 'cancel' ? handleCancelOrderSubmit : handleRequestSubmit}
+                onClick={
+                  modalType === "cancel"
+                    ? handleCancelOrderSubmit
+                    : handleRequestSubmit
+                }
                 className="bg-[#00AEEF] hover:bg-[#0096D6] text-white px-5 py-2.5 rounded-xl font-black uppercase tracking-wider shadow-md cursor-pointer"
               >
                 Submit Request
@@ -411,7 +511,6 @@ export const OrderDetailView: React.FC<OrderDetailProps> = ({ orderId }) => {
           </div>
         </div>
       )}
-
     </div>
   );
 };

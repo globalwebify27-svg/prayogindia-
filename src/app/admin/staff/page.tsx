@@ -1,23 +1,23 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
-import { 
-  Users, 
-  ShieldCheck, 
-  Store, 
-  Tablet, 
-  Plus, 
-  Trash2, 
-  Edit2, 
-  CheckCircle2, 
-  AlertCircle, 
-  KeyRound, 
+import React, { useState, useEffect } from "react";
+import {
+  Users,
+  ShieldCheck,
+  Store,
+  Tablet,
+  Plus,
+  Trash2,
+  Edit2,
+  CheckCircle2,
+  AlertCircle,
+  KeyRound,
   UserPlus,
   RefreshCw,
   X,
-  Building2
-} from 'lucide-react';
-import { INITIAL_STORES } from '@/data/storesData';
+  Building2,
+} from "lucide-react";
+import { INITIAL_STORES } from "@/data/storesData";
 
 export default function AdminStaffManagementPage() {
   const [staffList, setStaffList] = useState<any[]>([]);
@@ -26,22 +26,26 @@ export default function AdminStaffManagementPage() {
   const [showAddModal, setShowAddModal] = useState(false);
 
   // New staff form state
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [role, setRole] = useState<'STORE_MANAGER' | 'KIOSK_USER' | 'SUPER_ADMIN'>('STORE_MANAGER');
-  const [storeId, setStoreId] = useState('');
-  const [phone, setPhone] = useState('');
-  const [formError, setFormError] = useState('');
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [role, setRole] = useState<
+    "STORE_MANAGER" | "KIOSK_USER" | "SUPER_ADMIN"
+  >("STORE_MANAGER");
+  const [storeId, setStoreId] = useState("");
+  const [phone, setPhone] = useState("");
+  const [formError, setFormError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+
+  const [isSuperAdmin, setIsSuperAdmin] = useState(true);
 
   const fetchStaffAndStores = async () => {
     setLoading(true);
     try {
       const [staffRes, storeRes] = await Promise.all([
-        fetch('/api/admin/staff'),
-        fetch('/api/admin/stores'),
+        fetch("/api/admin/staff"),
+        fetch("/api/admin/stores"),
       ]);
 
       const staffData = await staffRes.json();
@@ -49,13 +53,17 @@ export default function AdminStaffManagementPage() {
 
       if (staffData.success) {
         setStaffList(staffData.data || []);
+        setIsSuperAdmin(staffData.isSuperAdmin ?? true);
+        if (!staffData.isSuperAdmin) {
+          setRole("KIOSK_USER");
+        }
       }
       if (storeData.success && storeData.data?.length) {
         setStores(storeData.data);
         setStoreId(storeData.data[0].id || storeData.data[0].code);
       }
     } catch (err) {
-      console.error('Failed to load staff list:', err);
+      console.error("Failed to load staff list:", err);
     } finally {
       setLoading(false);
     }
@@ -67,66 +75,71 @@ export default function AdminStaffManagementPage() {
 
   const handleCreateStaff = async (e: React.FormEvent) => {
     e.preventDefault();
-    setFormError('');
+    setFormError("");
     setSubmitting(true);
 
     try {
-      const res = await fetch('/api/admin/staff', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const res = await fetch("/api/admin/staff", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name,
           email: email || null,
           username,
           password,
           role,
-          storeId: role === 'SUPER_ADMIN' ? null : storeId,
+          storeId: role === "SUPER_ADMIN" ? null : storeId,
           phone,
         }),
       });
 
       const data = await res.json();
       if (!res.ok || !data.success) {
-        setFormError(data.message || 'Failed to create staff account.');
+        setFormError(data.message || "Failed to create staff account.");
         setSubmitting(false);
         return;
       }
 
       // Reset form & reload
       setShowAddModal(false);
-      setName('');
-      setEmail('');
-      setUsername('');
-      setPassword('');
+      setName("");
+      setEmail("");
+      setUsername("");
+      setPassword("");
       fetchStaffAndStores();
     } catch {
-      setFormError('Network error while provisioning staff user.');
+      setFormError("Network error while provisioning staff user.");
     } finally {
       setSubmitting(false);
     }
   };
 
   const handleToggleStatus = async (id: string, currentStatus: string) => {
-    const nextStatus = currentStatus === 'ACTIVE' ? 'SUSPENDED' : 'ACTIVE';
+    const nextStatus = currentStatus === "ACTIVE" ? "SUSPENDED" : "ACTIVE";
     try {
       await fetch(`/api/admin/staff/${id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: nextStatus }),
       });
       fetchStaffAndStores();
     } catch (err) {
-      console.error('Failed to toggle status:', err);
+      console.error("Failed to toggle status:", err);
     }
   };
 
   const handleDeleteStaff = async (id: string) => {
-    if (!confirm('Are you sure you want to revoke and delete this staff user account?')) return;
+    if (
+      !confirm(
+        "Are you sure you want to revoke and delete this staff user account?",
+      )
+    )
+      return;
     try {
-      await fetch(`/api/admin/staff/${id}`, { method: 'DELETE' });
+      await fetch(`/api/admin/staff/${id}`, { method: "DELETE" });
       fetchStaffAndStores();
     } catch (err) {
-      console.error('Failed to delete staff user:', err);
+      console.error("Failed to delete staff user:", err);
     }
   };
 
@@ -137,13 +150,19 @@ export default function AdminStaffManagementPage() {
         <div>
           <div className="flex items-center gap-2 mb-1">
             <span className="bg-amber-500/10 border border-amber-500/30 text-amber-300 text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider flex items-center gap-1">
-              <ShieldCheck className="w-3 h-3 text-[#FFC20E]" /> Super Admin Desk
+              <ShieldCheck className="w-3 h-3 text-[#FFC20E]" /> Super Admin
+              Desk
             </span>
-            <span className="text-slate-400 text-xs font-semibold">Staff & Device RBAC</span>
+            <span className="text-slate-400 text-xs font-semibold">
+              Staff & Device RBAC
+            </span>
           </div>
-          <h1 className="text-2xl font-black text-white">Staff Management & Store Provisioning</h1>
+          <h1 className="text-2xl font-black text-white">
+            Staff Management & Store Provisioning
+          </h1>
           <p className="text-xs text-slate-400 mt-1">
-            Create Store Managers, assign store branches, and manage Kiosk credentials across all hubs.
+            Create Store Managers, assign store branches, and manage Kiosk
+            credentials across all hubs.
           </p>
         </div>
 
@@ -153,7 +172,9 @@ export default function AdminStaffManagementPage() {
             disabled={loading}
             className="flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold px-3.5 py-2.5 rounded-xl border border-slate-700 transition-all cursor-pointer"
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
+            <RefreshCw
+              className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`}
+            />
             <span>Sync</span>
           </button>
 
@@ -184,7 +205,10 @@ export default function AdminStaffManagementPage() {
             <tbody className="divide-y divide-slate-800 text-slate-200">
               {loading ? (
                 <tr>
-                  <td colSpan={6} className="px-6 py-12 text-center text-slate-400">
+                  <td
+                    colSpan={6}
+                    className="px-6 py-12 text-center text-slate-400"
+                  >
                     <div className="flex flex-col items-center gap-2">
                       <div className="w-6 h-6 border-2 border-[#00AEEF] border-t-transparent rounded-full animate-spin" />
                       <span>Loading staff directory...</span>
@@ -193,28 +217,36 @@ export default function AdminStaffManagementPage() {
                 </tr>
               ) : staffList.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-6 py-12 text-center text-slate-400">
+                  <td
+                    colSpan={6}
+                    className="px-6 py-12 text-center text-slate-400"
+                  >
                     No staff accounts configured.
                   </td>
                 </tr>
               ) : (
                 staffList.map((user) => (
-                  <tr key={user.id} className="hover:bg-slate-800/40 transition-colors">
+                  <tr
+                    key={user.id}
+                    className="hover:bg-slate-800/40 transition-colors"
+                  >
                     <td className="px-6 py-4 font-bold text-white">
                       <div>{user.name}</div>
                       {user.email && (
-                        <div className="text-[11px] text-slate-400 font-normal">{user.email}</div>
+                        <div className="text-[11px] text-slate-400 font-normal">
+                          {user.email}
+                        </div>
                       )}
                     </td>
                     <td className="px-6 py-4 font-mono text-[#00AEEF]">
                       @{user.username}
                     </td>
                     <td className="px-6 py-4">
-                      {user.role === 'SUPER_ADMIN' ? (
+                      {user.role === "SUPER_ADMIN" ? (
                         <span className="inline-flex items-center gap-1 bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase">
                           <ShieldCheck className="w-3 h-3" /> Super Admin
                         </span>
-                      ) : user.role === 'STORE_MANAGER' ? (
+                      ) : user.role === "STORE_MANAGER" ? (
                         <span className="inline-flex items-center gap-1 bg-blue-500/10 text-blue-400 border border-blue-500/20 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase">
                           <Store className="w-3 h-3" /> Store Manager
                         </span>
@@ -230,24 +262,26 @@ export default function AdminStaffManagementPage() {
                           {user.store.code} • {user.store.name}
                         </span>
                       ) : (
-                        <span className="text-slate-500 italic">Global (All Stores)</span>
+                        <span className="text-slate-500 italic">
+                          Global (All Stores)
+                        </span>
                       )}
                     </td>
                     <td className="px-6 py-4">
                       <button
                         onClick={() => handleToggleStatus(user.id, user.status)}
                         className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-black uppercase transition-all cursor-pointer ${
-                          user.status === 'ACTIVE'
-                            ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 hover:bg-red-500/10 hover:text-red-400'
-                            : 'bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-emerald-500/10 hover:text-emerald-400'
+                          user.status === "ACTIVE"
+                            ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 hover:bg-red-500/10 hover:text-red-400"
+                            : "bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-emerald-500/10 hover:text-emerald-400"
                         }`}
                         title="Click to toggle status"
                       >
-                        {user.status || 'ACTIVE'}
+                        {user.status || "ACTIVE"}
                       </button>
                     </td>
                     <td className="px-6 py-4 text-right">
-                      {user.role !== 'SUPER_ADMIN' && (
+                      {user.role !== "SUPER_ADMIN" && (
                         <button
                           onClick={() => handleDeleteStaff(user.id)}
                           className="text-slate-500 hover:text-red-400 p-1 rounded-lg transition-colors cursor-pointer"
@@ -272,7 +306,9 @@ export default function AdminStaffManagementPage() {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <UserPlus className="w-5 h-5 text-[#00AEEF]" />
-                <h2 className="text-base font-black text-white">Create Staff / Manager Account</h2>
+                <h2 className="text-base font-black text-white">
+                  Create Staff / Manager Account
+                </h2>
               </div>
               <button
                 onClick={() => setShowAddModal(false)}
@@ -344,13 +380,29 @@ export default function AdminStaffManagementPage() {
                     onChange={(e) => setRole(e.target.value as any)}
                     className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-[#00AEEF]"
                   >
-                    <option value="STORE_MANAGER">STORE_MANAGER (Branch Dashboard)</option>
-                    <option value="KIOSK_USER">KIOSK_USER (POS / Walk-in)</option>
-                    <option value="SUPER_ADMIN">SUPER_ADMIN (Complete Access)</option>
+                    {isSuperAdmin ? (
+                      <>
+                        <option value="STORE_MANAGER">
+                          STORE_MANAGER (Branch Dashboard)
+                        </option>
+                        <option value="KIOSK_USER">
+                          KIOSK_USER (Store Shopping Tablet)
+                        </option>
+                        <option value="SUPER_ADMIN">
+                          SUPER_ADMIN (Complete Global Access)
+                        </option>
+                      </>
+                    ) : (
+                      <>
+                        <option value="KIOSK_USER">
+                          📱 KIOSK_USER (Store Shopping Tablet)
+                        </option>
+                      </>
+                    )}
                   </select>
                 </div>
 
-                {role !== 'SUPER_ADMIN' && (
+                {role !== "SUPER_ADMIN" && isSuperAdmin && (
                   <div>
                     <label className="block text-xs font-bold text-slate-300 mb-1">
                       Assigned Store Branch *
@@ -360,7 +412,7 @@ export default function AdminStaffManagementPage() {
                       onChange={(e) => setStoreId(e.target.value)}
                       className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-[#00AEEF]"
                     >
-                      {stores.map(st => (
+                      {stores.map((st) => (
                         <option key={st.id || st.code} value={st.id || st.code}>
                           {st.code} — {st.name}
                         </option>
@@ -403,7 +455,7 @@ export default function AdminStaffManagementPage() {
                 disabled={submitting}
                 className="w-full bg-[#00AEEF] hover:bg-[#0096D6] text-slate-950 font-black py-3.5 rounded-xl text-xs flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 shadow-lg shadow-[#00AEEF]/20 mt-2"
               >
-                {submitting ? 'Creating Account...' : 'Provision Staff Member'}
+                {submitting ? "Creating Account..." : "Provision Staff Member"}
               </button>
             </form>
           </div>

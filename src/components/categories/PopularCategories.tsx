@@ -1,16 +1,15 @@
-'use client';
+"use client";
 
-import React from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
-import { ChevronRight } from 'lucide-react';
-import { CATEGORIES_DATA } from '@/data/categories';
+import React from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { ChevronRight } from "lucide-react";
+import { CATEGORIES_DATA } from "@/data/categories";
 
 export const PopularCategories: React.FC = () => {
   return (
     <section className="py-8 bg-white border-t border-slate-100">
       <div className="space-y-4">
-        
         <div className="flex items-center justify-between">
           <div>
             <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">
@@ -23,9 +22,9 @@ export const PopularCategories: React.FC = () => {
         </div>
 
         {/* Horizontal Carousel (CSS Scroll on Mobile/Desktop) */}
-        <div 
+        <div
           className="flex items-center gap-3 overflow-x-auto scrollbar-none py-2 px-1 scroll-smooth"
-          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
         >
           {CATEGORIES_DATA.map((cat) => (
             <Link
@@ -41,7 +40,7 @@ export const PopularCategories: React.FC = () => {
                   className="object-cover group-hover:scale-110 transition-transform"
                 />
               </div>
-              
+
               <span className="text-xs font-extrabold text-slate-900 group-hover:text-[#00AEEF] whitespace-nowrap">
                 {cat.name}
               </span>
@@ -50,7 +49,6 @@ export const PopularCategories: React.FC = () => {
             </Link>
           ))}
         </div>
-
       </div>
     </section>
   );

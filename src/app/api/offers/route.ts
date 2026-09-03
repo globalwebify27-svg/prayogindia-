@@ -1,6 +1,6 @@
-import { NextResponse } from 'next/server';
-import { db } from '@/lib/db';
-import { OFFERS_DATA } from '@/data/offersData';
+import { NextResponse } from "next/server";
+import { db } from "@/lib/db";
+import { OFFERS_DATA } from "@/data/offersData";
 
 /**
  * GET /api/offers
@@ -12,7 +12,7 @@ export async function GET() {
     try {
       const dbOffers = await db.offer.findMany({
         where: {
-          status: { in: ['Active', 'Upcoming', 'FEATURED'] },
+          status: { in: ["Active", "Upcoming", "FEATURED"] },
         },
         include: {
           products: {
@@ -32,7 +32,7 @@ export async function GET() {
       });
 
       if (dbOffers.length > 0) {
-        const formattedOffers = dbOffers.map(off => ({
+        const formattedOffers = dbOffers.map((off) => ({
           id: off.id,
           slug: off.slug,
           title: off.title,
@@ -44,8 +44,8 @@ export async function GET() {
           endDate: off.endDate,
           couponCode: off.couponCode,
           customerEligibility: off.customerEligibility,
-          products: off.products.map(p => p.product),
-          productIds: off.products.map(p => p.productId),
+          products: off.products.map((p) => p.product),
+          productIds: off.products.map((p) => p.productId),
         }));
 
         return NextResponse.json({
@@ -54,7 +54,10 @@ export async function GET() {
         });
       }
     } catch (error) {
-      console.warn('Database query failed for offers, falling back to mock dataset', error);
+      console.warn(
+        "Database query failed for offers, falling back to mock dataset",
+        error,
+      );
     }
   }
 

@@ -1,6 +1,6 @@
-import { NextResponse } from 'next/server';
-import { db } from '@/lib/db';
-import { OFFERS_DATA } from '@/data/offersData';
+import { NextResponse } from "next/server";
+import { db } from "@/lib/db";
+import { OFFERS_DATA } from "@/data/offersData";
 
 /**
  * GET /api/offers/[slug]
@@ -8,23 +8,23 @@ import { OFFERS_DATA } from '@/data/offersData';
  */
 export async function GET(
   request: Request,
-  { params }: { params: Promise<{ slug: string }> }
+  { params }: { params: Promise<{ slug: string }> },
 ) {
   const resolvedParams = await params;
   const slug = resolvedParams.slug;
 
   if (!slug) {
-    return NextResponse.json({ success: false, message: 'Offer slug or ID is required.' }, { status: 400 });
+    return NextResponse.json(
+      { success: false, message: "Offer slug or ID is required." },
+      { status: 400 },
+    );
   }
 
   if (process.env.DATABASE_URL) {
     try {
       const offer = await db.offer.findFirst({
         where: {
-          OR: [
-            { slug },
-            { id: slug },
-          ],
+          OR: [{ slug }, { id: slug }],
         },
         include: {
           products: {
@@ -49,19 +49,22 @@ export async function GET(
           success: true,
           data: {
             ...offer,
-            products: offer.products.map(p => p.product),
-            productIds: offer.products.map(p => p.productId),
+            products: offer.products.map((p) => p.product),
+            productIds: offer.products.map((p) => p.productId),
           },
         });
       }
     } catch (error) {
-      console.warn('Database lookup failed for offer slug', error);
+      console.warn("Database lookup failed for offer slug", error);
     }
   }
 
-  const mockOffer = OFFERS_DATA.find(o => o.slug === slug || o.id === slug);
+  const mockOffer = OFFERS_DATA.find((o) => o.slug === slug || o.id === slug);
   if (!mockOffer) {
-    return NextResponse.json({ success: false, message: 'Offer not found.' }, { status: 404 });
+    return NextResponse.json(
+      { success: false, message: "Offer not found." },
+      { status: 404 },
+    );
   }
 
   return NextResponse.json({

@@ -1,15 +1,18 @@
-import { NextResponse } from 'next/server';
-import { db } from '@/lib/db';
-import { getAuthenticatedAdmin } from '@/lib/adminAuth';
+import { NextResponse } from "next/server";
+import { db } from "@/lib/db";
+import { getAuthenticatedAdmin } from "@/lib/adminAuth";
 
 // PATCH /api/admin/products/[slug] - Update Product (Price, Stock, InStock Status)
 export async function PATCH(
   request: Request,
-  { params }: { params: Promise<{ slug: string }> }
+  { params }: { params: Promise<{ slug: string }> },
 ) {
   const admin = await getAuthenticatedAdmin();
   if (!admin) {
-    return NextResponse.json({ success: false, message: 'Forbidden' }, { status: 403 });
+    return NextResponse.json(
+      { success: false, message: "Forbidden" },
+      { status: 403 },
+    );
   }
 
   const resolvedParams = await params;
@@ -37,16 +40,19 @@ export async function PATCH(
 
       return NextResponse.json({
         success: true,
-        message: 'Product updated successfully.',
+        message: "Product updated successfully.",
         data: updated,
       });
     }
 
     return NextResponse.json({
       success: true,
-      message: 'Product updated (Mock Mode).',
+      message: "Product updated (Mock Mode).",
     });
   } catch (error: any) {
-    return NextResponse.json({ success: false, message: error.message }, { status: 500 });
+    return NextResponse.json(
+      { success: false, message: error.message },
+      { status: 500 },
+    );
   }
 }

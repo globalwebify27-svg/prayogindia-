@@ -3,12 +3,17 @@
  * Handles customer notifications & triggers non-blocking email dispatches.
  */
 
-import { db } from '@/lib/db';
-import { getEmailService } from '@/lib/email';
+import { db } from "@/lib/db";
+import { getEmailService } from "@/lib/email";
 
 export interface CreateNotificationParams {
   userId: string;
-  type: 'ORDER_PLACED' | 'ORDER_SHIPPED' | 'SUPPORT_REPLY' | 'SERVICE_ENQUIRY_RECEIVED' | 'SYSTEM_NOTICE';
+  type:
+    | "ORDER_PLACED"
+    | "ORDER_SHIPPED"
+    | "SUPPORT_REPLY"
+    | "SERVICE_ENQUIRY_RECEIVED"
+    | "SYSTEM_NOTICE";
   title: string;
   message: string;
   data?: Record<string, any>;
@@ -20,7 +25,9 @@ export class NotificationService {
    * Create a customer notification record and trigger non-blocking email dispatch.
    * Email failures will NEVER cause database operations to fail or roll back.
    */
-  static async createNotification(params: CreateNotificationParams): Promise<any> {
+  static async createNotification(
+    params: CreateNotificationParams,
+  ): Promise<any> {
     const { userId, type, title, message, data, customerEmail } = params;
 
     let notificationRecord = null;
@@ -37,7 +44,7 @@ export class NotificationService {
           },
         });
       } catch (err) {
-        console.warn('Failed to insert notification into database', err);
+        console.warn("Failed to insert notification into database", err);
       }
     }
 
@@ -51,19 +58,21 @@ export class NotificationService {
           message,
           ...data,
         })
-        .catch(err => {
-          console.warn('[NON-BLOCKING EMAIL FAILURE]', err);
+        .catch((err) => {
+          console.warn("[NON-BLOCKING EMAIL FAILURE]", err);
         });
     }
 
-    return notificationRecord || {
-      id: `notif-mock-${Date.now()}`,
-      userId,
-      type,
-      title,
-      message,
-      createdAt: new Date().toISOString(),
-    };
+    return (
+      notificationRecord || {
+        id: `notif-mock-${Date.now()}`,
+        userId,
+        type,
+        title,
+        message,
+        createdAt: new Date().toISOString(),
+      }
+    );
   }
 
   /**
@@ -86,7 +95,10 @@ export class NotificationService {
   /**
    * Mark a single notification as read (with customer isolation).
    */
-  static async markAsRead(notificationId: string, userId: string): Promise<boolean> {
+  static async markAsRead(
+    notificationId: string,
+    userId: string,
+  ): Promise<boolean> {
     if (!process.env.DATABASE_URL) return true;
     try {
       const notif = await db.notification.findFirst({

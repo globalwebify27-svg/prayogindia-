@@ -1,6 +1,6 @@
-import { NextResponse } from 'next/server';
-import { db } from '@/lib/db';
-import { PRODUCTS, Product } from '@/data/mockData';
+import { NextResponse } from "next/server";
+import { db } from "@/lib/db";
+import { PRODUCTS, Product } from "@/data/mockData";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -39,17 +39,24 @@ export async function GET(request: Request, { params }: Props) {
             ...dbProduct,
             relatedProducts: related,
           },
-          source: 'database',
+          source: "database",
         });
       }
     }
 
-    const product = PRODUCTS.find(
-      p => p.id === slug || p.sku === slug || p.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').includes(slug.toLowerCase())
-    ) || PRODUCTS[0];
+    const product =
+      PRODUCTS.find(
+        (p) =>
+          p.id === slug ||
+          p.sku === slug ||
+          p.name
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, "-")
+            .includes(slug.toLowerCase()),
+      ) || PRODUCTS[0];
 
     const relatedProducts = PRODUCTS.filter(
-      p => p.category === product.category && p.id !== product.id
+      (p) => p.category === product.category && p.id !== product.id,
     ).slice(0, 4);
 
     return NextResponse.json({
@@ -58,13 +65,12 @@ export async function GET(request: Request, { params }: Props) {
         ...product,
         relatedProducts,
       },
-      source: 'mock',
+      source: "mock",
     });
-
   } catch (error: any) {
     return NextResponse.json(
-      { success: false, message: 'Failed to fetch product details' },
-      { status: 500 }
+      { success: false, message: "Failed to fetch product details" },
+      { status: 500 },
     );
   }
 }

@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import React from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
-import { motion } from 'framer-motion';
-import { ArrowUpRight } from 'lucide-react';
-import { COLLECTION_ECOSYSTEMS } from '@/data/categories';
+import React from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { motion } from "framer-motion";
+import { ArrowUpRight } from "lucide-react";
+import { COLLECTION_ECOSYSTEMS } from "@/data/categories";
 
 export const CategoryCollections: React.FC = () => {
   return (
@@ -20,13 +20,13 @@ export const CategoryCollections: React.FC = () => {
           </h2>
         </div>
         <p className="text-xs text-slate-400 max-w-md">
-          Explore curated hardware architecture setups for robotics engineering, UAV drone development, and microcontrollers.
+          Explore curated hardware architecture setups for robotics engineering,
+          UAV drone development, and microcontrollers.
         </p>
       </div>
 
       {/* Asymmetrical Premium Layout (1 Large + 2 Side Stacked) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        
         {/* Large Feature Card (Span 7) */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -104,7 +104,6 @@ export const CategoryCollections: React.FC = () => {
             </motion.div>
           ))}
         </div>
-
       </div>
     </section>
   );

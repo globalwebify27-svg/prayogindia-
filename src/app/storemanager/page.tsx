@@ -1,5 +1,14 @@
-import { redirect } from 'next/navigation';
+"use client";
+
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 export default function StoreManagerRootPage() {
-  redirect('/storemanager/ranchi');
+  const router = useRouter();
+
+  useEffect(() => {
+    router.replace("/ranchi/storemanager");
+  }, [router]);
+
+  return null;
 }

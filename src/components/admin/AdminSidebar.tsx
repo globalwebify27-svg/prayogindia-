@@ -1,38 +1,32 @@
-'use client';
+"use client";
 
-import React from 'react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import React from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
-  Package,
-  FolderTree,
   Boxes,
-  ShoppingBag,
-  Users,
-  Wrench,
-  GraduationCap,
-  Tag,
-  Headset,
-  FolderKanban,
-  Settings,
-  ShieldCheck,
-  Tablet,
-  FileText,
-  Award,
-  Truck,
-  Megaphone,
-  Link2,
-  X,
   Building2,
-  Layers,
+  SlidersHorizontal,
+  ArrowLeftRight,
+  ClipboardList,
+  ShoppingBag,
+  Truck,
+  PackageCheck,
+  Tablet,
   Lock,
+  Award,
   BarChart3,
-  MessageSquare,
-  DollarSign,
-  Percent,
-  Hash
-} from 'lucide-react';
+  Users,
+  Award as AwardIcon,
+  Megaphone,
+  UserCog,
+  Settings,
+  History,
+  Headphones,
+  ChevronRight,
+  X,
+} from "lucide-react";
 
 interface AdminSidebarProps {
   mobileOpen?: boolean;
@@ -41,90 +35,136 @@ interface AdminSidebarProps {
 
 const NAV_GROUPS = [
   {
-    group: 'DASHBOARD',
+    group: "INVENTORY & STOCK",
     items: [
-      { label: 'Overview & Analytics', href: '/admin/dashboard', icon: LayoutDashboard },
+      {
+        label: "Multi-Location Stock",
+        href: "/admin/inventory",
+        icon: Boxes,
+        badge: "New",
+      },
+      {
+        label: "Physical Store Branches",
+        href: "/admin/stores",
+        icon: Building2,
+      },
+      {
+        label: "Stock Adjustment",
+        href: "/admin/bulk-edit",
+        icon: SlidersHorizontal,
+      },
+      {
+        label: "Transfers",
+        href: "/admin/inventory?tab=transfers",
+        icon: ArrowLeftRight,
+        hasSub: true,
+      },
+      { label: "Stock Audit Log", href: "/admin/audit", icon: ClipboardList },
     ],
   },
   {
-    group: 'CATALOG & PROCUREMENT',
+    group: "SALES & OPERATIONS",
     items: [
-      { label: 'Products & Specs', href: '/admin/products', icon: Package },
-      { label: 'Categories', href: '/admin/categories', icon: FolderTree },
-      { label: 'Subcategories', href: '/admin/categories?tab=subcategories', icon: FolderTree },
-      { label: 'Bulk Price Update', href: '/admin/bulk-edit?mode=price', icon: DollarSign },
-      { label: 'Bulk Discount Update', href: '/admin/bulk-edit?mode=discount', icon: Percent },
-      { label: 'Bulk GST Update', href: '/admin/bulk-edit?mode=gst', icon: Tag },
-      { label: 'Bulk SKU Update', href: '/admin/bulk-edit?mode=sku', icon: Hash },
-      { label: 'Bulk Catalogue Editor', href: '/admin/bulk-edit', icon: Layers },
-      { label: 'Product Relationships', href: '/admin/relationships', icon: Link2 },
-      { label: 'Multi-Location Stock', href: '/admin/inventory', icon: Boxes },
-      { label: 'Physical Store Branches', href: '/admin/stores', icon: Building2 },
-      { label: 'Purchases & Suppliers', href: '/admin/purchases', icon: Truck },
-      { label: 'Shipping & Logistics', href: '/admin/logistics', icon: Truck },
+      {
+        label: "Orders & Fulfillment",
+        href: "/admin/orders",
+        icon: ShoppingBag,
+      },
+      { label: "Purchases & Suppliers", href: "/admin/purchases", icon: Truck },
+      {
+        label: "Shipping & Logistics",
+        href: "/admin/logistics",
+        icon: PackageCheck,
+      },
+      { label: "Walk-in POS Desk", href: "/admin/pos", icon: Tablet },
     ],
   },
   {
-    group: 'SALES & FINANCIAL DOCUMENTS',
+    group: "FINANCE",
     items: [
-      { label: 'Orders & Fulfillment', href: '/admin/orders', icon: ShoppingBag },
-      { label: 'Sales Documents (Quotes & Invoices)', href: '/admin/quotations', icon: FileText },
-      { label: 'Walk-in POS Desk', href: '/admin/pos', icon: Tablet },
-      { label: 'Executive Incentives', href: '/admin/incentives', icon: Award },
-      { label: 'Order Profit & Margins', href: '/admin/profit', icon: Lock },
-      { label: 'Rewards & Loyalty', href: '/admin/rewards', icon: Award },
-      { label: 'Business Reports & Exports', href: '/admin/reports', icon: BarChart3 },
-      { label: 'Customer CRM', href: '/admin/customers', icon: Users },
-      { label: 'WhatsApp Platform', href: '/admin/whatsapp', icon: MessageSquare },
+      { label: "Order Profit & Margins", href: "/admin/profit", icon: Lock },
+      { label: "Rewards & Loyalty", href: "/admin/rewards", icon: Award },
+      { label: "Business Reports", href: "/admin/reports", icon: BarChart3 },
     ],
   },
   {
-    group: 'CMS & CONTENT',
+    group: "CRM & MARKETING",
     items: [
-      { label: 'Announcements & CMS', href: '/admin/cms', icon: Megaphone },
-      { label: 'Institutional Services', href: '/admin/services', icon: Wrench },
-      { label: 'Learning Hub & Blog', href: '/admin/learning', icon: GraduationCap },
-      { label: 'Offers & Discounts', href: '/admin/offers', icon: Tag },
+      { label: "Customer CRM", href: "/admin/customers", icon: Users },
+      {
+        label: "Executive Incentives",
+        href: "/admin/incentives",
+        icon: AwardIcon,
+      },
+      { label: "Announcements", href: "/admin/cms", icon: Megaphone },
     ],
   },
   {
-    group: 'OPERATIONS & SYSTEM',
+    group: "SYSTEM & SETTINGS",
     items: [
-      { label: 'Staff & Role RBAC', href: '/admin/staff', icon: Users },
-      { label: 'Support Desk', href: '/admin/support', icon: Headset },
-      { label: 'System Audit Logs', href: '/admin/audit', icon: ShieldCheck },
-      { label: 'Media Library', href: '/admin/media', icon: FolderKanban },
-      { label: 'Settings & Roles', href: '/admin/settings', icon: Settings },
+      { label: "Users & Roles", href: "/admin/staff", icon: UserCog },
+      { label: "Settings", href: "/admin/settings", icon: Settings },
+      {
+        label: "Activity Log",
+        href: "/admin/audit?tab=activity",
+        icon: History,
+      },
     ],
   },
 ];
 
-export const AdminSidebar: React.FC<AdminSidebarProps> = ({ mobileOpen, onCloseMobile }) => {
+export const AdminSidebar: React.FC<AdminSidebarProps> = ({
+  mobileOpen,
+  onCloseMobile,
+}) => {
   const pathname = usePathname();
 
   const content = (
-    <div className="flex flex-col h-full bg-[#0F172A] text-slate-300 w-64 select-none border-r border-slate-800">
-      
+    <div className="flex flex-col h-full bg-[#0B132B] text-slate-300 w-64 select-none border-r border-slate-800">
       {/* Admin Panel Header Brand */}
-      <div className="p-5 border-b border-slate-800 flex items-center justify-between">
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-[#00AEEF] text-white flex items-center justify-center font-black text-sm shadow-md">
+      <div className="p-5 border-b border-slate-800/80 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-xl bg-[#00AEEF] text-white flex items-center justify-center font-black text-base shadow-md shadow-[#00AEEF]/30">
             P
           </div>
           <div>
-            <h1 className="text-sm font-black text-white tracking-wide">PRAYOG INDIA</h1>
-            <span className="text-[10px] text-[#00AEEF] font-bold uppercase tracking-wider block">Admin Operations</span>
+            <h1 className="text-sm font-black text-white tracking-wide leading-tight">
+              PRAYOG INDIA
+            </h1>
+            <span className="text-[9px] text-[#00AEEF] font-bold uppercase tracking-wider block leading-tight">
+              Admin Operations
+            </span>
           </div>
         </div>
         {mobileOpen && (
-          <button onClick={onCloseMobile} className="lg:hidden text-slate-400 hover:text-white cursor-pointer">
+          <button
+            onClick={onCloseMobile}
+            className="lg:hidden text-slate-400 hover:text-white cursor-pointer"
+          >
             <X className="w-5 h-5" />
           </button>
         )}
       </div>
 
       {/* Navigation Grouped List */}
-      <nav className="flex-1 overflow-y-auto p-4 space-y-5">
+      <nav className="flex-1 overflow-y-auto p-4 space-y-4 text-xs font-medium">
+        {/* Top Highlighted Dashboard Item */}
+        <div className="pb-2">
+          <Link
+            href="/admin/dashboard"
+            onClick={onCloseMobile}
+            className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all duration-150 ${
+              pathname === "/admin/dashboard" || pathname === "/admin"
+                ? "bg-[#1E88E5] text-white shadow-md shadow-[#1E88E5]/30 font-extrabold"
+                : "text-slate-400 hover:bg-slate-800/70 hover:text-slate-100"
+            }`}
+          >
+            <LayoutDashboard className="w-4 h-4 text-white" />
+            <span>Dashboard</span>
+          </Link>
+        </div>
+
+        {/* Section Groups */}
         {NAV_GROUPS.map((grp) => (
           <div key={grp.group} className="space-y-1">
             <div className="text-[10px] font-extrabold uppercase text-slate-500 tracking-wider px-3 pb-1">
@@ -132,21 +172,38 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({ mobileOpen, onCloseM
             </div>
             {grp.items.map((item) => {
               const Icon = item.icon;
-              const isActive = pathname === item.href || (item.href !== '/admin/dashboard' && pathname?.startsWith(item.href));
+              const isActive =
+                pathname === item.href ||
+                (item.href !== "/admin/dashboard" &&
+                  pathname?.startsWith(item.href));
 
               return (
                 <Link
                   key={item.href}
                   href={item.href}
                   onClick={onCloseMobile}
-                  className={`flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold transition-all duration-150 ${
+                  className={`flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-all duration-150 ${
                     isActive
-                      ? 'bg-[#00AEEF] text-white shadow-md font-extrabold'
-                      : 'text-slate-400 hover:bg-slate-800/80 hover:text-slate-100'
+                      ? "bg-[#1E88E5] text-white shadow-md font-bold"
+                      : "text-slate-400 hover:bg-slate-800/60 hover:text-slate-100"
                   }`}
                 >
-                  <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-slate-400'}`} />
-                  <span>{item.label}</span>
+                  <div className="flex items-center gap-2.5">
+                    <Icon
+                      className={`w-4 h-4 ${isActive ? "text-white" : "text-slate-400"}`}
+                    />
+                    <span>{item.label}</span>
+                  </div>
+
+                  {item.badge && (
+                    <span className="bg-[#00AEEF] text-white text-[9px] font-extrabold px-1.5 py-0.2 rounded-md uppercase">
+                      {item.badge}
+                    </span>
+                  )}
+
+                  {item.hasSub && (
+                    <ChevronRight className="w-3.5 h-3.5 text-slate-500" />
+                  )}
                 </Link>
               );
             })}
@@ -154,17 +211,22 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({ mobileOpen, onCloseM
         ))}
       </nav>
 
-      {/* Footer Role Badge */}
-      <div className="p-4 border-t border-slate-800 bg-slate-900/50">
-        <div className="flex items-center gap-2.5 px-2 py-1.5 rounded-lg bg-slate-800/60 border border-slate-700/50">
-          <ShieldCheck className="w-4 h-4 text-[#FFC20E]" />
+      {/* Footer Support Card */}
+      <div className="p-4 border-t border-slate-800/80">
+        <div className="flex items-center gap-3 p-3 rounded-2xl bg-slate-900/80 border border-slate-800">
+          <div className="w-8 h-8 rounded-xl bg-slate-800 flex items-center justify-center text-slate-300">
+            <Headphones className="w-4 h-4 text-[#00AEEF]" />
+          </div>
           <div>
-            <span className="text-[11px] font-bold text-slate-200 block">System Administrator</span>
-            <span className="text-[9px] text-slate-400 block">Section 8.1 Active</span>
+            <span className="text-xs font-bold text-white block">
+              Need Help?
+            </span>
+            <span className="text-[10px] text-slate-400 block">
+              Contact Support
+            </span>
           </div>
         </div>
       </div>
-
     </div>
   );
 
@@ -178,10 +240,11 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({ mobileOpen, onCloseM
       {/* Mobile Drawer */}
       {mobileOpen && (
         <div className="lg:hidden fixed inset-0 z-50 flex">
-          <div className="fixed inset-0 bg-slate-900/80 backdrop-blur-xs" onClick={onCloseMobile} />
-          <div className="relative z-10">
-            {content}
-          </div>
+          <div
+            className="fixed inset-0 bg-slate-900/80 backdrop-blur-xs"
+            onClick={onCloseMobile}
+          />
+          <div className="relative z-10">{content}</div>
         </div>
       )}
     </>

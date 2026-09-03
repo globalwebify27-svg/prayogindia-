@@ -1,4 +1,4 @@
-import { redirect } from 'next/navigation';
+import { redirect } from "next/navigation";
 
 interface Props {
   searchParams: Promise<{ q?: string; search?: string }>;
@@ -6,6 +6,6 @@ interface Props {
 
 export default async function SearchRedirectPage({ searchParams }: Props) {
   const { q, search } = await searchParams;
-  const query = q || search || '';
+  const query = q || search || "";
   redirect(`/products?search=${encodeURIComponent(query)}`);
 }

@@ -1,17 +1,25 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { useStore } from '@/context/StoreContext';
-import { User, Phone, Mail, Building, FileText, ShieldCheck, CheckCircle2 } from 'lucide-react';
+import React, { useState } from "react";
+import { useStore } from "@/context/StoreContext";
+import {
+  User,
+  Phone,
+  Mail,
+  Building,
+  FileText,
+  ShieldCheck,
+  CheckCircle2,
+} from "lucide-react";
 
 export const ProfileForm: React.FC = () => {
   const { user, updateUser } = useStore();
 
-  const [name, setName] = useState(user?.name || '');
-  const [phone, setPhone] = useState(user?.phone || '');
-  const [email, setEmail] = useState(user?.email || '');
-  const [companyName, setCompanyName] = useState(user?.companyName || '');
-  const [gstin, setGstin] = useState(user?.gstin || '');
+  const [name, setName] = useState(user?.name || "");
+  const [phone, setPhone] = useState(user?.phone || "");
+  const [email, setEmail] = useState(user?.email || "");
+  const [companyName, setCompanyName] = useState(user?.companyName || "");
+  const [gstin, setGstin] = useState(user?.gstin || "");
   const [savedSuccess, setSavedSuccess] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -23,10 +31,14 @@ export const ProfileForm: React.FC = () => {
 
   return (
     <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-2xs space-y-6 text-slate-900">
-      
       <div>
-        <h2 className="text-xl font-extrabold text-slate-900 tracking-tight">Personal & Institutional Profile</h2>
-        <p className="text-xs text-slate-500">Manage your contact information, institutional GSTIN invoice credentials, and business tier.</p>
+        <h2 className="text-xl font-extrabold text-slate-900 tracking-tight">
+          Personal & Institutional Profile
+        </h2>
+        <p className="text-xs text-slate-500">
+          Manage your contact information, institutional GSTIN invoice
+          credentials, and business tier.
+        </p>
       </div>
 
       {savedSuccess && (
@@ -37,12 +49,15 @@ export const ProfileForm: React.FC = () => {
       )}
 
       <form onSubmit={handleSubmit} className="space-y-6 text-xs">
-        
         {/* System Customer Type Tier */}
         <div className="p-4 bg-slate-50 border border-slate-200 rounded-2xl flex items-center justify-between">
           <div>
-            <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 block">System Customer Tier</span>
-            <span className="text-sm font-extrabold text-[#00AEEF]">{user?.customerType || 'B2C Customer'}</span>
+            <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 block">
+              System Customer Tier
+            </span>
+            <span className="text-sm font-extrabold text-[#00AEEF]">
+              {user?.customerType || "B2C Customer"}
+            </span>
           </div>
           <span className="bg-[#E0F7FC] text-[#00AEEF] text-[10px] font-black uppercase px-2.5 py-1 rounded-md border border-[#00AEEF]/20">
             Verified Account
@@ -65,7 +80,9 @@ export const ProfileForm: React.FC = () => {
           </div>
 
           <div className="space-y-1">
-            <label className="font-bold text-slate-700 block">Mobile Phone Number</label>
+            <label className="font-bold text-slate-700 block">
+              Mobile Phone Number
+            </label>
             <div className="relative">
               <Phone className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
               <input
@@ -79,7 +96,9 @@ export const ProfileForm: React.FC = () => {
         </div>
 
         <div className="space-y-1">
-          <label className="font-bold text-slate-700 block">Registered Email Address</label>
+          <label className="font-bold text-slate-700 block">
+            Registered Email Address
+          </label>
           <div className="relative">
             <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
@@ -94,12 +113,15 @@ export const ProfileForm: React.FC = () => {
         {/* Company & GST Tax Credentials Group */}
         <div className="pt-4 border-t border-slate-100 space-y-4">
           <h3 className="text-xs font-black uppercase tracking-wider text-slate-900 flex items-center gap-1.5">
-            <Building className="w-4 h-4 text-[#00AEEF]" /> Institutional / B2B GST Information (Optional)
+            <Building className="w-4 h-4 text-[#00AEEF]" /> Institutional / B2B
+            GST Information (Optional)
           </h3>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1">
-              <label className="font-bold text-slate-700 block">Company / Institution Name</label>
+              <label className="font-bold text-slate-700 block">
+                Company / Institution Name
+              </label>
               <div className="relative">
                 <Building className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                 <input
@@ -113,7 +135,9 @@ export const ProfileForm: React.FC = () => {
             </div>
 
             <div className="space-y-1">
-              <label className="font-bold text-slate-700 block">GSTIN Number</label>
+              <label className="font-bold text-slate-700 block">
+                GSTIN Number
+              </label>
               <div className="relative">
                 <FileText className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                 <input
@@ -134,9 +158,7 @@ export const ProfileForm: React.FC = () => {
         >
           Save Profile Changes
         </button>
-
       </form>
-
     </div>
   );
 };

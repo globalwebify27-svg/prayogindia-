@@ -1,26 +1,26 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { 
-  Truck, 
-  Plus, 
-  Search, 
-  Building2, 
-  TrendingUp, 
-  DollarSign, 
-  Calendar, 
-  CheckCircle2, 
-  FileText, 
-  Percent, 
-  Package, 
+import React, { useState } from "react";
+import {
+  Truck,
+  Plus,
+  Search,
+  Building2,
+  TrendingUp,
+  DollarSign,
+  Calendar,
+  CheckCircle2,
+  FileText,
+  Percent,
+  Package,
   BarChart3,
   History,
   X,
   Boxes,
   ArrowUpRight,
-  TrendingDown
-} from 'lucide-react';
-import { PRODUCTS } from '@/data/mockData';
+  TrendingDown,
+} from "lucide-react";
+import { PRODUCTS } from "@/data/mockData";
 
 export interface PurchasePriceRecord {
   date: string;
@@ -44,102 +44,148 @@ export interface PurchaseEntry {
   sellingPrice: number;
   shippingLandedCost: number;
   totalBillAmount: number;
-  paymentStatus: 'PAID' | 'DUE';
+  paymentStatus: "PAID" | "DUE";
 }
 
 // Section 45 Historical Purchase Price Ledger by SKU
-export const HISTORICAL_PURCHASE_LEDGER: Record<string, PurchasePriceRecord[]> = {
-  'PRG-ARD-001': [
-    { date: '01-Jan-26', qty: 100, price: 280, supplier: 'Arduino OEM Direct' },
-    { date: '15-Mar-26', qty: 50, price: 295, supplier: 'Arduino Global Tech' },
-    { date: '20-Jun-26', qty: 100, price: 310, supplier: 'Semiconductor Importers' },
-    { date: '11-Aug-26', qty: 50, price: 320, supplier: 'Arduino Tech Global Ltd.' },
-  ],
-  'PRG-UAV-601': [
-    { date: '10-Feb-26', qty: 15, price: 9600, supplier: 'Holybro Direct' },
-    { date: '05-May-26', qty: 25, price: 9900, supplier: 'Holybro Robotics' },
-    { date: '22-Aug-26', qty: 20, price: 10200, supplier: 'Holybro Pixhawk Robotics Corp.' },
-  ],
-  'PRG-RPI-508': [
-    { date: '15-Jan-26', qty: 40, price: 6400, supplier: 'Raspberry Pi Trading' },
-    { date: '10-Apr-26', qty: 50, price: 6600, supplier: 'Element14 Importers' },
-    { date: '25-Aug-26', qty: 50, price: 6800, supplier: 'Raspberry Pi Foundation Trading' },
-  ],
-};
+export const HISTORICAL_PURCHASE_LEDGER: Record<string, PurchasePriceRecord[]> =
+  {
+    "PRG-ARD-001": [
+      {
+        date: "01-Jan-26",
+        qty: 100,
+        price: 280,
+        supplier: "Arduino OEM Direct",
+      },
+      {
+        date: "15-Mar-26",
+        qty: 50,
+        price: 295,
+        supplier: "Arduino Global Tech",
+      },
+      {
+        date: "20-Jun-26",
+        qty: 100,
+        price: 310,
+        supplier: "Semiconductor Importers",
+      },
+      {
+        date: "11-Aug-26",
+        qty: 50,
+        price: 320,
+        supplier: "Arduino Tech Global Ltd.",
+      },
+    ],
+    "PRG-UAV-601": [
+      { date: "10-Feb-26", qty: 15, price: 9600, supplier: "Holybro Direct" },
+      { date: "05-May-26", qty: 25, price: 9900, supplier: "Holybro Robotics" },
+      {
+        date: "22-Aug-26",
+        qty: 20,
+        price: 10200,
+        supplier: "Holybro Pixhawk Robotics Corp.",
+      },
+    ],
+    "PRG-RPI-508": [
+      {
+        date: "15-Jan-26",
+        qty: 40,
+        price: 6400,
+        supplier: "Raspberry Pi Trading",
+      },
+      {
+        date: "10-Apr-26",
+        qty: 50,
+        price: 6600,
+        supplier: "Element14 Importers",
+      },
+      {
+        date: "25-Aug-26",
+        qty: 50,
+        price: 6800,
+        supplier: "Raspberry Pi Foundation Trading",
+      },
+    ],
+  };
 
 const MOCK_PURCHASES: PurchaseEntry[] = [
   {
-    id: 'pur-1',
-    poNumber: 'PO-2026-081',
-    supplierName: 'Arduino Tech Global Ltd.',
-    supplierGstin: '27AABCU9603R1ZM',
-    invoiceNo: 'INV-ARD-9941',
-    date: '11 Aug 2026',
-    productName: 'Arduino UNO R3 Official Board (ATmega328P)',
-    sku: 'PRG-ARD-001',
-    locationStore: 'Ranchi Central Hub',
+    id: "pur-1",
+    poNumber: "PO-2026-081",
+    supplierName: "Arduino Tech Global Ltd.",
+    supplierGstin: "27AABCU9603R1ZM",
+    invoiceNo: "INV-ARD-9941",
+    date: "11 Aug 2026",
+    productName: "Arduino UNO R3 Official Board (ATmega328P)",
+    sku: "PRG-ARD-001",
+    locationStore: "Ranchi Central Hub",
     quantity: 50,
     costPrice: 320,
     sellingPrice: 450,
     shippingLandedCost: 15,
     totalBillAmount: 16750,
-    paymentStatus: 'PAID',
+    paymentStatus: "PAID",
   },
   {
-    id: 'pur-2',
-    poNumber: 'PO-2026-082',
-    supplierName: 'Holybro Pixhawk Robotics Corp.',
-    supplierGstin: '29AAACH1234F1Z8',
-    invoiceNo: 'INV-HLB-4412',
-    date: '22 Aug 2026',
-    productName: 'Pixhawk 6C Autopilot Flight Controller Unit',
-    sku: 'PRG-UAV-601',
-    locationStore: 'Ranchi Central Hub',
+    id: "pur-2",
+    poNumber: "PO-2026-082",
+    supplierName: "Holybro Pixhawk Robotics Corp.",
+    supplierGstin: "29AAACH1234F1Z8",
+    invoiceNo: "INV-HLB-4412",
+    date: "22 Aug 2026",
+    productName: "Pixhawk 6C Autopilot Flight Controller Unit",
+    sku: "PRG-UAV-601",
+    locationStore: "Ranchi Central Hub",
     quantity: 20,
     costPrice: 10200,
     sellingPrice: 14500,
     shippingLandedCost: 300,
     totalBillAmount: 210000,
-    paymentStatus: 'PAID',
+    paymentStatus: "PAID",
   },
   {
-    id: 'pur-3',
-    poNumber: 'PO-2026-083',
-    supplierName: 'Raspberry Pi Foundation Trading',
-    supplierGstin: '07AAACR4412E1Z1',
-    invoiceNo: 'INV-RPI-8819',
-    date: '25 Aug 2026',
-    productName: 'Raspberry Pi 5 Model B (8GB RAM)',
-    sku: 'PRG-RPI-508',
-    locationStore: 'Patna Branch Store',
+    id: "pur-3",
+    poNumber: "PO-2026-083",
+    supplierName: "Raspberry Pi Foundation Trading",
+    supplierGstin: "07AAACR4412E1Z1",
+    invoiceNo: "INV-RPI-8819",
+    date: "25 Aug 2026",
+    productName: "Raspberry Pi 5 Model B (8GB RAM)",
+    sku: "PRG-RPI-508",
+    locationStore: "Patna Branch Store",
     quantity: 50,
     costPrice: 6800,
     sellingPrice: 8999,
     shippingLandedCost: 150,
     totalBillAmount: 347500,
-    paymentStatus: 'PAID',
+    paymentStatus: "PAID",
   },
 ];
 
 export default function PurchasesSupplierPage() {
   const [purchases, setPurchases] = useState<PurchaseEntry[]>(MOCK_PURCHASES);
-  const [priceLedger, setPriceLedger] = useState<Record<string, PurchasePriceRecord[]>>(HISTORICAL_PURCHASE_LEDGER);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [priceLedger, setPriceLedger] = useState<
+    Record<string, PurchasePriceRecord[]>
+  >(HISTORICAL_PURCHASE_LEDGER);
+  const [searchQuery, setSearchQuery] = useState("");
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [selectedSkuForHistory, setSelectedSkuForHistory] = useState<string | null>(null);
+  const [selectedSkuForHistory, setSelectedSkuForHistory] = useState<
+    string | null
+  >(null);
 
   // New Purchase Entry Form State
-  const [supplierName, setSupplierName] = useState('');
-  const [supplierGstin, setSupplierGstin] = useState('');
-  const [invoiceNo, setInvoiceNo] = useState('');
+  const [supplierName, setSupplierName] = useState("");
+  const [supplierGstin, setSupplierGstin] = useState("");
+  const [invoiceNo, setInvoiceNo] = useState("");
   const [selectedSku, setSelectedSku] = useState(PRODUCTS[0].sku);
-  const [targetStore, setTargetStore] = useState('Ranchi Central Hub');
-  const [quantity, setQuantity] = useState('50');
-  const [costPrice, setCostPrice] = useState('320');
-  const [sellingPrice, setSellingPrice] = useState('450');
-  const [shippingLandedCost, setShippingLandedCost] = useState('15');
+  const [targetStore, setTargetStore] = useState("Ranchi Central Hub");
+  const [quantity, setQuantity] = useState("50");
+  const [costPrice, setCostPrice] = useState("320");
+  const [sellingPrice, setSellingPrice] = useState("450");
+  const [shippingLandedCost, setShippingLandedCost] = useState("15");
 
-  const selectedProduct = PRODUCTS.find(p => p.sku === selectedSku) || PRODUCTS[0];
+  const selectedProduct =
+    PRODUCTS.find((p) => p.sku === selectedSku) || PRODUCTS[0];
 
   const handleCreatePurchase = (e: React.FormEvent) => {
     e.preventDefault();
@@ -153,9 +199,13 @@ export default function PurchasesSupplierPage() {
       id: `pur-${Date.now()}`,
       poNumber: `PO-${new Date().getFullYear()}-${Math.floor(100 + Math.random() * 900)}`,
       supplierName: supplierName.trim(),
-      supplierGstin: supplierGstin.trim() || '20AAACP9921E1Z5',
+      supplierGstin: supplierGstin.trim() || "20AAACP9921E1Z5",
       invoiceNo: invoiceNo.trim() || `INV-${Date.now().toString().slice(-4)}`,
-      date: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
+      date: new Date().toLocaleDateString("en-GB", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+      }),
       productName: selectedProduct.name,
       sku: selectedProduct.sku,
       locationStore: targetStore,
@@ -164,7 +214,7 @@ export default function PurchasesSupplierPage() {
       sellingPrice: sp,
       shippingLandedCost: freight,
       totalBillAmount: totalBill,
-      paymentStatus: 'PAID',
+      paymentStatus: "PAID",
     };
 
     // Update purchases list
@@ -172,23 +222,34 @@ export default function PurchasesSupplierPage() {
 
     // Section 45: Append new price record to historical ledger
     const newPriceRecord: PurchasePriceRecord = {
-      date: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: '2-digit' }).replace(/ /g, '-'),
+      date: new Date()
+        .toLocaleDateString("en-GB", {
+          day: "2-digit",
+          month: "short",
+          year: "2-digit",
+        })
+        .replace(/ /g, "-"),
       qty,
       price: cp,
       supplier: supplierName.trim(),
     };
 
-    setPriceLedger(prev => ({
+    setPriceLedger((prev) => ({
       ...prev,
-      [selectedProduct.sku]: [...(prev[selectedProduct.sku] || []), newPriceRecord],
+      [selectedProduct.sku]: [
+        ...(prev[selectedProduct.sku] || []),
+        newPriceRecord,
+      ],
     }));
 
     setShowCreateModal(false);
-    alert(`Purchase Entry recorded! ${qty} units added to ${targetStore}. Supplier cost ledger updated.`);
+    alert(
+      `Purchase Entry recorded! ${qty} units added to ${targetStore}. Supplier cost ledger updated.`,
+    );
 
     // Reset Form
-    setSupplierName('');
-    setInvoiceNo('');
+    setSupplierName("");
+    setInvoiceNo("");
   };
 
   const filteredPurchases = purchases.filter(
@@ -196,14 +257,16 @@ export default function PurchasesSupplierPage() {
       p.supplierName.toLowerCase().includes(searchQuery.toLowerCase()) ||
       p.productName.toLowerCase().includes(searchQuery.toLowerCase()) ||
       p.poNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      p.sku.toLowerCase().includes(searchQuery.toLowerCase())
+      p.sku.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
-  const totalProcurementSpend = purchases.reduce((sum, p) => sum + p.totalBillAmount, 0);
+  const totalProcurementSpend = purchases.reduce(
+    (sum, p) => sum + p.totalBillAmount,
+    0,
+  );
 
   return (
     <div className="p-6 sm:p-8 space-y-8 animate-in fade-in duration-300">
-      
       {/* 1. Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
@@ -216,7 +279,9 @@ export default function PurchasesSupplierPage() {
             Purchases &amp; Supplier Cost Analysis
           </h1>
           <p className="text-xs text-slate-500">
-            Record OEM supplier purchase orders, track historical supplier purchase price changes, auto-increment location stock, and calculate product profit margins.
+            Record OEM supplier purchase orders, track historical supplier
+            purchase price changes, auto-increment location stock, and calculate
+            product profit margins.
           </p>
         </div>
 
@@ -232,21 +297,35 @@ export default function PurchasesSupplierPage() {
       {/* 2. Procurement Metric Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-2xs space-y-1">
-          <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider">Total Procurement Spend</span>
-          <div className="text-2xl font-black text-slate-900">₹{totalProcurementSpend.toLocaleString()}</div>
-          <span className="text-[10px] text-emerald-600 font-semibold">{purchases.length} recorded supplier purchase entries</span>
+          <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider">
+            Total Procurement Spend
+          </span>
+          <div className="text-2xl font-black text-slate-900">
+            ₹{totalProcurementSpend.toLocaleString()}
+          </div>
+          <span className="text-[10px] text-emerald-600 font-semibold">
+            {purchases.length} recorded supplier purchase entries
+          </span>
         </div>
 
         <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-2xs space-y-1">
-          <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider">Average Gross Margin</span>
+          <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider">
+            Average Gross Margin
+          </span>
           <div className="text-2xl font-black text-emerald-600">30.8%</div>
-          <span className="text-[10px] text-slate-500 font-semibold">Across microcontrollers, drone parts &amp; STEM kits</span>
+          <span className="text-[10px] text-slate-500 font-semibold">
+            Across microcontrollers, drone parts &amp; STEM kits
+          </span>
         </div>
 
         <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-2xs space-y-1">
-          <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider">Active OEM Suppliers</span>
+          <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider">
+            Active OEM Suppliers
+          </span>
           <div className="text-2xl font-black text-purple-900">14 Verified</div>
-          <span className="text-[10px] text-slate-500 font-semibold">Direct manufacturers &amp; authorized distributors</span>
+          <span className="text-[10px] text-slate-500 font-semibold">
+            Direct manufacturers &amp; authorized distributors
+          </span>
         </div>
       </div>
 
@@ -278,7 +357,9 @@ export default function PurchasesSupplierPage() {
                 <th className="pb-3 font-black text-center">Qty</th>
                 <th className="pb-3 font-black text-right">Cost (CP)</th>
                 <th className="pb-3 font-black text-right">Selling (SP)</th>
-                <th className="pb-3 font-black text-right">Profit &amp; Margin</th>
+                <th className="pb-3 font-black text-right">
+                  Profit &amp; Margin
+                </th>
                 <th className="pb-3 font-black text-right">Price History</th>
               </tr>
             </thead>
@@ -289,19 +370,31 @@ export default function PurchasesSupplierPage() {
                 const margin = ((unitProfit / p.sellingPrice) * 100).toFixed(2);
 
                 return (
-                  <tr key={p.id} className="hover:bg-slate-50/80 transition-colors">
-                    
+                  <tr
+                    key={p.id}
+                    className="hover:bg-slate-50/80 transition-colors"
+                  >
                     {/* PO & Supplier */}
                     <td className="py-3.5 space-y-0.5">
-                      <span className="font-mono font-black text-slate-900 text-xs block">{p.poNumber}</span>
-                      <span className="text-[11px] text-slate-700 font-bold block">{p.supplierName}</span>
-                      <span className="text-[10px] text-slate-400 font-mono">Invoice: {p.invoiceNo} • {p.date}</span>
+                      <span className="font-mono font-black text-slate-900 text-xs block">
+                        {p.poNumber}
+                      </span>
+                      <span className="text-[11px] text-slate-700 font-bold block">
+                        {p.supplierName}
+                      </span>
+                      <span className="text-[10px] text-slate-400 font-mono">
+                        Invoice: {p.invoiceNo} • {p.date}
+                      </span>
                     </td>
 
                     {/* Product */}
                     <td className="py-3.5">
-                      <div className="font-extrabold text-slate-900 truncate max-w-xs">{p.productName}</div>
-                      <div className="font-mono text-[10px] text-slate-400 font-bold">{p.sku}</div>
+                      <div className="font-extrabold text-slate-900 truncate max-w-xs">
+                        {p.productName}
+                      </div>
+                      <div className="font-mono text-[10px] text-slate-400 font-bold">
+                        {p.sku}
+                      </div>
                     </td>
 
                     {/* Target Store Location */}
@@ -319,7 +412,9 @@ export default function PurchasesSupplierPage() {
                     {/* Cost Price */}
                     <td className="py-3.5 text-right font-mono text-slate-700">
                       <div className="font-bold">₹{p.costPrice}</div>
-                      <span className="text-[9px] text-slate-400 block">+₹{p.shippingLandedCost} freight</span>
+                      <span className="text-[9px] text-slate-400 block">
+                        +₹{p.shippingLandedCost} freight
+                      </span>
                     </td>
 
                     {/* Selling Price */}
@@ -329,7 +424,9 @@ export default function PurchasesSupplierPage() {
 
                     {/* Section 46: Profit & Margin Analysis */}
                     <td className="py-3.5 text-right font-mono">
-                      <div className="font-black text-emerald-600">+₹{unitProfit.toLocaleString()}</div>
+                      <div className="font-black text-emerald-600">
+                        +₹{unitProfit.toLocaleString()}
+                      </div>
                       <span className="text-[10px] font-black text-emerald-700 bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded inline-block mt-0.5">
                         {margin}% Margin
                       </span>
@@ -346,7 +443,6 @@ export default function PurchasesSupplierPage() {
                         <span>History</span>
                       </button>
                     </td>
-
                   </tr>
                 );
               })}
@@ -358,9 +454,11 @@ export default function PurchasesSupplierPage() {
       {/* 4. Section 45 Purchase Price History Modal */}
       {selectedSkuForHistory && (
         <div className="fixed inset-0 z-50 overflow-hidden flex items-center justify-center p-4">
-          <div onClick={() => setSelectedSkuForHistory(null)} className="fixed inset-0 bg-slate-950/70 backdrop-blur-xs animate-in fade-in" />
+          <div
+            onClick={() => setSelectedSkuForHistory(null)}
+            className="fixed inset-0 bg-slate-950/70 backdrop-blur-xs animate-in fade-in"
+          />
           <div className="relative max-w-lg w-full bg-white rounded-3xl p-6 sm:p-8 shadow-2xl z-10 space-y-4 text-xs animate-in zoom-in-95">
-            
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div>
                 <span className="text-[10px] font-black uppercase tracking-widest text-[#00AEEF]">
@@ -379,7 +477,8 @@ export default function PurchasesSupplierPage() {
             </div>
 
             <p className="text-xs text-slate-500">
-              Tracks OEM supplier price inflation and component acquisition costs over time.
+              Tracks OEM supplier price inflation and component acquisition
+              costs over time.
             </p>
 
             <div className="bg-slate-50 border border-slate-200 rounded-2xl overflow-hidden">
@@ -393,17 +492,47 @@ export default function PurchasesSupplierPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 font-medium">
-                  {(priceLedger[selectedSkuForHistory] || [
-                    { date: '01-Jan-26', qty: 100, price: 280, supplier: 'OEM Direct' },
-                    { date: '15-Mar-26', qty: 50, price: 295, supplier: 'Global Distributor' },
-                    { date: '20-Jun-26', qty: 100, price: 310, supplier: 'Regional Importer' },
-                    { date: '11-Aug-26', qty: 50, price: 320, supplier: 'Authorized Dealer' },
-                  ]).map((rec, i) => (
+                  {(
+                    priceLedger[selectedSkuForHistory] || [
+                      {
+                        date: "01-Jan-26",
+                        qty: 100,
+                        price: 280,
+                        supplier: "OEM Direct",
+                      },
+                      {
+                        date: "15-Mar-26",
+                        qty: 50,
+                        price: 295,
+                        supplier: "Global Distributor",
+                      },
+                      {
+                        date: "20-Jun-26",
+                        qty: 100,
+                        price: 310,
+                        supplier: "Regional Importer",
+                      },
+                      {
+                        date: "11-Aug-26",
+                        qty: 50,
+                        price: 320,
+                        supplier: "Authorized Dealer",
+                      },
+                    ]
+                  ).map((rec, i) => (
                     <tr key={i} className="hover:bg-white transition-colors">
-                      <td className="p-3 font-mono font-bold text-slate-900">{rec.date}</td>
-                      <td className="p-3 font-bold text-slate-700">{rec.qty} units</td>
-                      <td className="p-3 text-right font-mono font-black text-slate-900">₹{rec.price}</td>
-                      <td className="p-3 text-slate-600 text-[11px]">{rec.supplier}</td>
+                      <td className="p-3 font-mono font-bold text-slate-900">
+                        {rec.date}
+                      </td>
+                      <td className="p-3 font-bold text-slate-700">
+                        {rec.qty} units
+                      </td>
+                      <td className="p-3 text-right font-mono font-black text-slate-900">
+                        ₹{rec.price}
+                      </td>
+                      <td className="p-3 text-slate-600 text-[11px]">
+                        {rec.supplier}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -411,8 +540,12 @@ export default function PurchasesSupplierPage() {
             </div>
 
             <div className="bg-emerald-50 border border-emerald-200 p-3 rounded-2xl flex items-center justify-between text-xs">
-              <span className="font-bold text-emerald-900">Current Cost vs. Selling Price Margin:</span>
-              <span className="font-black text-emerald-700 font-mono">28.89% Profit</span>
+              <span className="font-bold text-emerald-900">
+                Current Cost vs. Selling Price Margin:
+              </span>
+              <span className="font-black text-emerald-700 font-mono">
+                28.89% Profit
+              </span>
             </div>
 
             <div className="flex justify-end pt-2">
@@ -423,7 +556,6 @@ export default function PurchasesSupplierPage() {
                 Close
               </button>
             </div>
-
           </div>
         </div>
       )}
@@ -431,14 +563,19 @@ export default function PurchasesSupplierPage() {
       {/* 5. Create Purchase Entry Modal */}
       {showCreateModal && (
         <div className="fixed inset-0 z-50 overflow-hidden flex items-center justify-center p-4">
-          <div onClick={() => setShowCreateModal(false)} className="fixed inset-0 bg-slate-950/70 backdrop-blur-xs animate-in fade-in" />
+          <div
+            onClick={() => setShowCreateModal(false)}
+            className="fixed inset-0 bg-slate-950/70 backdrop-blur-xs animate-in fade-in"
+          />
           <div className="relative max-w-lg w-full bg-white rounded-3xl p-6 sm:p-8 shadow-2xl z-10 space-y-4 text-xs animate-in zoom-in-95 max-h-[90vh] overflow-y-auto">
-            
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <h3 className="text-base font-black text-slate-900 uppercase">
                 Record Supplier Purchase Entry
               </h3>
-              <button onClick={() => setShowCreateModal(false)} className="text-slate-400 hover:text-slate-700">
+              <button
+                onClick={() => setShowCreateModal(false)}
+                className="text-slate-400 hover:text-slate-700"
+              >
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -446,7 +583,9 @@ export default function PurchasesSupplierPage() {
             <form onSubmit={handleCreatePurchase} className="space-y-4">
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1">Supplier Company Name *</label>
+                  <label className="block font-bold text-slate-700 mb-1">
+                    Supplier Company Name *
+                  </label>
                   <input
                     type="text"
                     required
@@ -457,7 +596,9 @@ export default function PurchasesSupplierPage() {
                   />
                 </div>
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1">Supplier GSTIN</label>
+                  <label className="block font-bold text-slate-700 mb-1">
+                    Supplier GSTIN
+                  </label>
                   <input
                     type="text"
                     value={supplierGstin}
@@ -470,7 +611,9 @@ export default function PurchasesSupplierPage() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1">Invoice Number *</label>
+                  <label className="block font-bold text-slate-700 mb-1">
+                    Invoice Number *
+                  </label>
                   <input
                     type="text"
                     required
@@ -482,27 +625,35 @@ export default function PurchasesSupplierPage() {
                 </div>
 
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1">Store Receiving Stock *</label>
+                  <label className="block font-bold text-slate-700 mb-1">
+                    Store Receiving Stock *
+                  </label>
                   <select
                     value={targetStore}
                     onChange={(e) => setTargetStore(e.target.value)}
                     className="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl font-bold text-slate-900"
                   >
-                    <option value="Ranchi Central Hub">Ranchi Central Hub</option>
-                    <option value="Patna Branch Store">Patna Branch Store</option>
+                    <option value="Ranchi Central Hub">
+                      Ranchi Central Hub
+                    </option>
+                    <option value="Patna Branch Store">
+                      Patna Branch Store
+                    </option>
                     <option value="Delhi NCR Hub">Delhi NCR Hub</option>
                   </select>
                 </div>
               </div>
 
               <div>
-                <label className="block font-bold text-slate-700 mb-1">Select Hardware Product *</label>
+                <label className="block font-bold text-slate-700 mb-1">
+                  Select Hardware Product *
+                </label>
                 <select
                   value={selectedSku}
                   onChange={(e) => setSelectedSku(e.target.value)}
                   className="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl font-bold text-slate-900"
                 >
-                  {PRODUCTS.map(p => (
+                  {PRODUCTS.map((p) => (
                     <option key={p.sku} value={p.sku}>
                       {p.name} ({p.sku})
                     </option>
@@ -512,7 +663,9 @@ export default function PurchasesSupplierPage() {
 
               <div className="grid grid-cols-3 gap-3">
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1">Quantity *</label>
+                  <label className="block font-bold text-slate-700 mb-1">
+                    Quantity *
+                  </label>
                   <input
                     type="number"
                     min={1}
@@ -523,7 +676,9 @@ export default function PurchasesSupplierPage() {
                   />
                 </div>
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1">Cost Price (₹) *</label>
+                  <label className="block font-bold text-slate-700 mb-1">
+                    Cost Price (₹) *
+                  </label>
                   <input
                     type="number"
                     required
@@ -533,7 +688,9 @@ export default function PurchasesSupplierPage() {
                   />
                 </div>
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1">Selling Price (₹) *</label>
+                  <label className="block font-bold text-slate-700 mb-1">
+                    Selling Price (₹) *
+                  </label>
                   <input
                     type="number"
                     required
@@ -549,17 +706,25 @@ export default function PurchasesSupplierPage() {
                 const cp = parseFloat(costPrice) || 0;
                 const sp = parseFloat(sellingPrice) || 0;
                 const profit = sp - cp;
-                const margin = sp > 0 ? ((profit / sp) * 100).toFixed(1) : '0';
+                const margin = sp > 0 ? ((profit / sp) * 100).toFixed(1) : "0";
 
                 return (
                   <div className="bg-slate-50 border border-slate-200 p-3 rounded-2xl flex items-center justify-between">
                     <div>
-                      <span className="text-[10px] text-slate-400 font-bold uppercase block">Section 46 Profit Preview</span>
-                      <span className="font-bold text-slate-900">Unit Profit: ₹{profit}</span>
+                      <span className="text-[10px] text-slate-400 font-bold uppercase block">
+                        Section 46 Profit Preview
+                      </span>
+                      <span className="font-bold text-slate-900">
+                        Unit Profit: ₹{profit}
+                      </span>
                     </div>
                     <div className="text-right">
-                      <span className="text-[10px] text-slate-400 font-bold uppercase block">Gross Margin</span>
-                      <span className="font-black text-emerald-600 text-sm">{margin}%</span>
+                      <span className="text-[10px] text-slate-400 font-bold uppercase block">
+                        Gross Margin
+                      </span>
+                      <span className="font-black text-emerald-600 text-sm">
+                        {margin}%
+                      </span>
                     </div>
                   </div>
                 );
@@ -584,7 +749,6 @@ export default function PurchasesSupplierPage() {
           </div>
         </div>
       )}
-
     </div>
   );
 }

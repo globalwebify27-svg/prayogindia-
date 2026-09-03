@@ -1,12 +1,11 @@
-import React from 'react';
-import Link from 'next/link';
-import { PrayogLogo } from '@/components/PrayogLogo';
-import { ShoppingBag, Home, Search, ArrowRight } from 'lucide-react';
+import React from "react";
+import Link from "next/link";
+import { PrayogLogo } from "@/components/PrayogLogo";
+import { ShoppingBag, Home, Search, ArrowRight } from "lucide-react";
 
 export default function NotFound() {
   return (
     <div className="min-h-[70vh] flex flex-col items-center justify-center px-4 py-16 text-center space-y-6 animate-in fade-in duration-300">
-      
       <div className="w-16 h-16 rounded-3xl bg-[#E0F7FC] text-[#00AEEF] flex items-center justify-center border border-[#00AEEF]/20 mx-auto shadow-2xs">
         <Search className="w-8 h-8" />
       </div>
@@ -19,7 +18,8 @@ export default function NotFound() {
           Page Not Found
         </h1>
         <p className="text-xs text-slate-600 leading-relaxed">
-          The requested hardware catalog page, learning resource, or service URL does not exist or has been moved.
+          The requested hardware catalog page, learning resource, or service URL
+          does not exist or has been moved.
         </p>
       </div>
 
@@ -40,7 +40,6 @@ export default function NotFound() {
           <span>Browse Products</span>
         </Link>
       </div>
-
     </div>
   );
 }

@@ -1,6 +1,6 @@
-import { NextResponse } from 'next/server';
-import { db } from '@/lib/db';
-import { SERVICES_DATA } from '@/data/servicesData';
+import { NextResponse } from "next/server";
+import { db } from "@/lib/db";
+import { SERVICES_DATA } from "@/data/servicesData";
 
 /**
  * GET /api/services
@@ -26,14 +26,17 @@ export async function GET() {
       if (dbServices.length > 0) {
         return NextResponse.json({
           success: true,
-          data: dbServices.map(s => ({
+          data: dbServices.map((s) => ({
             ...s,
             image: s.bannerImage,
           })),
         });
       }
     } catch (error) {
-      console.warn('Database query failed for services, falling back to dataset', error);
+      console.warn(
+        "Database query failed for services, falling back to dataset",
+        error,
+      );
     }
   }
 

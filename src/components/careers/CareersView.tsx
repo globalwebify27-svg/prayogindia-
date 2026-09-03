@@ -1,17 +1,22 @@
-'use client';
+"use client";
 
-import React from 'react';
-import Link from 'next/link';
-import { CategoryBreadcrumb } from '@/components/categories/CategoryBreadcrumb';
-import { JOB_OPENINGS, JobOpening } from '@/data/companyData';
-import { Briefcase, MapPin, Clock, ArrowRight, CheckCircle2 } from 'lucide-react';
+import React from "react";
+import Link from "next/link";
+import { CategoryBreadcrumb } from "@/components/categories/CategoryBreadcrumb";
+import { JOB_OPENINGS, JobOpening } from "@/data/companyData";
+import {
+  Briefcase,
+  MapPin,
+  Clock,
+  ArrowRight,
+  CheckCircle2,
+} from "lucide-react";
 
 export const CareersView: React.FC = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-10 animate-in fade-in duration-300">
-      
       {/* 1. Breadcrumb */}
-      <CategoryBreadcrumb items={[{ label: 'Careers' }]} />
+      <CategoryBreadcrumb items={[{ label: "Careers" }]} />
 
       {/* 2. Header */}
       <div className="py-6 border-b border-slate-100 space-y-2">
@@ -22,19 +27,26 @@ export const CareersView: React.FC = () => {
           Careers at Prayog India
         </h1>
         <p className="text-xs sm:text-sm text-slate-600 max-w-2xl leading-relaxed">
-          Build the next generation of mechatronics hardware, drone flight controllers, and educational robotics ecosystems.
+          Build the next generation of mechatronics hardware, drone flight
+          controllers, and educational robotics ecosystems.
         </p>
       </div>
 
       {/* 3. Job Openings List */}
       <div className="space-y-6">
-        <h2 className="text-xl font-extrabold text-slate-900 tracking-tight">Open Engineering Positions ({JOB_OPENINGS.length})</h2>
+        <h2 className="text-xl font-extrabold text-slate-900 tracking-tight">
+          Open Engineering Positions ({JOB_OPENINGS.length})
+        </h2>
 
         {JOB_OPENINGS.length === 0 ? (
           <div className="py-16 text-center bg-slate-50 border border-slate-200 rounded-3xl space-y-2 max-w-md mx-auto">
             <Briefcase className="w-8 h-8 text-slate-300 mx-auto" />
-            <h3 className="text-sm font-bold text-slate-900">No Current Openings</h3>
-            <p className="text-xs text-slate-500">Please check back later for new opportunities at Prayog India.</p>
+            <h3 className="text-sm font-bold text-slate-900">
+              No Current Openings
+            </h3>
+            <p className="text-xs text-slate-500">
+              Please check back later for new opportunities at Prayog India.
+            </p>
           </div>
         ) : (
           <div className="space-y-4">
@@ -49,13 +61,20 @@ export const CareersView: React.FC = () => {
                       {job.department}
                     </span>
                     <span className="text-[10px] text-slate-400 font-bold flex items-center gap-1">
-                      <MapPin className="w-3 h-3 text-slate-400" /> {job.location}
+                      <MapPin className="w-3 h-3 text-slate-400" />{" "}
+                      {job.location}
                     </span>
-                    <span className="text-[10px] text-slate-400 font-bold">• {job.type}</span>
+                    <span className="text-[10px] text-slate-400 font-bold">
+                      • {job.type}
+                    </span>
                   </div>
 
-                  <h3 className="text-xl font-black text-slate-900">{job.title}</h3>
-                  <p className="text-xs text-slate-600 leading-relaxed">{job.shortDescription}</p>
+                  <h3 className="text-xl font-black text-slate-900">
+                    {job.title}
+                  </h3>
+                  <p className="text-xs text-slate-600 leading-relaxed">
+                    {job.shortDescription}
+                  </p>
                 </div>
 
                 <Link
@@ -70,7 +89,6 @@ export const CareersView: React.FC = () => {
           </div>
         )}
       </div>
-
     </div>
   );
 };

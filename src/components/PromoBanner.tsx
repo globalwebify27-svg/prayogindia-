@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import React from 'react';
-import Image from 'next/image';
-import { ArrowRight, Sparkles, ShieldCheck } from 'lucide-react';
+import React from "react";
+import Image from "next/image";
+import { ArrowRight, Sparkles, ShieldCheck } from "lucide-react";
 
 interface PromoProps {
   onShopNow: () => void;
@@ -13,12 +13,10 @@ export const PromoBanner: React.FC<PromoProps> = ({ onShopNow }) => {
     <section id="offers" className="py-6 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="relative rounded-3xl bg-gradient-to-r from-[#0A1128] via-[#0F172A] to-[#1E56A0] overflow-hidden shadow-2xl p-8 sm:p-12 border border-[#D4AF37]/30">
-          
           {/* Subtle Technical Pattern Overlay */}
           <div className="absolute inset-0 bg-[radial-gradient(#2563EB_1px,transparent_1px)] [background-size:24px_24px] opacity-15 pointer-events-none"></div>
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
-            
             {/* Content Side */}
             <div className="lg:col-span-7 space-y-6 text-white">
               <div className="inline-flex items-center gap-2 bg-[#D4AF37]/15 border border-[#D4AF37]/40 px-3.5 py-1 rounded-full text-xs font-bold text-[#D4AF37] uppercase tracking-wider">
@@ -31,7 +29,9 @@ export const PromoBanner: React.FC<PromoProps> = ({ onShopNow }) => {
               </h2>
 
               <p className="text-slate-300 text-base sm:text-lg max-w-xl font-normal leading-relaxed">
-                Everything you need for robotics, electronics and STEM innovation. Equipping India&apos;s next generation of robotics engineers & research pioneers.
+                Everything you need for robotics, electronics and STEM
+                innovation. Equipping India&apos;s next generation of robotics
+                engineers & research pioneers.
               </p>
 
               <div className="pt-2 flex flex-wrap items-center gap-4">
@@ -61,7 +61,6 @@ export const PromoBanner: React.FC<PromoProps> = ({ onShopNow }) => {
                 />
               </div>
             </div>
-
           </div>
         </div>
       </div>

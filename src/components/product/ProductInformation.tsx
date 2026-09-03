@@ -1,22 +1,22 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { 
-  Star, 
-  ShieldCheck, 
-  Truck, 
-  Headphones, 
-  MessageSquare, 
-  ShoppingBag, 
-  Heart, 
-  Plane, 
-  CheckCircle2, 
-  XCircle, 
+import React from "react";
+import {
+  Star,
+  ShieldCheck,
+  Truck,
+  Headphones,
+  MessageSquare,
+  ShoppingBag,
+  Heart,
+  Plane,
+  CheckCircle2,
+  XCircle,
   AlertTriangle,
   Boxes,
-  X
-} from 'lucide-react';
-import { Product, ProductVariant } from '@/data/mockData';
+  X,
+} from "lucide-react";
+import { Product, ProductVariant } from "@/data/mockData";
 
 interface ProductInfoProps {
   product: Product;
@@ -38,64 +38,82 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
   const currentPrice = selectedVariant ? selectedVariant.price : product.price;
   const currentMrp = selectedVariant ? selectedVariant.mrp : product.mrp;
   const currentSku = selectedVariant ? selectedVariant.sku : product.sku;
-  const currentStock = selectedVariant ? selectedVariant.inStock : product.inStock;
+  const currentStock = selectedVariant
+    ? selectedVariant.inStock
+    : product.inStock;
   const stockCount = React.useMemo(() => {
     // Generate a realistic low stock count (e.g., 3-8 items) for urgency indicator
-    const code = product.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    const code = product.id
+      .split("")
+      .reduce((acc, char) => acc + char.charCodeAt(0), 0);
     return (code % 6) + 3;
   }, [product.id]);
 
   // Pincode Delivery Checker State
-  const [pincode, setPincode] = React.useState('');
-  const [pincodeStatus, setPincodeStatus] = React.useState<'idle' | 'valid' | 'invalid'>('idle');
-  const [deliveryDate, setDeliveryDate] = React.useState('');
+  const [pincode, setPincode] = React.useState("");
+  const [pincodeStatus, setPincodeStatus] = React.useState<
+    "idle" | "valid" | "invalid"
+  >("idle");
+  const [deliveryDate, setDeliveryDate] = React.useState("");
 
   // Price Match Modal State
   const [showPriceMatchModal, setShowPriceMatchModal] = React.useState(false);
   const [priceMatchForm, setPriceMatchForm] = React.useState({
-    competitorUrl: '',
-    competitorPrice: '',
-    contact: '',
-    submitted: false
+    competitorUrl: "",
+    competitorPrice: "",
+    contact: "",
+    submitted: false,
   });
 
   // Calculate estimated delivery date (3 days ahead)
   React.useEffect(() => {
     const d = new Date();
     d.setDate(d.getDate() + 3);
-    setDeliveryDate(d.toLocaleDateString('en-IN', { weekday: 'short', month: 'short', day: 'numeric' }));
+    setDeliveryDate(
+      d.toLocaleDateString("en-IN", {
+        weekday: "short",
+        month: "short",
+        day: "numeric",
+      }),
+    );
   }, []);
 
   const handleCheckPincode = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     const cleanPin = pincode.trim();
     if (/^\d{6}$/.test(cleanPin)) {
-      setPincodeStatus('valid');
+      setPincodeStatus("valid");
     } else {
-      setPincodeStatus('invalid');
+      setPincodeStatus("invalid");
     }
   };
 
   const handlePriceMatchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (priceMatchForm.competitorPrice && priceMatchForm.contact) {
-      setPriceMatchForm(prev => ({ ...prev, submitted: true }));
+      setPriceMatchForm((prev) => ({ ...prev, submitted: true }));
       setTimeout(() => {
         setShowPriceMatchModal(false);
-        setPriceMatchForm({ competitorUrl: '', competitorPrice: '', contact: '', submitted: false });
+        setPriceMatchForm({
+          competitorUrl: "",
+          competitorPrice: "",
+          contact: "",
+          submitted: false,
+        });
       }, 2500);
     }
   };
 
-  const discountPercentage = Math.round(((currentMrp - currentPrice) / currentMrp) * 100);
+  const discountPercentage = Math.round(
+    ((currentMrp - currentPrice) / currentMrp) * 100,
+  );
 
   const whatsappMessage = encodeURIComponent(
-    `Hi Prayog India, I am interested in ordering the product: "${product.name}" (SKU: ${currentSku}). Please confirm current stock availability and dispatch time.`
+    `Hi Prayog India, I am interested in ordering the product: "${product.name}" (SKU: ${currentSku}). Please confirm current stock availability and dispatch time.`,
   );
 
   return (
     <div className="space-y-6 text-slate-900">
-      
       {/* Brand, Badges & Title */}
       <div className="space-y-2">
         <div className="flex flex-wrap items-center gap-2">
@@ -109,7 +127,9 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
               {product.badge}
             </span>
           )}
-          <span className="text-[11px] font-mono font-bold text-slate-400">SKU: {currentSku}</span>
+          <span className="text-[11px] font-mono font-bold text-slate-400">
+            SKU: {currentSku}
+          </span>
         </div>
 
         <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 leading-tight">
@@ -123,7 +143,9 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
             <span>{product.rating}</span>
           </div>
           <span className="text-slate-300">•</span>
-          <span className="text-xs font-bold text-slate-500">{product.reviews} Verified Customer Reviews</span>
+          <span className="text-xs font-bold text-slate-500">
+            {product.reviews} Verified Customer Reviews
+          </span>
         </div>
       </div>
 
@@ -149,7 +171,7 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
           <span className="text-slate-500 font-medium">
             Incl. GST (No Hidden Charges)
           </span>
-          <button 
+          <button
             type="button"
             onClick={() => setShowPriceMatchModal(true)}
             className="font-bold text-slate-900 underline hover:text-[#00AEEF] transition-colors cursor-pointer"
@@ -165,9 +187,11 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
               Please hurry! Only {stockCount} left in stock
             </p>
             <div className="w-full bg-slate-200/90 h-1.5 rounded-full overflow-hidden">
-              <div 
-                className="h-full rounded-full bg-gradient-to-r from-[#E05344] via-amber-500 to-emerald-500 transition-all duration-500" 
-                style={{ width: `${Math.min(100, Math.max(20, (stockCount / 10) * 100))}%` }}
+              <div
+                className="h-full rounded-full bg-gradient-to-r from-[#E05344] via-amber-500 to-emerald-500 transition-all duration-500"
+                style={{
+                  width: `${Math.min(100, Math.max(20, (stockCount / 10) * 100))}%`,
+                }}
               />
             </div>
           </div>
@@ -189,18 +213,26 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
 
         {/* Section 5.1 Freight Mode & Shipping Tag Badge */}
         {(() => {
-          const tag = product.shippingTag || (product.name.toLowerCase().includes('battery') || product.name.toLowerCase().includes('lipo') ? 'Battery Item' : 'Standard');
-          const isAirAllowed = product.airFreightAllowed !== false && tag !== 'Battery Item';
+          const tag =
+            product.shippingTag ||
+            (product.name.toLowerCase().includes("battery") ||
+            product.name.toLowerCase().includes("lipo")
+              ? "Battery Item"
+              : "Standard");
+          const isAirAllowed =
+            product.airFreightAllowed !== false && tag !== "Battery Item";
 
           return (
             <div className="flex items-center gap-1.5 ml-auto">
-              <span className={`text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full border ${
-                tag === 'Battery Item'
-                  ? 'bg-amber-50 text-amber-800 border-amber-300'
-                  : tag === 'Fragile'
-                  ? 'bg-purple-50 text-purple-800 border-purple-200'
-                  : 'bg-slate-100 text-slate-700 border-slate-200'
-              }`}>
+              <span
+                className={`text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full border ${
+                  tag === "Battery Item"
+                    ? "bg-amber-50 text-amber-800 border-amber-300"
+                    : tag === "Fragile"
+                      ? "bg-purple-50 text-purple-800 border-purple-200"
+                      : "bg-slate-100 text-slate-700 border-slate-200"
+                }`}
+              >
                 {tag}
               </span>
 
@@ -228,9 +260,9 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
             maxLength={6}
             value={pincode}
             onChange={(e) => {
-              const val = e.target.value.replace(/\D/g, '');
+              const val = e.target.value.replace(/\D/g, "");
               setPincode(val);
-              if (pincodeStatus !== 'idle') setPincodeStatus('idle');
+              if (pincodeStatus !== "idle") setPincodeStatus("idle");
             }}
             placeholder="Enter Pincode to Check Delivery"
             className="flex-1 px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#00AEEF] focus:bg-white transition-all"
@@ -243,14 +275,16 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
           </button>
         </form>
 
-        {pincodeStatus === 'valid' && (
+        {pincodeStatus === "valid" && (
           <div className="p-2.5 bg-emerald-50 border border-emerald-200 rounded-xl text-xs space-y-1 animate-fadeIn">
             <div className="flex items-center gap-1.5 font-bold text-emerald-800">
               <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
               <span>Delivery available for {pincode}</span>
             </div>
             <p className="text-[11px] text-slate-600 font-medium">
-              ⚡ Estimated Delivery by <strong className="text-slate-900">{deliveryDate}</strong> • Fast 24-hr Dispatch
+              ⚡ Estimated Delivery by{" "}
+              <strong className="text-slate-900">{deliveryDate}</strong> • Fast
+              24-hr Dispatch
             </p>
             <p className="text-[10px] text-emerald-700 font-medium">
               ✓ Free Shipping on prepaid orders above ₹999
@@ -258,9 +292,10 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
           </div>
         )}
 
-        {pincodeStatus === 'invalid' && (
+        {pincodeStatus === "invalid" && (
           <p className="text-xs text-red-600 font-medium flex items-center gap-1 pt-0.5">
-            <AlertTriangle className="w-3.5 h-3.5 shrink-0" /> Please enter a valid 6-digit PIN code.
+            <AlertTriangle className="w-3.5 h-3.5 shrink-0" /> Please enter a
+            valid 6-digit PIN code.
           </p>
         )}
       </div>
@@ -278,8 +313,8 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
                 onClick={() => onSelectVariant(variant)}
                 className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all border ${
                   selectedVariant?.id === variant.id
-                    ? 'border-[#00AEEF] bg-[#E0F7FC] text-[#00AEEF] ring-2 ring-[#00AEEF]/20'
-                    : 'border-slate-200 hover:border-slate-300 text-slate-700 bg-white'
+                    ? "border-[#00AEEF] bg-[#E0F7FC] text-[#00AEEF] ring-2 ring-[#00AEEF]/20"
+                    : "border-slate-200 hover:border-slate-300 text-slate-700 bg-white"
                 }`}
               >
                 {variant.name} — ₹{variant.price}
@@ -291,7 +326,11 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
 
       {/* Section 27: Air & Surface Freight Shipping Rules Card */}
       {(() => {
-        const isBattery = product.shippingTag === 'Battery Item' || product.shippingTag === 'Hazardous' || product.name.toLowerCase().includes('battery') || product.name.toLowerCase().includes('lipo');
+        const isBattery =
+          product.shippingTag === "Battery Item" ||
+          product.shippingTag === "Hazardous" ||
+          product.name.toLowerCase().includes("battery") ||
+          product.name.toLowerCase().includes("lipo");
         const weight = product.weightGrams || (isBattery ? 250 : 50);
         const airAllowed = !isBattery && product.airFreightAllowed !== false;
         const surfaceAllowed = true;
@@ -300,7 +339,7 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
           <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-3.5 sm:p-4 space-y-2.5">
             <div className="flex items-center justify-between gap-2">
               <span className="text-[11px] font-black uppercase text-slate-900 flex items-center gap-1.5 truncate">
-                <Boxes className="w-3.5 h-3.5 text-[#00AEEF] shrink-0" /> 
+                <Boxes className="w-3.5 h-3.5 text-[#00AEEF] shrink-0" />
                 <span className="truncate">Freight Shipping Rules</span>
               </span>
               <span className="text-xs font-mono font-bold text-slate-600 shrink-0 bg-white px-2 py-0.5 rounded-md border border-slate-200">
@@ -310,11 +349,13 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
               {/* Air Freight Indicator */}
-              <div className={`p-2.5 rounded-xl border flex items-center justify-between gap-2 ${
-                airAllowed 
-                  ? 'bg-blue-50/60 border-blue-200 text-blue-900' 
-                  : 'bg-red-50 border-red-200 text-red-700'
-              }`}>
+              <div
+                className={`p-2.5 rounded-xl border flex items-center justify-between gap-2 ${
+                  airAllowed
+                    ? "bg-blue-50/60 border-blue-200 text-blue-900"
+                    : "bg-red-50 border-red-200 text-red-700"
+                }`}
+              >
                 <div className="flex items-center gap-1.5 font-bold">
                   <Plane className="w-3.5 h-3.5 shrink-0" />
                   <span>Air Freight</span>
@@ -350,7 +391,10 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
             {!airAllowed && (
               <p className="text-[10px] text-amber-800 bg-amber-100/70 p-2 rounded-lg font-medium flex items-center gap-1.5">
                 <AlertTriangle className="w-3.5 h-3.5 shrink-0 text-amber-600" />
-                <span>DGCA Safety Regulation: Lithium/Battery hardware cannot be transported via air freight. Dispatched via surface logistics.</span>
+                <span>
+                  DGCA Safety Regulation: Lithium/Battery hardware cannot be
+                  transported via air freight. Dispatched via surface logistics.
+                </span>
               </p>
             )}
           </div>
@@ -381,7 +425,7 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
             <div className="bg-red-50 text-red-700 text-xs font-extrabold p-3 rounded-xl border border-red-200">
               This product variant is currently sold out in inventory.
             </div>
-            
+
             <a
               href={`https://wa.me/919876543210?text=${whatsappMessage}`}
               target="_blank"
@@ -399,12 +443,12 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
           onClick={() => onToggleWishlist(product)}
           className={`w-full py-2.5 rounded-xl text-xs font-extrabold transition-colors border flex items-center justify-center gap-2 cursor-pointer ${
             isWishlisted
-              ? 'bg-red-50 text-[#FF3B30] border-red-200'
-              : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
+              ? "bg-red-50 text-[#FF3B30] border-red-200"
+              : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
           }`}
         >
-          <Heart className={`w-4 h-4 ${isWishlisted ? 'fill-current' : ''}`} />
-          <span>{isWishlisted ? 'Saved in Wishlist' : 'Add to Wishlist'}</span>
+          <Heart className={`w-4 h-4 ${isWishlisted ? "fill-current" : ""}`} />
+          <span>{isWishlisted ? "Saved in Wishlist" : "Add to Wishlist"}</span>
         </button>
       </div>
 
@@ -440,8 +484,12 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
                 <ShieldCheck className="w-5 h-5" />
               </div>
               <div>
-                <h3 className="text-base font-extrabold text-slate-900">Found a better price?</h3>
-                <p className="text-xs text-slate-500">We guarantee competitive hardware pricing!</p>
+                <h3 className="text-base font-extrabold text-slate-900">
+                  Found a better price?
+                </h3>
+                <p className="text-xs text-slate-500">
+                  We guarantee competitive hardware pricing!
+                </p>
               </div>
             </div>
 
@@ -450,49 +498,83 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
                 <div className="w-12 h-12 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto">
                   <CheckCircle2 className="w-6 h-6" />
                 </div>
-                <h4 className="text-sm font-extrabold text-slate-900">Price Match Request Submitted!</h4>
+                <h4 className="text-sm font-extrabold text-slate-900">
+                  Price Match Request Submitted!
+                </h4>
                 <p className="text-xs text-slate-500 max-w-xs mx-auto">
-                  Our team will verify the competitor URL and send you an instant discount coupon via WhatsApp / Email within 2 hours.
+                  Our team will verify the competitor URL and send you an
+                  instant discount coupon via WhatsApp / Email within 2 hours.
                 </p>
               </div>
             ) : (
-              <form onSubmit={handlePriceMatchSubmit} className="space-y-3.5 mt-4">
+              <form
+                onSubmit={handlePriceMatchSubmit}
+                className="space-y-3.5 mt-4"
+              >
                 <div className="p-3 bg-slate-50 rounded-xl text-xs space-y-1">
-                  <span className="font-extrabold text-slate-900 block truncate">{product.name}</span>
-                  <span className="text-slate-500 text-[11px]">Our Price: <strong className="text-slate-900">₹{currentPrice.toLocaleString()}</strong></span>
+                  <span className="font-extrabold text-slate-900 block truncate">
+                    {product.name}
+                  </span>
+                  <span className="text-slate-500 text-[11px]">
+                    Our Price:{" "}
+                    <strong className="text-slate-900">
+                      ₹{currentPrice.toLocaleString()}
+                    </strong>
+                  </span>
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-700">Competitor Store Link / Website</label>
+                  <label className="text-xs font-bold text-slate-700">
+                    Competitor Store Link / Website
+                  </label>
                   <input
                     type="url"
                     required
                     value={priceMatchForm.competitorUrl}
-                    onChange={(e) => setPriceMatchForm(prev => ({ ...prev, competitorUrl: e.target.value }))}
+                    onChange={(e) =>
+                      setPriceMatchForm((prev) => ({
+                        ...prev,
+                        competitorUrl: e.target.value,
+                      }))
+                    }
                     placeholder="e.g. https://store.com/product"
                     className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:border-[#00AEEF] focus:bg-white"
                   />
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-700">Price You Found (₹)</label>
+                  <label className="text-xs font-bold text-slate-700">
+                    Price You Found (₹)
+                  </label>
                   <input
                     type="number"
                     required
                     value={priceMatchForm.competitorPrice}
-                    onChange={(e) => setPriceMatchForm(prev => ({ ...prev, competitorPrice: e.target.value }))}
+                    onChange={(e) =>
+                      setPriceMatchForm((prev) => ({
+                        ...prev,
+                        competitorPrice: e.target.value,
+                      }))
+                    }
                     placeholder="e.g. 2999"
                     className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:border-[#00AEEF] focus:bg-white"
                   />
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-700">Your Phone (WhatsApp) or Email</label>
+                  <label className="text-xs font-bold text-slate-700">
+                    Your Phone (WhatsApp) or Email
+                  </label>
                   <input
                     type="text"
                     required
                     value={priceMatchForm.contact}
-                    onChange={(e) => setPriceMatchForm(prev => ({ ...prev, contact: e.target.value }))}
+                    onChange={(e) =>
+                      setPriceMatchForm((prev) => ({
+                        ...prev,
+                        contact: e.target.value,
+                      }))
+                    }
                     placeholder="e.g. 9876543210 or name@email.com"
                     className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:border-[#00AEEF] focus:bg-white"
                   />
@@ -509,7 +591,6 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
           </div>
         </div>
       )}
-
     </div>
   );
 };

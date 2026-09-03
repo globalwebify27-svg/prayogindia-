@@ -1,10 +1,16 @@
-'use client';
+"use client";
 
-import React, { useState, useRef, useEffect } from 'react';
-import Image from 'next/image';
-import Link from 'next/link';
-import { ChevronLeft, ChevronRight, Heart, ShoppingBag, Star } from 'lucide-react';
-import { PRODUCTS, Product } from '@/data/mockData';
+import React, { useState, useRef, useEffect } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Heart,
+  ShoppingBag,
+  Star,
+} from "lucide-react";
+import { PRODUCTS, Product } from "@/data/mockData";
 
 interface Props {
   onSelectCategory?: (category: string) => void;
@@ -56,12 +62,12 @@ export const FeaturedCategories: React.FC<Props> = ({
     };
   }, [isPaused]);
 
-  const handleManualScroll = (direction: 'left' | 'right') => {
+  const handleManualScroll = (direction: "left" | "right") => {
     if (scrollContainerRef.current) {
       const scrollAmount = 300;
       scrollContainerRef.current.scrollBy({
-        left: direction === 'left' ? -scrollAmount : scrollAmount,
-        behavior: 'smooth',
+        left: direction === "left" ? -scrollAmount : scrollAmount,
+        behavior: "smooth",
       });
     }
   };
@@ -69,7 +75,6 @@ export const FeaturedCategories: React.FC<Props> = ({
   return (
     <section className="py-6 sm:py-8 lg:py-10 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4 sm:space-y-5">
-        
         {/* Section Header */}
         <div className="flex items-center justify-between border-b border-slate-100 pb-3">
           <div className="flex items-center gap-3">
@@ -89,7 +94,6 @@ export const FeaturedCategories: React.FC<Props> = ({
 
         {/* Main Grid: Left Banner + Right Product Slider */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch relative">
-          
           {/* Left Promo Card */}
           <div className="lg:col-span-3 bg-gradient-to-b from-[#F8FAFC] to-[#EEF2F6] border border-slate-200/90 rounded-2xl p-6 flex flex-col justify-between overflow-hidden relative shadow-xs min-h-[380px]">
             <div className="relative z-10 space-y-2">
@@ -126,10 +130,9 @@ export const FeaturedCategories: React.FC<Props> = ({
             onMouseEnter={() => setIsPaused(true)}
             onMouseLeave={() => setIsPaused(false)}
           >
-            
             {/* Scroll Navigation Arrows */}
             <button
-              onClick={() => handleManualScroll('left')}
+              onClick={() => handleManualScroll("left")}
               aria-label="Previous Products"
               className="absolute left-2 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-white/95 border border-slate-200 shadow-lg text-slate-700 hover:text-slate-950 flex items-center justify-center transition-all hover:scale-105 active:scale-95 cursor-pointer backdrop-blur-xs"
             >
@@ -137,7 +140,7 @@ export const FeaturedCategories: React.FC<Props> = ({
             </button>
 
             <button
-              onClick={() => handleManualScroll('right')}
+              onClick={() => handleManualScroll("right")}
               aria-label="Next Products"
               className="absolute right-2 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-white/95 border border-slate-200 shadow-lg text-slate-700 hover:text-slate-950 flex items-center justify-center transition-all hover:scale-105 active:scale-95 cursor-pointer backdrop-blur-xs"
             >
@@ -171,11 +174,13 @@ export const FeaturedCategories: React.FC<Props> = ({
                         aria-label="Toggle Wishlist"
                         className={`w-7 h-7 rounded-full border border-slate-200 flex items-center justify-center transition-all ${
                           isWishlisted
-                            ? 'bg-rose-50 border-rose-300 text-rose-600'
-                            : 'bg-white hover:bg-slate-50 text-slate-400 hover:text-slate-700'
+                            ? "bg-rose-50 border-rose-300 text-rose-600"
+                            : "bg-white hover:bg-slate-50 text-slate-400 hover:text-slate-700"
                         }`}
                       >
-                        <Heart className={`w-3.5 h-3.5 ${isWishlisted ? 'fill-current' : ''}`} />
+                        <Heart
+                          className={`w-3.5 h-3.5 ${isWishlisted ? "fill-current" : ""}`}
+                        />
                       </button>
                     </div>
 
@@ -214,8 +219,8 @@ export const FeaturedCategories: React.FC<Props> = ({
                               key={i}
                               className={`w-3 h-3 ${
                                 i < Math.floor(product.rating || 4)
-                                  ? 'text-amber-400 fill-amber-400'
-                                  : 'text-slate-200 fill-slate-200'
+                                  ? "text-amber-400 fill-amber-400"
+                                  : "text-slate-200 fill-slate-200"
                               }`}
                             />
                           ))}
@@ -228,7 +233,7 @@ export const FeaturedCategories: React.FC<Props> = ({
                       {/* Price Tag with GST */}
                       <div className="pt-1 flex items-baseline gap-1">
                         <span className="text-sm font-black text-slate-900">
-                          ₹{product.price.toLocaleString('en-IN')}.00
+                          ₹{product.price.toLocaleString("en-IN")}.00
                         </span>
                         <span className="text-[9px] font-semibold text-slate-400">
                           (Incl. GST)
@@ -249,11 +254,8 @@ export const FeaturedCategories: React.FC<Props> = ({
                 );
               })}
             </div>
-
           </div>
-
         </div>
-
       </div>
     </section>
   );

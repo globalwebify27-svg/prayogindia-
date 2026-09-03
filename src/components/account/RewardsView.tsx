@@ -1,50 +1,53 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import Link from 'next/link';
-import { useStore } from '@/context/StoreContext';
-import { 
-  DEFAULT_REWARD_RULES, 
-  INITIAL_POINTS_LEDGER, 
-  PointsLedgerEntry 
-} from '@/data/rewardsData';
-import { 
-  Award, 
-  ArrowRight, 
-  Coins, 
-  Clock, 
-  Zap, 
-  ShieldCheck, 
-  CheckCircle2, 
-  HelpCircle, 
+import React, { useState } from "react";
+import Link from "next/link";
+import { useStore } from "@/context/StoreContext";
+import {
+  DEFAULT_REWARD_RULES,
+  INITIAL_POINTS_LEDGER,
+  PointsLedgerEntry,
+} from "@/data/rewardsData";
+import {
+  Award,
+  ArrowRight,
+  Coins,
+  Clock,
+  Zap,
+  ShieldCheck,
+  CheckCircle2,
+  HelpCircle,
   Sparkles,
   ArrowUpRight,
   ArrowDownLeft,
   Calendar,
-  Gift
-} from 'lucide-react';
+  Gift,
+} from "lucide-react";
 
 export const RewardsView: React.FC = () => {
   const { user } = useStore();
   const points = user?.rewardPoints || 100;
 
-  const [activeTab, setActiveTab] = useState<'overview' | 'history' | 'rules'>('overview');
+  const [activeTab, setActiveTab] = useState<"overview" | "history" | "rules">(
+    "overview",
+  );
 
   // Customer-specific ledger activity filter
   const userLedger: PointsLedgerEntry[] = INITIAL_POINTS_LEDGER.filter(
-    l => !user?.email || l.userEmail.toLowerCase() === user.email.toLowerCase()
+    (l) =>
+      !user?.email || l.userEmail.toLowerCase() === user.email.toLowerCase(),
   );
 
   // Applicable rule for current user
-  const activeRule = DEFAULT_REWARD_RULES.find(
-    r => r.customerType === (user?.customerType || 'Registered Customer')
-  ) || DEFAULT_REWARD_RULES[0];
+  const activeRule =
+    DEFAULT_REWARD_RULES.find(
+      (r) => r.customerType === (user?.customerType || "Registered Customer"),
+    ) || DEFAULT_REWARD_RULES[0];
 
   const cashValue = Math.round(points * activeRule.redemptionRateRupees);
 
   return (
     <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-2xs space-y-6 text-slate-900 animate-in fade-in duration-300">
-      
       {/* 1. Header with Breadcrumb */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
         <div>
@@ -57,32 +60,39 @@ export const RewardsView: React.FC = () => {
             Rewards &amp; Loyalty Points
           </h1>
           <p className="text-xs text-slate-500">
-            Earn Prayog Coins on every STEM hardware purchase and redeem them at checkout for instant cash discounts.
+            Earn Prayog Coins on every STEM hardware purchase and redeem them at
+            checkout for instant cash discounts.
           </p>
         </div>
 
         {/* Tab Navigation */}
         <div className="flex items-center bg-slate-100 p-1.5 rounded-2xl border border-slate-200 self-start sm:self-auto text-xs font-bold">
           <button
-            onClick={() => setActiveTab('overview')}
+            onClick={() => setActiveTab("overview")}
             className={`px-3 py-1.5 rounded-xl transition-all ${
-              activeTab === 'overview' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-500 hover:text-slate-900'
+              activeTab === "overview"
+                ? "bg-white text-slate-900 shadow-xs"
+                : "text-slate-500 hover:text-slate-900"
             }`}
           >
             Overview
           </button>
           <button
-            onClick={() => setActiveTab('history')}
+            onClick={() => setActiveTab("history")}
             className={`px-3 py-1.5 rounded-xl transition-all ${
-              activeTab === 'history' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-500 hover:text-slate-900'
+              activeTab === "history"
+                ? "bg-white text-slate-900 shadow-xs"
+                : "text-slate-500 hover:text-slate-900"
             }`}
           >
             Points History
           </button>
           <button
-            onClick={() => setActiveTab('rules')}
+            onClick={() => setActiveTab("rules")}
             className={`px-3 py-1.5 rounded-xl transition-all ${
-              activeTab === 'rules' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-500 hover:text-slate-900'
+              activeTab === "rules"
+                ? "bg-white text-slate-900 shadow-xs"
+                : "text-slate-500 hover:text-slate-900"
             }`}
           >
             Earning Rules
@@ -104,11 +114,18 @@ export const RewardsView: React.FC = () => {
 
           <div className="text-4xl sm:text-5xl font-black tracking-tight text-white flex items-baseline justify-center md:justify-start gap-2">
             <span>{points.toLocaleString()}</span>
-            <span className="text-lg text-[#FFC20E] font-bold">Prayog Coins</span>
+            <span className="text-lg text-[#FFC20E] font-bold">
+              Prayog Coins
+            </span>
           </div>
 
           <p className="text-xs text-slate-300 font-medium">
-            Worth <strong className="text-white font-black text-sm">₹{cashValue.toLocaleString()}</strong> in instant discounts at Checkout (1 Coin = ₹{activeRule.redemptionRateRupees}).
+            Worth{" "}
+            <strong className="text-white font-black text-sm">
+              ₹{cashValue.toLocaleString()}
+            </strong>{" "}
+            in instant discounts at Checkout (1 Coin = ₹
+            {activeRule.redemptionRateRupees}).
           </p>
         </div>
 
@@ -124,7 +141,7 @@ export const RewardsView: React.FC = () => {
       </div>
 
       {/* 3. Tab: Overview Metrics */}
-      {activeTab === 'overview' && (
+      {activeTab === "overview" && (
         <div className="space-y-6">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {/* Metric 1 */}
@@ -133,8 +150,12 @@ export const RewardsView: React.FC = () => {
                 <Zap className="w-5 h-5" />
               </div>
               <div>
-                <span className="text-xl font-black text-slate-900">{activeRule.pointsPer100Spent} Coin / ₹100</span>
-                <h4 className="text-xs font-bold text-slate-500">Earning Rate on Hardware</h4>
+                <span className="text-xl font-black text-slate-900">
+                  {activeRule.pointsPer100Spent} Coin / ₹100
+                </span>
+                <h4 className="text-xs font-bold text-slate-500">
+                  Earning Rate on Hardware
+                </h4>
               </div>
             </div>
 
@@ -144,8 +165,12 @@ export const RewardsView: React.FC = () => {
                 <Coins className="w-5 h-5" />
               </div>
               <div>
-                <span className="text-xl font-black text-slate-900">Up to {activeRule.maxRedemptionPercentage}% Off</span>
-                <h4 className="text-xs font-bold text-slate-500">Max Cart Discount Cap</h4>
+                <span className="text-xl font-black text-slate-900">
+                  Up to {activeRule.maxRedemptionPercentage}% Off
+                </span>
+                <h4 className="text-xs font-bold text-slate-500">
+                  Max Cart Discount Cap
+                </h4>
               </div>
             </div>
 
@@ -155,8 +180,12 @@ export const RewardsView: React.FC = () => {
                 <Calendar className="w-5 h-5" />
               </div>
               <div>
-                <span className="text-xl font-black text-slate-900">{activeRule.validityDays} Days</span>
-                <h4 className="text-xs font-bold text-slate-500">Points Expiry Validity</h4>
+                <span className="text-xl font-black text-slate-900">
+                  {activeRule.validityDays} Days
+                </span>
+                <h4 className="text-xs font-bold text-slate-500">
+                  Points Expiry Validity
+                </h4>
               </div>
             </div>
           </div>
@@ -164,20 +193,31 @@ export const RewardsView: React.FC = () => {
           {/* Quick FAQ info */}
           <div className="bg-slate-50 border border-slate-200 rounded-3xl p-6 space-y-3 text-xs">
             <h3 className="font-extrabold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
-              <HelpCircle className="w-4 h-4 text-[#00AEEF]" /> How to Redeem Loyalty Points
+              <HelpCircle className="w-4 h-4 text-[#00AEEF]" /> How to Redeem
+              Loyalty Points
             </h3>
             <ul className="space-y-2 text-slate-600">
               <li className="flex items-start gap-2">
                 <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                <span>Add electronics, kits, or robotics sensors to your shopping cart.</span>
+                <span>
+                  Add electronics, kits, or robotics sensors to your shopping
+                  cart.
+                </span>
               </li>
               <li className="flex items-start gap-2">
                 <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                <span>On the Checkout page, check <strong>&quot;Redeem Prayog Coins&quot;</strong> in the Order Summary sidebar.</span>
+                <span>
+                  On the Checkout page, check{" "}
+                  <strong>&quot;Redeem Prayog Coins&quot;</strong> in the Order
+                  Summary sidebar.
+                </span>
               </li>
               <li className="flex items-start gap-2">
                 <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                <span>The discount is deducted immediately from your Grand Total Payable.</span>
+                <span>
+                  The discount is deducted immediately from your Grand Total
+                  Payable.
+                </span>
               </li>
             </ul>
           </div>
@@ -185,17 +225,22 @@ export const RewardsView: React.FC = () => {
       )}
 
       {/* 4. Tab: History Ledger */}
-      {activeTab === 'history' && (
+      {activeTab === "history" && (
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h3 className="text-xs font-black uppercase text-slate-900 tracking-wider">Points Ledger Activity Log</h3>
-            <span className="text-xs text-slate-400 font-bold">{userLedger.length} transaction(s)</span>
+            <h3 className="text-xs font-black uppercase text-slate-900 tracking-wider">
+              Points Ledger Activity Log
+            </h3>
+            <span className="text-xs text-slate-400 font-bold">
+              {userLedger.length} transaction(s)
+            </span>
           </div>
 
           <div className="bg-slate-50 border border-slate-200 rounded-3xl p-4 space-y-3">
             {userLedger.length === 0 ? (
               <div className="text-center py-8 text-xs text-slate-400 font-bold">
-                No rewards activity recorded yet. Place orders to start earning coins!
+                No rewards activity recorded yet. Place orders to start earning
+                coins!
               </div>
             ) : (
               userLedger.map((entry) => {
@@ -206,10 +251,18 @@ export const RewardsView: React.FC = () => {
                     className="bg-white border border-slate-200/80 p-4 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs"
                   >
                     <div className="flex items-start gap-3">
-                      <div className={`p-2.5 rounded-xl border shrink-0 ${
-                        isPositive ? 'bg-emerald-50 text-emerald-600 border-emerald-200' : 'bg-red-50 text-red-600 border-red-200'
-                      }`}>
-                        {isPositive ? <ArrowDownLeft className="w-4 h-4" /> : <ArrowUpRight className="w-4 h-4" />}
+                      <div
+                        className={`p-2.5 rounded-xl border shrink-0 ${
+                          isPositive
+                            ? "bg-emerald-50 text-emerald-600 border-emerald-200"
+                            : "bg-red-50 text-red-600 border-red-200"
+                        }`}
+                      >
+                        {isPositive ? (
+                          <ArrowDownLeft className="w-4 h-4" />
+                        ) : (
+                          <ArrowUpRight className="w-4 h-4" />
+                        )}
                       </div>
                       <div className="space-y-0.5 text-xs">
                         <div className="font-extrabold text-slate-900 flex items-center gap-2">
@@ -222,12 +275,16 @@ export const RewardsView: React.FC = () => {
                         </div>
                         <div className="text-[11px] text-slate-400 flex items-center gap-2">
                           <span>Date: {entry.date}</span>
-                          {entry.expiryDate && <span>• Expires: {entry.expiryDate}</span>}
+                          {entry.expiryDate && (
+                            <span>• Expires: {entry.expiryDate}</span>
+                          )}
                         </div>
                       </div>
                     </div>
 
-                    <span className={`text-base font-black shrink-0 ${isPositive ? 'text-emerald-600' : 'text-red-600'}`}>
+                    <span
+                      className={`text-base font-black shrink-0 ${isPositive ? "text-emerald-600" : "text-red-600"}`}
+                    >
                       {isPositive ? `+${entry.points}` : entry.points} PTS
                     </span>
                   </div>
@@ -239,7 +296,7 @@ export const RewardsView: React.FC = () => {
       )}
 
       {/* 5. Tab: Earning & Customer-Type Rules */}
-      {activeTab === 'rules' && (
+      {activeTab === "rules" && (
         <div className="space-y-4">
           <h3 className="text-xs font-black uppercase text-slate-900 tracking-wider">
             Customer-Type Eligibility &amp; Redemption Rules
@@ -252,7 +309,9 @@ export const RewardsView: React.FC = () => {
                 className="bg-slate-50 border border-slate-200 rounded-3xl p-5 space-y-3"
               >
                 <div className="flex items-center justify-between border-b border-slate-200 pb-2.5">
-                  <h4 className="text-xs font-black text-slate-900">{rule.name}</h4>
+                  <h4 className="text-xs font-black text-slate-900">
+                    {rule.name}
+                  </h4>
                   <span className="text-[9px] bg-[#E0F7FC] text-[#00AEEF] px-2 py-0.5 rounded-full font-bold">
                     {rule.customerType}
                   </span>
@@ -260,28 +319,52 @@ export const RewardsView: React.FC = () => {
 
                 <div className="space-y-2 text-xs text-slate-600">
                   <div className="flex justify-between">
-                    <span className="text-slate-400 font-bold">Earning Rate:</span>
-                    <span className="font-black text-slate-900">{rule.pointsPer100Spent} pts / ₹100</span>
+                    <span className="text-slate-400 font-bold">
+                      Earning Rate:
+                    </span>
+                    <span className="font-black text-slate-900">
+                      {rule.pointsPer100Spent} pts / ₹100
+                    </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-slate-400 font-bold">Redemption Value:</span>
-                    <span className="font-black text-emerald-600">1 pt = ₹{rule.redemptionRateRupees}</span>
+                    <span className="text-slate-400 font-bold">
+                      Redemption Value:
+                    </span>
+                    <span className="font-black text-emerald-600">
+                      1 pt = ₹{rule.redemptionRateRupees}
+                    </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-slate-400 font-bold">Min to Redeem:</span>
-                    <span className="font-bold text-slate-900">{rule.minRedemptionPoints} pts</span>
+                    <span className="text-slate-400 font-bold">
+                      Min to Redeem:
+                    </span>
+                    <span className="font-bold text-slate-900">
+                      {rule.minRedemptionPoints} pts
+                    </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-slate-400 font-bold">Max Cart Cap:</span>
-                    <span className="font-bold text-slate-900">{rule.maxRedemptionPercentage}% of subtotal</span>
+                    <span className="text-slate-400 font-bold">
+                      Max Cart Cap:
+                    </span>
+                    <span className="font-bold text-slate-900">
+                      {rule.maxRedemptionPercentage}% of subtotal
+                    </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-slate-400 font-bold">Registration Bonus:</span>
-                    <span className="font-bold text-purple-700">{rule.registrationBonus} pts</span>
+                    <span className="text-slate-400 font-bold">
+                      Registration Bonus:
+                    </span>
+                    <span className="font-bold text-purple-700">
+                      {rule.registrationBonus} pts
+                    </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-slate-400 font-bold">Points Expiry:</span>
-                    <span className="font-bold text-slate-900">{rule.validityDays} Days</span>
+                    <span className="text-slate-400 font-bold">
+                      Points Expiry:
+                    </span>
+                    <span className="font-bold text-slate-900">
+                      {rule.validityDays} Days
+                    </span>
                   </div>
                 </div>
               </div>
@@ -289,7 +372,6 @@ export const RewardsView: React.FC = () => {
           </div>
         </div>
       )}
-
     </div>
   );
 };

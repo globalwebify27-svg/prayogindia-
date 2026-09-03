@@ -1,27 +1,25 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Mail, CheckCircle, ArrowRight } from 'lucide-react';
+import React, { useState } from "react";
+import { motion } from "framer-motion";
+import { Mail, CheckCircle, ArrowRight } from "lucide-react";
 
 export const NewsletterSection: React.FC = () => {
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState("");
   const [subscribed, setSubscribed] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (email.trim()) {
       setSubscribed(true);
-      setEmail('');
+      setEmail("");
     }
   };
 
   return (
     <section className="py-14 bg-slate-900 text-white relative border-b border-slate-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
         <div className="bg-gradient-to-r from-[#0B1528] via-[#0F1C33] to-[#0A1128] rounded-3xl p-8 sm:p-12 border border-slate-800 shadow-2xl flex flex-col lg:flex-row items-center justify-between gap-8">
-          
           {/* Left Text */}
           <div className="space-y-2 max-w-xl text-center lg:text-left">
             <span className="text-[11px] font-black uppercase tracking-widest text-[#FFC20E]">
@@ -31,14 +29,15 @@ export const NewsletterSection: React.FC = () => {
               Subscribe to Prayog Hardware Digest
             </h2>
             <p className="text-xs sm:text-sm text-slate-300">
-              Receive weekly tutorials, new product drops (Raspberry Pi, Jetson, Drones), and exclusive coupon codes.
+              Receive weekly tutorials, new product drops (Raspberry Pi, Jetson,
+              Drones), and exclusive coupon codes.
             </p>
           </div>
 
           {/* Right Input Form */}
           <div className="w-full lg:w-auto shrink-0">
             {subscribed ? (
-              <motion.div 
+              <motion.div
                 initial={{ scale: 0.9, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 className="bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 px-6 py-4 rounded-2xl flex items-center gap-2 text-xs font-extrabold"
@@ -47,7 +46,10 @@ export const NewsletterSection: React.FC = () => {
                 <span>Subscribed successfully! Welcome to Prayog India.</span>
               </motion.div>
             ) : (
-              <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row items-center gap-3 w-full max-w-md">
+              <form
+                onSubmit={handleSubmit}
+                className="flex flex-col sm:flex-row items-center gap-3 w-full max-w-md"
+              >
                 <div className="relative w-full">
                   <Mail className="w-4 h-4 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" />
                   <input
@@ -69,9 +71,7 @@ export const NewsletterSection: React.FC = () => {
               </form>
             )}
           </div>
-
         </div>
-
       </div>
     </section>
   );

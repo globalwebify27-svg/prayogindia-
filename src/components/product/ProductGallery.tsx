@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import React, { useState, useRef, useCallback } from 'react';
-import Image from 'next/image';
+import React, { useState, useRef, useCallback } from "react";
+import Image from "next/image";
 import {
   Play,
   Maximize2,
@@ -14,7 +14,7 @@ import {
   Download,
   Share2,
   ImageOff,
-} from 'lucide-react';
+} from "lucide-react";
 
 interface ProductGalleryProps {
   images: string[];
@@ -23,7 +23,7 @@ interface ProductGalleryProps {
   media360?: string[];
 }
 
-type MediaMode = 'image' | 'video' | '360';
+type MediaMode = "image" | "video" | "360";
 
 export const ProductGallery: React.FC<ProductGalleryProps> = ({
   images,
@@ -31,11 +31,14 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
   videoUrl,
   media360 = [],
 }) => {
-  const galleryImages = images.length > 0
-    ? images
-    : ['https://images.unsplash.com/photo-1553406830-ef2513450d76?auto=format&fit=crop&w=800&q=80'];
+  const galleryImages =
+    images.length > 0
+      ? images
+      : [
+          "https://images.unsplash.com/photo-1553406830-ef2513450d76?auto=format&fit=crop&w=800&q=80",
+        ];
 
-  const [activeMode, setActiveMode] = useState<MediaMode>('image');
+  const [activeMode, setActiveMode] = useState<MediaMode>("image");
   const [selectedIdx, setSelectedIdx] = useState(0);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [lightboxIdx, setLightboxIdx] = useState(0);
@@ -67,36 +70,50 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
     setPanOffset({ x: 0, y: 0 });
   };
 
-  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
-    if (!mainImageRef.current || activeMode !== 'image') return;
-    const rect = mainImageRef.current.getBoundingClientRect();
-    const x = ((e.clientX - rect.left) / rect.width) * 100;
-    const y = ((e.clientY - rect.top) / rect.height) * 100;
-    setMousePos({ x, y });
-  }, [activeMode]);
+  const handleMouseMove = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      if (!mainImageRef.current || activeMode !== "image") return;
+      const rect = mainImageRef.current.getBoundingClientRect();
+      const x = ((e.clientX - rect.left) / rect.width) * 100;
+      const y = ((e.clientY - rect.top) / rect.height) * 100;
+      setMousePos({ x, y });
+    },
+    [activeMode],
+  );
 
   const prevImage = () => {
-    setSelectedIdx(prev => (prev - 1 + galleryImages.length) % galleryImages.length);
+    setSelectedIdx(
+      (prev) => (prev - 1 + galleryImages.length) % galleryImages.length,
+    );
   };
 
   const nextImage = () => {
-    setSelectedIdx(prev => (prev + 1) % galleryImages.length);
+    setSelectedIdx((prev) => (prev + 1) % galleryImages.length);
   };
 
   const prevLightbox = () => {
-    setLightboxIdx(prev => (prev - 1 + galleryImages.length) % galleryImages.length);
-    setZoomLevel(1); setPanOffset({ x: 0, y: 0 });
+    setLightboxIdx(
+      (prev) => (prev - 1 + galleryImages.length) % galleryImages.length,
+    );
+    setZoomLevel(1);
+    setPanOffset({ x: 0, y: 0 });
   };
 
   const nextLightbox = () => {
-    setLightboxIdx(prev => (prev + 1) % galleryImages.length);
-    setZoomLevel(1); setPanOffset({ x: 0, y: 0 });
+    setLightboxIdx((prev) => (prev + 1) % galleryImages.length);
+    setZoomLevel(1);
+    setPanOffset({ x: 0, y: 0 });
   };
 
   const handleLightboxMouseDown = (e: React.MouseEvent) => {
     if (zoomLevel <= 1) return;
     isDragging.current = true;
-    dragStart.current = { x: e.clientX, y: e.clientY, panX: panOffset.x, panY: panOffset.y };
+    dragStart.current = {
+      x: e.clientX,
+      y: e.clientY,
+      panX: panOffset.x,
+      panY: panOffset.y,
+    };
   };
 
   const handleLightboxMouseMove = (e: React.MouseEvent) => {
@@ -107,26 +124,31 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
     });
   };
 
-  const handleLightboxMouseUp = () => { isDragging.current = false; };
+  const handleLightboxMouseUp = () => {
+    isDragging.current = false;
+  };
 
   return (
     <div className="space-y-4">
-
       {/* ── Media Mode Tabs ── */}
       <div className="flex items-center gap-1.5 bg-slate-100/80 p-1 rounded-2xl border border-slate-200 w-fit">
         <button
-          onClick={() => setActiveMode('image')}
+          onClick={() => setActiveMode("image")}
           className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[11px] font-extrabold transition-all cursor-pointer ${
-            activeMode === 'image' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-800'
+            activeMode === "image"
+              ? "bg-white text-slate-900 shadow-sm"
+              : "text-slate-500 hover:text-slate-800"
           }`}
         >
           <ZoomIn className="w-3 h-3" /> Photos
         </button>
         {hasVideo && (
           <button
-            onClick={() => setActiveMode('video')}
+            onClick={() => setActiveMode("video")}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[11px] font-extrabold transition-all cursor-pointer ${
-              activeMode === 'video' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-800'
+              activeMode === "video"
+                ? "bg-white text-slate-900 shadow-sm"
+                : "text-slate-500 hover:text-slate-800"
             }`}
           >
             <Play className="w-3 h-3" /> Video
@@ -134,9 +156,11 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
         )}
         {has360 && (
           <button
-            onClick={() => setActiveMode('360')}
+            onClick={() => setActiveMode("360")}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[11px] font-extrabold transition-all cursor-pointer ${
-              activeMode === '360' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-800'
+              activeMode === "360"
+                ? "bg-white text-slate-900 shadow-sm"
+                : "text-slate-500 hover:text-slate-800"
             }`}
           >
             <RotateCcw className="w-3 h-3" /> 360°
@@ -149,7 +173,7 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
         ref={mainImageRef}
         className="relative h-80 sm:h-96 md:h-[460px] w-full rounded-3xl overflow-hidden bg-slate-50 border border-slate-200 group"
       >
-        {activeMode === 'image' && (
+        {activeMode === "image" && (
           <>
             {/* Main Image */}
             <Image
@@ -164,13 +188,19 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
             {galleryImages.length > 1 && (
               <>
                 <button
-                  onClick={(e) => { e.stopPropagation(); prevImage(); }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    prevImage();
+                  }}
                   className="absolute left-2 top-1/2 -translate-y-1/2 w-9 h-9 bg-white/90 backdrop-blur-md rounded-full shadow-md flex items-center justify-center text-slate-600 hover:text-[#00AEEF] transition-all opacity-0 group-hover:opacity-100 cursor-pointer z-10"
                 >
                   <ChevronLeft className="w-5 h-5" />
                 </button>
                 <button
-                  onClick={(e) => { e.stopPropagation(); nextImage(); }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    nextImage();
+                  }}
                   className="absolute right-2 top-1/2 -translate-y-1/2 w-9 h-9 bg-white/90 backdrop-blur-md rounded-full shadow-md flex items-center justify-center text-slate-600 hover:text-[#00AEEF] transition-all opacity-0 group-hover:opacity-100 cursor-pointer z-10"
                 >
                   <ChevronRight className="w-5 h-5" />
@@ -187,7 +217,7 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
           </>
         )}
 
-        {activeMode === 'video' && videoUrl && (
+        {activeMode === "video" && videoUrl && (
           <video
             src={videoUrl}
             controls
@@ -196,12 +226,16 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
           />
         )}
 
-        {activeMode === '360' && (
+        {activeMode === "360" && (
           <div className="w-full h-full flex flex-col items-center justify-center gap-3 text-slate-400 select-none">
             <RotateCcw className="w-14 h-14 animate-spin-slow text-slate-300" />
             <div className="text-center">
-              <div className="text-sm font-bold text-slate-600">360° Interactive View</div>
-              <div className="text-xs text-slate-400">Drag left/right to rotate the model</div>
+              <div className="text-sm font-bold text-slate-600">
+                360° Interactive View
+              </div>
+              <div className="text-xs text-slate-400">
+                Drag left/right to rotate the model
+              </div>
             </div>
             {media360.length > 0 && (
               <img
@@ -219,42 +253,54 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
         {galleryImages.map((img, idx) => (
           <button
             key={idx}
-            onClick={() => { setSelectedIdx(idx); setActiveMode('image'); }}
+            onClick={() => {
+              setSelectedIdx(idx);
+              setActiveMode("image");
+            }}
             className={`relative w-[72px] h-[72px] shrink-0 rounded-2xl overflow-hidden border-2 transition-all bg-slate-50 cursor-pointer ${
-              activeMode === 'image' && selectedIdx === idx
-                ? 'border-[#00AEEF] ring-2 ring-[#00AEEF]/20 shadow-md scale-105'
-                : 'border-slate-200 opacity-60 hover:opacity-100 hover:border-slate-300'
+              activeMode === "image" && selectedIdx === idx
+                ? "border-[#00AEEF] ring-2 ring-[#00AEEF]/20 shadow-md scale-105"
+                : "border-slate-200 opacity-60 hover:opacity-100 hover:border-slate-300"
             }`}
           >
-            <Image src={img} alt={`Thumbnail ${idx + 1}`} fill className="object-contain p-1" />
+            <Image
+              src={img}
+              alt={`Thumbnail ${idx + 1}`}
+              fill
+              className="object-contain p-1"
+            />
           </button>
         ))}
 
         {hasVideo && (
           <button
-            onClick={() => setActiveMode('video')}
+            onClick={() => setActiveMode("video")}
             className={`relative w-[72px] h-[72px] shrink-0 rounded-2xl overflow-hidden border-2 transition-all flex flex-col items-center justify-center gap-1 cursor-pointer ${
-              activeMode === 'video'
-                ? 'bg-slate-900 border-[#00AEEF] ring-2 ring-[#00AEEF]/20 shadow-md scale-105'
-                : 'bg-slate-800 border-slate-600 opacity-70 hover:opacity-100'
+              activeMode === "video"
+                ? "bg-slate-900 border-[#00AEEF] ring-2 ring-[#00AEEF]/20 shadow-md scale-105"
+                : "bg-slate-800 border-slate-600 opacity-70 hover:opacity-100"
             }`}
           >
             <Play className="w-5 h-5 fill-[#FFC20E] text-[#FFC20E]" />
-            <span className="text-[8px] font-black uppercase text-white tracking-wider">Video</span>
+            <span className="text-[8px] font-black uppercase text-white tracking-wider">
+              Video
+            </span>
           </button>
         )}
 
         {has360 && (
           <button
-            onClick={() => setActiveMode('360')}
+            onClick={() => setActiveMode("360")}
             className={`relative w-[72px] h-[72px] shrink-0 rounded-2xl overflow-hidden border-2 transition-all flex flex-col items-center justify-center gap-1 cursor-pointer ${
-              activeMode === '360'
-                ? 'bg-purple-900 border-purple-400 ring-2 ring-purple-400/20 shadow-md scale-105'
-                : 'bg-purple-800 border-purple-700 opacity-70 hover:opacity-100'
+              activeMode === "360"
+                ? "bg-purple-900 border-purple-400 ring-2 ring-purple-400/20 shadow-md scale-105"
+                : "bg-purple-800 border-purple-700 opacity-70 hover:opacity-100"
             }`}
           >
             <RotateCcw className="w-5 h-5 text-purple-200" />
-            <span className="text-[8px] font-black uppercase text-purple-100 tracking-wider">360°</span>
+            <span className="text-[8px] font-black uppercase text-purple-100 tracking-wider">
+              360°
+            </span>
           </button>
         )}
       </div>
@@ -267,13 +313,13 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
         >
           <div
             className="relative max-w-6xl w-full max-h-[95vh] flex flex-col items-center gap-4"
-            onClick={e => e.stopPropagation()}
+            onClick={(e) => e.stopPropagation()}
           >
             {/* Header Controls */}
             <div className="flex items-center justify-between w-full">
               <div className="flex items-center gap-2">
                 <button
-                  onClick={() => setZoomLevel(z => Math.max(1, z - 0.5))}
+                  onClick={() => setZoomLevel((z) => Math.max(1, z - 0.5))}
                   className="bg-white/10 hover:bg-white/20 text-white p-2 rounded-xl transition-colors cursor-pointer"
                   title="Zoom Out"
                 >
@@ -283,14 +329,17 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
                   {Math.round(zoomLevel * 100)}%
                 </span>
                 <button
-                  onClick={() => setZoomLevel(z => Math.min(4, z + 0.5))}
+                  onClick={() => setZoomLevel((z) => Math.min(4, z + 0.5))}
                   className="bg-white/10 hover:bg-white/20 text-white p-2 rounded-xl transition-colors cursor-pointer"
                   title="Zoom In"
                 >
                   <ZoomIn className="w-4 h-4" />
                 </button>
                 <button
-                  onClick={() => { setZoomLevel(1); setPanOffset({ x: 0, y: 0 }); }}
+                  onClick={() => {
+                    setZoomLevel(1);
+                    setPanOffset({ x: 0, y: 0 });
+                  }}
                   className="bg-white/10 hover:bg-white/20 text-white px-3 py-2 rounded-xl text-xs font-bold transition-colors cursor-pointer"
                 >
                   Reset
@@ -313,14 +362,21 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
             {/* Main Lightbox Image */}
             <div
               className="relative w-full overflow-hidden rounded-2xl"
-              style={{ height: '75vh', cursor: zoomLevel > 1 ? 'grab' : 'zoom-in' }}
+              style={{
+                height: "75vh",
+                cursor: zoomLevel > 1 ? "grab" : "zoom-in",
+              }}
               onMouseDown={handleLightboxMouseDown}
               onMouseMove={handleLightboxMouseMove}
               onMouseUp={handleLightboxMouseUp}
               onMouseLeave={handleLightboxMouseUp}
               onDoubleClick={() => {
-                if (zoomLevel === 1) { setZoomLevel(2.5); }
-                else { setZoomLevel(1); setPanOffset({ x: 0, y: 0 }); }
+                if (zoomLevel === 1) {
+                  setZoomLevel(2.5);
+                } else {
+                  setZoomLevel(1);
+                  setPanOffset({ x: 0, y: 0 });
+                }
               }}
             >
               <img
@@ -329,7 +385,9 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
                 className="w-full h-full object-contain select-none"
                 style={{
                   transform: `scale(${zoomLevel}) translate(${panOffset.x / zoomLevel}px, ${panOffset.y / zoomLevel}px)`,
-                  transition: isDragging.current ? 'none' : 'transform 0.2s ease',
+                  transition: isDragging.current
+                    ? "none"
+                    : "transform 0.2s ease",
                 }}
                 draggable={false}
               />
@@ -358,12 +416,22 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
               {galleryImages.map((img, idx) => (
                 <button
                   key={idx}
-                  onClick={() => { setLightboxIdx(idx); setZoomLevel(1); setPanOffset({ x: 0, y: 0 }); }}
+                  onClick={() => {
+                    setLightboxIdx(idx);
+                    setZoomLevel(1);
+                    setPanOffset({ x: 0, y: 0 });
+                  }}
                   className={`w-14 h-14 shrink-0 rounded-xl overflow-hidden border-2 transition-all cursor-pointer ${
-                    lightboxIdx === idx ? 'border-[#00AEEF] ring-2 ring-[#00AEEF]/30' : 'border-white/20 opacity-60 hover:opacity-100'
+                    lightboxIdx === idx
+                      ? "border-[#00AEEF] ring-2 ring-[#00AEEF]/30"
+                      : "border-white/20 opacity-60 hover:opacity-100"
                   }`}
                 >
-                  <img src={img} alt="" className="w-full h-full object-contain" />
+                  <img
+                    src={img}
+                    alt=""
+                    className="w-full h-full object-contain"
+                  />
                 </button>
               ))}
             </div>

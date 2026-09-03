@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { StoreProvider } from '@/context/StoreContext';
-import { AppShell } from '@/components/AppShell';
+import { StoreProvider } from "@/context/StoreContext";
+import { AppShell } from "@/components/AppShell";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -16,7 +16,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Prayog India | Mechatronics, Robotics & STEM Hardware Store",
-  description: "Official online store for robotics kits, microcontrollers, Arduino, Raspberry Pi, drone components, STEM educational kits, and electronic sensors with Pan-India dispatch.",
+  description:
+    "Official online store for robotics kits, microcontrollers, Arduino, Raspberry Pi, drone components, STEM educational kits, and electronic sensors with Pan-India dispatch.",
 };
 
 export default function RootLayout({
@@ -31,9 +32,7 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col">
         <StoreProvider>
-          <AppShell>
-            {children}
-          </AppShell>
+          <AppShell>{children}</AppShell>
         </StoreProvider>
       </body>
     </html>

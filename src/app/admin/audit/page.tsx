@@ -1,29 +1,40 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { 
-  ShieldCheck, 
-  Search, 
-  Filter, 
-  Clock, 
-  User, 
-  FileText, 
-  AlertTriangle, 
-  Edit3, 
-  Trash2, 
-  Tag, 
-  Building2, 
+import React, { useState } from "react";
+import {
+  ShieldCheck,
+  Search,
+  Filter,
+  Clock,
+  User,
+  FileText,
+  AlertTriangle,
+  Edit3,
+  Trash2,
+  Tag,
+  Building2,
   Smartphone,
   Lock,
-  Download
-} from 'lucide-react';
+  Download,
+} from "lucide-react";
 
 export interface AuditLogEntry {
   id: string;
   timestamp: string;
   user: string;
   role: string;
-  actionCategory: 'PRICE_CHANGE' | 'GST_CHANGE' | 'SKU_CHANGE' | 'STOCK_ADJUSTMENT' | 'PURCHASE_ENTRY' | 'STOCK_TRANSFER' | 'ORDER_STATUS' | 'REFUND' | 'INVOICE_MODIFICATION' | 'INCENTIVE_RULE' | 'DEVICE_PAIRING';
+  actionCategory:
+    | "PRICE_CHANGE"
+    | "GST_CHANGE"
+    | "SKU_CHANGE"
+    | "STOCK_ADJUSTMENT"
+    | "PURCHASE_ENTRY"
+    | "STOCK_TRANSFER"
+    | "ORDER_STATUS"
+    | "REFUND"
+    | "INVOICE_MODIFICATION"
+    | "INCENTIVE_RULE"
+    | "DEVICE_PAIRING";
   description: string;
   previousValue?: string;
   newValue: string;
@@ -33,75 +44,77 @@ export interface AuditLogEntry {
 
 const INITIAL_AUDIT_LOGS: AuditLogEntry[] = [
   {
-    id: 'log-101',
-    timestamp: '29 Aug 2026, 15:45:10',
-    user: 'Abhishek Kumar (Super Admin)',
-    role: 'Super Admin',
-    actionCategory: 'PRICE_CHANGE',
-    description: 'Bulk Price Update on Arduino Microcontrollers (+10%)',
-    previousValue: 'Arduino UNO: ₹1,350',
-    newValue: 'Arduino UNO: ₹1,499',
-    ipAddress: '103.212.14.88',
-    deviceContext: 'MacBook Pro (Chrome 128 / macOS)',
+    id: "log-101",
+    timestamp: "29 Aug 2026, 15:45:10",
+    user: "Abhishek Kumar (Super Admin)",
+    role: "Super Admin",
+    actionCategory: "PRICE_CHANGE",
+    description: "Bulk Price Update on Arduino Microcontrollers (+10%)",
+    previousValue: "Arduino UNO: ₹1,350",
+    newValue: "Arduino UNO: ₹1,499",
+    ipAddress: "103.212.14.88",
+    deviceContext: "MacBook Pro (Chrome 128 / macOS)",
   },
   {
-    id: 'log-102',
-    timestamp: '29 Aug 2026, 14:12:05',
-    user: 'Jay Prakash (Patna Store Manager)',
-    role: 'Store Manager',
-    actionCategory: 'STOCK_TRANSFER',
-    description: 'Received Inter-Store Stock Transfer from Ranchi Central',
-    previousValue: 'Patna Stock: 10 units',
-    newValue: 'Patna Stock: 35 units (+25 Units)',
-    ipAddress: '115.240.89.12',
-    deviceContext: 'iPad Air 5 (Store POS App)',
+    id: "log-102",
+    timestamp: "29 Aug 2026, 14:12:05",
+    user: "Jay Prakash (Patna Store Manager)",
+    role: "Store Manager",
+    actionCategory: "STOCK_TRANSFER",
+    description: "Received Inter-Store Stock Transfer from Ranchi Central",
+    previousValue: "Patna Stock: 10 units",
+    newValue: "Patna Stock: 35 units (+25 Units)",
+    ipAddress: "115.240.89.12",
+    deviceContext: "iPad Air 5 (Store POS App)",
   },
   {
-    id: 'log-103',
-    timestamp: '28 Aug 2026, 17:30:22',
-    user: 'Abhishek Kumar (Super Admin)',
-    role: 'Super Admin',
-    actionCategory: 'INCENTIVE_RULE',
-    description: 'Updated Role-Based Profit Sharing Policy',
-    previousValue: 'Sales Executive: 5%',
-    newValue: 'Sales Executive: 7% of Net Profit',
-    ipAddress: '103.212.14.88',
-    deviceContext: 'MacBook Pro (Admin Desk)',
+    id: "log-103",
+    timestamp: "28 Aug 2026, 17:30:22",
+    user: "Abhishek Kumar (Super Admin)",
+    role: "Super Admin",
+    actionCategory: "INCENTIVE_RULE",
+    description: "Updated Role-Based Profit Sharing Policy",
+    previousValue: "Sales Executive: 5%",
+    newValue: "Sales Executive: 7% of Net Profit",
+    ipAddress: "103.212.14.88",
+    deviceContext: "MacBook Pro (Admin Desk)",
   },
   {
-    id: 'log-104',
-    timestamp: '28 Aug 2026, 11:20:18',
-    user: 'Vikramaditya Sahay (Delhi Manager)',
-    role: 'Store Manager',
-    actionCategory: 'DEVICE_PAIRING',
-    description: 'Paired New Store POS Tablet Terminal',
-    previousValue: 'None',
-    newValue: 'PRG_POS_AUTH_DEL_TAB01 (Active)',
-    ipAddress: '49.36.110.45',
-    deviceContext: 'Lenovo Tab P12 Pro (Android 14)',
+    id: "log-104",
+    timestamp: "28 Aug 2026, 11:20:18",
+    user: "Vikramaditya Sahay (Delhi Manager)",
+    role: "Store Manager",
+    actionCategory: "DEVICE_PAIRING",
+    description: "Paired New Store POS Tablet Terminal",
+    previousValue: "None",
+    newValue: "PRG_POS_AUTH_DEL_TAB01 (Active)",
+    ipAddress: "49.36.110.45",
+    deviceContext: "Lenovo Tab P12 Pro (Android 14)",
   },
   {
-    id: 'log-105',
-    timestamp: '27 Aug 2026, 16:05:40',
-    user: 'Emraan Hassan (Sales Executive)',
-    role: 'Sales Executive',
-    actionCategory: 'STOCK_ADJUSTMENT',
-    description: 'Recorded Damaged Goods Write-off',
-    previousValue: '4S LiPo Battery: 45 units',
-    newValue: '4S LiPo Battery: 43 units (-2 damaged in unloading)',
-    ipAddress: '103.212.14.90',
-    deviceContext: 'Store POS Terminal 1',
+    id: "log-105",
+    timestamp: "27 Aug 2026, 16:05:40",
+    user: "Emraan Hassan (Sales Executive)",
+    role: "Sales Executive",
+    actionCategory: "STOCK_ADJUSTMENT",
+    description: "Recorded Damaged Goods Write-off",
+    previousValue: "4S LiPo Battery: 45 units",
+    newValue: "4S LiPo Battery: 43 units (-2 damaged in unloading)",
+    ipAddress: "103.212.14.90",
+    deviceContext: "Store POS Terminal 1",
   },
 ];
 
 export default function AdminAuditPage() {
   const [logs, setLogs] = useState<AuditLogEntry[]>(INITIAL_AUDIT_LOGS);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [categoryFilter, setCategoryFilter] = useState('ALL');
+  const [searchQuery, setSearchQuery] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("ALL");
 
-  const filteredLogs = logs.filter(log => {
-    const matchesCat = categoryFilter === 'ALL' || log.actionCategory === categoryFilter;
-    const matchesSearch = log.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+  const filteredLogs = logs.filter((log) => {
+    const matchesCat =
+      categoryFilter === "ALL" || log.actionCategory === categoryFilter;
+    const matchesSearch =
+      log.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
       log.user.toLowerCase().includes(searchQuery.toLowerCase()) ||
       log.newValue.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesCat && matchesSearch;
@@ -109,25 +122,27 @@ export default function AdminAuditPage() {
 
   return (
     <div className="p-6 sm:p-8 space-y-8 animate-in fade-in duration-300">
-      
       {/* 1. Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
             <span className="text-[10px] font-black uppercase tracking-widest text-purple-800 bg-purple-100 px-3.5 py-1 rounded-full border border-purple-200 flex items-center gap-1">
-              <ShieldCheck className="w-3 h-3 text-purple-700" /> Section 103 · Immutable System Activity &amp; Audit Logs
+              <ShieldCheck className="w-3 h-3 text-purple-700" /> Section 103 ·
+              Immutable System Activity &amp; Audit Logs
             </span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight mt-1">
             System Audit &amp; Activity Trail
           </h1>
           <p className="text-xs text-slate-500">
-            Immutable tracking of critical inventory changes, price modifications, GST adjustments, store transfers, device pairings, and financial records.
+            Immutable tracking of critical inventory changes, price
+            modifications, GST adjustments, store transfers, device pairings,
+            and financial records.
           </p>
         </div>
 
         <button
-          onClick={() => alert('Exporting signed Audit Log CSV...')}
+          onClick={() => alert("Exporting signed Audit Log CSV...")}
           className="bg-slate-900 hover:bg-slate-800 text-white px-4 py-2.5 rounded-2xl font-black text-xs uppercase tracking-wider flex items-center gap-1.5 shadow-md active:scale-95 cursor-pointer"
         >
           <Download className="w-4 h-4 text-[#FFC20E]" />
@@ -187,27 +202,35 @@ export default function AdminAuditPage() {
             </thead>
             <tbody className="divide-y divide-slate-100 font-medium">
               {filteredLogs.map((log) => (
-                <tr key={log.id} className="hover:bg-slate-50/80 transition-colors">
-                  
+                <tr
+                  key={log.id}
+                  className="hover:bg-slate-50/80 transition-colors"
+                >
                   {/* Timestamp & User */}
                   <td className="py-3.5 space-y-0.5">
-                    <div className="font-mono text-[11px] font-black text-slate-900">{log.timestamp}</div>
+                    <div className="font-mono text-[11px] font-black text-slate-900">
+                      {log.timestamp}
+                    </div>
                     <div className="font-bold text-slate-700">{log.user}</div>
-                    <span className="text-[10px] text-slate-400 block">{log.role}</span>
+                    <span className="text-[10px] text-slate-400 block">
+                      {log.role}
+                    </span>
                   </td>
 
                   {/* Category Tag */}
                   <td className="py-3.5">
-                    <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-md border ${
-                      log.actionCategory === 'PRICE_CHANGE'
-                        ? 'bg-blue-50 text-blue-800 border-blue-200'
-                        : log.actionCategory === 'STOCK_TRANSFER'
-                        ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
-                        : log.actionCategory === 'DEVICE_PAIRING'
-                        ? 'bg-purple-50 text-purple-800 border-purple-200'
-                        : 'bg-amber-50 text-amber-800 border-amber-200'
-                    }`}>
-                      {log.actionCategory.replace(/_/g, ' ')}
+                    <span
+                      className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-md border ${
+                        log.actionCategory === "PRICE_CHANGE"
+                          ? "bg-blue-50 text-blue-800 border-blue-200"
+                          : log.actionCategory === "STOCK_TRANSFER"
+                            ? "bg-emerald-50 text-emerald-800 border-emerald-200"
+                            : log.actionCategory === "DEVICE_PAIRING"
+                              ? "bg-purple-50 text-purple-800 border-purple-200"
+                              : "bg-amber-50 text-amber-800 border-amber-200"
+                      }`}
+                    >
+                      {log.actionCategory.replace(/_/g, " ")}
                     </span>
                   </td>
 
@@ -218,7 +241,7 @@ export default function AdminAuditPage() {
 
                   {/* Previous Value */}
                   <td className="py-3.5 font-mono text-slate-400 line-through text-[11px]">
-                    {log.previousValue || '—'}
+                    {log.previousValue || "—"}
                   </td>
 
                   {/* New Value Committed */}
@@ -228,17 +251,19 @@ export default function AdminAuditPage() {
 
                   {/* IP & Device Context */}
                   <td className="py-3.5 text-right space-y-0.5">
-                    <div className="font-mono text-[10px] text-slate-500 font-bold">{log.ipAddress}</div>
-                    <div className="text-[10px] text-slate-400 truncate max-w-xs">{log.deviceContext}</div>
+                    <div className="font-mono text-[10px] text-slate-500 font-bold">
+                      {log.ipAddress}
+                    </div>
+                    <div className="text-[10px] text-slate-400 truncate max-w-xs">
+                      {log.deviceContext}
+                    </div>
                   </td>
-
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
       </div>
-
     </div>
   );
 }

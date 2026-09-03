@@ -1,21 +1,23 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { MOCK_SAVED_ADDRESSES, Address } from '@/data/accountData';
-import { MapPin, Plus, Trash2, Edit3, CheckCircle2 } from 'lucide-react';
+import React, { useState } from "react";
+import { MOCK_SAVED_ADDRESSES, Address } from "@/data/accountData";
+import { MapPin, Plus, Trash2, Edit3, CheckCircle2 } from "lucide-react";
 
 export const AddressesView: React.FC = () => {
   const [addresses, setAddresses] = useState<Address[]>(MOCK_SAVED_ADDRESSES);
   const [showAddForm, setShowAddForm] = useState(false);
 
   // New Address Form State
-  const [name, setName] = useState('');
-  const [phone, setPhone] = useState('');
-  const [street, setStreet] = useState('');
-  const [city, setCity] = useState('');
-  const [state, setState] = useState('Karnataka');
-  const [pincode, setPincode] = useState('');
-  const [type, setType] = useState<'Home' | 'Office' | 'Lab / College'>('Lab / College');
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [street, setStreet] = useState("");
+  const [city, setCity] = useState("");
+  const [state, setState] = useState("Karnataka");
+  const [pincode, setPincode] = useState("");
+  const [type, setType] = useState<"Home" | "Office" | "Lab / College">(
+    "Lab / College",
+  );
 
   const handleAddAddress = (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,28 +35,32 @@ export const AddressesView: React.FC = () => {
     setAddresses([...addresses, newAddr]);
     setShowAddForm(false);
     // Reset Form
-    setName('');
-    setPhone('');
-    setStreet('');
-    setCity('');
-    setPincode('');
+    setName("");
+    setPhone("");
+    setStreet("");
+    setCity("");
+    setPincode("");
   };
 
   const handleSetDefault = (id: string) => {
-    setAddresses(prev => prev.map(a => ({ ...a, isDefault: a.id === id })));
+    setAddresses((prev) => prev.map((a) => ({ ...a, isDefault: a.id === id })));
   };
 
   const handleDelete = (id: string) => {
-    setAddresses(prev => prev.filter(a => a.id !== id));
+    setAddresses((prev) => prev.filter((a) => a.id !== id));
   };
 
   return (
     <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-2xs space-y-6 text-slate-900">
-      
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-xl font-extrabold text-slate-900 tracking-tight">Saved Shipping Addresses</h2>
-          <p className="text-xs text-slate-500">Manage delivery locations for lab supplies, institutional orders, and personal home address.</p>
+          <h2 className="text-xl font-extrabold text-slate-900 tracking-tight">
+            Saved Shipping Addresses
+          </h2>
+          <p className="text-xs text-slate-500">
+            Manage delivery locations for lab supplies, institutional orders,
+            and personal home address.
+          </p>
         </div>
 
         <button
@@ -68,8 +74,13 @@ export const AddressesView: React.FC = () => {
 
       {/* Add Address Form Modal / Inline Section */}
       {showAddForm && (
-        <form onSubmit={handleAddAddress} className="bg-slate-50 border border-slate-200 p-5 rounded-2xl space-y-4 text-xs">
-          <h3 className="font-extrabold text-slate-900 text-sm">Add New Delivery Location</h3>
+        <form
+          onSubmit={handleAddAddress}
+          className="bg-slate-50 border border-slate-200 p-5 rounded-2xl space-y-4 text-xs"
+        >
+          <h3 className="font-extrabold text-slate-900 text-sm">
+            Add New Delivery Location
+          </h3>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <input
@@ -152,8 +163,8 @@ export const AddressesView: React.FC = () => {
             key={addr.id}
             className={`p-5 rounded-2xl border transition-all space-y-3 relative ${
               addr.isDefault
-                ? 'bg-[#E0F7FC]/40 border-[#00AEEF]'
-                : 'bg-white border-slate-200 hover:border-slate-300'
+                ? "bg-[#E0F7FC]/40 border-[#00AEEF]"
+                : "bg-white border-slate-200 hover:border-slate-300"
             }`}
           >
             <div className="flex items-center justify-between">
@@ -169,9 +180,12 @@ export const AddressesView: React.FC = () => {
 
             <div>
               <h4 className="text-xs font-black text-slate-900">{addr.name}</h4>
-              <p className="text-[11px] text-slate-500 font-semibold">{addr.phone}</p>
+              <p className="text-[11px] text-slate-500 font-semibold">
+                {addr.phone}
+              </p>
               <p className="text-xs text-slate-700 font-medium mt-1 leading-relaxed">
-                {addr.street}, {addr.city}, {addr.state} - <strong>{addr.pincode}</strong>
+                {addr.street}, {addr.city}, {addr.state} -{" "}
+                <strong>{addr.pincode}</strong>
               </p>
             </div>
 
@@ -195,7 +209,6 @@ export const AddressesView: React.FC = () => {
           </div>
         ))}
       </div>
-
     </div>
   );
 };

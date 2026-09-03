@@ -1,5 +1,5 @@
-import { cookies } from 'next/headers';
-import { Role } from '@prisma/client';
+import { cookies } from "next/headers";
+import { Role } from "@prisma/client";
 
 export interface AdminSessionUser {
   id: string;
@@ -9,8 +9,8 @@ export interface AdminSessionUser {
   role: Role; // 'ADMIN' | 'SUPER_ADMIN'
 }
 
-export const AUTH_ADMIN_COOKIE_NAME = 'prayog_admin_session';
-export const AUTH_STAFF_COOKIE_NAME = 'prayog_staff_session';
+export const AUTH_ADMIN_COOKIE_NAME = "prayog_admin_session";
+export const AUTH_STAFF_COOKIE_NAME = "prayog_staff_session";
 
 /**
  * Server-side Helper: Extract & Verify Authenticated Admin Session
@@ -24,13 +24,13 @@ export async function getAuthenticatedAdmin(): Promise<AdminSessionUser | null> 
   if (staffCookie?.value) {
     try {
       const staffUser = JSON.parse(staffCookie.value);
-      if (staffUser && staffUser.role === 'SUPER_ADMIN') {
+      if (staffUser && staffUser.role === "SUPER_ADMIN") {
         return {
           id: staffUser.id,
           name: staffUser.name,
           email: staffUser.email || `${staffUser.username}@prayogindia.com`,
-          phone: staffUser.phone || '',
-          role: 'ADMIN' as Role,
+          phone: staffUser.phone || "",
+          role: "ADMIN" as Role,
         };
       }
     } catch {
@@ -45,7 +45,7 @@ export async function getAuthenticatedAdmin(): Promise<AdminSessionUser | null> 
   try {
     const user: AdminSessionUser = JSON.parse(sessionCookie.value);
     const roleStr = String(user?.role);
-    if (!user || (roleStr !== 'ADMIN' && roleStr !== 'SUPER_ADMIN')) {
+    if (!user || (roleStr !== "ADMIN" && roleStr !== "SUPER_ADMIN")) {
       return null;
     }
     return user;

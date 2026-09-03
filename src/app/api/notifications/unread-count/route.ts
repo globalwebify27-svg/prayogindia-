@@ -1,11 +1,11 @@
-import { NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
-import { AuthSessionUser } from '@/lib/authUtils';
-import { NotificationService } from '@/lib/notifications';
+import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
+import { AuthSessionUser } from "@/lib/authUtils";
+import { NotificationService } from "@/lib/notifications";
 
 async function getAuthenticatedUser(): Promise<AuthSessionUser | null> {
   const cookieStore = await cookies();
-  const sessionCookie = cookieStore.get('prayog_customer_session');
+  const sessionCookie = cookieStore.get("prayog_customer_session");
   if (!sessionCookie?.value) return null;
   try {
     return JSON.parse(sessionCookie.value);
@@ -21,7 +21,10 @@ async function getAuthenticatedUser(): Promise<AuthSessionUser | null> {
 export async function GET() {
   const user = await getAuthenticatedUser();
   if (!user) {
-    return NextResponse.json({ success: false, message: 'Unauthenticated' }, { status: 401 });
+    return NextResponse.json(
+      { success: false, message: "Unauthenticated" },
+      { status: 401 },
+    );
   }
 
   const unreadCount = await NotificationService.getUnreadCount(user.id);
