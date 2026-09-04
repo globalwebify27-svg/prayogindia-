@@ -258,7 +258,7 @@ export const ProductGridSection: React.FC<ProductSectionProps> = ({
       <div
         key={product.id}
         id={`product-${product.id}`}
-        className="w-56 sm:w-72 shrink-0 bg-white rounded-2xl sm:rounded-3xl border border-slate-200/90 p-3 sm:p-4 flex flex-col justify-between hover:border-[#00AEEF] hover:shadow-xl hover:shadow-sky-500/10 transition-all duration-300 relative group"
+        className="w-60 sm:w-72 shrink-0 bg-white rounded-2xl sm:rounded-3xl border border-slate-200/80 p-4 sm:p-5 flex flex-col justify-between hover:border-[#00AEEF]/50 hover:shadow-lg hover:shadow-sky-500/5 transition-all duration-300 relative group"
       >
         {/* Top Badges & Actions */}
         <div className="flex items-center justify-between z-10 mb-2 gap-1.5">
@@ -306,7 +306,7 @@ export const ProductGridSection: React.FC<ProductSectionProps> = ({
           href={`/products/${product.slug || product.id}`}
           className="block"
         >
-          <div className="relative h-48 w-full mb-3 flex items-center justify-center overflow-hidden rounded-2xl bg-slate-50 p-2 border border-slate-100/80 group-hover:bg-white transition-colors cursor-pointer">
+          <div className="relative h-44 sm:h-48 w-full mb-3 flex items-center justify-center overflow-hidden rounded-2xl bg-slate-50/60 p-3 border border-slate-100/60 group-hover:bg-white transition-colors cursor-pointer">
             <Image
               src={product.image}
               alt={product.name}
@@ -314,11 +314,6 @@ export const ProductGridSection: React.FC<ProductSectionProps> = ({
               sizes="(max-width: 640px) 256px, 288px"
               className="object-contain p-2 group-hover:scale-105 transition-transform duration-500"
             />
-            <div className="absolute bottom-2 left-2">
-              <span className="text-[9px] font-extrabold text-emerald-700 bg-emerald-100/90 backdrop-blur-xs px-2 py-0.5 rounded-full flex items-center gap-1 shadow-2xs">
-                <Clock className="w-2.5 h-2.5" /> 24h Dispatch
-              </span>
-            </div>
           </div>
         </Link>
 
@@ -375,7 +370,7 @@ export const ProductGridSection: React.FC<ProductSectionProps> = ({
 
             {/* Actions: Add to Cart / Buy Now or WhatsApp */}
             {product.inStock ? (
-              <div className="grid grid-cols-2 gap-1.5 pt-0.5">
+              <div className="grid grid-cols-2 gap-2 pt-0.5">
                 <button
                   onClick={() => onAddToCart(product)}
                   className="border border-[#00AEEF] text-[#00AEEF] hover:bg-[#E0F7FC] py-2 rounded-xl text-[11px] font-black transition-all duration-150 active:scale-95 text-center cursor-pointer shadow-2xs"
@@ -584,7 +579,7 @@ export const ProductGridSection: React.FC<ProductSectionProps> = ({
                       ref={(el) => {
                         categoryScrollContainers.current[category] = el;
                       }}
-                      className="flex items-stretch gap-4 overflow-x-auto scrollbar-none pb-4 pt-1 px-1 scroll-smooth"
+                      className="flex items-stretch gap-4 sm:gap-5 lg:gap-6 overflow-x-auto scrollbar-none pb-4 pt-1 px-1 scroll-smooth"
                       style={{ scrollbarWidth: "none" }}
                     >
                       {categoryProducts.map((product) =>
@@ -680,7 +675,7 @@ export const ProductGridSection: React.FC<ProductSectionProps> = ({
 
               <div
                 ref={curatedScrollRef}
-                className="flex items-stretch gap-4 overflow-x-auto scrollbar-none pb-4 pt-1 px-1 scroll-smooth"
+                className="flex items-stretch gap-4 sm:gap-5 lg:gap-6 overflow-x-auto scrollbar-none pb-4 pt-1 px-1 scroll-smooth"
                 style={{ scrollbarWidth: "none" }}
               >
                 {getActiveCuratedList().map((product) =>

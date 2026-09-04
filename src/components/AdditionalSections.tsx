@@ -204,41 +204,40 @@ export const B2BSection: React.FC<AdditionalSectionsProps> = ({
   onOpenB2BModal,
 }) => {
   return (
-    <section className="py-8 bg-white">
+    <section className="py-10 sm:py-14 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-gradient-to-br from-[#0A1128] to-[#1E56A0] rounded-3xl p-8 sm:p-12 text-white shadow-2xl relative overflow-hidden border border-[#D4AF37]/30">
-          <div className="max-w-2xl">
-            <span className="bg-[#D4AF37] text-slate-950 text-[10px] font-extrabold px-3 py-1 rounded-full uppercase tracking-wider mb-4 inline-block">
+        <div className="bg-gradient-to-br from-[#0A1128] via-[#0F172A] to-[#1E56A0] rounded-3xl p-6 sm:p-10 lg:p-12 text-white shadow-xl relative overflow-hidden border border-slate-700/60">
+          <div className="max-w-2xl relative z-10 space-y-3 sm:space-y-4">
+            <span className="bg-[#D4AF37]/20 border border-[#D4AF37]/40 text-[#FFC20E] text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-wider inline-block">
               INSTITUTIONAL & B2B DESK
             </span>
-            <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-4">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight">
               Technology Solutions for Institutions & Businesses
             </h2>
-            <p className="text-slate-200 text-sm sm:text-base leading-relaxed mb-6">
-              From schools and universities to corporate and industrial
-              customers, access customized technology procurement, bulk pricing,
-              and turnkey STEM lab solutions.
+            <p className="text-slate-300 text-xs sm:text-sm leading-relaxed max-w-xl">
+              Access customized technology procurement, bulk institution pricing,
+              and turnkey STEM & robotics lab solutions.
             </p>
-            <div className="flex flex-wrap items-center gap-4">
+            <div className="flex flex-wrap items-center gap-3 pt-2">
               <button
                 onClick={onOpenB2BModal}
-                className="bg-[#D4AF37] hover:bg-amber-400 text-slate-950 font-bold px-7 py-3.5 rounded-full text-sm shadow-lg flex items-center gap-2"
+                className="bg-[#D4AF37] hover:bg-amber-400 text-slate-950 font-black px-6 py-3 rounded-xl text-xs uppercase tracking-wider shadow-md transition-all active:scale-95 flex items-center gap-2 cursor-pointer"
               >
-                <span>Request a Quotation</span>
+                <span>Request Quotation</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
               <button
                 onClick={onOpenB2BModal}
-                className="bg-white/10 hover:bg-white/20 text-white font-semibold px-6 py-3.5 rounded-full text-sm border border-white/20"
+                className="bg-white/10 hover:bg-white/15 text-white font-bold px-5 py-3 rounded-xl text-xs border border-white/20 transition-all cursor-pointer"
               >
                 Talk to an Expert
               </button>
             </div>
-            <div className="mt-8 pt-6 border-t border-white/10 grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs font-semibold text-slate-300">
-              <div>✓ Schools & Colleges</div>
-              <div>✓ STEM & Innovation Labs</div>
-              <div>✓ Corporate R&D</div>
-              <div>✓ Government Tender Orders</div>
+            <div className="mt-6 pt-5 border-t border-white/10 grid grid-cols-2 sm:grid-cols-4 gap-3 text-[11px] font-medium text-slate-300">
+              <div className="flex items-center gap-1.5"><span className="text-[#00AEEF]">✓</span> Schools & Colleges</div>
+              <div className="flex items-center gap-1.5"><span className="text-[#00AEEF]">✓</span> STEM & Robotics Labs</div>
+              <div className="flex items-center gap-1.5"><span className="text-[#00AEEF]">✓</span> Corporate R&D</div>
+              <div className="flex items-center gap-1.5"><span className="text-[#00AEEF]">✓</span> Government Tenders</div>
             </div>
           </div>
         </div>

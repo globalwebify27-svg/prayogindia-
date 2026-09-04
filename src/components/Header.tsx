@@ -16,11 +16,8 @@ import {
   Headset,
   Globe,
   Share2,
-  Lock,
-  Tablet,
   LogIn,
   UserPlus,
-  Store,
   Layers,
   Sparkles,
   Award,
@@ -221,8 +218,7 @@ export const Header: React.FC<HeaderProps> = ({
     if (
       pathname.startsWith("/account") ||
       pathname.startsWith("/login") ||
-      pathname.startsWith("/register") ||
-      pathname.startsWith("/store-pos")
+      pathname.startsWith("/register")
     )
       return "account";
     return activeTabProp || "home";
@@ -357,14 +353,6 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
 
           <div className="hidden sm:flex items-center gap-4 text-[11px] text-slate-300 font-medium">
-            <Link
-              href="/store-pos"
-              className="hover:text-white flex items-center gap-1"
-            >
-              <Store className="w-3.5 h-3.5 text-[#00AEEF]" />
-              <span>Store POS Mode</span>
-            </Link>
-            <span>•</span>
             <a
               href="tel:+919876543210"
               className="hover:text-white flex items-center gap-1"
@@ -704,7 +692,7 @@ export const Header: React.FC<HeaderProps> = ({
                     <>
                       <div className="px-3 py-2 border-b border-slate-100">
                         <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 block">
-                          Account &amp; Store Access
+                          Account Access
                         </span>
                         <span className="text-xs font-black text-slate-900">
                           Prayog India Portal
@@ -735,25 +723,6 @@ export const Header: React.FC<HeaderProps> = ({
                           <div className="font-bold">Register</div>
                           <div className="text-[10px] text-slate-400 font-normal">
                             Create new verified account
-                          </div>
-                        </div>
-                      </Link>
-
-                      <Link
-                        href="/store-pos"
-                        onClick={() => setAccountDropdownOpen(false)}
-                        className="w-full text-left p-2 bg-slate-50 hover:bg-[#E0F7FC] hover:text-[#00AEEF] rounded-xl transition-colors flex items-center gap-2.5 border border-slate-200/80"
-                      >
-                        <Store className="w-4 h-4 text-amber-600" />
-                        <div className="flex-1">
-                          <div className="font-bold flex items-center justify-between">
-                            <span>Store / Walk-in Shopping</span>
-                            <span className="text-[9px] bg-amber-100 text-amber-800 px-1.5 py-0.2 rounded font-mono font-bold flex items-center gap-0.5">
-                              <Lock className="w-2.5 h-2.5" /> Device Lock
-                            </span>
-                          </div>
-                          <div className="text-[10px] text-slate-500 font-normal">
-                            Authorized store tablet gateway
                           </div>
                         </div>
                       </Link>
@@ -1325,14 +1294,7 @@ export const Header: React.FC<HeaderProps> = ({
                     onClick={() => setMobileMenuOpen(false)}
                     className="block py-1 text-slate-700 hover:text-[#00AEEF]"
                   >
-                    ├── Register
-                  </Link>
-                  <Link
-                    href="/store-pos"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="block py-1 text-amber-700 font-bold"
-                  >
-                    └── Store / Walk-in Shopping (Device Lock)
+                    └── Register
                   </Link>
                 </div>
               )}

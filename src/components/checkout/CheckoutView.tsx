@@ -758,9 +758,6 @@ export const CheckoutView: React.FC = () => {
             <option value="Registered Customer">
               Registered Customer (Loyalty 5%)
             </option>
-            <option value="Walk-in Customer">
-              Walk-in Customer (Store POS)
-            </option>
             <option value="Guest Customer">Guest Customer (Express)</option>
           </select>
         </div>

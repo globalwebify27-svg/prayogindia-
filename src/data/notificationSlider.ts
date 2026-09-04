@@ -48,7 +48,7 @@ export const DEFAULT_NOTIFICATIONS: WebsiteNotification[] = [
     id: "notif-3",
     badgeTag: "DELIVERY TIMELINES",
     text: "Delivery timelines may vary for selected locations. Ranchi & Patna local orders dispatch in 24 hours.",
-    link: "/store-pos",
+    link: "/contact",
     linkText: "Store Hubs",
     priority: "LOW",
     displayOrder: 3,

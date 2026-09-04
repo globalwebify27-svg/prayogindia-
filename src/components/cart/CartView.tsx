@@ -246,9 +246,6 @@ export const CartView: React.FC = () => {
             <option value="Registered Customer">
               Registered Customer (5% Loyalty)
             </option>
-            <option value="Walk-in Customer">
-              Walk-in Customer (Store POS)
-            </option>
             <option value="Guest Customer">Guest Customer (Retail)</option>
           </select>
         </div>

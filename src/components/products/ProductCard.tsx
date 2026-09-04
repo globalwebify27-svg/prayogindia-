@@ -49,28 +49,28 @@ export const ProductCard: React.FC<ProductCardProps> = ({
       ? Math.round(((displayMrp - displayPrice) / displayMrp) * 100)
       : null;
 
-  // Short tech spec pills — up to 3 entries from specs
+  // Short tech spec pills — up to 2 clean entries for high scannability
   const specPills = product.specs
     ? Object.entries(product.specs)
-        .slice(0, 3)
+        .slice(0, 2)
         .map(([key, val]) => `${key}: ${val}`)
     : [];
 
   return (
     <div
       id={`product-card-${product.id}`}
-      className="group bg-white rounded-2xl border border-slate-200/90 flex flex-col justify-between hover:border-[#00AEEF]/60 hover:shadow-xl transition-all duration-300 relative overflow-hidden"
+      className="group bg-white rounded-2xl sm:rounded-3xl border border-slate-200/80 flex flex-col justify-between hover:border-[#00AEEF]/50 hover:shadow-lg hover:shadow-sky-500/5 transition-all duration-300 relative overflow-hidden"
     >
       {/* ── Top Badge Row ── */}
-      <div className="absolute top-3 left-3 right-3 z-10 flex items-start justify-between pointer-events-none">
+      <div className="absolute top-2.5 left-2.5 right-2.5 z-10 flex items-start justify-between pointer-events-none">
         <div className="flex flex-col gap-1">
           {discountPct && (
-            <span className="bg-[#FF3B30] text-white text-[9px] font-black px-2 py-0.5 rounded-md uppercase tracking-wider shadow-sm pointer-events-none">
+            <span className="bg-[#FF3B30] text-white text-[9px] font-black px-2 py-0.5 rounded-md uppercase tracking-wider shadow-2xs pointer-events-none">
               {discountPct}% OFF
             </span>
           )}
           {product.badge && (
-            <span className="bg-slate-900 text-[#00AEEF] text-[9px] font-black px-2 py-0.5 rounded-md uppercase tracking-wider shadow-sm pointer-events-none">
+            <span className="bg-slate-900 text-[#00AEEF] text-[9px] font-black px-2 py-0.5 rounded-md uppercase tracking-wider shadow-2xs pointer-events-none">
               {product.badge}
             </span>
           )}
@@ -81,10 +81,10 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           {onToggleWishlist && (
             <button
               onClick={() => onToggleWishlist(product)}
-              className={`w-7 h-7 rounded-full flex items-center justify-center shadow-sm transition-colors cursor-pointer ${
+              className={`w-7 h-7 rounded-full flex items-center justify-center shadow-xs transition-colors cursor-pointer ${
                 isWishlisted
                   ? "bg-red-500 text-white"
-                  : "bg-white/90 text-slate-400 hover:text-red-500 hover:bg-white"
+                  : "bg-white/95 text-slate-400 hover:text-red-500 hover:bg-white"
               }`}
               title="Add to Wishlist"
               aria-label="Wishlist"
@@ -97,7 +97,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           {onQuickView && (
             <button
               onClick={() => onQuickView(product)}
-              className="w-7 h-7 rounded-full bg-white/90 flex items-center justify-center shadow-sm text-slate-400 hover:text-[#00AEEF] hover:bg-white transition-colors cursor-pointer"
+              className="w-7 h-7 rounded-full bg-white/95 flex items-center justify-center shadow-xs text-slate-400 hover:text-[#00AEEF] hover:bg-white transition-colors cursor-pointer"
               title="Quick View"
               aria-label="Quick View"
             >
@@ -109,29 +109,27 @@ export const ProductCard: React.FC<ProductCardProps> = ({
 
       {/* ── Product Image ── */}
       <Link href={`/products/${product.slug || product.id}`} className="block">
-        <div className="relative h-44 w-full flex items-center justify-center overflow-hidden bg-slate-50 rounded-t-2xl">
+        <div className="relative h-44 sm:h-48 w-full flex items-center justify-center overflow-hidden bg-slate-50/50 rounded-t-2xl sm:rounded-t-3xl">
           <Image
             src={product.image}
             alt={product.name}
             fill
-            className="object-contain p-3 group-hover:scale-105 transition-transform duration-300"
+            className="object-contain p-4 group-hover:scale-105 transition-transform duration-500"
           />
         </div>
       </Link>
 
       {/* ── Card Body ── */}
-      <div className="flex-1 flex flex-col justify-between px-3.5 pb-3.5 pt-2 space-y-2">
+      <div className="flex-1 flex flex-col justify-between p-3.5 sm:p-4 space-y-2.5 sm:space-y-3">
         {/* SKU + Rating Row */}
-        <div className="flex items-center justify-between">
-          <span className="text-[9px] font-mono font-bold text-slate-400 uppercase tracking-wider">
+        <div className="flex items-center justify-between text-[10px] text-slate-400 font-bold">
+          <span className="font-mono uppercase tracking-wider text-slate-400">
             {product.sku}
           </span>
-          <div className="flex items-center gap-0.5 text-amber-500">
+          <div className="flex items-center gap-0.5 text-amber-500 font-bold">
             <Star className="w-3 h-3 fill-current" />
-            <span className="text-[10px] font-extrabold text-slate-700">
-              {product.rating}
-            </span>
-            <span className="text-[9px] text-slate-400 font-semibold">
+            <span className="text-slate-700">{product.rating}</span>
+            <span className="text-slate-400 font-normal">
               ({product.reviews})
             </span>
           </div>
@@ -142,7 +140,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           href={`/products/${product.slug || product.id}`}
           className="block"
         >
-          <h3 className="text-xs font-bold text-slate-900 line-clamp-2 leading-snug group-hover:text-[#00AEEF] transition-colors">
+          <h3 className="text-xs sm:text-[13px] font-bold text-slate-900 line-clamp-2 leading-snug group-hover:text-[#00AEEF] transition-colors">
             {product.name}
           </h3>
         </Link>
@@ -153,7 +151,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             {specPills.map((pill) => (
               <span
                 key={pill}
-                className="bg-slate-100 text-slate-600 text-[9px] font-bold px-1.5 py-0.5 rounded-md truncate max-w-full"
+                className="bg-slate-50 text-slate-500 border border-slate-200/60 text-[9px] font-medium px-1.5 py-0.5 rounded-md truncate max-w-full"
               >
                 {pill}
               </span>
@@ -181,10 +179,10 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         )}
 
         {/* Price + Stock Row */}
-        <div className="flex items-end justify-between pt-1 border-t border-slate-100">
+        <div className="flex items-baseline justify-between pt-2 border-t border-slate-100">
           <div>
             <div className="flex items-baseline gap-1.5">
-              <span className="text-sm font-extrabold text-slate-900">
+              <span className="text-sm sm:text-base font-black text-slate-900">
                 ₹{displayPrice.toLocaleString("en-IN")}
               </span>
               {displayMrp > displayPrice && (
@@ -194,7 +192,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
               )}
             </div>
             {product.gstInclusive && (
-              <span className="text-[9px] text-slate-400 font-semibold flex items-center gap-0.5">
+              <span className="text-[9px] text-slate-400 font-medium flex items-center gap-0.5">
                 <Info className="w-2.5 h-2.5" /> GST incl.
               </span>
             )}
@@ -221,7 +219,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
 
         {/* Action Buttons */}
         {isInStock ? (
-          <div className="grid grid-cols-2 gap-1.5">
+          <div className="grid grid-cols-2 gap-2 pt-0.5">
             <button
               id={`add-to-cart-${product.id}`}
               onClick={() => onAddToCart?.(product, selectedVariantId)}
@@ -233,7 +231,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             <button
               id={`buy-now-${product.id}`}
               onClick={() => onAddToCart?.(product, selectedVariantId)}
-              className="bg-[#00AEEF] hover:bg-[#0096D6] text-white py-2 rounded-xl text-[10px] font-extrabold transition-all active:scale-95 shadow-sm shadow-[#00AEEF]/20 flex items-center justify-center gap-1 cursor-pointer"
+              className="bg-[#00AEEF] hover:bg-[#0096D6] text-white py-2 rounded-xl text-[10px] font-extrabold transition-all active:scale-95 shadow-xs flex items-center justify-center gap-1 cursor-pointer"
             >
               <Zap className="w-3 h-3" />
               BUY NOW

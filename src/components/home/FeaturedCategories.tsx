@@ -93,9 +93,9 @@ export const FeaturedCategories: React.FC<Props> = ({
         </div>
 
         {/* Main Grid: Left Banner + Right Product Slider */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch relative">
-          {/* Left Promo Card */}
-          <div className="lg:col-span-3 bg-gradient-to-b from-[#F8FAFC] to-[#EEF2F6] border border-slate-200/90 rounded-2xl p-6 flex flex-col justify-between overflow-hidden relative shadow-xs min-h-[380px]">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6 items-stretch relative">
+          {/* Left Promo Card: visible on lg+ desktop to prevent banner crowding on smaller viewports */}
+          <div className="hidden lg:flex lg:col-span-3 bg-gradient-to-b from-[#F8FAFC] to-[#EEF2F6] border border-slate-200/80 rounded-2xl p-6 flex-col justify-between overflow-hidden relative shadow-xs min-h-[380px]">
             <div className="relative z-10 space-y-2">
               <h3 className="text-xl font-extrabold text-[#1E293B] leading-snug">
                 Welcome to Our Store
@@ -126,7 +126,7 @@ export const FeaturedCategories: React.FC<Props> = ({
 
           {/* Right Product Slider Container */}
           <div
-            className="lg:col-span-9 relative group overflow-hidden"
+            className="col-span-1 lg:col-span-9 relative group overflow-hidden"
             onMouseEnter={() => setIsPaused(true)}
             onMouseLeave={() => setIsPaused(false)}
           >
@@ -150,7 +150,7 @@ export const FeaturedCategories: React.FC<Props> = ({
             {/* Continuous Smooth Scrollable Track */}
             <div
               ref={scrollContainerRef}
-              className="flex gap-4 overflow-x-hidden py-1 select-none"
+              className="flex gap-4 sm:gap-5 overflow-x-hidden py-1.5 select-none"
             >
               {featuredProducts.map((product, idx) => {
                 const isWishlisted = wishlistIds.includes(product.id);
@@ -158,7 +158,7 @@ export const FeaturedCategories: React.FC<Props> = ({
                 return (
                   <div
                     key={`${product.id}-${idx}`}
-                    className="w-[240px] sm:w-[260px] shrink-0 bg-white border border-slate-200 rounded-2xl p-4 flex flex-col justify-between hover:border-[#00AEEF]/50 hover:shadow-md transition-all duration-300 relative group/card"
+                    className="w-[230px] sm:w-[260px] shrink-0 bg-white border border-slate-200/80 rounded-2xl sm:rounded-3xl p-4 sm:p-5 flex flex-col justify-between hover:border-[#00AEEF]/50 hover:shadow-lg hover:shadow-sky-500/5 transition-all duration-300 relative group/card"
                   >
                     {/* Card Header: Category & Wishlist Button */}
                     <div className="flex items-center justify-between gap-2">

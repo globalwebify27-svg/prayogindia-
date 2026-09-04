@@ -2,151 +2,130 @@
 
 import React from "react";
 import { motion } from "framer-motion";
-import Image from "next/image";
-import { Bot, Plane, Cpu, ShieldCheck, ArrowRight } from "lucide-react";
+import { Palette, Plane, Bot, Layers, ArrowRight } from "lucide-react";
 
 interface Props {
   onExploreCollection?: (collection: string) => void;
 }
 
+interface EcosystemCard {
+  id: string;
+  title: string;
+  category: string;
+  description: string;
+  image: string;
+  icon: React.ComponentType<{ className?: string }>;
+}
+
+const ECOSYSTEM_CARDS: EcosystemCard[] = [
+  {
+    id: "arts-design",
+    title: "Arts & Design",
+    category: "Rapid Prototyping",
+    description: "Generative 3D structures, digital fashion & avant-garde sculptures.",
+    image: "/images/ecosystem/arts-and-design.jpg",
+    icon: Palette,
+  },
+  {
+    id: "uavs-drones",
+    title: "UAVs & Drones",
+    category: "Drone Technology",
+    description: "Autonomous Pixhawk flight autopilots, aerial telemetry & gimbal rigs.",
+    image: "/images/ecosystem/uavs-and-drones.jpg",
+    icon: Plane,
+  },
+  {
+    id: "robotics",
+    title: "Robotics",
+    category: "Robotics Kits",
+    description: "Bio-inspired quadruped AGVs, metal servos & ROS 2 manipulators.",
+    image: "/images/ecosystem/robotics.jpg",
+    icon: Bot,
+  },
+  {
+    id: "rapid-prototyping",
+    title: "Rapid Prototyping",
+    category: "Electronic Components",
+    description: "Industrial gear assemblies, mechatronic joints & fast CNC prototyping.",
+    image: "/images/ecosystem/rapid-prototyping.jpg",
+    icon: Layers,
+  },
+];
+
 export const RoboticsCollectionShowcase: React.FC<Props> = ({
   onExploreCollection,
 }) => {
   return (
-    <section className="py-14 bg-gradient-to-b from-slate-900 to-[#0A1128] text-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
+    <section className="py-12 sm:py-16 lg:py-20 bg-white border-t border-slate-100">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
-        <div className="text-center max-w-2xl mx-auto space-y-2">
-          <span className="bg-[#00AEEF]/20 text-[#00AEEF] border border-[#00AEEF]/40 text-[10px] font-black uppercase px-3 py-1 rounded-full tracking-widest inline-block">
+        <div className="text-center max-w-2xl mx-auto space-y-2 mb-8 sm:mb-12">
+          <span className="bg-[#00AEEF]/10 text-[#00AEEF] border border-[#00AEEF]/20 text-[11px] font-black uppercase px-3.5 py-1 rounded-full tracking-widest inline-block">
             Engineering Excellence
           </span>
-          <h2 className="text-3xl sm:text-4xl font-black text-white tracking-tight">
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 tracking-tight">
             Robotics & UAV Ecosystem
           </h2>
-          <p className="text-xs sm:text-sm text-slate-300">
+          <p className="text-xs sm:text-sm text-slate-500 max-w-lg mx-auto leading-relaxed">
             Engineered hardware ecosystems for universities, AI researchers,
             drone pilots, and industrial automation labs.
           </p>
         </div>
 
-        {/* 3 Showcase Pillars */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {/* Pillar 1: Robotics Arm & Mobility */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.1 }}
-            viewport={{ once: true }}
-            className="bg-slate-800/60 rounded-3xl p-6 border border-slate-700/80 hover:border-[#00AEEF] transition-all duration-300 flex flex-col justify-between space-y-5 shadow-xl"
-          >
-            <div className="space-y-3">
-              <div className="w-12 h-12 rounded-2xl bg-[#00AEEF]/20 text-[#00AEEF] flex items-center justify-center border border-[#00AEEF]/40">
-                <Bot className="w-6 h-6" />
-              </div>
-              <h3 className="text-xl font-extrabold text-white">
-                Robotics & Manipulators
-              </h3>
-              <p className="text-xs text-slate-300 leading-relaxed">
-                High torque metal servos, 6-DOF robotic arm kits, Omni-wheel AGV
-                platforms & ROS 2 controller boards.
-              </p>
-            </div>
+        {/* Horizontal Expanding Feature Cards on Hover */}
+        <div className="expanding-cards-track overflow-x-auto sm:overflow-visible pb-4 sm:pb-0 scrollbar-none snap-x snap-mandatory -mx-4 px-4 sm:mx-0 sm:px-0">
+          {ECOSYSTEM_CARDS.map((card, idx) => {
+            const Icon = card.icon;
 
-            <div className="relative h-48 w-full rounded-2xl overflow-hidden bg-slate-900 border border-slate-700">
-              <Image
-                src="https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&w=600&q=80"
-                alt="Robotics"
-                fill
-                className="object-cover hover:scale-105 transition-transform duration-500"
-              />
-            </div>
+            return (
+              <motion.article
+                key={card.id}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: idx * 0.08 }}
+                viewport={{ once: true }}
+                onClick={() => onExploreCollection?.(card.category)}
+                className="feature-card-zoom group shrink-0 sm:shrink snap-center select-none border border-slate-200/70 shadow-lg hover:shadow-2xl bg-slate-950"
+              >
+                {/* 1. Background Image with Smooth CSS Zoom */}
+                <img
+                  src={card.image}
+                  alt={card.title}
+                  className="card-zoom-img"
+                  loading={idx < 2 ? "eager" : "lazy"}
+                />
 
-            <button
-              onClick={() => onExploreCollection?.("Robotics Kits")}
-              className="w-full bg-[#00AEEF] hover:bg-[#0096D6] text-white font-extrabold py-3 rounded-xl text-xs uppercase tracking-wider transition-colors flex items-center justify-center gap-2"
-            >
-              <span>Explore Robotics</span>
-              <ArrowRight className="w-4 h-4" />
-            </button>
-          </motion.div>
+                {/* 2. Subtle Dark Gradient Overlay */}
+                <div className="absolute inset-0 bg-gradient-to-b from-black/65 via-black/25 to-black/90 pointer-events-none group-hover:opacity-90 transition-opacity duration-500" />
 
-          {/* Pillar 2: Drone Technology */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.2 }}
-            viewport={{ once: true }}
-            className="bg-slate-800/60 rounded-3xl p-6 border border-slate-700/80 hover:border-[#00AEEF] transition-all duration-300 flex flex-col justify-between space-y-5 shadow-xl"
-          >
-            <div className="space-y-3">
-              <div className="w-12 h-12 rounded-2xl bg-[#FFC20E]/20 text-[#FFC20E] flex items-center justify-center border border-[#FFC20E]/40">
-                <Plane className="w-6 h-6" />
-              </div>
-              <h3 className="text-xl font-extrabold text-white">
-                Drone Aerial Hardware
-              </h3>
-              <p className="text-xs text-slate-300 leading-relaxed">
-                Pixhawk 6C autopilot flight controllers, SimonK 30A ESCs, BLDC
-                outrunner motors & MavLink GPS telemetry.
-              </p>
-            </div>
+                {/* 3. Card Content */}
+                <div className="relative z-10 h-full flex flex-col justify-between items-start p-5 sm:p-7 pointer-events-none">
+                  {/* Top-Left Heading & Reveal Subtitle */}
+                  <div className="space-y-2 max-w-full">
+                    <span className="text-[10px] font-black uppercase tracking-widest text-[#00AEEF] bg-black/50 backdrop-blur-md px-2.5 py-1 rounded-full border border-white/15 inline-flex items-center gap-1.5 shadow-sm whitespace-nowrap">
+                      <Icon className="w-3 h-3 shrink-0" />
+                      {card.category}
+                    </span>
+                    <h3 className="text-lg sm:text-xl lg:text-2xl font-extrabold text-white leading-tight tracking-tight drop-shadow-md group-hover:text-[#00AEEF] transition-colors duration-300">
+                      {card.title}
+                    </h3>
+                    {/* Expandable description on hover */}
+                    <p className="text-xs text-slate-300 line-clamp-2 max-w-xs opacity-0 sm:group-hover:opacity-100 transition-opacity duration-500 delay-100 leading-relaxed hidden sm:block">
+                      {card.description}
+                    </p>
+                  </div>
 
-            <div className="relative h-48 w-full rounded-2xl overflow-hidden bg-slate-900 border border-slate-700">
-              <Image
-                src="https://images.unsplash.com/photo-1527977966376-1c8408f9f108?auto=format&fit=crop&w=600&q=80"
-                alt="Drone Hardware"
-                fill
-                className="object-cover hover:scale-105 transition-transform duration-500"
-              />
-            </div>
-
-            <button
-              onClick={() => onExploreCollection?.("Drone Technology")}
-              className="w-full bg-[#FFC20E] hover:bg-amber-400 text-slate-950 font-extrabold py-3 rounded-xl text-xs uppercase tracking-wider transition-colors flex items-center justify-center gap-2"
-            >
-              <span>Explore UAV Tech</span>
-              <ArrowRight className="w-4 h-4" />
-            </button>
-          </motion.div>
-
-          {/* Pillar 3: Arduino & Edge AI */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.3 }}
-            viewport={{ once: true }}
-            className="bg-slate-800/60 rounded-3xl p-6 border border-slate-700/80 hover:border-[#00AEEF] transition-all duration-300 flex flex-col justify-between space-y-5 shadow-xl"
-          >
-            <div className="space-y-3">
-              <div className="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center border border-emerald-500/40">
-                <Cpu className="w-6 h-6" />
-              </div>
-              <h3 className="text-xl font-extrabold text-white">
-                Arduino & Edge AI
-              </h3>
-              <p className="text-xs text-slate-300 leading-relaxed">
-                Official Arduino UNO R3, ESP32 dual-core Wi-Fi, Raspberry Pi 5
-                8GB & NVIDIA Jetson Orin Nano AI boards.
-              </p>
-            </div>
-
-            <div className="relative h-48 w-full rounded-2xl overflow-hidden bg-slate-900 border border-slate-700">
-              <Image
-                src="https://images.unsplash.com/photo-1553406830-ef2513450d76?auto=format&fit=crop&w=600&q=80"
-                alt="Arduino & Microcontrollers"
-                fill
-                className="object-cover hover:scale-105 transition-transform duration-500"
-              />
-            </div>
-
-            <button
-              onClick={() => onExploreCollection?.("Arduino")}
-              className="w-full border border-slate-600 hover:border-white text-white font-extrabold py-3 rounded-xl text-xs uppercase tracking-wider transition-colors flex items-center justify-center gap-2"
-            >
-              <span>Explore Dev Boards</span>
-              <ArrowRight className="w-4 h-4 text-[#00AEEF]" />
-            </button>
-          </motion.div>
+                  {/* Bottom-Left Semi-Transparent Button */}
+                  <div className="inline-flex items-center gap-3 pl-4 pr-1.5 py-1.5 rounded-full bg-white/15 group-hover:bg-white/25 backdrop-blur-md border border-white/30 text-xs font-bold text-white transition-all duration-300 shadow-md whitespace-nowrap">
+                    <span>Learn More</span>
+                    <span className="w-7 h-7 rounded-full bg-white text-slate-950 flex items-center justify-center group-hover:bg-[#00AEEF] group-hover:text-white group-hover:translate-x-0.5 transition-all duration-300 shadow-xs shrink-0">
+                      <ArrowRight className="w-3.5 h-3.5 stroke-[2.5]" />
+                    </span>
+                  </div>
+                </div>
+              </motion.article>
+            );
+          })}
         </div>
       </div>
     </section>
