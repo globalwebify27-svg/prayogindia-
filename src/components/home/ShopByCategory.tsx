@@ -4,20 +4,22 @@ import React, { useRef, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import {
-  Bot,
-  Cpu,
-  Plane,
-  Wifi,
-  GraduationCap,
-  Activity,
-  Zap,
-  CircuitBoard,
   ArrowRight,
   ChevronLeft,
   ChevronRight,
   LayoutGrid,
   Radio,
 } from "lucide-react";
+import {
+  RoboticsCategoryIcon,
+  ArduinoCategoryIcon,
+  SensorsCategoryIcon,
+  DroneCategoryIcon,
+  StemCategoryIcon,
+  IoTCategoryIcon,
+  DevBoardCategoryIcon,
+  ComponentsCategoryIcon,
+} from "@/components/icons/CategoryIcons";
 
 interface CategoryItem {
   id: string;
@@ -32,65 +34,65 @@ const CATEGORIES: CategoryItem[] = [
     id: "robotics",
     name: "Robotics Kits",
     count: "2,400+ Items",
-    IconComponent: Bot,
+    IconComponent: RoboticsCategoryIcon,
     image:
-      "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&w=500&q=80",
+      "https://res.cloudinary.com/fyueflvh/image/upload/v1788595386/prayog/products/prod_catalog_template_4.jpg",
   },
   {
     id: "arduino",
     name: "Arduino",
     count: "1,800+ Items",
-    IconComponent: Cpu,
+    IconComponent: ArduinoCategoryIcon,
     image:
-      "https://images.unsplash.com/photo-1553406830-ef2513450d76?auto=format&fit=crop&w=500&q=80",
+      "https://res.cloudinary.com/fyueflvh/image/upload/v1788595383/prayog/products/prod_catalog_template_1.jpg",
   },
   {
     id: "sensors",
     name: "Sensors & Modules",
     count: "1,450+ Items",
-    IconComponent: Activity,
+    IconComponent: SensorsCategoryIcon,
     image:
-      "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=500&q=80",
+      "https://res.cloudinary.com/fyueflvh/image/upload/v1788595387/prayog/products/prod_catalog_template_5.jpg",
   },
   {
     id: "drones",
     name: "Drone Technology",
     count: "950+ Items",
-    IconComponent: Plane,
+    IconComponent: DroneCategoryIcon,
     image:
-      "https://images.unsplash.com/photo-1527977966376-1c8408f9f108?auto=format&fit=crop&w=500&q=80",
+      "https://res.cloudinary.com/fyueflvh/image/upload/v1788595385/prayog/products/prod_catalog_template_3.jpg",
   },
   {
     id: "stem",
     name: "STEM Kits",
     count: "650+ Kits",
-    IconComponent: GraduationCap,
+    IconComponent: StemCategoryIcon,
     image:
-      "https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=500&q=80",
+      "https://res.cloudinary.com/fyueflvh/image/upload/v1788595388/prayog/products/prod_catalog_template_7.jpg",
   },
   {
     id: "iot",
     name: "IoT Products",
     count: "3,100+ Items",
-    IconComponent: Wifi,
+    IconComponent: IoTCategoryIcon,
     image:
-      "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=500&q=80",
+      "https://res.cloudinary.com/fyueflvh/image/upload/v1788595384/prayog/products/prod_catalog_template_2.jpg",
   },
   {
     id: "devboards",
     name: "Development Boards",
     count: "820+ Boards",
-    IconComponent: CircuitBoard,
+    IconComponent: DevBoardCategoryIcon,
     image:
-      "https://images.unsplash.com/photo-1608564697071-ddf911d81370?auto=format&fit=crop&w=500&q=80",
+      "https://res.cloudinary.com/fyueflvh/image/upload/v1788595388/prayog/products/prod_catalog_template_6.jpg",
   },
   {
     id: "components",
     name: "Electronic Components",
     count: "5,000+ Parts",
-    IconComponent: Zap,
+    IconComponent: ComponentsCategoryIcon,
     image:
-      "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=500&q=80",
+      "https://res.cloudinary.com/fyueflvh/image/upload/v1788595390/prayog/products/prod_catalog_template_9.jpg",
   },
 ];
 
@@ -104,37 +106,37 @@ const QUICK_FILTERS = [
   {
     label: "Microcontrollers & SBCs",
     query: "Arduino",
-    icon: Cpu,
+    icon: ArduinoCategoryIcon,
     accent: "text-amber-500 bg-amber-50",
   },
   {
     label: "Robotics & Manipulators",
     query: "Robotics Kits",
-    icon: Bot,
+    icon: RoboticsCategoryIcon,
     accent: "text-blue-500 bg-blue-50",
   },
   {
     label: "Drone UAV Aerial",
     query: "Drone Technology",
-    icon: Plane,
+    icon: DroneCategoryIcon,
     accent: "text-indigo-500 bg-indigo-50",
   },
   {
     label: "Sensors & Telemetry",
     query: "Sensors & Modules",
-    icon: Activity,
+    icon: SensorsCategoryIcon,
     accent: "text-rose-500 bg-rose-50",
   },
   {
     label: "IoT & Wireless",
     query: "IoT Products",
-    icon: Wifi,
+    icon: IoTCategoryIcon,
     accent: "text-teal-500 bg-teal-50",
   },
   {
     label: "School STEM Kits",
     query: "STEM Kits",
-    icon: GraduationCap,
+    icon: StemCategoryIcon,
     accent: "text-emerald-500 bg-emerald-50",
   },
 ];

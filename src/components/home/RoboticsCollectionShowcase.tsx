@@ -23,7 +23,7 @@ const ECOSYSTEM_CARDS: EcosystemCard[] = [
     title: "Arts & Design",
     category: "Rapid Prototyping",
     description: "Generative 3D structures, digital fashion & avant-garde sculptures.",
-    image: "/images/ecosystem/arts-and-design.jpg",
+    image: "https://res.cloudinary.com/fyueflvh/image/upload/v1788595369/prayog/ecosystem/arts-and-design.jpg",
     icon: Palette,
   },
   {
@@ -31,7 +31,7 @@ const ECOSYSTEM_CARDS: EcosystemCard[] = [
     title: "UAVs & Drones",
     category: "Drone Technology",
     description: "Autonomous Pixhawk flight autopilots, aerial telemetry & gimbal rigs.",
-    image: "/images/ecosystem/uavs-and-drones.jpg",
+    image: "https://res.cloudinary.com/fyueflvh/image/upload/v1788595374/prayog/ecosystem/uavs-and-drones.jpg",
     icon: Plane,
   },
   {
@@ -39,7 +39,7 @@ const ECOSYSTEM_CARDS: EcosystemCard[] = [
     title: "Robotics",
     category: "Robotics Kits",
     description: "Bio-inspired quadruped AGVs, metal servos & ROS 2 manipulators.",
-    image: "/images/ecosystem/robotics.jpg",
+    image: "https://res.cloudinary.com/fyueflvh/image/upload/v1788595373/prayog/ecosystem/robotics.jpg",
     icon: Bot,
   },
   {
@@ -47,7 +47,7 @@ const ECOSYSTEM_CARDS: EcosystemCard[] = [
     title: "Rapid Prototyping",
     category: "Electronic Components",
     description: "Industrial gear assemblies, mechatronic joints & fast CNC prototyping.",
-    image: "/images/ecosystem/rapid-prototyping.jpg",
+    image: "https://res.cloudinary.com/fyueflvh/image/upload/v1788595372/prayog/ecosystem/rapid-prototyping.jpg",
     icon: Layers,
   },
 ];

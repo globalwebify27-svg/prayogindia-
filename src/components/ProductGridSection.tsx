@@ -135,23 +135,81 @@ export const ProductGridSection: React.FC<ProductSectionProps> = ({
   const [viewMode, setViewMode] = useState<ViewMode>("all_categories");
   const [activeCuratedTab, setActiveCuratedTab] =
     useState<CuratedTab>("trending");
+  const [liveProducts, setLiveProducts] = useState<Product[]>(PRODUCTS);
+
+  useEffect(() => {
+    fetch("/api/products?limit=100")
+      .then((res) => res.json())
+      .then((json) => {
+        if (json?.success && Array.isArray(json.data) && json.data.length > 0) {
+          const apiProducts: Product[] = json.data.map((item: any) => {
+            const primaryImg =
+              item.images?.[0]?.imageUrl ||
+              (Array.isArray(item.images) && typeof item.images[0] === "string"
+                ? item.images[0]
+                : "/placeholder-product.png");
+            const allImages = Array.isArray(item.images)
+              ? item.images.map((im: any) => (typeof im === "string" ? im : im.imageUrl))
+              : [primaryImg];
+
+            return {
+              id: item.id,
+              slug: item.slug || item.id,
+              name: item.name,
+              sku: item.sku || `SKU-${item.id.slice(0, 6)}`,
+              brand: item.brand || "Prayog India",
+              category: item.category?.name || "Robotics & Components",
+              price: item.price,
+              mrp: item.mrp || item.price * 1.2,
+              discount:
+                item.mrp && item.mrp > item.price
+                  ? `${Math.round(((item.mrp - item.price) / item.mrp) * 100)}% OFF`
+                  : "",
+              rating: item.rating ?? 4.8,
+              reviews: item.reviewCount ?? 12,
+              inStock: item.inStock ?? (item.stock > 0),
+              image: primaryImg,
+              images: allImages,
+              badge: item.badge,
+              description: item.description || "",
+              features: item.features || [],
+              specs: (item.specifications as Record<string, string>) || {},
+            };
+          });
+
+          const existingIds = new Set(PRODUCTS.map((p) => p.id));
+          const newDbOnly = apiProducts.filter((p) => !existingIds.has(p.id));
+          const updatedMock = PRODUCTS.map((p) => {
+            const match = apiProducts.find((ap) => ap.id === p.id || ap.slug === p.slug);
+            return match || p;
+          });
+
+          setLiveProducts([...newDbOnly, ...updatedMock]);
+        }
+      })
+      .catch((err) => {
+        console.warn("ProductGridSection: Failed to fetch products from API", err);
+      });
+  }, []);
 
   // Curated Lists Logic
-  const trendingProducts = PRODUCTS.filter(
+  const trendingProducts = liveProducts.filter(
     (p) => p.badge?.includes("HOT") || p.reviews > 300 || p.price > 4000,
   );
-  const newArrivals = PRODUCTS.filter(
+  const newArrivals = liveProducts.filter(
     (p) =>
       p.badge?.includes("NEW") ||
       p.id.includes("rpi-5") ||
       p.id.includes("jetson") ||
-      p.id.includes("r4"),
+      p.id.includes("r4") ||
+      // database products added recently
+      liveProducts.slice(0, 5).some((lp) => lp.id === p.id),
   );
-  const bestSellers = PRODUCTS.filter(
+  const bestSellers = liveProducts.filter(
     (p) =>
       p.badge?.includes("BESTSELLER") || p.rating >= 4.9 || p.reviews > 400,
   );
-  const recommendedHardware = PRODUCTS.filter(
+  const recommendedHardware = liveProducts.filter(
     (p) =>
       p.badge?.includes("TOP RATED") ||
       p.category.includes("Sensors") ||
@@ -513,8 +571,8 @@ export const ProductGridSection: React.FC<ProductSectionProps> = ({
         {viewMode === "all_categories" ? (
           <div className="space-y-16 animate-in fade-in duration-300">
             {categoryOrder.map((category) => {
-              const categoryProducts = PRODUCTS.filter(
-                (p) => p.category === category,
+              const categoryProducts = liveProducts.filter(
+                (p) => p.category.toLowerCase().includes(category.toLowerCase()) || category.toLowerCase().includes(p.category.toLowerCase()),
               );
               const config = CATEGORY_CONFIGS[category];
               const IconComp = config?.Icon || PackageCheck;

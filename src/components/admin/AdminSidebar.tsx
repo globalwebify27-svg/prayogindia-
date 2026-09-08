@@ -6,6 +6,8 @@ import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
   Boxes,
+  Package,
+  Tag,
   Building2,
   SlidersHorizontal,
   ArrowLeftRight,
@@ -38,10 +40,21 @@ const NAV_GROUPS = [
     group: "INVENTORY & STOCK",
     items: [
       {
+        label: "Products Catalog",
+        href: "/admin/products",
+        icon: Package,
+        badge: "Add",
+      },
+      {
         label: "Multi-Location Stock",
         href: "/admin/inventory",
         icon: Boxes,
         badge: "New",
+      },
+      {
+        label: "Categories Master",
+        href: "/admin/categories",
+        icon: Tag,
       },
       {
         label: "Physical Store Branches",

@@ -25,6 +25,7 @@ import {
 
 interface ProductDetailViewProps {
   slug: string;
+  initialProduct?: Product | null;
 }
 
 // ── Section anchor tab types
@@ -53,15 +54,17 @@ const SECTION_TABS: { id: SectionTab; label: string; icon: React.ReactNode }[] =
 
 export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
   slug,
+  initialProduct,
 }) => {
-  // ── Product lookup
+  // ── Product lookup: check passed DB initialProduct first
   const product =
+    initialProduct ||
     PRODUCTS.find(
       (p) =>
         (p.slug && p.slug === slug) ||
         p.id === slug ||
         p.name.toLowerCase().replace(/[^a-z0-9]+/g, "-") === slug,
-    ) ?? PRODUCTS[0];
+    ) || null;
 
   const isInvalidSlug = !product;
 
@@ -92,7 +95,21 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  if (isInvalidSlug) {
+  // ── Derived data
+  const galleryImages = React.useMemo(() => {
+    if (!product) return [];
+    if (product.images && product.images.length > 0) {
+      return product.images;
+    }
+    if (product.image) {
+      return [product.image];
+    }
+    return [
+      "https://images.unsplash.com/photo-1553406830-ef2513450d76?auto=format&fit=crop&w=800&q=80",
+    ];
+  }, [product]);
+
+  if (isInvalidSlug || !product) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-20 text-center space-y-4">
         <div className="w-16 h-16 rounded-2xl bg-red-50 text-[#FF3B30] flex items-center justify-center mx-auto border border-red-200">
@@ -115,23 +132,6 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
       </div>
     );
   }
-
-  // ── Derived data
-  const galleryImages = React.useMemo(() => {
-    if (product.images && product.images.length > 1) {
-      return product.images;
-    }
-    const baseImg =
-      product.image ||
-      (product.images && product.images[0]) ||
-      "https://images.unsplash.com/photo-1553406830-ef2513450d76?auto=format&fit=crop&w=800&q=80";
-    return [
-      baseImg,
-      "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=80",
-      "https://images.unsplash.com/photo-1608564697071-ddf911d81370?auto=format&fit=crop&w=800&q=80",
-      "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=800&q=80",
-    ];
-  }, [product]);
 
   const currentPrice = selectedVariant?.price ?? product.price;
 

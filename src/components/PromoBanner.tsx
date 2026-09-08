@@ -54,7 +54,7 @@ export const PromoBanner: React.FC<PromoProps> = ({ onShopNow }) => {
             <div className="lg:col-span-5 relative flex justify-center">
               <div className="relative w-full max-w-md aspect-16/9 rounded-2xl overflow-hidden shadow-2xl border-2 border-white/20">
                 <Image
-                  src="/images/promo_banner.jpg"
+                  src="https://res.cloudinary.com/fyueflvh/image/upload/v1788595367/prayog/banners/promo_banner.jpg"
                   alt="Prayog India STEM Robotics Workbench"
                   fill
                   className="object-cover"

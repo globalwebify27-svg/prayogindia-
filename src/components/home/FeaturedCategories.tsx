@@ -78,15 +78,15 @@ export const FeaturedCategories: React.FC<Props> = ({
         {/* Section Header */}
         <div className="flex items-center justify-between border-b border-slate-100 pb-3">
           <div className="flex items-center gap-3">
-            <h2 className="text-xl sm:text-2xl font-black text-[#1E1B4B] tracking-tight">
+            <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
               Featured Products
             </h2>
-            <div className="h-1 w-12 bg-[#3B82F6] rounded-full hidden sm:block" />
+            <div className="h-1 w-12 bg-[#00AEEF] rounded-full hidden sm:block" />
           </div>
 
           <Link
             href="/products?filter=featured"
-            className="text-xs font-bold text-[#4338CA] hover:text-[#3730A3] border border-[#C7D2FE] hover:border-[#818CF8] px-4 py-1.5 rounded-xl transition-all shadow-xs"
+            className="text-xs font-bold text-[#00AEEF] hover:text-white bg-[#00AEEF]/5 hover:bg-[#00AEEF] border border-[#00AEEF]/30 hover:border-[#00AEEF] px-4 py-1.5 rounded-xl transition-all shadow-xs"
           >
             View All
           </Link>

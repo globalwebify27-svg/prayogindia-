@@ -114,7 +114,7 @@ export const CATEGORIES: Category[] = [
     description:
       "Humanoid arms, robotic chassis, servos, manipulators & industrial kits.",
     image:
-      "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&w=600&q=80",
+      "https://res.cloudinary.com/fyueflvh/image/upload/v1788595386/prayog/products/prod_catalog_template_4.jpg",
     iconName: "Bot",
   },
   {
@@ -124,7 +124,7 @@ export const CATEGORIES: Category[] = [
     description:
       "UNO, Mega, Nano, ESP8266, ESP32, and official expansion shields.",
     image:
-      "https://images.unsplash.com/photo-1553406830-ef2513450d76?auto=format&fit=crop&w=600&q=80",
+      "https://res.cloudinary.com/fyueflvh/image/upload/v1788595383/prayog/products/prod_catalog_template_1.jpg",
     iconName: "Cpu",
   },
   {
@@ -134,7 +134,7 @@ export const CATEGORIES: Category[] = [
     description:
       "Flight controllers, ESCs, BLDC motors, FPV gear & carbon fiber frames.",
     image:
-      "https://images.unsplash.com/photo-1527977966376-1c8408f9f108?auto=format&fit=crop&w=600&q=80",
+      "https://res.cloudinary.com/fyueflvh/image/upload/v1788595385/prayog/products/prod_catalog_template_3.jpg",
     iconName: "Plane",
   },
   {
@@ -144,7 +144,7 @@ export const CATEGORIES: Category[] = [
     description:
       "LoRaWAN modules, wireless gateways, relays, displays & power units.",
     image:
-      "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80",
+      "https://res.cloudinary.com/fyueflvh/image/upload/v1788595384/prayog/products/prod_catalog_template_2.jpg",
     iconName: "Wifi",
   },
   {
@@ -154,7 +154,7 @@ export const CATEGORIES: Category[] = [
     description:
       "Hands-on learning science & coding lab kits tailored for schools & DIY.",
     image:
-      "https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=600&q=80",
+      "https://res.cloudinary.com/fyueflvh/image/upload/v1788595388/prayog/products/prod_catalog_template_7.jpg",
     iconName: "GraduationCap",
   },
   {
@@ -164,7 +164,7 @@ export const CATEGORIES: Category[] = [
     description:
       "LiDAR, Ultrasonic, IMU 9-DOF, Gas, Biometric & Vision cameras.",
     image:
-      "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=600&q=80",
+      "https://res.cloudinary.com/fyueflvh/image/upload/v1788595387/prayog/products/prod_catalog_template_5.jpg",
     iconName: "Activity",
   },
   {
@@ -174,7 +174,7 @@ export const CATEGORIES: Category[] = [
     description:
       "High torque stepper motors, BLDC, planetary gearheads & motor drivers.",
     image:
-      "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=600&q=80",
+      "https://res.cloudinary.com/fyueflvh/image/upload/v1788595389/prayog/products/prod_catalog_template_8.jpg",
     iconName: "Zap",
   },
   {
@@ -184,7 +184,7 @@ export const CATEGORIES: Category[] = [
     description:
       "Raspberry Pi 5, Jetson Orin Nano, STM32 Nucleo & FPGA boards.",
     image:
-      "https://images.unsplash.com/photo-1608564697071-ddf911d81370?auto=format&fit=crop&w=600&q=80",
+      "https://res.cloudinary.com/fyueflvh/image/upload/v1788595388/prayog/products/prod_catalog_template_6.jpg",
     iconName: "CircuitBoard",
   },
 ];
@@ -1507,8 +1507,12 @@ export const PRODUCTS: Product[] = [
     discount: "10% OFF",
     rating: 5.0,
     reviews: 65,
-    inStock: true,
+    inStock: false,
     badge: "AI EDGE SPEC",
+    variants: [
+      { id: "v-8gb", name: "8GB Dev Kit (Out of Stock)", sku: "PRG-RPI-509-8G", price: 49999, mrp: 56000, inStock: false },
+      { id: "v-16gb", name: "16GB AI Industrial Kit", sku: "PRG-RPI-509-16G", price: 68999, mrp: 74999, inStock: true }
+    ],
     image:
       "https://images.unsplash.com/photo-1608564697071-ddf911d81370?auto=format&fit=crop&w=600&q=80",
     description:

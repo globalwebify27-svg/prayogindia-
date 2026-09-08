@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useCallback } from "react";
 import Image from "next/image";
+import { getOptimizedImageUrl, getOptimizedVideoUrl } from "@/lib/cloudinaryUrl";
 import {
   Play,
   Maximize2,
@@ -31,12 +32,15 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
   videoUrl,
   media360 = [],
 }) => {
-  const galleryImages =
+  const galleryImages = (
     images.length > 0
       ? images
       : [
           "https://images.unsplash.com/photo-1553406830-ef2513450d76?auto=format&fit=crop&w=800&q=80",
-        ];
+        ]
+  ).map((img) => getOptimizedImageUrl(img, { width: 1200, quality: "auto" }));
+
+  const optimizedVideoUrl = videoUrl ? getOptimizedVideoUrl(videoUrl) : undefined;
 
   const [activeMode, setActiveMode] = useState<MediaMode>("image");
   const [selectedIdx, setSelectedIdx] = useState(0);
@@ -217,9 +221,9 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
           </>
         )}
 
-        {activeMode === "video" && videoUrl && (
+        {activeMode === "video" && optimizedVideoUrl && (
           <video
-            src={videoUrl}
+            src={optimizedVideoUrl}
             controls
             autoPlay
             className="w-full h-full object-cover rounded-3xl"

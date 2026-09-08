@@ -30,6 +30,7 @@ export const AppShell: React.FC<{ children: React.ReactNode }> = ({
     pathname?.startsWith("/store") ||
     pathname?.startsWith("/kiosk") ||
     pathname?.startsWith("/walk-in") ||
+    pathname?.startsWith("/flutter-preview") ||
     pathname?.includes("/storemanager") ||
     pathname?.includes("/device") ||
     pathname === "/login" ||

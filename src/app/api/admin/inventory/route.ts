@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { db } from "@/lib/db";
 import { getAuthenticatedStaff } from "@/lib/staffAuth";
 import { getAuthenticatedAdmin } from "@/lib/adminAuth";
 import {
@@ -93,8 +94,9 @@ export async function GET(request: Request) {
   let matrix = getMultiStoreInventoryMatrix();
   if (q) {
     matrix = matrix.filter(
-      (m: any) =>
-        m.name.toLowerCase().includes(q) || m.sku.toLowerCase().includes(q),
+      (m) =>
+        (m?.name && m.name.toLowerCase().includes(q)) ||
+        (m?.sku && m.sku.toLowerCase().includes(q)),
     );
   }
 
@@ -163,6 +165,78 @@ export async function PATCH(request: Request) {
       deviceId: staff.deviceId || "ADMIN-CONSOLE",
     });
 
+    // PostgreSQL Persistent Sync
+    if (process.env.DATABASE_URL) {
+      try {
+        const dbStore = await db.store.findFirst({
+          where: {
+            OR: [
+              { code: storeId.toUpperCase() },
+              { id: storeId },
+            ],
+          },
+        });
+
+        const dbProduct = await db.product.findFirst({
+          where: {
+            OR: [
+              { id: productId },
+              { sku: productId },
+            ],
+          },
+        });
+
+        if (dbStore && dbProduct) {
+          const invRecord = await db.storeInventory.upsert({
+            where: {
+              storeId_productId: {
+                storeId: dbStore.id,
+                productId: dbProduct.id,
+              },
+            },
+            update: {
+              quantity: result.newQuantity,
+              availableQuantity: result.newQuantity,
+              status:
+                result.newQuantity === 0
+                  ? "OUT_OF_STOCK"
+                  : result.newQuantity <= 5
+                    ? "LOW_STOCK"
+                    : "IN_STOCK",
+            },
+            create: {
+              storeId: dbStore.id,
+              productId: dbProduct.id,
+              quantity: result.newQuantity,
+              availableQuantity: result.newQuantity,
+              status:
+                result.newQuantity === 0
+                  ? "OUT_OF_STOCK"
+                  : result.newQuantity <= 5
+                    ? "LOW_STOCK"
+                    : "IN_STOCK",
+            },
+          });
+
+          await db.inventoryTransaction.create({
+            data: {
+              storeId: dbStore.id,
+              productId: dbProduct.id,
+              transactionType,
+              quantityBefore: Math.max(0, result.newQuantity - quantityChange),
+              quantityChange,
+              quantityAfter: result.newQuantity,
+              userId: staff.id,
+              referenceId: invRecord.id,
+              notes: reason || `Manual adjustment: ${transactionType}`,
+            },
+          });
+        }
+      } catch (dbErr) {
+        console.warn("DB inventory sync skipped:", dbErr);
+      }
+    }
+
     return NextResponse.json(
       {
         success: true,
@@ -171,11 +245,13 @@ export async function PATCH(request: Request) {
       },
       { headers },
     );
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const message =
+      error instanceof Error ? error.message : "Failed to adjust inventory";
     return NextResponse.json(
       {
         success: false,
-        message: error.message || "Failed to adjust inventory",
+        message,
       },
       { status: 500, headers },
     );

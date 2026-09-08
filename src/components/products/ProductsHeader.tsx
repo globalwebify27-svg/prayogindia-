@@ -45,7 +45,7 @@ export const ProductsHeader: React.FC<ProductsHeaderProps> = ({
       {/* Background Banner Image with Robot Arm & Glowing Circuit Traces */}
       <div className="absolute inset-0 pointer-events-none select-none">
         <Image
-          src="/images/robotics_arm_banner_v2.png"
+          src="https://res.cloudinary.com/fyueflvh/image/upload/v1788595365/prayog/banners/robotics_arm_banner_v2.jpg"
           alt="Robotics & Electronics Circuit Background"
           fill
           priority

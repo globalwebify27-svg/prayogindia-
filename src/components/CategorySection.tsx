@@ -52,7 +52,7 @@ export const CategorySection: React.FC<CategoryProps> = ({
             {/* Compact Raspberry Pi Image */}
             <div className="relative w-full h-44 mt-3 rounded-xl overflow-hidden bg-white/50 p-2 border border-cyan-100">
               <Image
-                src="/images/pi_hero.jpg"
+                src="https://res.cloudinary.com/fyueflvh/image/upload/v1788595358/prayog/banners/pi_hero.jpg"
                 alt="Raspberry Pi 5"
                 fill
                 className="object-cover rounded-lg group-hover:scale-105 transition-transform duration-500"

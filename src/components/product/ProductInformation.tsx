@@ -15,8 +15,22 @@ import {
   AlertTriangle,
   Boxes,
   X,
+  Share2,
 } from "lucide-react";
 import { Product, ProductVariant } from "@/data/mockData";
+
+// Official WhatsApp Vector SVG Icon
+const WhatsAppIcon = ({ className = "w-4 h-4" }: { className?: string }) => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="currentColor"
+    className={className}
+    role="img"
+    aria-label="WhatsApp"
+  >
+    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
+  </svg>
+);
 
 interface ProductInfoProps {
   product: Product;
@@ -108,9 +122,48 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
     ((currentMrp - currentPrice) / currentMrp) * 100,
   );
 
-  const whatsappMessage = encodeURIComponent(
-    `Hi Prayog India, I am interested in ordering the product: "${product.name}" (SKU: ${currentSku}). Please confirm current stock availability and dispatch time.`,
-  );
+  // Generate comprehensive WhatsApp link with product image, details, and inquiry message
+  const getOutOfStockWhatsAppUrl = () => {
+    const origin =
+      typeof window !== "undefined"
+        ? window.location.origin
+        : "https://prayogindia.in";
+    const currentUrl =
+      typeof window !== "undefined"
+        ? window.location.href
+        : `https://prayogindia.in/products/${product.slug || product.id}`;
+
+    // Absolute product image URL (WhatsApp automatically parses and displays link previews)
+    const imageUrl = product.image
+      ? product.image.startsWith("http")
+        ? product.image
+        : `${origin}${product.image}`
+      : "";
+
+    const lines = [
+      `🛍️ *OUT OF STOCK INQUIRY — PRAYOG INDIA*`,
+      `----------------------------------------`,
+      `Hello Prayog India Team, I want to purchase this item which is currently *Out of Stock* on your online store:`,
+      ``,
+      `📌 *Product:* ${product.name}`,
+      `🏷️ *SKU:* ${currentSku}`,
+      `💰 *Price:* ₹${currentPrice.toLocaleString("en-IN")}.00 (Incl. GST)`,
+      `📦 *Category:* ${product.category}`,
+      product.brand ? `🏢 *Brand:* ${product.brand}` : "",
+      selectedVariant ? `⚙️ *Selected Variant:* ${selectedVariant.name}` : "",
+      ``,
+      `🖼️ *Product Image:*`,
+      imageUrl,
+      ``,
+      `🔗 *Product Link:*`,
+      currentUrl,
+      `----------------------------------------`,
+      `💬 *My Query:*`,
+      `Hi, please let me know when this product will be back in stock or if I can place an advance order for priority dispatch. Thank you!`,
+    ].filter(Boolean);
+
+    return `https://wa.me/919876543210?text=${encodeURIComponent(lines.join("\n"))}`;
+  };
 
   return (
     <div className="space-y-6 text-slate-900">
@@ -136,16 +189,47 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
           {product.name}
         </h1>
 
-        {/* Rating Row */}
-        <div className="flex items-center gap-3 pt-1">
-          <div className="flex items-center text-amber-400 gap-1 text-xs font-black">
-            <Star className="w-4 h-4 fill-current" />
-            <span>{product.rating}</span>
+        {/* Short Product Summary */}
+        {product.description && (
+          <p className="text-xs sm:text-sm text-slate-600 leading-relaxed line-clamp-2 pt-0.5">
+            {product.description}
+          </p>
+        )}
+
+        {/* Rating & Share Row */}
+        <div className="flex items-center justify-between pt-1">
+          <div className="flex items-center gap-3">
+            <div className="flex items-center text-amber-400 gap-1 text-xs font-black">
+              <Star className="w-4 h-4 fill-current" />
+              <span>{product.rating}</span>
+            </div>
+            <span className="text-slate-300">•</span>
+            <span className="text-xs font-bold text-slate-500">
+              {product.reviews} Verified Customer Reviews
+            </span>
           </div>
-          <span className="text-slate-300">•</span>
-          <span className="text-xs font-bold text-slate-500">
-            {product.reviews} Verified Customer Reviews
-          </span>
+
+          {/* Native Share Button */}
+          <button
+            type="button"
+            onClick={() => {
+              if (typeof navigator !== "undefined" && navigator.share) {
+                navigator.share({
+                  title: product.name,
+                  text: product.description,
+                  url: window.location.href,
+                }).catch(() => {});
+              } else if (typeof navigator !== "undefined" && navigator.clipboard) {
+                navigator.clipboard.writeText(window.location.href);
+                alert("Product link copied to clipboard!");
+              }
+            }}
+            className="flex items-center gap-1.5 text-xs font-extrabold text-slate-600 hover:text-[#00AEEF] bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-full transition-colors cursor-pointer"
+            title="Share Product"
+          >
+            <Share2 className="w-3.5 h-3.5" />
+            <span>Share</span>
+          </button>
         </div>
       </div>
 
@@ -206,9 +290,21 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
             ✓ In Stock (Ready for Dispatch)
           </span>
         ) : (
-          <span className="bg-red-50 text-red-600 border border-red-200 px-3 py-1 rounded-full font-black">
-            ✕ Out of Stock
-          </span>
+          <div className="flex items-center gap-2">
+            <span className="bg-red-50 text-red-600 border border-red-200 px-3 py-1 rounded-full font-black">
+              ✕ Out of Stock
+            </span>
+            <a
+              href={getOutOfStockWhatsAppUrl()}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 bg-[#25D366]/10 hover:bg-[#25D366] text-[#128C7E] hover:text-white border border-[#25D366]/40 px-3 py-1 rounded-full font-black text-xs transition-all active:scale-95 shadow-2xs hover:shadow-sm"
+              title="Inquire about stock on WhatsApp"
+            >
+              <WhatsAppIcon className="w-3.5 h-3.5 fill-current" />
+              <span>Inquire on WhatsApp</span>
+            </a>
+          </div>
         )}
 
         {/* Section 5.1 Freight Mode & Shipping Tag Badge */}
@@ -421,20 +517,34 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
             </button>
           </div>
         ) : (
-          <div className="space-y-3">
-            <div className="bg-red-50 text-red-700 text-xs font-extrabold p-3 rounded-xl border border-red-200">
-              This product variant is currently sold out in inventory.
+          <div className="space-y-3 bg-red-50/50 border border-red-200/80 rounded-2xl p-4 sm:p-5">
+            <div className="flex items-start gap-3">
+              <div className="w-9 h-9 rounded-xl bg-red-100 text-red-600 flex items-center justify-center shrink-0">
+                <AlertTriangle className="w-5 h-5" />
+              </div>
+              <div className="space-y-1">
+                <h4 className="text-xs sm:text-sm font-extrabold text-red-900">
+                  Currently Out of Stock
+                </h4>
+                <p className="text-[11px] text-red-700 leading-relaxed">
+                  This item is momentarily sold out. Chat with our engineers on WhatsApp to receive restock alerts, lead times, or reserve priority dispatch.
+                </p>
+              </div>
             </div>
 
             <a
-              href={`https://wa.me/919876543210?text=${whatsappMessage}`}
+              href={getOutOfStockWhatsAppUrl()}
               target="_blank"
               rel="noopener noreferrer"
-              className="w-full bg-emerald-500 hover:bg-emerald-600 text-white py-3.5 rounded-xl font-extrabold text-xs uppercase tracking-wider transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
+              className="w-full bg-[#25D366] hover:bg-[#20bd5a] text-white py-3.5 px-4 rounded-xl font-black text-xs uppercase tracking-wider transition-all shadow-md shadow-[#25D366]/25 flex items-center justify-center gap-2.5 active:scale-95 cursor-pointer"
             >
-              <MessageSquare className="w-4 h-4 fill-white" />
-              <span>Ask Availability on WhatsApp</span>
+              <WhatsAppIcon className="w-5 h-5 fill-white shrink-0" />
+              <span>Inquire & Order via WhatsApp</span>
             </a>
+
+            <div className="flex items-center justify-center gap-2 text-[10px] text-slate-500 font-medium text-center">
+              <span>Includes product photo, SKU details & instant support</span>
+            </div>
           </div>
         )}
 

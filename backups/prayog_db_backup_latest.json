@@ -1,0 +1,3527 @@
+{
+  "exportedAt": "2026-09-05T07:35:15.694Z",
+  "database": "prayog_db",
+  "tables": {
+    "stores": [
+      {
+        "id": "c6f8803c-80d1-4282-8268-075b7b24d465",
+        "code": "RANCHI",
+        "name": "Prayog India Ranchi Main Branch & Central Hub",
+        "type": "Central Main Hub & Store",
+        "isCentralHub": true,
+        "address": "Plot 42, Tech Innovation Corridor, Main Road",
+        "city": "Ranchi",
+        "state": "Jharkhand",
+        "pincode": "834001",
+        "contactPhone": "+91 94311 02931",
+        "contactEmail": "ranchi.hub@prayogindia.com",
+        "operatingHours": "09:30 AM - 08:30 PM (7 Days)",
+        "status": "Operational",
+        "totalStockUnits": 8450,
+        "monthlyWalkInRevenue": 1285000,
+        "createdAt": "2026-09-03T05:47:31.332Z",
+        "updatedAt": "2026-09-05T07:26:10.601Z"
+      },
+      {
+        "id": "5f0ca785-e7c6-480a-9428-305d9661735c",
+        "code": "PATNA",
+        "name": "Prayog India Patna Robotics & STEM Branch",
+        "type": "Physical Branch Store",
+        "isCentralHub": false,
+        "address": "Boring Road Tech Plaza, Near Science College",
+        "city": "Patna",
+        "state": "Bihar",
+        "pincode": "800001",
+        "contactPhone": "+91 98123 45678",
+        "contactEmail": "patna.branch@prayogindia.com",
+        "operatingHours": "10:00 AM - 08:00 PM (Mon - Sat)",
+        "status": "Operational",
+        "totalStockUnits": 1420,
+        "monthlyWalkInRevenue": 435000,
+        "createdAt": "2026-09-03T05:47:31.339Z",
+        "updatedAt": "2026-09-05T07:26:10.617Z"
+      },
+      {
+        "id": "08612f38-3e5b-4542-b12b-58375c98ad32",
+        "code": "DELHI",
+        "name": "Prayog India NCR Innovation Center",
+        "type": "Physical Branch Store",
+        "isCentralHub": false,
+        "address": "Okhla Industrial Area Phase-III",
+        "city": "New Delhi",
+        "state": "Delhi NCR",
+        "pincode": "110020",
+        "contactPhone": "+91 98333 44455",
+        "contactEmail": "delhi.ncr@prayogindia.com",
+        "operatingHours": "10:00 AM - 07:30 PM (Mon - Sat)",
+        "status": "Operational",
+        "totalStockUnits": 980,
+        "monthlyWalkInRevenue": 610000,
+        "createdAt": "2026-09-03T05:47:31.340Z",
+        "updatedAt": "2026-09-05T07:26:10.618Z"
+      },
+      {
+        "id": "276b51c6-e8a9-44a5-8430-8b331e75e064",
+        "code": "MUMBAI",
+        "name": "Prayog India Mumbai Drone Hub",
+        "type": "Physical Branch Store",
+        "isCentralHub": false,
+        "address": "MIDC Andheri East, Mumbai",
+        "city": "Mumbai",
+        "state": "Maharashtra",
+        "pincode": "400093",
+        "contactPhone": "+91 98999 11223",
+        "contactEmail": "mumbai@prayogindia.com",
+        "operatingHours": "10:00 AM - 08:00 PM",
+        "status": "Coming Soon",
+        "totalStockUnits": 0,
+        "monthlyWalkInRevenue": 0,
+        "createdAt": "2026-09-03T05:47:31.341Z",
+        "updatedAt": "2026-09-05T07:26:10.619Z"
+      }
+    ],
+    "storeInventory": [],
+    "storeProductSettings": [],
+    "devices": [
+      {
+        "id": "8dafede7-43f5-44c1-b3c6-d101d3d5668f",
+        "deviceCode": "TAB-RANCHI-TUX21",
+        "storeId": "c6f8803c-80d1-4282-8268-075b7b24d465",
+        "deviceName": "tux1",
+        "deviceType": "KIOSK_TABLET",
+        "status": "ACTIVE",
+        "lastLogin": null,
+        "createdAt": "2026-09-03T06:23:39.402Z",
+        "updatedAt": "2026-09-03T06:23:39.402Z"
+      }
+    ],
+    "inventoryTransactions": [],
+    "stockTransfers": [],
+    "staffUsers": [
+      {
+        "id": "1ce5ff5a-f626-4e7b-b237-6d368a199e82",
+        "name": "tux",
+        "email": null,
+        "username": "tux1",
+        "passwordHash": "$2b$10$TWVkMYXzbMXxxr3ft76zkeyfBOfytdTCnuM3tBIQ.CNS9GlzLsaR2",
+        "role": "STORE_MANAGER",
+        "storeId": "08612f38-3e5b-4542-b12b-58375c98ad32",
+        "phone": null,
+        "status": "ACTIVE",
+        "createdAt": "2026-09-03T05:58:41.979Z",
+        "updatedAt": "2026-09-03T05:58:41.979Z"
+      },
+      {
+        "id": "26cefc95-18a7-48f2-bd49-69c9fdd62739",
+        "name": "tux1",
+        "email": null,
+        "username": "tux21",
+        "passwordHash": "$2b$10$TtYrRxteHAc65ArvzOnnOONNu0PE4GRwqEt4MGuUzjZB3L75TDZPy",
+        "role": "KIOSK_USER",
+        "storeId": "c6f8803c-80d1-4282-8268-075b7b24d465",
+        "phone": null,
+        "status": "ACTIVE",
+        "createdAt": "2026-09-03T06:23:39.387Z",
+        "updatedAt": "2026-09-03T06:23:39.387Z"
+      },
+      {
+        "id": "fd1a2709-b054-49e5-997b-cf944198955d",
+        "name": "System Administrator",
+        "email": "admin@prayogindia.com",
+        "username": "superadmin",
+        "passwordHash": "$2b$10$PGN9Z6MwLdy1lclgDSCCNuUoXI51TZIQPH2w8s5uPdaQnNml4fT86",
+        "role": "SUPER_ADMIN",
+        "storeId": null,
+        "phone": "+91 99999 88888",
+        "status": "ACTIVE",
+        "createdAt": "2026-09-03T05:47:31.580Z",
+        "updatedAt": "2026-09-05T07:26:10.836Z"
+      },
+      {
+        "id": "c857f30e-0801-4626-806a-405a93e2e6c0",
+        "name": "Abhishek Kumar",
+        "email": "ranchi.manager@prayogindia.com",
+        "username": "ranchi_manager",
+        "passwordHash": "$2b$10$fL51jFt/DmuZhOkqhpkol.eof98hn6ZP8PoxTwQGgMTvdyuV.J37i",
+        "role": "STORE_MANAGER",
+        "storeId": "c6f8803c-80d1-4282-8268-075b7b24d465",
+        "phone": "+91 94301 11111",
+        "status": "ACTIVE",
+        "createdAt": "2026-09-03T05:47:31.585Z",
+        "updatedAt": "2026-09-05T07:26:10.841Z"
+      },
+      {
+        "id": "3ad67221-79bd-45ef-a469-68380f47ef6b",
+        "name": "Jay Prakash",
+        "email": "patna.manager@prayogindia.com",
+        "username": "patna_manager",
+        "passwordHash": "$2b$10$fL51jFt/DmuZhOkqhpkol.eof98hn6ZP8PoxTwQGgMTvdyuV.J37i",
+        "role": "STORE_MANAGER",
+        "storeId": "5f0ca785-e7c6-480a-9428-305d9661735c",
+        "phone": "+91 94302 22222",
+        "status": "ACTIVE",
+        "createdAt": "2026-09-03T05:47:31.588Z",
+        "updatedAt": "2026-09-05T07:26:10.842Z"
+      },
+      {
+        "id": "0461b857-cbab-4611-8c7f-7f2fb9057d57",
+        "name": "Vikramaditya Sahay",
+        "email": "delhi.manager@prayogindia.com",
+        "username": "delhi_manager",
+        "passwordHash": "$2b$10$fL51jFt/DmuZhOkqhpkol.eof98hn6ZP8PoxTwQGgMTvdyuV.J37i",
+        "role": "STORE_MANAGER",
+        "storeId": "08612f38-3e5b-4542-b12b-58375c98ad32",
+        "phone": "+91 94303 33333",
+        "status": "ACTIVE",
+        "createdAt": "2026-09-03T05:47:31.589Z",
+        "updatedAt": "2026-09-05T07:26:10.843Z"
+      },
+      {
+        "id": "740f69fc-890c-4c0e-9d8e-8e69aa20690a",
+        "name": "Ranchi Kiosk",
+        "email": null,
+        "username": "ranchi_kiosk",
+        "passwordHash": "$2b$10$USnvkRWfELn.inNN9izxyeQ/31uoL3Tbz8n9XVzb5z7xTF7pnua8O",
+        "role": "KIOSK_USER",
+        "storeId": "c6f8803c-80d1-4282-8268-075b7b24d465",
+        "phone": null,
+        "status": "ACTIVE",
+        "createdAt": "2026-09-03T05:47:31.592Z",
+        "updatedAt": "2026-09-05T07:26:10.843Z"
+      },
+      {
+        "id": "7a4f9f66-4bbb-46d4-9935-73d6d1895b89",
+        "name": "Patna Kiosk",
+        "email": null,
+        "username": "patna_kiosk",
+        "passwordHash": "$2b$10$USnvkRWfELn.inNN9izxyeQ/31uoL3Tbz8n9XVzb5z7xTF7pnua8O",
+        "role": "KIOSK_USER",
+        "storeId": "5f0ca785-e7c6-480a-9428-305d9661735c",
+        "phone": null,
+        "status": "ACTIVE",
+        "createdAt": "2026-09-03T05:47:31.593Z",
+        "updatedAt": "2026-09-05T07:26:10.844Z"
+      },
+      {
+        "id": "96702511-3641-4baa-a073-e6af8562b23b",
+        "name": "Delhi Kiosk",
+        "email": null,
+        "username": "delhi_kiosk",
+        "passwordHash": "$2b$10$USnvkRWfELn.inNN9izxyeQ/31uoL3Tbz8n9XVzb5z7xTF7pnua8O",
+        "role": "KIOSK_USER",
+        "storeId": "08612f38-3e5b-4542-b12b-58375c98ad32",
+        "phone": null,
+        "status": "ACTIVE",
+        "createdAt": "2026-09-03T05:47:31.593Z",
+        "updatedAt": "2026-09-05T07:26:10.845Z"
+      }
+    ],
+    "users": [
+      {
+        "id": "5a044d9b-b789-4e82-97e0-76bafe0c2cf4",
+        "name": "System Administrator",
+        "email": "admin@prayogindia.com",
+        "phone": "+91 99999 88888",
+        "passwordHash": "$2b$10$DRIviASSvPj1KZSrS6PEfOGLPtvYwfifwG92mjJzuRyuRw1AsM6XK",
+        "role": "ADMIN",
+        "customerType": "B2C",
+        "companyName": null,
+        "gstin": null,
+        "rewardPoints": 0,
+        "createdAt": "2026-08-27T06:45:13.473Z",
+        "updatedAt": "2026-08-27T06:45:13.473Z",
+        "addresses": []
+      },
+      {
+        "id": "usr-guest-checkout",
+        "name": "Guest Customer",
+        "email": "guest.checkout@prayogindia.com",
+        "phone": "+91 98000 00000",
+        "passwordHash": "GUEST_ACCOUNT_NO_PASSWORD",
+        "role": "CUSTOMER",
+        "customerType": "B2C",
+        "companyName": null,
+        "gstin": null,
+        "rewardPoints": 0,
+        "createdAt": "2026-08-27T08:23:19.450Z",
+        "updatedAt": "2026-08-27T08:23:19.450Z",
+        "addresses": []
+      },
+      {
+        "id": "699f964a-ff70-45a3-a127-5bceaef20df1",
+        "name": "Om Kumar",
+        "email": "omkumar4138@gmail.com",
+        "phone": "1234567890",
+        "passwordHash": "$2b$10$ntPNDx1ajuQ2hyl1T8g59uZe.IhxyzgI1vW5PSel0tU8GpUwJxeRW",
+        "role": "CUSTOMER",
+        "customerType": "B2C",
+        "companyName": null,
+        "gstin": null,
+        "rewardPoints": 0,
+        "createdAt": "2026-08-29T08:04:45.324Z",
+        "updatedAt": "2026-08-29T08:04:45.324Z",
+        "addresses": []
+      },
+      {
+        "id": "682e8cc0-ff3f-4f0d-b806-ef5cf2042fce",
+        "name": "Om Kumar",
+        "email": "ohmkumar4138@gmail.com",
+        "phone": "+91 1234567890",
+        "passwordHash": "$2b$10$kITOC9T.oZ1eCuq7.Y.xvOnq.ICvb5X51dRSRMVieDysnZVBcFJ.m",
+        "role": "CUSTOMER",
+        "customerType": "B2C",
+        "companyName": null,
+        "gstin": null,
+        "rewardPoints": 0,
+        "createdAt": "2026-08-29T08:14:49.384Z",
+        "updatedAt": "2026-08-29T08:14:49.384Z",
+        "addresses": []
+      },
+      {
+        "id": "ee23d3fb-b5ae-4d6c-998b-6b3171e9b090",
+        "name": "Om Kumar",
+        "email": "ohhmkumar4138@gmail.com",
+        "phone": "+91 8709789641",
+        "passwordHash": "$2b$10$XQ/81P543bEGUY1AGLRIveJVGNTbFW8a7qcXV5krwxnJFpDTX9HQu",
+        "role": "CUSTOMER",
+        "customerType": "B2C",
+        "companyName": null,
+        "gstin": null,
+        "rewardPoints": 0,
+        "createdAt": "2026-08-29T08:21:14.622Z",
+        "updatedAt": "2026-08-29T08:21:14.622Z",
+        "addresses": []
+      },
+      {
+        "id": "f06aa4e8-f60d-441d-99f2-f752966c6ebd",
+        "name": "Om Kumar",
+        "email": "test.om@prayog.in",
+        "phone": "+91 1234567890",
+        "passwordHash": "$2b$10$lBE2ICJwXGTEJE81bP67EeJH0w2LXfZqzZYbQdCHPzYWzrbL08noO",
+        "role": "CUSTOMER",
+        "customerType": "B2C",
+        "companyName": null,
+        "gstin": null,
+        "rewardPoints": 0,
+        "createdAt": "2026-08-29T08:27:38.089Z",
+        "updatedAt": "2026-08-29T08:27:38.089Z",
+        "addresses": []
+      }
+    ],
+    "categories": [
+      {
+        "id": "3d8d7846-b5bd-49a4-8683-9798f770b90b",
+        "name": "Motors, Steppers & Drivers",
+        "slug": "motors",
+        "description": "High torque stepper motors, BLDC, planetary gearheads & motor drivers.",
+        "image": "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=600&q=80",
+        "parentId": null,
+        "createdAt": "2026-08-27T06:45:13.486Z",
+        "updatedAt": "2026-09-05T07:26:10.851Z"
+      },
+      {
+        "id": "1eb0857b-b819-46c1-b906-0fb058b079ce",
+        "name": "Single Board Computers & Dev Boards",
+        "slug": "devboards",
+        "description": "Raspberry Pi 5, Jetson Orin Nano, STM32 Nucleo & FPGA boards.",
+        "image": "https://images.unsplash.com/photo-1608564697071-ddf911d81370?auto=format&fit=crop&w=600&q=80",
+        "parentId": null,
+        "createdAt": "2026-08-27T06:45:13.487Z",
+        "updatedAt": "2026-09-05T07:26:10.852Z"
+      },
+      {
+        "id": "92be3e11-3f0c-4d1a-8655-f83262890586",
+        "name": "Robotics & DIY Kits",
+        "slug": "robotics",
+        "description": "Humanoid arms, robotic chassis, servos, manipulators & industrial kits.",
+        "image": "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&w=600&q=80",
+        "parentId": null,
+        "createdAt": "2026-08-27T06:45:13.480Z",
+        "updatedAt": "2026-09-05T07:26:10.846Z"
+      },
+      {
+        "id": "5b576bad-334f-4b79-8fd4-9bf6505f3e6f",
+        "name": "Arduino & Microcontrollers",
+        "slug": "arduino",
+        "description": "UNO, Mega, Nano, ESP8266, ESP32, and official expansion shields.",
+        "image": "https://images.unsplash.com/photo-1553406830-ef2513450d76?auto=format&fit=crop&w=600&q=80",
+        "parentId": null,
+        "createdAt": "2026-08-27T06:45:13.483Z",
+        "updatedAt": "2026-09-05T07:26:10.848Z"
+      },
+      {
+        "id": "a8f93650-af8c-4f9f-91a9-e0b89d75a476",
+        "name": "Drones & UAV Parts",
+        "slug": "drones",
+        "description": "Flight controllers, ESCs, BLDC motors, FPV gear & carbon fiber frames.",
+        "image": "https://images.unsplash.com/photo-1527977966376-1c8408f9f108?auto=format&fit=crop&w=600&q=80",
+        "parentId": null,
+        "createdAt": "2026-08-27T06:45:13.483Z",
+        "updatedAt": "2026-09-05T07:26:10.849Z"
+      },
+      {
+        "id": "3984fae5-b253-4fb4-860e-a8ac94740731",
+        "name": "IoT & Wireless Modules",
+        "slug": "iot",
+        "description": "LoRaWAN modules, wireless gateways, relays, displays & power units.",
+        "image": "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80",
+        "parentId": null,
+        "createdAt": "2026-08-27T06:45:13.484Z",
+        "updatedAt": "2026-09-05T07:26:10.849Z"
+      },
+      {
+        "id": "201b3961-ab87-4a52-aadb-f664e2b52e85",
+        "name": "STEM & Educational Kits",
+        "slug": "stem",
+        "description": "Hands-on learning science & coding lab kits tailored for schools & DIY.",
+        "image": "https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=600&q=80",
+        "parentId": null,
+        "createdAt": "2026-08-27T06:45:13.485Z",
+        "updatedAt": "2026-09-05T07:26:10.850Z"
+      },
+      {
+        "id": "e8ca7e30-dfc7-44fd-8c3b-98f211461370",
+        "name": "Sensors & Electronic Modules",
+        "slug": "sensors",
+        "description": "LiDAR, Ultrasonic, IMU 9-DOF, Gas, Biometric & Vision cameras.",
+        "image": "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=600&q=80",
+        "parentId": null,
+        "createdAt": "2026-08-27T06:45:13.485Z",
+        "updatedAt": "2026-09-05T07:26:10.850Z"
+      }
+    ],
+    "products": [
+      {
+        "id": "b79b29a7-1d3d-44f3-bd95-c7d2fe6ded3b",
+        "categoryId": "3984fae5-b253-4fb4-860e-a8ac94740731",
+        "name": "HC-05 Wireless Bluetooth Master/Slave Transceiver Module",
+        "slug": "hc05-bluetooth",
+        "sku": "PRG-ESP-303",
+        "description": "Serial Bluetooth RF transceiver module for wireless microcontroller communication.",
+        "price": 289,
+        "mrp": 450,
+        "stock": 20,
+        "inStock": true,
+        "brand": "Prayog India",
+        "rating": 4.7,
+        "reviewCount": 780,
+        "specifications": {
+          "Range": "10 meters",
+          "BaudRate": "9600 bps",
+          "Protocol": "Bluetooth 2.0+EDR"
+        },
+        "features": [],
+        "createdAt": "2026-08-27T06:45:13.499Z",
+        "updatedAt": "2026-09-05T07:26:10.906Z",
+        "variants": [],
+        "images": []
+      },
+      {
+        "id": "43734c83-380f-4b99-8b84-2271127091bd",
+        "categoryId": "92be3e11-3f0c-4d1a-8655-f83262890586",
+        "name": "test",
+        "slug": "test",
+        "sku": "fssfff",
+        "description": "sdvfvfdvfvzczx",
+        "price": 333434,
+        "mrp": null,
+        "stock": 10,
+        "inStock": true,
+        "brand": "Prayog India",
+        "rating": 4.9,
+        "reviewCount": 12,
+        "specifications": null,
+        "features": [],
+        "createdAt": "2026-08-27T11:14:31.588Z",
+        "updatedAt": "2026-08-27T11:14:31.588Z",
+        "variants": [],
+        "images": []
+      },
+      {
+        "id": "153b61fa-7077-44ec-b32a-b0a585312dd0",
+        "categoryId": "5b576bad-334f-4b79-8fd4-9bf6505f3e6f",
+        "name": "Arduino Nano V3 CH340 Type-C Microcontroller",
+        "slug": "ard-nano-v3",
+        "sku": "PRG-ARD-003",
+        "description": "Compact breadboard-friendly microcontroller with USB Type-C interface.",
+        "price": 349,
+        "mrp": 499,
+        "stock": 20,
+        "inStock": true,
+        "brand": "Prayog India",
+        "rating": 4.7,
+        "reviewCount": 512,
+        "specifications": {
+          "Interface": "USB-C",
+          "Dimensions": "18 x 45 mm",
+          "Microcontroller": "ATmega328P"
+        },
+        "features": [],
+        "createdAt": "2026-08-27T06:45:13.493Z",
+        "updatedAt": "2026-09-05T07:26:10.870Z",
+        "variants": [],
+        "images": []
+      },
+      {
+        "id": "157c8cfa-0112-4adf-b002-b06bbfa4fd6c",
+        "categoryId": "5b576bad-334f-4b79-8fd4-9bf6505f3e6f",
+        "name": "NodeMCU ESP8266 Wi-Fi Development Board",
+        "slug": "node-mcu-v3",
+        "sku": "PRG-ARD-004",
+        "description": "Open-source IoT development board based on ESP8266 Wi-Fi chip.",
+        "price": 299,
+        "mrp": 450,
+        "stock": 20,
+        "inStock": true,
+        "brand": "Prayog India",
+        "rating": 4.8,
+        "reviewCount": 420,
+        "specifications": {
+          "GPIO": "10 Pins",
+          "Clock": "80MHz",
+          "Wi-Fi": "802.11 b/g/n"
+        },
+        "features": [],
+        "createdAt": "2026-08-27T06:45:13.494Z",
+        "updatedAt": "2026-09-05T07:26:10.874Z",
+        "variants": [],
+        "images": []
+      },
+      {
+        "id": "91217676-35d3-4299-b749-aa651d7d8dc4",
+        "categoryId": "5b576bad-334f-4b79-8fd4-9bf6505f3e6f",
+        "name": "STM32F103C8T6 Blue Pill ARM Cortex-M3 Board",
+        "slug": "stm32-bluepill",
+        "sku": "PRG-ARD-005",
+        "description": "High-speed 72MHz 32-bit ARM Cortex microcontroller board.",
+        "price": 399,
+        "mrp": 599,
+        "stock": 20,
+        "inStock": true,
+        "brand": "Prayog India",
+        "rating": 4.6,
+        "reviewCount": 180,
+        "specifications": {
+          "CPU": "72MHz ARM Cortex-M3",
+          "RAM": "20KB",
+          "Flash": "64KB"
+        },
+        "features": [],
+        "createdAt": "2026-08-27T06:45:13.494Z",
+        "updatedAt": "2026-09-05T07:26:10.878Z",
+        "variants": [],
+        "images": []
+      },
+      {
+        "id": "088d6bf4-2792-4d60-98ab-a9320ce6ba3b",
+        "categoryId": "a8f93650-af8c-4f9f-91a9-e0b89d75a476",
+        "name": "A2212 1000KV Brushless BLDC Motor for Drones",
+        "slug": "bldc-motor-2212",
+        "sku": "PRG-UAV-602",
+        "description": "High efficiency outrunner brushless motor ideal for 10-inch propellers and quadcopter frames.",
+        "price": 499,
+        "mrp": 750,
+        "stock": 20,
+        "inStock": true,
+        "brand": "Prayog India",
+        "rating": 4.7,
+        "reviewCount": 630,
+        "specifications": {
+          "KV": "1000KV",
+          "Thrust": "850g",
+          "Voltage": "2-3S LiPo"
+        },
+        "features": [],
+        "createdAt": "2026-08-27T06:45:13.496Z",
+        "updatedAt": "2026-09-05T07:26:10.882Z",
+        "variants": [],
+        "images": []
+      },
+      {
+        "id": "467c4d99-7c1b-4d1f-bd9b-e42f5b214afd",
+        "categoryId": "a8f93650-af8c-4f9f-91a9-e0b89d75a476",
+        "name": "30A ESC Speed Controller with SimonK Firmware",
+        "slug": "esc-30a-simonk",
+        "sku": "PRG-UAV-603",
+        "description": "Fast response 30A ESC designed specifically for multi-rotor drones.",
+        "price": 449,
+        "mrp": 699,
+        "stock": 20,
+        "inStock": true,
+        "brand": "Prayog India",
+        "rating": 4.8,
+        "reviewCount": 389,
+        "specifications": {
+          "BEC": "5V/2A",
+          "Battery": "2-3S",
+          "Current": "30A Continuous"
+        },
+        "features": [],
+        "createdAt": "2026-08-27T06:45:13.497Z",
+        "updatedAt": "2026-09-05T07:26:10.884Z",
+        "variants": [],
+        "images": []
+      },
+      {
+        "id": "e4c0eb9e-18d2-47e1-87d1-f57cdcc5200c",
+        "categoryId": "a8f93650-af8c-4f9f-91a9-e0b89d75a476",
+        "name": "F450 Quadcopter Frame Kit with Integrated PCB",
+        "slug": "f450-frame",
+        "sku": "PRG-UAV-604",
+        "description": "Durable ultra-strong polyamide arms quadcopter frame with integrated power distribution board.",
+        "price": 899,
+        "mrp": 1299,
+        "stock": 20,
+        "inStock": true,
+        "brand": "Prayog India",
+        "rating": 4.9,
+        "reviewCount": 210,
+        "specifications": {
+          "Weight": "282g",
+          "Material": "Glass Fiber & Polyamide",
+          "Wheelbase": "450mm"
+        },
+        "features": [],
+        "createdAt": "2026-08-27T06:45:13.497Z",
+        "updatedAt": "2026-09-05T07:26:10.886Z",
+        "variants": [],
+        "images": []
+      },
+      {
+        "id": "b019304e-3bb6-4fee-af42-524009028225",
+        "categoryId": "a8f93650-af8c-4f9f-91a9-e0b89d75a476",
+        "name": "FlySky FS-i6X 10CH 2.4GHz Transmitter + iA10B Receiver",
+        "slug": "flysky-i6-tx",
+        "sku": "PRG-UAV-605",
+        "description": "10 channel 2.4GHz AFHDS 2A digital proportional RC radio transmitter system.",
+        "price": 4299,
+        "mrp": 5499,
+        "stock": 20,
+        "inStock": true,
+        "brand": "Prayog India",
+        "rating": 4.9,
+        "reviewCount": 310,
+        "specifications": {
+          "Range": "500m-1500m",
+          "Channels": "10",
+          "Protocol": "AFHDS 2A"
+        },
+        "features": [],
+        "createdAt": "2026-08-27T06:45:13.498Z",
+        "updatedAt": "2026-09-05T07:26:10.887Z",
+        "variants": [],
+        "images": []
+      },
+      {
+        "id": "1f3afeb6-20f2-48ef-9381-c67e3d43b056",
+        "categoryId": "92be3e11-3f0c-4d1a-8655-f83262890586",
+        "name": "4-DOF Acrylic Robotic Arm Manipulator Kit with Servos",
+        "slug": "robotic-arm-4dof",
+        "sku": "PRG-KIT-101",
+        "description": "4-degree-of-freedom robotic arm assembly kit with 4x MG996R metal gear servos.",
+        "price": 2499,
+        "mrp": 3499,
+        "stock": 20,
+        "inStock": true,
+        "brand": "Prayog India",
+        "rating": 4.7,
+        "reviewCount": 145,
+        "specifications": {
+          "Reach": "20cm",
+          "Servos": "4x MG996R",
+          "Payload": "150g"
+        },
+        "features": [],
+        "createdAt": "2026-08-27T06:45:13.506Z",
+        "updatedAt": "2026-09-05T07:26:10.893Z",
+        "variants": [],
+        "images": []
+      },
+      {
+        "id": "683feac6-4008-418f-8314-499d215367c9",
+        "categoryId": "3984fae5-b253-4fb4-860e-a8ac94740731",
+        "name": "ESP32 Dual-Core WiFi + Bluetooth Dev Board",
+        "slug": "esp32-wroom",
+        "sku": "PRG-ESP-302",
+        "description": "Powerful 240MHz dual-core microcontroller with integrated 2.4GHz Wi-Fi and BLE 4.2 for smart IoT applications.",
+        "price": 549,
+        "mrp": 799,
+        "stock": 20,
+        "inStock": true,
+        "brand": "Prayog India",
+        "rating": 4.8,
+        "reviewCount": 518,
+        "specifications": {
+          "Clock": "240 MHz",
+          "Flash": "4MB",
+          "Pinout": "38 Pins",
+          "Wireless": "Wi-Fi 802.11 b/g/n + BLE"
+        },
+        "features": [],
+        "createdAt": "2026-08-27T06:45:13.498Z",
+        "updatedAt": "2026-09-05T07:26:10.904Z",
+        "variants": [],
+        "images": []
+      },
+      {
+        "id": "e0167d34-ddfe-4cf7-88a2-9219957f05a6",
+        "categoryId": "3984fae5-b253-4fb4-860e-a8ac94740731",
+        "name": "Ra-02 LoRa SX1278 433MHz Wireless Transceiver",
+        "slug": "lora-ra02-module",
+        "sku": "PRG-ESP-304",
+        "description": "Long-range low-power spread spectrum communication module for rural IoT.",
+        "price": 499,
+        "mrp": 750,
+        "stock": 20,
+        "inStock": true,
+        "brand": "Prayog India",
+        "rating": 4.9,
+        "reviewCount": 140,
+        "specifications": {
+          "Range": "Up to 5km",
+          "Frequency": "433MHz",
+          "Interface": "SPI"
+        },
+        "features": [],
+        "createdAt": "2026-08-27T06:45:13.500Z",
+        "updatedAt": "2026-09-05T07:26:10.907Z",
+        "variants": [],
+        "images": []
+      },
+      {
+        "id": "cc6f22bf-2ce1-4a4b-8110-71720903a1bc",
+        "categoryId": "3984fae5-b253-4fb4-860e-a8ac94740731",
+        "name": "NRF24L01+ 2.4GHz Wireless Transceiver Module",
+        "slug": "nrf24l01-plus",
+        "sku": "PRG-ESP-305",
+        "description": "Ultra-low power 2.4GHz RF transceiver for remote control and telemetry.",
+        "price": 149,
+        "mrp": 250,
+        "stock": 20,
+        "inStock": true,
+        "brand": "Prayog India",
+        "rating": 4.6,
+        "reviewCount": 620,
+        "specifications": {
+          "Speed": "2Mbps",
+          "Frequency": "2.4GHz",
+          "Interface": "SPI"
+        },
+        "features": [],
+        "createdAt": "2026-08-27T06:45:13.501Z",
+        "updatedAt": "2026-09-05T07:26:10.908Z",
+        "variants": [],
+        "images": []
+      },
+      {
+        "id": "ed21be6e-7a41-46dd-8bb0-62396948d485",
+        "categoryId": "e8ca7e30-dfc7-44fd-8c3b-98f211461370",
+        "name": "DHT11 Digital Temperature & Humidity Sensor Module",
+        "slug": "dht11-sensor",
+        "sku": "PRG-SEN-043",
+        "description": "Calibrated digital signal output temperature and humidity sensor module.",
+        "price": 110,
+        "mrp": 180,
+        "stock": 20,
+        "inStock": true,
+        "brand": "Prayog India",
+        "rating": 4.6,
+        "reviewCount": 890,
+        "specifications": {
+          "Temp": "0-50°C",
+          "Voltage": "3.3V-5V",
+          "Humidity": "20-90% RH"
+        },
+        "features": [],
+        "createdAt": "2026-08-27T06:45:13.504Z",
+        "updatedAt": "2026-09-05T07:26:10.919Z",
+        "variants": [],
+        "images": []
+      },
+      {
+        "id": "cc175906-dbda-4690-8886-04f16004e577",
+        "categoryId": "e8ca7e30-dfc7-44fd-8c3b-98f211461370",
+        "name": "MPU-6050 3-Axis Gyroscope + 3-Axis Accelerometer",
+        "slug": "mpu6050-gyro",
+        "sku": "PRG-SEN-044",
+        "description": "6-DOF MotionTracking device combining 3-axis gyroscope and 3-axis accelerometer.",
+        "price": 199,
+        "mrp": 350,
+        "stock": 20,
+        "inStock": true,
+        "brand": "Prayog India",
+        "rating": 4.8,
+        "reviewCount": 640,
+        "specifications": {
+          "Gyro": "±250 500 1000 2000 °/s",
+          "Voltage": "3.3V-5V",
+          "Protocol": "I2C"
+        },
+        "features": [],
+        "createdAt": "2026-08-27T06:45:13.505Z",
+        "updatedAt": "2026-09-05T07:26:10.920Z",
+        "variants": [],
+        "images": []
+      },
+      {
+        "id": "b08e3ee5-e3bd-437c-b703-82c1c410072a",
+        "categoryId": "1eb0857b-b819-46c1-b906-0fb058b079ce",
+        "name": "Raspberry Pi 5 Model B (8GB RAM ARM Cortex-A76)",
+        "slug": "rpi-5-8gb",
+        "sku": "PRG-RPI-508",
+        "description": "Next-gen single board computer delivering up to 3x performance with 2.4GHz quad-core 64-bit Arm Cortex-A76 CPU.",
+        "price": 8999,
+        "mrp": 10499,
+        "stock": 20,
+        "inStock": true,
+        "brand": "Prayog India",
+        "rating": 5,
+        "reviewCount": 189,
+        "specifications": {
+          "CPU": "Quad-Core 2.4GHz",
+          "PCI": "PCIe 2.0 interface",
+          "RAM": "8GB LPDDR4X",
+          "Display": "Dual 4K60 HDMI"
+        },
+        "features": [],
+        "createdAt": "2026-08-27T06:45:13.501Z",
+        "updatedAt": "2026-09-05T07:26:10.932Z",
+        "variants": [],
+        "images": []
+      },
+      {
+        "id": "1b180abe-d64d-48bb-9e15-9a86b6b0162e",
+        "categoryId": "1eb0857b-b819-46c1-b906-0fb058b079ce",
+        "name": "Raspberry Pi 4 Model B (4GB RAM Dual 4K Output)",
+        "slug": "rpi-4-4gb",
+        "sku": "PRG-RPI-404",
+        "description": "Versatile quad-core computer for AI, home servers, and Linux desktop development.",
+        "price": 5499,
+        "mrp": 6499,
+        "stock": 20,
+        "inStock": true,
+        "brand": "Prayog India",
+        "rating": 4.9,
+        "reviewCount": 450,
+        "specifications": {
+          "CPU": "Quad-Core 1.5GHz",
+          "RAM": "4GB LPDDR4",
+          "USB": "2x USB 3.0 + 2x USB 2.0"
+        },
+        "features": [],
+        "createdAt": "2026-08-27T06:45:13.503Z",
+        "updatedAt": "2026-09-05T07:26:10.933Z",
+        "variants": [],
+        "images": []
+      },
+      {
+        "id": "e068e11c-2f62-43be-8296-39ef874ffebc",
+        "categoryId": "5b576bad-334f-4b79-8fd4-9bf6505f3e6f",
+        "name": "Arduino Mega 2560 R3 Board (54 I/O Pins)",
+        "slug": "ard-mega-2560",
+        "sku": "PRG-ARD-002",
+        "description": "Designed for 3D printers and robotics with 54 digital pins and 16 analog inputs.",
+        "price": 1899,
+        "mrp": 2499,
+        "stock": 20,
+        "inStock": true,
+        "brand": "Prayog India",
+        "rating": 4.8,
+        "reviewCount": 198,
+        "specifications": {
+          "Digital Pins": "54",
+          "Flash Memory": "256 KB",
+          "Microcontroller": "ATmega2560"
+        },
+        "features": [],
+        "createdAt": "2026-08-27T06:45:13.492Z",
+        "updatedAt": "2026-09-05T07:26:10.869Z",
+        "variants": [],
+        "images": []
+      },
+      {
+        "id": "ard-nano-every",
+        "categoryId": "5b576bad-334f-4b79-8fd4-9bf6505f3e6f",
+        "name": "Arduino Nano Every Compact 20MHz Microcontroller",
+        "slug": "ard-nano-every",
+        "sku": "PRG-ARD-007",
+        "description": "Supercharged Nano form-factor with 48KB Flash memory, 6KB RAM and 20MHz clock speed.",
+        "price": 999,
+        "mrp": 1399,
+        "stock": 50,
+        "inStock": true,
+        "brand": "Prayog India",
+        "rating": 4.8,
+        "reviewCount": 87,
+        "specifications": {
+          "MCU": "ATMega4809",
+          "RAM": "6 KB",
+          "Clock": "20 MHz",
+          "Flash": "48 KB"
+        },
+        "features": [],
+        "createdAt": "2026-08-29T05:20:07.317Z",
+        "updatedAt": "2026-09-05T07:26:10.871Z",
+        "variants": [],
+        "images": [
+          {
+            "id": "1aa33f40-204b-4ad6-9e43-3d222ed0519b",
+            "productId": "ard-nano-every",
+            "imageUrl": "https://images.unsplash.com/photo-1553406830-ef2513450d76?auto=format&fit=crop&w=600&q=80",
+            "altText": "Arduino Nano Every Compact 20MHz Microcontroller",
+            "sortOrder": 0
+          }
+        ]
+      },
+      {
+        "id": "esp32-s3-devkit",
+        "categoryId": "5b576bad-334f-4b79-8fd4-9bf6505f3e6f",
+        "name": "ESP32-S3-DevKitC-1 Dual-Core 240MHz Wi-Fi + BLE 5.0",
+        "slug": "esp32-s3-devkit",
+        "sku": "PRG-ARD-009",
+        "description": "Next-generation dual-core Xtensa LX7 MCU with vector instructions for edge machine learning, 44 GPIOs, and dual USB-C ports.",
+        "price": 799,
+        "mrp": 1100,
+        "stock": 50,
+        "inStock": true,
+        "brand": "Prayog India",
+        "rating": 4.9,
+        "reviewCount": 130,
+        "specifications": {
+          "CPU": "Dual-core 240MHz LX7",
+          "USB": "Dual USB-C (OTG + UART)",
+          "Flash": "8MB Flash + 2MB PSRAM"
+        },
+        "features": [],
+        "createdAt": "2026-08-29T05:20:07.322Z",
+        "updatedAt": "2026-09-05T07:26:10.877Z",
+        "variants": [],
+        "images": [
+          {
+            "id": "7a3481d4-23a2-4b3c-83a2-d4cb0f3a9b76",
+            "productId": "esp32-s3-devkit",
+            "imageUrl": "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80",
+            "altText": "ESP32-S3-DevKitC-1 Dual-Core 240MHz Wi-Fi + BLE 5.0",
+            "sortOrder": 0
+          }
+        ]
+      },
+      {
+        "id": "ard-leonardo-r3",
+        "categoryId": "5b576bad-334f-4b79-8fd4-9bf6505f3e6f",
+        "name": "Arduino Leonardo R3 with ATmega32u4 USB HID Support",
+        "slug": "ard-leonardo-r3",
+        "sku": "PRG-ARD-010",
+        "description": "Microcontroller with native USB communication eliminating the need for a secondary processor, acting as mouse or keyboard.",
+        "price": 1299,
+        "mrp": 1699,
+        "stock": 50,
+        "inStock": true,
+        "brand": "Prayog India",
+        "rating": 4.7,
+        "reviewCount": 95,
+        "specifications": {
+          "PWM": "7 Channels",
+          "Clock": "16MHz",
+          "NativeUSB": "HID Keyboard/Mouse",
+          "Microcontroller": "ATmega32u4"
+        },
+        "features": [],
+        "createdAt": "2026-08-29T05:20:07.326Z",
+        "updatedAt": "2026-09-05T07:26:10.879Z",
+        "variants": [],
+        "images": [
+          {
+            "id": "d999451d-a408-4838-8f94-59034898cf81",
+            "productId": "ard-leonardo-r3",
+            "imageUrl": "https://images.unsplash.com/photo-1553406830-ef2513450d76?auto=format&fit=crop&w=600&q=80",
+            "altText": "Arduino Leonardo R3 with ATmega32u4 USB HID Support",
+            "sortOrder": 0
+          }
+        ]
+      },
+      {
+        "id": "75f132e1-8c1d-450e-b200-c2675a22be7c",
+        "categoryId": "a8f93650-af8c-4f9f-91a9-e0b89d75a476",
+        "name": "Pixhawk 6C Autopilot Flight Controller Unit",
+        "slug": "pixhawk-fc",
+        "sku": "PRG-UAV-601",
+        "description": "Advanced autopilot hardware standard for autonomous multirotors, fixed-wing aircraft and rover robotics.",
+        "price": 14500,
+        "mrp": 18000,
+        "stock": 20,
+        "inStock": true,
+        "brand": "Prayog India",
+        "rating": 4.9,
+        "reviewCount": 84,
+        "specifications": {
+          "IMU": "Triple redundant",
+          "GNSS": "Dual GPS Support",
+          "Protocol": "MavLink 2.0",
+          "Processor": "STM32H743"
+        },
+        "features": [],
+        "createdAt": "2026-08-27T06:45:13.495Z",
+        "updatedAt": "2026-09-05T07:26:10.880Z",
+        "variants": [],
+        "images": []
+      },
+      {
+        "id": "holybro-m8n-gps",
+        "categoryId": "a8f93650-af8c-4f9f-91a9-e0b89d75a476",
+        "name": "Holybro Micro M8N High-Precision Compass GPS Module",
+        "slug": "holybro-m8n-gps",
+        "sku": "PRG-UAV-606",
+        "description": "U-blox M8N concurrent GNSS receiver module with integrated digital compass for Pixhawk flight controllers.",
+        "price": 2999,
+        "mrp": 3899,
+        "stock": 50,
+        "inStock": true,
+        "brand": "Prayog India",
+        "rating": 4.9,
+        "reviewCount": 112,
+        "specifications": {
+          "Chip": "u-blox NEO-M8N",
+          "Antenna": "25x25mm Ceramic Patch",
+          "Compass": "IST8310",
+          "Protocol": "UART/I2C"
+        },
+        "features": [],
+        "createdAt": "2026-08-29T05:20:07.329Z",
+        "updatedAt": "2026-09-05T07:26:10.881Z",
+        "variants": [],
+        "images": [
+          {
+            "id": "a71240f1-3b80-491f-a759-337c415c4167",
+            "productId": "holybro-m8n-gps",
+            "imageUrl": "https://images.unsplash.com/photo-1527977966376-1c8408f9f108?auto=format&fit=crop&w=600&q=80",
+            "altText": "Holybro Micro M8N High-Precision Compass GPS Module",
+            "sortOrder": 0
+          }
+        ]
+      },
+      {
+        "id": "speedybee-f405-stack",
+        "categoryId": "a8f93650-af8c-4f9f-91a9-e0b89d75a476",
+        "name": "SpeedyBee F405 V3 50A 4-in-1 ESC Flight Stack for FPV",
+        "slug": "speedybee-f405-stack",
+        "sku": "PRG-UAV-607",
+        "description": "High performance FPV drone stack with built-in Bluetooth/WiFi wireless configuration, 50A 4-in-1 ESC, and BetaFlight OSD.",
+        "price": 6499,
+        "mrp": 7999,
+        "stock": 50,
+        "inStock": true,
+        "brand": "Prayog India",
+        "rating": 5,
+        "reviewCount": 175,
+        "specifications": {
+          "ESC": "50A 4-in-1 BLHeli_S",
+          "MCU": "STM32F405",
+          "Battery": "3-6S LiPo",
+          "Wireless": "Bluetooth & WiFi App Tuning"
+        },
+        "features": [],
+        "createdAt": "2026-08-29T05:20:07.333Z",
+        "updatedAt": "2026-09-05T07:26:10.885Z",
+        "variants": [],
+        "images": [
+          {
+            "id": "07bd0f53-2bbc-4f2d-be9a-b6e079b31222",
+            "productId": "speedybee-f405-stack",
+            "imageUrl": "https://images.unsplash.com/photo-1527977966376-1c8408f9f108?auto=format&fit=crop&w=600&q=80",
+            "altText": "SpeedyBee F405 V3 50A 4-in-1 ESC Flight Stack for FPV",
+            "sortOrder": 0
+          }
+        ]
+      },
+      {
+        "id": "foxeer-predator-5",
+        "categoryId": "a8f93650-af8c-4f9f-91a9-e0b89d75a476",
+        "name": "Foxeer Predator 5 Micro 1000TVL FPV Low Latency Camera",
+        "slug": "foxeer-predator-5",
+        "sku": "PRG-UAV-608",
+        "description": "Ultra-clear 1000TVL FPV camera with super WDR and 4ms low latency for FPV racing drones.",
+        "price": 2399,
+        "mrp": 3100,
+        "stock": 50,
+        "inStock": true,
+        "brand": "Prayog India",
+        "rating": 4.8,
+        "reviewCount": 92,
+        "specifications": {
+          "FOV": "155 Degrees",
+          "Lens": "1.7mm M8",
+          "Latency": "4ms Super Low",
+          "Resolution": "1000TVL"
+        },
+        "features": [],
+        "createdAt": "2026-08-29T05:20:07.337Z",
+        "updatedAt": "2026-09-05T07:26:10.888Z",
+        "variants": [],
+        "images": [
+          {
+            "id": "b3c2b71f-b75a-4d94-9e96-46ba8c39256f",
+            "productId": "foxeer-predator-5",
+            "imageUrl": "https://images.unsplash.com/photo-1527977966376-1c8408f9f108?auto=format&fit=crop&w=600&q=80",
+            "altText": "Foxeer Predator 5 Micro 1000TVL FPV Low Latency Camera",
+            "sortOrder": 0
+          }
+        ]
+      },
+      {
+        "id": "gemfan-1045-props",
+        "categoryId": "a8f93650-af8c-4f9f-91a9-e0b89d75a476",
+        "name": "Gemfan 1045 Carbon Reinforced Propellers (4 Pairs CW/CCW)",
+        "slug": "gemfan-1045-props",
+        "sku": "PRG-UAV-609",
+        "description": "Balanced 10x4.5 inch high-strength carbon nylon propellers designed for A2212 and similar drone motors.",
+        "price": 349,
+        "mrp": 550,
+        "stock": 50,
+        "inStock": true,
+        "brand": "Prayog India",
+        "rating": 4.7,
+        "reviewCount": 410,
+        "specifications": {
+          "Hub": "6mm Adapter Rings",
+          "Set": "4 Pairs (4 CW + 4 CCW)",
+          "Size": "10x4.5 Inch",
+          "Pitch": "4.5"
+        },
+        "features": [],
+        "createdAt": "2026-08-29T05:20:07.338Z",
+        "updatedAt": "2026-09-05T07:26:10.889Z",
+        "variants": [],
+        "images": [
+          {
+            "id": "9a445e97-ac85-4edd-a329-08ce29e0cc0b",
+            "productId": "gemfan-1045-props",
+            "imageUrl": "https://images.unsplash.com/photo-1527977966376-1c8408f9f108?auto=format&fit=crop&w=600&q=80",
+            "altText": "Gemfan 1045 Carbon Reinforced Propellers (4 Pairs CW/CCW)",
+            "sortOrder": 0
+          }
+        ]
+      },
+      {
+        "id": "matek-pdb-xt60",
+        "categoryId": "a8f93650-af8c-4f9f-91a9-e0b89d75a476",
+        "name": "Matek Systems PDB-XT60 Dual BEC 5V/12V Power Board",
+        "slug": "matek-pdb-xt60",
+        "sku": "PRG-UAV-610",
+        "description": "Reliable power distribution board engineered to distribute battery power to 4 ESCs with linear dual BEC outputs.",
+        "price": 599,
+        "mrp": 850,
+        "stock": 50,
+        "inStock": true,
+        "brand": "Prayog India",
+        "rating": 4.8,
+        "reviewCount": 165,
+        "specifications": {
+          "BEC1": "5V/2A",
+          "BEC2": "12V/0.5A Linear",
+          "Plug": "Direct XT60 Solder",
+          "Input": "9-26V DC (3-6S LiPo)"
+        },
+        "features": [],
+        "createdAt": "2026-08-29T05:20:07.340Z",
+        "updatedAt": "2026-09-05T07:26:10.891Z",
+        "variants": [],
+        "images": [
+          {
+            "id": "61cded8b-0ada-4dbf-a4d6-5b319cb32859",
+            "productId": "matek-pdb-xt60",
+            "imageUrl": "https://images.unsplash.com/photo-1527977966376-1c8408f9f108?auto=format&fit=crop&w=600&q=80",
+            "altText": "Matek Systems PDB-XT60 Dual BEC 5V/12V Power Board",
+            "sortOrder": 0
+          }
+        ]
+      },
+      {
+        "id": "ef04c742-534a-4288-adab-22ed932458cd",
+        "categoryId": "92be3e11-3f0c-4d1a-8655-f83262890586",
+        "name": "PRAYOG Dilay-Bot 4WD Autonomous Robotics Learning Kit",
+        "slug": "prayog-stem-robot-kit",
+        "sku": "PRG-KIT-100",
+        "description": "Complete hands-on robotics kit including metal chassis, ultrasonic line follower, Bluetooth app control & code tutorials.",
+        "price": 4999,
+        "mrp": 6999,
+        "stock": 20,
+        "inStock": true,
+        "brand": "Prayog India",
+        "rating": 5,
+        "reviewCount": 215,
+        "specifications": {
+          "App": "Android & iOS",
+          "Motors": "4x Metal Gear TT Motors",
+          "Battery": "Rechargeable 18650",
+          "Control": "Arduino Compatible"
+        },
+        "features": [],
+        "createdAt": "2026-08-27T06:45:13.506Z",
+        "updatedAt": "2026-09-05T07:26:10.892Z",
+        "variants": [],
+        "images": []
+      },
+      {
+        "id": "arm-manipulator-6dof",
+        "categoryId": "92be3e11-3f0c-4d1a-8655-f83262890586",
+        "name": "6-DOF Heavy Duty Metal Robotic Arm Manipulator Kit",
+        "slug": "arm-manipulator-6dof",
+        "sku": "PRG-KIT-102",
+        "description": "Industrial-grade 6-DOF aluminium alloy robot arm manipulator with 6 digital high-torque servos and mechanical claw.",
+        "price": 8499,
+        "mrp": 11999,
+        "stock": 50,
+        "inStock": true,
+        "brand": "Prayog India",
+        "rating": 4.9,
+        "reviewCount": 98,
+        "specifications": {
+          "Servos": "6x High Torque Metal Gear",
+          "Payload": "500g",
+          "ClawSpan": "55mm",
+          "Material": "2mm Hard Aluminium"
+        },
+        "features": [],
+        "createdAt": "2026-08-29T05:20:07.344Z",
+        "updatedAt": "2026-09-05T07:26:10.894Z",
+        "variants": [],
+        "images": [
+          {
+            "id": "4aa97003-6bb1-47d0-a722-d8e2133c5cb9",
+            "productId": "arm-manipulator-6dof",
+            "imageUrl": "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&w=600&q=80",
+            "altText": "6-DOF Heavy Duty Metal Robotic Arm Manipulator Kit",
+            "sortOrder": 0
+          }
+        ]
+      },
+      {
+        "id": "mecanum-4wd-car",
+        "categoryId": "92be3e11-3f0c-4d1a-8655-f83262890586",
+        "name": "4WD Omni-Directional Mecanum Wheel Chassis Kit",
+        "slug": "mecanum-4wd-car",
+        "sku": "PRG-KIT-103",
+        "description": "Omnidirectional mobile platform with 4 independent Mecanum wheels for 360-degree rotation and lateral translation.",
+        "price": 3699,
+        "mrp": 4999,
+        "stock": 50,
+        "inStock": true,
+        "brand": "Prayog India",
+        "rating": 4.9,
+        "reviewCount": 160,
+        "specifications": {
+          "Motors": "4x TT Gear Motors with Hall Encoders",
+          "Wheels": "4x 80mm Mecanum Wheels",
+          "Chassis": "Aluminium Plate"
+        },
+        "features": [],
+        "createdAt": "2026-08-29T05:20:07.346Z",
+        "updatedAt": "2026-09-05T07:26:10.895Z",
+        "variants": [],
+        "images": [
+          {
+            "id": "4405d321-e5a4-4b61-9179-0130567700ef",
+            "productId": "mecanum-4wd-car",
+            "imageUrl": "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&w=600&q=80",
+            "altText": "4WD Omni-Directional Mecanum Wheel Chassis Kit",
+            "sortOrder": 0
+          }
+        ]
+      },
+      {
+        "id": "ard-uno-r4-wifi",
+        "categoryId": "5b576bad-334f-4b79-8fd4-9bf6505f3e6f",
+        "name": "Arduino UNO R4 WiFi Board (Renesas RA4M1 + ESP32-S3)",
+        "slug": "ard-uno-r4-wifi",
+        "sku": "PRG-ARD-006",
+        "description": "The revolutionary UNO R4 WiFi merges a 32-bit Renesas RA4M1 Cortex-M4 microprocessor with an onboard ESP32-S3 for seamless Wi-Fi and Bluetooth connectivity, plus a 12x8 red LED matrix.",
+        "price": 2799,
+        "mrp": 3499,
+        "stock": 50,
+        "inStock": true,
+        "brand": "Arduino",
+        "rating": 4.9,
+        "reviewCount": 142,
+        "specifications": {
+          "MCU": "Renesas RA4M1 48MHz",
+          "Matrix": "12x8 Red LED Matrix",
+          "Voltage": "5V (Operates up to 24V in)",
+          "Wireless": "ESP32-S3 Wi-Fi/BLE"
+        },
+        "features": [],
+        "createdAt": "2026-08-29T05:20:07.307Z",
+        "updatedAt": "2026-09-05T07:26:10.867Z",
+        "variants": [],
+        "images": [
+          {
+            "id": "66f6a9b2-885c-4420-810c-f0bacdfc9b5b",
+            "productId": "ard-uno-r4-wifi",
+            "imageUrl": "https://images.unsplash.com/photo-1553406830-ef2513450d76?auto=format&fit=crop&w=600&q=80",
+            "altText": "Arduino UNO R4 WiFi Board (Renesas RA4M1 + ESP32-S3)",
+            "sortOrder": 0
+          }
+        ]
+      },
+      {
+        "id": "ard-nano-33-ble",
+        "categoryId": "5b576bad-334f-4b79-8fd4-9bf6505f3e6f",
+        "name": "Arduino Nano 33 BLE Sense (9-Axis IMU & Microphone)",
+        "slug": "ard-nano-33-ble",
+        "sku": "PRG-ARD-008",
+        "description": "TinyML AI edge board packed with 9-axis motion sensor, gesture sensor, digital mic, temperature and humidity sensors.",
+        "price": 3199,
+        "mrp": 3899,
+        "stock": 50,
+        "inStock": true,
+        "brand": "Prayog India",
+        "rating": 4.9,
+        "reviewCount": 64,
+        "specifications": {
+          "MCU": "nRF52840 Cortex-M4F 64MHz",
+          "Sensors": "IMU, Mic, Temp, Humidity, Light",
+          "Bluetooth": "BLE 5.0"
+        },
+        "features": [],
+        "createdAt": "2026-08-29T05:20:07.319Z",
+        "updatedAt": "2026-09-05T07:26:10.873Z",
+        "variants": [],
+        "images": [
+          {
+            "id": "527e3421-c10f-46a0-985b-c47d7f731e80",
+            "productId": "ard-nano-33-ble",
+            "imageUrl": "https://images.unsplash.com/photo-1553406830-ef2513450d76?auto=format&fit=crop&w=600&q=80",
+            "altText": "Arduino Nano 33 BLE Sense (9-Axis IMU & Microphone)",
+            "sortOrder": 0
+          }
+        ]
+      },
+      {
+        "id": "pan-tilt-servo-kit",
+        "categoryId": "92be3e11-3f0c-4d1a-8655-f83262890586",
+        "name": "2-Axis Pan-Tilt FPV Camera Mount with Dual SG90 Servos",
+        "slug": "pan-tilt-servo-kit",
+        "sku": "PRG-KIT-106",
+        "description": "Lightweight dual-axis servo pan-and-tilt assembly for mounting ultrasonic sensors or FPV cameras.",
+        "price": 399,
+        "mrp": 650,
+        "stock": 50,
+        "inStock": true,
+        "brand": "Prayog India",
+        "rating": 4.6,
+        "reviewCount": 320,
+        "specifications": {
+          "Servos": "2x SG90 9g",
+          "Weight": "35g",
+          "Rotation": "180° Pan & 180° Tilt"
+        },
+        "features": [],
+        "createdAt": "2026-08-29T05:20:07.351Z",
+        "updatedAt": "2026-09-05T07:26:10.899Z",
+        "variants": [],
+        "images": [
+          {
+            "id": "c19640f7-8f99-4170-80ee-58f2a2a4a3a3",
+            "productId": "pan-tilt-servo-kit",
+            "imageUrl": "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&w=600&q=80",
+            "altText": "2-Axis Pan-Tilt FPV Camera Mount with Dual SG90 Servos",
+            "sortOrder": 0
+          }
+        ]
+      },
+      {
+        "id": "mg996r-servo-high-torque",
+        "categoryId": "92be3e11-3f0c-4d1a-8655-f83262890586",
+        "name": "TowerPro MG996R High Torque Metal Gear Digital Servo",
+        "slug": "mg996r-servo-high-torque",
+        "sku": "PRG-KIT-107",
+        "description": "Industry standard metal gear servo delivering up to 11 kg-cm stall torque at 6V.",
+        "price": 380,
+        "mrp": 599,
+        "stock": 50,
+        "inStock": true,
+        "brand": "Prayog India",
+        "rating": 4.8,
+        "reviewCount": 580,
+        "specifications": {
+          "Angle": "180 Degrees Digital",
+          "Gears": "Full Copper Metal",
+          "StallTorque": "11 kg/cm at 6V"
+        },
+        "features": [],
+        "createdAt": "2026-08-29T05:20:07.352Z",
+        "updatedAt": "2026-09-05T07:26:10.901Z",
+        "variants": [],
+        "images": [
+          {
+            "id": "64593425-0029-4ce4-a6cc-f1f87e2b37d0",
+            "productId": "mg996r-servo-high-torque",
+            "imageUrl": "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&w=600&q=80",
+            "altText": "TowerPro MG996R High Torque Metal Gear Digital Servo",
+            "sortOrder": 0
+          }
+        ]
+      },
+      {
+        "id": "sg90-servos-10pack",
+        "categoryId": "92be3e11-3f0c-4d1a-8655-f83262890586",
+        "name": "Micro SG90 9g Servos Value Multipack (10 Units)",
+        "slug": "sg90-servos-10pack",
+        "sku": "PRG-KIT-108",
+        "description": "Bulk pack of 10 micro 9-gram servos for school projects, DIY robot grippers, and RC planes.",
+        "price": 1199,
+        "mrp": 1800,
+        "stock": 50,
+        "inStock": true,
+        "brand": "Prayog India",
+        "rating": 4.7,
+        "reviewCount": 290,
+        "specifications": {
+          "Torque": "1.6 kg/cm",
+          "Weight": "9g each",
+          "Quantity": "10 Pieces",
+          "OperatingVoltage": "4.8V DC"
+        },
+        "features": [],
+        "createdAt": "2026-08-29T05:20:07.353Z",
+        "updatedAt": "2026-09-05T07:26:10.902Z",
+        "variants": [],
+        "images": [
+          {
+            "id": "c21e0556-1207-4616-949d-0b0e5170c26b",
+            "productId": "sg90-servos-10pack",
+            "imageUrl": "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&w=600&q=80",
+            "altText": "Micro SG90 9g Servos Value Multipack (10 Units)",
+            "sortOrder": 0
+          }
+        ]
+      },
+      {
+        "id": "robot-claw-gripper",
+        "categoryId": "92be3e11-3f0c-4d1a-8655-f83262890586",
+        "name": "Aluminium Alloy Mechanical Robot Claw Gripper",
+        "slug": "robot-claw-gripper",
+        "sku": "PRG-KIT-109",
+        "description": "Precision laser-cut aluminium robotic claw gripper with wave-serrated gripping fingers compatible with MG996R servos.",
+        "price": 799,
+        "mrp": 1200,
+        "stock": 50,
+        "inStock": true,
+        "brand": "Prayog India",
+        "rating": 4.8,
+        "reviewCount": 135,
+        "specifications": {
+          "Material": "Hard Aluminium Alloy",
+          "MaxOpening": "55mm",
+          "TotalLength": "108mm",
+          "ServoSupport": "Standard MG995/MG996"
+        },
+        "features": [],
+        "createdAt": "2026-08-29T05:20:07.355Z",
+        "updatedAt": "2026-09-05T07:26:10.903Z",
+        "variants": [],
+        "images": [
+          {
+            "id": "a24d9fde-f803-4f65-9c14-51679d5fc252",
+            "productId": "robot-claw-gripper",
+            "imageUrl": "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&w=600&q=80",
+            "altText": "Aluminium Alloy Mechanical Robot Claw Gripper",
+            "sortOrder": 0
+          }
+        ]
+      },
+      {
+        "id": "sim800l-gsm",
+        "categoryId": "3984fae5-b253-4fb4-860e-a8ac94740731",
+        "name": "SIM800L GPRS GSM Cellular Quad-Band Micro SIM Module",
+        "slug": "sim800l-gsm",
+        "sku": "PRG-ESP-306",
+        "description": "Compact GSM/GPRS module for sending SMS, voice calls, and connecting IoT nodes to cloud cellular networks.",
+        "price": 499,
+        "mrp": 750,
+        "stock": 50,
+        "inStock": true,
+        "brand": "Prayog India",
+        "rating": 4.7,
+        "reviewCount": 245,
+        "specifications": {
+          "SIM": "Micro SIM",
+          "Bands": "Quad-band 850/900/1800/1900MHz",
+          "Voltage": "3.7V-4.2V Li-ion"
+        },
+        "features": [],
+        "createdAt": "2026-08-29T05:20:07.360Z",
+        "updatedAt": "2026-09-05T07:26:10.910Z",
+        "variants": [],
+        "images": [
+          {
+            "id": "85261f83-04d8-4d85-80f3-43791be9ec30",
+            "productId": "sim800l-gsm",
+            "imageUrl": "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80",
+            "altText": "SIM800L GPRS GSM Cellular Quad-Band Micro SIM Module",
+            "sortOrder": 0
+          }
+        ]
+      },
+      {
+        "id": "relay-8ch-5v",
+        "categoryId": "3984fae5-b253-4fb4-860e-a8ac94740731",
+        "name": "8-Channel 5V Optocoupler Isolated Relay Module",
+        "slug": "relay-8ch-5v",
+        "sku": "PRG-ESP-307",
+        "description": "8-channel AC/DC relay board with optical isolation for controlling home appliances with Arduino and ESP32.",
+        "price": 399,
+        "mrp": 599,
+        "stock": 50,
+        "inStock": true,
+        "brand": "Prayog India",
+        "rating": 4.8,
+        "reviewCount": 310,
+        "specifications": {
+          "Trigger": "Active Low/High",
+          "Channels": "8 Isolated",
+          "RelayOutputs": "AC 250V 10A / DC 30V 10A"
+        },
+        "features": [],
+        "createdAt": "2026-08-29T05:20:07.362Z",
+        "updatedAt": "2026-09-05T07:26:10.911Z",
+        "variants": [],
+        "images": [
+          {
+            "id": "e572708a-01a9-44e7-882d-03364e01886d",
+            "productId": "relay-8ch-5v",
+            "imageUrl": "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80",
+            "altText": "8-Channel 5V Optocoupler Isolated Relay Module",
+            "sortOrder": 0
+          }
+        ]
+      },
+      {
+        "id": "esp32-cam-ov2640",
+        "categoryId": "3984fae5-b253-4fb4-860e-a8ac94740731",
+        "name": "ESP32-CAM WiFi + Bluetooth Board with OV2640 Camera",
+        "slug": "esp32-cam-ov2640",
+        "sku": "PRG-ESP-308",
+        "description": "Low cost AI camera module featuring ESP32-S chip, 2MP OV2640 image sensor, and MicroSD card slot for facial recognition & video streaming.",
+        "price": 599,
+        "mrp": 899,
+        "stock": 50,
+        "inStock": true,
+        "brand": "Prayog India",
+        "rating": 4.8,
+        "reviewCount": 430,
+        "specifications": {
+          "RAM": "520KB SRAM + 4MB PSRAM",
+          "Card": "MicroSD slot up to 4GB",
+          "Camera": "2MP OV2640"
+        },
+        "features": [],
+        "createdAt": "2026-08-29T05:20:07.363Z",
+        "updatedAt": "2026-09-05T07:26:10.912Z",
+        "variants": [],
+        "images": [
+          {
+            "id": "816d4f28-d2dd-4b2d-a510-db7e62cb70b9",
+            "productId": "esp32-cam-ov2640",
+            "imageUrl": "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80",
+            "altText": "ESP32-CAM WiFi + Bluetooth Board with OV2640 Camera",
+            "sortOrder": 0
+          }
+        ]
+      },
+      {
+        "id": "zigbee-cc2530",
+        "categoryId": "3984fae5-b253-4fb4-860e-a8ac94740731",
+        "name": "CC2530 Zigbee 2.4GHz Wireless Mesh Network Module",
+        "slug": "zigbee-cc2530",
+        "sku": "PRG-ESP-309",
+        "description": "TI CC2530 Zigbee SoC module enabling low-power IEEE 802.15.4 mesh network deployment for smart buildings.",
+        "price": 449,
+        "mrp": 650,
+        "stock": 50,
+        "inStock": true,
+        "brand": "Prayog India",
+        "rating": 4.7,
+        "reviewCount": 98,
+        "specifications": {
+          "Range": "Up to 250m LOS",
+          "Protocol": "Zigbee 3.0 / IEEE 802.15.4",
+          "Interface": "UART"
+        },
+        "features": [],
+        "createdAt": "2026-08-29T05:20:07.365Z",
+        "updatedAt": "2026-09-05T07:26:10.913Z",
+        "variants": [],
+        "images": [
+          {
+            "id": "f8e3d01d-2ad8-4462-99f7-a9a2203af79c",
+            "productId": "zigbee-cc2530",
+            "imageUrl": "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80",
+            "altText": "CC2530 Zigbee 2.4GHz Wireless Mesh Network Module",
+            "sortOrder": 0
+          }
+        ]
+      },
+      {
+        "id": "w5500-ethernet",
+        "categoryId": "3984fae5-b253-4fb4-860e-a8ac94740731",
+        "name": "W5500 SPI Ethernet Hardware TCP/IP Network Module",
+        "slug": "w5500-ethernet",
+        "sku": "PRG-ESP-310",
+        "description": "Hardwired TCP/IP embedded Ethernet controller module for high-speed industrial microcontrollers via SPI interface.",
+        "price": 499,
+        "mrp": 750,
+        "stock": 50,
+        "inStock": true,
+        "brand": "Prayog India",
+        "rating": 4.8,
+        "reviewCount": 110,
+        "specifications": {
+          "Speed": "10/100 Mbps",
+          "Buffer": "32KB Internal",
+          "Protocols": "TCP, UDP, ICMP, IPv4, ARP, IGMP, PPPoE"
+        },
+        "features": [],
+        "createdAt": "2026-08-29T05:20:07.366Z",
+        "updatedAt": "2026-09-05T07:26:10.914Z",
+        "variants": [],
+        "images": [
+          {
+            "id": "e156ee8e-5917-4c22-a8eb-26e74896e7b0",
+            "productId": "w5500-ethernet",
+            "imageUrl": "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80",
+            "altText": "W5500 SPI Ethernet Hardware TCP/IP Network Module",
+            "sortOrder": 0
+          }
+        ]
+      },
+      {
+        "id": "rf-433mhz-pair",
+        "categoryId": "3984fae5-b253-4fb4-860e-a8ac94740731",
+        "name": "433MHz Wireless RF Transmitter and Receiver Pair",
+        "slug": "rf-433mhz-pair",
+        "sku": "PRG-ESP-311",
+        "description": "Simple ASK/OOK 433MHz radio link kit for wireless doorbells, remote switches, and microcontroller communication.",
+        "price": 129,
+        "mrp": 199,
+        "stock": 50,
+        "inStock": true,
+        "brand": "Prayog India",
+        "rating": 4.6,
+        "reviewCount": 520,
+        "specifications": {
+          "Range": "20-100m with antenna",
+          "Frequency": "433.92 MHz",
+          "OperatingVoltage": "3.5-12V DC"
+        },
+        "features": [],
+        "createdAt": "2026-08-29T05:20:07.368Z",
+        "updatedAt": "2026-09-05T07:26:10.916Z",
+        "variants": [],
+        "images": [
+          {
+            "id": "65b31322-33d7-4624-996d-5cb38534fe9a",
+            "productId": "rf-433mhz-pair",
+            "imageUrl": "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80",
+            "altText": "433MHz Wireless RF Transmitter and Receiver Pair",
+            "sortOrder": 0
+          }
+        ]
+      },
+      {
+        "id": "4c07ee1b-00d7-401d-b400-64e0e46a1040",
+        "categoryId": "e8ca7e30-dfc7-44fd-8c3b-98f211461370",
+        "name": "HC-SR04 Precision Ultrasonic Distance Sensor",
+        "slug": "hcsr04-ultrasonic",
+        "sku": "PRG-SEN-042",
+        "description": "Non-contact distance measurement module providing 2cm to 400cm ranging accuracy up to 3mm.",
+        "price": 120,
+        "mrp": 199,
+        "stock": 20,
+        "inStock": true,
+        "brand": "Prayog India",
+        "rating": 4.7,
+        "reviewCount": 1240,
+        "specifications": {
+          "Angle": "15 degrees",
+          "Range": "2cm - 400cm",
+          "Voltage": "5V DC",
+          "Frequency": "40kHz"
+        },
+        "features": [],
+        "createdAt": "2026-08-27T06:45:13.504Z",
+        "updatedAt": "2026-09-05T07:26:10.917Z",
+        "variants": [],
+        "images": []
+      },
+      {
+        "id": "tfluna-lidar",
+        "categoryId": "e8ca7e30-dfc7-44fd-8c3b-98f211461370",
+        "name": "Benewake TF-Luna 8m Micro LiDAR Distance Sensor",
+        "slug": "tfluna-lidar",
+        "sku": "PRG-SEN-045",
+        "description": "High-precision micro Time-of-Flight single-point LiDAR sensor for drone obstacle avoidance and robotics SLAM.",
+        "price": 1899,
+        "mrp": 2499,
+        "stock": 50,
+        "inStock": true,
+        "brand": "Prayog India",
+        "rating": 4.9,
+        "reviewCount": 130,
+        "specifications": {
+          "Accuracy": "±6cm",
+          "Protocol": "UART & I2C",
+          "FrameRate": "1-250Hz adjustable",
+          "OperatingRange": "0.2m - 8m"
+        },
+        "features": [],
+        "createdAt": "2026-08-29T05:20:07.372Z",
+        "updatedAt": "2026-09-05T07:26:10.922Z",
+        "variants": [],
+        "images": [
+          {
+            "id": "cd3580f2-363d-4cd2-b07f-0e81514d0b36",
+            "productId": "tfluna-lidar",
+            "imageUrl": "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=600&q=80",
+            "altText": "Benewake TF-Luna 8m Micro LiDAR Distance Sensor",
+            "sortOrder": 0
+          }
+        ]
+      },
+      {
+        "id": "vl53l0x-tof",
+        "categoryId": "e8ca7e30-dfc7-44fd-8c3b-98f211461370",
+        "name": "VL53L0X Time-of-Flight (ToF) Laser Distance Sensor",
+        "slug": "vl53l0x-tof",
+        "sku": "PRG-SEN-046",
+        "description": "940nm VCSEL laser emitter distance sensor measuring absolute distances up to 2 meters irrespective of target color.",
+        "price": 399,
+        "mrp": 599,
+        "stock": 50,
+        "inStock": true,
+        "brand": "Prayog India",
+        "rating": 4.8,
+        "reviewCount": 215,
+        "specifications": {
+          "Laser": "940nm Class 1 Invisible",
+          "Range": "Up to 2000mm",
+          "Interface": "I2C Interface"
+        },
+        "features": [],
+        "createdAt": "2026-08-29T05:20:07.374Z",
+        "updatedAt": "2026-09-05T07:26:10.923Z",
+        "variants": [],
+        "images": [
+          {
+            "id": "82ef393d-1929-4753-a1d4-da82112fef25",
+            "productId": "vl53l0x-tof",
+            "imageUrl": "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=600&q=80",
+            "altText": "VL53L0X Time-of-Flight (ToF) Laser Distance Sensor",
+            "sortOrder": 0
+          }
+        ]
+      },
+      {
+        "id": "bme280-temp-pressure",
+        "categoryId": "e8ca7e30-dfc7-44fd-8c3b-98f211461370",
+        "name": "BME280 Digital Barometric Pressure, Temp & Humidity Sensor",
+        "slug": "bme280-temp-pressure",
+        "sku": "PRG-SEN-047",
+        "description": "All-in-one environmental sensor precision manufactured for weather forecasting, altitude estimation, and HVAC control.",
+        "price": 449,
+        "mrp": 650,
+        "stock": 50,
+        "inStock": true,
+        "brand": "Prayog India",
+        "rating": 4.9,
+        "reviewCount": 320,
+        "specifications": {
+          "Temp": "-40 to 85°C",
+          "Humidity": "0-100%",
+          "Pressure": "300-1100 hPa",
+          "Interface": "I2C / SPI"
+        },
+        "features": [],
+        "createdAt": "2026-08-29T05:20:07.375Z",
+        "updatedAt": "2026-09-05T07:26:10.925Z",
+        "variants": [],
+        "images": [
+          {
+            "id": "a40baa54-6933-4f66-a341-4281fbab2930",
+            "productId": "bme280-temp-pressure",
+            "imageUrl": "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=600&q=80",
+            "altText": "BME280 Digital Barometric Pressure, Temp & Humidity Sensor",
+            "sortOrder": 0
+          }
+        ]
+      },
+      {
+        "id": "mq135-air-quality",
+        "categoryId": "e8ca7e30-dfc7-44fd-8c3b-98f211461370",
+        "name": "MQ-135 Hazardous Gas & Air Quality Sensor Module",
+        "slug": "mq135-air-quality",
+        "sku": "PRG-SEN-048",
+        "description": "SnO2 gas sensing element sensitive to Ammonia (NH3), NOx, alcohol, Benzene, smoke, and CO2.",
+        "price": 189,
+        "mrp": 299,
+        "stock": 50,
+        "inStock": true,
+        "brand": "Prayog India",
+        "rating": 4.7,
+        "reviewCount": 410,
+        "specifications": {
+          "Output": "Analog + Digital TTL",
+          "TargetGases": "NH3, NOx, Alcohol, Benzene, Smoke, CO2"
+        },
+        "features": [],
+        "createdAt": "2026-08-29T05:20:07.377Z",
+        "updatedAt": "2026-09-05T07:26:10.926Z",
+        "variants": [],
+        "images": [
+          {
+            "id": "b59570e1-a9e6-46d2-9aab-2d5194a35bde",
+            "productId": "mq135-air-quality",
+            "imageUrl": "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=600&q=80",
+            "altText": "MQ-135 Hazardous Gas & Air Quality Sensor Module",
+            "sortOrder": 0
+          }
+        ]
+      },
+      {
+        "id": "ros2-slam-rover",
+        "categoryId": "92be3e11-3f0c-4d1a-8655-f83262890586",
+        "name": "ROS 2 SLAM Autonomous Mobile Robot LiDAR Mapping Platform",
+        "slug": "ros2-slam-rover",
+        "sku": "PRG-KIT-105",
+        "description": "Complete research-ready autonomous navigation rover with RPLiDAR A1, IMU, high-resolution encoders, and ROS 2 Humble support.",
+        "price": 28999,
+        "mrp": 35000,
+        "stock": 50,
+        "inStock": true,
+        "brand": "Prayog India",
+        "rating": 5,
+        "reviewCount": 42,
+        "specifications": {
+          "LiDAR": "360° 12m RPLiDAR",
+          "Odometry": "Optical Encoders + 9-DOF IMU",
+          "Framework": "ROS 2 Humble / Noetic"
+        },
+        "features": [],
+        "createdAt": "2026-08-29T05:20:07.349Z",
+        "updatedAt": "2026-09-05T07:26:10.898Z",
+        "variants": [],
+        "images": [
+          {
+            "id": "9a4c8c8b-f51e-4dfc-95ff-5c3d8009333a",
+            "productId": "ros2-slam-rover",
+            "imageUrl": "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&w=600&q=80",
+            "altText": "ROS 2 SLAM Autonomous Mobile Robot LiDAR Mapping Platform",
+            "sortOrder": 0
+          }
+        ]
+      },
+      {
+        "id": "tcs3200-color",
+        "categoryId": "e8ca7e30-dfc7-44fd-8c3b-98f211461370",
+        "name": "TCS3200 RGB Color Recognition Sensor Module",
+        "slug": "tcs3200-color",
+        "sku": "PRG-SEN-050",
+        "description": "Programmable color light-to-frequency converter with 4 white LEDs for sorting objects by color.",
+        "price": 329,
+        "mrp": 499,
+        "stock": 50,
+        "inStock": true,
+        "brand": "Prayog India",
+        "rating": 4.7,
+        "reviewCount": 175,
+        "specifications": {
+          "Interface": "Direct Microcontroller Frequency",
+          "SensorArray": "8x8 Photodiodes",
+          "Illumination": "4 Bright White LEDs"
+        },
+        "features": [],
+        "createdAt": "2026-08-29T05:20:07.381Z",
+        "updatedAt": "2026-09-05T07:26:10.929Z",
+        "variants": [],
+        "images": [
+          {
+            "id": "e9a54b42-8248-4330-9a77-b88fc50a757a",
+            "productId": "tcs3200-color",
+            "imageUrl": "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=600&q=80",
+            "altText": "TCS3200 RGB Color Recognition Sensor Module",
+            "sortOrder": 0
+          }
+        ]
+      },
+      {
+        "id": "rpi-zero-2w",
+        "categoryId": "1eb0857b-b819-46c1-b906-0fb058b079ce",
+        "name": "Raspberry Pi Zero 2 W Quad-Core 1GHz Wi-Fi + BLE",
+        "slug": "rpi-zero-2w",
+        "sku": "PRG-RPI-510",
+        "description": "Ultra-compact single board computer featuring a quad-core 64-bit Arm Cortex-A53 processor and wireless connectivity.",
+        "price": 1899,
+        "mrp": 2399,
+        "stock": 50,
+        "inStock": true,
+        "brand": "Prayog India",
+        "rating": 4.8,
+        "reviewCount": 240,
+        "specifications": {
+          "CPU": "Quad-Core 1GHz 64-bit",
+          "RAM": "512MB LPDDR2",
+          "Dimensions": "65 x 30 mm"
+        },
+        "features": [],
+        "createdAt": "2026-08-29T05:20:07.386Z",
+        "updatedAt": "2026-09-05T07:26:10.935Z",
+        "variants": [],
+        "images": [
+          {
+            "id": "0aba1397-8da2-40c6-9b14-7a1a7925bcf8",
+            "productId": "rpi-zero-2w",
+            "imageUrl": "https://images.unsplash.com/photo-1608564697071-ddf911d81370?auto=format&fit=crop&w=600&q=80",
+            "altText": "Raspberry Pi Zero 2 W Quad-Core 1GHz Wi-Fi + BLE",
+            "sortOrder": 0
+          }
+        ]
+      },
+      {
+        "id": "ba952ecf-b3da-401c-a4d6-0130b8bcae7a",
+        "categoryId": "1eb0857b-b819-46c1-b906-0fb058b079ce",
+        "name": "NVIDIA Jetson Orin Nano Developer Kit (40 TOPS AI)",
+        "slug": "jetson-orin-nano",
+        "sku": "PRG-RPI-509",
+        "description": "Supercharge entry-level edge AI applications with up to 40 TOPS of AI performance.",
+        "price": 49999,
+        "mrp": 56000,
+        "stock": 20,
+        "inStock": false,
+        "brand": "Prayog India",
+        "rating": 5,
+        "reviewCount": 65,
+        "specifications": {
+          "AI": "40 TOPS",
+          "GPU": "1024-core Ampere",
+          "RAM": "8GB 128-bit LPDDR5"
+        },
+        "features": [],
+        "createdAt": "2026-08-27T06:45:13.503Z",
+        "updatedAt": "2026-09-05T07:26:10.936Z",
+        "variants": [],
+        "images": []
+      },
+      {
+        "id": "stm32-nucleo-f401",
+        "categoryId": "1eb0857b-b819-46c1-b906-0fb058b079ce",
+        "name": "STM32 Nucleo-64 F401RE ARM Cortex-M4 Development Board",
+        "slug": "stm32-nucleo-f401",
+        "sku": "PRG-RPI-511",
+        "description": "Affordable and flexible evaluation platform featuring an STM32F401RET6 MCU with ST-LINK/V2-1 debugger on board.",
+        "price": 1850,
+        "mrp": 2400,
+        "stock": 50,
+        "inStock": true,
+        "brand": "Prayog India",
+        "rating": 4.9,
+        "reviewCount": 82,
+        "specifications": {
+          "Core": "84MHz ARM Cortex-M4 with FPU",
+          "Flash": "512KB",
+          "Connectivity": "Arduino Uno V3 Headers"
+        },
+        "features": [],
+        "createdAt": "2026-08-29T05:20:07.389Z",
+        "updatedAt": "2026-09-05T07:26:10.938Z",
+        "variants": [],
+        "images": [
+          {
+            "id": "aaf891b9-2552-430a-ab56-6b02ca96784a",
+            "productId": "stm32-nucleo-f401",
+            "imageUrl": "https://images.unsplash.com/photo-1608564697071-ddf911d81370?auto=format&fit=crop&w=600&q=80",
+            "altText": "STM32 Nucleo-64 F401RE ARM Cortex-M4 Development Board",
+            "sortOrder": 0
+          }
+        ]
+      },
+      {
+        "id": "orange-pi-5-8gb",
+        "categoryId": "1eb0857b-b819-46c1-b906-0fb058b079ce",
+        "name": "Orange Pi 5 RK3588S 8-Core 8GB RAM Single Board Computer",
+        "slug": "orange-pi-5-8gb",
+        "sku": "PRG-RPI-512",
+        "description": "High-end 8K video output SBC powered by Rockchip RK3588S 8-core 64-bit processor with 6 TOPS NPU for edge computing.",
+        "price": 8499,
+        "mrp": 10200,
+        "stock": 50,
+        "inStock": true,
+        "brand": "Prayog India",
+        "rating": 4.8,
+        "reviewCount": 70,
+        "specifications": {
+          "NPU": "6 TOPS AI",
+          "Video": "8K@60fps HDMI 2.1",
+          "Processor": "RK3588S 8-core up to 2.4GHz"
+        },
+        "features": [],
+        "createdAt": "2026-08-29T05:20:07.390Z",
+        "updatedAt": "2026-09-05T07:26:10.939Z",
+        "variants": [],
+        "images": [
+          {
+            "id": "6a5a174d-b9f2-4522-9856-3b02ae9d28be",
+            "productId": "orange-pi-5-8gb",
+            "imageUrl": "https://images.unsplash.com/photo-1608564697071-ddf911d81370?auto=format&fit=crop&w=600&q=80",
+            "altText": "Orange Pi 5 RK3588S 8-Core 8GB RAM Single Board Computer",
+            "sortOrder": 0
+          }
+        ]
+      },
+      {
+        "id": "beaglebone-black-c",
+        "categoryId": "1eb0857b-b819-46c1-b906-0fb058b079ce",
+        "name": "BeagleBone Black Rev C Industrial Linux Development Board",
+        "slug": "beaglebone-black-c",
+        "sku": "PRG-RPI-513",
+        "description": "Industrial-proven open hardware computer based on TI AM3358 with dual 200MHz PRU real-time coprocessors.",
+        "price": 6200,
+        "mrp": 7500,
+        "stock": 50,
+        "inStock": true,
+        "brand": "Prayog India",
+        "rating": 4.8,
+        "reviewCount": 55,
+        "specifications": {
+          "CPU": "1GHz AM335x ARM Cortex-A8",
+          "PRU": "Dual 32-bit 200MHz PRUs",
+          "eMMC": "4GB 8-bit Onboard"
+        },
+        "features": [],
+        "createdAt": "2026-08-29T05:20:07.392Z",
+        "updatedAt": "2026-09-05T07:26:10.940Z",
+        "variants": [],
+        "images": [
+          {
+            "id": "ace23a48-42a7-4c63-aa42-265ced1a0788",
+            "productId": "beaglebone-black-c",
+            "imageUrl": "https://images.unsplash.com/photo-1608564697071-ddf911d81370?auto=format&fit=crop&w=600&q=80",
+            "altText": "BeagleBone Black Rev C Industrial Linux Development Board",
+            "sortOrder": 0
+          }
+        ]
+      },
+      {
+        "id": "teensy-41-usb",
+        "categoryId": "1eb0857b-b819-46c1-b906-0fb058b079ce",
+        "name": "Teensy 4.1 USB Microcontroller Development Board (600MHz)",
+        "slug": "teensy-41-usb",
+        "sku": "PRG-RPI-514",
+        "description": "Blazing fast 600MHz ARM Cortex-M7 board with Ethernet PHY, SD card socket, and 55 I/O pins.",
+        "price": 3499,
+        "mrp": 4200,
+        "stock": 50,
+        "inStock": true,
+        "brand": "Prayog India",
+        "rating": 5,
+        "reviewCount": 90,
+        "specifications": {
+          "RAM": "1024K RAM (512K tightly coupled)",
+          "Clock": "600MHz ARM Cortex-M7",
+          "Ethernet": "10/100Mbit PHY"
+        },
+        "features": [],
+        "createdAt": "2026-08-29T05:20:07.393Z",
+        "updatedAt": "2026-09-05T07:26:10.942Z",
+        "variants": [],
+        "images": [
+          {
+            "id": "4e7c2167-26ae-4f86-ad1e-b3907111cceb",
+            "productId": "teensy-41-usb",
+            "imageUrl": "https://images.unsplash.com/photo-1608564697071-ddf911d81370?auto=format&fit=crop&w=600&q=80",
+            "altText": "Teensy 4.1 USB Microcontroller Development Board (600MHz)",
+            "sortOrder": 0
+          }
+        ]
+      },
+      {
+        "id": "seeed-xiao-rp2040",
+        "categoryId": "1eb0857b-b819-46c1-b906-0fb058b079ce",
+        "name": "Seeed Studio XIAO RP2040 Dual-Core Cortex-M0+ Mini Board",
+        "slug": "seeed-xiao-rp2040",
+        "sku": "PRG-RPI-515",
+        "description": "Thumb-sized development board with Raspberry Pi RP2040 dual-core chip, RGB user LED, and Type-C port.",
+        "price": 499,
+        "mrp": 750,
+        "stock": 50,
+        "inStock": true,
+        "brand": "Prayog India",
+        "rating": 4.9,
+        "reviewCount": 140,
+        "specifications": {
+          "CPU": "Dual-core 133MHz RP2040",
+          "SRAM": "264KB",
+          "Interface": "USB Type-C",
+          "Dimensions": "20 x 17.5 mm"
+        },
+        "features": [],
+        "createdAt": "2026-08-29T05:20:07.395Z",
+        "updatedAt": "2026-09-05T07:26:10.943Z",
+        "variants": [],
+        "images": [
+          {
+            "id": "c6c07626-4745-4085-a100-1045f05067dc",
+            "productId": "seeed-xiao-rp2040",
+            "imageUrl": "https://images.unsplash.com/photo-1608564697071-ddf911d81370?auto=format&fit=crop&w=600&q=80",
+            "altText": "Seeed Studio XIAO RP2040 Dual-Core Cortex-M0+ Mini Board",
+            "sortOrder": 0
+          }
+        ]
+      },
+      {
+        "id": "esp32-s3-box",
+        "categoryId": "1eb0857b-b819-46c1-b906-0fb058b079ce",
+        "name": "ESP32-S3-BOX AI Voice & Touch Interactive Dev Kit",
+        "slug": "esp32-s3-box",
+        "sku": "PRG-RPI-516",
+        "description": "All-in-one AI development kit featuring a 2.4-inch capacitive touch screen, dual microphones with noise cancellation, and offline speech recognition.",
+        "price": 3899,
+        "mrp": 4800,
+        "stock": 50,
+        "inStock": true,
+        "brand": "Prayog India",
+        "rating": 4.9,
+        "reviewCount": 48,
+        "specifications": {
+          "AI": "Offline Voice Recognition",
+          "Audio": "Dual Mics + Speaker",
+          "Display": "2.4 inch 320x240 Touch"
+        },
+        "features": [],
+        "createdAt": "2026-08-29T05:20:07.396Z",
+        "updatedAt": "2026-09-05T07:26:10.945Z",
+        "variants": [],
+        "images": [
+          {
+            "id": "92596103-3fba-4df3-aae2-402f9f6082fe",
+            "productId": "esp32-s3-box",
+            "imageUrl": "https://images.unsplash.com/photo-1608564697071-ddf911d81370?auto=format&fit=crop&w=600&q=80",
+            "altText": "ESP32-S3-BOX AI Voice & Touch Interactive Dev Kit",
+            "sortOrder": 0
+          }
+        ]
+      },
+      {
+        "id": "stem-atl-mega-kit",
+        "categoryId": "201b3961-ab87-4a52-aadb-f664e2b52e85",
+        "name": "Atal Tinkering Lab (ATL) Official STEM Innovation Starter Kit",
+        "slug": "stem-atl-mega-kit",
+        "sku": "PRG-STM-701",
+        "description": "Government ATL compliant mega tinkering curriculum kit with 50+ sensors, Arduino boards, breadboards, motors, and step-by-step project guide book.",
+        "price": 6499,
+        "mrp": 8999,
+        "stock": 50,
+        "inStock": true,
+        "brand": "Prayog India",
+        "rating": 5,
+        "reviewCount": 168,
+        "specifications": {
+          "Storage": "Heavy Duty Plastic Organiser Box",
+          "Curriculum": "ATL NITI Aayog Compliant",
+          "Experiments": "45+ Hands-on Projects"
+        },
+        "features": [],
+        "createdAt": "2026-08-29T05:20:07.398Z",
+        "updatedAt": "2026-09-05T07:26:10.946Z",
+        "variants": [],
+        "images": [
+          {
+            "id": "9376b30f-2887-4162-998f-93503980daac",
+            "productId": "stem-atl-mega-kit",
+            "imageUrl": "https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=600&q=80",
+            "altText": "Atal Tinkering Lab (ATL) Official STEM Innovation Starter Kit",
+            "sortOrder": 0
+          }
+        ]
+      },
+      {
+        "id": "diy-solar-car-kit",
+        "categoryId": "201b3961-ab87-4a52-aadb-f664e2b52e85",
+        "name": "DIY Solar Powered Engineering Robotic Vehicle Kit",
+        "slug": "diy-solar-car-kit",
+        "sku": "PRG-STM-702",
+        "description": "Educational clean energy science toy teaching solar photovoltaic principles, gear mechanics, and electrical assembly.",
+        "price": 899,
+        "mrp": 1299,
+        "stock": 50,
+        "inStock": true,
+        "brand": "Prayog India",
+        "rating": 4.8,
+        "reviewCount": 310,
+        "specifications": {
+          "Age": "8+ Years",
+          "Power": "High-Efficiency Polycrystalline Solar Panel",
+          "Assembly": "No Soldering Required"
+        },
+        "features": [],
+        "createdAt": "2026-08-29T05:20:07.399Z",
+        "updatedAt": "2026-09-05T07:26:10.948Z",
+        "variants": [],
+        "images": [
+          {
+            "id": "5ad51910-bab0-4130-8706-8933e3cde188",
+            "productId": "diy-solar-car-kit",
+            "imageUrl": "https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=600&q=80",
+            "altText": "DIY Solar Powered Engineering Robotic Vehicle Kit",
+            "sortOrder": 0
+          }
+        ]
+      },
+      {
+        "id": "smart-city-stem-kit",
+        "categoryId": "201b3961-ab87-4a52-aadb-f664e2b52e85",
+        "name": "Smart Automated City IoT School Demonstration Kit",
+        "slug": "smart-city-stem-kit",
+        "sku": "PRG-STM-703",
+        "description": "Interactive smart urban ecosystem model featuring automated streetlights, rain sensor gates, RFID parking, and fire alarm simulation.",
+        "price": 3299,
+        "mrp": 4500,
+        "stock": 50,
+        "inStock": true,
+        "brand": "Prayog India",
+        "rating": 4.9,
+        "reviewCount": 95,
+        "specifications": {
+          "Components": "RFID, Soil Moisture, LDR, Servos, Buzzer",
+          "Architecture": "Precision Cut MDF Board Model"
+        },
+        "features": [],
+        "createdAt": "2026-08-29T05:20:07.401Z",
+        "updatedAt": "2026-09-05T07:26:10.949Z",
+        "variants": [],
+        "images": [
+          {
+            "id": "98f6cb25-b7d6-496f-aa3e-39cdc1d4d911",
+            "productId": "smart-city-stem-kit",
+            "imageUrl": "https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=600&q=80",
+            "altText": "Smart Automated City IoT School Demonstration Kit",
+            "sortOrder": 0
+          }
+        ]
+      },
+      {
+        "id": "hydraulic-arm-wood",
+        "categoryId": "201b3961-ab87-4a52-aadb-f664e2b52e85",
+        "name": "DIY Hydraulic Mechanical Excavator Wood Assembly Kit",
+        "slug": "hydraulic-arm-wood",
+        "sku": "PRG-STM-704",
+        "description": "Hands-on Pascal law demonstration kit using water syringes to actuate a 3-axis mechanical digger arm.",
+        "price": 699,
+        "mrp": 999,
+        "stock": 50,
+        "inStock": true,
+        "brand": "Prayog India",
+        "rating": 4.7,
+        "reviewCount": 215,
+        "specifications": {
+          "Material": "Laser-Cut Birch Plywood",
+          "Actuation": "4-Chamber Water Syringes",
+          "Principle": "Fluid Mechanics & Pascal Law"
+        },
+        "features": [],
+        "createdAt": "2026-08-29T05:20:07.402Z",
+        "updatedAt": "2026-09-05T07:26:10.950Z",
+        "variants": [],
+        "images": [
+          {
+            "id": "16cd8a16-851e-40d3-9f8b-d82ef347b520",
+            "productId": "hydraulic-arm-wood",
+            "imageUrl": "https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=600&q=80",
+            "altText": "DIY Hydraulic Mechanical Excavator Wood Assembly Kit",
+            "sortOrder": 0
+          }
+        ]
+      },
+      {
+        "id": "snap-circuits-lab",
+        "categoryId": "201b3961-ab87-4a52-aadb-f664e2b52e85",
+        "name": "Electronic Snap Circuits Exploration Lab Kit (100+ Experiments)",
+        "slug": "snap-circuits-lab",
+        "sku": "PRG-STM-705",
+        "description": "Snap-together electronic circuits teaching resistors, transistors, speakers, flying saucers, and light-activated alarms safely without tools.",
+        "price": 1899,
+        "mrp": 2600,
+        "stock": 50,
+        "inStock": true,
+        "brand": "Prayog India",
+        "rating": 4.9,
+        "reviewCount": 420,
+        "specifications": {
+          "Parts": "30+ Snap-together Modules",
+          "Safety": "Safe 3V Battery Powered",
+          "Projects": "100+ Safe Snap Circuit Projects"
+        },
+        "features": [],
+        "createdAt": "2026-08-29T05:20:07.404Z",
+        "updatedAt": "2026-09-05T07:26:10.952Z",
+        "variants": [],
+        "images": [
+          {
+            "id": "a4182791-b2b0-4af5-8c80-b7e782e462e7",
+            "productId": "snap-circuits-lab",
+            "imageUrl": "https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=600&q=80",
+            "altText": "Electronic Snap Circuits Exploration Lab Kit (100+ Experiments)",
+            "sortOrder": 0
+          }
+        ]
+      },
+      {
+        "id": "rcwl-0516-radar",
+        "categoryId": "e8ca7e30-dfc7-44fd-8c3b-98f211461370",
+        "name": "RCWL-0516 Doppler Microwave Radar Motion Sensor Module",
+        "slug": "rcwl-0516-radar",
+        "sku": "PRG-SEN-049",
+        "description": "Microwave Doppler radar module capable of detecting motion through walls and acrylic enclosures.",
+        "price": 99,
+        "mrp": 180,
+        "stock": 50,
+        "inStock": true,
+        "brand": "Prayog India",
+        "rating": 4.6,
+        "reviewCount": 580,
+        "specifications": {
+          "Angle": "360 degree no blind zone",
+          "Voltage": "4 - 28V DC",
+          "DetectionDistance": "5 - 7 meters"
+        },
+        "features": [],
+        "createdAt": "2026-08-29T05:20:07.379Z",
+        "updatedAt": "2026-09-05T07:26:10.927Z",
+        "variants": [],
+        "images": [
+          {
+            "id": "935f9dd5-c97b-47b6-9fac-bccf1e30ee43",
+            "productId": "rcwl-0516-radar",
+            "imageUrl": "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=600&q=80",
+            "altText": "RCWL-0516 Doppler Microwave Radar Motion Sensor Module",
+            "sortOrder": 0
+          }
+        ]
+      },
+      {
+        "id": "line-follower-diy",
+        "categoryId": "201b3961-ab87-4a52-aadb-f664e2b52e85",
+        "name": "Analog Line Follower Robot Soldering & Assembly Kit",
+        "slug": "line-follower-diy",
+        "sku": "PRG-STM-707",
+        "description": "Classic LM393 dual comparator line-following robot kit ideal for teaching PCB soldering and optical reflection principles.",
+        "price": 599,
+        "mrp": 899,
+        "stock": 50,
+        "inStock": true,
+        "brand": "Prayog India",
+        "rating": 4.8,
+        "reviewCount": 260,
+        "specifications": {
+          "IC": "LM393 Voltage Comparator",
+          "Track": "Track mat included",
+          "Sensors": "Dual Phototransistors"
+        },
+        "features": [],
+        "createdAt": "2026-08-29T05:20:07.407Z",
+        "updatedAt": "2026-09-05T07:26:10.955Z",
+        "variants": [],
+        "images": [
+          {
+            "id": "5b20d591-9076-45b1-916d-f98ae813fcfa",
+            "productId": "line-follower-diy",
+            "imageUrl": "https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=600&q=80",
+            "altText": "Analog Line Follower Robot Soldering & Assembly Kit",
+            "sortOrder": 0
+          }
+        ]
+      },
+      {
+        "id": "bluetooth-rover-kit",
+        "categoryId": "201b3961-ab87-4a52-aadb-f664e2b52e85",
+        "name": "Bluetooth Smartphone-Controlled Smart Car DIY Student Kit",
+        "slug": "bluetooth-rover-kit",
+        "sku": "PRG-STM-708",
+        "description": "DIY two-wheel drive robotic vehicle controlled via Android Bluetooth app with obstacle-avoidance ultrasonic sensor.",
+        "price": 1999,
+        "mrp": 2799,
+        "stock": 50,
+        "inStock": true,
+        "brand": "Prayog India",
+        "rating": 4.8,
+        "reviewCount": 380,
+        "specifications": {
+          "App": "Custom Android Controller App",
+          "Connectivity": "HC-05 Bluetooth",
+          "Microcontroller": "Arduino Nano Compatible"
+        },
+        "features": [],
+        "createdAt": "2026-08-29T05:20:07.408Z",
+        "updatedAt": "2026-09-05T07:26:10.956Z",
+        "variants": [],
+        "images": [
+          {
+            "id": "3a329a2b-f6bc-4ee5-8b0c-b80203c8ddbc",
+            "productId": "bluetooth-rover-kit",
+            "imageUrl": "https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=600&q=80",
+            "altText": "Bluetooth Smartphone-Controlled Smart Car DIY Student Kit",
+            "sortOrder": 0
+          }
+        ]
+      },
+      {
+        "id": "iot-weather-station",
+        "categoryId": "201b3961-ab87-4a52-aadb-f664e2b52e85",
+        "name": "IoT Environmental Weather Station Cloud Logging DIY Kit",
+        "slug": "iot-weather-station",
+        "sku": "PRG-STM-709",
+        "description": "Build your own smart IoT weather station logging temperature, humidity, pressure, and rain data to ThingSpeak and Blynk cloud.",
+        "price": 2799,
+        "mrp": 3800,
+        "stock": 50,
+        "inStock": true,
+        "brand": "Prayog India",
+        "rating": 4.9,
+        "reviewCount": 88,
+        "specifications": {
+          "Cloud": "ThingSpeak & Blynk IoT Platform",
+          "Sensors": "BME280 + Rain Sensor + 0.96 OLED",
+          "Controller": "ESP8266 NodeMCU"
+        },
+        "features": [],
+        "createdAt": "2026-08-29T05:20:07.410Z",
+        "updatedAt": "2026-09-05T07:26:10.957Z",
+        "variants": [],
+        "images": [
+          {
+            "id": "71edeb3b-fd41-4a6c-acfe-8a4f1b9d5c4c",
+            "productId": "iot-weather-station",
+            "imageUrl": "https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=600&q=80",
+            "altText": "IoT Environmental Weather Station Cloud Logging DIY Kit",
+            "sortOrder": 0
+          }
+        ]
+      },
+      {
+        "id": "piano-glove-stem",
+        "categoryId": "201b3961-ab87-4a52-aadb-f664e2b52e85",
+        "name": "Interactive Electronic Piano Glove Wearable Sound DIY Kit",
+        "slug": "piano-glove-stem",
+        "sku": "PRG-STM-710",
+        "description": "Fingertip touch sensor glove that plays musical notes on contact with any surface using frequency modulation.",
+        "price": 999,
+        "mrp": 1450,
+        "stock": 50,
+        "inStock": true,
+        "brand": "Prayog India",
+        "rating": 4.6,
+        "reviewCount": 110,
+        "specifications": {
+          "Power": "9V Battery Clip",
+          "Sensors": "5x Conductive Fingertip Sensors",
+          "Speaker": "8 Ohm Mini Buzzer"
+        },
+        "features": [],
+        "createdAt": "2026-08-29T05:20:07.412Z",
+        "updatedAt": "2026-09-05T07:26:10.959Z",
+        "variants": [],
+        "images": [
+          {
+            "id": "64927e29-cda6-4373-97b0-495b761e0f5e",
+            "productId": "piano-glove-stem",
+            "imageUrl": "https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=600&q=80",
+            "altText": "Interactive Electronic Piano Glove Wearable Sound DIY Kit",
+            "sortOrder": 0
+          }
+        ]
+      },
+      {
+        "id": "nema17-stepper-59ncm",
+        "categoryId": "3d8d7846-b5bd-49a4-8683-9798f770b90b",
+        "name": "NEMA 17 High Torque Bipolar Stepper Motor (59 Ncm 1.8°)",
+        "slug": "nema17-stepper-59ncm",
+        "sku": "PRG-MOT-801",
+        "description": "High precision 4-wire bipolar stepper motor engineered for 3D printers, CNC laser cutters, and robotics.",
+        "price": 899,
+        "mrp": 1299,
+        "stock": 50,
+        "inStock": true,
+        "brand": "Prayog India",
+        "rating": 4.9,
+        "reviewCount": 340,
+        "specifications": {
+          "Shaft": "5mm D-Cut",
+          "StepAngle": "1.8 deg",
+          "RatedCurrent": "2.0A / Phase",
+          "HoldingTorque": "59 Ncm (83.6 oz.in)"
+        },
+        "features": [],
+        "createdAt": "2026-08-29T05:20:07.414Z",
+        "updatedAt": "2026-09-05T07:26:10.960Z",
+        "variants": [],
+        "images": [
+          {
+            "id": "4df15680-5671-4345-a2e4-4e88e14496f9",
+            "productId": "nema17-stepper-59ncm",
+            "imageUrl": "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=600&q=80",
+            "altText": "NEMA 17 High Torque Bipolar Stepper Motor (59 Ncm 1.8°)",
+            "sortOrder": 0
+          }
+        ]
+      },
+      {
+        "id": "tb6600-stepper-driver",
+        "categoryId": "3d8d7846-b5bd-49a4-8683-9798f770b90b",
+        "name": "TB6600 4A 9-42V Microstepping Stepper Motor Driver",
+        "slug": "tb6600-stepper-driver",
+        "sku": "PRG-MOT-802",
+        "description": "Heavy duty CNC stepper motor driver with optocoupler high-speed isolation and up to 32 microstep resolution.",
+        "price": 649,
+        "mrp": 950,
+        "stock": 50,
+        "inStock": true,
+        "brand": "Prayog India",
+        "rating": 4.8,
+        "reviewCount": 215,
+        "specifications": {
+          "Microsteps": "1, 2/A, 2/B, 4, 8, 16, 32",
+          "CurrentRange": "0.5A - 4.0A",
+          "SupplyVoltage": "9V - 42V DC"
+        },
+        "features": [],
+        "createdAt": "2026-08-29T05:20:07.415Z",
+        "updatedAt": "2026-09-05T07:26:10.962Z",
+        "variants": [],
+        "images": [
+          {
+            "id": "8b505894-f49c-4c46-9eb2-9e952237b1c0",
+            "productId": "tb6600-stepper-driver",
+            "imageUrl": "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=600&q=80",
+            "altText": "TB6600 4A 9-42V Microstepping Stepper Motor Driver",
+            "sortOrder": 0
+          }
+        ]
+      },
+      {
+        "id": "a4988-driver-carrier",
+        "categoryId": "3d8d7846-b5bd-49a4-8683-9798f770b90b",
+        "name": "A4988 Stepper Motor Driver Carrier Module with Heat Sink",
+        "slug": "a4988-driver-carrier",
+        "sku": "PRG-MOT-803",
+        "description": "Compact microstepping motor driver with built-in translator for easy operation with RAMPS 1.4 and CNC shields.",
+        "price": 120,
+        "mrp": 199,
+        "stock": 50,
+        "inStock": true,
+        "brand": "Prayog India",
+        "rating": 4.7,
+        "reviewCount": 680,
+        "specifications": {
+          "Microstep": "Full, 1/2, 1/4, 1/8, and 1/16",
+          "MaxCurrent": "2A with cooling",
+          "LogicVoltage": "3V - 5.5V"
+        },
+        "features": [],
+        "createdAt": "2026-08-29T05:20:07.417Z",
+        "updatedAt": "2026-09-05T07:26:10.963Z",
+        "variants": [],
+        "images": [
+          {
+            "id": "5d47e658-3f8b-4748-a167-ce866cfe6d7c",
+            "productId": "a4988-driver-carrier",
+            "imageUrl": "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=600&q=80",
+            "altText": "A4988 Stepper Motor Driver Carrier Module with Heat Sink",
+            "sortOrder": 0
+          }
+        ]
+      },
+      {
+        "id": "rs775-high-speed-motor",
+        "categoryId": "3d8d7846-b5bd-49a4-8683-9798f770b90b",
+        "name": "RS-775 12V 10000RPM High Speed High Torque DC Motor",
+        "slug": "rs775-high-speed-motor",
+        "sku": "PRG-MOT-804",
+        "description": "Ball-bearing robust 775 DC motor engineered for DIY drill presses, CNC spindles, and heavy combat robotics.",
+        "price": 699,
+        "mrp": 1050,
+        "stock": 50,
+        "inStock": true,
+        "brand": "Prayog India",
+        "rating": 4.8,
+        "reviewCount": 410,
+        "specifications": {
+          "Speed": "10,000 RPM at 12V",
+          "Cooling": "Built-in Fan",
+          "Voltage": "12V - 24V DC",
+          "ShaftDiameter": "5mm Round Shaft"
+        },
+        "features": [],
+        "createdAt": "2026-08-29T05:20:07.419Z",
+        "updatedAt": "2026-09-05T07:26:10.964Z",
+        "variants": [],
+        "images": [
+          {
+            "id": "3b77b1cb-b847-4801-b2b1-e8c7da06d4d6",
+            "productId": "rs775-high-speed-motor",
+            "imageUrl": "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=600&q=80",
+            "altText": "RS-775 12V 10000RPM High Speed High Torque DC Motor",
+            "sortOrder": 0
+          }
+        ]
+      },
+      {
+        "id": "planetary-dc-motor-12v",
+        "categoryId": "3d8d7846-b5bd-49a4-8683-9798f770b90b",
+        "name": "12V High Torque Planetary Gearhead DC Motor with Encoder",
+        "slug": "planetary-dc-motor-12v",
+        "sku": "PRG-MOT-805",
+        "description": "All-metal planetary gearbox DC motor with dual-channel magnetic Hall encoder for closed-loop velocity control.",
+        "price": 1499,
+        "mrp": 2199,
+        "stock": 50,
+        "inStock": true,
+        "brand": "Prayog India",
+        "rating": 4.9,
+        "reviewCount": 95,
+        "specifications": {
+          "Encoder": "Hall 334 PPR dual channel",
+          "GearRatio": "1:50 Planetary",
+          "StallTorque": "18 kg.cm"
+        },
+        "features": [],
+        "createdAt": "2026-08-29T05:20:07.420Z",
+        "updatedAt": "2026-09-05T07:26:10.965Z",
+        "variants": [],
+        "images": [
+          {
+            "id": "7e67b49a-0db6-41ff-9562-66e49a8d8b5a",
+            "productId": "planetary-dc-motor-12v",
+            "imageUrl": "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=600&q=80",
+            "altText": "12V High Torque Planetary Gearhead DC Motor with Encoder",
+            "sortOrder": 0
+          }
+        ]
+      },
+      {
+        "id": "l298n-dual-hbridge",
+        "categoryId": "3d8d7846-b5bd-49a4-8683-9798f770b90b",
+        "name": "L298N Dual H-Bridge DC & Stepper Motor Driver Module",
+        "slug": "l298n-dual-hbridge",
+        "sku": "PRG-MOT-806",
+        "description": "Classic dual full-bridge driver chip designed to drive two DC motors or one 4-wire bipolar stepper motor.",
+        "price": 189,
+        "mrp": 320,
+        "stock": 50,
+        "inStock": true,
+        "brand": "Prayog India",
+        "rating": 4.7,
+        "reviewCount": 890,
+        "specifications": {
+          "Driver": "L298N Dual H Bridge",
+          "PeakCurrent": "2A per bridge",
+          "DriverVoltage": "5V - 35V DC"
+        },
+        "features": [],
+        "createdAt": "2026-08-29T05:20:07.422Z",
+        "updatedAt": "2026-09-05T07:26:10.966Z",
+        "variants": [],
+        "images": [
+          {
+            "id": "46b20efe-67ec-415f-822e-2aaa68560563",
+            "productId": "l298n-dual-hbridge",
+            "imageUrl": "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=600&q=80",
+            "altText": "L298N Dual H-Bridge DC & Stepper Motor Driver Module",
+            "sortOrder": 0
+          }
+        ]
+      },
+      {
+        "id": "pca9685-pwm-driver",
+        "categoryId": "3d8d7846-b5bd-49a4-8683-9798f770b90b",
+        "name": "PCA9685 16-Channel 12-bit PWM I2C Servo Shield Driver",
+        "slug": "pca9685-pwm-driver",
+        "sku": "PRG-MOT-807",
+        "description": "Drive up to 16 servos simultaneously with free-running 12-bit PWM control using only 2 I2C pins from any microcontroller.",
+        "price": 349,
+        "mrp": 550,
+        "stock": 50,
+        "inStock": true,
+        "brand": "Prayog India",
+        "rating": 4.9,
+        "reviewCount": 280,
+        "specifications": {
+          "Channels": "16 PWM Outputs",
+          "Frequency": "40Hz - 1000Hz",
+          "Interface": "I2C Interface",
+          "Resolution": "12-bit (4096 steps)"
+        },
+        "features": [],
+        "createdAt": "2026-08-29T05:20:07.423Z",
+        "updatedAt": "2026-09-05T07:26:10.970Z",
+        "variants": [],
+        "images": [
+          {
+            "id": "5eee261b-9d3e-49e1-9590-a3561349bb8e",
+            "productId": "pca9685-pwm-driver",
+            "imageUrl": "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=600&q=80",
+            "altText": "PCA9685 16-Channel 12-bit PWM I2C Servo Shield Driver",
+            "sortOrder": 0
+          }
+        ]
+      },
+      {
+        "id": "stepper-28byj48-uln",
+        "categoryId": "3d8d7846-b5bd-49a4-8683-9798f770b90b",
+        "name": "28BYJ-48 5V Stepper Motor + ULN2003 Driver Board Kit",
+        "slug": "stepper-28byj48-uln",
+        "sku": "PRG-MOT-808",
+        "description": "Beginner-friendly 5V 4-phase geared stepper motor with 4-channel LED state indicator board.",
+        "price": 169,
+        "mrp": 270,
+        "stock": 50,
+        "inStock": true,
+        "brand": "Prayog India",
+        "rating": 4.6,
+        "reviewCount": 540,
+        "specifications": {
+          "StrideAngle": "5.625° / 64",
+          "ReductionRatio": "1:64",
+          "OperatingVoltage": "5V DC"
+        },
+        "features": [],
+        "createdAt": "2026-08-29T05:20:07.425Z",
+        "updatedAt": "2026-09-05T07:26:10.972Z",
+        "variants": [],
+        "images": [
+          {
+            "id": "7f81586c-6094-4768-a142-a23b086c8b0f",
+            "productId": "stepper-28byj48-uln",
+            "imageUrl": "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=600&q=80",
+            "altText": "28BYJ-48 5V Stepper Motor + ULN2003 Driver Board Kit",
+            "sortOrder": 0
+          }
+        ]
+      },
+      {
+        "id": "ga12-n20-gearmotor",
+        "categoryId": "3d8d7846-b5bd-49a4-8683-9798f770b90b",
+        "name": "GA12-N20 Micro Metal Gear Motor 6V 100RPM",
+        "slug": "ga12-n20-gearmotor",
+        "sku": "PRG-MOT-809",
+        "description": "Miniature precision steel gearbox motor perfect for micro sumo robots, electronic door locks, and DIY rovers.",
+        "price": 220,
+        "mrp": 350,
+        "stock": 50,
+        "inStock": true,
+        "brand": "Prayog India",
+        "rating": 4.8,
+        "reviewCount": 310,
+        "specifications": {
+          "Shaft": "3mm D-Type Shaft",
+          "Speed": "100 RPM at 6V",
+          "GearMaterial": "Full Carbon Steel Gears"
+        },
+        "features": [],
+        "createdAt": "2026-08-29T05:20:07.427Z",
+        "updatedAt": "2026-09-05T07:26:10.975Z",
+        "variants": [],
+        "images": [
+          {
+            "id": "0f5ea689-00fa-4a04-a40a-da2de99de01e",
+            "productId": "ga12-n20-gearmotor",
+            "imageUrl": "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=600&q=80",
+            "altText": "GA12-N20 Micro Metal Gear Motor 6V 100RPM",
+            "sortOrder": 0
+          }
+        ]
+      },
+      {
+        "id": "vnh2sp30-monster-shield",
+        "categoryId": "3d8d7846-b5bd-49a4-8683-9798f770b90b",
+        "name": "Monster Moto Shield 30A Dual VNH2SP30 Motor Driver",
+        "slug": "vnh2sp30-monster-shield",
+        "sku": "PRG-MOT-810",
+        "description": "Extreme high-current dual motor driver shield capable of driving a pair of heavy high-power DC motors up to 30A continuous.",
+        "price": 899,
+        "mrp": 1400,
+        "stock": 50,
+        "inStock": true,
+        "brand": "Prayog India",
+        "rating": 4.8,
+        "reviewCount": 120,
+        "specifications": {
+          "MaxVoltage": "16V DC",
+          "Protection": "Thermal Shutdown & Under-Voltage",
+          "PeakCurrent": "30A per channel"
+        },
+        "features": [],
+        "createdAt": "2026-08-29T05:20:07.429Z",
+        "updatedAt": "2026-09-05T07:26:10.977Z",
+        "variants": [],
+        "images": [
+          {
+            "id": "50fc96c2-9ef6-46bf-bd83-6e8f485e6e0f",
+            "productId": "vnh2sp30-monster-shield",
+            "imageUrl": "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=600&q=80",
+            "altText": "Monster Moto Shield 30A Dual VNH2SP30 Motor Driver",
+            "sortOrder": 0
+          }
+        ]
+      },
+      {
+        "id": "wind-turbine-stem",
+        "categoryId": "201b3961-ab87-4a52-aadb-f664e2b52e85",
+        "name": "DIY Mini Wind Turbine Power Generator Educational Kit",
+        "slug": "wind-turbine-stem",
+        "sku": "PRG-STM-706",
+        "description": "Working aerodynamic wind turbine generator with multi-color LED voltage meter showing renewable energy generation.",
+        "price": 799,
+        "mrp": 1199,
+        "stock": 50,
+        "inStock": true,
+        "brand": "Prayog India",
+        "rating": 4.7,
+        "reviewCount": 140,
+        "specifications": {
+          "Blades": "3-Blade Aerodynamic Rotor",
+          "Output": "5V USB Regulated",
+          "Generator": "3-Phase AC Mini Generator with Rectifier"
+        },
+        "features": [],
+        "createdAt": "2026-08-29T05:20:07.405Z",
+        "updatedAt": "2026-09-05T07:26:10.953Z",
+        "variants": [],
+        "images": [
+          {
+            "id": "3675b650-3d2d-4c11-842d-a1adbda0af27",
+            "productId": "wind-turbine-stem",
+            "imageUrl": "https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=600&q=80",
+            "altText": "DIY Mini Wind Turbine Power Generator Educational Kit",
+            "sortOrder": 0
+          }
+        ]
+      },
+      {
+        "id": "89572e94-719a-4926-aa2a-4de38c832939",
+        "categoryId": "5b576bad-334f-4b79-8fd4-9bf6505f3e6f",
+        "name": "Arduino UNO R3 Official Rev3 Board (ATmega328P)",
+        "slug": "arduino-uno-r3-official-rev3-board",
+        "sku": "PRG-ARD-001",
+        "description": "The Arduino UNO R3 is the world standard microcontroller board for mechatronics, robotics, and smart IoT automation. Powered by the high-reliability ATmega328P 8-bit AVR microchip operating at 16 MHz.",
+        "price": 1499,
+        "mrp": 1999,
+        "stock": 20,
+        "inStock": true,
+        "brand": "Arduino",
+        "rating": 4.9,
+        "reviewCount": 342,
+        "specifications": {
+          "SRAM": "2 KB (ATmega328P)",
+          "EEPROM": "1 KB (ATmega328P)",
+          "Clock Speed": "16 MHz",
+          "Flash Memory": "32 KB (ATmega328P) of which 0.5 KB used by bootloader",
+          "Microcontroller": "ATmega328P",
+          "Digital I/O Pins": "14 (of which 6 provide PWM output)",
+          "Analog Input Pins": "6",
+          "Operating Voltage": "5V DC",
+          "DC Current per I/O Pin": "20 mA",
+          "Input Voltage (Recommended)": "7-12V DC"
+        },
+        "features": [
+          "100% Genuine ATmega328P Microchip with removable DIP IC socket.",
+          "14 Digital Input/Output Pins (6 provide hardware PWM output).",
+          "6 Analog Input Pins with 10-bit ADC resolution.",
+          "16 MHz Crystal Oscillator & On-board USB Type-B Interface.",
+          "Integrated ICSP Header for direct bootloader programming."
+        ],
+        "createdAt": "2026-08-27T06:45:13.489Z",
+        "updatedAt": "2026-09-05T07:26:10.860Z",
+        "variants": [],
+        "images": []
+      },
+      {
+        "id": "esp32-devkit-v1",
+        "categoryId": "5b576bad-334f-4b79-8fd4-9bf6505f3e6f",
+        "name": "ESP32 Development Board (Wi-Fi + Bluetooth Dual-Core 240MHz)",
+        "slug": "esp32-development-board-esp32-001",
+        "sku": "ESP32-001",
+        "description": "Centralized Product Catalogue Master: The ESP32-WROOM-32 is a powerful, generic Wi-Fi + Bluetooth + BLE MCU module for smart robotics and telemetry.",
+        "price": 499,
+        "mrp": 699,
+        "stock": 50,
+        "inStock": true,
+        "brand": "Espressif Systems",
+        "rating": 4.9,
+        "reviewCount": 580,
+        "specifications": {
+          "SRAM": "520 KB",
+          "Clock Speed": "240 MHz",
+          "Digital GPIO": "30 Pins (with PWM/Interrupt)",
+          "Flash Memory": "4 MB SPI Flash",
+          "Microcontroller": "ESP32-D0WDQ6 Dual-Core",
+          "Operating Voltage": "3.3V DC (Micro-USB 5V Input)",
+          "Wireless Connectivity": "Wi-Fi 802.11 b/g/n + BLE 4.2"
+        },
+        "features": [
+          "Dual-Core Tensilica Xtensa 32-bit LX6 Microprocessor @ 240 MHz.",
+          "Integrated 802.11 b/g/n Wi-Fi Transceiver and Bluetooth v4.2 BR/EDR and BLE.",
+          "Ultra-low power co-processor with deep sleep current below 5µA.",
+          "30 GPIO Pins with capacitive touch sensors, ADC, DAC, UART, SPI, I2C."
+        ],
+        "createdAt": "2026-09-03T05:47:31.618Z",
+        "updatedAt": "2026-09-05T07:26:10.875Z",
+        "variants": [],
+        "images": [
+          {
+            "id": "2b5e712b-956f-4682-9e9c-2f20b72bf102",
+            "productId": "esp32-devkit-v1",
+            "imageUrl": "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=80",
+            "altText": "ESP32 Development Board (Wi-Fi + Bluetooth Dual-Core 240MHz)",
+            "sortOrder": 0
+          }
+        ]
+      },
+      {
+        "id": "tank-robot-chassis",
+        "categoryId": "92be3e11-3f0c-4d1a-8655-f83262890586",
+        "name": "Heavy Duty Tracked Robot Tank Chassis with Dual DC Motors",
+        "slug": "tank-robot-chassis",
+        "sku": "PRG-KIT-104",
+        "description": "All-terrain crawler tank chassis with metal damping suspension and engineering rubber tracks for rough outdoor ground.",
+        "price": 4299,
+        "mrp": 5800,
+        "stock": 50,
+        "inStock": true,
+        "brand": "Prayog India",
+        "rating": 4.8,
+        "reviewCount": 88,
+        "specifications": {
+          "Track": "Engineering Rubber Continuous",
+          "Motors": "Dual 9-12V High Torque Motors",
+          "Material": "Aluminium Alloy"
+        },
+        "features": [],
+        "createdAt": "2026-08-29T05:20:07.347Z",
+        "updatedAt": "2026-09-05T07:26:10.896Z",
+        "variants": [],
+        "images": [
+          {
+            "id": "fa17c4d0-938f-42d9-a16c-82f12b96bc2b",
+            "productId": "tank-robot-chassis",
+            "imageUrl": "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&w=600&q=80",
+            "altText": "Heavy Duty Tracked Robot Tank Chassis with Dual DC Motors",
+            "sortOrder": 0
+          }
+        ]
+      },
+      {
+        "id": "max30102-oximeter",
+        "categoryId": "e8ca7e30-dfc7-44fd-8c3b-98f211461370",
+        "name": "MAX30102 Pulse Oximeter & Heart-Rate Biosensor Module",
+        "slug": "max30102-oximeter",
+        "sku": "PRG-SEN-051",
+        "description": "Integrated pulse oximetry and heart-rate monitor biosensor module with dual LEDs (Red + Infrared) and photodetector.",
+        "price": 299,
+        "mrp": 450,
+        "stock": 50,
+        "inStock": true,
+        "brand": "Prayog India",
+        "rating": 4.8,
+        "reviewCount": 230,
+        "specifications": {
+          "Interface": "I2C Interface",
+          "Wavelengths": "660nm (Red) & 880nm (IR)",
+          "SupplyVoltage": "1.8V - 5V"
+        },
+        "features": [],
+        "createdAt": "2026-08-29T05:20:07.383Z",
+        "updatedAt": "2026-09-05T07:26:10.930Z",
+        "variants": [],
+        "images": [
+          {
+            "id": "a59e2c91-cb0b-4158-91e4-cfb4ec9025fd",
+            "productId": "max30102-oximeter",
+            "imageUrl": "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=600&q=80",
+            "altText": "MAX30102 Pulse Oximeter & Heart-Rate Biosensor Module",
+            "sortOrder": 0
+          }
+        ]
+      }
+    ],
+    "carts": [
+      {
+        "id": "1c369f4c-8f22-4274-b5d4-340c30ee557f",
+        "userId": "usr-guest-checkout",
+        "createdAt": "2026-08-27T08:23:19.471Z",
+        "updatedAt": "2026-08-27T08:23:19.471Z",
+        "items": []
+      },
+      {
+        "id": "216bf327-cc65-4685-8107-51d5791ec774",
+        "userId": "699f964a-ff70-45a3-a127-5bceaef20df1",
+        "createdAt": "2026-08-29T10:37:49.834Z",
+        "updatedAt": "2026-08-29T10:37:49.834Z",
+        "items": []
+      }
+    ],
+    "wishlists": [],
+    "orders": [
+      {
+        "id": "b6032ca5-fb4a-49e5-bab1-8c50af924f7e",
+        "orderNumber": "PRG-2026-8404",
+        "userId": "usr-guest-checkout",
+        "customerType": "B2C",
+        "status": "ORDER_PLACED",
+        "totalAmount": 1768.82,
+        "subtotal": 1499,
+        "gstAmount": 269.82,
+        "discountAmount": 0,
+        "shippingAddress": "Om Prakash (Home), Phone: +91 98765 43210, 12th Cross, Indiranagar 2nd Stage, Bengaluru, Karnataka - 560038 (Home)",
+        "createdAt": "2026-08-27T08:25:47.700Z",
+        "updatedAt": "2026-08-27T08:25:47.700Z",
+        "items": [
+          {
+            "id": "67269b6f-6797-4647-b270-9dcf0ed2060e",
+            "orderId": "b6032ca5-fb4a-49e5-bab1-8c50af924f7e",
+            "productId": "89572e94-719a-4926-aa2a-4de38c832939",
+            "variantId": null,
+            "productName": "Arduino UNO R3 Official Rev3 Board (ATmega328P)",
+            "productSku": "PRG-ARD-001",
+            "price": 1499,
+            "quantity": 1
+          }
+        ],
+        "shipment": null
+      },
+      {
+        "id": "0cd9acea-30ad-4c9a-9070-ae95038102ab",
+        "orderNumber": "PRG-2026-8845",
+        "userId": "usr-guest-checkout",
+        "customerType": "B2C",
+        "status": "ORDER_PLACED",
+        "totalAmount": 1768.82,
+        "subtotal": 1499,
+        "gstAmount": 269.82,
+        "discountAmount": 0,
+        "shippingAddress": "Om Prakash (Home), Phone: +91 98765 43210, 12th Cross, Indiranagar 2nd Stage, Bengaluru, Karnataka - 560038 (Home)",
+        "createdAt": "2026-08-27T08:26:06.385Z",
+        "updatedAt": "2026-08-27T08:26:06.385Z",
+        "items": [
+          {
+            "id": "178b01f9-d244-489c-bdce-e84c08566fcd",
+            "orderId": "0cd9acea-30ad-4c9a-9070-ae95038102ab",
+            "productId": "89572e94-719a-4926-aa2a-4de38c832939",
+            "variantId": null,
+            "productName": "Arduino UNO R3 Official Rev3 Board (ATmega328P)",
+            "productSku": "PRG-ARD-001",
+            "price": 1499,
+            "quantity": 1
+          }
+        ],
+        "shipment": null
+      },
+      {
+        "id": "904c3f9a-152b-4266-9f6d-0b7760b0ad75",
+        "orderNumber": "PRG-2026-1490",
+        "userId": "usr-guest-checkout",
+        "customerType": "B2C",
+        "status": "ORDER_PLACED",
+        "totalAmount": 1768.82,
+        "subtotal": 1499,
+        "gstAmount": 269.82,
+        "discountAmount": 0,
+        "shippingAddress": "Dr. Om Prakash, Phone: +91 98765 43210, Prayog Tech Hub, Plot 42, Electronics City Phase 1, Bengaluru, Karnataka - 560100 (Lab / College)",
+        "createdAt": "2026-08-27T09:46:12.773Z",
+        "updatedAt": "2026-08-27T09:46:12.773Z",
+        "items": [
+          {
+            "id": "01310f4e-a73f-441c-af77-c198b50c11f8",
+            "orderId": "904c3f9a-152b-4266-9f6d-0b7760b0ad75",
+            "productId": "89572e94-719a-4926-aa2a-4de38c832939",
+            "variantId": null,
+            "productName": "Arduino UNO R3 Official Rev3 Board (ATmega328P)",
+            "productSku": "PRG-ARD-001",
+            "price": 1499,
+            "quantity": 1
+          }
+        ],
+        "shipment": null
+      },
+      {
+        "id": "4962aeed-bbc9-4317-bc48-f3d5d4fcb2e0",
+        "orderNumber": "PRG-2026-7483",
+        "userId": "usr-guest-checkout",
+        "customerType": "B2C",
+        "status": "ORDER_PLACED",
+        "totalAmount": 1768.82,
+        "subtotal": 1499,
+        "gstAmount": 269.82,
+        "discountAmount": 0,
+        "shippingAddress": "Dr. Om Prakash, Phone: +91 98765 43210, Prayog Tech Hub, Plot 42, Electronics City Phase 1, Bengaluru, Karnataka - 560100 (Lab / College)",
+        "createdAt": "2026-08-27T11:46:57.731Z",
+        "updatedAt": "2026-08-27T11:46:57.731Z",
+        "items": [
+          {
+            "id": "d24394c3-a19c-4cfe-9144-e5db804b00cf",
+            "orderId": "4962aeed-bbc9-4317-bc48-f3d5d4fcb2e0",
+            "productId": "89572e94-719a-4926-aa2a-4de38c832939",
+            "variantId": null,
+            "productName": "Arduino UNO R3 Official Rev3 Board (ATmega328P)",
+            "productSku": "PRG-ARD-001",
+            "price": 1499,
+            "quantity": 1
+          }
+        ],
+        "shipment": null
+      },
+      {
+        "id": "1bd17172-96ef-45fc-9559-d0338f4f1ede",
+        "orderNumber": "PRG-2026-4889",
+        "userId": "usr-guest-checkout",
+        "customerType": "B2C",
+        "status": "ORDER_PLACED",
+        "totalAmount": 1768.82,
+        "subtotal": 1499,
+        "gstAmount": 269.82,
+        "discountAmount": 0,
+        "shippingAddress": "Dr. Om Prakash, Phone: +91 98765 43210, Prayog Tech Hub, Plot 42, Electronics City Phase 1, Bengaluru, Karnataka - 560100 (Lab / College)",
+        "createdAt": "2026-08-27T13:07:23.491Z",
+        "updatedAt": "2026-08-27T13:07:23.491Z",
+        "items": [
+          {
+            "id": "0f830afe-6858-454b-93a0-2239060c9f4a",
+            "orderId": "1bd17172-96ef-45fc-9559-d0338f4f1ede",
+            "productId": "89572e94-719a-4926-aa2a-4de38c832939",
+            "variantId": null,
+            "productName": "Arduino UNO R3 Official Rev3 Board (ATmega328P)",
+            "productSku": "PRG-ARD-001",
+            "price": 1499,
+            "quantity": 1
+          }
+        ],
+        "shipment": null
+      },
+      {
+        "id": "ff00c220-a139-41dd-85cf-b56cbdd1442f",
+        "orderNumber": "PRG-2026-6574",
+        "userId": "usr-guest-checkout",
+        "customerType": "B2C",
+        "status": "ORDER_PLACED",
+        "totalAmount": 2948.82,
+        "subtotal": 2499,
+        "gstAmount": 449.82,
+        "discountAmount": 0,
+        "shippingAddress": "Dr. Om Prakash, Phone: +91 98765 43210, Prayog Tech Hub, Plot 42, Electronics City Phase 1, Bengaluru, Karnataka - 560100 (Lab / College)",
+        "createdAt": "2026-08-29T05:37:08.782Z",
+        "updatedAt": "2026-08-29T05:37:08.782Z",
+        "items": [
+          {
+            "id": "37cfd3eb-d0d2-42d5-92cb-adb72f841c69",
+            "orderId": "ff00c220-a139-41dd-85cf-b56cbdd1442f",
+            "productId": "1f3afeb6-20f2-48ef-9381-c67e3d43b056",
+            "variantId": null,
+            "productName": "4-DOF Acrylic Robotic Arm Manipulator Kit with Servos",
+            "productSku": "PRG-KIT-101",
+            "price": 2499,
+            "quantity": 1
+          }
+        ],
+        "shipment": null
+      },
+      {
+        "id": "055d3655-fd6d-4367-8b21-0e6d092c62bf",
+        "orderNumber": "PRG-2026-4898",
+        "userId": "usr-guest-checkout",
+        "customerType": "B2C",
+        "status": "ORDER_PLACED",
+        "totalAmount": 2948.82,
+        "subtotal": 2499,
+        "gstAmount": 449.82,
+        "discountAmount": 0,
+        "shippingAddress": "Dr. Om Prakash, Phone: +91 98765 43210, Prayog Tech Hub, Plot 42, Electronics City Phase 1, Bengaluru, Karnataka - 560100 (Lab / College)",
+        "createdAt": "2026-08-29T06:05:57.280Z",
+        "updatedAt": "2026-08-29T06:05:57.280Z",
+        "items": [
+          {
+            "id": "0a8f8067-8437-4563-9572-850101c6d745",
+            "orderId": "055d3655-fd6d-4367-8b21-0e6d092c62bf",
+            "productId": "1f3afeb6-20f2-48ef-9381-c67e3d43b056",
+            "variantId": null,
+            "productName": "4-DOF Acrylic Robotic Arm Manipulator Kit with Servos",
+            "productSku": "PRG-KIT-101",
+            "price": 2499,
+            "quantity": 1
+          }
+        ],
+        "shipment": null
+      },
+      {
+        "id": "b4bbf67f-acd6-4ef3-b6d0-25f7f85265e8",
+        "orderNumber": "PRG-2026-1466",
+        "userId": "usr-guest-checkout",
+        "customerType": "B2C",
+        "status": "ORDER_PLACED",
+        "totalAmount": 2948.82,
+        "subtotal": 2499,
+        "gstAmount": 449.82,
+        "discountAmount": 0,
+        "shippingAddress": "Om Kumar, acs, Bengaluru, Karnataka - 560100",
+        "createdAt": "2026-08-29T09:57:57.524Z",
+        "updatedAt": "2026-08-29T09:57:57.524Z",
+        "items": [
+          {
+            "id": "7c931ada-c1cb-436c-ae76-0dacb098e4fd",
+            "orderId": "b4bbf67f-acd6-4ef3-b6d0-25f7f85265e8",
+            "productId": "1f3afeb6-20f2-48ef-9381-c67e3d43b056",
+            "variantId": null,
+            "productName": "4-DOF Acrylic Robotic Arm Manipulator Kit with Servos",
+            "productSku": "PRG-KIT-101",
+            "price": 2499,
+            "quantity": 1
+          }
+        ],
+        "shipment": null
+      },
+      {
+        "id": "22eca209-f9c8-450a-b7fd-c2c76b78a874",
+        "orderNumber": "PRG-2026-1226",
+        "userId": "699f964a-ff70-45a3-a127-5bceaef20df1",
+        "customerType": "B2C",
+        "status": "ORDER_PLACED",
+        "totalAmount": 2948.82,
+        "subtotal": 2499,
+        "gstAmount": 449.82,
+        "discountAmount": 0,
+        "shippingAddress": "Om Kumar, Sant nagar jhiri kamre Ranchi, Bengaluru, Karnataka - 560100",
+        "createdAt": "2026-08-29T10:37:50.044Z",
+        "updatedAt": "2026-08-29T10:37:50.044Z",
+        "items": [
+          {
+            "id": "0d4ed3a1-4a3f-4299-8731-e308e549352b",
+            "orderId": "22eca209-f9c8-450a-b7fd-c2c76b78a874",
+            "productId": "1f3afeb6-20f2-48ef-9381-c67e3d43b056",
+            "variantId": null,
+            "productName": "4-DOF Acrylic Robotic Arm Manipulator Kit with Servos",
+            "productSku": "PRG-KIT-101",
+            "price": 2499,
+            "quantity": 1
+          }
+        ],
+        "shipment": null
+      },
+      {
+        "id": "514cf223-1143-4b3d-8bfd-42a4a7e9d352",
+        "orderNumber": "PRG-2026-5024",
+        "userId": "699f964a-ff70-45a3-a127-5bceaef20df1",
+        "customerType": "B2C",
+        "status": "ORDER_PLACED",
+        "totalAmount": 2948.82,
+        "subtotal": 2499,
+        "gstAmount": 449.82,
+        "discountAmount": 0,
+        "shippingAddress": "Om Kumar, Sant nagar jhiri kamre Ranchi, Bengaluru, Karnataka - 560100",
+        "createdAt": "2026-08-29T11:04:02.333Z",
+        "updatedAt": "2026-08-29T11:04:02.333Z",
+        "items": [
+          {
+            "id": "94e7d07b-654b-4859-8fdc-9dac6510a19b",
+            "orderId": "514cf223-1143-4b3d-8bfd-42a4a7e9d352",
+            "productId": "1f3afeb6-20f2-48ef-9381-c67e3d43b056",
+            "variantId": null,
+            "productName": "4-DOF Acrylic Robotic Arm Manipulator Kit with Servos",
+            "productSku": "PRG-KIT-101",
+            "price": 2499,
+            "quantity": 1
+          }
+        ],
+        "shipment": null
+      },
+      {
+        "id": "ef19ee66-1b41-44c9-944e-c358ba8831b5",
+        "orderNumber": "PRG-2026-2108",
+        "userId": "699f964a-ff70-45a3-a127-5bceaef20df1",
+        "customerType": "B2C",
+        "status": "ORDER_PLACED",
+        "totalAmount": 2948.82,
+        "subtotal": 2499,
+        "gstAmount": 449.82,
+        "discountAmount": 0,
+        "shippingAddress": "Om Kumar, Sant nagar jhiri kamre Ranchi, Bengaluru, Karnataka - 560100",
+        "createdAt": "2026-08-29T11:14:52.151Z",
+        "updatedAt": "2026-08-29T11:14:52.151Z",
+        "items": [
+          {
+            "id": "c3ac8db2-ad6a-420d-931f-d3f472865bc4",
+            "orderId": "ef19ee66-1b41-44c9-944e-c358ba8831b5",
+            "productId": "1f3afeb6-20f2-48ef-9381-c67e3d43b056",
+            "variantId": null,
+            "productName": "4-DOF Acrylic Robotic Arm Manipulator Kit with Servos",
+            "productSku": "PRG-KIT-101",
+            "price": 2499,
+            "quantity": 1
+          }
+        ],
+        "shipment": null
+      },
+      {
+        "id": "6aeb38d2-ad93-4adb-9f7c-362a3d56b272",
+        "orderNumber": "PRG-2026-1546",
+        "userId": "699f964a-ff70-45a3-a127-5bceaef20df1",
+        "customerType": "B2C",
+        "status": "OUT_FOR_DELIVERY",
+        "totalAmount": 2948.82,
+        "subtotal": 2499,
+        "gstAmount": 449.82,
+        "discountAmount": 0,
+        "shippingAddress": "Om Kumar, Sant nagar jhiri kamre Ranchi, Bengaluru, Karnataka - 560100",
+        "createdAt": "2026-08-29T13:23:14.375Z",
+        "updatedAt": "2026-09-01T10:08:44.437Z",
+        "items": [
+          {
+            "id": "eda7f294-34a1-493f-89ce-89ca016c1167",
+            "orderId": "6aeb38d2-ad93-4adb-9f7c-362a3d56b272",
+            "productId": "1f3afeb6-20f2-48ef-9381-c67e3d43b056",
+            "variantId": null,
+            "productName": "4-DOF Acrylic Robotic Arm Manipulator Kit with Servos",
+            "productSku": "PRG-KIT-101",
+            "price": 2499,
+            "quantity": 1
+          }
+        ],
+        "shipment": null
+      },
+      {
+        "id": "d170d7ce-b421-4707-9175-02ae73462ee7",
+        "orderNumber": "PRG-2026-7816",
+        "userId": "usr-guest-checkout",
+        "customerType": "B2C",
+        "status": "ORDER_PLACED",
+        "totalAmount": 647.82,
+        "subtotal": 549,
+        "gstAmount": 98.82,
+        "discountAmount": 0,
+        "shippingAddress": "Customer Delivery Address, Flat 402, Green Glen Tech Park, Outer Ring Road, Bengaluru, Karnataka - 560103",
+        "createdAt": "2026-09-03T08:02:55.934Z",
+        "updatedAt": "2026-09-03T08:02:55.934Z",
+        "items": [
+          {
+            "id": "ab9c0fa0-45ac-428f-be17-be604a8132ad",
+            "orderId": "d170d7ce-b421-4707-9175-02ae73462ee7",
+            "productId": "683feac6-4008-418f-8314-499d215367c9",
+            "variantId": null,
+            "productName": "ESP32 Dual-Core WiFi + Bluetooth Dev Board",
+            "productSku": "PRG-ESP-302",
+            "price": 549,
+            "quantity": 1
+          }
+        ],
+        "shipment": null
+      }
+    ],
+    "services": [],
+    "learningContent": [],
+    "offers": [],
+    "supportTickets": [],
+    "notifications": [
+      {
+        "id": "622c3ad6-83ac-436a-906f-cb8a55f92c25",
+        "userId": "usr-guest-checkout",
+        "type": "ORDER_PLACED",
+        "title": "Order Placed: PRG-2026-8404",
+        "message": "Your hardware order #PRG-2026-8404 for ₹1768.82 has been placed successfully.",
+        "data": {
+          "orderId": "b6032ca5-fb4a-49e5-bab1-8c50af924f7e",
+          "orderNumber": "PRG-2026-8404",
+          "totalAmount": 1768.82,
+          "shippingAddress": "Om Prakash (Home), Phone: +91 98765 43210, 12th Cross, Indiranagar 2nd Stage, Bengaluru, Karnataka - 560038 (Home)"
+        },
+        "readAt": null,
+        "createdAt": "2026-08-27T08:25:47.733Z"
+      },
+      {
+        "id": "6ea9f40e-82c8-4d02-9e7c-afc483244b6e",
+        "userId": "usr-guest-checkout",
+        "type": "ORDER_PLACED",
+        "title": "Order Placed: PRG-2026-8845",
+        "message": "Your hardware order #PRG-2026-8845 for ₹1768.82 has been placed successfully.",
+        "data": {
+          "orderId": "0cd9acea-30ad-4c9a-9070-ae95038102ab",
+          "orderNumber": "PRG-2026-8845",
+          "totalAmount": 1768.82,
+          "shippingAddress": "Om Prakash (Home), Phone: +91 98765 43210, 12th Cross, Indiranagar 2nd Stage, Bengaluru, Karnataka - 560038 (Home)"
+        },
+        "readAt": null,
+        "createdAt": "2026-08-27T08:26:06.391Z"
+      },
+      {
+        "id": "ab10bdc6-0981-4d82-9e3c-3d17396bb411",
+        "userId": "usr-guest-checkout",
+        "type": "ORDER_PLACED",
+        "title": "Order Placed: PRG-2026-1490",
+        "message": "Your hardware order #PRG-2026-1490 for ₹1768.82 has been placed successfully.",
+        "data": {
+          "orderId": "904c3f9a-152b-4266-9f6d-0b7760b0ad75",
+          "orderNumber": "PRG-2026-1490",
+          "totalAmount": 1768.82,
+          "shippingAddress": "Dr. Om Prakash, Phone: +91 98765 43210, Prayog Tech Hub, Plot 42, Electronics City Phase 1, Bengaluru, Karnataka - 560100 (Lab / College)"
+        },
+        "readAt": null,
+        "createdAt": "2026-08-27T09:46:12.786Z"
+      },
+      {
+        "id": "34bd75a7-0c08-47b3-acf4-8a27b6e4c92a",
+        "userId": "usr-guest-checkout",
+        "type": "ORDER_PLACED",
+        "title": "Order Placed: PRG-2026-7483",
+        "message": "Your hardware order #PRG-2026-7483 for ₹1768.82 has been placed successfully.",
+        "data": {
+          "orderId": "4962aeed-bbc9-4317-bc48-f3d5d4fcb2e0",
+          "orderNumber": "PRG-2026-7483",
+          "totalAmount": 1768.82,
+          "shippingAddress": "Dr. Om Prakash, Phone: +91 98765 43210, Prayog Tech Hub, Plot 42, Electronics City Phase 1, Bengaluru, Karnataka - 560100 (Lab / College)"
+        },
+        "readAt": null,
+        "createdAt": "2026-08-27T11:46:57.746Z"
+      },
+      {
+        "id": "98fb46a2-7529-4524-b1e5-efa4b5ed68dc",
+        "userId": "usr-guest-checkout",
+        "type": "ORDER_PLACED",
+        "title": "Order Placed: PRG-2026-4889",
+        "message": "Your hardware order #PRG-2026-4889 for ₹1768.82 has been placed successfully.",
+        "data": {
+          "orderId": "1bd17172-96ef-45fc-9559-d0338f4f1ede",
+          "orderNumber": "PRG-2026-4889",
+          "totalAmount": 1768.82,
+          "shippingAddress": "Dr. Om Prakash, Phone: +91 98765 43210, Prayog Tech Hub, Plot 42, Electronics City Phase 1, Bengaluru, Karnataka - 560100 (Lab / College)"
+        },
+        "readAt": null,
+        "createdAt": "2026-08-27T13:07:23.511Z"
+      },
+      {
+        "id": "ac5913bf-1d48-4afc-a3e9-a39901f378d9",
+        "userId": "usr-guest-checkout",
+        "type": "ORDER_PLACED",
+        "title": "Order Placed: PRG-2026-6574",
+        "message": "Your hardware order #PRG-2026-6574 for ₹2948.82 has been placed successfully.",
+        "data": {
+          "orderId": "ff00c220-a139-41dd-85cf-b56cbdd1442f",
+          "orderNumber": "PRG-2026-6574",
+          "totalAmount": 2948.82,
+          "shippingAddress": "Dr. Om Prakash, Phone: +91 98765 43210, Prayog Tech Hub, Plot 42, Electronics City Phase 1, Bengaluru, Karnataka - 560100 (Lab / College)"
+        },
+        "readAt": null,
+        "createdAt": "2026-08-29T05:37:08.799Z"
+      },
+      {
+        "id": "9dabf639-d083-48a1-9836-3c89f540eafe",
+        "userId": "usr-guest-checkout",
+        "type": "ORDER_PLACED",
+        "title": "Order Placed: PRG-2026-4898",
+        "message": "Your hardware order #PRG-2026-4898 for ₹2948.82 has been placed successfully.",
+        "data": {
+          "orderId": "055d3655-fd6d-4367-8b21-0e6d092c62bf",
+          "orderNumber": "PRG-2026-4898",
+          "totalAmount": 2948.82,
+          "shippingAddress": "Dr. Om Prakash, Phone: +91 98765 43210, Prayog Tech Hub, Plot 42, Electronics City Phase 1, Bengaluru, Karnataka - 560100 (Lab / College)"
+        },
+        "readAt": null,
+        "createdAt": "2026-08-29T06:05:57.290Z"
+      },
+      {
+        "id": "fd238514-1590-4166-a5ff-44df1ce0b773",
+        "userId": "usr-guest-checkout",
+        "type": "ORDER_PLACED",
+        "title": "Order Placed: PRG-2026-1466",
+        "message": "Your hardware order #PRG-2026-1466 for ₹2948.82 has been placed successfully.",
+        "data": {
+          "orderId": "b4bbf67f-acd6-4ef3-b6d0-25f7f85265e8",
+          "orderNumber": "PRG-2026-1466",
+          "totalAmount": 2948.82,
+          "shippingAddress": "Om Kumar, acs, Bengaluru, Karnataka - 560100"
+        },
+        "readAt": null,
+        "createdAt": "2026-08-29T09:57:57.543Z"
+      },
+      {
+        "id": "ea864121-0832-49d4-888d-a4b24cdf6563",
+        "userId": "699f964a-ff70-45a3-a127-5bceaef20df1",
+        "type": "ORDER_PLACED",
+        "title": "Order Placed: PRG-2026-1226",
+        "message": "Your hardware order #PRG-2026-1226 for ₹2948.82 has been placed successfully.",
+        "data": {
+          "orderId": "22eca209-f9c8-450a-b7fd-c2c76b78a874",
+          "orderNumber": "PRG-2026-1226",
+          "totalAmount": 2948.82,
+          "shippingAddress": "Om Kumar, Sant nagar jhiri kamre Ranchi, Bengaluru, Karnataka - 560100"
+        },
+        "readAt": null,
+        "createdAt": "2026-08-29T10:37:50.083Z"
+      },
+      {
+        "id": "438b4086-3432-499a-91c8-1b197ea24b9d",
+        "userId": "699f964a-ff70-45a3-a127-5bceaef20df1",
+        "type": "ORDER_PLACED",
+        "title": "Order Placed: PRG-2026-5024",
+        "message": "Your hardware order #PRG-2026-5024 for ₹2948.82 has been placed successfully.",
+        "data": {
+          "orderId": "514cf223-1143-4b3d-8bfd-42a4a7e9d352",
+          "orderNumber": "PRG-2026-5024",
+          "totalAmount": 2948.82,
+          "shippingAddress": "Om Kumar, Sant nagar jhiri kamre Ranchi, Bengaluru, Karnataka - 560100"
+        },
+        "readAt": null,
+        "createdAt": "2026-08-29T11:04:02.349Z"
+      },
+      {
+        "id": "23d4819b-e2c6-4691-9c42-a4ae5dfd80fd",
+        "userId": "699f964a-ff70-45a3-a127-5bceaef20df1",
+        "type": "ORDER_PLACED",
+        "title": "Order Placed: PRG-2026-2108",
+        "message": "Your hardware order #PRG-2026-2108 for ₹2948.82 has been placed successfully.",
+        "data": {
+          "orderId": "ef19ee66-1b41-44c9-944e-c358ba8831b5",
+          "orderNumber": "PRG-2026-2108",
+          "totalAmount": 2948.82,
+          "shippingAddress": "Om Kumar, Sant nagar jhiri kamre Ranchi, Bengaluru, Karnataka - 560100"
+        },
+        "readAt": null,
+        "createdAt": "2026-08-29T11:14:52.166Z"
+      },
+      {
+        "id": "ca9be457-9140-42bc-af8a-aabd17f3a72f",
+        "userId": "699f964a-ff70-45a3-a127-5bceaef20df1",
+        "type": "ORDER_PLACED",
+        "title": "Order Placed: PRG-2026-1546",
+        "message": "Your hardware order #PRG-2026-1546 for ₹2948.82 has been placed successfully.",
+        "data": {
+          "orderId": "6aeb38d2-ad93-4adb-9f7c-362a3d56b272",
+          "orderNumber": "PRG-2026-1546",
+          "totalAmount": 2948.82,
+          "shippingAddress": "Om Kumar, Sant nagar jhiri kamre Ranchi, Bengaluru, Karnataka - 560100"
+        },
+        "readAt": null,
+        "createdAt": "2026-08-29T13:23:14.413Z"
+      },
+      {
+        "id": "80e9c3a5-4c43-4407-8eda-bfaf28822a64",
+        "userId": "usr-guest-checkout",
+        "type": "ORDER_PLACED",
+        "title": "Order Placed: PRG-2026-7816",
+        "message": "Your hardware order #PRG-2026-7816 for ₹647.82 has been placed successfully.",
+        "data": {
+          "orderId": "d170d7ce-b421-4707-9175-02ae73462ee7",
+          "orderNumber": "PRG-2026-7816",
+          "totalAmount": 647.82,
+          "shippingAddress": "Customer Delivery Address, Flat 402, Green Glen Tech Park, Outer Ring Road, Bengaluru, Karnataka - 560103"
+        },
+        "readAt": null,
+        "createdAt": "2026-09-03T08:02:55.945Z"
+      }
+    ]
+  }
+}

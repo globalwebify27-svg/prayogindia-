@@ -126,10 +126,11 @@ function makeInventoryKey(storeId: StoreId, productId: string): string {
 export function initializeStoreInventory(): void {
   const storeIds: StoreId[] = ["ranchi", "patna", "delhi", "mumbai"];
 
-  PRODUCTS.forEach((product: any) => {
+  PRODUCTS.forEach((product: Product) => {
+    const pAny = product as unknown as Record<string, unknown>;
     const baseStock =
-      typeof product.stock === "number"
-        ? product.stock
+      typeof pAny.stock === "number"
+        ? (pAny.stock as number)
         : product.inStock
           ? 100
           : 0;
@@ -242,7 +243,8 @@ export function getStoreInventory(storeId: StoreId) {
       price,
       basePrice: product.price,
       mrp: product.mrp,
-      images: product.images,
+      image: product.image,
+      images: product.images || (product.image ? [product.image] : []),
       storeId,
       storeName: STORES[storeId]?.name || storeId,
       isCentralInventory: isCentral,
@@ -444,7 +446,11 @@ export function adjustStoreInventory(params: {
 
   if (STORE_INVENTORY_TABLE.size === 0) initializeStoreInventory();
 
-  const key = makeInventoryKey(storeId, productId);
+  const product =
+    PRODUCTS.find((p) => p.id === productId || p.sku === productId);
+  const actualProductId = product?.id || productId;
+
+  const key = makeInventoryKey(storeId, actualProductId);
   let record = STORE_INVENTORY_TABLE.get(key);
 
   if (!record) {
@@ -477,12 +483,10 @@ export function adjustStoreInventory(params: {
         : "IN_STOCK";
   record.updatedAt = new Date().toISOString();
 
-  const product = PRODUCTS.find((p) => p.id === productId);
-
   INVENTORY_TRANSACTIONS.unshift({
     id: `tx-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`,
     storeId,
-    productId,
+    productId: actualProductId,
     productName: product?.name,
     sku: product?.sku,
     transactionType,
@@ -679,8 +683,46 @@ export function getInventoryTransactions(filters?: {
 }
 
 /**
+ * Register a newly created product across all store inventory records.
+ * Default allocation: Ranchi (Central Hub) receives the initial stock, other branches set to 0 or fractional.
+ */
+export function registerProductInEngine(product: Product, initialRanchiStock = 25): void {
+  const storeIds: StoreId[] = ["ranchi", "patna", "delhi", "mumbai"];
+
+  // Push to local PRODUCTS array if not already present
+  const existingIdx = PRODUCTS.findIndex((p) => p.id === product.id || p.sku === product.sku);
+  if (existingIdx >= 0) {
+    PRODUCTS[existingIdx] = { ...PRODUCTS[existingIdx], ...product };
+  } else {
+    PRODUCTS.unshift(product);
+  }
+
+  storeIds.forEach((storeId) => {
+    const key = makeInventoryKey(storeId, product.id);
+    const qty = storeId === "ranchi" ? initialRanchiStock : 0;
+    const lowThreshold = 5;
+    const status: StockStatus =
+      qty === 0 ? "OUT_OF_STOCK" : qty <= lowThreshold ? "LOW_STOCK" : "IN_STOCK";
+
+    STORE_INVENTORY_TABLE.set(key, {
+      id: `inv-${storeId}-${product.id}`,
+      storeId,
+      productId: product.id,
+      quantity: qty,
+      reservedQuantity: 0,
+      availableQuantity: qty,
+      reorderLevel: 10,
+      lowStockThreshold: lowThreshold,
+      status,
+      updatedAt: new Date().toISOString(),
+    });
+  });
+}
+
+/**
  * Get all Stock Transfers.
  */
 export function getStockTransfers(): StockTransferRecord[] {
   return [...STOCK_TRANSFERS];
 }
+

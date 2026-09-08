@@ -19,7 +19,10 @@ interface HeroProps {
   onExploreSolutions: () => void;
 }
 
-const HERO_VIDEOS = ["/videos/hero_background.mp4", "/videos/hero_video_2.mp4"];
+const HERO_VIDEOS = [
+  "https://res.cloudinary.com/fyueflvh/video/upload/v1788595376/prayog/videos/hero_background.mp4",
+  "https://res.cloudinary.com/fyueflvh/video/upload/v1788595381/prayog/videos/hero_video_2.mp4",
+];
 
 export const HeroSection: React.FC<HeroProps> = ({
   onExploreProducts,
@@ -80,7 +83,7 @@ export const HeroSection: React.FC<HeroProps> = ({
         {/* Robot Background Image positioned to the right/center behind text */}
         <div className="absolute right-[-15%] top-4 w-[85%] max-w-[360px] h-[95%] opacity-35 sm:opacity-40 select-none">
           <img
-            src="/images/robot_mobile_hero.jpg"
+            src="https://res.cloudinary.com/fyueflvh/image/upload/v1788595362/prayog/banners/robot_mobile_hero.jpg"
             alt="Robotics Prayog India"
             className="w-full h-full object-contain object-top"
           />

@@ -102,9 +102,104 @@ export class S3StorageService implements StorageService {
   }
 }
 
-// 3. Factory Getter
+// 3. Cloudinary Object Storage & Global CDN Implementation
+export class CloudinaryStorageService implements StorageService {
+  private cloudName: string;
+  private apiKey: string;
+  private apiSecret: string;
+
+  constructor() {
+    this.cloudName = process.env.CLOUDINARY_CLOUD_NAME || "fyueflvh";
+    this.apiKey = process.env.CLOUDINARY_API_KEY || "544111356368169";
+    this.apiSecret =
+      process.env.CLOUDINARY_API_SECRET || "rYfAb_4wHeuE6FfCMaSFNFMjsPc";
+  }
+
+  async upload(
+    key: string,
+    buffer: Buffer,
+    _mimeType: string,
+  ): Promise<string> {
+    const { v2: cloudinary } = await import("cloudinary");
+    cloudinary.config({
+      cloud_name: this.cloudName,
+      api_key: this.apiKey,
+      api_secret: this.apiSecret,
+      secure: true,
+    });
+
+    const publicId = key.replace(/\.[^/.]+$/, ""); // strip extension
+
+    return new Promise((resolve, reject) => {
+      const uploadStream = cloudinary.uploader.upload_stream(
+        {
+          public_id: publicId,
+          resource_type: "auto",
+          overwrite: true,
+        },
+        (error, result) => {
+          if (error) return reject(error);
+          resolve(result?.secure_url || "");
+        },
+      );
+      uploadStream.end(buffer);
+    });
+  }
+
+  async delete(key: string): Promise<boolean> {
+    try {
+      const { v2: cloudinary } = await import("cloudinary");
+      cloudinary.config({
+        cloud_name: this.cloudName,
+        api_key: this.apiKey,
+        api_secret: this.apiSecret,
+        secure: true,
+      });
+
+      const publicId = key.replace(/\.[^/.]+$/, "");
+      await cloudinary.uploader.destroy(publicId);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  getUrl(key: string): string {
+    const cleanKey = key.replace(/^\/+/, "");
+    return `https://res.cloudinary.com/${this.cloudName}/image/upload/${cleanKey}`;
+  }
+
+  async getSignedUrl(key: string, expiresInSeconds = 3600): Promise<string> {
+    const timestamp = Math.round(new Date().getTime() / 1000);
+    const { v2: cloudinary } = await import("cloudinary");
+    cloudinary.config({
+      cloud_name: this.cloudName,
+      api_key: this.apiKey,
+      api_secret: this.apiSecret,
+      secure: true,
+    });
+
+    const publicId = key.replace(/\.[^/.]+$/, "");
+    const signature = cloudinary.utils.api_sign_request(
+      { public_id: publicId, timestamp },
+      this.apiSecret,
+    );
+
+    return `https://api.cloudinary.com/v1_1/${this.cloudName}/auto/upload?api_key=${this.apiKey}&timestamp=${timestamp}&signature=${signature}&public_id=${encodeURIComponent(publicId)}`;
+  }
+
+  async exists(_key: string): Promise<boolean> {
+    return true;
+  }
+}
+
+// 4. Factory Getter
 export function getStorageService(): StorageService {
-  const provider = (process.env.STORAGE_PROVIDER || "local").toLowerCase();
+  const provider = (process.env.STORAGE_PROVIDER || "cloudinary").toLowerCase();
+
+  if (provider === "cloudinary") {
+    return new CloudinaryStorageService();
+  }
 
   if (provider === "s3" || provider === "gcs") {
     return new S3StorageService();
@@ -115,7 +210,7 @@ export function getStorageService(): StorageService {
 
 /**
  * Generate safe, unique storage object key.
- * Prevents path traversal and filename collisons.
+ * Prevents path traversal and filename collisions.
  */
 export function generateStorageKey(
   context: string,
@@ -133,6 +228,29 @@ export function generateStorageKey(
   return `${sanitizeContext}/${userId}/${randomUuid}.${safeExt}`;
 }
 
+/**
+ * Enterprise Centralized Product Media Key Generator.
+ * Rule: One global path per product. Never store-specific!
+ * Pattern: products/{productId}/{slot}-{randomHash}.{ext}
+ * Example: products/PROD-001/main.webp, products/PROD-001/image-2.webp
+ */
+export function generateProductMediaKey(
+  productId: string,
+  originalFilename: string,
+  slot: "main" | "gallery" | "video" | "datasheet" | "cad" = "main",
+  index = 0,
+): string {
+  const cleanProdId = productId.trim().replace(/[^a-zA-Z0-9_-]/g, "");
+  const ext = originalFilename.includes(".")
+    ? originalFilename.split(".").pop()?.toLowerCase()
+    : "webp";
+  const safeExt = (ext || "webp").replace(/[^a-z0-9]/g, "");
+  const suffix = index > 0 ? `-${index + 1}` : "";
+  const randomSuffix = Math.random().toString(36).substring(2, 7);
+
+  return `products/${cleanProdId}/${slot}${suffix}-${randomSuffix}.${safeExt}`;
+}
+
 // Allowed MIME Type Whitelists for Uploads
 export const ALLOWED_ATTACHMENT_MIME_TYPES = [
   "image/jpeg",
@@ -142,4 +260,15 @@ export const ALLOWED_ATTACHMENT_MIME_TYPES = [
   "application/pdf",
 ];
 
+export const ALLOWED_PRODUCT_MEDIA_TYPES = [
+  "image/jpeg",
+  "image/jpg",
+  "image/png",
+  "image/webp",
+  "video/mp4",
+  "video/webm",
+  "application/pdf",
+];
+
 export const MAX_ATTACHMENT_SIZE_BYTES = 10 * 1024 * 1024; // 10MB
+export const MAX_PRODUCT_MEDIA_SIZE_BYTES = 25 * 1024 * 1024; // 25MB

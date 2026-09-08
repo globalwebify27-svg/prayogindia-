@@ -15,25 +15,12 @@ import {
   Banknote,
   QrCode,
   User,
-  Phone,
-  Mail,
   ArrowLeft,
-  Store,
   Package,
-  ScanBarcode,
-  Sparkles,
-  Clock,
-  MapPin,
-  MessageSquare,
-  ChevronDown,
-  Tag,
-  Zap,
   Lock,
-  KeyRound,
   AlertCircle,
   Tablet,
   ShieldCheck,
-  LogOut,
 } from "lucide-react";
 import {
   STORES,
@@ -43,11 +30,12 @@ import {
   PaymentMethod,
   saveSession,
   generateSessionId,
-  generateInvoiceNo,
   POS_BROADCAST_CHANNEL,
 } from "@/data/storeConfig";
 import { PRODUCTS, Product } from "@/data/mockData";
 import { QuickViewModal } from "@/components/products/QuickViewModal";
+import { RoboticOrderSuccess } from "@/components/walk-in/RoboticOrderSuccess";
+import { OrderTruckButton } from "@/components/walk-in/OrderTruckButton";
 
 // ─────────────────────────────────────────────────────
 // Cart item in kiosk state
@@ -90,6 +78,7 @@ function KioskHeader({
   onLock?: () => void;
 }) {
   const storeData = store;
+  const isSuccess = view === "success";
   return (
     <header className="bg-white border-b border-slate-200 px-4 sm:px-6 py-3 flex items-center justify-between gap-3 sticky top-0 z-30 shadow-sm">
       <div className="flex items-center gap-3 min-w-0">
@@ -118,6 +107,13 @@ function KioskHeader({
       </div>
 
       <div className="flex items-center gap-2">
+        {isSuccess && (
+          <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            <span className="hidden sm:inline">Order Dispatched</span>
+          </div>
+        )}
+
         {view === "browse" && (
           <button
             onClick={onCartClick}
@@ -334,10 +330,12 @@ export default function StoreKioskPage() {
       const savedAuth = localStorage.getItem(
         `prayog_kiosk_unlocked_${storeId}`,
       );
-      if (savedAuth === "true") {
-        setIsDeviceUnlocked(true);
-      }
-      setCheckingAuth(false);
+      queueMicrotask(() => {
+        if (savedAuth === "true") {
+          setIsDeviceUnlocked(true);
+        }
+        setCheckingAuth(false);
+      });
       broadcastRef.current = new BroadcastChannel(POS_BROADCAST_CHANNEL);
     }
     return () => broadcastRef.current?.close();
@@ -445,53 +443,73 @@ export default function StoreKioskPage() {
     if (!customerName.trim() || !customerPhone.trim()) return;
     setSubmitting(true);
 
-    const sessionItems: WalkInCartItem[] = cart.map((i) => ({
-      productId: i.product.id,
-      name: i.product.name,
-      sku: i.product.sku,
-      image: i.product.image,
-      price: i.product.price,
-      mrp: i.product.mrp,
-      quantity: i.quantity,
-    }));
-
-    const session: WalkInSession = {
-      id: generateSessionId(storeId),
-      storeId,
-      status: "PENDING",
-      customerName: customerName.trim(),
-      customerPhone: customerPhone.trim(),
-      customerEmail: customerEmail.trim(),
-      paymentMethod,
-      items: sessionItems,
-      subtotal,
-      gstAmount,
-      total: grandTotal,
-      notes: notes.trim(),
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-
-    // Save to localStorage for same-device sync
-    saveSession(session);
-
-    // Broadcast to manager POS (same-browser tabs)
-    broadcastRef.current?.postMessage({ type: "NEW_SESSION", session });
-
-    // Also push to server API for cross-device sync
     try {
-      await fetch("/api/pos/sessions", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ storeId, session }),
-      });
-    } catch {
-      // Network failure is non-fatal — localStorage sync is primary
-    }
+      const sessionItems: WalkInCartItem[] = cart.map((i) => ({
+        productId: i.product.id,
+        name: i.product.name,
+        sku: i.product.sku,
+        image: i.product.image,
+        price: i.product.price,
+        mrp: i.product.mrp,
+        quantity: i.quantity,
+      }));
 
-    setCompletedSession(session);
-    setSubmitting(false);
-    setView("success");
+      // Calculate total accounting for any in-store coupon applied
+      const payableAmount = typeof finalTotal === "number" ? finalTotal : grandTotal;
+
+      const session: WalkInSession = {
+        id: generateSessionId(storeId),
+        storeId,
+        status: "PENDING",
+        customerName: customerName.trim(),
+        customerPhone: customerPhone.trim(),
+        customerEmail: customerEmail.trim(),
+        paymentMethod,
+        items: sessionItems,
+        subtotal,
+        gstAmount,
+        total: payableAmount,
+        notes: notes.trim(),
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+
+      // Set completed session immediately to avoid any null-state delays
+      setCompletedSession(session);
+
+      // Save to localStorage for same-device sync
+      try {
+        saveSession(session);
+      } catch (e) {
+        console.warn("Kiosk localStorage save warning:", e);
+      }
+
+      // Broadcast to manager POS (same-browser tabs)
+      try {
+        broadcastRef.current?.postMessage({ type: "NEW_SESSION", session });
+      } catch (e) {
+        console.warn("Kiosk broadcast warning:", e);
+      }
+
+      // Also push to server API for cross-device sync
+      try {
+        await fetch("/api/pos/sessions", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ storeId, session }),
+        });
+      } catch {
+        // Network failure is non-fatal — localStorage sync is primary
+      }
+
+      setView("success");
+    } catch (err) {
+      console.error("Order submission exception:", err);
+      // Ensure the kiosk still proceeds to success view with active session
+      setView("success");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   // ── RENDER HELPERS ────────────────────────────────
@@ -1042,129 +1060,47 @@ export default function StoreKioskPage() {
         )}
 
         {/* Submission Button */}
-        <div className="pt-1 pb-4">
-          <button
-            type="button"
-            onClick={handleSubmitOrder}
+        <div className="pt-2 pb-6 flex flex-col items-center justify-center">
+          <OrderTruckButton
+            defaultText="Complete Order"
+            successText="Order Placed"
             disabled={
               submitting || !customerName.trim() || !customerPhone.trim()
             }
-            className="w-full py-3.5 rounded-xl font-black text-xs uppercase tracking-wider text-white flex items-center justify-center gap-2 active:scale-[0.99] transition-all shadow-md shadow-[#00AEEF]/20 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-            style={{ background: store.accentColor || "#00AEEF" }}
-          >
-            {submitting ? (
-              <div className="flex items-center gap-2">
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                <span>Sending Order to Counter...</span>
-              </div>
-            ) : (
-              <>
-                <CheckCircle2 className="w-4 h-4" />
-                <span>Confirm &amp; Place Walk-in Order</span>
-                <ChevronRight className="w-4 h-4" />
-              </>
-            )}
-          </button>
+            onClick={() => {
+              // Trigger truck driving animation, then commit order to counter
+              setTimeout(() => {
+                handleSubmitOrder();
+              }, 3200);
+            }}
+          />
+          <span className="text-[11px] text-slate-400 mt-2.5 font-medium">
+            Click to confirm &amp; dispatch order to counter
+          </span>
         </div>
       </div>
     </div>
   );
 
+  const handleStartNewSession = () => {
+    setCart([]);
+    setCustomerName("");
+    setCustomerPhone("");
+    setCustomerEmail("");
+    setNotes("");
+    setCouponCode("");
+    setCouponDiscount(0);
+    setAppliedCoupon(null);
+    setCompletedSession(null);
+    setView("browse");
+  };
+
   const renderSuccessView = () => (
-    <div className="flex flex-col flex-1 items-center justify-center px-6 py-12 text-center">
-      <div
-        className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 border-4 shadow-xl"
-        style={{
-          background: `${store.accentColor}15`,
-          borderColor: `${store.accentColor}40`,
-        }}
-      >
-        <CheckCircle2
-          className="w-10 h-10"
-          style={{ color: store.accentColor }}
-        />
-      </div>
-
-      <div
-        className="inline-flex items-center gap-2 text-white text-xs font-black uppercase px-4 py-1.5 rounded-full mb-4"
-        style={{ background: store.accentColor }}
-      >
-        <Sparkles className="w-3.5 h-3.5" />
-        Order Sent to Counter!
-      </div>
-
-      <h1 className="text-2xl sm:text-3xl font-black text-slate-900 leading-tight mb-2">
-        Thank You,
-        <br />
-        <span style={{ color: store.accentColor }}>
-          {completedSession?.customerName}!
-        </span>
-      </h1>
-      <p className="text-slate-500 text-sm font-medium max-w-xs mx-auto mb-8">
-        Your order has been sent to the store staff. Please proceed to the
-        counter — they will assist you with payment.
-      </p>
-
-      <div className="bg-slate-50 border border-slate-200 rounded-2xl p-5 w-full max-w-sm text-left space-y-3 mb-6">
-        <div className="text-[10px] font-black uppercase text-slate-400 tracking-wider">
-          Order Details
-        </div>
-        <div className="flex justify-between text-xs">
-          <span className="text-slate-500">Session ID</span>
-          <span className="font-mono font-bold text-slate-700 text-[10px]">
-            {completedSession?.id}
-          </span>
-        </div>
-        <div className="flex justify-between text-xs">
-          <span className="text-slate-500">Store</span>
-          <span className="font-bold text-slate-800">{store.shortName}</span>
-        </div>
-        <div className="flex justify-between text-xs">
-          <span className="text-slate-500">Items</span>
-          <span className="font-bold text-slate-800">
-            {completedSession?.items.length} product(s)
-          </span>
-        </div>
-        <div className="flex justify-between text-xs">
-          <span className="text-slate-500">Total Amount</span>
-          <span className="font-black text-slate-900">
-            ₹{completedSession?.total.toLocaleString()}
-          </span>
-        </div>
-        <div className="flex justify-between text-xs">
-          <span className="text-slate-500">Payment</span>
-          <span className="font-bold" style={{ color: store.accentColor }}>
-            {completedSession?.paymentMethod === "CASH"
-              ? "💵 Cash at Counter"
-              : "📱 UPI QR at Counter"}
-          </span>
-        </div>
-      </div>
-
-      <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 w-full max-w-sm text-xs text-amber-800 font-bold flex items-center gap-3 mb-6">
-        <div className="w-8 h-8 rounded-xl bg-amber-200 flex items-center justify-center shrink-0">
-          <Store className="w-4 h-4 text-amber-700" />
-        </div>
-        Please walk to the billing counter. Show this screen or give your name
-        to the staff.
-      </div>
-
-      <button
-        onClick={() => {
-          setCart([]);
-          setCustomerName("");
-          setCustomerPhone("");
-          setCustomerEmail("");
-          setNotes("");
-          setCompletedSession(null);
-          setView("browse");
-        }}
-        className="text-xs font-extrabold px-6 py-3 rounded-xl text-white shadow-md active:scale-95 transition-all"
-        style={{ background: store.accentColor }}
-      >
-        Start New Shopping Session
-      </button>
-    </div>
+    <RoboticOrderSuccess
+      session={completedSession}
+      store={store}
+      onReset={handleStartNewSession}
+    />
   );
 
   if (checkingAuth) {
@@ -1316,7 +1252,7 @@ export default function StoreKioskPage() {
           </div>
         )}
         {view === "success" && (
-          <div className="absolute inset-0 bg-slate-100 z-20 flex flex-col">
+          <div className="absolute inset-0 bg-[#E4ECFA] z-30 flex flex-col overflow-y-auto">
             {renderSuccessView()}
           </div>
         )}

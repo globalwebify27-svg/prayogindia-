@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo, Suspense } from "react";
+import React, { useState, useMemo, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { CategoryBreadcrumb } from "@/components/categories/CategoryBreadcrumb";
 import { ProductsHeader } from "@/components/products/ProductsHeader";
@@ -47,6 +47,7 @@ function ProductsContent() {
     searchParams.get("search") || searchParams.get("q") || "";
 
   // Filter & Search State
+  const [productList, setProductList] = useState<Product[]>(PRODUCTS);
   const [searchQuery, setSearchQuery] = useState(initialSearch);
   const [searchFocused, setSearchFocused] = useState(false);
   const [searchHistory, setSearchHistory] = useState<string[]>([]);
@@ -58,6 +59,63 @@ function ProductsContent() {
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 50000]);
   const [techSpecs, setTechSpecs] = useState<TechnicalSpecFilters>({});
   const [sortBy, setSortBy] = useState<SortOption>("featured");
+
+  useEffect(() => {
+    fetch("/api/products?limit=100")
+      .then((res) => res.json())
+      .then((json) => {
+        if (json?.success && Array.isArray(json.data) && json.data.length > 0) {
+          const apiProducts: Product[] = json.data.map((item: any) => {
+            const primaryImg =
+              item.images?.[0]?.imageUrl ||
+              (Array.isArray(item.images) && typeof item.images[0] === "string"
+                ? item.images[0]
+                : "/placeholder-product.png");
+            const allImages = Array.isArray(item.images)
+              ? item.images.map((im: any) => (typeof im === "string" ? im : im.imageUrl))
+              : [primaryImg];
+
+            return {
+              id: item.id,
+              slug: item.slug || item.id,
+              name: item.name,
+              sku: item.sku || `SKU-${item.id.slice(0, 6)}`,
+              brand: item.brand || "Prayog India",
+              category: item.category?.name || "Robotics & Components",
+              price: item.price,
+              mrp: item.mrp || item.price * 1.2,
+              discount:
+                item.mrp && item.mrp > item.price
+                  ? `${Math.round(((item.mrp - item.price) / item.mrp) * 100)}% OFF`
+                  : "",
+              rating: item.rating ?? 4.8,
+              reviews: item.reviewCount ?? 12,
+              inStock: item.inStock ?? (item.stock > 0),
+              image: primaryImg,
+              images: allImages,
+              badge: item.badge,
+              description: item.description || "",
+              features: item.features || [],
+              specs: (item.specifications as Record<string, string>) || {},
+            };
+          });
+
+          // Prepend newly added database products that aren't already in PRODUCTS
+          const existingIds = new Set(PRODUCTS.map((p) => p.id));
+          const newDbOnly = apiProducts.filter((p) => !existingIds.has(p.id));
+          // Also update any matching product with live database data
+          const updatedMock = PRODUCTS.map((p) => {
+            const match = apiProducts.find((ap) => ap.id === p.id || ap.slug === p.slug);
+            return match || p;
+          });
+
+          setProductList([...newDbOnly, ...updatedMock]);
+        }
+      })
+      .catch((err) => {
+        console.warn("Could not fetch latest products from API, using fallback", err);
+      });
+  }, []);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const {
     cart,
@@ -113,7 +171,7 @@ function ProductsContent() {
 
   // ── Filter & Sort Logic ──
   const filteredProducts = useMemo(() => {
-    let result = searchProductsFuzzy(PRODUCTS, searchQuery);
+    let result = searchProductsFuzzy(productList, searchQuery);
 
     if (selectedCategory) {
       result = result.filter((p) =>
@@ -222,6 +280,7 @@ function ProductsContent() {
 
     return result;
   }, [
+    productList,
     searchQuery,
     selectedCategory,
     selectedBrand,

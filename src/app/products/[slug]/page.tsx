@@ -1,20 +1,76 @@
 import { Metadata } from "next";
-import { PRODUCTS } from "@/data/mockData";
+import { db } from "@/lib/db";
+import { PRODUCTS, Product } from "@/data/mockData";
 import { ProductDetailView } from "@/components/product/ProductDetailView";
 
 interface Props {
   params: Promise<{ slug: string }>;
 }
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug } = await params;
-  const product =
+async function getProduct(slug: string): Promise<Product | null> {
+  if (process.env.DATABASE_URL) {
+    try {
+      const dbProduct = await db.product.findFirst({
+        where: {
+          OR: [{ slug }, { id: slug }, { sku: slug }],
+        },
+        include: {
+          category: true,
+          images: { orderBy: { sortOrder: "asc" } },
+          variants: true,
+        },
+      });
+
+      if (dbProduct) {
+        const imageUrls = dbProduct.images.map((img) => img.imageUrl);
+        const primaryImage =
+          imageUrls.length > 0
+            ? imageUrls[0]
+            : "https://images.unsplash.com/photo-1553406830-ef2513450d76?auto=format&fit=crop&w=800&q=80";
+
+        const specsObj =
+          dbProduct.specifications && typeof dbProduct.specifications === "object"
+            ? (dbProduct.specifications as Record<string, string>)
+            : {};
+
+        return {
+          id: dbProduct.id,
+          slug: dbProduct.slug,
+          name: dbProduct.name,
+          sku: dbProduct.sku,
+          brand: dbProduct.brand,
+          category: dbProduct.category?.name || "Robotics & Hardware",
+          price: dbProduct.price,
+          mrp: dbProduct.mrp || Math.round(dbProduct.price * 1.3),
+          discount: `${Math.round((((dbProduct.mrp || dbProduct.price * 1.3) - dbProduct.price) / (dbProduct.mrp || dbProduct.price * 1.3)) * 100)}% OFF`,
+          rating: dbProduct.rating,
+          reviews: dbProduct.reviewCount,
+          inStock: dbProduct.inStock,
+          image: primaryImage,
+          images: imageUrls.length > 0 ? imageUrls : [primaryImage],
+          description: dbProduct.description,
+          features: dbProduct.features || [],
+          specs: specsObj,
+        };
+      }
+    } catch {
+      // Fallback to mock
+    }
+  }
+
+  return (
     PRODUCTS.find(
       (p) =>
         (p.slug && p.slug === slug) ||
         p.id === slug ||
         p.name.toLowerCase().replace(/[^a-z0-9]+/g, "-") === slug,
-    ) || PRODUCTS[0];
+    ) || null
+  );
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params;
+  const product = (await getProduct(slug)) || PRODUCTS[0];
 
   const title = product
     ? `${product.name} | Prayog India Store`
@@ -29,12 +85,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     openGraph: {
       title,
       description,
-      images: product ? [{ url: product.image }] : [],
+      images: product?.image ? [{ url: product.image }] : [],
     },
   };
 }
 
 export default async function ProductSlugPage({ params }: Props) {
   const { slug } = await params;
-  return <ProductDetailView slug={slug} />;
+  const product = await getProduct(slug);
+  return <ProductDetailView slug={slug} initialProduct={product} />;
 }
+

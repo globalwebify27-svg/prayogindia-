@@ -40,6 +40,16 @@ import {
   GraduationCap,
   Zap,
 } from "lucide-react";
+import {
+  RoboticsCategoryIcon,
+  ArduinoCategoryIcon,
+  SensorsCategoryIcon,
+  DroneCategoryIcon,
+  StemCategoryIcon,
+  IoTCategoryIcon,
+  DevBoardCategoryIcon,
+  ComponentsCategoryIcon,
+} from "@/components/icons/CategoryIcons";
 import { PrayogLogo } from "./PrayogLogo";
 import { PRODUCTS } from "@/data/mockData";
 import { useStore } from "@/context/StoreContext";
@@ -87,44 +97,49 @@ const HEADER_CATEGORIES = [
     name: "Robotics Kits",
     slug: "robotics",
     href: "/categories/robotics-kits",
-    icon: Bot,
+    icon: RoboticsCategoryIcon,
   },
-  { name: "Arduino", slug: "arduino", href: "/categories/arduino", icon: Cpu },
+  {
+    name: "Arduino",
+    slug: "arduino",
+    href: "/categories/arduino",
+    icon: ArduinoCategoryIcon,
+  },
   {
     name: "Drones",
     slug: "drones",
     href: "/categories/drone-technology",
-    icon: Plane,
+    icon: DroneCategoryIcon,
   },
   {
     name: "Sensors",
     slug: "sensors",
     href: "/categories/sensors-modules",
-    icon: Activity,
+    icon: SensorsCategoryIcon,
   },
   {
     name: "IoT & Wireless",
     slug: "iot",
     href: "/categories/iot-products",
-    icon: Wifi,
+    icon: IoTCategoryIcon,
   },
   {
     name: "Dev Boards",
     slug: "devboards",
     href: "/categories/development-boards",
-    icon: CircuitBoard,
+    icon: DevBoardCategoryIcon,
   },
   {
     name: "STEM Kits",
     slug: "stem",
     href: "/categories/stem-kits",
-    icon: GraduationCap,
+    icon: StemCategoryIcon,
   },
   {
     name: "Motors & Drivers",
     slug: "components",
     href: "/categories/electronic-components",
-    icon: Zap,
+    icon: ComponentsCategoryIcon,
   },
 ];
 
