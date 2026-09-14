@@ -6,6 +6,7 @@ import { PRODUCTS, Product } from "@/data/mockData";
 const ALLOWED_SORT_OPTIONS = ["newest", "price-asc", "price-desc", "name"];
 
 // GET /api/products - Customer Product List with Search, Multi-Filter, Safe Sort & Server Pagination
+// Supports ?tag=new-arrivals | trending | deals for dynamic homepage sections
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
@@ -15,6 +16,12 @@ export async function GET(request: Request) {
     const maxPriceParam = searchParams.get("maxPrice");
     const inStockOnly = searchParams.get("inStock") === "true";
     const sortParam = searchParams.get("sort") || "newest";
+
+    // Tag-based filtering for dynamic homepage sections:
+    // ?tag=new-arrivals → newest products (createdAt DESC)
+    // ?tag=trending     → highest rated (rating DESC)
+    // ?tag=deals        → ≥20% discount, in-stock only (discount DESC)
+    const tag = searchParams.get("tag")?.toLowerCase().trim();
 
     const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
     const limit = Math.max(
@@ -59,6 +66,7 @@ export async function GET(request: Request) {
         where.OR = [
           { categoryId: category },
           { category: { slug: { equals: category, mode: "insensitive" } } },
+          { category: { name: { contains: category, mode: "insensitive" } } },
         ];
       }
 
@@ -71,7 +79,7 @@ export async function GET(request: Request) {
         ];
       }
 
-      if (inStockOnly) {
+      if (inStockOnly || tag === "deals") {
         where.inStock = true;
       }
 
@@ -81,10 +89,14 @@ export async function GET(request: Request) {
         if (maxPrice !== null) where.price.lte = maxPrice;
       }
 
+      // Determine sort order based on tag or sort param
       let orderBy: any = { createdAt: "desc" };
-      if (safeSort === "price-asc") orderBy = { price: "asc" };
-      if (safeSort === "price-desc") orderBy = { price: "desc" };
-      if (safeSort === "name") orderBy = { name: "asc" };
+      if (tag === "new-arrivals") orderBy = { createdAt: "desc" };
+      else if (tag === "trending") orderBy = [{ rating: "desc" }, { reviewCount: "desc" }];
+      else if (tag === "deals") orderBy = { mrp: "desc" };
+      else if (safeSort === "price-asc") orderBy = { price: "asc" };
+      else if (safeSort === "price-desc") orderBy = { price: "desc" };
+      else if (safeSort === "name") orderBy = { name: "asc" };
 
       const [products, total] = await Promise.all([
         db.product.findMany({
@@ -97,14 +109,29 @@ export async function GET(request: Request) {
         db.product.count({ where }),
       ]);
 
+      // Post-filter deals: keep only items with ≥20% discount
+      const filteredProducts =
+        tag === "deals"
+          ? products.filter(
+              (p) =>
+                p.mrp &&
+                p.price &&
+                p.mrp > 0 &&
+                (p.mrp - p.price) / p.mrp >= 0.2,
+            )
+          : products;
+
       return NextResponse.json({
         success: true,
-        data: products,
+        data: filteredProducts,
         pagination: {
           page,
           limit,
-          total,
-          totalPages: Math.ceil(total / limit) || 1,
+          total: tag === "deals" ? filteredProducts.length : total,
+          totalPages:
+            Math.ceil(
+              (tag === "deals" ? filteredProducts.length : total) / limit,
+            ) || 1,
         },
         source: "database",
       });
@@ -143,7 +170,20 @@ export async function GET(request: Request) {
       result = result.filter((p) => p.price <= maxPrice!);
     }
 
-    if (safeSort === "price-asc") {
+    // Apply tag-based sorting/filtering on mock data
+    if (tag === "deals") {
+      result = result.filter(
+        (p) => p.mrp > 0 && (p.mrp - p.price) / p.mrp >= 0.2,
+      );
+      result.sort(
+        (a, b) => (b.mrp - b.price) / b.mrp - (a.mrp - a.price) / a.mrp,
+      );
+    } else if (tag === "trending") {
+      result.sort((a, b) => b.rating - a.rating || b.reviews - a.reviews);
+    } else if (tag === "new-arrivals") {
+      // In mock mode, reverse order simulates newest-first
+      result = result.slice().reverse();
+    } else if (safeSort === "price-asc") {
       result.sort((a, b) => a.price - b.price);
     } else if (safeSort === "price-desc") {
       result.sort((a, b) => b.price - a.price);

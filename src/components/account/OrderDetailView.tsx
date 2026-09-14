@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -24,10 +24,35 @@ import {
   Sparkles,
   DollarSign,
   AlertCircle,
+  Star,
+  Loader2,
 } from "lucide-react";
 
 interface OrderDetailProps {
   orderId: string;
+}
+
+function formatOrderStatus(status: string): CustomerOrder["status"] {
+  switch (status) {
+    case "ORDER_PLACED":
+      return "Order Placed";
+    case "PAYMENT_CONFIRMED":
+      return "Payment Confirmed";
+    case "PROCESSING":
+      return "Processing";
+    case "PACKED":
+      return "Packed";
+    case "SHIPPED":
+      return "Shipped";
+    case "OUT_FOR_DELIVERY":
+      return "Out for Delivery";
+    case "DELIVERED":
+      return "Delivered";
+    case "CANCELLED":
+      return "Order Placed"; // Handled with isCancelable = false
+    default:
+      return "Payment Confirmed";
+  }
 }
 
 export const OrderDetailView: React.FC<OrderDetailProps> = ({ orderId }) => {
@@ -35,6 +60,72 @@ export const OrderDetailView: React.FC<OrderDetailProps> = ({ orderId }) => {
   const { addToCart } = useStore();
 
   const [orders, setOrders] = useState<CustomerOrder[]>(MOCK_CUSTOMER_ORDERS);
+  const [liveOrder, setLiveOrder] = useState<CustomerOrder | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  // Review Modal State
+  const [reviewProduct, setReviewProduct] = useState<{ id: string; name: string } | null>(null);
+  const [reviewRating, setReviewRating] = useState(5);
+  const [reviewTitle, setReviewTitle] = useState("");
+  const [reviewBody, setReviewBody] = useState("");
+  const [submittingReview, setSubmittingReview] = useState(false);
+  const [reviewSuccess, setReviewSuccess] = useState<string | null>(null);
+  const [reviewError, setReviewError] = useState<string | null>(null);
+
+  // Fetch live order details from /api/orders/[id]
+  useEffect(() => {
+    async function loadLiveOrder() {
+      try {
+        const res = await fetch(`/api/orders/${orderId}`);
+        if (res.ok) {
+          const json = await res.json();
+          if (json.success && json.data) {
+            const d = json.data;
+            const mapped: CustomerOrder = {
+              id: d.id,
+              orderNumber: d.orderNumber,
+              date: new Date(d.createdAt).toLocaleDateString("en-IN", {
+                day: "numeric",
+                month: "short",
+                year: "numeric",
+              }),
+              totalAmount: d.totalAmount,
+              subtotal: d.subtotal,
+              gstAmount: d.gstAmount,
+              discountAmount: d.discountAmount,
+              status: formatOrderStatus(d.status),
+              itemsCount: d.items?.length || 1,
+              shippingAddress: d.shippingAddress,
+              courierName: d.shipment?.courierName || "Delhivery Surface Cargo",
+              courierCode: d.shipment?.courierCode || "DELHIVERY",
+              trackingNumber: d.shipment?.trackingNumber || "DEL-99228811IN",
+              trackingUrl: d.shipment?.trackingUrl || "https://www.delhivery.com",
+              labelUrl: d.shipment?.labelUrl,
+              estimatedDelivery: d.shipment?.estimatedDelivery,
+              trackingEvents: d.shipment?.trackingEvents || [],
+              isCancelable: d.status === "ORDER_PLACED" || d.status === "PAYMENT_FAILED",
+              isReturnable: d.status === "DELIVERED",
+              items: d.items?.map((item: any) => ({
+                id: item.productId,
+                name: item.productName,
+                sku: item.productSku,
+                quantity: item.quantity,
+                price: item.price,
+                image: item.product?.images?.[0]?.imageUrl || "/placeholder.png",
+              })) || [],
+            };
+            setLiveOrder(mapped);
+          }
+        }
+      } catch (err) {
+        console.warn("Falling back to local fallback order", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadLiveOrder();
+  }, [orderId]);
+
   const fallbackOrder: CustomerOrder = {
     id: orderId,
     orderNumber: `PRG-2026-${orderId.slice(-4).toUpperCase()}`,
@@ -64,6 +155,7 @@ export const OrderDetailView: React.FC<OrderDetailProps> = ({ orderId }) => {
   };
 
   const order =
+    liveOrder ||
     orders.find((o) => o.id === orderId || o.orderNumber === orderId) ||
     fallbackOrder;
 
@@ -72,6 +164,7 @@ export const OrderDetailView: React.FC<OrderDetailProps> = ({ orderId }) => {
     "cancel" | "return" | "replacement" | "refund" | null
   >(null);
   const [requestReason, setRequestReason] = useState("");
+  const [isCancelling, setIsCancelling] = useState(false);
   const [requestSubmittedMessage, setRequestSubmittedMessage] = useState<
     string | null
   >(null);
@@ -124,18 +217,67 @@ export const OrderDetailView: React.FC<OrderDetailProps> = ({ orderId }) => {
     router.push("/cart");
   };
 
-  const handleCancelOrderSubmit = () => {
-    setOrders((prev) =>
-      prev.map((o) =>
-        o.id === order.id
-          ? { ...o, status: "Order Placed", isCancelable: false }
-          : o,
-      ),
-    );
-    setRequestSubmittedMessage(
-      `Order #${order.orderNumber} cancellation request has been logged. Our dispatch desk will process your instant refund.`,
-    );
-    setModalType(null);
+  const handleCancelOrderSubmit = async () => {
+    setIsCancelling(true);
+    try {
+      const res = await fetch(`/api/orders/${order.id}/cancel`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reason: requestReason }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setRequestSubmittedMessage(
+          data.message ||
+            `Order #${order.orderNumber} cancellation has been processed successfully.`,
+        );
+        if (liveOrder) {
+          setLiveOrder({ ...liveOrder, isCancelable: false });
+        }
+      } else {
+        setRequestSubmittedMessage(data.message || "Failed to cancel order.");
+      }
+    } catch {
+      setRequestSubmittedMessage("Network error while processing cancellation.");
+    } finally {
+      setIsCancelling(false);
+      setModalType(null);
+    }
+  };
+
+  const handleReviewSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!reviewProduct) return;
+    setSubmittingReview(true);
+    setReviewError(null);
+    try {
+      const res = await fetch("/api/reviews", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          productId: reviewProduct.id,
+          rating: reviewRating,
+          title: reviewTitle,
+          body: reviewBody,
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setReviewSuccess(data.message || "Review submitted successfully!");
+        setTimeout(() => {
+          setReviewSuccess(null);
+          setReviewProduct(null);
+          setReviewTitle("");
+          setReviewBody("");
+        }, 2000);
+      } else {
+        setReviewError(data.message || "Failed to submit review.");
+      }
+    } catch {
+      setReviewError("Network error submitting review.");
+    } finally {
+      setSubmittingReview(false);
+    }
   };
 
   const handleRequestSubmit = () => {
@@ -168,8 +310,9 @@ export const OrderDetailView: React.FC<OrderDetailProps> = ({ orderId }) => {
           {/* Download Invoice Button */}
           <button
             onClick={() =>
-              alert(
-                `Downloading Official GST Tax Invoice PDF for ${order.orderNumber}...`,
+              window.open(
+                `/api/invoices/${order.id}?format=html&print=true`,
+                "_blank",
               )
             }
             className="bg-slate-900 hover:bg-[#00AEEF] text-white px-4 py-2.5 rounded-2xl text-xs font-black flex items-center gap-1.5 transition-all shadow-md active:scale-95 cursor-pointer"
@@ -299,15 +442,55 @@ export const OrderDetailView: React.FC<OrderDetailProps> = ({ orderId }) => {
                 {order.trackingNumber || "DEL-88771122IN"}
               </span>
             </div>
-            <a
-              href={order.trackingUrl || "https://www.delhivery.com"}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 text-xs font-black text-[#00AEEF] hover:underline pt-1"
-            >
-              <span>Track on Carrier Portal</span>
-              <ExternalLink className="w-3.5 h-3.5" />
-            </a>
+            {order.estimatedDelivery && (
+              <div className="flex justify-between items-center">
+                <span className="text-slate-500 font-bold">Estimated Delivery:</span>
+                <span className="font-black text-[#005CA9]">{order.estimatedDelivery}</span>
+              </div>
+            )}
+            <div className="pt-1 flex items-center justify-between">
+              <a
+                href={order.trackingUrl || "https://www.delhivery.com"}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 text-xs font-black text-[#00AEEF] hover:underline"
+              >
+                <span>Track on Carrier Portal</span>
+                <ExternalLink className="w-3.5 h-3.5" />
+              </a>
+              {order.labelUrl && (
+                <a
+                  href={order.labelUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[11px] font-bold text-slate-500 hover:text-slate-800 underline"
+                >
+                  Shipping Label
+                </a>
+              )}
+            </div>
+
+            {/* Checkpoint scans timeline */}
+            {order.trackingEvents && order.trackingEvents.length > 0 && (
+              <div className="mt-3 pt-3 border-t border-slate-200/70 space-y-2">
+                <div className="text-[10px] font-black uppercase text-slate-400 tracking-wider">
+                  Live Carrier Scan Checkpoints ({order.trackingEvents.length})
+                </div>
+                <div className="space-y-2 max-h-40 overflow-y-auto pr-1">
+                  {order.trackingEvents.map((evt, eIdx) => (
+                    <div key={eIdx} className="text-[11px] flex items-start gap-2 border-l-2 border-[#00AEEF] pl-2 py-0.5">
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center justify-between text-[10px] text-slate-400 font-mono">
+                          <span>{evt.location}</span>
+                          <span>{new Date(evt.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
+                        </div>
+                        <p className="font-medium text-slate-800 text-[11px] leading-snug">{evt.message}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -341,9 +524,21 @@ export const OrderDetailView: React.FC<OrderDetailProps> = ({ orderId }) => {
                   </span>
                 </div>
               </div>
-              <span className="text-sm font-extrabold text-slate-900 shrink-0">
-                ₹{item.price.toLocaleString()}
-              </span>
+              <div className="flex items-center gap-3 shrink-0">
+                <span className="text-sm font-extrabold text-slate-900">
+                  ₹{item.price.toLocaleString()}
+                </span>
+                {order.status === "Delivered" && (
+                  <button
+                    onClick={() =>
+                      setReviewProduct({ id: item.id || item.sku, name: item.name })
+                    }
+                    className="bg-[#E0F7FC] hover:bg-[#bceefb] text-[#00AEEF] px-3 py-1.5 rounded-xl font-bold text-[11px] flex items-center gap-1 transition-all cursor-pointer shadow-2xs"
+                  >
+                    <Sparkles className="w-3 h-3 text-[#00AEEF]" /> Rate &amp; Review
+                  </button>
+                )}
+              </div>
             </div>
           ))}
         </div>
@@ -508,6 +703,124 @@ export const OrderDetailView: React.FC<OrderDetailProps> = ({ orderId }) => {
                 Submit Request
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Product Review Submission Modal */}
+      {reviewProduct && (
+        <div className="fixed inset-0 z-50 overflow-hidden flex items-center justify-center p-4">
+          <div
+            onClick={() => setReviewProduct(null)}
+            className="fixed inset-0 bg-slate-950/70 backdrop-blur-xs"
+          />
+          <div className="relative max-w-md w-full bg-white rounded-3xl p-6 shadow-2xl z-10 space-y-4 text-xs">
+            <div>
+              <span className="text-[10px] font-black uppercase tracking-wider text-[#00AEEF] bg-[#E0F7FC] px-2.5 py-0.5 rounded-full border border-[#00AEEF]/20">
+                Verified Purchase Review
+              </span>
+              <h3 className="text-base font-black text-slate-900 tracking-tight mt-1">
+                Rate &amp; Review: {reviewProduct.name}
+              </h3>
+            </div>
+
+            {reviewSuccess ? (
+              <div className="bg-emerald-50 text-emerald-800 text-xs font-bold p-4 rounded-2xl border border-emerald-200 flex items-center gap-2">
+                <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+                <span>{reviewSuccess}</span>
+              </div>
+            ) : (
+              <form onSubmit={handleReviewSubmit} className="space-y-4">
+                {reviewError && (
+                  <div className="bg-red-50 text-red-700 text-xs font-bold p-3 rounded-xl border border-red-200 flex items-center gap-2">
+                    <AlertCircle className="w-4 h-4 text-red-500" />
+                    <span>{reviewError}</span>
+                  </div>
+                )}
+
+                {/* Rating Stars */}
+                <div>
+                  <label className="font-extrabold text-slate-700 block mb-1">
+                    Overall Rating
+                  </label>
+                  <div className="flex items-center gap-1.5">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <button
+                        key={star}
+                        type="button"
+                        onClick={() => setReviewRating(star)}
+                        className="p-1 cursor-pointer transition-transform hover:scale-110"
+                      >
+                        <Star
+                          className={`w-6 h-6 ${
+                            star <= reviewRating
+                              ? "text-[#FFC20E] fill-[#FFC20E]"
+                              : "text-slate-200"
+                          }`}
+                        />
+                      </button>
+                    ))}
+                    <span className="text-xs font-black text-slate-600 ml-2">
+                      {reviewRating} of 5 Stars
+                    </span>
+                  </div>
+                </div>
+
+                {/* Review Headline / Title */}
+                <div>
+                  <label className="font-extrabold text-slate-700 block mb-1">
+                    Review Headline
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={reviewTitle}
+                    onChange={(e) => setReviewTitle(e.target.value)}
+                    placeholder="e.g. Excellent build quality and easy to interface with Arduino"
+                    className="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl font-semibold text-slate-900 focus:outline-none focus:border-[#00AEEF]"
+                  />
+                </div>
+
+                {/* Review Body */}
+                <div>
+                  <label className="font-extrabold text-slate-700 block mb-1">
+                    Detailed Feedback
+                  </label>
+                  <textarea
+                    required
+                    rows={4}
+                    value={reviewBody}
+                    onChange={(e) => setReviewBody(e.target.value)}
+                    placeholder="Share your practical experience with this hardware kit, pinout accuracy, documentation, etc. (minimum 10 characters)..."
+                    className="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl font-semibold text-slate-900 focus:outline-none focus:border-[#00AEEF]"
+                  />
+                </div>
+
+                <div className="flex justify-end gap-3 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setReviewProduct(null)}
+                    className="font-bold text-slate-500 hover:text-slate-900 cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={submittingReview}
+                    className="bg-[#00AEEF] hover:bg-[#0096D6] disabled:opacity-50 text-white px-5 py-2.5 rounded-xl font-black uppercase tracking-wider shadow-md flex items-center gap-1.5 cursor-pointer"
+                  >
+                    {submittingReview ? (
+                      <>
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        <span>Submitting...</span>
+                      </>
+                    ) : (
+                      <span>Submit Review</span>
+                    )}
+                  </button>
+                </div>
+              </form>
+            )}
           </div>
         </div>
       )}

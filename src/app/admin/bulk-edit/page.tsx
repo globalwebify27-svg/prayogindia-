@@ -25,6 +25,7 @@ import {
   FolderSync,
 } from "lucide-react";
 import { PRODUCTS, Product } from "@/data/mockData";
+import { STORES, StoreId, ALL_STORE_IDS } from "@/data/storeConfig";
 
 type BulkAction =
   | "PRICE_PERCENT"
@@ -53,8 +54,12 @@ function BulkEditContent() {
   const [targetCategory, setTargetCategory] = useState(
     "Arduino & Microcontrollers",
   );
+  const [targetStore, setTargetStore] = useState<StoreId>("ranchi");
+  const [stockOperation, setStockOperation] = useState<"INCREMENT" | "SET" | "LOW_THRESHOLD">("INCREMENT");
   const [showApplyModal, setShowApplyModal] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [successNotice, setSuccessNotice] = useState<string | null>(null);
+  const [errorNotice, setErrorNotice] = useState<string | null>(null);
 
   // Synchronize initial mode from URL search query (e.g. ?mode=price, ?mode=discount, ?mode=gst, ?mode=sku)
   useEffect(() => {
@@ -116,7 +121,7 @@ function BulkEditContent() {
     );
   };
 
-  const handleApplyBulkUpdate = (e: React.FormEvent) => {
+  const handleApplyBulkUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (selectedProductIds.length === 0) {
       alert("Please select at least one product to apply bulk update.");
@@ -124,7 +129,66 @@ function BulkEditContent() {
     }
 
     const numVal = parseFloat(bulkActionValue);
+    if (isNaN(numVal)) {
+      alert("Please enter a valid numeric value.");
+      return;
+    }
 
+    // 1. If action is STOCK_UPDATE, execute through the real Inventory API
+    if (bulkActionType === "STOCK_UPDATE") {
+      try {
+        setSubmitting(true);
+        setErrorNotice(null);
+
+        const targetStoreObj = STORES[targetStore] || STORES.ranchi;
+        const res = await fetch("/api/admin/inventory/bulk", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            storeId: targetStore,
+            operation: stockOperation,
+            value: numVal,
+            productIds: selectedProductIds,
+            reason: `Admin Bulk Edit (${stockOperation} ${numVal})`,
+          }),
+        });
+
+        const json = await res.json();
+        if (res.ok && json.success) {
+          // Update local state for immediate visual responsiveness
+          setProducts((prev) =>
+            prev.map((prod) => {
+              if (!selectedProductIds.includes(prod.id)) return prod;
+              const currentStock = (prod as any).stock || 25;
+              let newStock = currentStock;
+              if (stockOperation === "INCREMENT") {
+                newStock = Math.max(0, currentStock + numVal);
+              } else if (stockOperation === "SET") {
+                newStock = Math.max(0, numVal);
+              }
+              return { ...prod, stock: newStock, inStock: newStock > 0 };
+            }),
+          );
+
+          setShowApplyModal(false);
+          setSuccessNotice(
+            `Successfully updated inventory for ${json.updatedCount} items in ${targetStoreObj.name}!`,
+          );
+          setTimeout(() => setSuccessNotice(null), 6000);
+          return;
+        } else {
+          setErrorNotice(json.message || "Failed to update inventory.");
+          return;
+        }
+      } catch (err: any) {
+        setErrorNotice(err.message || "Network error while updating inventory.");
+        return;
+      } finally {
+        setSubmitting(false);
+      }
+    }
+
+    // 2. Pricing, SKU, GST, Discount and Category batch operations
     setProducts((prev) =>
       prev.map((prod) => {
         if (!selectedProductIds.includes(prod.id)) return prod;
@@ -178,14 +242,6 @@ function BulkEditContent() {
           case "CATEGORY_UPDATE": {
             // Bulk Category reassignment
             updated.category = targetCategory;
-            break;
-          }
-          case "STOCK_UPDATE": {
-            // Bulk Stock increment or direct set
-            const currentStock = (prod as any).stock || 25;
-            const newStock = Math.max(0, currentStock + numVal);
-            (updated as any).stock = newStock;
-            updated.inStock = newStock > 0;
             break;
           }
         }
@@ -566,6 +622,45 @@ function BulkEditContent() {
                 </select>
               </div>
 
+              {bulkActionType === "STOCK_UPDATE" && (
+                <div className="space-y-3 bg-slate-50 border border-slate-200 p-3.5 rounded-2xl">
+                  <div>
+                    <label className="block font-bold text-slate-700 mb-1">
+                      Target Physical Store *
+                    </label>
+                    <select
+                      value={targetStore}
+                      onChange={(e) => setTargetStore(e.target.value as StoreId)}
+                      className="w-full bg-white border border-slate-200 p-2.5 rounded-xl font-bold text-slate-900 focus:outline-none"
+                    >
+                      {ALL_STORE_IDS.map((sId) => {
+                        const s = STORES[sId];
+                        return (
+                          <option key={sId} value={sId}>
+                            {s.name} ({s.city}) {s.isCentralInventory ? "★ Central Hub" : ""}
+                          </option>
+                        );
+                      })}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block font-bold text-slate-700 mb-1">
+                      Inventory Update Strategy *
+                    </label>
+                    <select
+                      value={stockOperation}
+                      onChange={(e) => setStockOperation(e.target.value as any)}
+                      className="w-full bg-white border border-slate-200 p-2.5 rounded-xl font-bold text-slate-900 focus:outline-none"
+                    >
+                      <option value="INCREMENT">Increment / Restock Stock (+ Units)</option>
+                      <option value="SET">Set Exact Stock Count (Overwrites Quantity)</option>
+                      <option value="LOW_THRESHOLD">Set Low-Stock Reorder Threshold</option>
+                    </select>
+                  </div>
+                </div>
+              )}
+
               {bulkActionType === "CATEGORY_UPDATE" ? (
                 <div>
                   <label className="block font-bold text-slate-700 mb-1">
@@ -590,7 +685,13 @@ function BulkEditContent() {
                   <label className="block font-bold text-slate-700 mb-1">
                     {bulkActionType === "SKU_PREFIX"
                       ? "SKU Prefix Code (e.g. PRG-2026)"
-                      : "Operation Parameter Value"}{" "}
+                      : bulkActionType === "STOCK_UPDATE"
+                        ? stockOperation === "INCREMENT"
+                          ? "Quantity Change (+/- Units)"
+                          : stockOperation === "SET"
+                            ? "New Exact Quantity"
+                            : "Low Stock Alert Threshold"
+                        : "Operation Parameter Value"}{" "}
                     *
                   </label>
                   <input
@@ -606,14 +707,22 @@ function BulkEditContent() {
                 </div>
               )}
 
+              {errorNotice && (
+                <div className="bg-red-50 border border-red-200 p-3 rounded-2xl text-red-800 text-[11px] font-bold">
+                  {errorNotice}
+                </div>
+              )}
+
               <div className="bg-blue-50 border border-blue-200 p-3 rounded-2xl text-blue-900 text-[11px] font-medium space-y-1">
                 <span className="font-bold block">Scope Summary:</span>
                 <p>
                   Will modify <strong>{selectedProductIds.length}</strong>{" "}
-                  selected hardware products under category "{selectedCategory}"{" "}
-                  {selectedSubcategory !== "All"
-                    ? `> "${selectedSubcategory}"`
-                    : ""}
+                  selected hardware products
+                  {bulkActionType === "STOCK_UPDATE" ? (
+                    <> in <strong>{STORES[targetStore]?.name}</strong> ({STORES[targetStore]?.city})</>
+                  ) : (
+                    <> under category "{selectedCategory}" {selectedSubcategory !== "All" ? `> "${selectedSubcategory}"` : ""}</>
+                  )}
                   .
                 </p>
               </div>
@@ -621,16 +730,20 @@ function BulkEditContent() {
               <div className="flex justify-end gap-2 pt-2 border-t border-slate-100">
                 <button
                   type="button"
-                  onClick={() => setShowApplyModal(false)}
-                  className="px-4 py-2 font-bold text-slate-500 hover:text-slate-900"
+                  onClick={() => {
+                    setShowApplyModal(false);
+                    setErrorNotice(null);
+                  }}
+                  className="px-4 py-2 font-bold text-slate-500 hover:text-slate-900 cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="bg-[#00AEEF] hover:bg-[#0096D6] text-white px-6 py-2.5 rounded-xl font-black uppercase tracking-wider shadow-md active:scale-95 cursor-pointer"
+                  disabled={submitting}
+                  className="bg-[#00AEEF] hover:bg-[#0096D6] disabled:opacity-50 text-white px-6 py-2.5 rounded-xl font-black uppercase tracking-wider shadow-md active:scale-95 cursor-pointer flex items-center gap-1.5"
                 >
-                  Commit Batch Update
+                  {submitting ? "Applying..." : "Commit Batch Update"}
                 </button>
               </div>
             </form>

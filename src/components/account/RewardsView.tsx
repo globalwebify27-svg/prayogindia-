@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useStore } from "@/context/StoreContext";
 import {
@@ -26,25 +26,76 @@ import {
 
 export const RewardsView: React.FC = () => {
   const { user } = useStore();
-  const points = user?.rewardPoints || 100;
+  const [liveBalance, setLiveBalance] = useState<number | null>(null);
+  const [liveRupeeValue, setLiveRupeeValue] = useState<number | null>(null);
+  const [liveTierRule, setLiveTierRule] = useState<any | null>(null);
+  const [liveTransactions, setLiveTransactions] = useState<PointsLedgerEntry[] | null>(null);
 
   const [activeTab, setActiveTab] = useState<"overview" | "history" | "rules">(
     "overview",
   );
 
-  // Customer-specific ledger activity filter
-  const userLedger: PointsLedgerEntry[] = INITIAL_POINTS_LEDGER.filter(
-    (l) =>
-      !user?.email || l.userEmail.toLowerCase() === user.email.toLowerCase(),
-  );
+  useEffect(() => {
+    async function loadRewards() {
+      try {
+        const res = await fetch("/api/rewards");
+        if (res.ok) {
+          const json = await res.json();
+          if (json.success && json.data) {
+            setLiveBalance(json.data.balance);
+            if (json.data.rupeeValue !== undefined) {
+              setLiveRupeeValue(json.data.rupeeValue);
+            }
+            if (json.data.tierRule) {
+              setLiveTierRule(json.data.tierRule);
+            }
+            if (json.data.transactions?.items?.length > 0) {
+              setLiveTransactions(
+                json.data.transactions.items.map((t: any) => ({
+                  id: t.id,
+                  date: new Date(t.createdAt).toLocaleDateString("en-IN", {
+                    day: "numeric",
+                    month: "short",
+                    year: "numeric",
+                  }),
+                  type: t.type,
+                  points: t.points,
+                  balanceAfter: t.balanceAfter,
+                  notes: t.description,
+                  orderNumber: t.referenceId ? `Ref: ${t.referenceId}` : (t.orderId ? `Order: ${t.orderId.slice(0, 8)}` : undefined),
+                  userEmail: user?.email || "",
+                })),
+              );
+            }
+          }
+        }
+      } catch (err) {
+        console.warn("Could not load rewards from API", err);
+      }
+    }
+    loadRewards();
+  }, [user?.email]);
 
-  // Applicable rule for current user
-  const activeRule =
+  const points = liveBalance !== null ? liveBalance : (user?.rewardPoints || 0);
+
+  // Applicable rule for current user from API or fallback
+  const activeRule = liveTierRule || (
     DEFAULT_REWARD_RULES.find(
       (r) => r.customerType === (user?.customerType || "Registered Customer"),
-    ) || DEFAULT_REWARD_RULES[0];
+    ) || DEFAULT_REWARD_RULES[0]
+  );
 
-  const cashValue = Math.round(points * activeRule.redemptionRateRupees);
+  const cashValue = liveRupeeValue !== null ? liveRupeeValue : Math.round(points * (activeRule.redemptionRateRupees || 0.5));
+
+  // Customer-specific ledger activity filter
+  const userLedger: PointsLedgerEntry[] =
+    liveTransactions !== null
+      ? liveTransactions
+      : INITIAL_POINTS_LEDGER.filter(
+          (l) =>
+            !user?.email ||
+            l.userEmail.toLowerCase() === user.email.toLowerCase(),
+        );
 
   return (
     <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-2xs space-y-6 text-slate-900 animate-in fade-in duration-300">

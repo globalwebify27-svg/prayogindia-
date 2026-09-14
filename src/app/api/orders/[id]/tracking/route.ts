@@ -97,11 +97,17 @@ export async function GET(
         orderStatus: order.status,
         hasShipment: true,
         courierName: order.shipment.courierName,
+        courierCode: order.shipment.courierCode,
         trackingNumber: order.shipment.trackingNumber,
         trackingUrl: order.shipment.trackingUrl,
+        labelUrl: order.shipment.labelUrl,
         shipmentStatus: order.shipment.status,
         estimatedDelivery: order.shipment.estimatedDelivery,
+        weightKg: order.shipment.weightKg,
+        trackingEvents: order.shipment.trackingEvents || [],
+        lastTrackingUpdate: order.shipment.lastTrackingUpdate,
         shippedAt: order.shipment.shippedAt,
+        deliveredAt: order.shipment.deliveredAt,
       },
     });
   } catch (error: any) {

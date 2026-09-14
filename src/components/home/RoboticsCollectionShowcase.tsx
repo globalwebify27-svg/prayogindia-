@@ -56,15 +56,12 @@ export const RoboticsCollectionShowcase: React.FC<Props> = ({
   onExploreCollection,
 }) => {
   return (
-    <section className="py-12 sm:py-16 lg:py-20 bg-white border-t border-slate-100">
+    <section className="pt-2 pb-10 sm:pt-4 sm:pb-12 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
-        <div className="text-center max-w-2xl mx-auto space-y-2 mb-8 sm:mb-12">
-          <span className="bg-[#00AEEF]/10 text-[#00AEEF] border border-[#00AEEF]/20 text-[11px] font-black uppercase px-3.5 py-1 rounded-full tracking-widest inline-block">
-            Engineering Excellence
-          </span>
+        <div className="text-center max-w-2xl mx-auto space-y-1.5 mb-6 sm:mb-8">
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 tracking-tight">
-            Robotics & UAV Ecosystem
+            Robotics &amp; UAV Ecosystem
           </h2>
           <p className="text-xs sm:text-sm text-slate-500 max-w-lg mx-auto leading-relaxed">
             Engineered hardware ecosystems for universities, AI researchers,

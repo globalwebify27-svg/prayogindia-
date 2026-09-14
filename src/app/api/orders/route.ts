@@ -4,6 +4,9 @@ import { db } from "@/lib/db";
 import { AuthSessionUser } from "@/lib/authUtils";
 import { NotificationService } from "@/lib/notifications";
 import { OrderStatus } from "@prisma/client";
+import { INITIAL_PROMO_COUPONS, evaluatePromoCoupon } from "@/data/promoData";
+import { calculateEarnedRewards, getCustomerTypeCode } from "@/data/customerTypes";
+import { LoyaltyEngine } from "@/lib/loyaltyEngine";
 
 async function getAuthenticatedUser(): Promise<AuthSessionUser | null> {
   const cookieStore = await cookies();
@@ -23,6 +26,13 @@ function generateOrderNumber(): string {
   return `PRG-${year}-${randomDigits}`;
 }
 
+async function generateInvoiceNumber(): Promise<string> {
+  const year = new Date().getFullYear();
+  const count = await db.invoice.count();
+  const seq = String(count + 1).padStart(5, "0");
+  return `INV-${year}-${seq}`;
+}
+
 /**
  * POST /api/orders
  * 1. Authenticate customer
@@ -30,7 +40,7 @@ function generateOrderNumber(): string {
  * 3. Validate product & variant availability & stock
  * 4. Fetch trusted prices server-side (never trust frontend totals/prices)
  * 5. Validate shipping address & generate address snapshot
- * 6. Calculate server-side trusted order totals (subtotal, GST, shipping, grand total)
+ * 6. Calculate server-side trusted order totals (subtotal, GST, coupon, rewards, shipping, grand total)
  * 7. Create Order & OrderItems in an atomic database transaction
  * 8. Clear customer's cart
  * 9. Return order confirmation
@@ -51,7 +61,14 @@ export async function POST(request: Request) {
 
   try {
     const body = await request.json().catch(() => ({}));
-    const { addressId, shippingAddress: customAddressInput } = body;
+    const {
+      addressId,
+      shippingAddress: customAddressInput,
+      couponCode,
+      rewardPointsUsed = 0,
+      paymentMethod = "upi",
+      shippingCost = 0,
+    } = body;
 
     if (!process.env.DATABASE_URL) {
       // Mock Mode Fallback Response
@@ -273,10 +290,63 @@ export async function POST(request: Request) {
       });
     }
 
-    // Tax & Total Calculations (Server-Authoritative)
+    // 4. Server-Authoritative Coupon & Reward Points Calculations
+    let couponDiscount = 0;
+    let validCouponCode: string | null = null;
+
+    if (couponCode && typeof couponCode === "string") {
+      const normalizedCoupon = couponCode.toUpperCase().trim();
+      const matchedCoupon = INITIAL_PROMO_COUPONS.find(
+        (c) => c.code.toUpperCase() === normalizedCoupon,
+      );
+      if (matchedCoupon) {
+        const userOrdersCount = await db.order.count({
+          where: { userId: dbUser.id, paymentStatus: "PAID" },
+        });
+        const evalResult = evaluatePromoCoupon(
+          matchedCoupon,
+          calculatedSubtotal,
+          dbUser.customerType || "B2C",
+          dbUser.email,
+          userOrdersCount > 0,
+          false,
+          cart.items.map((i) => ({
+            category: i.product.categoryId,
+            sku: i.variant?.sku || i.product.sku,
+            price: i.variant?.price || i.product.price,
+            quantity: i.quantity,
+          })),
+        );
+        if (evalResult.valid) {
+          couponDiscount = evalResult.discountAmount;
+          validCouponCode = normalizedCoupon;
+        }
+      }
+    }
+
+    // Reward Points validation via authoritative LoyaltyEngine
+    let pointsDiscount = 0;
+    let sanitizedPointsUsed = 0;
+    if (rewardPointsUsed && typeof rewardPointsUsed === "number" && rewardPointsUsed > 0) {
+      const redemptionCheck = await LoyaltyEngine.validateRedemption(
+        dbUser.id,
+        rewardPointsUsed,
+        calculatedSubtotal,
+        dbUser.customerType,
+      );
+      if (redemptionCheck.valid) {
+        sanitizedPointsUsed = redemptionCheck.sanitizedPoints;
+        pointsDiscount = redemptionCheck.discountAmount;
+      }
+    }
+
+    const totalDiscount = Math.round((couponDiscount + pointsDiscount) * 100) / 100;
     const gstAmount = Math.round(calculatedSubtotal * 0.18 * 100) / 100;
-    const discountAmount = 0;
-    const grandTotal = Math.round((calculatedSubtotal + gstAmount) * 100) / 100;
+    const validatedShippingCost = Math.max(0, Number(shippingCost) || 0);
+    const grandTotal = Math.max(
+      0,
+      Math.round((calculatedSubtotal + gstAmount + validatedShippingCost - totalDiscount) * 100) / 100,
+    );
 
     // Generate Unique Order Number
     let newOrderNumber = generateOrderNumber();
@@ -287,17 +357,25 @@ export async function POST(request: Request) {
       newOrderNumber = `${newOrderNumber}-${Math.floor(Math.random() * 100)}`;
     }
 
-    // 4. Atomic Database Transaction
+    const isCod = paymentMethod === "cod";
+
+    // 5. Atomic Database Transaction
     const newOrder = await db.$transaction(async (tx) => {
-      // Create Order
+      // 5a. Create Order
       const order = await tx.order.create({
         data: {
           orderNumber: newOrderNumber,
-          userId: user.id,
+          userId: dbUser.id,
           status: OrderStatus.ORDER_PLACED,
+          paymentStatus: isCod ? "PENDING" : "PENDING",
+          paymentMethod: isCod ? "cod" : paymentMethod || "upi",
+          rewardPointsUsed: sanitizedPointsUsed,
+          couponCode: validCouponCode,
+          couponDiscount,
+          shippingCost: validatedShippingCost,
           subtotal: calculatedSubtotal,
           gstAmount,
-          discountAmount,
+          discountAmount: totalDiscount,
           totalAmount: grandTotal,
           shippingAddress: addressSnapshotString,
           items: {
@@ -308,6 +386,147 @@ export async function POST(request: Request) {
           items: true,
         },
       });
+
+      // 5b. Deduct redeemed points from user & log transaction
+      if (sanitizedPointsUsed > 0) {
+        const currentUser = await tx.user.findUnique({ where: { id: dbUser.id } });
+        const currentBal = currentUser?.rewardPoints || 0;
+        await tx.user.update({
+          where: { id: dbUser.id },
+          data: { rewardPoints: { decrement: sanitizedPointsUsed } },
+        });
+        await tx.rewardTransaction.create({
+          data: {
+            userId: dbUser.id,
+            orderId: order.id,
+            type: "REDEEMED",
+            points: -sanitizedPointsUsed,
+            balanceBefore: currentBal,
+            balanceAfter: Math.max(0, currentBal - sanitizedPointsUsed),
+            description: `Redeemed ${sanitizedPointsUsed} Prayog Coins on order #${order.orderNumber}`,
+            referenceType: "CHECKOUT_REDEEM",
+            referenceId: order.orderNumber,
+          },
+        });
+      }
+
+      // 5c. Record coupon usage
+      if (validCouponCode) {
+        await tx.couponUsage.create({
+          data: {
+            couponCode: validCouponCode,
+            userId: dbUser.id,
+            orderId: order.id,
+          },
+        });
+      }
+
+      // 5d. If COD order: deduct Ranchi store inventory, credit earned reward points, generate Invoice
+      if (isCod) {
+        const ranchiBranch = await tx.store.findFirst({
+          where: { OR: [{ code: "RANCHI" }, { isCentralHub: true }] },
+        });
+        if (ranchiBranch) {
+          for (const item of order.items) {
+            const inv = await tx.storeInventory.findUnique({
+              where: {
+                storeId_productId: {
+                  storeId: ranchiBranch.id,
+                  productId: item.productId,
+                },
+              },
+            });
+            if (inv) {
+              const newQty = Math.max(0, inv.quantity - item.quantity);
+              const newAvailable = Math.max(0, inv.availableQuantity - item.quantity);
+              await tx.storeInventory.update({
+                where: { id: inv.id },
+                data: {
+                  quantity: newQty,
+                  availableQuantity: newAvailable,
+                  status: newQty === 0 ? "OUT_OF_STOCK" : newQty <= inv.lowStockThreshold ? "LOW_STOCK" : "IN_STOCK",
+                },
+              });
+              await tx.inventoryTransaction.create({
+                data: {
+                  storeId: ranchiBranch.id,
+                  productId: item.productId,
+                  orderId: order.id,
+                  transactionType: "ONLINE_FULFILLMENT",
+                  quantityBefore: inv.quantity,
+                  quantityChange: -item.quantity,
+                  quantityAfter: newQty,
+                  userId: dbUser.id,
+                  referenceId: order.orderNumber,
+                  notes: `COD Online order ${order.orderNumber} dispatched`,
+                },
+              });
+            }
+          }
+        }
+
+        // Credit COD earned reward points
+        const typeCode = getCustomerTypeCode(order.customerType);
+        const earned = calculateEarnedRewards(order.totalAmount, typeCode);
+        if (earned.coinsEarned > 0) {
+          const u = await tx.user.findUnique({ where: { id: dbUser.id } });
+          const bal = u?.rewardPoints || 0;
+          await tx.user.update({
+            where: { id: dbUser.id },
+            data: { rewardPoints: { increment: earned.coinsEarned } },
+          });
+          await tx.rewardTransaction.create({
+            data: {
+              userId: dbUser.id,
+              orderId: order.id,
+              type: "EARNED",
+              points: earned.coinsEarned,
+              balanceBefore: bal,
+              balanceAfter: bal + earned.coinsEarned,
+              description: `Earned ${earned.coinsEarned} Prayog Coins on order ${order.orderNumber}`,
+            },
+          });
+          await tx.order.update({
+            where: { id: order.id },
+            data: { rewardPointsEarned: earned.coinsEarned },
+          });
+        }
+
+        // Generate COD Invoice
+        const invNum = await generateInvoiceNumber();
+        await tx.invoice.create({
+          data: {
+            invoiceNumber: invNum,
+            orderId: order.id,
+            userId: dbUser.id,
+            customerName: dbUser.name,
+            customerEmail: dbUser.email,
+            customerPhone: dbUser.phone,
+            customerGstin: dbUser.gstin || null,
+            companyName: dbUser.companyName || null,
+            billingAddress: order.shippingAddress,
+            shippingAddress: order.shippingAddress,
+            items: order.items.map((i) => ({
+              productId: i.productId,
+              productName: i.productName,
+              sku: i.productSku,
+              quantity: i.quantity,
+              unitPrice: i.price,
+              lineTotal: i.price * i.quantity,
+            })),
+            subtotal: order.subtotal,
+            discountAmount: order.discountAmount,
+            couponCode: validCouponCode,
+            couponDiscount,
+            gstBreakup: { igst: order.gstAmount, cgst: 0, sgst: 0 },
+            gstAmount: order.gstAmount,
+            shippingCost: validatedShippingCost,
+            totalAmount: order.totalAmount,
+            paymentMethod: "cod",
+            paymentRef: "COD-PENDING",
+          },
+        });
+      }
 
       // Clear Customer Cart Items
       await tx.cartItem.deleteMany({

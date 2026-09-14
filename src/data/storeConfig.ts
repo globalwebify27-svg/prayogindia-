@@ -133,24 +133,22 @@ export interface WalkInSession {
   cashReceived?: number;
 }
 
-// localStorage key for active sessions per store
-export const SESSION_STORE_KEY = "prayog_walkin_sessions";
+// In-memory session cache synchronized with server-side /api/pos/sessions API
+let inMemorySessions: WalkInSession[] = [];
 
 // BroadcastChannel name for real-time cross-tab sync
 export const POS_BROADCAST_CHANNEL = "prayog_pos_live";
 
 // ─────────────────────────────────────────
-// Utilities for session storage
+// Utilities for session storage & server sync
 // ─────────────────────────────────────────
 
 export function getAllSessions(): WalkInSession[] {
-  if (typeof window === "undefined") return [];
-  try {
-    const raw = localStorage.getItem(SESSION_STORE_KEY);
-    return raw ? JSON.parse(raw) : [];
-  } catch {
-    return [];
-  }
+  return inMemorySessions;
+}
+
+export function setAllSessions(sessions: WalkInSession[]): void {
+  inMemorySessions = sessions;
 }
 
 export function getStoreSessionsPending(storeId: StoreId): WalkInSession[] {
@@ -164,16 +162,46 @@ export function getStoreSessionsPending(storeId: StoreId): WalkInSession[] {
 }
 
 export function saveSession(session: WalkInSession): void {
-  if (typeof window === "undefined") return;
-  const all = getAllSessions();
+  const all = [...inMemorySessions];
   const idx = all.findIndex((s) => s.id === session.id);
   if (idx >= 0) {
     all[idx] = session;
   } else {
-    all.unshift(session); // Newest first
+    all.unshift(session);
   }
-  // Keep only last 50 sessions in storage
-  localStorage.setItem(SESSION_STORE_KEY, JSON.stringify(all.slice(0, 50)));
+  inMemorySessions = all.slice(0, 100);
+}
+
+export async function fetchStoreSessionsFromServer(storeId: StoreId): Promise<WalkInSession[]> {
+  if (typeof window === "undefined") return [];
+  try {
+    const res = await fetch(`/api/pos/sessions?storeId=${encodeURIComponent(storeId)}`);
+    const data = await res.json();
+    if (data?.success && Array.isArray(data.sessions)) {
+      setAllSessions(data.sessions);
+      return data.sessions;
+    }
+  } catch (err) {
+    console.warn("Failed to fetch sessions from server:", err);
+  }
+  return inMemorySessions.filter((s) => s.storeId === storeId);
+}
+
+export async function syncSessionToServer(storeId: StoreId, session: WalkInSession): Promise<boolean> {
+  saveSession(session);
+  if (typeof window === "undefined") return true;
+  try {
+    const res = await fetch("/api/pos/sessions", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ storeId, session }),
+    });
+    const data = await res.json();
+    return !!data?.success;
+  } catch (err) {
+    console.warn("Failed to sync session to server:", err);
+    return false;
+  }
 }
 
 export function generateSessionId(storeId: StoreId): string {

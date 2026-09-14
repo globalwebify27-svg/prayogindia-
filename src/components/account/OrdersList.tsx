@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { MOCK_CUSTOMER_ORDERS, CustomerOrder } from "@/data/accountData";
@@ -12,10 +12,78 @@ import {
   Clock,
   FileText,
   ArrowRight,
+  Loader2,
 } from "lucide-react";
 
+function formatStatus(status: string): CustomerOrder["status"] {
+  switch (status) {
+    case "ORDER_PLACED":
+      return "Order Placed";
+    case "PAYMENT_CONFIRMED":
+      return "Payment Confirmed";
+    case "PROCESSING":
+      return "Processing";
+    case "PACKED":
+      return "Packed";
+    case "SHIPPED":
+      return "Shipped";
+    case "OUT_FOR_DELIVERY":
+      return "Out for Delivery";
+    case "DELIVERED":
+      return "Delivered";
+    case "CANCELLED":
+      return "Cancelled" as any;
+    default:
+      return "Payment Confirmed";
+  }
+}
+
 export const OrdersList: React.FC = () => {
-  const [orders] = useState<CustomerOrder[]>(MOCK_CUSTOMER_ORDERS);
+  const [orders, setOrders] = useState<CustomerOrder[]>(MOCK_CUSTOMER_ORDERS);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadOrders() {
+      try {
+        const res = await fetch("/api/orders");
+        if (res.ok) {
+          const json = await res.json();
+          if (json.success && json.data?.items && json.data.items.length > 0) {
+            const mapped: CustomerOrder[] = json.data.items.map((o: any) => ({
+              id: o.id,
+              orderNumber: o.orderNumber,
+              date: new Date(o.createdAt).toLocaleDateString("en-IN", {
+                day: "numeric",
+                month: "short",
+                year: "numeric",
+              }),
+              totalAmount: o.totalAmount,
+              subtotal: o.subtotal,
+              gstAmount: o.gstAmount,
+              discountAmount: o.discountAmount,
+              status: formatStatus(o.status),
+              itemsCount: o.items?.length || 1,
+              shippingAddress: o.shippingAddress,
+              items: o.items?.map((item: any) => ({
+                id: item.productId,
+                name: item.productName,
+                sku: item.productSku,
+                quantity: item.quantity,
+                price: item.price,
+                image: item.product?.images?.[0]?.imageUrl || "/placeholder.png",
+              })) || [],
+            }));
+            setOrders(mapped);
+          }
+        }
+      } catch (err) {
+        console.warn("Could not load customer orders from API:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadOrders();
+  }, []);
 
   return (
     <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-2xs space-y-6 text-slate-900">
@@ -113,11 +181,12 @@ export const OrdersList: React.FC = () => {
 
                 <button
                   onClick={() =>
-                    alert(
-                      `Downloading Official GST Tax Invoice for Order ${ord.orderNumber}...`,
+                    window.open(
+                      `/api/invoices/${ord.id}?format=html&print=true`,
+                      "_blank",
                     )
                   }
-                  className="text-xs font-bold text-[#00AEEF] hover:underline flex items-center gap-1"
+                  className="text-xs font-bold text-[#00AEEF] hover:underline flex items-center gap-1 cursor-pointer"
                 >
                   <FileText className="w-3.5 h-3.5" /> Download Tax Invoice
                   (PDF)

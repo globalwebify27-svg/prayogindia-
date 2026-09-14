@@ -11,6 +11,7 @@ import {
 } from "@/lib/inventoryEngine";
 import { StoreId, ALL_STORE_IDS } from "@/data/storeConfig";
 import { getSecurityHeaders } from "@/lib/security";
+import { recordAuditLog } from "@/lib/auditLogger";
 
 // GET /api/admin/inventory - Multi-Store Matrix & Audit Trail
 export async function GET(request: Request) {
@@ -230,6 +231,36 @@ export async function PATCH(request: Request) {
               referenceId: invRecord.id,
               notes: reason || `Manual adjustment: ${transactionType}`,
             },
+          });
+
+          // Immutable Unified Audit Log
+          await recordAuditLog({
+            actionCategory: "INVENTORY",
+            action: `INVENTORY_ADJUST_${transactionType}`,
+            entityType: "ProductInventory",
+            entityId: dbProduct.id,
+            description: `Inventory adjusted by ${quantityChange > 0 ? "+" : ""}${quantityChange} for ${dbProduct.name} (${dbProduct.sku}) in ${dbStore.name}. Reason: ${reason || "Manual adjustment"}`,
+            actor: staff,
+            storeId: dbStore.id,
+            previousValue: {
+              productId: dbProduct.id,
+              productName: dbProduct.name,
+              sku: dbProduct.sku,
+              quantity: Math.max(0, result.newQuantity - quantityChange),
+            },
+            newValue: {
+              productId: dbProduct.id,
+              productName: dbProduct.name,
+              sku: dbProduct.sku,
+              quantity: result.newQuantity,
+            },
+            metadata: {
+              transactionType,
+              quantityChange,
+              reason: reason || null,
+              deviceId: staff.deviceId || null,
+            },
+            req: request,
           });
         }
       } catch (dbErr) {

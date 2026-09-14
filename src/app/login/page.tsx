@@ -10,16 +10,14 @@ export const metadata: Metadata = {
 
 export default function LoginPage() {
   return (
-    <div className="py-8">
-      <Suspense
-        fallback={
-          <div className="max-w-md mx-auto py-20 text-center text-xs text-slate-400">
-            Loading sign in portal...
-          </div>
-        }
-      >
-        <LoginForm />
-      </Suspense>
-    </div>
+    <Suspense
+      fallback={
+        <div className="max-w-md mx-auto py-20 text-center text-xs text-slate-400">
+          Loading sign in portal...
+        </div>
+      }
+    >
+      <LoginForm />
+    </Suspense>
   );
 }

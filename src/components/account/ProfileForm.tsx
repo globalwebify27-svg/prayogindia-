@@ -10,24 +10,48 @@ import {
   FileText,
   ShieldCheck,
   CheckCircle2,
+  Loader2,
+  AlertCircle,
 } from "lucide-react";
+
 
 export const ProfileForm: React.FC = () => {
   const { user, updateUser } = useStore();
 
   const [name, setName] = useState(user?.name || "");
   const [phone, setPhone] = useState(user?.phone || "");
-  const [email, setEmail] = useState(user?.email || "");
+  const [email] = useState(user?.email || ""); // Email is read-only
   const [companyName, setCompanyName] = useState(user?.companyName || "");
   const [gstin, setGstin] = useState(user?.gstin || "");
   const [savedSuccess, setSavedSuccess] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    updateUser({ name, phone, email, companyName, gstin });
-    setSavedSuccess(true);
-    setTimeout(() => setSavedSuccess(false), 3000);
+    setSaving(true);
+    setSaveError(null);
+    try {
+      const res = await fetch("/api/users/me", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, phone, companyName, gstin }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        updateUser({ name, phone, companyName, gstin });
+        setSavedSuccess(true);
+        setTimeout(() => setSavedSuccess(false), 3000);
+      } else {
+        setSaveError(data.message || "Failed to update profile.");
+      }
+    } catch {
+      setSaveError("Network error. Please try again.");
+    } finally {
+      setSaving(false);
+    }
   };
+
 
   return (
     <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-2xs space-y-6 text-slate-900">
@@ -45,6 +69,12 @@ export const ProfileForm: React.FC = () => {
         <div className="bg-emerald-50 text-emerald-700 text-xs font-bold p-3 rounded-xl border border-emerald-200 flex items-center gap-2">
           <CheckCircle2 className="w-4 h-4 text-emerald-600" />
           <span>Profile changes successfully updated!</span>
+        </div>
+      )}
+      {saveError && (
+        <div className="bg-red-50 text-red-700 text-xs font-bold p-3 rounded-xl border border-red-200 flex items-center gap-2">
+          <AlertCircle className="w-4 h-4 text-red-500" />
+          <span>{saveError}</span>
         </div>
       )}
 
@@ -104,10 +134,12 @@ export const ProfileForm: React.FC = () => {
             <input
               type="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full bg-slate-50 text-slate-900 pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none font-semibold"
+              readOnly
+              disabled
+              className="w-full bg-slate-100 text-slate-500 pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 font-semibold cursor-not-allowed"
             />
           </div>
+          <p className="text-[10px] text-slate-400">Email cannot be changed here. Contact support to update.</p>
         </div>
 
         {/* Company & GST Tax Credentials Group */}
@@ -154,8 +186,10 @@ export const ProfileForm: React.FC = () => {
 
         <button
           type="submit"
-          className="bg-[#00AEEF] hover:bg-[#0096D6] text-white px-6 py-3 rounded-xl font-extrabold text-xs uppercase tracking-wider transition-colors shadow-md"
+          disabled={saving}
+          className="bg-[#00AEEF] hover:bg-[#0096D6] disabled:opacity-50 text-white px-6 py-3 rounded-xl font-extrabold text-xs uppercase tracking-wider transition-colors shadow-md flex items-center gap-2"
         >
+          {saving && <Loader2 className="w-4 h-4 animate-spin" />}
           Save Profile Changes
         </button>
       </form>

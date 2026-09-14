@@ -17,6 +17,7 @@ import {
   Check,
 } from "lucide-react";
 import { useStore, CartItem } from "@/context/StoreContext";
+import { haptic } from "@/utils/haptics";
 
 interface CartDrawerProps {
   isOpen: boolean;
@@ -275,14 +276,20 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
               <div className="grid grid-cols-2 gap-2 pt-1">
                 <Link
                   href="/cart"
-                  onClick={onClose}
+                  onClick={() => {
+                    haptic.light();
+                    onClose();
+                  }}
                   className="border border-slate-300 hover:border-slate-400 text-slate-800 py-3 rounded-xl font-black text-xs uppercase tracking-wider text-center transition-colors block"
                 >
                   Full Cart
                 </Link>
                 <Link
                   href="/checkout"
-                  onClick={onClose}
+                  onClick={() => {
+                    haptic.medium();
+                    onClose();
+                  }}
                   className="bg-[#00AEEF] hover:bg-[#0096D6] text-white py-3 rounded-xl font-black text-xs uppercase tracking-wider text-center transition-all shadow-md shadow-[#00AEEF]/25 block flex items-center justify-center gap-1"
                 >
                   <span>Checkout</span>

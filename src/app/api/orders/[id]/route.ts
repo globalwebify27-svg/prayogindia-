@@ -68,6 +68,9 @@ export async function GET(
           },
         },
         shipment: true,
+        payment: true,
+        invoice: true,
+        reviews: true,
       },
     });
 

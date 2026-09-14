@@ -29,8 +29,17 @@ export interface CustomerOrder {
   itemsCount: number;
   shippingAddress: string;
   courierName?: string;
+  courierCode?: string;
   trackingNumber?: string;
   trackingUrl?: string;
+  labelUrl?: string;
+  estimatedDelivery?: string;
+  trackingEvents?: Array<{
+    timestamp: string;
+    location: string;
+    status: string;
+    message: string;
+  }>;
   isCancelable?: boolean;
   isReturnable?: boolean;
   items: Array<{

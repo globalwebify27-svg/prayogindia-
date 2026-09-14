@@ -18,58 +18,69 @@ export const FooterSection: React.FC = () => {
   };
 
   return (
-    <footer className="bg-[#050B14] text-white pt-16 pb-10 border-t border-slate-800">
-      {/* Community Newsletter Box */}
-      <div
-        id="community"
-        className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-16"
-      >
-        <div className="bg-gradient-to-r from-[#0B1528] via-[#00AEEF]/20 to-[#0B1528] rounded-3xl p-8 sm:p-12 border border-[#00AEEF]/40 text-center max-w-4xl mx-auto shadow-2xl">
-          <h3 className="text-2xl sm:text-3xl font-extrabold tracking-tight mb-2">
-            Join the <span className="text-[#00AEEF]">PRAYOG</span>{" "}
-            <span className="text-[#FFC20E]">INDIA</span> Community
-          </h3>
-          <p className="text-slate-300 text-xs sm:text-sm max-w-xl mx-auto mb-6">
-            Get updates about new products, robotics workshops, student
-            internships, hardware learning programs and technology launches.
-          </p>
-
-          {subscribed ? (
-            <div className="inline-flex items-center gap-2 bg-emerald-500/20 text-emerald-300 px-5 py-2.5 rounded-full text-xs font-bold border border-emerald-500/40 animate-in fade-in">
-              <CheckCircle2 className="w-4 h-4 text-[#FFC20E]" /> Thank you for
-              subscribing! Check your inbox for your welcome coupon.
-            </div>
-          ) : (
-            <form
-              onSubmit={handleSubscribe}
-              className="flex flex-col sm:flex-row items-center justify-center gap-3 max-w-md mx-auto"
-            >
-              <div className="relative w-full">
-                <Mail className="w-4 h-4 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" />
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Enter your institutional or personal email"
-                  required
-                  className="w-full bg-slate-900/90 text-white placeholder-slate-400 pl-11 pr-4 py-3 rounded-full text-xs border border-slate-700 focus:outline-none focus:border-[#00AEEF]"
-                />
+    <>
+      {/* Classic E-Commerce Newsletter Pre-Footer */}
+      <section id="community" className="bg-slate-50 border-t border-b border-slate-200/90 py-10 text-slate-900">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+            {/* Left: Classic Brand & Newsletter Headline */}
+            <div className="flex items-start sm:items-center gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-[#E0F7FC] text-[#00AEEF] flex items-center justify-center shrink-0 border border-[#00AEEF]/20 shadow-xs">
+                <Mail className="w-6 h-6" />
               </div>
-              <button
-                type="submit"
-                className="w-full sm:w-auto bg-[#00AEEF] hover:bg-[#0096D6] text-white font-extrabold px-6 py-3 rounded-full text-xs shadow-md shrink-0 flex items-center justify-center gap-2 transition-all"
-              >
-                <span>Join Community</span>
-                <Send className="w-3.5 h-3.5 text-[#FFC20E]" />
-              </button>
-            </form>
-          )}
+              <div>
+                <div className="inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wider text-[#00AEEF] bg-[#00AEEF]/10 px-2.5 py-0.5 rounded-full mb-1">
+                  Prayog India Community
+                </div>
+                <h3 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight leading-snug">
+                  Subscribe to our Newsletter
+                </h3>
+                <p className="text-xs sm:text-sm text-slate-500 max-w-xl mt-0.5 font-medium leading-relaxed">
+                  Get updates about new robotics hardware, student workshops, STEM kits, and member-only discounts.
+                </p>
+              </div>
+            </div>
 
-          <p className="text-[10px] text-slate-400 mt-4">
-            We respect your privacy. Unsubscribe at any time. Zero spam.
-          </p>
+            {/* Right: Clean, Classic High-Usability Form */}
+            <div className="w-full lg:max-w-md">
+              {subscribed ? (
+                <div className="inline-flex items-center gap-2 bg-emerald-50 text-emerald-800 text-xs font-bold px-4 py-3 rounded-xl border border-emerald-200 animate-in fade-in">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <span>Thank you for subscribing! Check your inbox for your welcome coupon.</span>
+                </div>
+              ) : (
+                <form onSubmit={handleSubscribe} className="space-y-2">
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                    <div className="relative flex-1">
+                      <input
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="Enter your email address"
+                        required
+                        className="w-full bg-white text-slate-900 placeholder:text-slate-400 px-4 py-2.5 text-sm rounded-xl border border-slate-300 focus:outline-none focus:border-[#00AEEF] focus:ring-1 focus:ring-[#00AEEF] shadow-xs transition-all font-medium"
+                      />
+                    </div>
+                    <button
+                      type="submit"
+                      className="bg-[#00AEEF] hover:bg-[#0096D6] active:scale-[0.98] text-white font-bold text-sm px-6 py-2.5 rounded-xl transition-all shadow-md shadow-[#00AEEF]/20 flex items-center justify-center gap-2 shrink-0 cursor-pointer"
+                    >
+                      <span>Subscribe</span>
+                      <Send className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                  <p className="text-[11px] text-slate-400 font-medium">
+                    We respect your privacy. Unsubscribe at any time. Zero spam.
+                  </p>
+                </form>
+              )}
+            </div>
+          </div>
         </div>
-      </div>
+      </section>
+
+      {/* Main Multi-Column Footer */}
+      <footer className="bg-[#050B14] text-white pt-14 pb-10 border-t border-slate-800">
 
       {/* Main Multi-Column Footer Grid */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -315,5 +326,6 @@ export const FooterSection: React.FC = () => {
         </div>
       </div>
     </footer>
+    </>
   );
 };

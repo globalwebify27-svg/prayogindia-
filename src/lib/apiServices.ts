@@ -266,16 +266,32 @@ export async function getOfferBySlug(slug: string): Promise<OfferItem | null> {
   );
 }
 
-// 6. Orders API (Customer Private)
+export interface CreateCustomerOrderOptions {
+  shippingAddress?: string;
+  addressId?: string;
+  couponCode?: string;
+  rewardPointsUsed?: number;
+  paymentMethod?: string;
+  shippingCost?: number;
+}
+
 export async function createCustomerOrder(
   shippingAddress?: string,
   addressId?: string,
+  options?: Omit<CreateCustomerOrderOptions, "shippingAddress" | "addressId">,
 ) {
   try {
     const res = await fetch("/api/orders", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ shippingAddress, addressId }),
+      body: JSON.stringify({
+        shippingAddress,
+        addressId,
+        couponCode: options?.couponCode,
+        rewardPointsUsed: options?.rewardPointsUsed,
+        paymentMethod: options?.paymentMethod,
+        shippingCost: options?.shippingCost,
+      }),
     });
     return await res.json();
   } catch (err) {

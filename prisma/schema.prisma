@@ -54,6 +54,10 @@ model Store {
   transactions         InventoryTransaction[]
   outgoingTransfers    StockTransfer[]        @relation("SourceStore")
   incomingTransfers    StockTransfer[]        @relation("DestinationStore")
+  purchaseOrders       PurchaseOrder[]
+  quotations           Quotation[]
+  b2bCompanies         B2BCompany[]
+  auditLogs            AuditLog[]
 
   @@index([code])
 }
@@ -203,6 +207,9 @@ model StaffUser {
   createdAt    DateTime    @default(now())
   updatedAt    DateTime    @updatedAt
 
+  assignedCompanies B2BCompany[]
+  assignedFollowUps B2BFollowUp[]
+
   @@index([username])
   @@index([storeId])
   @@index([role])
@@ -233,6 +240,19 @@ enum OrderStatus {
   OUT_FOR_DELIVERY
   DELIVERED
   CANCELLED
+  PAYMENT_FAILED
+  RETURN_REQUESTED
+  RETURNED
+  REFUND_INITIATED
+  REFUNDED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+  PARTIAL_REFUNDED
 }
 
 enum TicketStatus {
@@ -273,15 +293,19 @@ model User {
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
 
-  addresses     Address[]
-  carts         Cart[]
-  wishlists     Wishlist[]
-  orders        Order[]
-  enquiries     ServiceEnquiry[]
-  tickets       SupportTicket[]
-  notifications Notification[]
+  addresses          Address[]
+  carts              Cart[]
+  wishlists          Wishlist[]
+  orders             Order[]
+  enquiries          ServiceEnquiry[]
+  tickets            SupportTicket[]
+  notifications      Notification[]
+  reviews            Review[]
+  rewardTransactions RewardTransaction[]
+  quotations         Quotation[]
 
   @@index([email])
+  @@index([phone])
 }
 
 // 2. Customer Addresses
@@ -332,6 +356,8 @@ model Product {
   description    String
   price          Float
   mrp            Float?
+  gstRate        Float           @default(18) // GST percentage per product (e.g., 18 for 18%)
+  weight         Float           @default(0)  // Weight in grams for shipping calculation
   stock          Int             @default(0)
   inStock        Boolean         @default(true)
   brand          String          @default("Prayog India")
@@ -339,6 +365,8 @@ model Product {
   reviewCount    Int             @default(12)
   specifications Json?
   features       String[]
+  applications   String[]        // Product application use-cases
+  tags           String[]        // Shipping / freight restriction tags (e.g., LITHIUM_BATTERY, HAZARDOUS)
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
 
@@ -352,9 +380,13 @@ model Product {
   storeSettings         StoreProductSettings[]
   inventoryTransactions InventoryTransaction[]
   stockTransferItems    StockTransferItem[]
+  reviews               Review[]
+  purchaseOrderItems    PurchaseOrderItem[]
+  quotationItems        QuotationItem[]
 
   @@index([slug])
   @@index([categoryId])
+  @@index([brand])
 }
 
 // 5. Product Variants
@@ -434,25 +466,45 @@ model WishlistItem {
 
 // 9. Orders & Order Items
 model Order {
-  id              String       @id @default(uuid())
-  orderNumber     String       @unique
-  userId          String
-  user            User         @relation(fields: [userId], references: [id])
-  customerType    CustomerType @default(B2C)
-  status          OrderStatus  @default(ORDER_PLACED)
-  totalAmount     Float
-  subtotal        Float
-  gstAmount       Float
-  discountAmount  Float       @default(0)
-  shippingAddress String
-  createdAt       DateTime    @default(now())
-  updatedAt       DateTime    @updatedAt
+  id                String        @id @default(uuid())
+  orderNumber       String        @unique
+  userId            String
+  user              User          @relation(fields: [userId], references: [id])
+  customerType      CustomerType  @default(B2C)
+  status            OrderStatus   @default(ORDER_PLACED)
+  paymentStatus     PaymentStatus @default(PENDING)
+  paymentId         String?       // Payment gateway reference ID
+  paymentMethod     String?       // razorpay | cod | bank_transfer
+  rewardPointsUsed  Int           @default(0)   // Points redeemed at checkout
+  rewardPointsEarned Int          @default(0)   // Points credited on this order
+  couponCode        String?       // Applied coupon code snapshot
+  couponDiscount    Float         @default(0)   // Coupon discount amount snapshot
+  shippingCost      Float         @default(0)
+  totalAmount       Float
+  subtotal          Float
+  gstAmount         Float
+  discountAmount    Float         @default(0)
+  shippingAddress   String
+  cancelledAt       DateTime?
+  cancelReason      String?
+  refundStatus      String?       // INITIATED | PROCESSED | FAILED
+  refundAmount      Float         @default(0)
+  refundedAt        DateTime?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
 
-  items           OrderItem[]
-  shipment        Shipment?
+  items             OrderItem[]
+  shipment          Shipment?
+  payment           Payment?
+  invoice           Invoice?
+  reviews           Review[]
+  quotationId       String?       @unique
+  quotation         Quotation?    @relation(fields: [quotationId], references: [id])
 
   @@index([userId])
   @@index([status])
+  @@index([paymentStatus])
+  @@index([orderNumber])
 }
 
 model OrderItem {
@@ -471,15 +523,24 @@ model OrderItem {
 
 // 10. Shipment Tracking
 model Shipment {
-  id              String    @id @default(uuid())
-  orderId         String    @unique
-  order           Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  courierName     String
-  trackingNumber  String
-  trackingUrl     String?
-  status          String    @default("In Transit")
-  estimatedDelivery String?
-  shippedAt       DateTime  @default(now())
+  id                  String    @id @default(uuid())
+  orderId             String    @unique
+  order               Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  courierName         String
+  courierCode         String    @default("DELHIVERY")
+  trackingNumber      String    // AWB number
+  trackingUrl         String?
+  labelUrl            String?
+  status              String    @default("Manifest Created")
+  estimatedDelivery   String?
+  weightKg            Float?    @default(0.5)
+  trackingEvents      Json?     // Array of { timestamp, location, status, message }
+  lastTrackingUpdate  DateTime  @default(now())
+  shippedAt           DateTime  @default(now())
+  deliveredAt         DateTime?
+  rtoReason           String?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
 }
 
 // 11. Services & Institutional Enquiries
@@ -598,3 +659,560 @@ model Notification {
   @@index([readAt])
   @@index([createdAt])
 }
+
+// 16. Payment Records
+model Payment {
+  id              String        @id @default(uuid())
+  orderId         String        @unique
+  order           Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  gatewayOrderId  String?       // Razorpay order_id
+  gatewayPaymentId String?      // Razorpay payment_id
+  gatewaySignature String?      // Razorpay signature for verification
+  amount          Float
+  currency        String        @default("INR")
+  method          String?       // card | upi | netbanking | wallet | emi
+  status          PaymentStatus @default(PENDING)
+  gatewayResponse Json?         // Full raw gateway response
+  verifiedAt      DateTime?
+  failureReason   String?
+  refundId        String?
+  refundAmount    Float         @default(0)
+  refundedAt      DateTime?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@index([orderId])
+  @@index([gatewayPaymentId])
+  @@index([status])
+}
+
+// 17. Tax Invoices
+model Invoice {
+  id              String   @id @default(uuid())
+  invoiceNumber   String   @unique // e.g., INV-2026-001
+  orderId         String   @unique
+  order           Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  userId          String
+  customerName    String
+  customerEmail   String
+  customerPhone   String
+  customerGstin   String?  // B2B GSTIN
+  companyName     String?  // B2B company
+  billingAddress  String
+  shippingAddress String
+  items           Json     // Snapshot of order items with price, qty, GST
+  subtotal        Float
+  discountAmount  Float    @default(0)
+  couponCode      String?
+  couponDiscount  Float    @default(0)
+  gstBreakup      Json?    // {cgst, sgst, igst} breakdown
+  gstAmount       Float
+  shippingCost    Float    @default(0)
+  totalAmount     Float
+  paymentMethod   String?
+  paymentRef      String?
+  invoiceDate     DateTime @default(now())
+  createdAt       DateTime @default(now())
+
+  @@index([orderId])
+  @@index([invoiceNumber])
+  @@index([userId])
+}
+
+// 18. Product Reviews
+model Review {
+  id         String   @id @default(uuid())
+  productId  String
+  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  orderId    String?
+  order      Order?   @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  rating     Int      // 1-5
+  title      String?
+  body       String
+  isVerified Boolean  @default(false) // Purchased & delivered order
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([productId, userId])  // One review per product per customer
+  @@index([productId])
+  @@index([userId])
+  @@index([rating])
+}
+
+// 19. Reward / Loyalty Point Transactions
+model RewardTransaction {
+  id              String    @id @default(uuid())
+  userId          String
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  orderId         String?   // Associated order (if applicable)
+  type            String    // EARNED | REDEEMED | EXPIRED | ADJUSTMENT | BONUS | REFUND_REVERSAL
+  points          Int       // Positive = earned/added, Negative = redeemed/deducted
+  balanceBefore   Int
+  balanceAfter    Int
+  description     String
+  referenceType   String?   // ORDER_PAYMENT | ORDER_CANCEL | ORDER_DELIVERED | CHECKOUT_REDEEM | ADMIN_ADJUSTMENT | REGISTRATION_BONUS | EXPIRY
+  referenceId     String?   // E.g. Order ID, Refund ID, Staff ID
+  expiryDate      DateTime?
+  metadata        Json?     // Extra structured context
+  createdAt       DateTime  @default(now())
+
+  @@index([userId])
+  @@index([type])
+  @@index([orderId])
+  @@index([referenceType, referenceId])
+  @@index([createdAt])
+}
+
+// 19b. Configurable Loyalty Tier Rules
+model LoyaltyRule {
+  id                      String   @id @default(uuid())
+  tierCode                String   @unique // B2C | B2B | REGISTERED | WALK_IN
+  name                    String
+  pointsPer100Spent       Float    @default(1.0)
+  redemptionRateRupees    Float    @default(0.5)
+  minRedemptionPoints     Int      @default(50)
+  maxRedemptionPercentage Float    @default(20.0) // % of subtotal max payable with points
+  validityDays            Int      @default(365)
+  registrationBonus       Int      @default(100)
+  isActive                Boolean  @default(true)
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
+}
+
+// 20. Coupon Usage Tracking
+model CouponUsage {
+  id         String   @id @default(uuid())
+  couponCode String
+  userId     String
+  orderId    String?
+  usedAt     DateTime @default(now())
+
+  @@unique([couponCode, userId, orderId])
+  @@index([couponCode])
+  @@index([userId])
+}
+
+// ─────────────────────────────────────────────
+// PROCUREMENT / PURCHASE MODULE
+// ─────────────────────────────────────────────
+
+enum PurchaseOrderStatus {
+  DRAFT
+  PENDING
+  ORDERED
+  PARTIALLY_RECEIVED
+  RECEIVED
+  CANCELLED
+}
+
+enum SupplierPaymentStatus {
+  UNPAID
+  PARTIALLY_PAID
+  PAID
+}
+
+// 21. Suppliers
+model Supplier {
+  id              String   @id @default(uuid())
+  name            String
+  contactPerson   String?
+  phone           String
+  email           String?
+  address         String?
+  city            String?
+  state           String?
+  pincode         String?
+  gstin           String?
+  bankName        String?
+  bankAccount     String?
+  bankIfsc        String?
+  notes           String?
+  status          String   @default("Active") // Active | Inactive
+  totalPurchases  Float    @default(0)
+  outstandingAmount Float  @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  purchaseOrders  PurchaseOrder[]
+
+  @@index([status])
+}
+
+// 22. Purchase Orders
+model PurchaseOrder {
+  id                  String              @id @default(uuid())
+  poNumber            String              @unique // e.g. PO-2026-001
+  storeId             String
+  store               Store               @relation(fields: [storeId], references: [id])
+  supplierId          String
+  supplier            Supplier            @relation(fields: [supplierId], references: [id])
+  status              PurchaseOrderStatus @default(DRAFT)
+  orderDate           DateTime            @default(now())
+  expectedDelivery    DateTime?
+  invoiceNumber       String?             // Supplier invoice ref
+  notes               String?
+  subtotal            Float               @default(0)
+  taxAmount           Float               @default(0)
+  shippingCost        Float               @default(0)
+  totalAmount         Float               @default(0)
+  amountPaid          Float               @default(0)
+  amountDue           Float               @default(0)
+  paymentStatus       SupplierPaymentStatus @default(UNPAID)
+  createdByStaffId    String?
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+
+  items               PurchaseOrderItem[]
+  receipts            GoodsReceipt[]
+  payments            SupplierPayment[]
+
+  @@index([poNumber])
+  @@index([storeId])
+  @@index([supplierId])
+  @@index([status])
+}
+
+// 23. Purchase Order Line Items
+model PurchaseOrderItem {
+  id                String        @id @default(uuid())
+  purchaseOrderId   String
+  purchaseOrder     PurchaseOrder @relation(fields: [purchaseOrderId], references: [id], onDelete: Cascade)
+  productId         String
+  product           Product       @relation(fields: [productId], references: [id])
+  productName       String        // Snapshot at time of order
+  productSku        String        // Snapshot
+  orderedQty        Int
+  receivedQty       Int           @default(0)
+  pendingQty        Int           @default(0)
+  unitPrice         Float         // Purchase cost price per unit
+  taxRate           Float         @default(0)  // GST %
+  taxAmount         Float         @default(0)
+  discountAmount    Float         @default(0)
+  totalAmount       Float         // orderedQty * unitPrice + tax - discount
+  createdAt         DateTime      @default(now())
+
+  receiptItems      GoodsReceiptItem[]
+
+  @@index([purchaseOrderId])
+  @@index([productId])
+}
+
+// 24. Goods Receipts (each delivery event)
+model GoodsReceipt {
+  id               String        @id @default(uuid())
+  receiptNumber    String        @unique // e.g. GR-2026-001
+  purchaseOrderId  String
+  purchaseOrder    PurchaseOrder @relation(fields: [purchaseOrderId], references: [id])
+  receivedByStaffId String?
+  receivedAt       DateTime      @default(now())
+  notes            String?
+  createdAt        DateTime      @default(now())
+
+  items            GoodsReceiptItem[]
+
+  @@index([purchaseOrderId])
+}
+
+model GoodsReceiptItem {
+  id                  String          @id @default(uuid())
+  goodsReceiptId      String
+  goodsReceipt        GoodsReceipt    @relation(fields: [goodsReceiptId], references: [id], onDelete: Cascade)
+  purchaseOrderItemId String
+  purchaseOrderItem   PurchaseOrderItem @relation(fields: [purchaseOrderItemId], references: [id])
+  receivedQty         Int
+  createdAt           DateTime        @default(now())
+
+  @@index([goodsReceiptId])
+}
+
+// 25. Supplier Payment Records
+model SupplierPayment {
+  id              String        @id @default(uuid())
+  purchaseOrderId String
+  purchaseOrder   PurchaseOrder @relation(fields: [purchaseOrderId], references: [id])
+  amount          Float
+  paymentDate     DateTime      @default(now())
+  paymentMethod   String        // BANK_TRANSFER | CHEQUE | CASH | UPI | NEFT | RTGS
+  referenceNumber String?       // Bank ref / cheque number
+  notes           String?
+  recordedByStaffId String?
+  createdAt       DateTime      @default(now())
+
+  @@index([purchaseOrderId])
+}
+
+// ─────────────────────────────────────────────
+// 26. Quotations & B2B Proposals
+// ─────────────────────────────────────────────
+
+enum QuotationStatus {
+  DRAFT
+  REQUESTED
+  UNDER_REVIEW
+  SENT
+  VIEWED
+  NEGOTIATION
+  ACCEPTED
+  REJECTED
+  EXPIRED
+  CONVERTED
+  CANCELLED
+}
+
+model Quotation {
+  id               String          @id @default(uuid())
+  quoteNumber      String          @unique // e.g. PRG-QT-2026-0042
+  userId           String?
+  user             User?           @relation(fields: [userId], references: [id])
+  storeId          String
+  store            Store           @relation(fields: [storeId], references: [id])
+
+  institutionType  String          @default("Corporate") // School | College | University | STEM Lab | Corporate | Industrial | Government / Tender
+  companyName      String
+  customerName     String
+  customerEmail    String
+  customerPhone    String
+  gstin            String?
+  billingAddress   String?
+  shippingAddress  String?
+
+  status           QuotationStatus @default(REQUESTED)
+  validUntil       DateTime
+  
+  subtotal         Float           @default(0)
+  discountAmount   Float           @default(0)
+  taxRate          Float           @default(18) // %
+  taxAmount        Float           @default(0)
+  shippingCharge   Float           @default(0)
+  grandTotal       Float           @default(0)
+
+  notes            String?
+  terms            String?
+  adminNotes       String?
+  customerFeedback String?
+
+  order            Order?
+  convertedAt      DateTime?
+  createdByStaffId String?
+
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+
+  items            QuotationItem[]
+  revisions        QuotationRevision[]
+
+  @@index([storeId])
+  @@index([userId])
+  @@index([status])
+  @@index([quoteNumber])
+}
+
+model QuotationItem {
+  id             String         @id @default(uuid())
+  quotationId    String
+  quotation      Quotation      @relation(fields: [quotationId], references: [id], onDelete: Cascade)
+  productId      String?
+  product        Product?       @relation(fields: [productId], references: [id])
+  variantId      String?
+  
+  productName    String
+  productSku     String
+  quantity       Int            @default(1)
+  unitPrice      Float          // Negotiated B2B unit price
+  discountPct    Float          @default(0)
+  taxRate        Float          @default(18)
+  total          Float          // Computed line total
+
+  createdAt      DateTime       @default(now())
+
+  @@index([quotationId])
+  @@index([productId])
+}
+
+model QuotationRevision {
+  id             String    @id @default(uuid())
+  quotationId    String
+  quotation      Quotation @relation(fields: [quotationId], references: [id], onDelete: Cascade)
+  revisionNumber Int
+  snapshotJson   String    // Full serialized state of the quotation at revision
+  changedByRole  String    // CUSTOMER | STAFF | SYSTEM
+  changeNotes    String?
+  createdAt      DateTime  @default(now())
+
+  @@index([quotationId])
+}
+
+// ─────────────────────────────────────────────
+// 27. B2B Relationships & CRM
+// ─────────────────────────────────────────────
+
+enum B2BRelationshipStatus {
+  LEAD
+  PROSPECT
+  NEGOTIATION
+  ACTIVE_CUSTOMER
+  INACTIVE
+  LOST
+  BLOCKED
+}
+
+enum B2BFollowUpStatus {
+  PENDING
+  COMPLETED
+  CANCELLED
+  OVERDUE
+}
+
+model B2BCompany {
+  id              String                @id @default(uuid())
+  name            String                @unique // e.g. ABC Hotel Group / IIT Delhi Robotics Lab
+  companyType     String                @default("Corporate") // School | College | University | STEM Lab | Corporate | Industrial | Government
+  industry        String?               // Education | Hospitality | Defense | Drone & UAV | Manufacturing | R&D
+  gstin           String?
+  website         String?
+  email           String?
+  phone           String?
+  
+  billingAddress  String?
+  shippingAddress String?
+  city            String?
+  state           String?
+  pincode         String?
+
+  status          B2BRelationshipStatus @default(LEAD)
+  assignedStoreId String?
+  store           Store?                @relation(fields: [assignedStoreId], references: [id], onDelete: SetNull)
+  assignedStaffId String?
+  assignedStaff   StaffUser?            @relation(fields: [assignedStaffId], references: [id], onDelete: SetNull)
+
+  notes           String?
+  rating          Int                   @default(3) // 1-5 Relationship health / VIP priority score
+  totalBusiness   Float                 @default(0) // Lifetime realized revenue
+
+  createdAt       DateTime              @default(now())
+  updatedAt       DateTime              @updatedAt
+
+  contacts        B2BContact[]
+  activities      B2BActivity[]
+  followUps       B2BFollowUp[]
+
+  @@index([status])
+  @@index([assignedStoreId])
+  @@index([name])
+}
+
+model B2BContact {
+  id          String     @id @default(uuid())
+  companyId   String
+  company     B2BCompany @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  
+  name        String     // e.g. Rahul Sharma
+  designation String?    // e.g. Purchase Manager / Lab Director
+  phone       String
+  email       String?
+  contactType String     @default("PURCHASE") // PURCHASE | ACCOUNTS | MANAGEMENT | TECHNICAL
+  isPrimary   Boolean    @default(false)
+  notes       String?
+
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  activities  B2BActivity[]
+  followUps   B2BFollowUp[]
+
+  @@index([companyId])
+}
+
+model B2BActivity {
+  id                 String      @id @default(uuid())
+  companyId          String
+  company            B2BCompany  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  contactId          String?
+  contact            B2BContact? @relation(fields: [contactId], references: [id], onDelete: SetNull)
+
+  activityType       String      // CALL | EMAIL | MEETING | NOTE | QUOTE_EVENT | ORDER_EVENT | FOLLOW_UP
+  title              String
+  description        String?
+  performedByStaffId String?
+
+  createdAt          DateTime    @default(now())
+
+  @@index([companyId])
+}
+
+model B2BFollowUp {
+  id              String            @id @default(uuid())
+  companyId       String
+  company         B2BCompany        @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  contactId       String?
+  contact         B2BContact?       @relation(fields: [contactId], references: [id], onDelete: SetNull)
+  assignedStaffId String?
+  assignedStaff   StaffUser?        @relation(fields: [assignedStaffId], references: [id], onDelete: SetNull)
+
+  dueDate         DateTime
+  reason          String            // e.g. Discuss bulk 20L water jar supply contract
+  notes           String?
+  status          B2BFollowUpStatus @default(PENDING)
+
+  createdAt       DateTime          @default(now())
+  completedAt     DateTime?
+
+  @@index([companyId])
+  @@index([status])
+  @@index([dueDate])
+}
+
+// ─────────────────────────────────────────────
+// 28. Central System Audit & Activity Log
+// ─────────────────────────────────────────────
+
+enum AuditActionCategory {
+  AUTH
+  USER_MANAGEMENT
+  STORE_MANAGEMENT
+  PRODUCT_CATALOG
+  CATEGORY_MANAGEMENT
+  INVENTORY
+  ORDER_FULFILLMENT
+  PAYMENT_FINANCE
+  SUPPLIER_PROCUREMENT
+  QUOTATION_B2B
+  CRM_RELATIONSHIPS
+  SYSTEM_SECURITY
+}
+
+model AuditLog {
+  id             String              @id @default(uuid())
+  actionCategory AuditActionCategory
+  action         String              // e.g. "PRICE_CHANGE", "ORDER_STATUS_UPDATE", "STOCK_ADJUSTMENT", "LOGIN"
+  entityType     String              // e.g. "Product", "Order", "Quotation", "Store", "StaffUser", "Supplier"
+  entityId       String?
+  description    String              // Human-readable narrative
+
+  actorId        String?             // Staff or User ID
+  actorName      String              // Snapshot of name
+  actorRole      String              // "SUPER_ADMIN", "STORE_MANAGER", "SYSTEM", etc.
+  actorEmail     String?
+
+  storeId        String?
+  store          Store?              @relation(fields: [storeId], references: [id], onDelete: SetNull)
+
+  previousValue  String?             // JSON snapshot or string representation
+  newValue       String?             // JSON snapshot or string representation
+  metadata       Json?               // Structured context: headers, reason, related IDs
+
+  ipAddress      String?
+  userAgent      String?
+
+  createdAt      DateTime            @default(now())
+
+  @@index([actionCategory])
+  @@index([action])
+  @@index([entityType, entityId])
+  @@index([storeId])
+  @@index([actorId])
+  @@index([createdAt])
+}
+

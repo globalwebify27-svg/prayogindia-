@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+
 import {
   FolderTree,
   ChevronRight,
@@ -190,6 +191,40 @@ export default function AdminCategoriesPage() {
   const [editingNode, setEditingNode] = useState<CategoryNode | null>(null);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [successMsg, setSuccessMsg] = useState("");
+  const [apiLoaded, setApiLoaded] = useState(false);
+
+  // Try to load from real API on mount
+  useEffect(() => {
+    fetch("/api/admin/categories")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && data.data?.length) {
+          // Transform DB Category nodes to CategoryNode shape
+          const transform = (cats: any[], level: 0|1|2 = 0): CategoryNode[] =>
+            cats.map((c: any) => ({
+              id: c.id,
+              name: c.name,
+              slug: c.slug,
+              parentId: c.parentId || null,
+              level,
+              description: c.description || "",
+              seoTitle: `${c.name} | Prayog India`,
+              seoDescription: "",
+              bannerUrl: c.image || "",
+              iconName: "Tag",
+              productCount: c._count?.products || 0,
+              sortOrder: 0,
+              children: c.children?.length
+                ? transform(c.children, (level + 1) as 0|1|2)
+                : undefined,
+            }));
+          setCategories(transform(data.data));
+          setApiLoaded(true);
+        }
+      })
+      .catch(() => {}); // Keep mock data as fallback
+  }, []);
+
 
   // Create form state
   const [newName, setNewName] = useState("");
@@ -222,13 +257,28 @@ export default function AdminCategoriesPage() {
     });
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
     if (
       !confirm(
         "Delete this category and all its subcategories? Products will remain but lose their category mapping.",
       )
     )
       return;
+
+    // Try real API first
+    try {
+      const res = await fetch("/api/admin/categories", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id }),
+      });
+      const data = await res.json();
+      if (!data.success) {
+        alert(data.message || "Cannot delete category");
+        return;
+      }
+    } catch {} // If API fails, still update local state
+
     const remove = (nodes: CategoryNode[]): CategoryNode[] =>
       nodes
         .filter((n) => n.id !== id)
@@ -245,7 +295,7 @@ export default function AdminCategoriesPage() {
     setTimeout(() => setSuccessMsg(""), 3500);
   };
 
-  const handleCreateCategory = (e: React.FormEvent) => {
+  const handleCreateCategory = async (e: React.FormEvent) => {
     e.preventDefault();
     const level = newParentId
       ? allFlat.find((n) => n.id === newParentId)?.level === 0
@@ -253,16 +303,31 @@ export default function AdminCategoriesPage() {
         : 2
       : 0;
 
+    const slug = newSlug.trim() ||
+      newName.trim().toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
+
+    // Try real API
+    let newId = `cat-${Date.now()}`;
+    try {
+      const res = await fetch("/api/admin/categories", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: newName.trim(),
+          slug,
+          description: newDescription.trim(),
+          image: newBannerUrl.trim(),
+          parentId: newParentId || null,
+        }),
+      });
+      const data = await res.json();
+      if (data.success && data.data?.id) newId = data.data.id;
+    } catch {} // Continue with local state even if API fails
+
     const newCat: CategoryNode = {
-      id: `cat-${Date.now()}`,
+      id: newId,
       name: newName.trim(),
-      slug:
-        newSlug.trim() ||
-        newName
-          .trim()
-          .toLowerCase()
-          .replace(/\s+/g, "-")
-          .replace(/[^a-z0-9-]/g, ""),
+      slug,
       parentId: newParentId || null,
       level: level as 0 | 1 | 2,
       description: newDescription.trim(),

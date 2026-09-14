@@ -1,131 +1,300 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
+import Image from "next/image";
 import { motion } from "framer-motion";
-import { Sparkles, ArrowRight, ShieldCheck } from "lucide-react";
+import {
+  Sparkles,
+  ArrowRight,
+  ShieldCheck,
+  Gift,
+  Copy,
+  Check,
+  Zap,
+  Tag,
+  Clock,
+  Truck,
+} from "lucide-react";
+import { haptic } from "@/utils/haptics";
 
 interface Props {
   onShopDeals?: () => void;
 }
 
 export const DealsAndOffersSection: React.FC<Props> = ({ onShopDeals }) => {
+  // Live ticking countdown state (starts at 14h 32m 45s)
+  const [timeLeft, setTimeLeft] = useState({
+    hours: 14,
+    minutes: 32,
+    seconds: 45,
+  });
+
+  const [copiedCode, setCopiedCode] = useState<string | null>(null);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev.seconds > 0) {
+          return { ...prev, seconds: prev.seconds - 1 };
+        } else if (prev.minutes > 0) {
+          return { ...prev, minutes: prev.minutes - 1, seconds: 59 };
+        } else if (prev.hours > 0) {
+          return { hours: prev.hours - 1, minutes: 59, seconds: 59 };
+        }
+        return prev;
+      });
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const handleCopyCode = (code: string) => {
+    haptic.selection();
+    if (typeof navigator !== "undefined" && navigator.clipboard) {
+      navigator.clipboard.writeText(code).catch(() => {});
+    }
+    setCopiedCode(code);
+    setTimeout(() => {
+      setCopiedCode(null);
+    }, 2500);
+  };
+
+  const handleClaim = () => {
+    haptic.medium();
+    onShopDeals?.();
+  };
+
   return (
-    <section className="py-10 sm:py-14 lg:py-16 bg-white">
+    <section className="pt-8 pb-4 sm:pt-10 sm:pb-6 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6 sm:space-y-8">
         {/* Section Header */}
         <div className="flex items-center justify-between">
           <div>
-            <span className="text-[11px] font-black uppercase tracking-widest text-[#FF3B30]">
-              Limited Time Deals
-            </span>
+            <div className="flex items-center gap-1.5 text-[11px] font-black uppercase tracking-widest text-[#FF3B30]">
+              <Sparkles className="w-3.5 h-3.5 text-[#FF3B30]" />
+              <span>Limited Time Deals</span>
+            </div>
             <h2 className="text-xl sm:text-2xl lg:text-3xl font-black text-slate-900 tracking-tight mt-1">
-              Deals & Offers
+              Deals &amp; Offers
             </h2>
           </div>
 
           <button
-            onClick={onShopDeals}
-            className="text-xs sm:text-sm font-extrabold text-[#FF3B30] hover:underline flex items-center gap-1 group cursor-pointer"
+            onClick={handleClaim}
+            className="text-xs sm:text-sm font-extrabold text-[#00AEEF] hover:text-[#0096D6] flex items-center gap-1.5 group cursor-pointer transition-colors"
           >
-            <span>View All Deals</span>{" "}
+            <span>View All Deals</span>
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </button>
         </div>
 
-        {/* Big Offer Banner & Deal Cards Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6">
-          {/* Left Main Big Promotional Banner (Span 8) */}
-          <div className="lg:col-span-8 bg-gradient-to-br from-[#0A1128] via-[#0F172A] to-[#1E56A0] text-white rounded-3xl p-5 sm:p-7 lg:p-8 relative overflow-hidden border border-slate-700/60 shadow-xl flex flex-col justify-between min-h-[260px] sm:min-h-[300px]">
-            {/* Top Badges & Countdown UI */}
-            <div className="flex flex-wrap items-center justify-between gap-2.5 z-10">
-              <span className="bg-[#FF3B30] text-white text-[11px] sm:text-xs font-black uppercase px-3 py-1 rounded-full flex items-center gap-1.5 shadow-md">
-                <Sparkles className="w-3.5 h-3.5" /> FLASH DEALS 35% OFF
-              </span>
+        {/* Completely New Concept: Balanced 3-Column Interactive Deal Cards Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
+          {/* Deal Card 1: Flash Sale (Robotics & Drones) */}
+          <motion.div
+            whileHover={{ y: -4 }}
+            className="rounded-3xl bg-white border border-red-100 hover:border-red-300 shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col justify-between group"
+          >
+            {/* Card Header Media & Live Timer */}
+            <div className="relative h-44 sm:h-48 overflow-hidden bg-slate-950">
+              <Image
+                src="/images/ecosystem/uavs-and-drones.jpg"
+                alt="STEM Robotics & UAV Deals"
+                fill
+                className="object-cover group-hover:scale-105 transition-transform duration-500 brightness-90"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
 
-              {/* Countdown UI */}
-              <div className="flex items-center gap-1.5 text-xs font-bold bg-white/10 backdrop-blur-md px-2.5 sm:px-3 py-1.5 rounded-xl border border-white/15">
-                <span className="text-slate-300 text-[11px]">Ends in:</span>
-                <span className="bg-[#FFC20E] text-slate-950 font-mono font-black px-1.5 py-0.5 rounded text-[10px] sm:text-[11px]">
-                  14h
+              {/* Badges Overlay */}
+              <div className="absolute top-3 left-3 right-3 flex items-center justify-between gap-2 z-10">
+                <span className="bg-[#FF3B30] text-white text-[10px] font-black uppercase px-2.5 py-1 rounded-full flex items-center gap-1 shadow-md">
+                  <Zap className="w-3 h-3 fill-white" /> 35% OFF FLASH DEAL
                 </span>
-                <span>:</span>
-                <span className="bg-[#FFC20E] text-slate-950 font-mono font-black px-1.5 py-0.5 rounded text-[10px] sm:text-[11px]">
-                  32m
+                <span className="bg-black/60 backdrop-blur-md text-[#FFC20E] text-[10px] font-mono font-bold px-2 py-0.5 rounded-lg border border-white/15">
+                  Ends {String(timeLeft.hours).padStart(2, "0")}h {String(timeLeft.minutes).padStart(2, "0")}m {String(timeLeft.seconds).padStart(2, "0")}s
                 </span>
-                <span>:</span>
-                <span className="bg-[#FFC20E] text-slate-950 font-mono font-black px-1.5 py-0.5 rounded text-[10px] sm:text-[11px]">
-                  45s
+              </div>
+
+              {/* Title on Image */}
+              <div className="absolute bottom-3 left-3 right-3 z-10">
+                <span className="text-[10px] font-extrabold uppercase tracking-wider text-red-400">
+                  Lab Equipment &amp; Drones
                 </span>
+                <h3 className="text-lg font-black text-white leading-tight">
+                  STEM Robotics &amp; UAV Bundles
+                </h3>
               </div>
             </div>
 
-            {/* Banner Content */}
-            <div className="space-y-2 sm:space-y-3 z-10 my-3 sm:my-4">
-              <h3 className="text-xl sm:text-3xl lg:text-4xl font-black leading-tight text-white">
-                STEM Robotics & UAV Lab Bundles
-              </h3>
-              <p className="text-slate-200 text-xs sm:text-sm max-w-lg leading-relaxed line-clamp-2 sm:line-clamp-none">
-                Get up to ₹2,500 Instant Discount on bulk robotics lab kits,
-                Raspberry Pi 5 bundles & Pixhawk flight controllers.
+            {/* Card Body */}
+            <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
+              <p className="text-xs text-slate-600 leading-relaxed font-medium">
+                Save up to ₹2,500 on Pixhawk 6C flight controllers, 6-DOF robot arm kits, and high-torque metal gear servos.
               </p>
-            </div>
 
-            {/* CTA & Code */}
-            <div className="flex flex-wrap items-center gap-3 sm:gap-4 z-10">
+              {/* Voucher Copy Bar */}
+              <div className="pt-2 border-t border-slate-100 flex items-center justify-between gap-2">
+                <div className="text-[11px] font-semibold text-slate-500">
+                  Coupon:
+                </div>
+                <button
+                  type="button"
+                  onClick={() => handleCopyCode("PRAYOG35")}
+                  className="inline-flex items-center gap-1.5 bg-slate-50 hover:bg-red-50 text-slate-700 hover:text-red-600 px-2.5 py-1 rounded-lg border border-slate-200 hover:border-red-200 text-xs font-mono font-bold transition-all cursor-pointer"
+                >
+                  <span>PRAYOG35</span>
+                  {copiedCode === "PRAYOG35" ? (
+                    <Check className="w-3 h-3 text-emerald-600" />
+                  ) : (
+                    <Copy className="w-3 h-3 text-slate-400" />
+                  )}
+                </button>
+              </div>
+
+              {/* Action CTA */}
               <button
-                onClick={onShopDeals}
-                className="bg-[#00AEEF] hover:bg-[#0096D6] text-white font-extrabold px-5 sm:px-6 py-2.5 sm:py-3 rounded-xl text-xs uppercase tracking-wider transition-all shadow-md shadow-[#00AEEF]/25 flex items-center gap-2 cursor-pointer active:scale-95"
+                onClick={handleClaim}
+                className="w-full bg-slate-900 hover:bg-[#FF3B30] text-white font-bold py-2.5 rounded-xl text-xs uppercase tracking-wider transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-xs group-hover:shadow-md"
               >
-                <span>Claim Offer</span>
-                <ArrowRight className="w-4 h-4 text-[#FFC20E]" />
+                <span>Claim Flash Deal</span>
+                <ArrowRight className="w-3.5 h-3.5" />
               </button>
+            </div>
+          </motion.div>
 
-              <div className="text-[11px] sm:text-xs text-slate-300">
-                Use Code:{" "}
-                <code className="bg-slate-950 text-[#FFC20E] font-mono font-black px-2 py-0.5 sm:py-1 rounded border border-[#FFC20E]/40">
-                  PRAYOG10
-                </code>
+          {/* Deal Card 2: New Maker Welcome Offer */}
+          <motion.div
+            whileHover={{ y: -4 }}
+            className="rounded-3xl bg-white border border-sky-100 hover:border-[#00AEEF]/50 shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col justify-between group"
+          >
+            {/* Card Header Media */}
+            <div className="relative h-44 sm:h-48 overflow-hidden bg-slate-950">
+              <Image
+                src="/images/pi_hero.jpg"
+                alt="Microcontrollers and Dev Boards"
+                fill
+                className="object-cover group-hover:scale-105 transition-transform duration-500 brightness-90"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
+
+              {/* Badges Overlay */}
+              <div className="absolute top-3 left-3 right-3 flex items-center justify-between gap-2 z-10">
+                <span className="bg-[#00AEEF] text-white text-[10px] font-black uppercase px-2.5 py-1 rounded-full flex items-center gap-1 shadow-md">
+                  <Gift className="w-3 h-3" /> FIRST ORDER 10% OFF
+                </span>
+                <span className="bg-black/60 backdrop-blur-md text-white/90 text-[10px] font-bold px-2 py-0.5 rounded-lg border border-white/15">
+                  New Makers
+                </span>
+              </div>
+
+              {/* Title on Image */}
+              <div className="absolute bottom-3 left-3 right-3 z-10">
+                <span className="text-[10px] font-extrabold uppercase tracking-wider text-sky-400">
+                  Microcontrollers &amp; IoT
+                </span>
+                <h3 className="text-lg font-black text-white leading-tight">
+                  Arduino &amp; Raspberry Pi Kits
+                </h3>
               </div>
             </div>
 
-            {/* Background Glow */}
-            <div className="absolute -right-20 -bottom-20 w-80 h-80 bg-[#00AEEF]/20 rounded-full blur-3xl pointer-events-none" />
-          </div>
-
-          {/* Right 2 Side Promo Cards: 2-column grid on tablet, 1-col on mobile & desktop */}
-          <div className="lg:col-span-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-4 sm:gap-5">
-            {/* Card 1: First Order Discount */}
-            <motion.div
-              whileHover={{ y: -2 }}
-              className="bg-slate-50 border border-slate-200/80 rounded-2xl sm:rounded-3xl p-4 sm:p-5 space-y-1.5 relative overflow-hidden flex flex-col justify-center"
-            >
-              <span className="text-[10px] font-black uppercase tracking-wider text-[#00AEEF] bg-[#E0F7FC] px-2.5 py-0.5 rounded-full inline-block self-start">
-                First Order Discount
-              </span>
-              <h4 className="text-sm sm:text-base font-extrabold text-slate-900">
-                Flat 10% Off For New Makers
-              </h4>
-              <p className="text-xs text-slate-500 leading-relaxed">
-                Sign up and get instant discount on your first order of microcontrollers.
+            {/* Card Body */}
+            <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
+              <p className="text-xs text-slate-600 leading-relaxed font-medium">
+                Instant 10% discount on official ATmega328P UNO boards, Raspberry Pi 5 single boards &amp; ESP32 wireless sensors.
               </p>
-            </motion.div>
 
-            {/* Card 2: Free Dispatch */}
-            <motion.div
-              whileHover={{ y: -2 }}
-              className="bg-[#E0F7FC]/30 border border-[#00AEEF]/25 rounded-2xl sm:rounded-3xl p-4 sm:p-5 space-y-1.5 relative overflow-hidden flex flex-col justify-center"
-            >
-              <div className="flex items-center gap-1.5 text-xs font-black text-[#00AEEF]">
-                <ShieldCheck className="w-4 h-4 text-[#FFC20E]" /> Pan-India Fast Dispatch
+              {/* Voucher Copy Bar */}
+              <div className="pt-2 border-t border-slate-100 flex items-center justify-between gap-2">
+                <div className="text-[11px] font-semibold text-slate-500">
+                  Coupon:
+                </div>
+                <button
+                  type="button"
+                  onClick={() => handleCopyCode("NEWMAKER10")}
+                  className="inline-flex items-center gap-1.5 bg-slate-50 hover:bg-sky-50 text-slate-700 hover:text-[#00AEEF] px-2.5 py-1 rounded-lg border border-slate-200 hover:border-sky-200 text-xs font-mono font-bold transition-all cursor-pointer"
+                >
+                  <span>NEWMAKER10</span>
+                  {copiedCode === "NEWMAKER10" ? (
+                    <Check className="w-3 h-3 text-emerald-600" />
+                  ) : (
+                    <Copy className="w-3 h-3 text-slate-400" />
+                  )}
+                </button>
               </div>
-              <h4 className="text-sm sm:text-base font-extrabold text-slate-900">
-                Free Express Shipping on Orders &gt; ₹999
-              </h4>
-              <p className="text-xs text-slate-500 leading-relaxed">
-                Guaranteed 100% genuine components with official GST compliance.
+
+              {/* Action CTA */}
+              <button
+                onClick={handleClaim}
+                className="w-full bg-[#00AEEF] hover:bg-[#0096D6] text-white font-bold py-2.5 rounded-xl text-xs uppercase tracking-wider transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-md shadow-[#00AEEF]/20"
+              >
+                <span>Claim Welcome Discount</span>
+                <ArrowRight className="w-3.5 h-3.5 text-[#FFC20E]" />
+              </button>
+            </div>
+          </motion.div>
+
+          {/* Deal Card 3: Free Express Delivery & Genuine Guarantee */}
+          <motion.div
+            whileHover={{ y: -4 }}
+            className="rounded-3xl bg-white border border-emerald-100 hover:border-emerald-300 shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col justify-between group"
+          >
+            {/* Card Header Media */}
+            <div className="relative h-44 sm:h-48 overflow-hidden bg-slate-950">
+              <Image
+                src="/images/explore_products_banner.png"
+                alt="Pan India Fast Logistics Dispatch"
+                fill
+                className="object-cover group-hover:scale-105 transition-transform duration-500 brightness-90"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
+
+              {/* Badges Overlay */}
+              <div className="absolute top-3 left-3 right-3 flex items-center justify-between gap-2 z-10">
+                <span className="bg-emerald-600 text-white text-[10px] font-black uppercase px-2.5 py-1 rounded-full flex items-center gap-1 shadow-md">
+                  <Truck className="w-3 h-3" /> FREE SHIPPING &gt; ₹999
+                </span>
+                <span className="bg-black/60 backdrop-blur-md text-emerald-400 text-[10px] font-bold px-2 py-0.5 rounded-lg border border-white/15 flex items-center gap-1">
+                  <ShieldCheck className="w-3 h-3" /> GST Verified
+                </span>
+              </div>
+
+              {/* Title on Image */}
+              <div className="absolute bottom-3 left-3 right-3 z-10">
+                <span className="text-[10px] font-extrabold uppercase tracking-wider text-emerald-400">
+                  Regional Fast Logistics
+                </span>
+                <h3 className="text-lg font-black text-white leading-tight">
+                  Pan-India Express Dispatch
+                </h3>
+              </div>
+            </div>
+
+            {/* Card Body */}
+            <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
+              <p className="text-xs text-slate-600 leading-relaxed font-medium">
+                Automatic zero shipping cost on orders above ₹999. Fast 24-48h fulfillment from Ranchi &amp; Patna hubs.
               </p>
-            </motion.div>
-          </div>
+
+              {/* Voucher Copy Bar */}
+              <div className="pt-2 border-t border-slate-100 flex items-center justify-between gap-2">
+                <div className="text-[11px] font-semibold text-slate-500">
+                  Perk:
+                </div>
+                <div className="inline-flex items-center gap-1 text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200 text-xs font-bold">
+                  <span>Auto-Applied at ₹999</span>
+                </div>
+              </div>
+
+              {/* Action CTA */}
+              <button
+                onClick={handleClaim}
+                className="w-full bg-slate-900 hover:bg-emerald-600 text-white font-bold py-2.5 rounded-xl text-xs uppercase tracking-wider transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-xs group-hover:shadow-md"
+              >
+                <span>Shop Eligible Products</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          </motion.div>
         </div>
       </div>
     </section>

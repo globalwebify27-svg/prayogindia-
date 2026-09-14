@@ -11,6 +11,7 @@ export interface CreateNotificationParams {
   type:
     | "ORDER_PLACED"
     | "ORDER_SHIPPED"
+    | "ORDER_DELIVERED"
     | "SUPPORT_REPLY"
     | "SERVICE_ENQUIRY_RECEIVED"
     | "SYSTEM_NOTICE";

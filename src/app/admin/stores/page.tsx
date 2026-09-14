@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Building2,
   Tablet,
@@ -30,7 +30,8 @@ import {
 } from "@/data/storesData";
 
 export default function AdminStoresPage() {
-  const [stores, setStores] = useState<PhysicalStoreBranch[]>(INITIAL_STORES);
+  const [stores, setStores] = useState<PhysicalStoreBranch[]>([]);
+  const [loading, setLoading] = useState(true);
   const [selectedStore, setSelectedStore] =
     useState<PhysicalStoreBranch | null>(null);
   const [showAddStoreModal, setShowAddStoreModal] = useState(false);
@@ -53,36 +54,77 @@ export default function AdminStoresPage() {
   const [newDeviceName, setNewDeviceName] = useState("");
   const [newDeviceModel, setNewDeviceModel] = useState("Apple iPad 10th Gen");
   const [newDeviceStaff, setNewDeviceStaff] = useState("");
+  const [storeError, setStoreError] = useState("");
+  const [storeSubmitting, setStoreSubmitting] = useState(false);
 
-  const handleCreateStore = (e: React.FormEvent) => {
-    e.preventDefault();
-    const store: PhysicalStoreBranch = {
-      id: `str-${Date.now()}`,
-      code: newStoreCode.toUpperCase().trim(),
-      name: newStoreName.trim(),
-      type: "Physical Branch Store",
-      isCentralHub: false,
-      address: newStoreAddress.trim(),
-      city: newStoreCity.trim(),
-      state: newStoreState.trim(),
-      pincode: newStorePincode.trim(),
-      contactPhone: newStorePhone.trim(),
-      contactEmail: newStoreEmail.trim(),
-      storeManager: newStoreManager.trim(),
-      operatingHours: "10:00 AM - 08:00 PM (Mon - Sat)",
-      status: "Operational",
-      totalStockUnits: 0,
-      monthlyWalkInRevenue: 0,
-      authorizedDevices: [],
-    };
-
-    setStores([...stores, store]);
-    setShowAddStoreModal(false);
-    // Reset
-    setNewStoreName("");
-    setNewStoreCode("");
-    setNewStoreAddress("");
+  const fetchStores = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch("/api/admin/stores");
+      const data = await res.json();
+      if (data.success && data.data) {
+        setStores(data.data);
+      } else {
+        // Fallback to initial stores
+        setStores(INITIAL_STORES);
+      }
+    } catch {
+      setStores(INITIAL_STORES);
+    } finally {
+      setLoading(false);
+    }
   };
+
+  useEffect(() => {
+    fetchStores();
+  }, []);
+
+  const handleCreateStore = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setStoreError("");
+    setStoreSubmitting(true);
+
+    try {
+      const res = await fetch("/api/admin/stores", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          code: newStoreCode.toUpperCase().trim(),
+          name: newStoreName.trim(),
+          address: newStoreAddress.trim(),
+          city: newStoreCity.trim(),
+          state: newStoreState.trim(),
+          pincode: newStorePincode.trim(),
+          contactPhone: newStorePhone.trim(),
+          contactEmail: newStoreEmail.trim(),
+          type: "Physical Branch Store",
+          isCentralHub: false,
+        }),
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        setShowAddStoreModal(false);
+        setNewStoreName("");
+        setNewStoreCode("");
+        setNewStoreAddress("");
+        setNewStoreCity("");
+        setNewStoreState("");
+        setNewStorePincode("");
+        setNewStorePhone("");
+        setNewStoreEmail("");
+        setNewStoreManager("");
+        await fetchStores();
+      } else {
+        setStoreError(data.message || "Failed to create store");
+      }
+    } catch (err) {
+      setStoreError("Network error — could not create store");
+    } finally {
+      setStoreSubmitting(false);
+    }
+  };
+
 
   const handleAddDevice = (e: React.FormEvent) => {
     e.preventDefault();
@@ -477,11 +519,15 @@ export default function AdminStoresPage() {
                 </button>
                 <button
                   type="submit"
-                  className="bg-[#00AEEF] hover:bg-[#0096D6] text-white px-6 py-2.5 rounded-xl font-black uppercase tracking-wider shadow-md"
+                  disabled={storeSubmitting}
+                  className="bg-[#00AEEF] hover:bg-[#0096D6] disabled:opacity-60 text-white px-6 py-2.5 rounded-xl font-black uppercase tracking-wider shadow-md cursor-pointer"
                 >
-                  Create Store Branch
+                  {storeSubmitting ? "Creating..." : "Create Store Branch"}
                 </button>
               </div>
+              {storeError && (
+                <p className="text-xs text-red-600 font-bold text-center mt-2">{storeError}</p>
+              )}
             </form>
           </div>
         </div>

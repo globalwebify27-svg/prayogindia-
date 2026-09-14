@@ -8,6 +8,7 @@ import { CartToast } from "@/components/CartToast";
 import { B2BModal } from "@/components/Modals";
 import { useStore } from "@/context/StoreContext";
 import { usePathname } from "next/navigation";
+import { haptic } from "@/utils/haptics";
 
 export const AppShell: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -32,10 +33,7 @@ export const AppShell: React.FC<{ children: React.ReactNode }> = ({
     pathname?.startsWith("/walk-in") ||
     pathname?.startsWith("/flutter-preview") ||
     pathname?.includes("/storemanager") ||
-    pathname?.includes("/device") ||
-    pathname === "/login" ||
-    pathname === "/register" ||
-    pathname === "/forgot-password";
+    pathname?.includes("/device");
 
   const cartCount = cart.reduce((acc, item) => acc + item.quantity, 0);
   const wishlistCount = wishlist.length;
@@ -49,10 +47,19 @@ export const AppShell: React.FC<{ children: React.ReactNode }> = ({
       <Header
         cartCount={cartCount}
         wishlistCount={wishlistCount}
-        onOpenCart={() => setCartOpen(true)}
-        onOpenWishlist={() => setCartOpen(true)}
+        onOpenCart={() => {
+          haptic.light();
+          setCartOpen(true);
+        }}
+        onOpenWishlist={() => {
+          haptic.light();
+          setCartOpen(true);
+        }}
         onOpenSearch={() => {}}
-        onOpenB2BModal={() => setB2bOpen(true)}
+        onOpenB2BModal={() => {
+          haptic.light();
+          setB2bOpen(true);
+        }}
       />
 
       <main className="flex-1">{children}</main>

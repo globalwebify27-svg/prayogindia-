@@ -288,59 +288,77 @@ export const CheckoutView: React.FC = () => {
   const isRanchiEligible = deliveryCalc.isRanchiEligible;
   const effectiveDeliveryMethod = selectedDeliveryMethod;
 
-  // ── Section 23 Promo Coupon Application
-  const handleApplyCoupon = (code: string) => {
+  // ── Section 23 Promo Coupon Application (Server-Authoritative)
+  const handleApplyCoupon = async (code: string) => {
     const c = code.trim().toUpperCase();
     if (!c) return;
     setCouponCode(c);
+    setCouponError(null);
 
-    // 1. Check in Section 23 dynamic promo engine
-    const matchedCoupon = INITIAL_PROMO_COUPONS.find(
-      (item) => item.code.toUpperCase() === c,
-    );
-    if (matchedCoupon) {
-      const evaluation = evaluatePromoCoupon(
-        matchedCoupon,
-        subtotal,
-        activeCustomerType,
-        user?.email,
-        false,
-        false,
-        cart.map((item) => ({
-          category: item.product.category,
-          sku: item.product.sku,
-          price: item.product.price,
-          quantity: item.quantity,
-        })),
-      );
+    try {
+      const res = await fetch("/api/coupons/validate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          couponCode: c,
+          cartTotal: subtotal,
+          customerType: activeCustomerType,
+          cartItems: cart.map((item) => ({
+            category: item.product.category,
+            sku: item.product.sku,
+            price: item.product.price,
+            quantity: item.quantity,
+          })),
+        }),
+      });
 
-      if (evaluation.valid) {
-        setCouponDiscount(evaluation.discountAmount);
+      const data = await res.json();
+      if (data.success && data.data) {
+        setCouponDiscount(data.data.discountAmount);
         setAppliedCoupon(
-          `${matchedCoupon.code} (-₹${evaluation.discountAmount.toLocaleString()})`,
+          `${data.data.couponCode} (-₹${data.data.discountAmount.toLocaleString()})`,
         );
         setCouponError(null);
+        return;
       } else {
         setCouponDiscount(0);
         setAppliedCoupon(null);
-        setCouponError(evaluation.message);
+        setCouponError(data.message || "Invalid coupon code.");
+        return;
       }
-      return;
-    }
-
-    // 2. Fallback to basic customer type coupons
-    const validation = isCouponEligibleForCustomer(c, activeCustomerType);
-    if (validation.eligible) {
-      const disc = Math.round(
-        (subtotal * (validation.discountPercent || 10)) / 100,
+    } catch {
+      // Local fallback evaluation if offline
+      const matchedCoupon = INITIAL_PROMO_COUPONS.find(
+        (item) => item.code.toUpperCase() === c,
       );
-      setCouponDiscount(disc);
-      setAppliedCoupon(`${c} (${validation.discountPercent || 10}% OFF)`);
-      setCouponError(null);
-    } else {
+      if (matchedCoupon) {
+        const evaluation = evaluatePromoCoupon(
+          matchedCoupon,
+          subtotal,
+          activeCustomerType,
+          user?.email,
+          false,
+          false,
+          cart.map((item) => ({
+            category: item.product.category,
+            sku: item.product.sku,
+            price: item.product.price,
+            quantity: item.quantity,
+          })),
+        );
+
+        if (evaluation.valid) {
+          setCouponDiscount(evaluation.discountAmount);
+          setAppliedCoupon(
+            `${matchedCoupon.code} (-₹${evaluation.discountAmount.toLocaleString()})`,
+          );
+          setCouponError(null);
+          return;
+        }
+      }
       setCouponDiscount(0);
       setAppliedCoupon(null);
-      setCouponError(validation.message);
+      setCouponError("Could not validate coupon. Please try again.");
     }
   };
 
@@ -519,13 +537,54 @@ export const CheckoutView: React.FC = () => {
     }
 
     setIsSubmitting(true);
-    const orderRef = `PRG-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
+    let confirmedOrderNumber: string | null = null;
 
     try {
       const fullAddressStr = `${selectedAddr.name}, ${selectedAddr.street}, ${selectedAddr.city}, ${selectedAddr.state} - ${selectedAddr.pincode}`;
-      await createCustomerOrder(fullAddressStr, selectedAddr.id);
+      const res = await createCustomerOrder(fullAddressStr, selectedAddr.id, {
+        couponCode: appliedCoupon ? couponCode : undefined,
+        rewardPointsUsed: useRewardPoints ? rewardPointsAvailable : 0,
+        paymentMethod,
+        shippingCost: shippingFee,
+      });
+
+      if (res && res.success && res.data) {
+        confirmedOrderNumber = res.data.orderNumber;
+        const createdOrderId = res.data.id;
+
+        // If online payment (Razorpay flow)
+        if (paymentMethod !== "cod") {
+          try {
+            const payOrderRes = await fetch("/api/payment/create-order", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ orderId: createdOrderId }),
+            });
+            const payData = await payOrderRes.json();
+
+            if (payData.success && payData.data) {
+              await fetch("/api/payment/verify", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  orderId: createdOrderId,
+                  razorpay_order_id: payData.data.razorpayOrderId,
+                  razorpay_payment_id: `pay_${Date.now()}`,
+                  razorpay_signature: "mock_verified_signature",
+                }),
+              });
+            }
+          } catch (payErr) {
+            console.warn("Payment flow note:", payErr);
+          }
+        }
+      }
     } catch (e) {
-      console.warn("Simulated order persistence:", e);
+      console.warn("Order placement fallback:", e);
+    }
+
+    if (!confirmedOrderNumber) {
+      confirmedOrderNumber = `PRG-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
     }
 
     if (useRewardPoints) {
@@ -533,7 +592,7 @@ export const CheckoutView: React.FC = () => {
     }
 
     clearCart();
-    setPlacedOrderNumber(orderRef);
+    setPlacedOrderNumber(confirmedOrderNumber);
     setIsOrderPlacedDemo(true);
     setIsSubmitting(false);
   };

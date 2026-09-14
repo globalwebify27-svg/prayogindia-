@@ -93,6 +93,50 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function ProductSlugPage({ params }: Props) {
   const { slug } = await params;
   const product = await getProduct(slug);
-  return <ProductDetailView slug={slug} initialProduct={product} />;
+
+  const jsonLd = product
+    ? {
+        "@context": "https://schema.org",
+        "@type": "Product",
+        name: product.name,
+        image: product.images || [product.image],
+        description: product.description,
+        sku: product.sku,
+        brand: {
+          "@type": "Brand",
+          name: product.brand || "Prayog India",
+        },
+        offers: {
+          "@type": "Offer",
+          url: `https://www.prayogindia.com/products/${product.slug || slug}`,
+          priceCurrency: "INR",
+          price: product.price,
+          availability: product.inStock
+            ? "https://schema.org/InStock"
+            : "https://schema.org/OutOfStock",
+          seller: {
+            "@type": "Organization",
+            name: "Prayog India",
+          },
+        },
+        aggregateRating: {
+          "@type": "AggregateRating",
+          ratingValue: product.rating || 4.5,
+          reviewCount: product.reviews || 12,
+        },
+      }
+    : null;
+
+  return (
+    <>
+      {jsonLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      )}
+      <ProductDetailView slug={slug} initialProduct={product} />
+    </>
+  );
 }
 

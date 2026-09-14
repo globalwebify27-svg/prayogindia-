@@ -8,9 +8,5 @@ export const metadata: Metadata = {
 };
 
 export default function RegisterPage() {
-  return (
-    <div className="py-8">
-      <RegisterForm />
-    </div>
-  );
+  return <RegisterForm />;
 }

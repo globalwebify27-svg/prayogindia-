@@ -248,17 +248,93 @@ interface B2BModalProps {
 
 export const B2BModal: React.FC<B2BModalProps> = ({ isOpen, onClose }) => {
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [quoteNumber, setQuoteNumber] = useState("");
+
+  const [formData, setFormData] = useState({
+    fullName: "",
+    email: "",
+    phone: "",
+    institutionName: "",
+    gstin: "",
+    institutionType: "Corporate",
+    requirements: "",
+    deliveryAddress: "",
+    items: [{ productName: "", quantity: 1 }],
+  });
 
   if (!isOpen) return null;
 
+  const handleAddItem = () => {
+    setFormData((prev) => ({
+      ...prev,
+      items: [...prev.items, { productName: "", quantity: 1 }],
+    }));
+  };
+
+  const handleRemoveItem = (index: number) => {
+    setFormData((prev) => ({
+      ...prev,
+      items: prev.items.filter((_, i) => i !== index),
+    }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+
+    try {
+      // Build items array from either structured items or textarea requirements
+      let formattedItems = formData.items.filter((i) => i.productName.trim().length > 0);
+      if (formattedItems.length === 0) {
+        formattedItems = [
+          {
+            productName: formData.requirements.slice(0, 120) || "B2B Hardware / Component Requirement",
+            quantity: 1,
+          },
+        ];
+      }
+
+      const res = await fetch("/api/quotations/request", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          companyName: formData.institutionName,
+          customerName: formData.fullName,
+          customerEmail: formData.email,
+          customerPhone: formData.phone || "+91 98000 00000",
+          gstin: formData.gstin || null,
+          institutionType: formData.institutionType,
+          shippingAddress: formData.deliveryAddress,
+          notes: formData.requirements,
+          items: formattedItems,
+        }),
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        setQuoteNumber(data.data?.quoteNumber || "PRG-QT");
+        setSubmitted(true);
+      } else {
+        setError(data.message || "Failed to submit quote request.");
+      }
+    } catch {
+      setError("Network error. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-4">
       <div
         onClick={onClose}
         className="fixed inset-0 bg-slate-950/60 backdrop-blur-xs animate-in fade-in"
       />
 
-      <div className="relative w-full max-w-lg bg-white rounded-3xl shadow-2xl border border-slate-100 p-6 sm:p-8 z-10 animate-in zoom-in-95 duration-200">
+      <div className="relative w-full max-w-xl bg-white rounded-3xl shadow-2xl border border-slate-100 p-6 sm:p-8 z-10 animate-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto">
         <button
           onClick={onClose}
           className="absolute top-6 right-6 p-2 rounded-full text-slate-400 hover:text-slate-800"
@@ -268,78 +344,184 @@ export const B2BModal: React.FC<B2BModalProps> = ({ isOpen, onClose }) => {
 
         {submitted ? (
           <div className="text-center py-8 space-y-4">
-            <div className="w-12 h-12 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto">
+            <div className="w-14 h-14 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto text-2xl font-black">
               ✓
             </div>
-            <h3 className="text-lg font-bold text-slate-900">
-              Quotation Request Received
+            <h3 className="text-xl font-bold text-slate-900">
+              Quotation Request Received!
             </h3>
-            <p className="text-xs text-slate-500 max-w-xs mx-auto">
-              Our B2B institutional procurement desk will send an official GST
-              proforma quotation within 2 business hours.
+            <p className="text-xs font-mono font-bold text-[#00AEEF] bg-[#E0F7FC] px-3 py-1 rounded-full inline-block">
+              Quote Ref: {quoteNumber}
+            </p>
+            <p className="text-xs text-slate-500 max-w-sm mx-auto leading-relaxed">
+              Our B2B institutional procurement desk has logged your request. You will receive an official GST proforma quotation with negotiated volume pricing within 2 business hours.
             </p>
             <button
-              onClick={onClose}
-              className="bg-[#0A1128] text-white text-xs font-bold px-6 py-2.5 rounded-full"
+              onClick={() => {
+                setSubmitted(false);
+                onClose();
+              }}
+              className="bg-[#0A1128] hover:bg-[#1E56A0] text-white text-xs font-bold px-8 py-3 rounded-full cursor-pointer"
             >
-              Close Window
+              Done
             </button>
           </div>
         ) : (
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              setSubmitted(true);
-            }}
-            className="space-y-4"
-          >
-            <span className="bg-[#D4AF37] text-slate-950 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full uppercase">
-              Institutional Order Desk
-            </span>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="flex items-center gap-2">
+              <span className="bg-[#D4AF37] text-slate-950 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full uppercase">
+                Institutional &amp; Enterprise Desk
+              </span>
+            </div>
             <h2 className="text-xl font-extrabold text-[#0A1128]">
-              Request B2B Quotation
+              Request Official B2B Quotation
             </h2>
             <p className="text-xs text-slate-500">
-              Provide institution or enterprise procurement details below.
+              Direct institutional pricing for Schools, Colleges, STEM Labs, Universities &amp; Enterprises.
             </p>
 
+            {error && (
+              <div className="p-3 bg-rose-50 border border-rose-200 text-rose-700 text-xs rounded-xl font-medium">
+                {error}
+              </div>
+            )}
+
             <div className="space-y-3 text-xs">
-              <input
-                required
-                type="text"
-                placeholder="Full Name / Procurement Officer"
-                className="w-full bg-slate-50 p-3 rounded-xl border border-slate-200 focus:outline-none"
-              />
-              <input
-                required
-                type="email"
-                placeholder="Institutional Email (.edu / company)"
-                className="w-full bg-slate-50 p-3 rounded-xl border border-slate-200 focus:outline-none"
-              />
-              <input
-                required
-                type="text"
-                placeholder="Institution / Organization Name"
-                className="w-full bg-slate-50 p-3 rounded-xl border border-slate-200 focus:outline-none"
-              />
-              <input
-                type="text"
-                placeholder="GST Number (Optional)"
-                className="w-full bg-slate-50 p-3 rounded-xl border border-slate-200 focus:outline-none uppercase"
-              />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <input
+                  required
+                  type="text"
+                  placeholder="Procurement Officer / Contact Name *"
+                  value={formData.fullName}
+                  onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+                  className="w-full bg-slate-50 p-3 rounded-xl border border-slate-200 focus:bg-white focus:outline-none"
+                />
+                <input
+                  required
+                  type="email"
+                  placeholder="Institutional / Work Email *"
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  className="w-full bg-slate-50 p-3 rounded-xl border border-slate-200 focus:bg-white focus:outline-none"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <input
+                  required
+                  type="tel"
+                  placeholder="Phone Number (+91) *"
+                  value={formData.phone}
+                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                  className="w-full bg-slate-50 p-3 rounded-xl border border-slate-200 focus:bg-white focus:outline-none"
+                />
+                <input
+                  required
+                  type="text"
+                  placeholder="Institution / Company Name *"
+                  value={formData.institutionName}
+                  onChange={(e) => setFormData({ ...formData, institutionName: e.target.value })}
+                  className="w-full bg-slate-50 p-3 rounded-xl border border-slate-200 focus:bg-white focus:outline-none"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <select
+                  value={formData.institutionType}
+                  onChange={(e) => setFormData({ ...formData, institutionType: e.target.value })}
+                  className="w-full bg-slate-50 p-3 rounded-xl border border-slate-200 focus:bg-white focus:outline-none text-slate-700 font-medium"
+                >
+                  <option value="School">School / ATL Lab</option>
+                  <option value="College">College / Polytechnic</option>
+                  <option value="University">University Research Lab</option>
+                  <option value="Corporate">Corporate / Enterprise</option>
+                  <option value="STEM Lab">Private Robotics Center</option>
+                  <option value="Government / Tender">Govt Dept / Tender</option>
+                </select>
+
+                <input
+                  type="text"
+                  placeholder="GST Number (Optional)"
+                  value={formData.gstin}
+                  onChange={(e) => setFormData({ ...formData, gstin: e.target.value.toUpperCase() })}
+                  className="w-full bg-slate-50 p-3 rounded-xl border border-slate-200 focus:bg-white focus:outline-none uppercase"
+                />
+              </div>
+
+              {/* Product items list */}
+              <div className="border border-slate-200 rounded-2xl p-3 bg-slate-50/50 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-slate-700">Requested Products &amp; Quantities</span>
+                  <button
+                    type="button"
+                    onClick={handleAddItem}
+                    className="text-[11px] font-bold text-[#00AEEF] hover:underline cursor-pointer"
+                  >
+                    + Add Product Line
+                  </button>
+                </div>
+
+                {formData.items.map((item, idx) => (
+                  <div key={idx} className="flex items-center gap-2">
+                    <input
+                      type="text"
+                      placeholder={`e.g. Raspberry Pi 5 8GB / Arduino Kit ${idx + 1}`}
+                      value={item.productName}
+                      onChange={(e) => {
+                        const next = [...formData.items];
+                        next[idx].productName = e.target.value;
+                        setFormData({ ...formData, items: next });
+                      }}
+                      className="flex-1 bg-white p-2.5 rounded-xl border border-slate-200 text-xs"
+                    />
+                    <input
+                      type="number"
+                      min={1}
+                      placeholder="Qty"
+                      value={item.quantity}
+                      onChange={(e) => {
+                        const next = [...formData.items];
+                        next[idx].quantity = parseInt(e.target.value, 10) || 1;
+                        setFormData({ ...formData, items: next });
+                      }}
+                      className="w-20 bg-white p-2.5 rounded-xl border border-slate-200 text-xs text-center font-bold"
+                    />
+                    {formData.items.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveItem(idx)}
+                        className="text-slate-400 hover:text-rose-500 p-1 cursor-pointer"
+                      >
+                        ✕
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+
               <textarea
-                required
-                rows={3}
-                placeholder="List required products, components, or lab kit quantities..."
-                className="w-full bg-slate-50 p-3 rounded-xl border border-slate-200 focus:outline-none"
+                rows={2}
+                placeholder="Additional notes, project specs, preferred delivery timeline..."
+                value={formData.requirements}
+                onChange={(e) => setFormData({ ...formData, requirements: e.target.value })}
+                className="w-full bg-slate-50 p-3 rounded-xl border border-slate-200 focus:bg-white focus:outline-none"
               ></textarea>
+
+              <input
+                type="text"
+                placeholder="Delivery City / Campus Address"
+                value={formData.deliveryAddress}
+                onChange={(e) => setFormData({ ...formData, deliveryAddress: e.target.value })}
+                className="w-full bg-slate-50 p-3 rounded-xl border border-slate-200 focus:bg-white focus:outline-none"
+              />
             </div>
 
             <button
               type="submit"
-              className="w-full bg-[#0A1128] hover:bg-[#1E56A0] text-white py-3.5 rounded-full text-xs font-bold shadow-md"
+              disabled={loading}
+              className="w-full bg-[#0A1128] hover:bg-[#1E56A0] disabled:bg-slate-300 text-white py-3.5 rounded-full text-xs font-bold shadow-md cursor-pointer transition-all"
             >
-              Submit Quotation Request
+              {loading ? "Submitting Quotation Request..." : "Submit Quotation Request"}
             </button>
           </form>
         )}

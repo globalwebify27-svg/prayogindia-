@@ -8,6 +8,7 @@ import {
 } from "@/lib/adminAuth";
 import { Role } from "@prisma/client";
 import { checkRateLimit, getSecurityHeaders } from "@/lib/security";
+import { recordAuditLog } from "@/lib/auditLogger";
 
 export async function POST(request: Request) {
   const headers = getSecurityHeaders();
@@ -98,6 +99,21 @@ export async function POST(request: Request) {
 
       adminPayload = sanitizeAdminUser(dbUser as any);
     }
+
+    // Record Immutable Audit Log for Successful Admin Auth
+    await recordAuditLog({
+      actionCategory: "AUTH",
+      action: "AUTH_ADMIN_LOGIN_SUCCESS",
+      entityType: "User",
+      entityId: adminPayload.id,
+      description: `Admin login successful for ${adminPayload.name} (${adminPayload.email})`,
+      actor: adminPayload,
+      metadata: {
+        email: adminPayload.email,
+        role: adminPayload.role,
+      },
+      req: request,
+    });
 
     const response = NextResponse.json({
       success: true,

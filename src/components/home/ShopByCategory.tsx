@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useRef, useEffect, useState } from "react";
+import Link from "next/link";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import {
@@ -200,13 +201,13 @@ export const ShopByCategory: React.FC<Props> = ({ onSelectCategory }) => {
           </div>
 
           <div className="flex items-center gap-3">
-            <button
-              onClick={() => onSelectCategory?.("all")}
+            <Link
+              href="/categories"
               className="text-xs sm:text-sm font-extrabold text-[#00AEEF] hover:underline flex items-center gap-1 group cursor-pointer"
             >
               <span>Explore All Categories</span>{" "}
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-            </button>
+            </Link>
           </div>
         </div>
 

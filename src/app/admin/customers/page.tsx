@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+
 import {
   Users,
   Mail,
@@ -177,10 +178,43 @@ type FilterType = "ALL" | CustomerTypeCode | "COMMUNITY";
 
 export default function AdminCustomersPage() {
   const [customers, setCustomers] = useState<CustomerRecord[]>(MOCK_CUSTOMERS);
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedFilter, setSelectedFilter] = useState<FilterType>("ALL");
   const [activeRuleModal, setActiveRuleModal] =
     useState<CustomerTypeRule | null>(null);
+
+  useEffect(() => {
+    fetch("/api/admin/customers?limit=200")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && data.data?.length) {
+          // Map API shape to CustomerRecord shape
+          const mapped: CustomerRecord[] = data.data.map((c: any) => ({
+            id: c.id,
+            name: c.name,
+            email: c.email,
+            phone: c.phone,
+            type: c.customerType || "B2C",
+            companyName: c.companyName,
+            gstin: c.gstin,
+            rewardPoints: c.rewardPoints || 0,
+            totalOrders: c.totalOrders || 0,
+            totalSpend: c.totalSpent || 0,
+            openTickets: c.openTickets || 0,
+            communityOptIn: false,
+            registeredDate: new Date(c.createdAt).toLocaleDateString("en-IN", {
+              day: "2-digit", month: "short", year: "numeric",
+            }),
+            lastActive: "—",
+          }));
+          setCustomers(mapped);
+        }
+        // else keeps MOCK_CUSTOMERS as fallback
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
 
   const filteredCustomers = customers.filter((c) => {
     const matchesSearch =

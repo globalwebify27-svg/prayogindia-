@@ -117,7 +117,7 @@ export async function POST(request: Request) {
 
     if (process.env.DATABASE_URL) {
       try {
-        await db.user.create({
+        const dbNewUser = await db.user.create({
           data: {
             name: name.trim(),
             email: cleanEmail,
@@ -126,6 +126,10 @@ export async function POST(request: Request) {
             role: "CUSTOMER",
           },
         });
+
+        // Award welcome bonus points via authoritative LoyaltyEngine
+        const { LoyaltyEngine } = await import("@/lib/loyaltyEngine");
+        await LoyaltyEngine.awardRegistrationBonus(dbNewUser.id, "Registered Customer", request);
       } catch (dbErr) {
         console.warn("Prisma DB sync fallback:", dbErr);
       }

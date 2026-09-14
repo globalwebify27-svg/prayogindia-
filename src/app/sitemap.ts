@@ -4,7 +4,7 @@ import { SERVICES_DATA } from "@/data/servicesData";
 import { OFFERS_DATA } from "@/data/offersData";
 import { JOB_OPENINGS } from "@/data/companyData";
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = "https://prayogindia.com";
 
   const staticRoutes = [
@@ -23,12 +23,32 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: route === "" ? 1.0 : 0.8,
   }));
 
-  const productRoutes = PRODUCTS.map((p) => ({
+  let productRoutes = PRODUCTS.map((p) => ({
     url: `${baseUrl}/products/${p.id}`,
     lastModified: new Date(),
     changeFrequency: "weekly" as const,
     priority: 0.7,
   }));
+
+  if (process.env.DATABASE_URL) {
+    try {
+      const { db } = await import("@/lib/db");
+      const dbProducts = await db.product.findMany({
+        select: { slug: true, updatedAt: true },
+        take: 200,
+      });
+      if (dbProducts.length > 0) {
+        productRoutes = dbProducts.map((p) => ({
+          url: `${baseUrl}/products/${p.slug}`,
+          lastModified: p.updatedAt || new Date(),
+          changeFrequency: "weekly" as const,
+          priority: 0.7,
+        }));
+      }
+    } catch {
+      // Fall back to mock product routes
+    }
+  }
 
   const serviceRoutes = SERVICES_DATA.map((s) => ({
     url: `${baseUrl}/services/${s.slug}`,

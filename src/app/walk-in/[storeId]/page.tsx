@@ -325,17 +325,23 @@ export default function StoreKioskPage() {
   const broadcastRef = useRef<BroadcastChannel | null>(null);
 
   useEffect(() => {
-    // Check if tablet was previously unlocked by the Store Manager
-    if (typeof window !== "undefined") {
-      const savedAuth = localStorage.getItem(
-        `prayog_kiosk_unlocked_${storeId}`,
-      );
-      queueMicrotask(() => {
-        if (savedAuth === "true") {
+    // Check if tablet was previously unlocked by the Store Manager via server session
+    async function verifyAuth() {
+      try {
+        const res = await fetch("/api/staff/auth/me");
+        const data = await res.json();
+        if (data?.success && data?.user) {
           setIsDeviceUnlocked(true);
         }
+      } catch {
+        // Leave locked if server check fails
+      } finally {
         setCheckingAuth(false);
-      });
+      }
+    }
+
+    if (typeof window !== "undefined") {
+      verifyAuth();
       broadcastRef.current = new BroadcastChannel(POS_BROADCAST_CHANNEL);
     }
     return () => broadcastRef.current?.close();
@@ -368,10 +374,7 @@ export default function StoreKioskPage() {
         return;
       }
 
-      // Save unlocked state for this kiosk tablet
-      if (typeof window !== "undefined") {
-        localStorage.setItem(`prayog_kiosk_unlocked_${storeId}`, "true");
-      }
+      // Unlocked on server session
       setIsDeviceUnlocked(true);
       setLoginLoading(false);
     } catch {
@@ -380,12 +383,14 @@ export default function StoreKioskPage() {
     }
   };
 
-  const handleLockKiosk = () => {
+  const handleLockKiosk = async () => {
     if (
       confirm("Lock this kiosk tablet? Store manager will need to login again.")
     ) {
-      if (typeof window !== "undefined") {
-        localStorage.removeItem(`prayog_kiosk_unlocked_${storeId}`);
+      try {
+        await fetch("/api/staff/auth/logout", { method: "POST" });
+      } catch {
+        // Proceed with UI lock regardless
       }
       setIsDeviceUnlocked(false);
     }
@@ -477,11 +482,11 @@ export default function StoreKioskPage() {
       // Set completed session immediately to avoid any null-state delays
       setCompletedSession(session);
 
-      // Save to localStorage for same-device sync
+      // Save in-memory and broadcast to open POS terminals
       try {
         saveSession(session);
       } catch (e) {
-        console.warn("Kiosk localStorage save warning:", e);
+        console.warn("Kiosk session save warning:", e);
       }
 
       // Broadcast to manager POS (same-browser tabs)
@@ -491,15 +496,15 @@ export default function StoreKioskPage() {
         console.warn("Kiosk broadcast warning:", e);
       }
 
-      // Also push to server API for cross-device sync
+      // Push to server-side API for persistent multi-device sync
       try {
         await fetch("/api/pos/sessions", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ storeId, session }),
         });
-      } catch {
-        // Network failure is non-fatal — localStorage sync is primary
+      } catch (e) {
+        console.warn("Server session sync notice:", e);
       }
 
       setView("success");

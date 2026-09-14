@@ -9,8 +9,10 @@ export interface AdminSessionUser {
   role: Role; // 'ADMIN' | 'SUPER_ADMIN'
 }
 
+import { AUTH_STAFF_COOKIE_NAME } from "@/lib/staffAuth";
+
 export const AUTH_ADMIN_COOKIE_NAME = "prayog_admin_session";
-export const AUTH_STAFF_COOKIE_NAME = "prayog_staff_session";
+export { AUTH_STAFF_COOKIE_NAME };
 
 /**
  * Server-side Helper: Extract & Verify Authenticated Admin Session

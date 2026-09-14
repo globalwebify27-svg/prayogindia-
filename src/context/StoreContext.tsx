@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { Product, ProductVariant } from "@/data/mockData";
 import { CustomerType } from "@/data/customerTypes";
+import { haptic } from "@/utils/haptics";
 
 export interface CartItem {
   product: Product;
@@ -94,6 +95,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({
     variant?: ProductVariant,
     quantity = 1,
   ) => {
+    haptic.success();
     setCart((prev) => {
       const existingIdx = prev.findIndex(
         (item) =>
@@ -130,6 +132,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   const removeFromCart = (productId: string, variantId?: string) => {
+    haptic.light();
     setCart((prev) =>
       prev.filter(
         (item) =>
@@ -146,6 +149,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({
     delta: number,
     variantId?: string,
   ) => {
+    haptic.selection();
     setCart(
       (prev) =>
         prev
@@ -166,6 +170,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({
   const clearCart = () => setCart([]);
 
   const toggleWishlist = (product: Product) => {
+    haptic.success();
     setWishlist((prev) => {
       const exists = prev.some((p) => p.id === product.id);
       if (exists) {

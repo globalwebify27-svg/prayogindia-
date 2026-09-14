@@ -28,6 +28,14 @@ import {
   Headphones,
   ChevronRight,
   X,
+  Wrench,
+  BadgePercent,
+  FileSearch,
+  Handshake,
+  MessageCircle,
+  BookOpen,
+  FolderKanban,
+  Quote,
 } from "lucide-react";
 
 interface AdminSidebarProps {
@@ -49,7 +57,6 @@ const NAV_GROUPS = [
         label: "Multi-Location Stock",
         href: "/admin/inventory",
         icon: Boxes,
-        badge: "New",
       },
       {
         label: "Categories Master",
@@ -73,6 +80,7 @@ const NAV_GROUPS = [
         hasSub: true,
       },
       { label: "Stock Audit Log", href: "/admin/audit", icon: ClipboardList },
+      { label: "Media Library", href: "/admin/media", icon: FolderKanban },
     ],
   },
   {
@@ -90,13 +98,16 @@ const NAV_GROUPS = [
         icon: PackageCheck,
       },
       { label: "Walk-in POS Desk", href: "/admin/pos", icon: Tablet },
+      { label: "Quotations", href: "/admin/quotations", icon: Quote },
+      { label: "Service Enquiries", href: "/admin/services", icon: Wrench, badge: "New" },
     ],
   },
   {
-    group: "FINANCE",
+    group: "FINANCE & REWARDS",
     items: [
       { label: "Order Profit & Margins", href: "/admin/profit", icon: Lock },
       { label: "Rewards & Loyalty", href: "/admin/rewards", icon: Award },
+      { label: "Offers & Coupons", href: "/admin/offers", icon: BadgePercent },
       { label: "Business Reports", href: "/admin/reports", icon: BarChart3 },
     ],
   },
@@ -104,18 +115,27 @@ const NAV_GROUPS = [
     group: "CRM & MARKETING",
     items: [
       { label: "Customer CRM", href: "/admin/customers", icon: Users },
+      { label: "B2B Relationships", href: "/admin/relationships", icon: Handshake },
       {
         label: "Executive Incentives",
         href: "/admin/incentives",
         icon: AwardIcon,
       },
-      { label: "Announcements", href: "/admin/cms", icon: Megaphone },
+      { label: "Announcements & CMS", href: "/admin/cms", icon: Megaphone },
+      { label: "WhatsApp Automation", href: "/admin/whatsapp", icon: MessageCircle },
+    ],
+  },
+  {
+    group: "CONTENT & LEARNING",
+    items: [
+      { label: "Learning Hub", href: "/admin/learning", icon: BookOpen },
     ],
   },
   {
     group: "SYSTEM & SETTINGS",
     items: [
       { label: "Users & Roles", href: "/admin/staff", icon: UserCog },
+      { label: "Support Desk", href: "/admin/support", icon: Headphones },
       { label: "Settings", href: "/admin/settings", icon: Settings },
       {
         label: "Activity Log",

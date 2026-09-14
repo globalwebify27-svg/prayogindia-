@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+
 import {
   INITIAL_PROMO_COUPONS,
   PromoCoupon,
@@ -29,8 +30,41 @@ import {
 
 export default function AdminOffersPage() {
   const [coupons, setCoupons] = useState<PromoCoupon[]>(INITIAL_PROMO_COUPONS);
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterScope, setFilterScope] = useState<string>("All");
+
+  // Fetch from API and merge with mock data
+  useEffect(() => {
+    fetch("/api/admin/offers")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && data.data?.length) {
+          // Transform DB Offer → PromoCoupon format for UI compatibility
+          const apiCoupons: PromoCoupon[] = data.data.map((offer: any) => ({
+            id: offer.id,
+            code: offer.couponCode || `OFFER-${offer.id.slice(0, 6).toUpperCase()}`,
+            description: offer.shortDescription || offer.title,
+            discountType: "percentage" as DiscountType,
+            discountValue: 10,
+            minOrderValue: 0,
+            maxDiscountAmount: 999999,
+            customerTypeScope: (offer.customerEligibility || "All") as CustomerTypeScope,
+            applicableCategory: "All",
+            usageLimitGlobal: 500,
+            usageLimitPerUser: 1,
+            usageCount: 0,
+            restrictedUserEmails: [],
+            expiryDate: offer.endDate || new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
+            isActive: offer.status === "Active",
+          }));
+          setCoupons(apiCoupons);
+        }
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
 
   // Modal State for New / Edit Coupon
   const [showModal, setShowModal] = useState(false);

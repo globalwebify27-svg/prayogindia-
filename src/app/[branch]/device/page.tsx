@@ -2,7 +2,7 @@
 
 import React, { useState, Suspense } from "react";
 import { useRouter, useParams } from "next/navigation";
-import { AlertCircle, Tablet, ShieldCheck } from "lucide-react";
+import { AlertCircle, Tablet } from "lucide-react";
 import { PrayogLogo } from "@/components/PrayogLogo";
 import { STORES, StoreId } from "@/data/storeConfig";
 

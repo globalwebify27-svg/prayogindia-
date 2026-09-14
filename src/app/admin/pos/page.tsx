@@ -334,7 +334,7 @@ export default function WalkInPOSPage() {
     "ranchi" | "patna" | "delhi" | "all"
   >("all");
 
-  // Load live sessions from localStorage
+  // Load live sessions from memory / server
   const refreshSessions = useCallback(() => {
     const all = getAllSessions();
     setLiveSessions(all);
@@ -614,21 +614,25 @@ export default function WalkInPOSPage() {
     items: POSCartItem[];
   } | null>(null);
 
-  // Load authorized device credentials from localStorage on mount
+  // Check server staff session for POS device authorization on mount
   useEffect(() => {
-    const savedToken = localStorage.getItem("prayog_pos_device_token");
-    const savedStore = localStorage.getItem("prayog_pos_store_id") as StoreId;
-    const savedDeviceId = localStorage.getItem("prayog_pos_device_id");
-
-    if (savedToken && savedToken.startsWith("PRG_POS_AUTH_")) {
-      setIsDeviceAuthorized(true);
-      setDeviceToken(savedToken);
-      if (savedStore) {
-        setActiveStoreId(savedStore);
-        setSelectedStore(savedStore.toLowerCase() as any);
+    async function checkStaffAuth() {
+      try {
+        const res = await fetch("/api/staff/auth/me");
+        const data = await res.json();
+        if (data?.success && data?.user) {
+          setIsDeviceAuthorized(true);
+          setDeviceToken(`PRG_POS_STAFF_${data.user.id || "AUTH"}`);
+          if (data.user.storeId) {
+            setActiveStoreId(data.user.storeId as StoreId);
+            setSelectedStore(data.user.storeId.toLowerCase() as any);
+          }
+        }
+      } catch {
+        // Continue in unauthorized state until activation key entered
       }
-      if (savedDeviceId) setDeviceId(savedDeviceId);
     }
+    checkStaffAuth();
   }, []);
 
   // Handle Terminal Key Activation
@@ -648,10 +652,6 @@ export default function WalkInPOSPage() {
 
     if (config) {
       const generatedToken = `PRG_POS_AUTH_${config.storeId}_${Date.now()}`;
-      localStorage.setItem("prayog_pos_device_token", generatedToken);
-      localStorage.setItem("prayog_pos_store_id", config.storeId);
-      localStorage.setItem("prayog_pos_device_id", config.deviceId);
-
       setDeviceToken(generatedToken);
       setActiveStoreId(config.storeId);
       setSelectedStore(config.storeId.toLowerCase() as any);
@@ -671,9 +671,6 @@ export default function WalkInPOSPage() {
         "De-authorize this physical store tablet? POS will be locked until re-authenticated.",
       )
     ) {
-      localStorage.removeItem("prayog_pos_device_token");
-      localStorage.removeItem("prayog_pos_store_id");
-      localStorage.removeItem("prayog_pos_device_id");
       setIsDeviceAuthorized(false);
       setDeviceToken(null);
     }
@@ -1017,10 +1014,6 @@ export default function WalkInPOSPage() {
                   const store = e.target.value as any;
                   setSelectedStore(store);
                   setActiveStoreId(store.toUpperCase());
-                  localStorage.setItem(
-                    "prayog_pos_store_id",
-                    store.toUpperCase(),
-                  );
                 }}
                 className="bg-transparent text-xs font-extrabold text-white focus:outline-none pr-3 py-1 cursor-pointer"
               >

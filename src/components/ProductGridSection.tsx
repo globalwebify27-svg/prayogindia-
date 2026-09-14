@@ -319,16 +319,18 @@ export const ProductGridSection: React.FC<ProductSectionProps> = ({
         className="w-60 sm:w-72 shrink-0 bg-white rounded-2xl sm:rounded-3xl border border-slate-200/80 p-4 sm:p-5 flex flex-col justify-between hover:border-[#00AEEF]/50 hover:shadow-lg hover:shadow-sky-500/5 transition-all duration-300 relative group"
       >
         {/* Top Badges & Actions */}
-        <div className="flex items-center justify-between z-10 mb-2 gap-1.5">
-          <div className="flex items-center gap-1 overflow-hidden">
+        <div className="flex items-start justify-between z-10 mb-2 gap-2">
+          <div className="flex flex-wrap items-center gap-1.5 min-w-0">
             {product.badge && (
-              <span className="bg-[#00AEEF] text-white text-[10px] font-black px-2 py-0.5 rounded-md uppercase tracking-wider shadow-2xs whitespace-nowrap">
+              <span className="bg-[#00AEEF] text-white text-[9px] sm:text-[10px] font-black px-1.5 sm:px-2 py-0.5 rounded-md uppercase tracking-wide shadow-2xs whitespace-nowrap shrink-0">
                 {product.badge}
               </span>
             )}
-            <span className="bg-[#FF3B30] text-white text-[10px] font-black px-2 py-0.5 rounded-md uppercase tracking-wider shadow-2xs whitespace-nowrap">
-              {product.discount}
-            </span>
+            {product.discount && (
+              <span className="bg-[#FF3B30] text-white text-[9px] sm:text-[10px] font-black px-1.5 sm:px-2 py-0.5 rounded-md uppercase tracking-wide shadow-2xs whitespace-nowrap shrink-0">
+                {product.discount}
+              </span>
+            )}
           </div>
 
           <div className="flex items-center gap-1 shrink-0">

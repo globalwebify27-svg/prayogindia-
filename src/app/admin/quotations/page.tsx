@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   FileText,
   Plus,
@@ -18,163 +18,84 @@ import {
   CreditCard,
   Edit3,
   Save,
+  RefreshCw,
+  XCircle,
+  AlertCircle,
+  ShoppingBag,
 } from "lucide-react";
 import { PRODUCTS, Product } from "@/data/mockData";
+import { STORES } from "@/data/storeConfig";
 
 export type DocStage =
-  "QUOTATION" | "PROFORMA_INVOICE" | "PAYMENT_RECEIVED" | "TAX_INVOICE";
+  | "DRAFT"
+  | "REQUESTED"
+  | "UNDER_REVIEW"
+  | "SENT"
+  | "VIEWED"
+  | "NEGOTIATION"
+  | "ACCEPTED"
+  | "REJECTED"
+  | "EXPIRED"
+  | "CONVERTED"
+  | "CANCELLED";
 
 export interface QuotationItem {
-  productId: string;
-  name: string;
-  sku: string;
+  id?: string;
+  productId?: string;
+  productName: string;
+  productSku: string;
   unitPrice: number;
   quantity: number;
   discountPct: number;
+  taxRate?: number;
+  total?: number;
 }
 
 export interface QuotationDoc {
   id: string;
   quoteNumber: string;
-  institutionType:
-    | "School"
-    | "College"
-    | "University"
-    | "STEM Lab"
-    | "Corporate"
-    | "Industrial"
-    | "Government / Tender";
+  storeId?: string;
+  store?: { id: string; name: string; code: string; city: string };
+  institutionType: string;
   companyName: string;
   customerName: string;
-  customerMobile: string;
+  customerPhone: string;
   customerEmail: string;
-  gstin: string;
-  billingAddress: string;
-  shippingAddress: string;
+  gstin?: string;
+  billingAddress?: string;
+  shippingAddress?: string;
   status: DocStage;
-  date: string;
+  createdAt: string;
   validUntil: string;
   items: QuotationItem[];
-  gstRate: number; // e.g. 18%
+  subtotal: number;
+  discountAmount: number;
+  taxRate: number;
+  taxAmount: number;
   shippingCharge: number;
-  notes: string;
-  terms: string;
-  paymentReference?: string;
+  grandTotal: number;
+  notes?: string;
+  terms?: string;
+  adminNotes?: string;
+  customerFeedback?: string;
+  convertedAt?: string;
+  order?: { id: string; orderNumber: string; status: string; totalAmount: number };
+  revisions?: any[];
 }
 
-const MOCK_QUOTATIONS: QuotationDoc[] = [
-  {
-    id: "q-101",
-    quoteNumber: "PRG-QT-2026-0042",
-    institutionType: "University",
-    companyName: "IIT Delhi Robotics & AI Research Lab",
-    customerName: "Dr. Rajesh Vardhan",
-    customerEmail: "robotics.lab@iitd.ac.in",
-    customerMobile: "9876543210",
-    gstin: "07AAAAI0000A1Z5",
-    billingAddress: "Hauz Khas, New Delhi, Delhi - 110016",
-    shippingAddress:
-      "Department of Electrical & Robotics Engineering, Lab #402, IIT Delhi, New Delhi - 110016",
-    status: "PROFORMA_INVOICE",
-    date: "24 Aug 2026",
-    validUntil: "24 Sep 2026",
-    gstRate: 18,
-    shippingCharge: 350,
-    items: [
-      {
-        productId: "rpi-5-8gb",
-        name: "Raspberry Pi 5 Model B (8GB RAM)",
-        sku: "PRG-RPI-508",
-        unitPrice: 8999,
-        quantity: 10,
-        discountPct: 5,
-      },
-      {
-        productId: "pixhawk-fc",
-        name: "Pixhawk 6C Autopilot Flight Controller Unit",
-        sku: "PRG-UAV-601",
-        unitPrice: 14500,
-        quantity: 5,
-        discountPct: 8,
-      },
-    ],
-    notes:
-      "Institutional research grant procurement with 1-year hardware warranty support.",
-    terms:
-      "1. 100% Advance payment via NEFT/RTGS for dispatch.\n2. Delivery within 5 working days from PO confirmation.\n3. Goods once sold are covered under Prayog 1-Year OEM replacement warranty.",
-    paymentReference: "NEFT-IITD-8899201",
-  },
-  {
-    id: "q-102",
-    quoteNumber: "PRG-QT-2026-0043",
-    institutionType: "School",
-    companyName: "Delhi Public School STEM Innovation Wing",
-    customerName: "Vikram Singh",
-    customerEmail: "stem@dpschool.org",
-    customerMobile: "9812345678",
-    gstin: "20BBBBB1111B2Z6",
-    billingAddress:
-      "Main Road, Sector 4, Bokaro / Ranchi Hub, Jharkhand - 827004",
-    shippingAddress:
-      "Tinkering Lab, Central Campus, Delhi Public School, Jharkhand - 827004",
-    status: "QUOTATION",
-    date: "26 Aug 2026",
-    validUntil: "26 Sep 2026",
-    gstRate: 18,
-    shippingCharge: 500,
-    items: [
-      {
-        productId: "prayog-stem-robot-kit",
-        name: "PRAYOG Dilay-Bot 4WD Autonomous Robotics Kit",
-        sku: "PRG-KIT-100",
-        unitPrice: 4999,
-        quantity: 25,
-        discountPct: 10,
-      },
-      {
-        productId: "ard-uno-r3",
-        name: "Arduino UNO R3 Official Board",
-        sku: "PRG-ARD-001",
-        unitPrice: 1499,
-        quantity: 50,
-        discountPct: 12,
-      },
-    ],
-    notes:
-      "Includes teacher training workshop vouchers and lab assembly curriculum.",
-    terms:
-      "1. Prices valid for 30 days from quote date.\n2. GST 18% as applicable for educational STEM hardware kits.\n3. Onsite lab installation support included in Ranchi / Delhi NCR.",
-  },
-];
-
-const STAGES: { stage: DocStage; label: string; subtitle: string }[] = [
-  { stage: "QUOTATION", label: "1. QUOTATION", subtitle: "Draft / Editable" },
-  {
-    stage: "PROFORMA_INVOICE",
-    label: "2. PROFORMA INVOICE",
-    subtitle: "Payment Notice",
-  },
-  {
-    stage: "PAYMENT_RECEIVED",
-    label: "3. PAYMENT RECEIVED",
-    subtitle: "Verification",
-  },
-  {
-    stage: "TAX_INVOICE",
-    label: "4. TAX INVOICE",
-    subtitle: "Final GST Invoice",
-  },
-];
-
 export default function QuotationsPage() {
-  const [quotations, setQuotations] = useState<QuotationDoc[]>(MOCK_QUOTATIONS);
+  const [quotations, setQuotations] = useState<QuotationDoc[]>([]);
+  const [loading, setLoading] = useState(true);
   const [selectedDoc, setSelectedDoc] = useState<QuotationDoc | null>(null);
   const [isCreatingNew, setIsCreatingNew] = useState(false);
-  const [isEditingDoc, setIsEditingDoc] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [storeFilter, setStoreFilter] = useState("all");
+  const [convertingLoading, setConvertingLoading] = useState(false);
 
-  // New Quote Form State with Complete Quotation Fields
-  const [instType, setInstType] =
-    useState<QuotationDoc["institutionType"]>("University");
+  // Form State for creating new quotation
+  const [instType, setInstType] = useState("Corporate");
+  const [selectedStoreId, setSelectedStoreId] = useState("ranchi");
   const [compName, setCompName] = useState("");
   const [custName, setCustName] = useState("");
   const [custEmail, setCustEmail] = useState("");
@@ -186,35 +107,47 @@ export default function QuotationsPage() {
   const [shippingFee, setShippingFee] = useState(0);
   const [notes, setNotes] = useState("");
   const [terms, setTerms] = useState(
-    "1. 100% Advance payment against Proforma Invoice.\n2. Delivery within 3-5 days via Surface / Air Express.\n3. Standard 1-Year OEM warranty with dedicated engineer support.",
+    "1. 100% Advance payment against Proforma Invoice.\n2. Delivery within 3-5 days via Surface / Air Express.\n3. Standard 1-Year OEM warranty with dedicated engineer support."
   );
   const [gstRate, setGstRate] = useState(18);
   const [items, setItems] = useState<QuotationItem[]>([
     {
-      productId: PRODUCTS[0].id,
-      name: PRODUCTS[0].name,
-      sku: PRODUCTS[0].sku,
-      unitPrice: PRODUCTS[0].price,
+      productId: PRODUCTS[0]?.id,
+      productName: PRODUCTS[0]?.name || "Component 1",
+      productSku: PRODUCTS[0]?.sku || "PRG-001",
+      unitPrice: PRODUCTS[0]?.price || 1000,
       quantity: 5,
       discountPct: 5,
     },
-    {
-      productId: PRODUCTS[1].id,
-      name: PRODUCTS[1].name,
-      sku: PRODUCTS[1].sku,
-      unitPrice: PRODUCTS[1].price,
-      quantity: 2,
-      discountPct: 0,
-    },
   ]);
+
+  const fetchQuotations = async () => {
+    setLoading(true);
+    try {
+      const url = `/api/admin/quotations?status=${statusFilter}&storeId=${storeFilter}&search=${encodeURIComponent(searchQuery)}`;
+      const res = await fetch(url);
+      const data = await res.json();
+      if (data.success && data.data?.items) {
+        setQuotations(data.data.items);
+      }
+    } catch {
+      // ignore
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchQuotations();
+  }, [statusFilter, storeFilter]);
 
   const handleAddItem = (product: Product) => {
     setItems((prev) => [
       ...prev,
       {
         productId: product.id,
-        name: product.name,
-        sku: product.sku,
+        productName: product.name,
+        productSku: product.sku,
         unitPrice: product.price,
         quantity: 1,
         discountPct: 0,
@@ -229,80 +162,126 @@ export default function QuotationsPage() {
   const handleUpdateItem = (
     index: number,
     field: keyof QuotationItem,
-    val: any,
+    val: any
   ) => {
-    setItems((prev) =>
-      prev.map((item, i) => (i === index ? { ...item, [field]: val } : item)),
-    );
+    setItems((prev) => {
+      const next = [...prev];
+      next[index] = { ...next[index], [field]: val };
+      return next;
+    });
   };
 
-  const handleCreateQuotation = (e: React.FormEvent) => {
+  const handleCreateQuotation = async (e: React.FormEvent) => {
     e.preventDefault();
-    const newDoc: QuotationDoc = {
-      id: `q-${Date.now()}`,
-      quoteNumber: `PRG-QT-2026-${Math.floor(1000 + Math.random() * 9000)}`,
-      institutionType: instType,
-      companyName: compName || "Apex Institute of Technology",
-      customerName: custName || "Procurement Officer",
-      customerEmail: custEmail || "procure@institution.edu",
-      customerMobile: custMobile || "9876543210",
-      gstin: gstinInput || "20AAAAA0000A1Z5",
-      billingAddress:
-        billingAddr || "Campus Administrative Block, Main Road, City",
-      shippingAddress:
-        shippingAddr || billingAddr || "Central Receiving & Robotics Lab, City",
-      status: "QUOTATION",
-      date: new Date().toLocaleDateString("en-GB", {
-        day: "2-digit",
-        month: "short",
-        year: "numeric",
-      }),
-      validUntil: new Date(
-        Date.now() + validDays * 86400000,
-      ).toLocaleDateString("en-GB", {
-        day: "2-digit",
-        month: "short",
-        year: "numeric",
-      }),
-      gstRate: gstRate || 18,
-      shippingCharge: Number(shippingFee) || 0,
-      items: [...items],
-      notes: notes || "Official Prayog India Institutional Quotation.",
-      terms: terms || "Standard academic procurement terms.",
-    };
+    try {
+      const res = await fetch("/api/admin/quotations", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          storeId: selectedStoreId,
+          institutionType: instType,
+          companyName: compName,
+          customerName: custName,
+          customerEmail: custEmail,
+          customerPhone: custMobile,
+          gstin: gstinInput,
+          billingAddress: billingAddr,
+          shippingAddress: shippingAddr,
+          validUntil: new Date(Date.now() + validDays * 86400000).toISOString(),
+          taxRate: gstRate,
+          shippingCharge: shippingFee,
+          notes,
+          terms,
+          status: "DRAFT",
+          items,
+        }),
+      });
 
-    setQuotations([newDoc, ...quotations]);
-    setSelectedDoc(newDoc);
-    setIsCreatingNew(false);
+      const data = await res.json();
+      if (data.success) {
+        setIsCreatingNew(false);
+        fetchQuotations();
+      } else {
+        alert(data.message || "Failed to create quotation");
+      }
+    } catch {
+      alert("Error creating quotation");
+    }
   };
 
-  const handleAdvanceStatus = (docId: string) => {
-    setQuotations((prev) =>
-      prev.map((doc) => {
-        if (doc.id === docId) {
-          let nextStatus: DocStage = "PROFORMA_INVOICE";
-          if (doc.status === "QUOTATION") nextStatus = "PROFORMA_INVOICE";
-          else if (doc.status === "PROFORMA_INVOICE")
-            nextStatus = "PAYMENT_RECEIVED";
-          else if (doc.status === "PAYMENT_RECEIVED")
-            nextStatus = "TAX_INVOICE";
-          else nextStatus = "TAX_INVOICE";
-
-          const updated: QuotationDoc = { ...doc, status: nextStatus };
-          if (selectedDoc?.id === docId) setSelectedDoc(updated);
-          return updated;
+  const handleStatusUpdate = async (id: string, newStatus: DocStage, revisionReason?: string) => {
+    try {
+      const res = await fetch(`/api/admin/quotations/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: newStatus, revisionReason }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        if (selectedDoc?.id === id) {
+          setSelectedDoc(data.data);
         }
-        return doc;
-      }),
-    );
+        fetchQuotations();
+      } else {
+        alert(data.message || "Failed to update status");
+      }
+    } catch {
+      alert("Error updating quotation");
+    }
+  };
+
+  const handleConvertToOrder = async (id: string) => {
+    if (!confirm("Are you sure you want to convert this quotation into an active customer order?")) {
+      return;
+    }
+    setConvertingLoading(true);
+    try {
+      const res = await fetch(`/api/admin/quotations/${id}/convert-to-order`, {
+        method: "POST",
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert(`Success! Order #${data.data?.order?.orderNumber} created.`);
+        fetchQuotations();
+        if (selectedDoc?.id === id) {
+          setSelectedDoc({ ...selectedDoc, status: "CONVERTED", order: data.data?.order });
+        }
+      } else {
+        alert(data.message || "Failed to convert to order");
+      }
+    } catch {
+      alert("Network error converting to order");
+    } finally {
+      setConvertingLoading(false);
+    }
   };
 
   const calcDocSubtotal = (docItems: QuotationItem[]) => {
-    return docItems.reduce((sum, item) => {
-      const discountedUnit = item.unitPrice * (1 - item.discountPct / 100);
-      return sum + discountedUnit * item.quantity;
+    return (docItems || []).reduce((sum, item) => {
+      const unit = item.unitPrice || 0;
+      const discount = item.discountPct || 0;
+      const discountedUnit = unit * (1 - discount / 100);
+      return sum + discountedUnit * (item.quantity || 1);
     }, 0);
   };
+
+  const formSubtotal = items.reduce((sum, item) => {
+    const discountedUnit = item.unitPrice * (1 - item.discountPct / 100);
+    return sum + discountedUnit * item.quantity;
+  }, 0);
+  const formTax = Math.round(formSubtotal * (gstRate / 100));
+  const formGrandTotal = formSubtotal + formTax + Number(shippingFee);
+
+  const filteredQuotes = quotations.filter((q) => {
+    if (!searchQuery) return true;
+    const s = searchQuery.toLowerCase();
+    return (
+      q.quoteNumber?.toLowerCase().includes(s) ||
+      q.companyName?.toLowerCase().includes(s) ||
+      q.customerName?.toLowerCase().includes(s) ||
+      q.customerEmail?.toLowerCase().includes(s)
+    );
+  });
 
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
@@ -310,14 +289,13 @@ export default function QuotationsPage() {
       <div className="bg-[#0F172A] text-white p-6 rounded-3xl border border-slate-800 shadow-xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <span className="bg-[#00AEEF] text-white text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full">
-            48. SALES DOCUMENTS MODULE
+            B2B Quotations &amp; Institutional Proposals
           </span>
           <h1 className="text-2xl font-black text-white mt-1">
-            Sales Documents (Quotations &amp; Tax Invoices)
+            B2B Quotations Management Desk
           </h1>
           <p className="text-xs text-slate-400">
-            Official B2B &amp; institutional workflow: Quotation → Convert to
-            Proforma Invoice → Payment Received → Generate Tax Invoice.
+            Lifecycle: Request Quote → B2B Pricing → Send Quote → Customer Negotiation / Acceptance → Convert to Order
           </p>
         </div>
 
@@ -333,420 +311,421 @@ export default function QuotationsPage() {
         </button>
       </div>
 
-      {/* Section 7 Lifecycle Stepper Preview */}
-      <div className="bg-white p-4 rounded-3xl border border-slate-200 shadow-2xs overflow-x-auto">
-        <div className="flex items-center justify-between min-w-[700px] gap-2">
-          {STAGES.map((s, idx) => (
-            <React.Fragment key={s.stage}>
-              <div className="flex-1 bg-slate-50 border border-slate-200 p-3 rounded-2xl text-center space-y-0.5">
-                <span className="text-[11px] font-black text-slate-900 uppercase block">
-                  {s.label}
-                </span>
-                <span className="text-[10px] text-slate-500 font-medium block">
-                  {s.subtitle}
-                </span>
-              </div>
-              {idx < STAGES.length - 1 && (
-                <ArrowRight className="w-4 h-4 text-slate-400 shrink-0" />
-              )}
-            </React.Fragment>
-          ))}
-        </div>
-      </div>
-
-      {/* Main Content Area: Create Form / Document Viewer / Master List */}
+      {/* Main Content Area */}
       {isCreatingNew ? (
         /* Create New Quotation Form */
         <form
           onSubmit={handleCreateQuotation}
-          className="bg-white rounded-3xl border border-slate-200 p-6 shadow-xs space-y-6"
+          className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 space-y-8 shadow-xs"
         >
-          <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-            <h2 className="text-sm font-black uppercase text-slate-900 flex items-center gap-2">
-              <Building2 className="w-4 h-4 text-[#00AEEF]" /> Create
-              Institutional Quotation Draft
-            </h2>
+          <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+            <div>
+              <h2 className="text-lg font-black text-slate-900">
+                Institutional Quotation Draft
+              </h2>
+              <p className="text-xs text-slate-500">
+                Set negotiated B2B unit rates, institutional discounts, and select the servicing store.
+              </p>
+            </div>
             <button
               type="button"
               onClick={() => setIsCreatingNew(false)}
-              className="text-xs text-slate-400 hover:text-slate-700 font-bold cursor-pointer"
+              className="text-xs text-slate-400 hover:text-slate-800 font-bold p-2 cursor-pointer"
             >
-              Cancel
+              ✕ Cancel
             </button>
           </div>
 
-          {/* Client & Organization Details */}
-          <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 text-xs">
-            <div>
-              <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">
-                Target Sector / Organization Type *
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="space-y-1">
+              <label className="text-[11px] font-bold text-slate-700">
+                Institution / Organization Type
               </label>
               <select
                 value={instType}
-                onChange={(e) => setInstType(e.target.value as any)}
-                className="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl font-bold text-slate-800 focus:outline-none focus:border-[#00AEEF]"
+                onChange={(e) => setInstType(e.target.value)}
+                className="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl text-xs font-bold text-slate-900 focus:bg-white focus:outline-none"
               >
-                <option value="School">School (K-12 / ATL / STEM)</option>
-                <option value="College">
-                  College (Engineering / Polytechnic)
-                </option>
-                <option value="University">University / Research Lab</option>
-                <option value="STEM Lab">STEM Lab & Innovation Center</option>
-                <option value="Corporate">Corporate Customer</option>
-                <option value="Industrial">
-                  Industrial / Automation Client
-                </option>
-                <option value="Government / Tender">
-                  Government / Tender Procurement
-                </option>
+                <option value="School">School / ATL Lab</option>
+                <option value="College">College / Polytechnic</option>
+                <option value="University">University Research Lab</option>
+                <option value="Corporate">Corporate / Enterprise</option>
+                <option value="STEM Lab">STEM / Robotics Lab</option>
+                <option value="Government / Tender">Government / Tender</option>
               </select>
             </div>
-            <div>
-              <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">
+
+            <div className="space-y-1">
+              <label className="text-[11px] font-bold text-slate-700">
+                Servicing Fulfillment Store
+              </label>
+              <select
+                value={selectedStoreId}
+                onChange={(e) => setSelectedStoreId(e.target.value)}
+                className="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl text-xs font-bold text-slate-900 focus:bg-white focus:outline-none"
+              >
+                <option value="ranchi">Ranchi Central Experience Hub</option>
+                <option value="patna">Patna Branch</option>
+                <option value="delhi">Delhi Experience Center</option>
+                <option value="mumbai">Mumbai Hub</option>
+              </select>
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-[11px] font-bold text-slate-700">
                 Company / Organization Name *
               </label>
               <input
-                type="text"
                 required
-                placeholder="e.g. IIT Delhi Robotics & AI Lab"
+                type="text"
                 value={compName}
                 onChange={(e) => setCompName(e.target.value)}
-                className="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl font-bold text-slate-800 focus:outline-none focus:border-[#00AEEF]"
+                placeholder="e.g. IIT Delhi Robotics Lab"
+                className="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl text-xs font-bold text-slate-900 focus:bg-white focus:outline-none"
               />
             </div>
-            <div>
-              <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">
-                Customer / Contact Person *
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="space-y-1">
+              <label className="text-[11px] font-bold text-slate-700">
+                Contact Person Name *
               </label>
               <input
-                type="text"
                 required
-                placeholder="e.g. Dr. Rajesh Vardhan"
+                type="text"
                 value={custName}
                 onChange={(e) => setCustName(e.target.value)}
-                className="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl font-bold text-slate-800 focus:outline-none focus:border-[#00AEEF]"
+                placeholder="Dr. Rajesh Vardhan"
+                className="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl text-xs font-bold text-slate-900 focus:bg-white focus:outline-none"
               />
             </div>
-            <div>
-              <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">
-                Customer Mobile *
+
+            <div className="space-y-1">
+              <label className="text-[11px] font-bold text-slate-700">
+                Contact Mobile (+91) *
               </label>
               <input
-                type="tel"
                 required
-                placeholder="+91 98765 43210"
+                type="tel"
                 value={custMobile}
                 onChange={(e) => setCustMobile(e.target.value)}
-                className="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl font-bold text-slate-800 focus:outline-none focus:border-[#00AEEF]"
+                placeholder="9876543210"
+                className="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl text-xs font-bold text-slate-900 focus:bg-white focus:outline-none"
               />
             </div>
-          </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 text-xs">
-            <div>
-              <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">
-                Customer Email *
+            <div className="space-y-1">
+              <label className="text-[11px] font-bold text-slate-700">
+                Official Email *
               </label>
               <input
-                type="email"
                 required
-                placeholder="procurement@iitd.ac.in"
+                type="email"
                 value={custEmail}
                 onChange={(e) => setCustEmail(e.target.value)}
-                className="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl font-bold text-slate-800 focus:outline-none focus:border-[#00AEEF]"
+                placeholder="procurement@iitd.ac.in"
+                className="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl text-xs font-bold text-slate-900 focus:bg-white focus:outline-none"
               />
             </div>
-            <div>
-              <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">
-                GST Number (15 Digits)
+
+            <div className="space-y-1">
+              <label className="text-[11px] font-bold text-slate-700">
+                GSTIN Number (Optional)
               </label>
               <input
                 type="text"
-                placeholder="07AAAAI0000A1Z5"
                 value={gstinInput}
                 onChange={(e) => setGstinInput(e.target.value.toUpperCase())}
-                className="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl font-mono font-bold text-slate-800 uppercase focus:outline-none focus:border-[#00AEEF]"
+                placeholder="07AAAAI0000A1Z5"
+                className="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl text-xs font-bold text-slate-900 uppercase focus:bg-white focus:outline-none"
               />
-            </div>
-            <div>
-              <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">
-                Applicable GST %
-              </label>
-              <select
-                value={gstRate}
-                onChange={(e) => setGstRate(Number(e.target.value))}
-                className="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl font-bold text-slate-800 focus:outline-none focus:border-[#00AEEF]"
-              >
-                <option value={18}>
-                  18% GST (Standard Electronics & Hardware)
-                </option>
-                <option value={12}>
-                  12% GST (Educational Kits Concession)
-                </option>
-                <option value={5}>5% GST (Special Research Category)</option>
-                <option value={0}>0% GST (Tax Exempt SEZ / Export)</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">
-                Quote Validity (Days)
-              </label>
-              <select
-                value={validDays}
-                onChange={(e) => setValidDays(Number(e.target.value))}
-                className="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl font-bold text-slate-800 focus:outline-none focus:border-[#00AEEF]"
-              >
-                <option value={15}>15 Days Validity</option>
-                <option value={30}>30 Days Validity (Standard)</option>
-                <option value={45}>45 Days Validity (Tenders)</option>
-                <option value={60}>60 Days Validity (Government POs)</option>
-              </select>
             </div>
           </div>
 
-          {/* Addresses & Shipping */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
-            <div>
-              <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">
-                Billing Address *
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-1">
+              <label className="text-[11px] font-bold text-slate-700">
+                Official Billing Address
               </label>
               <textarea
                 rows={2}
-                required
-                placeholder="Institutional Finance Department, Campus Main Block, City - Pin"
                 value={billingAddr}
                 onChange={(e) => setBillingAddr(e.target.value)}
-                className="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl font-medium text-slate-800 text-[11px] focus:outline-none focus:border-[#00AEEF]"
+                placeholder="Accounts Dept, Admin Block, Main Campus..."
+                className="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl text-xs font-medium text-slate-900 focus:bg-white focus:outline-none"
               />
             </div>
-            <div>
-              <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">
+
+            <div className="space-y-1">
+              <label className="text-[11px] font-bold text-slate-700">
                 Shipping / Lab Delivery Address
               </label>
               <textarea
                 rows={2}
-                placeholder="Robotics Lab #402, Technology Building, City - Pin (Leave blank if same as billing)"
                 value={shippingAddr}
                 onChange={(e) => setShippingAddr(e.target.value)}
-                className="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl font-medium text-slate-800 text-[11px] focus:outline-none focus:border-[#00AEEF]"
+                placeholder="Robotics Lab, Room 402, Dept of EE..."
+                className="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl text-xs font-medium text-slate-900 focus:bg-white focus:outline-none"
               />
-            </div>
-            <div>
-              <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">
-                Freight / Shipping Fee (₹)
-              </label>
-              <input
-                type="number"
-                min="0"
-                placeholder="0 for Free Delivery"
-                value={shippingFee}
-                onChange={(e) => setShippingFee(Number(e.target.value))}
-                className="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl font-bold text-slate-800 focus:outline-none focus:border-[#00AEEF]"
-              />
-              <p className="text-[10px] text-slate-400 mt-1">
-                Air Express / Surface courier logistics fee.
-              </p>
             </div>
           </div>
 
-          {/* Line Items Table */}
+          {/* Line Items Table with Negotiated B2B Rates */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <h3 className="text-xs font-black uppercase text-slate-900">
-                Line Items & Hardware Pricing
+                Quotation Line Items &amp; B2B Pricing
               </h3>
-              <div className="flex gap-2">
-                {PRODUCTS.slice(0, 4).map((prod) => (
-                  <button
-                    key={prod.id}
-                    type="button"
-                    onClick={() => handleAddItem(prod)}
-                    className="bg-slate-100 hover:bg-[#E0F7FC] hover:text-[#00AEEF] text-[10px] font-bold px-2.5 py-1 rounded-lg border border-slate-200 transition-colors cursor-pointer"
-                  >
-                    + {prod.name.split(" ")[0]}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="divide-y divide-slate-100 border border-slate-200 rounded-2xl overflow-hidden text-xs">
-              <div className="bg-slate-50 p-3 font-bold text-slate-500 grid grid-cols-12 gap-2 text-[11px] uppercase">
-                <span className="col-span-5">Product Details</span>
-                <span className="col-span-2 text-right">Unit Rate (₹)</span>
-                <span className="col-span-2 text-center">Quantity</span>
-                <span className="col-span-2 text-right">Discount %</span>
-                <span className="col-span-1 text-center">Action</span>
-              </div>
-
-              {items.map((item, idx) => (
-                <div
-                  key={idx}
-                  className="p-3 grid grid-cols-12 gap-2 items-center"
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-slate-500 font-medium">Quick add catalogue item:</span>
+                <select
+                  onChange={(e) => {
+                    const found = PRODUCTS.find((p) => p.id === e.target.value);
+                    if (found) handleAddItem(found);
+                  }}
+                  defaultValue=""
+                  className="bg-slate-100 border border-slate-200 text-xs font-bold p-1.5 rounded-xl text-slate-700"
                 >
-                  <div className="col-span-5">
-                    <h4 className="font-extrabold text-slate-900 truncate">
-                      {item.name}
-                    </h4>
-                    <span className="text-[10px] text-slate-400 font-mono">
-                      {item.sku}
-                    </span>
-                  </div>
-                  <div className="col-span-2 text-right">
-                    <input
-                      type="number"
-                      value={item.unitPrice}
-                      onChange={(e) =>
-                        handleUpdateItem(
-                          idx,
-                          "unitPrice",
-                          Number(e.target.value),
-                        )
-                      }
-                      className="w-24 bg-slate-50 p-1.5 rounded-lg text-right font-bold border border-slate-200"
-                    />
-                  </div>
-                  <div className="col-span-2 text-center">
-                    <input
-                      type="number"
-                      min={1}
-                      value={item.quantity}
-                      onChange={(e) =>
-                        handleUpdateItem(
-                          idx,
-                          "quantity",
-                          Number(e.target.value),
-                        )
-                      }
-                      className="w-16 bg-slate-50 p-1.5 rounded-lg text-center font-bold border border-slate-200"
-                    />
-                  </div>
-                  <div className="col-span-2 text-right">
-                    <input
-                      type="number"
-                      min={0}
-                      max={50}
-                      value={item.discountPct}
-                      onChange={(e) =>
-                        handleUpdateItem(
-                          idx,
-                          "discountPct",
-                          Number(e.target.value),
-                        )
-                      }
-                      className="w-16 bg-slate-50 p-1.5 rounded-lg text-right font-bold border border-slate-200"
-                    />
-                  </div>
-                  <div className="col-span-1 text-center">
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveItem(idx)}
-                      className="text-slate-400 hover:text-red-500 cursor-pointer"
-                    >
-                      <Trash2 className="w-4 h-4 mx-auto" />
-                    </button>
-                  </div>
-                </div>
-              ))}
+                  <option value="" disabled>+ Select Product...</option>
+                  {PRODUCTS.map((p) => (
+                    <option key={p.id} value={p.id}>{p.name} (Base: ₹{p.price})</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            <div className="border border-slate-200 rounded-2xl overflow-hidden">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-slate-50 border-b border-slate-200 font-bold text-slate-700">
+                  <tr>
+                    <th className="p-3">Product Description</th>
+                    <th className="p-3">SKU</th>
+                    <th className="p-3 w-32">B2B Unit Price (₹)</th>
+                    <th className="p-3 w-20">Qty</th>
+                    <th className="p-3 w-24">Discount %</th>
+                    <th className="p-3 text-right">Line Total</th>
+                    <th className="p-3 w-12 text-center">Action</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 font-medium">
+                  {items.map((item, idx) => {
+                    const discounted = item.unitPrice * (1 - item.discountPct / 100);
+                    const lineTot = Math.round(discounted * item.quantity);
+                    return (
+                      <tr key={idx}>
+                        <td className="p-3">
+                          <input
+                            type="text"
+                            value={item.productName}
+                            onChange={(e) => handleUpdateItem(idx, "productName", e.target.value)}
+                            className="w-full bg-slate-50 border border-slate-200 p-1.5 rounded-lg text-xs font-bold"
+                          />
+                        </td>
+                        <td className="p-3">
+                          <input
+                            type="text"
+                            value={item.productSku}
+                            onChange={(e) => handleUpdateItem(idx, "productSku", e.target.value)}
+                            className="w-full bg-slate-50 border border-slate-200 p-1.5 rounded-lg text-xs font-mono"
+                          />
+                        </td>
+                        <td className="p-3">
+                          <input
+                            type="number"
+                            value={item.unitPrice}
+                            onChange={(e) => handleUpdateItem(idx, "unitPrice", Number(e.target.value))}
+                            className="w-full bg-slate-50 border border-slate-200 p-1.5 rounded-lg text-xs font-bold text-emerald-700"
+                          />
+                        </td>
+                        <td className="p-3">
+                          <input
+                            type="number"
+                            min={1}
+                            value={item.quantity}
+                            onChange={(e) => handleUpdateItem(idx, "quantity", Number(e.target.value))}
+                            className="w-full bg-slate-50 border border-slate-200 p-1.5 rounded-lg text-xs font-bold text-center"
+                          />
+                        </td>
+                        <td className="p-3">
+                          <input
+                            type="number"
+                            min={0}
+                            max={100}
+                            value={item.discountPct}
+                            onChange={(e) => handleUpdateItem(idx, "discountPct", Number(e.target.value))}
+                            className="w-full bg-slate-50 border border-slate-200 p-1.5 rounded-lg text-xs font-bold text-center"
+                          />
+                        </td>
+                        <td className="p-3 text-right font-bold text-slate-900 font-mono">
+                          ₹{lineTot.toLocaleString()}
+                        </td>
+                        <td className="p-3 text-center">
+                          {items.length > 1 && (
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveItem(idx)}
+                              className="text-slate-400 hover:text-rose-600 p-1 cursor-pointer"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
             </div>
           </div>
 
-          {/* Notes & Terms */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-            <div>
-              <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">
-                Custom Notes / Scope of Work
-              </label>
-              <textarea
-                rows={3}
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                placeholder="e.g. Includes teacher training workshop vouchers and lab assembly manual sets..."
-                className="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl font-medium text-slate-800"
-              />
+          {/* Quotation Summary Card */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-slate-50 p-6 rounded-3xl border border-slate-200">
+            <div className="space-y-4">
+              <div className="space-y-1">
+                <label className="text-[11px] font-bold text-slate-700">Special Notes / Scope</label>
+                <textarea
+                  rows={2}
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  placeholder="e.g. Turnkey ATL lab setup with 1-year onsite technical workshop."
+                  className="w-full bg-white border border-slate-200 p-2.5 rounded-xl text-xs"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[11px] font-bold text-slate-700">Commercial Terms</label>
+                <textarea
+                  rows={3}
+                  value={terms}
+                  onChange={(e) => setTerms(e.target.value)}
+                  className="w-full bg-white border border-slate-200 p-2.5 rounded-xl text-xs font-mono"
+                />
+              </div>
             </div>
-            <div>
-              <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">
-                Terms & Conditions
-              </label>
-              <textarea
-                rows={3}
-                value={terms}
-                onChange={(e) => setTerms(e.target.value)}
-                placeholder="Payment terms, delivery timeline, warranty..."
-                className="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl font-medium text-slate-800 font-mono text-[11px]"
-              />
+
+            <div className="space-y-2 text-xs text-slate-700 self-end">
+              <div className="flex justify-between font-medium">
+                <span>Subtotal (Net of Item Discounts):</span>
+                <span className="font-mono font-bold">₹{formSubtotal.toLocaleString()}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span>GST Tax Rate (%):</span>
+                <input
+                  type="number"
+                  value={gstRate}
+                  onChange={(e) => setGstRate(Number(e.target.value))}
+                  className="w-20 bg-white border border-slate-200 p-1 text-center rounded-lg font-bold"
+                />
+              </div>
+              <div className="flex justify-between font-medium">
+                <span>GST Tax Amount:</span>
+                <span className="font-mono font-bold">₹{formTax.toLocaleString()}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span>Insured Freight / Dispatch (₹):</span>
+                <input
+                  type="number"
+                  value={shippingFee}
+                  onChange={(e) => setShippingFee(Number(e.target.value))}
+                  className="w-24 bg-white border border-slate-200 p-1 text-center rounded-lg font-bold"
+                />
+              </div>
+              <div className="flex justify-between border-t border-slate-200 pt-3 text-base font-black text-slate-900">
+                <span>Grand Total:</span>
+                <span className="text-[#00AEEF] font-mono">₹{formGrandTotal.toLocaleString()}</span>
+              </div>
             </div>
           </div>
 
-          <button
-            type="submit"
-            className="w-full bg-[#00AEEF] hover:bg-[#0096D6] text-white py-3.5 rounded-2xl font-black text-xs uppercase tracking-wider transition-all shadow-md cursor-pointer active:scale-95"
-          >
-            Create Official Quotation Document
-          </button>
+          <div className="flex justify-end gap-3">
+            <button
+              type="button"
+              onClick={() => setIsCreatingNew(false)}
+              className="px-6 py-2.5 rounded-xl border border-slate-200 text-xs font-bold text-slate-700 hover:bg-slate-50 cursor-pointer"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="px-6 py-2.5 rounded-xl bg-[#00AEEF] hover:bg-[#0096D6] text-white text-xs font-black shadow-md cursor-pointer"
+            >
+              Save Official Quotation Draft
+            </button>
+          </div>
         </form>
       ) : selectedDoc ? (
-        /* Document Detail & Printable Letterhead Preview */
-        <div className="bg-white rounded-3xl border border-slate-200 p-8 shadow-xl space-y-6 text-slate-900 animate-in fade-in duration-200">
-          {/* Status Progression Bar */}
-          <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 pb-4">
+        /* Document Viewer & Printable Sheet */
+        <div className="space-y-6">
+          <div className="bg-white p-4 rounded-3xl border border-slate-200 shadow-2xs flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-2">
-              <span
-                className={`text-xs font-black uppercase px-3 py-1 rounded-full ${
-                  selectedDoc.status === "TAX_INVOICE"
-                    ? "bg-emerald-100 text-emerald-800"
-                    : selectedDoc.status === "PAYMENT_RECEIVED"
-                      ? "bg-purple-100 text-purple-800"
-                      : selectedDoc.status === "PROFORMA_INVOICE"
-                        ? "bg-blue-100 text-blue-800"
-                        : "bg-amber-100 text-amber-800"
-                }`}
+              <button
+                onClick={() => setSelectedDoc(null)}
+                className="text-xs font-bold text-slate-500 hover:text-slate-900 px-3 py-1.5 rounded-xl bg-slate-100 cursor-pointer"
               >
-                {selectedDoc.status.replace("_", " ")}
-              </span>
-              <span className="font-mono font-bold text-slate-500 text-xs">
+                ← Back to List
+              </button>
+              <span className="font-mono font-bold text-sm text-slate-900">
                 {selectedDoc.quoteNumber}
+              </span>
+              <span className="text-xs font-black px-2.5 py-0.5 rounded-full bg-slate-100 uppercase">
+                {selectedDoc.status}
               </span>
             </div>
 
-            <div className="flex items-center gap-2">
-              {selectedDoc.status !== "TAX_INVOICE" && (
+            <div className="flex flex-wrap items-center gap-2">
+              {/* Send Quote button if in DRAFT / REQUESTED / UNDER_REVIEW */}
+              {["DRAFT", "REQUESTED", "UNDER_REVIEW", "NEGOTIATION"].includes(selectedDoc.status) && (
                 <button
-                  onClick={() => handleAdvanceStatus(selectedDoc.id)}
-                  className="bg-slate-900 hover:bg-slate-800 text-white text-xs font-extrabold px-4 py-2 rounded-xl flex items-center gap-1.5 shadow-xs cursor-pointer active:scale-95"
+                  onClick={() => handleStatusUpdate(selectedDoc.id, "SENT", "Sent official quote to customer")}
+                  className="bg-[#00AEEF] hover:bg-[#0096D6] text-white text-xs font-bold px-4 py-2 rounded-xl flex items-center gap-1.5 cursor-pointer shadow-xs"
                 >
-                  <span>
-                    Advance to{" "}
-                    {selectedDoc.status === "QUOTATION"
-                      ? "Proforma Invoice"
-                      : selectedDoc.status === "PROFORMA_INVOICE"
-                        ? "Payment Received"
-                        : "Tax Invoice (Final GST)"}
-                  </span>
-                  <ArrowRight className="w-3.5 h-3.5 text-[#FFC20E]" />
+                  <Send className="w-3.5 h-3.5" /> Send to Customer
                 </button>
+              )}
+
+              {/* Mark as Accepted button */}
+              {["SENT", "VIEWED", "NEGOTIATION"].includes(selectedDoc.status) && (
+                <button
+                  onClick={() => handleStatusUpdate(selectedDoc.id, "ACCEPTED", "Marked accepted by admin")}
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2 rounded-xl flex items-center gap-1.5 cursor-pointer shadow-xs"
+                >
+                  <CheckCircle2 className="w-3.5 h-3.5" /> Mark Accepted
+                </button>
+              )}
+
+              {/* Convert to Order button */}
+              {selectedDoc.status === "ACCEPTED" && (
+                <button
+                  onClick={() => handleConvertToOrder(selectedDoc.id)}
+                  disabled={convertingLoading}
+                  className="bg-purple-600 hover:bg-purple-700 text-white text-xs font-black px-5 py-2 rounded-xl flex items-center gap-1.5 cursor-pointer shadow-md active:scale-95"
+                >
+                  <ShoppingBag className="w-4 h-4" />
+                  <span>{convertingLoading ? "Converting..." : "Convert to Order →"}</span>
+                </button>
+              )}
+
+              {selectedDoc.status === "CONVERTED" && selectedDoc.order && (
+                <span className="bg-purple-100 text-purple-800 text-xs font-bold px-3 py-1.5 rounded-xl flex items-center gap-1.5">
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                  <span>Order: {selectedDoc.order.orderNumber}</span>
+                </span>
               )}
 
               <button
                 onClick={() => window.print()}
                 className="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold px-3 py-2 rounded-xl flex items-center gap-1 cursor-pointer"
               >
-                <Printer className="w-3.5 h-3.5" /> Export Official PDF
-              </button>
-
-              <button
-                onClick={() => setSelectedDoc(null)}
-                className="text-xs text-slate-400 hover:text-slate-700 font-bold ml-2 cursor-pointer"
-              >
-                ✕ Close
+                <Printer className="w-3.5 h-3.5" /> Export PDF
               </button>
             </div>
           </div>
 
-          {/* Official Letterhead Printable Area */}
+          {/* Printable Letterhead */}
           <div
             id="quotation-print-sheet"
-            className="p-8 border border-slate-200 rounded-3xl bg-slate-50/50 space-y-6 font-sans shadow-inner"
+            className="p-8 border border-slate-200 rounded-3xl bg-white space-y-6 font-sans shadow-sm"
           >
             <div className="flex justify-between items-start border-b border-slate-200 pb-4">
               <div>
@@ -754,11 +733,10 @@ export default function QuotationsPage() {
                   PRAYOG INDIA
                 </h2>
                 <p className="text-xs text-slate-500 font-medium">
-                  Official Robotics, UAV & STEM Institutional Solutions Provider
+                  Official Robotics, UAV &amp; STEM Institutional Solutions Provider
                 </p>
                 <p className="text-[11px] text-slate-400 font-mono">
-                  Ranchi Central Hub • GSTIN: 20AABCP1234F1Z9 • Email:
-                  b2b@prayogindia.in
+                  {selectedDoc.store?.name || "Ranchi Central Hub"} • GSTIN: 20AABCP1234F1Z9 • Email: b2b@prayogindia.in
                 </p>
               </div>
 
@@ -767,256 +745,245 @@ export default function QuotationsPage() {
                   {selectedDoc.quoteNumber}
                 </span>
                 <span className="text-slate-500 block">
-                  Issue Date: {selectedDoc.date}
+                  Date: {new Date(selectedDoc.createdAt).toLocaleDateString("en-IN")}
                 </span>
-                <span className="text-slate-500 block">
-                  Valid Until: {selectedDoc.validUntil}
+                <span className="text-rose-600 font-bold block">
+                  Valid Until: {new Date(selectedDoc.validUntil).toLocaleDateString("en-IN")}
                 </span>
               </div>
             </div>
 
-            {/* Bill To & Ship To Details Block */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="bg-white p-4 rounded-2xl border border-slate-200 text-xs space-y-1">
-                <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-black uppercase text-[#00AEEF]">
-                    Billed Institution / Client:
-                  </span>
-                  <span className="text-[9px] font-black uppercase bg-slate-100 text-slate-700 px-2 py-0.5 rounded-full border border-slate-200">
-                    {selectedDoc.institutionType || "University / STEM"}
-                  </span>
-                </div>
-                <h3 className="font-extrabold text-slate-900 text-base">
-                  {selectedDoc.companyName}
-                </h3>
-                <p className="text-slate-700 font-semibold">
-                  Attn: {selectedDoc.customerName}
-                </p>
-                <p className="text-slate-600">
-                  Mobile: <strong>{selectedDoc.customerMobile}</strong> • Email:{" "}
-                  {selectedDoc.customerEmail}
-                </p>
-                <p className="text-slate-500 font-mono text-[11px]">
-                  GSTIN: <strong>{selectedDoc.gstin}</strong>
-                </p>
-                <div className="pt-1 text-slate-600">
-                  <span className="font-bold text-slate-700 block">
-                    Billing Address:
-                  </span>
-                  <p className="text-[11px] leading-relaxed">
-                    {selectedDoc.billingAddress}
-                  </p>
-                </div>
+            <div className="grid grid-cols-2 gap-6 text-xs">
+              <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 space-y-1">
+                <span className="font-bold text-slate-400 uppercase text-[10px] block">Customer / Institution</span>
+                <h4 className="font-bold text-sm text-slate-900">{selectedDoc.companyName}</h4>
+                <p className="text-slate-600">Attn: {selectedDoc.customerName} ({selectedDoc.customerPhone})</p>
+                <p className="text-slate-600">{selectedDoc.customerEmail}</p>
+                {selectedDoc.gstin && <p className="font-mono font-bold text-slate-700">GSTIN: {selectedDoc.gstin}</p>}
               </div>
 
-              <div className="bg-white p-4 rounded-2xl border border-slate-200 text-xs space-y-1">
-                <span className="text-[10px] font-black uppercase text-emerald-600">
-                  Lab Delivery / Shipping Address:
-                </span>
-                <p className="text-[11px] leading-relaxed text-slate-700 pt-1">
-                  {selectedDoc.shippingAddress || selectedDoc.billingAddress}
+              <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 space-y-1">
+                <span className="font-bold text-slate-400 uppercase text-[10px] block">Shipping &amp; Delivery</span>
+                <p className="text-slate-700 leading-relaxed font-medium">
+                  {selectedDoc.shippingAddress || selectedDoc.billingAddress || "Campus Delivery via Surface Express"}
                 </p>
-                <div className="pt-2 text-[11px] text-slate-500 border-t border-slate-100 mt-2 space-y-0.5">
-                  <p>
-                    <strong>Logistics Mode:</strong> Surface / Air Express
-                    Insured Freight
-                  </p>
-                  <p>
-                    <strong>Estimated Transit:</strong> 3-5 Working Days from PO
-                    Confirmation
-                  </p>
-                </div>
+                <p className="text-slate-500 text-[11px]">Fulfilled by: <strong>{selectedDoc.store?.name || "Ranchi Central Hub"}</strong></p>
               </div>
             </div>
 
-            {/* Line Items Table */}
-            <div className="border border-slate-200 rounded-2xl overflow-hidden bg-white text-xs">
-              <table className="w-full text-left divide-y divide-slate-200">
-                <thead className="bg-slate-100 text-slate-700 text-[10px] font-black uppercase tracking-wider">
+            {/* Product items table */}
+            <div className="border border-slate-200 rounded-2xl overflow-hidden">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-slate-50 border-b border-slate-200 font-bold text-slate-700">
                   <tr>
                     <th className="p-3">#</th>
-                    <th className="p-3">Product Description &amp; SKU</th>
-                    <th className="p-3 text-right">Unit Price</th>
+                    <th className="p-3">Item Description</th>
+                    <th className="p-3">SKU</th>
+                    <th className="p-3 text-right">Agreed Unit Rate</th>
                     <th className="p-3 text-center">Qty</th>
-                    <th className="p-3 text-right">Discount</th>
-                    <th className="p-3 text-right">Net Taxable Value</th>
+                    <th className="p-3 text-center">Discount</th>
+                    <th className="p-3 text-right">Line Total</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
-                  {selectedDoc.items.map((it, idx) => {
-                    const gross = it.unitPrice * it.quantity;
-                    const disc = gross * (it.discountPct / 100);
-                    const net = gross - disc;
-                    return (
-                      <tr key={idx} className="hover:bg-slate-50">
-                        <td className="p-3 font-mono text-slate-400">
-                          {idx + 1}
-                        </td>
-                        <td className="p-3">
-                          <span className="font-extrabold text-slate-900 block">
-                            {it.name}
-                          </span>
-                          <span className="text-[10px] text-slate-400 font-mono">
-                            SKU: {it.sku}
-                          </span>
-                        </td>
-                        <td className="p-3 text-right font-mono">
-                          ₹{it.unitPrice.toLocaleString()}
-                        </td>
-                        <td className="p-3 text-center font-bold">
-                          {it.quantity}
-                        </td>
-                        <td className="p-3 text-right font-bold text-emerald-600">
-                          {it.discountPct > 0
-                            ? `${it.discountPct}% (-₹${Math.round(disc).toLocaleString()})`
-                            : "—"}
-                        </td>
-                        <td className="p-3 text-right font-extrabold text-slate-900 font-mono">
-                          ₹{Math.round(net).toLocaleString()}
-                        </td>
-                      </tr>
-                    );
-                  })}
+                <tbody className="divide-y divide-slate-100 font-medium">
+                  {selectedDoc.items?.map((item, idx) => (
+                    <tr key={idx}>
+                      <td className="p-3 text-slate-400">{idx + 1}</td>
+                      <td className="p-3 font-bold text-slate-900">{item.productName}</td>
+                      <td className="p-3 font-mono text-slate-500">{item.productSku}</td>
+                      <td className="p-3 text-right font-mono">₹{item.unitPrice?.toLocaleString("en-IN")}</td>
+                      <td className="p-3 text-center font-bold">{item.quantity}</td>
+                      <td className="p-3 text-center text-emerald-600">{item.discountPct}%</td>
+                      <td className="p-3 text-right font-mono font-bold">
+                        ₹{(item.total || item.unitPrice * item.quantity).toLocaleString("en-IN")}
+                      </td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </div>
 
-            {/* Totals & Signature */}
-            <div className="flex flex-col sm:flex-row justify-between items-start gap-6 pt-2">
-              <div className="text-xs text-slate-600 max-w-sm space-y-2 flex-1">
-                <div>
-                  <p className="font-bold text-slate-800">
-                    Custom Notes & Remarks:
-                  </p>
-                  <p className="text-[11px] leading-relaxed text-slate-600">
-                    {selectedDoc.notes}
-                  </p>
+            {/* Calculations */}
+            <div className="flex justify-end">
+              <div className="w-80 space-y-1.5 text-xs text-slate-600">
+                <div className="flex justify-between">
+                  <span>Subtotal:</span>
+                  <span className="font-mono font-bold text-slate-900">₹{selectedDoc.subtotal?.toLocaleString("en-IN")}</span>
                 </div>
-                <div>
-                  <p className="font-bold text-slate-800">
-                    Terms & Conditions:
-                  </p>
-                  <pre className="text-[10px] whitespace-pre-wrap font-sans text-slate-500 bg-white p-2.5 rounded-xl border border-slate-200">
-                    {selectedDoc.terms}
-                  </pre>
+                {selectedDoc.discountAmount > 0 && (
+                  <div className="flex justify-between text-emerald-600">
+                    <span>Discount:</span>
+                    <span className="font-mono font-bold">-₹{selectedDoc.discountAmount?.toLocaleString("en-IN")}</span>
+                  </div>
+                )}
+                <div className="flex justify-between">
+                  <span>GST ({selectedDoc.taxRate}%):</span>
+                  <span className="font-mono font-bold text-slate-900">₹{selectedDoc.taxAmount?.toLocaleString("en-IN")}</span>
                 </div>
-                <p className="text-[10px] text-slate-400 pt-1">
-                  Authorized Signatory: Prayog India Institutional Procurement &
-                  B2B Division
-                </p>
+                {selectedDoc.shippingCharge > 0 && (
+                  <div className="flex justify-between">
+                    <span>Freight / Shipping:</span>
+                    <span className="font-mono font-bold text-slate-900">₹{selectedDoc.shippingCharge?.toLocaleString("en-IN")}</span>
+                  </div>
+                )}
+                <div className="flex justify-between border-t border-slate-200 pt-2 text-sm font-black text-slate-900">
+                  <span>Grand Total:</span>
+                  <span className="font-mono text-[#00AEEF]">₹{selectedDoc.grandTotal?.toLocaleString("en-IN")}</span>
+                </div>
               </div>
+            </div>
 
-              <div className="bg-white p-4 rounded-2xl border border-slate-200 w-72 space-y-2 text-xs">
-                {(() => {
-                  const sub = calcDocSubtotal(selectedDoc.items);
-                  const gst = Math.round(sub * (selectedDoc.gstRate / 100));
-                  const shipping = selectedDoc.shippingCharge || 0;
-                  const total = sub + gst + shipping;
-                  return (
-                    <>
-                      <div className="flex justify-between text-slate-500">
-                        <span>Taxable Items Subtotal:</span>
-                        <span className="font-mono">
-                          ₹{sub.toLocaleString()}
-                        </span>
-                      </div>
-                      <div className="flex justify-between text-slate-500">
-                        <span>GST ({selectedDoc.gstRate}%):</span>
-                        <span className="font-mono">
-                          +₹{gst.toLocaleString()}
-                        </span>
-                      </div>
-                      <div className="flex justify-between text-slate-500">
-                        <span>Shipping / Freight:</span>
-                        <span className="font-mono">
-                          {shipping > 0
-                            ? `+₹${shipping.toLocaleString()}`
-                            : "FREE"}
-                        </span>
-                      </div>
-                      <div className="flex justify-between text-base font-black text-slate-900 pt-1.5 border-t border-slate-200">
-                        <span>Grand Total:</span>
-                        <span className="text-[#00AEEF] font-mono">
-                          ₹{total.toLocaleString()}
-                        </span>
-                      </div>
-                    </>
-                  );
-                })()}
-              </div>
+            {/* Notes & Terms */}
+            <div className="border-t border-slate-200 pt-4 text-xs space-y-3">
+              {selectedDoc.notes && (
+                <div>
+                  <span className="font-bold text-slate-800">Scope / Notes: </span>
+                  <span className="text-slate-600">{selectedDoc.notes}</span>
+                </div>
+              )}
+              {selectedDoc.terms && (
+                <div>
+                  <span className="font-bold text-slate-800 block mb-1">Commercial Terms &amp; Conditions:</span>
+                  <p className="bg-slate-50 p-3 rounded-xl border border-slate-100 text-slate-600 whitespace-pre-line leading-relaxed font-sans">
+                    {selectedDoc.terms}
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         </div>
       ) : (
-        /* Quotation Master List */
-        <div className="bg-white rounded-3xl border border-slate-200 shadow-xs overflow-hidden">
-          <div className="p-4 border-b border-slate-100 flex items-center justify-between">
-            <h2 className="text-xs font-black uppercase text-slate-900">
-              Active B2B Sales Document Pipeline
-            </h2>
-            <span className="text-xs text-slate-400 font-bold">
-              {quotations.length} records
-            </span>
+        /* Quotations List & Filters */
+        <div className="space-y-4">
+          <div className="bg-white p-4 rounded-3xl border border-slate-200 shadow-2xs flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="relative w-full sm:w-80">
+              <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search quote #, company, contact..."
+                className="w-full bg-slate-50 border border-slate-200 pl-10 pr-4 py-2 rounded-xl text-xs font-bold text-slate-900 focus:bg-white focus:outline-none"
+              />
+            </div>
+
+            <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="bg-slate-50 border border-slate-200 p-2 rounded-xl text-xs font-bold text-slate-700"
+              >
+                <option value="all">All Statuses</option>
+                <option value="REQUESTED">Requested (New)</option>
+                <option value="DRAFT">Draft</option>
+                <option value="SENT">Sent to Customer</option>
+                <option value="NEGOTIATION">Changes Requested</option>
+                <option value="ACCEPTED">Accepted</option>
+                <option value="CONVERTED">Converted to Order</option>
+                <option value="REJECTED">Rejected</option>
+              </select>
+
+              <select
+                value={storeFilter}
+                onChange={(e) => setStoreFilter(e.target.value)}
+                className="bg-slate-50 border border-slate-200 p-2 rounded-xl text-xs font-bold text-slate-700"
+              >
+                <option value="all">All Stores</option>
+                <option value="ranchi">Ranchi Central Hub</option>
+                <option value="patna">Patna Branch</option>
+                <option value="delhi">Delhi Experience Center</option>
+                <option value="mumbai">Mumbai Hub</option>
+              </select>
+
+              <button
+                onClick={fetchQuotations}
+                className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 cursor-pointer"
+              >
+                <RefreshCw className="w-4 h-4" />
+              </button>
+            </div>
           </div>
 
-          <div className="divide-y divide-slate-100">
-            {quotations.map((doc) => {
-              const sub = calcDocSubtotal(doc.items);
-              const total = Math.round(sub * (1 + doc.gstRate / 100));
+          <div className="bg-white rounded-3xl border border-slate-200 shadow-xs overflow-hidden">
+            <div className="p-4 border-b border-slate-100 flex items-center justify-between">
+              <h2 className="text-xs font-black uppercase text-slate-900">
+                B2B Quotations Pipeline
+              </h2>
+              <span className="text-xs text-slate-400 font-bold">
+                {filteredQuotes.length} records
+              </span>
+            </div>
 
-              return (
-                <div
-                  key={doc.id}
-                  onClick={() => setSelectedDoc(doc)}
-                  className="p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 hover:bg-slate-50 transition-colors cursor-pointer"
-                >
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      <span className="font-mono font-black text-slate-900 text-xs">
-                        {doc.quoteNumber}
-                      </span>
-                      <span
-                        className={`text-[9px] font-black uppercase px-2.5 py-0.5 rounded-full ${
-                          doc.status === "TAX_INVOICE"
-                            ? "bg-emerald-100 text-emerald-800"
-                            : doc.status === "PAYMENT_RECEIVED"
-                              ? "bg-purple-100 text-purple-800"
-                              : doc.status === "PROFORMA_INVOICE"
-                                ? "bg-blue-100 text-blue-800"
-                                : "bg-amber-100 text-amber-800"
-                        }`}
-                      >
-                        {doc.status.replace("_", " ")}
-                      </span>
-                      <span className="text-[9px] font-bold uppercase bg-slate-100 text-slate-600 px-2 py-0.5 rounded-md border border-slate-200">
-                        {doc.institutionType || "University"}
-                      </span>
-                    </div>
-                    <h3 className="text-sm font-bold text-slate-900">
-                      {doc.companyName}
-                    </h3>
-                    <p className="text-xs text-slate-500">
-                      {doc.items.length} hardware items • Attn:{" "}
-                      {doc.customerName} ({doc.customerMobile})
-                    </p>
-                  </div>
+            {loading ? (
+              <div className="p-12 text-center text-xs font-bold text-slate-400">
+                Loading quotations...
+              </div>
+            ) : filteredQuotes.length === 0 ? (
+              <div className="p-12 text-center space-y-2">
+                <FileText className="w-8 h-8 text-slate-300 mx-auto" />
+                <div className="text-xs font-bold text-slate-500">No quotations found</div>
+              </div>
+            ) : (
+              <div className="divide-y divide-slate-100">
+                {filteredQuotes.map((doc) => (
+                  <div
+                    key={doc.id}
+                    onClick={() => setSelectedDoc(doc)}
+                    className="p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 hover:bg-slate-50 transition-colors cursor-pointer"
+                  >
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <span className="font-mono font-black text-slate-900 text-xs">
+                          {doc.quoteNumber}
+                        </span>
+                        <span
+                          className={`text-[9px] font-black uppercase px-2.5 py-0.5 rounded-full ${
+                            doc.status === "ACCEPTED" || doc.status === "CONVERTED"
+                              ? "bg-emerald-100 text-emerald-800"
+                              : doc.status === "NEGOTIATION"
+                                ? "bg-amber-100 text-amber-800"
+                                : doc.status === "SENT"
+                                  ? "bg-blue-100 text-blue-800"
+                                  : "bg-slate-100 text-slate-700"
+                          }`}
+                        >
+                          {doc.status}
+                        </span>
+                        <span className="text-[9px] font-bold uppercase bg-slate-100 text-slate-600 px-2 py-0.5 rounded-md border border-slate-200">
+                          {doc.institutionType || "Corporate"}
+                        </span>
+                        {doc.store && (
+                          <span className="text-[9px] font-bold text-slate-400">
+                            • Store: {doc.store.name}
+                          </span>
+                        )}
+                      </div>
 
-                  <div className="flex items-center gap-4">
-                    <div className="text-right">
-                      <span className="text-sm font-black text-slate-900 block font-mono">
-                        ₹{total.toLocaleString()}
-                      </span>
-                      <span className="text-[10px] text-slate-400 block font-medium">
-                        Valid until {doc.validUntil}
-                      </span>
+                      <h3 className="text-sm font-bold text-slate-900">
+                        {doc.companyName}
+                      </h3>
+                      <p className="text-xs text-slate-500">
+                        {doc.items?.length || 0} hardware lines • Attn: {doc.customerName} ({doc.customerPhone})
+                      </p>
                     </div>
-                    <button className="w-8 h-8 rounded-xl bg-slate-100 hover:bg-[#00AEEF] hover:text-white flex items-center justify-center transition-colors">
-                      <Eye className="w-4 h-4" />
-                    </button>
+
+                    <div className="flex items-center gap-4">
+                      <div className="text-right">
+                        <span className="text-sm font-black text-slate-900 block font-mono">
+                          ₹{doc.grandTotal?.toLocaleString("en-IN") || "Pending"}
+                        </span>
+                        <span className="text-[10px] text-slate-400 block font-medium">
+                          Valid: {new Date(doc.validUntil).toLocaleDateString("en-IN")}
+                        </span>
+                      </div>
+                      <button className="w-8 h-8 rounded-xl bg-slate-100 hover:bg-[#00AEEF] hover:text-white flex items-center justify-center transition-colors">
+                        <Eye className="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
-                </div>
-              );
-            })}
+                ))}
+              </div>
+            )}
           </div>
         </div>
       )}
