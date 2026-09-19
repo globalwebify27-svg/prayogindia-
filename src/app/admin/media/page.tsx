@@ -30,6 +30,8 @@ import {
   FileType,
 } from "lucide-react";
 
+import { compressImageOnClient } from "@/lib/clientImageCompressor";
+
 interface MediaAsset {
   id: string;
   name: string;
@@ -42,6 +44,7 @@ interface MediaAsset {
   altText: string;
   dimensions?: string;
   uploadedAt: string;
+  savingsPercentage?: number;
 }
 
 const INITIAL_ASSETS: MediaAsset[] = [
@@ -195,6 +198,77 @@ export default function MediaLibraryPage() {
   const [newAssociatedSku, setNewAssociatedSku] = useState("");
   const [newAltText, setNewAltText] = useState("");
   const [uploadSuccessAlert, setUploadSuccessAlert] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [compressionMessage, setCompressionMessage] = useState("");
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+
+  // Direct File Upload with Automatic Image & Video Compression
+  const handleDirectFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    setIsUploading(true);
+    setCompressionMessage("Compressing & optimizing media...");
+
+    try {
+      const formData = new FormData();
+      for (const file of Array.from(files)) {
+        if (file.type.startsWith("image/")) {
+          // Client-side canvas compression
+          const comp = await compressImageOnClient(file, {
+            maxWidth: 1920,
+            maxHeight: 1920,
+            quality: 0.82,
+            preferredMimeType: "image/webp",
+          });
+          formData.append("files", comp.file);
+          if (comp.savingsPercentage > 0) {
+            setCompressionMessage(`Client compressed: -${comp.savingsPercentage}%. Uploading to Cloudinary CDN...`);
+          }
+        } else {
+          formData.append("files", file);
+        }
+      }
+      formData.append("folder", newFolder.toLowerCase().replace(/\s+/g, "_"));
+
+      const res = await fetch("/api/admin/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      const json = await res.json();
+      if (!res.ok || !json.success) {
+        throw new Error(json.message || "Failed to upload to CDN.");
+      }
+
+      const uploaded = json.data as {
+        name: string;
+        type: "image" | "video";
+        url: string;
+        publicId: string;
+        bytes: number;
+        originalBytes?: number;
+        savingsPercentage?: number;
+      }[];
+
+      if (uploaded.length > 0) {
+        const first = uploaded[0];
+        setNewFileName(first.name);
+        setNewFileUrl(first.url);
+        setNewFileType(first.type === "video" ? "video" : "image");
+        setCompressionMessage(
+          first.savingsPercentage
+            ? `⚡ Compression Complete: ${Math.round((first.originalBytes || 0) / 1024)} KB → ${Math.round(first.bytes / 1024)} KB (${first.savingsPercentage}% saved)`
+            : "⚡ Media compressed & uploaded successfully!",
+        );
+      }
+    } catch (err) {
+      console.error(err);
+      setCompressionMessage(err instanceof Error ? err.message : "Upload error");
+    } finally {
+      setIsUploading(false);
+    }
+  };
 
   // Filter Logic
   const filteredAssets = assets.filter((item) => {
@@ -860,6 +934,39 @@ export default function MediaLibraryPage() {
               onSubmit={handleUploadSubmit}
               className="p-6 space-y-4 text-xs"
             >
+              {/* Direct File Dropzone with Auto-Compression */}
+              <div className="bg-slate-50 border-2 border-dashed border-slate-300 hover:border-[#00AEEF] rounded-2xl p-5 text-center transition-all">
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  accept="image/*,video/*,application/pdf,.stl,.step"
+                  onChange={handleDirectFileUpload}
+                  className="hidden"
+                  id="media-file-picker"
+                />
+                <label
+                  htmlFor="media-file-picker"
+                  className="cursor-pointer block space-y-2"
+                >
+                  <div className="w-10 h-10 rounded-2xl bg-[#00AEEF]/10 text-[#00AEEF] flex items-center justify-center mx-auto">
+                    <UploadCloud className="w-5 h-5" />
+                  </div>
+                  <div className="font-bold text-slate-800 text-xs">
+                    {isUploading ? "Compressing & Uploading Media..." : "Choose File to Compress & Upload"}
+                  </div>
+                  <p className="text-[10px] text-slate-400">
+                    Supports Images (Auto WebP compression), MP4/WebM Videos (Adaptive Bitrate), PDFs &amp; 3D Models
+                  </p>
+                </label>
+
+                {compressionMessage && (
+                  <div className="mt-3 p-2 bg-emerald-50 border border-emerald-200 text-emerald-800 text-[11px] font-bold rounded-xl animate-in fade-in flex items-center justify-center gap-1.5">
+                    <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
+                    <span>{compressionMessage}</span>
+                  </div>
+                )}
+              </div>
+
               <div>
                 <label className="block font-bold text-slate-700 uppercase mb-1">
                   Asset Name / Filename

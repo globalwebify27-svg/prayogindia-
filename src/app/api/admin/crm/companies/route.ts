@@ -167,17 +167,49 @@ export async function POST(request: Request) {
     }
 
     if (process.env.DATABASE_URL) {
-      // Enforce store scoping
-      let finalStoreId = assignedStoreId;
+      // 1. Resolve valid store DB ID
+      let dbStoreId: string | null = null;
+      let targetStoreLookup = assignedStoreId;
       if (staff.role === "STORE_MANAGER" && staff.storeId) {
-        finalStoreId = staff.storeId;
+        targetStoreLookup = staff.storeId;
       }
-      if (!finalStoreId) {
+      if (targetStoreLookup) {
+        const foundStore = await db.store.findFirst({
+          where: {
+            OR: [
+              { id: targetStoreLookup },
+              { code: { equals: targetStoreLookup.toUpperCase(), mode: "insensitive" } },
+              { name: { contains: targetStoreLookup, mode: "insensitive" } },
+            ],
+          },
+        });
+        dbStoreId = foundStore ? foundStore.id : null;
+      }
+      if (!dbStoreId) {
         const defaultStore = await db.store.findFirst({
           where: { OR: [{ isCentralHub: true }, { code: "RANCHI" }] },
         });
-        finalStoreId = defaultStore?.id;
+        dbStoreId = defaultStore?.id || null;
       }
+
+      // 2. Resolve valid staff user DB ID
+      let dbStaffId: string | null = null;
+      if (staff?.id) {
+        const foundStaff = await db.staffUser.findFirst({
+          where: {
+            OR: [
+              { id: staff.id },
+              { username: staff.username },
+              ...(staff.email ? [{ email: staff.email }] : []),
+            ],
+          },
+        });
+        dbStaffId = foundStaff ? foundStaff.id : null;
+      }
+
+      // 3. Ensure valid status enum
+      const validStatuses = ["LEAD", "PROSPECT", "NEGOTIATION", "ACTIVE_CUSTOMER", "INACTIVE", "LOST", "BLOCKED"];
+      const finalStatus = validStatuses.includes(status) ? (status as any) : "LEAD";
 
       // Check for duplicate company
       const existing = await db.b2BCompany.findFirst({
@@ -194,7 +226,7 @@ export async function POST(request: Request) {
       const company = await db.b2BCompany.create({
         data: {
           name: name.trim(),
-          companyType,
+          companyType: companyType || "Corporate",
           industry: industry || null,
           gstin: gstin ? gstin.toUpperCase() : null,
           website: website || null,
@@ -205,9 +237,9 @@ export async function POST(request: Request) {
           city: city || null,
           state: state || null,
           pincode: pincode || null,
-          assignedStoreId: finalStoreId || null,
-          assignedStaffId: staff.id,
-          status,
+          assignedStoreId: dbStoreId,
+          assignedStaffId: dbStaffId,
+          status: finalStatus,
           notes: notes || null,
           rating: Number(rating) || 3,
           contacts: primaryContact?.name
@@ -227,8 +259,8 @@ export async function POST(request: Request) {
             create: {
               activityType: "NOTE",
               title: "Account Created in B2B CRM",
-              description: `B2B Account created with status: ${status} by ${staff.name} (${staff.role}).`,
-              performedByStaffId: staff.id,
+              description: `B2B Account created with status: ${finalStatus} by ${staff.name} (${staff.role}).`,
+              performedByStaffId: dbStaffId,
             },
           },
           followUps: initialFollowUp?.dueDate
@@ -237,7 +269,7 @@ export async function POST(request: Request) {
                   dueDate: new Date(initialFollowUp.dueDate),
                   reason: initialFollowUp.reason || "Introductory relationship call & product discovery",
                   notes: initialFollowUp.notes || null,
-                  assignedStaffId: staff.id,
+                  assignedStaffId: dbStaffId,
                   status: "PENDING",
                 },
               }

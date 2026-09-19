@@ -1,16 +1,12 @@
 // src/lib/inventoryEngine.ts
 // Prayog India — Enterprise Multi-Store Product & Inventory Architecture
 //
-// Core Golden Rule:
-// PRODUCT = GLOBAL (One central catalogue master)
-// INVENTORY = STORE-SPECIFIC (Isolated row per Store + Product: UNIQUE(store_id, product_id))
-// ORDER = STORE-SPECIFIC
-// POS = STORE-SPECIFIC
-// DEVICE = STORE-SPECIFIC
-// USER ACCESS = STORE-SCOPED
+// FIX (2026-09-19): Engine now persists all data to PostgreSQL via Prisma.
+// The previous in-memory Map implementation caused inventory resets on every server restart.
+// The StoreInventory DB table (schema already correct) is now the single source of truth.
 
+import { db } from "@/lib/db";
 import { StoreId, STORES } from "@/data/storeConfig";
-import { PRODUCTS, Product } from "@/data/mockData";
 
 export type TransactionType =
   | "SALE"
@@ -108,181 +104,186 @@ export interface MultiStoreProductStock {
 }
 
 // ─────────────────────────────────────────────
-// In-Memory Persistent Store (with DB Fallback Sync)
+// Helper: Resolve store DB id from store code or UUID
 // ─────────────────────────────────────────────
-const STORE_INVENTORY_TABLE: Map<string, StoreInventoryRecord> = new Map();
-const STORE_SETTINGS_TABLE: Map<string, StoreProductSettingsRecord> = new Map();
-const INVENTORY_TRANSACTIONS: InventoryTransactionRecord[] = [];
-const STOCK_TRANSFERS: StockTransferRecord[] = [];
-
-function makeInventoryKey(storeId: StoreId, productId: string): string {
-  return `${storeId}:${productId}`;
-}
-
-/**
- * Initialize / Seed store inventory from global product catalog
- * Proportions: Ranchi (Central) = 100, Patna = 20, Delhi = 15, Mumbai = 10
- */
-export function initializeStoreInventory(): void {
-  const storeIds: StoreId[] = ["ranchi", "patna", "delhi", "mumbai"];
-
-  PRODUCTS.forEach((product: Product) => {
-    const pAny = product as unknown as Record<string, unknown>;
-    const baseStock =
-      typeof pAny.stock === "number"
-        ? (pAny.stock as number)
-        : product.inStock
-          ? 100
-          : 0;
-
-    storeIds.forEach((storeId) => {
-      const key = makeInventoryKey(storeId, product.id);
-      if (!STORE_INVENTORY_TABLE.has(key)) {
-        let qty = 0;
-        if (storeId === "ranchi") {
-          qty = baseStock;
-        } else if (storeId === "patna") {
-          qty = Math.max(0, Math.floor(baseStock * 0.2));
-        } else if (storeId === "delhi") {
-          qty = Math.max(0, Math.floor(baseStock * 0.15));
-        } else if (storeId === "mumbai") {
-          qty = Math.max(0, Math.floor(baseStock * 0.1));
-        }
-
-        const lowThreshold = 5;
-        const status: StockStatus =
-          qty === 0
-            ? "OUT_OF_STOCK"
-            : qty <= lowThreshold
-              ? "LOW_STOCK"
-              : "IN_STOCK";
-
-        STORE_INVENTORY_TABLE.set(key, {
-          id: `inv-${storeId}-${product.id}`,
-          storeId,
-          productId: product.id,
-          quantity: qty,
-          reservedQuantity: 0,
-          availableQuantity: qty,
-          reorderLevel: 10,
-          lowStockThreshold: lowThreshold,
-          status,
-          updatedAt: new Date().toISOString(),
-        });
-      }
+async function resolveStoreDbId(storeId: StoreId | string): Promise<string | null> {
+  try {
+    const store = await db.store.findFirst({
+      where: {
+        OR: [
+          { id: storeId },
+          { code: { equals: storeId.toUpperCase(), mode: "insensitive" } },
+          { name: { contains: storeId, mode: "insensitive" } },
+        ],
+      },
+      select: { id: true },
     });
-  });
+    return store?.id ?? null;
+  } catch {
+    return null;
+  }
 }
 
-// Seed on startup
-initializeStoreInventory();
+async function resolveProductDbId(productId: string): Promise<string | null> {
+  try {
+    const prod = await db.product.findFirst({
+      where: {
+        OR: [
+          { id: productId },
+          { sku: productId },
+          { slug: productId },
+        ],
+      },
+      select: { id: true },
+    });
+    return prod?.id ?? null;
+  } catch {
+    return null;
+  }
+}
+
+async function resolveDeviceDbId(deviceId?: string | null): Promise<string | null> {
+  if (!deviceId) return null;
+  try {
+    const dev = await db.device.findFirst({
+      where: {
+        OR: [
+          { id: deviceId },
+          { deviceCode: deviceId },
+        ],
+      },
+      select: { id: true },
+    });
+    return dev?.id ?? null;
+  } catch {
+    return null;
+  }
+}
+
+function computeStatus(qty: number, lowThreshold = 5): StockStatus {
+  if (qty === 0) return "OUT_OF_STOCK";
+  if (qty <= lowThreshold) return "LOW_STOCK";
+  return "IN_STOCK";
+}
 
 // ─────────────────────────────────────────────
-// Core Queries & Calculations
+// Core Queries (DB-backed)
 // ─────────────────────────────────────────────
 
 /**
- * Get single product stock for a specific store.
+ * Get single product stock for a specific store from the database.
  */
-export function getProductStockForStore(
+export async function getProductStockForStore(
   productId: string,
   storeId: StoreId = "ranchi",
-): number {
-  if (STORE_INVENTORY_TABLE.size === 0) initializeStoreInventory();
-  const key = makeInventoryKey(storeId, productId);
-  const record = STORE_INVENTORY_TABLE.get(key);
-  return record ? record.availableQuantity : 0;
+): Promise<number> {
+  try {
+    const storeDbId = await resolveStoreDbId(storeId);
+    if (!storeDbId) return 0;
+    const inv = await db.storeInventory.findUnique({
+      where: { storeId_productId: { storeId: storeDbId, productId } },
+      select: { availableQuantity: true },
+    });
+    return inv?.availableQuantity ?? 0;
+  } catch {
+    return 0;
+  }
 }
 
 /**
  * Get product price for a specific store (resolving store_product_settings price override).
  */
-export function getProductPriceForStore(
+export async function getProductPriceForStore(
   productId: string,
   storeId: StoreId = "ranchi",
-): number {
-  const key = makeInventoryKey(storeId, productId);
-  const settings = STORE_SETTINGS_TABLE.get(key);
-  if (settings && typeof settings.priceOverride === "number") {
-    return settings.priceOverride;
+): Promise<number> {
+  try {
+    const storeDbId = await resolveStoreDbId(storeId);
+    if (storeDbId) {
+      const settings = await db.storeProductSettings.findUnique({
+        where: { storeId_productId: { storeId: storeDbId, productId } },
+        select: { priceOverride: true },
+      });
+      if (settings?.priceOverride != null) return settings.priceOverride;
+    }
+    const product = await db.product.findUnique({
+      where: { id: productId },
+      select: { price: true },
+    });
+    return product?.price ?? 0;
+  } catch {
+    return 0;
   }
-  const product = PRODUCTS.find((p) => p.id === productId);
-  return product?.price ?? 0;
 }
 
 /**
- * Get entire store inventory joined with central product master.
+ * Get entire store inventory joined with product master from the database.
  */
-export function getStoreInventory(storeId: StoreId) {
-  if (STORE_INVENTORY_TABLE.size === 0) initializeStoreInventory();
+export async function getStoreInventory(storeId: StoreId) {
+  try {
+    const storeDbId = await resolveStoreDbId(storeId);
+    if (!storeDbId) return [];
 
-  return PRODUCTS.map((product) => {
-    const key = makeInventoryKey(storeId, product.id);
-    const inv = STORE_INVENTORY_TABLE.get(key) || {
-      id: `inv-${storeId}-${product.id}`,
-      storeId,
-      productId: product.id,
-      quantity: 0,
-      reservedQuantity: 0,
-      availableQuantity: 0,
-      reorderLevel: 10,
-      lowStockThreshold: 5,
-      status: "OUT_OF_STOCK" as StockStatus,
-      updatedAt: new Date().toISOString(),
-    };
-
-    const price = getProductPriceForStore(product.id, storeId);
     const isCentral = storeId === "ranchi";
+    const inventoryRows = await db.storeInventory.findMany({
+      where: { storeId: storeDbId },
+      include: {
+        product: {
+          include: {
+            category: { select: { name: true } },
+            images: { select: { imageUrl: true }, orderBy: { sortOrder: "asc" }, take: 1 },
+          },
+        },
+      },
+    });
 
-    return {
-      id: product.id,
-      name: product.name,
-      sku: product.sku,
-      category: product.category,
-      brand: product.brand || "Prayog India",
-      price,
-      basePrice: product.price,
-      mrp: product.mrp,
-      image: product.image,
-      images: product.images || (product.image ? [product.image] : []),
-      storeId,
-      storeName: STORES[storeId]?.name || storeId,
-      isCentralInventory: isCentral,
-      quantity: inv.quantity,
-      reservedQuantity: inv.reservedQuantity,
-      availableQuantity: inv.availableQuantity,
-      reorderLevel: inv.reorderLevel,
-      lowStockThreshold: inv.lowStockThreshold,
-      status: inv.status,
-      updatedAt: inv.updatedAt,
-    };
-  });
+    return inventoryRows.map((inv) => {
+      const p = inv.product;
+      return {
+        id: p.id,
+        name: p.name,
+        sku: p.sku,
+        category: p.category?.name ?? "",
+        brand: p.brand ?? "Prayog India",
+        price: p.price,
+        basePrice: p.price,
+        mrp: p.mrp,
+        image: (p.images as Array<{imageUrl: string}>)?.[0]?.imageUrl ?? "",
+        images: (p.images as Array<{imageUrl: string}>)?.map((i) => i.imageUrl) ?? [],
+        storeId,
+        storeName: STORES[storeId]?.name || storeId,
+        isCentralInventory: isCentral,
+        quantity: inv.quantity,
+        reservedQuantity: inv.reservedQuantity,
+        availableQuantity: inv.availableQuantity,
+        reorderLevel: inv.reorderLevel,
+        lowStockThreshold: inv.lowStockThreshold,
+        status: inv.status as StockStatus,
+        updatedAt: inv.updatedAt.toISOString(),
+      };
+    });
+  } catch (err) {
+    console.error("[inventoryEngine] getStoreInventory error:", err);
+    return [];
+  }
 }
 
 /**
- * Search global products joined with a specific store's inventory.
+ * Search products within a store's inventory.
  */
-export function searchStoreProducts(params: {
+export async function searchStoreProducts(params: {
   storeId: StoreId;
   query?: string;
   category?: string;
   inStockOnly?: boolean;
 }) {
   const { storeId, query = "", category, inStockOnly = false } = params;
-  const inventory = getStoreInventory(storeId);
+  const items = await getStoreInventory(storeId);
   const q = query.toLowerCase().trim();
 
-  return inventory.filter((item) => {
-    if (
-      category &&
-      category !== "all" &&
-      item.category.toLowerCase() !== category.toLowerCase()
-    ) {
-      return false;
-    }
-    if (inStockOnly && item.availableQuantity <= 0) {
-      return false;
-    }
+  return items.filter((item) => {
+    if (category && category !== "all" && item.category.toLowerCase() !== category.toLowerCase()) return false;
+    if (inStockOnly && item.availableQuantity <= 0) return false;
     if (!q) return true;
     return (
       item.name.toLowerCase().includes(q) ||
@@ -294,44 +295,91 @@ export function searchStoreProducts(params: {
 }
 
 /**
- * Authoritative Cart Validation against store-isolated inventory.
+ * Adjust stock in a specific store (manual adjustment, damage, audit correction)
+ * Persisted to PostgreSQL via Prisma with full audit trail logging.
  */
-export function validateCartForStore(params: {
-  storeId: StoreId;
-  items: Array<{ productId: string; quantity: number }>;
-}): { valid: boolean; errors: Array<{ productId: string; message: string }> } {
-  const { storeId, items } = params;
-  const errors: Array<{ productId: string; message: string }> = [];
+export async function adjustStoreInventory(params: {
+  storeId: StoreId | string;
+  productId: string;
+  quantityChange: number;
+  transactionType: TransactionType;
+  reason?: string;
+  userId?: string;
+  deviceId?: string;
+}): Promise<{ success: boolean; newQuantity: number; message: string }> {
+  const { storeId, productId, quantityChange, transactionType, reason, userId, deviceId } = params;
 
-  for (const item of items) {
-    const product = PRODUCTS.find((p) => p.id === item.productId);
-    if (!product) {
-      errors.push({
-        productId: item.productId,
-        message: `Product not found in global catalog.`,
-      });
-      continue;
+  try {
+    const storeDbId = await resolveStoreDbId(storeId);
+    if (!storeDbId) {
+      return { success: false, newQuantity: 0, message: `Store '${storeId}' not found in database.` };
     }
 
-    const availableStock = getProductStockForStore(item.productId, storeId);
-    if (availableStock < item.quantity) {
-      errors.push({
-        productId: item.productId,
-        message: `Insufficient stock in ${STORES[storeId]?.name || storeId}. Available: ${availableStock}, Requested: ${item.quantity}.`,
+    const productDbId = (await resolveProductDbId(productId)) ?? productId;
+    const dbDevice = await resolveDeviceDbId(deviceId);
+
+    const currentInv = await db.storeInventory.findUnique({
+      where: { storeId_productId: { storeId: storeDbId, productId: productDbId } },
+    });
+    const currentQty = currentInv?.quantity ?? 0;
+    const newQuantity = Math.max(0, currentQty + quantityChange);
+    const lowThreshold = currentInv?.lowStockThreshold ?? 5;
+
+    const updated = await db.storeInventory.upsert({
+      where: { storeId_productId: { storeId: storeDbId, productId: productDbId } },
+      update: {
+        quantity: newQuantity,
+        availableQuantity: Math.max(0, newQuantity - (currentInv?.reservedQuantity ?? 0)),
+        status: computeStatus(newQuantity, lowThreshold),
+        updatedAt: new Date(),
+      },
+      create: {
+        storeId: storeDbId,
+        productId: productDbId,
+        quantity: newQuantity,
+        availableQuantity: newQuantity,
+        reservedQuantity: 0,
+        reorderLevel: 10,
+        lowStockThreshold: 5,
+        status: computeStatus(newQuantity),
+      },
+    });
+
+    try {
+      await db.inventoryTransaction.create({
+        data: {
+          storeId: storeDbId,
+          productId: productDbId,
+          transactionType,
+          quantityBefore: currentQty,
+          quantityChange,
+          quantityAfter: newQuantity,
+          userId: userId ?? null,
+          deviceId: dbDevice,
+          notes: reason ?? `${transactionType} adjustment`,
+        },
       });
+    } catch (txErr) {
+      console.error("[inventoryEngine] transaction log error:", txErr);
     }
+
+    const product = await db.product.findUnique({ where: { id: productDbId }, select: { name: true } });
+    return {
+      success: true,
+      newQuantity: updated.quantity,
+      message: `Updated ${product?.name ?? productId} in ${STORES[(storeId as StoreId)]?.name ?? storeId} to ${updated.quantity} units.`,
+    };
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : "Inventory adjustment failed";
+    console.error("[inventoryEngine] adjustStoreInventory error:", err);
+    return { success: false, newQuantity: 0, message: msg };
   }
-
-  return {
-    valid: errors.length === 0,
-    errors,
-  };
 }
 
 /**
- * Deduct inventory for an order with atomic transaction audit logging.
+ * Deduct inventory for an order — persisted to DB with atomic audit logging.
  */
-export function deductStoreInventory(params: {
+export async function deductStoreInventory(params: {
   productId: string;
   quantity: number;
   orderSource: "ONLINE_WEB" | "MOBILE_APP" | "WALK_IN";
@@ -339,390 +387,357 @@ export function deductStoreInventory(params: {
   orderId?: string;
   userId?: string;
   deviceId?: string;
-}): {
+}): Promise<{
   success: boolean;
   deductedFrom: StoreId;
   remainingStock: number;
   message: string;
-} {
-  const {
-    productId,
-    quantity,
-    orderSource,
-    storeId,
-    orderId,
-    userId,
-    deviceId,
-  } = params;
+}> {
+  const { productId, quantity, orderSource, storeId, orderId, userId, deviceId } = params;
+  const targetStore: StoreId = orderSource === "WALK_IN" ? storeId || "ranchi" : "ranchi";
 
-  if (STORE_INVENTORY_TABLE.size === 0) initializeStoreInventory();
+  try {
+    const storeDbId = await resolveStoreDbId(targetStore);
+    if (!storeDbId) {
+      return { success: false, deductedFrom: targetStore, remainingStock: 0, message: `Store '${targetStore}' not found.` };
+    }
 
-  // Determine authoritative store target
-  // Online Web & Mobile App dispatch from Central Hub (Ranchi)
-  const targetStore: StoreId =
-    orderSource === "WALK_IN" ? storeId || "ranchi" : "ranchi";
-  const key = makeInventoryKey(targetStore, productId);
-  const record = STORE_INVENTORY_TABLE.get(key);
+    const productDbId = (await resolveProductDbId(productId)) ?? productId;
+    const dbDevice = await resolveDeviceDbId(deviceId);
 
-  const currentStock = record?.quantity ?? 0;
+    const inv = await db.storeInventory.findUnique({
+      where: { storeId_productId: { storeId: storeDbId, productId: productDbId } },
+    });
+    const currentStock = inv?.quantity ?? 0;
 
-  if (currentStock < quantity) {
+    if (currentStock < quantity) {
+      return {
+        success: false,
+        deductedFrom: targetStore,
+        remainingStock: currentStock,
+        message: `Insufficient stock in ${STORES[targetStore]?.name ?? targetStore}. Available: ${currentStock}, Requested: ${quantity}.`,
+      };
+    }
+
+    const updatedQty = currentStock - quantity;
+    await db.storeInventory.update({
+      where: { storeId_productId: { storeId: storeDbId, productId: productDbId } },
+      data: {
+        quantity: updatedQty,
+        availableQuantity: Math.max(0, updatedQty - (inv?.reservedQuantity ?? 0)),
+        status: computeStatus(updatedQty, inv?.lowStockThreshold ?? 5),
+        updatedAt: new Date(),
+      },
+    });
+
+    try {
+      await db.inventoryTransaction.create({
+        data: {
+          storeId: storeDbId,
+          productId: productDbId,
+          orderId: orderId ?? null,
+          transactionType: orderSource === "WALK_IN" ? "SALE" : "ONLINE_FULFILLMENT",
+          quantityBefore: currentStock,
+          quantityChange: -quantity,
+          quantityAfter: updatedQty,
+          userId: userId ?? null,
+          deviceId: dbDevice,
+          referenceId: orderId ?? null,
+          notes: `${orderSource} order deduction of ${quantity} units`,
+        },
+      });
+    } catch (txErr) {
+      console.error("[inventoryEngine] transaction log error:", txErr);
+    }
+
     return {
-      success: false,
+      success: true,
       deductedFrom: targetStore,
-      remainingStock: currentStock,
-      message: `Insufficient stock in ${STORES[targetStore]?.name || targetStore}. Available: ${currentStock}, Requested: ${quantity}.`,
+      remainingStock: updatedQty,
+      message: `Successfully deducted ${quantity} units from ${STORES[targetStore]?.name ?? targetStore}.`,
     };
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : "Deduction failed";
+    console.error("[inventoryEngine] deductStoreInventory error:", err);
+    return { success: false, deductedFrom: targetStore, remainingStock: 0, message: msg };
   }
-
-  const updatedQty = currentStock - quantity;
-  const lowThreshold = record?.lowStockThreshold ?? 5;
-  const newStatus: StockStatus =
-    updatedQty === 0
-      ? "OUT_OF_STOCK"
-      : updatedQty <= lowThreshold
-        ? "LOW_STOCK"
-        : "IN_STOCK";
-
-  if (record) {
-    record.quantity = updatedQty;
-    record.availableQuantity = updatedQty - record.reservedQuantity;
-    record.status = newStatus;
-    record.updatedAt = new Date().toISOString();
-  }
-
-  const product = PRODUCTS.find((p) => p.id === productId);
-
-  // Emit Audit Log
-  const transaction: InventoryTransactionRecord = {
-    id: `tx-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`,
-    storeId: targetStore,
-    productId,
-    productName: product?.name,
-    sku: product?.sku,
-    orderId: orderId || null,
-    transactionType: orderSource === "WALK_IN" ? "SALE" : "ONLINE_FULFILLMENT",
-    quantityBefore: currentStock,
-    quantityChange: -quantity,
-    quantityAfter: updatedQty,
-    userId: userId || null,
-    deviceId: deviceId || null,
-    referenceId: orderId || null,
-    notes: `${orderSource} order deduction of ${quantity} units`,
-    createdAt: new Date().toISOString(),
-  };
-
-  INVENTORY_TRANSACTIONS.unshift(transaction);
-
-  return {
-    success: true,
-    deductedFrom: targetStore,
-    remainingStock: updatedQty,
-    message: `Successfully deducted ${quantity} units from ${STORES[targetStore]?.name}.`,
-  };
 }
 
 /**
- * Restock or manually adjust inventory with audit logging.
+ * Get product stock across all stores (multi-store matrix) from the database.
  */
-export function adjustStoreInventory(params: {
+export async function getProductMultiStoreBreakdown(
+  productId: string,
+): Promise<MultiStoreProductStock | null> {
+  try {
+    const product = await db.product.findUnique({
+      where: { id: productId },
+      select: { id: true, sku: true, name: true, price: true },
+    });
+    if (!product) return null;
+
+    const storeIds: StoreId[] = ["ranchi", "patna", "delhi", "mumbai"];
+    const storeStocks = {} as Record<StoreId, StoreStockEntry>;
+    let totalNetworkStock = 0;
+
+    for (const sid of storeIds) {
+      const storeDbId = await resolveStoreDbId(sid);
+      let stock = 0, available = 0, allocated = 0, status: StockStatus = "OUT_OF_STOCK";
+      let price = product.price;
+
+      if (storeDbId) {
+        const [inv, settings] = await Promise.all([
+          db.storeInventory.findUnique({ where: { storeId_productId: { storeId: storeDbId, productId } } }),
+          db.storeProductSettings.findUnique({ where: { storeId_productId: { storeId: storeDbId, productId } }, select: { priceOverride: true } }),
+        ]);
+        stock = inv?.quantity ?? 0;
+        available = inv?.availableQuantity ?? 0;
+        allocated = inv?.reservedQuantity ?? 0;
+        status = (inv?.status as StockStatus) ?? computeStatus(stock);
+        if (settings?.priceOverride != null) price = settings.priceOverride;
+      }
+
+      totalNetworkStock += stock;
+      storeStocks[sid] = { storeId: sid, storeName: STORES[sid]?.name ?? sid, isCentral: sid === "ranchi", stock, allocated, available, status, price };
+    }
+
+    return { productId: product.id, sku: product.sku, name: product.name, basePrice: product.price, centralStock: storeStocks.ranchi.stock, storeStocks, totalNetworkStock };
+  } catch (err) {
+    console.error("[inventoryEngine] getProductMultiStoreBreakdown error:", err);
+    return null;
+  }
+}
+
+/**
+ * Get complete multi-store inventory matrix across all products from the database.
+ */
+export async function getMultiStoreInventoryMatrix() {
+  try {
+    const products = await db.product.findMany({ select: { id: true } });
+    const results = await Promise.all(products.map((p) => getProductMultiStoreBreakdown(p.id)));
+    return results.filter(Boolean);
+  } catch (err) {
+    console.error("[inventoryEngine] getMultiStoreInventoryMatrix error:", err);
+    return [];
+  }
+}
+
+/**
+ * Query Inventory Transactions Audit Trail from the database.
+ */
+export async function getInventoryTransactions(filters?: {
+  storeId?: StoreId;
+  productId?: string;
+  transactionType?: TransactionType;
+  limit?: number;
+}): Promise<InventoryTransactionRecord[]> {
+  try {
+    const where: Record<string, unknown> = {};
+    if (filters?.storeId) {
+      const storeDbId = await resolveStoreDbId(filters.storeId);
+      if (storeDbId) where.storeId = storeDbId;
+    }
+    if (filters?.productId) where.productId = filters.productId;
+    if (filters?.transactionType) where.transactionType = filters.transactionType;
+
+    const rows = await db.inventoryTransaction.findMany({
+      where,
+      orderBy: { createdAt: "desc" },
+      take: filters?.limit ?? 100,
+      include: { product: { select: { name: true, sku: true } } },
+    });
+
+    const storeRows = await db.store.findMany({ select: { id: true, code: true } });
+    const storeCodeMap: Record<string, StoreId> = {};
+    storeRows.forEach((s) => { storeCodeMap[s.id] = s.code.toLowerCase() as StoreId; });
+
+    return rows.map((r) => {
+      const row = r as typeof r & { product?: { name?: string; sku?: string } };
+      return {
+        id: r.id,
+        storeId: storeCodeMap[r.storeId] ?? (r.storeId as StoreId),
+        productId: r.productId,
+        productName: row.product?.name,
+        sku: row.product?.sku,
+        orderId: r.orderId ?? null,
+        transactionType: r.transactionType as TransactionType,
+        quantityBefore: r.quantityBefore,
+        quantityChange: r.quantityChange,
+        quantityAfter: r.quantityAfter,
+        userId: r.userId ?? null,
+        deviceId: r.deviceId ?? null,
+        referenceId: r.referenceId ?? null,
+        notes: r.notes ?? null,
+        createdAt: r.createdAt.toISOString(),
+      };
+    });
+  } catch (err) {
+    console.error("[inventoryEngine] getInventoryTransactions error:", err);
+    return [];
+  }
+}
+
+/**
+ * Validate cart items against real store-specific inventory in the database.
+ */
+export async function validateCartForStore(params: {
   storeId: StoreId;
-  productId: string;
-  quantityChange: number;
-  transactionType: TransactionType;
-  reason?: string;
-  userId?: string;
-  deviceId?: string;
-}): { success: boolean; newQuantity: number; message: string } {
-  const {
-    storeId,
-    productId,
-    quantityChange,
-    transactionType,
-    reason,
-    userId,
-    deviceId,
-  } = params;
-
-  if (STORE_INVENTORY_TABLE.size === 0) initializeStoreInventory();
-
-  const product =
-    PRODUCTS.find((p) => p.id === productId || p.sku === productId);
-  const actualProductId = product?.id || productId;
-
-  const key = makeInventoryKey(storeId, actualProductId);
-  let record = STORE_INVENTORY_TABLE.get(key);
-
-  if (!record) {
-    record = {
-      id: `inv-${storeId}-${productId}`,
-      storeId,
-      productId,
-      quantity: 0,
-      reservedQuantity: 0,
-      availableQuantity: 0,
-      reorderLevel: 10,
-      lowStockThreshold: 5,
-      status: "OUT_OF_STOCK",
-      updatedAt: new Date().toISOString(),
-    };
-    STORE_INVENTORY_TABLE.set(key, record);
+  items: Array<{ productId: string; quantity: number }>;
+}): Promise<{ valid: boolean; errors: Array<{ productId: string; message: string }> }> {
+  const { storeId, items } = params;
+  const errors: Array<{ productId: string; message: string }> = [];
+  for (const item of items) {
+    const available = await getProductStockForStore(item.productId, storeId);
+    if (available < item.quantity) {
+      errors.push({ productId: item.productId, message: `Insufficient stock in ${STORES[storeId]?.name ?? storeId}. Available: ${available}, Requested: ${item.quantity}.` });
+    }
   }
-
-  const currentStock = record.quantity;
-  const newQuantity = Math.max(0, currentStock + quantityChange);
-  const lowThreshold = record.lowStockThreshold || 5;
-
-  record.quantity = newQuantity;
-  record.availableQuantity = Math.max(0, newQuantity - record.reservedQuantity);
-  record.status =
-    newQuantity === 0
-      ? "OUT_OF_STOCK"
-      : newQuantity <= lowThreshold
-        ? "LOW_STOCK"
-        : "IN_STOCK";
-  record.updatedAt = new Date().toISOString();
-
-  INVENTORY_TRANSACTIONS.unshift({
-    id: `tx-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`,
-    storeId,
-    productId: actualProductId,
-    productName: product?.name,
-    sku: product?.sku,
-    transactionType,
-    quantityBefore: currentStock,
-    quantityChange,
-    quantityAfter: newQuantity,
-    userId: userId || null,
-    deviceId: deviceId || null,
-    notes: reason || `Manual adjustment: ${transactionType}`,
-    createdAt: new Date().toISOString(),
-  });
-
-  return {
-    success: true,
-    newQuantity,
-    message: `Updated ${product?.name || productId} in ${STORES[storeId]?.name} to ${newQuantity} units.`,
-  };
+  return { valid: errors.length === 0, errors };
 }
 
 /**
- * Inter-Store Stock Transfer Workflow.
- * Dual-sided transaction logging (Source: TRANSFER_OUT, Destination: TRANSFER_IN).
+ * Inter-Store Stock Transfer Workflow — persisted to DB in an atomic transaction.
  */
-export function transferStockBetweenStores(params: {
+export async function transferStockBetweenStores(params: {
   sourceStoreId: StoreId;
   destinationStoreId: StoreId;
   items: Array<{ productId: string; quantity: number }>;
   userId?: string;
   notes?: string;
-}): { success: boolean; transfer?: StockTransferRecord; message: string } {
+}): Promise<{ success: boolean; transfer?: StockTransferRecord; message: string }> {
   const { sourceStoreId, destinationStoreId, items, userId, notes } = params;
 
   if (sourceStoreId === destinationStoreId) {
-    return {
-      success: false,
-      message: "Source and Destination stores cannot be identical.",
-    };
+    return { success: false, message: "Source and destination stores cannot be identical." };
   }
 
-  // Pre-validate source stock
-  for (const item of items) {
-    const available = getProductStockForStore(item.productId, sourceStoreId);
-    if (available < item.quantity) {
-      const p = PRODUCTS.find((x) => x.id === item.productId);
-      return {
-        success: false,
-        message: `Insufficient stock in ${STORES[sourceStoreId]?.name} for ${p?.name || item.productId}. Available: ${available}, Required: ${item.quantity}.`,
-      };
+  try {
+    for (const item of items) {
+      const available = await getProductStockForStore(item.productId, sourceStoreId);
+      if (available < item.quantity) {
+        const p = await db.product.findUnique({ where: { id: item.productId }, select: { name: true } });
+        return { success: false, message: `Insufficient stock in ${STORES[sourceStoreId]?.name} for ${p?.name ?? item.productId}. Available: ${available}, Required: ${item.quantity}.` };
+      }
     }
-  }
 
-  const transferNumber = `TR-${Date.now().toString().slice(-6)}-${Math.floor(100 + Math.random() * 900)}`;
-  const transferItems: StockTransferRecord["items"] = [];
+    const transferNumber = `TR-${new Date().getFullYear()}-${Date.now().toString().slice(-6)}`;
+    const sourceDbId = await resolveStoreDbId(sourceStoreId);
+    const destDbId = await resolveStoreDbId(destinationStoreId);
+    if (!sourceDbId || !destDbId) return { success: false, message: "One or both stores not found in database." };
 
-  // Execute atomic transfer
-  for (const item of items) {
-    const p = PRODUCTS.find((x) => x.id === item.productId);
-    const prodName = p?.name || item.productId;
-    const sku = p?.sku || "";
+    const transfer = await db.$transaction(async (tx) => {
+      const created = await tx.stockTransfer.create({
+        data: {
+          transferNumber,
+          sourceStoreId: sourceDbId,
+          destinationStoreId: destDbId,
+          status: "COMPLETED",
+          requestedByUserId: userId ?? null,
+          approvedByUserId: userId ?? null,
+          notes: notes ?? null,
+          items: { create: items.map((i) => ({ productId: i.productId, quantity: i.quantity, receivedQuantity: i.quantity })) },
+        },
+        include: { items: { include: { product: { select: { name: true, sku: true } } } } },
+      });
 
-    // 1. Deduct from Source
-    adjustStoreInventory({
-      storeId: sourceStoreId,
-      productId: item.productId,
-      quantityChange: -item.quantity,
-      transactionType: "TRANSFER_OUT",
-      reason: `Stock Transfer ${transferNumber} to ${STORES[destinationStoreId]?.name}`,
-      userId,
+      for (const item of items) {
+        const srcInv = await tx.storeInventory.findUnique({ where: { storeId_productId: { storeId: sourceDbId, productId: item.productId } } });
+        const srcQty = Math.max(0, (srcInv?.quantity ?? 0) - item.quantity);
+        await tx.storeInventory.update({ where: { storeId_productId: { storeId: sourceDbId, productId: item.productId } }, data: { quantity: srcQty, availableQuantity: Math.max(0, srcQty - (srcInv?.reservedQuantity ?? 0)), status: computeStatus(srcQty) } });
+        await tx.inventoryTransaction.create({ data: { storeId: sourceDbId, productId: item.productId, transactionType: "TRANSFER_OUT", quantityBefore: srcInv?.quantity ?? 0, quantityChange: -item.quantity, quantityAfter: srcQty, userId: userId ?? null, referenceId: transferNumber } });
+
+        const dstInv = await tx.storeInventory.findUnique({ where: { storeId_productId: { storeId: destDbId, productId: item.productId } } });
+        const dstQty = (dstInv?.quantity ?? 0) + item.quantity;
+        await tx.storeInventory.upsert({ where: { storeId_productId: { storeId: destDbId, productId: item.productId } }, update: { quantity: dstQty, availableQuantity: Math.max(0, dstQty - (dstInv?.reservedQuantity ?? 0)), status: computeStatus(dstQty) }, create: { storeId: destDbId, productId: item.productId, quantity: dstQty, availableQuantity: dstQty, reservedQuantity: 0, reorderLevel: 10, lowStockThreshold: 5, status: computeStatus(dstQty) } });
+        await tx.inventoryTransaction.create({ data: { storeId: destDbId, productId: item.productId, transactionType: "TRANSFER_IN", quantityBefore: dstInv?.quantity ?? 0, quantityChange: item.quantity, quantityAfter: dstQty, userId: userId ?? null, referenceId: transferNumber } });
+      }
+      return created;
     });
 
-    // 2. Add to Destination
-    adjustStoreInventory({
-      storeId: destinationStoreId,
-      productId: item.productId,
-      quantityChange: item.quantity,
-      transactionType: "TRANSFER_IN",
-      reason: `Stock Transfer ${transferNumber} from ${STORES[sourceStoreId]?.name}`,
-      userId,
-    });
+    const storeCodeMap: Record<string, StoreId> = {};
+    (await db.store.findMany({ select: { id: true, code: true } })).forEach((s) => { storeCodeMap[s.id] = s.code.toLowerCase() as StoreId; });
 
-    transferItems.push({
-      productId: item.productId,
-      productName: prodName,
-      sku,
-      quantity: item.quantity,
-      receivedQuantity: item.quantity,
-    });
-  }
-
-  const transferRecord: StockTransferRecord = {
-    id: `trf-${Date.now()}`,
-    transferNumber,
-    sourceStoreId,
-    destinationStoreId,
-    status: "COMPLETED",
-    items: transferItems,
-    requestedByUserId: userId,
-    approvedByUserId: userId,
-    notes,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  };
-
-  STOCK_TRANSFERS.unshift(transferRecord);
-
-  return {
-    success: true,
-    transfer: transferRecord,
-    message: `Transferred ${items.reduce((s, i) => s + i.quantity, 0)} units from ${STORES[sourceStoreId]?.name} to ${STORES[destinationStoreId]?.name}.`,
-  };
-}
-
-/**
- * Get multi-store matrix of product stock.
- */
-export function getProductMultiStoreBreakdown(
-  productId: string,
-): MultiStoreProductStock | null {
-  if (STORE_INVENTORY_TABLE.size === 0) initializeStoreInventory();
-
-  const prod = PRODUCTS.find((p) => p.id === productId);
-  if (!prod) return null;
-
-  const storeIds: StoreId[] = ["ranchi", "patna", "delhi", "mumbai"];
-  const storeStocks = {} as Record<StoreId, StoreStockEntry>;
-
-  let totalNetworkStock = 0;
-
-  storeIds.forEach((sId) => {
-    const key = makeInventoryKey(sId, prod.id);
-    const rec = STORE_INVENTORY_TABLE.get(key);
-    const stock = rec?.quantity ?? 0;
-    const available = rec?.availableQuantity ?? 0;
-    const status = rec?.status ?? "OUT_OF_STOCK";
-    const price = getProductPriceForStore(prod.id, sId);
-
-    totalNetworkStock += stock;
-
-    storeStocks[sId] = {
-      storeId: sId,
-      storeName: STORES[sId]?.name || sId,
-      isCentral: sId === "ranchi",
-      stock,
-      allocated: rec?.reservedQuantity ?? 0,
-      available,
-      status,
-      price,
+    const transferRecord: StockTransferRecord = {
+      id: transfer.id,
+      transferNumber: transfer.transferNumber,
+      sourceStoreId,
+      destinationStoreId,
+      status: "COMPLETED",
+      items: transfer.items.map((i) => {
+        const item = i as typeof i & { product?: { name?: string; sku?: string } };
+        return { productId: i.productId, productName: item.product?.name ?? i.productId, sku: item.product?.sku ?? "", quantity: i.quantity, receivedQuantity: i.receivedQuantity };
+      }),
+      requestedByUserId: userId,
+      approvedByUserId: userId,
+      notes: notes ?? undefined,
+      createdAt: transfer.createdAt.toISOString(),
+      updatedAt: transfer.updatedAt.toISOString(),
     };
-  });
 
-  return {
-    productId: prod.id,
-    sku: prod.sku,
-    name: prod.name,
-    basePrice: prod.price,
-    centralStock: storeStocks.ranchi.stock,
-    storeStocks,
-    totalNetworkStock,
-  };
+    return { success: true, transfer: transferRecord, message: `Transferred ${items.reduce((s, i) => s + i.quantity, 0)} units from ${STORES[sourceStoreId]?.name} to ${STORES[destinationStoreId]?.name}.` };
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : "Transfer failed";
+    console.error("[inventoryEngine] transferStockBetweenStores error:", err);
+    return { success: false, message: msg };
+  }
 }
 
 /**
- * Get complete multi-store inventory matrix across all products.
+ * Get all Stock Transfers from the database.
  */
-export function getMultiStoreInventoryMatrix() {
-  if (STORE_INVENTORY_TABLE.size === 0) initializeStoreInventory();
-  return PRODUCTS.map((product) =>
-    getProductMultiStoreBreakdown(product.id),
-  ).filter(Boolean);
-}
+export async function getStockTransfers(): Promise<StockTransferRecord[]> {
+  try {
+    const storeRows = await db.store.findMany({ select: { id: true, code: true } });
+    const storeCodeMap: Record<string, StoreId> = {};
+    storeRows.forEach((s) => { storeCodeMap[s.id] = s.code.toLowerCase() as StoreId; });
 
-/**
- * Query Inventory Transactions Audit Trail.
- */
-export function getInventoryTransactions(filters?: {
-  storeId?: StoreId;
-  productId?: string;
-  transactionType?: TransactionType;
-  limit?: number;
-}): InventoryTransactionRecord[] {
-  let list = [...INVENTORY_TRANSACTIONS];
+    const transfers = await db.stockTransfer.findMany({
+      orderBy: { createdAt: "desc" },
+      take: 200,
+      include: { items: { include: { product: { select: { name: true, sku: true } } } } },
+    });
 
-  if (filters?.storeId) {
-    list = list.filter((t) => t.storeId === filters.storeId);
+    return transfers.map((t) => ({
+      id: t.id,
+      transferNumber: t.transferNumber,
+      sourceStoreId: storeCodeMap[t.sourceStoreId] ?? (t.sourceStoreId as StoreId),
+      destinationStoreId: storeCodeMap[t.destinationStoreId] ?? (t.destinationStoreId as StoreId),
+      status: t.status as StockTransferRecord["status"],
+      items: t.items.map((i) => {
+        const item = i as typeof i & { product?: { name?: string; sku?: string } };
+        return { productId: i.productId, productName: item.product?.name ?? i.productId, sku: item.product?.sku ?? "", quantity: i.quantity, receivedQuantity: i.receivedQuantity };
+      }),
+      requestedByUserId: t.requestedByUserId ?? undefined,
+      approvedByUserId: t.approvedByUserId ?? undefined,
+      notes: t.notes ?? undefined,
+      createdAt: t.createdAt.toISOString(),
+      updatedAt: t.updatedAt.toISOString(),
+    }));
+  } catch (err) {
+    console.error("[inventoryEngine] getStockTransfers error:", err);
+    return [];
   }
-  if (filters?.productId) {
-    list = list.filter((t) => t.productId === filters.productId);
-  }
-  if (filters?.transactionType) {
-    list = list.filter((t) => t.transactionType === filters.transactionType);
-  }
-
-  return list.slice(0, filters?.limit || 100);
 }
 
 /**
  * Register a newly created product across all store inventory records.
- * Default allocation: Ranchi (Central Hub) receives the initial stock, other branches set to 0 or fractional.
  */
-export function registerProductInEngine(product: Product, initialRanchiStock = 25): void {
+export async function registerProductInEngine(
+  productId: string,
+  initialRanchiStock = 25,
+): Promise<void> {
   const storeIds: StoreId[] = ["ranchi", "patna", "delhi", "mumbai"];
-
-  // Push to local PRODUCTS array if not already present
-  const existingIdx = PRODUCTS.findIndex((p) => p.id === product.id || p.sku === product.sku);
-  if (existingIdx >= 0) {
-    PRODUCTS[existingIdx] = { ...PRODUCTS[existingIdx], ...product };
-  } else {
-    PRODUCTS.unshift(product);
-  }
-
-  storeIds.forEach((storeId) => {
-    const key = makeInventoryKey(storeId, product.id);
-    const qty = storeId === "ranchi" ? initialRanchiStock : 0;
-    const lowThreshold = 5;
-    const status: StockStatus =
-      qty === 0 ? "OUT_OF_STOCK" : qty <= lowThreshold ? "LOW_STOCK" : "IN_STOCK";
-
-    STORE_INVENTORY_TABLE.set(key, {
-      id: `inv-${storeId}-${product.id}`,
-      storeId,
-      productId: product.id,
-      quantity: qty,
-      reservedQuantity: 0,
-      availableQuantity: qty,
-      reorderLevel: 10,
-      lowStockThreshold: lowThreshold,
-      status,
-      updatedAt: new Date().toISOString(),
+  for (const sid of storeIds) {
+    const storeDbId = await resolveStoreDbId(sid);
+    if (!storeDbId) continue;
+    const qty = sid === "ranchi" ? initialRanchiStock : 0;
+    await db.storeInventory.upsert({
+      where: { storeId_productId: { storeId: storeDbId, productId } },
+      update: {},
+      create: { storeId: storeDbId, productId, quantity: qty, availableQuantity: qty, reservedQuantity: 0, reorderLevel: 10, lowStockThreshold: 5, status: computeStatus(qty) },
     });
-  });
+  }
 }
 
-/**
- * Get all Stock Transfers.
- */
-export function getStockTransfers(): StockTransferRecord[] {
-  return [...STOCK_TRANSFERS];
-}
-
+/** @deprecated No-op: inventory is now DB-backed and does not require seeding */
+export function initializeStoreInventory(): void {}

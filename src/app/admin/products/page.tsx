@@ -28,6 +28,7 @@ import {
 import { PRODUCTS } from "@/data/mockData";
 import { ShippingTagType } from "@/data/productShippingConfig";
 import { CATEGORIES_HIERARCHY, flattenCategories } from "@/data/categoriesHierarchy";
+import { compressImageOnClient } from "@/lib/clientImageCompressor";
 
 interface UploadedMediaItem {
   name: string;
@@ -35,6 +36,8 @@ interface UploadedMediaItem {
   url: string;
   publicId?: string;
   bytes?: number;
+  originalBytes?: number;
+  savingsPercentage?: number;
 }
 
 interface ProductItemRow {
@@ -201,9 +204,21 @@ export default function AdminProductsPage() {
 
     try {
       const formData = new FormData();
-      Array.from(files).forEach((file) => {
-        formData.append("files", file);
-      });
+      
+      for (const file of Array.from(files)) {
+        if (file.type.startsWith("image/")) {
+          // Pre-compress image client-side to save bandwidth & time
+          const compression = await compressImageOnClient(file, {
+            maxWidth: 1920,
+            maxHeight: 1920,
+            quality: 0.82,
+            preferredMimeType: "image/webp",
+          });
+          formData.append("files", compression.file);
+        } else {
+          formData.append("files", file);
+        }
+      }
       formData.append("folder", "products");
 
       const res = await fetch("/api/admin/upload", {
@@ -216,12 +231,14 @@ export default function AdminProductsPage() {
         throw new Error(json.message || "Failed to upload files to Cloudinary.");
       }
 
-      const newMedia: UploadedMediaItem[] = (json.data as UploadedMediaItem[]).map((item) => ({
+      const newMedia: UploadedMediaItem[] = (json.data as (UploadedMediaItem & { originalBytes?: number; savingsPercentage?: number })[]).map((item) => ({
         name: item.name,
         type: item.type,
         url: item.url,
         publicId: item.publicId,
         bytes: item.bytes,
+        originalBytes: item.originalBytes,
+        savingsPercentage: item.savingsPercentage,
       }));
 
       setMediaList((prev) => [...prev, ...newMedia]);
@@ -929,6 +946,20 @@ export default function AdminProductsPage() {
                                 <span className="absolute top-2 left-2 bg-blue-600 text-white text-[9px] font-semibold uppercase px-2 py-0.5 rounded-md shadow-xs">
                                   Primary
                                 </span>
+                              )}
+
+                              {item.type === "image" && (
+                                <div className="absolute bottom-1.5 left-1.5 right-1.5 flex items-center justify-between pointer-events-none">
+                                  <span className="bg-emerald-600/90 backdrop-blur-xs text-white text-[9px] font-black px-1.5 py-0.5 rounded-md shadow-xs flex items-center gap-1">
+                                    <span>⚡ WebP</span>
+                                    {item.savingsPercentage ? <span>-{item.savingsPercentage}%</span> : null}
+                                  </span>
+                                  {item.bytes ? (
+                                    <span className="bg-slate-900/80 text-white text-[9px] font-mono px-1.5 py-0.5 rounded-md">
+                                      {Math.round(item.bytes / 1024)} KB
+                                    </span>
+                                  ) : null}
+                                </div>
                               )}
 
                               <button

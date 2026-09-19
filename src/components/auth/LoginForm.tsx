@@ -14,6 +14,8 @@ import {
   Smartphone,
 } from "lucide-react";
 
+import { signInWithGoogle } from "@/lib/firebase";
+
 export const LoginForm: React.FC = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -27,6 +29,7 @@ export const LoginForm: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -78,15 +81,47 @@ export const LoginForm: React.FC = () => {
     }
   };
 
-  const handleGoogleLogin = () => {
-    loginUser({
-      name: "Google Verified Member",
-      email: "member@gmail.com",
-      phone: "+91 98765 00000",
-      customerType: "Registered Customer",
-      rewardPoints: 500,
-    });
-    router.push("/account");
+  const handleGoogleLogin = async () => {
+    setError(null);
+    setGoogleLoading(true);
+
+    try {
+      const result = await signInWithGoogle();
+      const fbUser = result.user;
+
+      const res = await fetch("/api/auth/firebase-sync", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          uid: fbUser.uid,
+          email: fbUser.email,
+          displayName: fbUser.displayName,
+          phoneNumber: fbUser.phoneNumber,
+          photoURL: fbUser.photoURL,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (data.success && data.user) {
+        loginUser({
+          name: data.user.name,
+          email: data.user.email,
+          phone: data.user.phone || "+91 98765 00000",
+          customerType: data.user.customerType || "Registered Customer",
+          rewardPoints: data.user.rewardPoints || 500,
+        });
+        router.push("/account");
+      } else {
+        setError(data.message || "Failed to authenticate with Google.");
+      }
+    } catch (err: any) {
+      if (err?.code !== "auth/popup-closed-by-user") {
+        setError(err.message || "Google Sign-In failed. Please try again.");
+      }
+    } finally {
+      setGoogleLoading(false);
+    }
   };
 
   return (

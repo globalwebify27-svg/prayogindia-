@@ -146,7 +146,7 @@ export default function AdminStoresPage() {
         if (s.id === activeStoreForDevice.id) {
           return {
             ...s,
-            authorizedDevices: [...s.authorizedDevices, newDevice],
+            authorizedDevices: [...(s.authorizedDevices || []), newDevice],
           };
         }
         return s;
@@ -169,7 +169,7 @@ export default function AdminStoresPage() {
           if (s.id === storeId) {
             return {
               ...s,
-              authorizedDevices: s.authorizedDevices.filter(
+              authorizedDevices: (s.authorizedDevices || []).filter(
                 (d) => d.id !== deviceId,
               ),
             };
@@ -211,165 +211,209 @@ export default function AdminStoresPage() {
       </div>
 
       {/* 2. Stores Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {stores.map((store) => (
-          <div
-            key={store.id}
-            className={`bg-white border rounded-3xl p-6 shadow-2xs space-y-5 transition-all relative ${
-              store.isCentralHub
-                ? "border-[#00AEEF] ring-2 ring-[#00AEEF]/20"
-                : "border-slate-200 hover:border-slate-300"
-            }`}
-          >
-            {/* Top Store Badge */}
-            <div className="flex items-start justify-between">
-              <div>
-                <span
-                  className={`text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full ${
-                    store.isCentralHub
-                      ? "bg-[#00AEEF] text-white"
-                      : "bg-slate-100 text-slate-700"
-                  }`}
-                >
-                  {store.code} · {store.type}
-                </span>
-                <h3 className="font-extrabold text-slate-900 text-base mt-1.5">
-                  {store.name}
-                </h3>
+      {loading ? (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {[1, 2, 3].map((i) => (
+            <div
+              key={i}
+              className="bg-white border border-slate-200 rounded-3xl p-6 shadow-2xs space-y-4 animate-pulse"
+            >
+              <div className="h-6 bg-slate-100 rounded-lg w-1/3" />
+              <div className="h-4 bg-slate-100 rounded-lg w-2/3" />
+              <div className="h-24 bg-slate-50 rounded-2xl" />
+              <div className="grid grid-cols-2 gap-2">
+                <div className="h-16 bg-slate-50 rounded-xl" />
+                <div className="h-16 bg-slate-50 rounded-xl" />
               </div>
-              <span
-                className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-md ${
-                  store.status === "Operational"
-                    ? "bg-emerald-100 text-emerald-800"
-                    : "bg-amber-100 text-amber-800"
+            </div>
+          ))}
+        </div>
+      ) : stores.length === 0 ? (
+        <div className="bg-white border border-dashed border-slate-200 rounded-3xl p-12 text-center space-y-3">
+          <Building2 className="w-10 h-10 text-slate-300 mx-auto" />
+          <h3 className="font-bold text-slate-700">No Store Branches Configured</h3>
+          <p className="text-xs text-slate-400 max-w-sm mx-auto">
+            Add your central warehouse or regional retail branches to enable inventory routing and in-store POS checkouts.
+          </p>
+          <button
+            onClick={() => setShowAddStoreModal(true)}
+            className="mt-2 bg-[#00AEEF] hover:bg-[#0096D6] text-white px-4 py-2 rounded-xl text-xs font-bold"
+          >
+            Add Branch
+          </button>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {stores.map((store) => {
+            const devices = store.authorizedDevices || [];
+            const stockUnits = Number(store.totalStockUnits || 0);
+            const walkInRev = Number(store.monthlyWalkInRevenue || 0);
+
+            return (
+              <div
+                key={store.id || store.code}
+                className={`bg-white border rounded-3xl p-6 shadow-2xs space-y-5 transition-all relative ${
+                  store.isCentralHub
+                    ? "border-[#00AEEF] ring-2 ring-[#00AEEF]/20"
+                    : "border-slate-200 hover:border-slate-300"
                 }`}
               >
-                {store.status}
-              </span>
-            </div>
-
-            {/* Address & Contact */}
-            <div className="space-y-1.5 text-xs text-slate-600 bg-slate-50 p-3.5 rounded-2xl border border-slate-100">
-              <div className="flex items-start gap-2">
-                <MapPin className="w-3.5 h-3.5 text-[#00AEEF] shrink-0 mt-0.5" />
-                <span className="font-medium">
-                  {store.address}, {store.city}, {store.state} - {store.pincode}
-                </span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Phone className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                <span className="font-mono text-slate-700 font-bold">
-                  {store.contactPhone}
-                </span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Clock className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                <span className="text-[11px] text-slate-500">
-                  {store.operatingHours}
-                </span>
-              </div>
-            </div>
-
-            {/* Inventory & Revenue KPI */}
-            <div className="grid grid-cols-2 gap-2 text-xs">
-              <div className="p-3 bg-slate-50 rounded-xl border border-slate-100">
-                <span className="text-[10px] font-black uppercase text-slate-400 block">
-                  Assigned Stock
-                </span>
-                <span className="text-sm font-black text-slate-900">
-                  {store.totalStockUnits.toLocaleString()} Units
-                </span>
-                {store.isCentralHub && (
-                  <span className="text-[9px] text-[#00AEEF] block font-bold">
-                    Online + Store Hub
-                  </span>
-                )}
-              </div>
-
-              <div className="p-3 bg-slate-50 rounded-xl border border-slate-100">
-                <span className="text-[10px] font-black uppercase text-slate-400 block">
-                  Monthly Walk-in
-                </span>
-                <span className="text-sm font-black text-emerald-600">
-                  ₹{(store.monthlyWalkInRevenue / 100000).toFixed(2)} Lakh
-                </span>
-                <span className="text-[9px] text-slate-400 block font-bold">
-                  In-Store POS
-                </span>
-              </div>
-            </div>
-
-            {/* Authorized Tablets & Devices Section */}
-            <div className="space-y-2 border-t border-slate-100 pt-3">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-black uppercase text-slate-900 flex items-center gap-1.5">
-                  <Tablet className="w-3.5 h-3.5 text-[#00AEEF]" /> Authorized
-                  Devices ({store.authorizedDevices.length})
-                </span>
-                <button
-                  onClick={() => {
-                    setActiveStoreForDevice(store);
-                    setShowAddDeviceModal(true);
-                  }}
-                  className="text-[11px] font-bold text-[#00AEEF] hover:underline flex items-center gap-0.5 cursor-pointer"
-                >
-                  <Plus className="w-3 h-3" /> Pair Device
-                </button>
-              </div>
-
-              {store.authorizedDevices.length === 0 ? (
-                <p className="text-[11px] text-slate-400 italic bg-slate-50 p-2.5 rounded-xl text-center">
-                  No tablets paired. In-store walk-in POS is locked for this
-                  location.
-                </p>
-              ) : (
-                <div className="space-y-2">
-                  {store.authorizedDevices.map((dev) => (
-                    <div
-                      key={dev.id}
-                      className="bg-white border border-slate-200 p-2.5 rounded-xl flex items-center justify-between text-xs shadow-2xs"
+                {/* Top Store Badge */}
+                <div className="flex items-start justify-between">
+                  <div>
+                    <span
+                      className={`text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full ${
+                        store.isCentralHub
+                          ? "bg-[#00AEEF] text-white"
+                          : "bg-slate-100 text-slate-700"
+                      }`}
                     >
-                      <div className="space-y-0.5">
-                        <div className="font-extrabold text-slate-900 flex items-center gap-1.5">
-                          <Smartphone className="w-3.5 h-3.5 text-slate-400" />
-                          <span>{dev.deviceName}</span>
-                        </div>
-                        <div className="font-mono text-[10px] text-[#00AEEF] font-bold">
-                          {dev.token}
-                        </div>
-                        <div className="text-[9px] text-slate-400">
-                          Staff: {dev.assignedStaff} · {dev.lastActiveAt}
-                        </div>
-                      </div>
-
-                      <button
-                        onClick={() => handleRevokeDevice(store.id, dev.id)}
-                        className="p-1.5 hover:bg-red-50 text-slate-400 hover:text-red-600 rounded-lg transition-colors cursor-pointer"
-                        title="Revoke Device Token"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-                  ))}
+                      {store.code} · {store.type || "Physical Branch Store"}
+                    </span>
+                    <h3 className="font-extrabold text-slate-900 text-base mt-1.5">
+                      {store.name}
+                    </h3>
+                  </div>
+                  <span
+                    className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-md ${
+                      store.status === "Operational"
+                        ? "bg-emerald-100 text-emerald-800"
+                        : "bg-amber-100 text-amber-800"
+                    }`}
+                  >
+                    {store.status || "Operational"}
+                  </span>
                 </div>
-              )}
-            </div>
 
-            {/* Launch Store POS View Link */}
-            <div className="pt-2">
-              <a
-                href="/store-pos"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full bg-slate-900 hover:bg-slate-800 text-white py-2.5 rounded-xl font-black text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-sm"
-              >
-                <Tablet className="w-3.5 h-3.5 text-[#FFC20E]" />
-                <span>Launch {store.code} POS Station</span>
-              </a>
-            </div>
-          </div>
-        ))}
-      </div>
+                {/* Address & Contact */}
+                <div className="space-y-1.5 text-xs text-slate-600 bg-slate-50 p-3.5 rounded-2xl border border-slate-100">
+                  <div className="flex items-start gap-2">
+                    <MapPin className="w-3.5 h-3.5 text-[#00AEEF] shrink-0 mt-0.5" />
+                    <span className="font-medium">
+                      {store.address ? `${store.address}, ` : ""}
+                      {store.city}
+                      {store.state ? `, ${store.state}` : ""}
+                      {store.pincode ? ` - ${store.pincode}` : ""}
+                    </span>
+                  </div>
+                  {store.contactPhone && (
+                    <div className="flex items-center gap-2">
+                      <Phone className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                      <span className="font-mono text-slate-700 font-bold">
+                        {store.contactPhone}
+                      </span>
+                    </div>
+                  )}
+                  <div className="flex items-center gap-2">
+                    <Clock className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                    <span className="text-[11px] text-slate-500">
+                      {store.operatingHours || "10:00 AM - 08:00 PM"}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Inventory & Revenue KPI */}
+                <div className="grid grid-cols-2 gap-2 text-xs">
+                  <div className="p-3 bg-slate-50 rounded-xl border border-slate-100">
+                    <span className="text-[10px] font-black uppercase text-slate-400 block">
+                      Assigned Stock
+                    </span>
+                    <span className="text-sm font-black text-slate-900">
+                      {stockUnits.toLocaleString()} Units
+                    </span>
+                    {store.isCentralHub && (
+                      <span className="text-[9px] text-[#00AEEF] block font-bold">
+                        Online + Store Hub
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="p-3 bg-slate-50 rounded-xl border border-slate-100">
+                    <span className="text-[10px] font-black uppercase text-slate-400 block">
+                      Monthly Walk-in
+                    </span>
+                    <span className="text-sm font-black text-emerald-600">
+                      ₹{(walkInRev / 100000).toFixed(2)} Lakh
+                    </span>
+                    <span className="text-[9px] text-slate-400 block font-bold">
+                      In-Store POS
+                    </span>
+                  </div>
+                </div>
+
+                {/* Authorized Tablets & Devices Section */}
+                <div className="space-y-2 border-t border-slate-100 pt-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-black uppercase text-slate-900 flex items-center gap-1.5">
+                      <Tablet className="w-3.5 h-3.5 text-[#00AEEF]" /> Authorized
+                      Devices ({devices.length})
+                    </span>
+                    <button
+                      onClick={() => {
+                        setActiveStoreForDevice(store);
+                        setShowAddDeviceModal(true);
+                      }}
+                      className="text-[11px] font-bold text-[#00AEEF] hover:underline flex items-center gap-0.5 cursor-pointer"
+                    >
+                      <Plus className="w-3 h-3" /> Pair Device
+                    </button>
+                  </div>
+
+                  {devices.length === 0 ? (
+                    <p className="text-[11px] text-slate-400 italic bg-slate-50 p-2.5 rounded-xl text-center">
+                      No tablets paired. In-store walk-in POS is locked for this
+                      location.
+                    </p>
+                  ) : (
+                    <div className="space-y-2">
+                      {devices.map((dev) => (
+                        <div
+                          key={dev.id}
+                          className="bg-white border border-slate-200 p-2.5 rounded-xl flex items-center justify-between text-xs shadow-2xs"
+                        >
+                          <div className="space-y-0.5">
+                            <div className="font-extrabold text-slate-900 flex items-center gap-1.5">
+                              <Smartphone className="w-3.5 h-3.5 text-slate-400" />
+                              <span>{dev.deviceName}</span>
+                            </div>
+                            <div className="font-mono text-[10px] text-[#00AEEF] font-bold">
+                              {dev.token}
+                            </div>
+                            <div className="text-[9px] text-slate-400">
+                              Staff: {dev.assignedStaff || "Store Staff"} · {dev.lastActiveAt || "Active"}
+                            </div>
+                          </div>
+
+                          <button
+                            onClick={() => handleRevokeDevice(store.id, dev.id)}
+                            className="p-1.5 hover:bg-red-50 text-slate-400 hover:text-red-600 rounded-lg transition-colors cursor-pointer"
+                            title="Revoke Device Token"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Launch Store POS View Link */}
+                <div className="pt-2">
+                  <a
+                    href="/store-pos"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full bg-slate-900 hover:bg-slate-800 text-white py-2.5 rounded-xl font-black text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-sm"
+                  >
+                    <Tablet className="w-3.5 h-3.5 text-[#FFC20E]" />
+                    <span>Launch {store.code} POS Station</span>
+                  </a>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
 
       {/* Add New Store Modal */}
       {showAddStoreModal && (

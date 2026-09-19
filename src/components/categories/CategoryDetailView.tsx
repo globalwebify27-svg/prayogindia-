@@ -23,13 +23,29 @@ export const CategoryDetailView: React.FC<CategoryDetailProps> = ({
     ) || CATEGORIES_DATA[0];
 
   // Filter products for this category
-  const categoryProducts = PRODUCTS.filter(
-    (p) =>
-      p.category.toLowerCase().includes(category.name.toLowerCase()) ||
-      category.subcategories.some((sub) =>
-        p.name.toLowerCase().includes(sub.name.toLowerCase()),
-      ),
-  );
+  const categoryProducts = PRODUCTS.filter((p) => {
+    const catLower = category.name.toLowerCase();
+    const shortLower = (category.shortName || "").toLowerCase();
+    const pCat = p.category.toLowerCase();
+    const pSub = (p.subcategory || "").toLowerCase();
+
+    if (
+      pCat.includes(catLower) ||
+      catLower.includes(pCat) ||
+      (shortLower && (pCat.includes(shortLower) || shortLower.includes(pCat)))
+    ) {
+      return true;
+    }
+
+    return category.subcategories.some((sub) => {
+      const subLower = sub.name.toLowerCase();
+      return (
+        p.name.toLowerCase().includes(subLower) ||
+        pCat.includes(subLower) ||
+        pSub.includes(subLower)
+      );
+    });
+  });
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-10 animate-in fade-in duration-300">

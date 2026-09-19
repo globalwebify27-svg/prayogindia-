@@ -118,7 +118,7 @@ export class CloudinaryStorageService implements StorageService {
   async upload(
     key: string,
     buffer: Buffer,
-    _mimeType: string,
+    mimeType: string,
   ): Promise<string> {
     const { v2: cloudinary } = await import("cloudinary");
     cloudinary.config({
@@ -129,20 +129,63 @@ export class CloudinaryStorageService implements StorageService {
     });
 
     const publicId = key.replace(/\.[^/.]+$/, ""); // strip extension
+    const isImage = mimeType.startsWith("image/") || (!mimeType.startsWith("video/") && !mimeType.includes("pdf"));
+
+    let uploadBuffer = buffer;
+    if (isImage) {
+      try {
+        const { compressImageBuffer } = await import("./mediaCompressor");
+        const comp = await compressImageBuffer(buffer, {
+          maxWidth: 1920,
+          maxHeight: 1920,
+          quality: 82,
+          format: "webp",
+        });
+        uploadBuffer = comp.buffer;
+      } catch (e) {
+        console.warn("Image compression fallback in storage service:", e);
+      }
+    }
 
     return new Promise((resolve, reject) => {
+      const uploadParams: Record<string, any> = {
+        public_id: publicId,
+        resource_type: "auto",
+        overwrite: true,
+      };
+
+      if (isImage) {
+        uploadParams.format = "webp";
+        uploadParams.transformation = [
+          {
+            width: 1920,
+            crop: "limit",
+            quality: "auto:good",
+            fetch_format: "auto",
+            flags: "strip_profile",
+          },
+        ];
+      } else if (mimeType.startsWith("video/")) {
+        uploadParams.transformation = [
+          {
+            width: 1920,
+            crop: "limit",
+            quality: "auto:good",
+            flags: "fast_start",
+            video_codec: "auto",
+            audio_codec: "aac",
+          },
+        ];
+      }
+
       const uploadStream = cloudinary.uploader.upload_stream(
-        {
-          public_id: publicId,
-          resource_type: "auto",
-          overwrite: true,
-        },
+        uploadParams,
         (error, result) => {
           if (error) return reject(error);
           resolve(result?.secure_url || "");
         },
       );
-      uploadStream.end(buffer);
+      uploadStream.end(uploadBuffer);
     });
   }
 

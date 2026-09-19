@@ -29,7 +29,7 @@ export async function GET(request: Request) {
     );
   }
 
-  const transfers = getStockTransfers();
+  const transfers = await getStockTransfers();
 
   return NextResponse.json(
     {
@@ -94,7 +94,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const result = transferStockBetweenStores({
+    const result = await transferStockBetweenStores({
       sourceStoreId: src,
       destinationStoreId: dest,
       items: items.map((i: any) => ({

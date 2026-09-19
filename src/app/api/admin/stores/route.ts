@@ -26,6 +26,7 @@ export async function GET() {
       const stores = await db.store.findMany({
         where,
         include: {
+          devices: true,
           staff: {
             select: {
               id: true,
@@ -39,7 +40,42 @@ export async function GET() {
         orderBy: { code: "asc" },
       });
 
-      return NextResponse.json({ success: true, data: stores }, { headers });
+      const formattedStores = stores.map((s) => ({
+        id: s.id,
+        code: s.code,
+        name: s.name,
+        type: s.type || "Physical Branch Store",
+        isCentralHub: Boolean(s.isCentralHub),
+        address: s.address || "",
+        city: s.city || "",
+        state: s.state || "",
+        pincode: s.pincode || "",
+        contactPhone: s.contactPhone || "",
+        contactEmail: s.contactEmail || "",
+        storeManager:
+          s.staff?.find((m) => m.role === "STORE_MANAGER")?.name ||
+          "Store Manager",
+        operatingHours: s.operatingHours || "10:00 AM - 8:00 PM",
+        status: s.status || "Operational",
+        totalStockUnits: s.totalStockUnits ?? 0,
+        monthlyWalkInRevenue: s.monthlyWalkInRevenue ?? 0,
+        authorizedDevices: (s.devices || []).map((d) => ({
+          id: d.id,
+          deviceName: d.deviceName,
+          deviceModel: d.deviceType?.replace(/_/g, " ") || "POS Terminal",
+          token: d.deviceCode,
+          assignedStaff: d.deviceName,
+          status: (d.status === "ACTIVE" ? "Active / Paired" : "Suspended") as any,
+          lastActiveAt: d.lastLogin
+            ? new Date(d.lastLogin).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            : "Active",
+        })),
+      }));
+
+      return NextResponse.json(
+        { success: true, data: formattedStores },
+        { headers },
+      );
     } catch (dbErr) {
       console.warn(
         "Database error fetching stores, falling back to mock:",

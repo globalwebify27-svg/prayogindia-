@@ -34,11 +34,26 @@ export async function POST(
         return NextResponse.json({ success: false, message: "Company not found" }, { status: 404, headers });
       }
 
+      let dbStaffId: string | null = null;
+      const targetStaffLookup = assignedStaffId || staff?.id;
+      if (targetStaffLookup) {
+        const foundStaff = await db.staffUser.findFirst({
+          where: {
+            OR: [
+              { id: targetStaffLookup },
+              { username: targetStaffLookup },
+              ...(staff.email ? [{ email: staff.email }] : []),
+            ],
+          },
+        });
+        dbStaffId = foundStaff ? foundStaff.id : null;
+      }
+
       const followUp = await db.b2BFollowUp.create({
         data: {
           companyId,
           contactId: contactId || null,
-          assignedStaffId: assignedStaffId || staff.id,
+          assignedStaffId: dbStaffId,
           dueDate: new Date(dueDate),
           reason: reason.trim(),
           notes: notes || null,
@@ -58,7 +73,7 @@ export async function POST(
           activityType: "FOLLOW_UP",
           title: `Follow-up Scheduled: ${reason}`,
           description: `Due on ${new Date(dueDate).toLocaleDateString("en-IN")}. Assigned to ${followUp.assignedStaff?.name || staff.name}.`,
-          performedByStaffId: staff.id,
+          performedByStaffId: dbStaffId,
         },
       });
 

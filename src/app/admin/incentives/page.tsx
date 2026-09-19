@@ -156,11 +156,23 @@ const ATTRIBUTED_ORDERS: AttributedOrder[] = [
 
 export default function IncentivesPage() {
   const [executives, setExecutives] = useState<ExecutiveStat[]>(EXECUTIVES);
+  const [attributedOrders, setAttributedOrders] = useState<AttributedOrder[]>(ATTRIBUTED_ORDERS);
   const [calculationMode, setCalculationMode] =
     useState<IncentiveFormulaMode>("profit_based");
   const [payoutApproved, setPayoutApproved] = useState<Record<string, boolean>>(
     {},
   );
+
+  React.useEffect(() => {
+    fetch("/api/admin/incentives")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && data.data?.orders?.length > 0) {
+          setAttributedOrders(data.data.orders);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const totalRevenue = executives.reduce((sum, e) => sum + e.achievedSales, 0);
   const totalTarget = executives.reduce((sum, e) => sum + e.monthlyTarget, 0);
@@ -526,7 +538,7 @@ export default function IncentivesPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 font-medium text-slate-700">
-              {ATTRIBUTED_ORDERS.map((ord) => {
+              {attributedOrders.map((ord) => {
                 const netProfit =
                   ord.sellingPrice -
                   ord.purchaseCost -

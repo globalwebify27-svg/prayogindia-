@@ -87,59 +87,144 @@ interface HeaderProps {
 
 const HEADER_CATEGORIES = [
   {
-    name: "All Categories",
-    slug: "all",
-    href: "/categories",
-    icon: LayoutGrid,
-    isAll: true,
-  },
-  {
-    name: "Robotics Kits",
-    slug: "robotics",
-    href: "/categories/robotics-kits",
-    icon: RoboticsCategoryIcon,
-  },
-  {
-    name: "Arduino",
-    slug: "arduino",
-    href: "/categories/arduino",
+    name: "Arduino & Dev Boards",
+    shortName: "Arduino",
+    slug: "arduino-development-boards",
+    href: "/categories/arduino-development-boards",
     icon: ArduinoCategoryIcon,
   },
   {
-    name: "Drones",
-    slug: "drones",
-    href: "/categories/drone-technology",
-    icon: DroneCategoryIcon,
+    name: "Raspberry Pi",
+    shortName: "Raspberry Pi",
+    slug: "raspberry-pi",
+    href: "/categories/raspberry-pi",
+    icon: CircuitBoard,
   },
   {
-    name: "Sensors",
-    slug: "sensors",
+    name: "Robotics",
+    shortName: "Robotics",
+    slug: "robotics",
+    href: "/categories/robotics",
+    icon: RoboticsCategoryIcon,
+  },
+  {
+    name: "Sensors & Modules",
+    shortName: "Sensors",
+    slug: "sensors-modules",
     href: "/categories/sensors-modules",
     icon: SensorsCategoryIcon,
   },
   {
+    name: "Motors & Motor Drivers",
+    shortName: "Motors",
+    slug: "motors-drivers",
+    href: "/categories/motors-drivers",
+    icon: Zap,
+  },
+  {
+    name: "Electronic Components",
+    shortName: "Components",
+    slug: "electronic-components",
+    href: "/categories/electronic-components",
+    icon: ComponentsCategoryIcon,
+  },
+  {
     name: "IoT & Wireless",
-    slug: "iot",
-    href: "/categories/iot-products",
+    shortName: "IoT & Wireless",
+    slug: "iot-wireless",
+    href: "/categories/iot-wireless",
     icon: IoTCategoryIcon,
   },
   {
-    name: "Dev Boards",
-    slug: "devboards",
-    href: "/categories/development-boards",
-    icon: DevBoardCategoryIcon,
+    name: "Batteries & Power",
+    shortName: "Power & Batt",
+    slug: "batteries-power",
+    href: "/categories/batteries-power",
+    icon: Zap,
   },
   {
-    name: "STEM Kits",
-    slug: "stem",
-    href: "/categories/stem-kits",
+    name: "Cameras & Imaging",
+    shortName: "Cameras",
+    slug: "cameras-imaging",
+    href: "/categories/cameras-imaging",
+    icon: Activity,
+  },
+  {
+    name: "Connectors & Cables",
+    shortName: "Cables",
+    slug: "cables-connectors",
+    href: "/categories/cables-connectors",
+    icon: Layers,
+  },
+  {
+    name: "Mechanical Components",
+    shortName: "Mechanical",
+    slug: "mechanical-components",
+    href: "/categories/mechanical-components",
+    icon: LayoutGrid,
+  },
+  {
+    name: "Drone Technology",
+    shortName: "Drones",
+    slug: "drone-technology",
+    href: "/categories/drone-technology",
+    icon: DroneCategoryIcon,
+  },
+  {
+    name: "3D Printing & Accessories",
+    shortName: "3D Printing",
+    slug: "3d-printing",
+    href: "/categories/3d-printing",
+    icon: Layers,
+  },
+  {
+    name: "Educational & STEM",
+    shortName: "STEM Kits",
+    slug: "educational-stem",
+    href: "/categories/educational-stem",
     icon: StemCategoryIcon,
   },
   {
-    name: "Motors & Drivers",
-    slug: "components",
-    href: "/categories/electronic-components",
-    icon: ComponentsCategoryIcon,
+    name: "Project Kits",
+    shortName: "Projects",
+    slug: "project-kits",
+    href: "/categories/project-kits",
+    icon: DevBoardCategoryIcon,
+  },
+  {
+    name: "Industrial Automation",
+    shortName: "Automation",
+    slug: "industrial-automation",
+    href: "/categories/industrial-automation",
+    icon: Briefcase,
+  },
+  {
+    name: "Hardware & Tools",
+    shortName: "Tools",
+    slug: "hardware-tools",
+    href: "/categories/hardware-tools",
+    icon: Layers,
+  },
+  {
+    name: "Displays & Input Devices",
+    shortName: "Displays",
+    slug: "displays-input-devices",
+    href: "/categories/displays-input-devices",
+    icon: LayoutGrid,
+  },
+  {
+    name: "Communication & Network",
+    shortName: "Networking",
+    slug: "communication-networking",
+    href: "/categories/communication-networking",
+    icon: Globe,
+  },
+  {
+    name: "Accessories & Misc",
+    shortName: "Accessories",
+    slug: "accessories-miscellaneous",
+    href: "/categories/accessories-miscellaneous",
+    icon: Layers,
   },
 ];
 
@@ -420,9 +505,9 @@ export const Header: React.FC<HeaderProps> = ({
 
               {/* Dropdown Menu */}
               {categoryDropdownOpen && (
-                <div className="absolute top-full left-0 mt-2 w-64 bg-white rounded-2xl shadow-2xl border border-slate-200 p-2 z-50 animate-in fade-in slide-in-from-top-1 text-xs font-semibold text-slate-800 space-y-1">
-                  <div className="px-2.5 py-1 text-[10px] font-black uppercase text-slate-400 tracking-wider flex items-center justify-between border-b border-slate-100">
-                    <span>All Hardware Categories</span>
+                <div className="absolute top-full left-0 mt-2 w-72 sm:w-80 bg-white rounded-2xl shadow-2xl border border-slate-200 p-2 z-50 animate-in fade-in slide-in-from-top-1 text-xs font-semibold text-slate-800 space-y-1 max-h-[440px] overflow-y-auto">
+                  <div className="px-2.5 py-1.5 text-[10px] font-black uppercase text-slate-400 tracking-wider flex items-center justify-between border-b border-slate-100 sticky top-0 bg-white/95 backdrop-blur-xs z-10">
+                    <span>All 20 Hardware Categories</span>
                     <Link
                       href="/categories"
                       onClick={() => setCategoryDropdownOpen(false)}
@@ -436,13 +521,15 @@ export const Header: React.FC<HeaderProps> = ({
                       key={cat.slug}
                       href={cat.href}
                       onClick={() => setCategoryDropdownOpen(false)}
-                      className="flex items-center justify-between p-2 rounded-xl hover:bg-[#E0F7FC] hover:text-[#00AEEF] transition-colors"
+                      className="flex items-center justify-between p-2 rounded-xl hover:bg-[#E0F7FC] hover:text-[#00AEEF] transition-colors group"
                     >
-                      <span className="flex items-center gap-2">
-                        <cat.icon className="w-4 h-4 text-slate-500" />
-                        <span>{cat.name}</span>
+                      <span className="flex items-center gap-2.5 min-w-0">
+                        <span className="w-7 h-7 rounded-lg bg-slate-50 group-hover:bg-white flex items-center justify-center shrink-0 border border-slate-100 text-[#00AEEF]">
+                          <cat.icon className="w-4 h-4" />
+                        </span>
+                        <span className="truncate">{cat.name}</span>
                       </span>
-                      <ChevronRight className="w-3 h-3 text-slate-400" />
+                      <ChevronRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-[#00AEEF] group-hover:translate-x-0.5 transition-all shrink-0" />
                     </Link>
                   ))}
                 </div>
@@ -789,9 +876,9 @@ export const Header: React.FC<HeaderProps> = ({
                   onTouchStart={() => setCategoryDropdownOpen(false)}
                 />
 
-                <div className="absolute top-full left-0 mt-2 w-64 bg-white rounded-2xl shadow-2xl border border-slate-200 p-2 z-50 animate-in fade-in slide-in-from-top-1 text-xs font-semibold text-slate-800 space-y-1">
-                  <div className="px-2.5 py-1 text-[10px] font-black uppercase text-slate-400 tracking-wider flex items-center justify-between border-b border-slate-100">
-                    <span>Hardware Categories</span>
+                <div className="absolute top-full left-0 mt-2 w-72 bg-white rounded-2xl shadow-2xl border border-slate-200 p-2 z-50 animate-in fade-in slide-in-from-top-1 text-xs font-semibold text-slate-800 space-y-1 max-h-[380px] overflow-y-auto">
+                  <div className="px-2.5 py-1.5 text-[10px] font-black uppercase text-slate-400 tracking-wider flex items-center justify-between border-b border-slate-100 sticky top-0 bg-white/95 backdrop-blur-xs z-10">
+                    <span>All 20 Categories</span>
                     <Link
                       href="/categories"
                       onClick={() => setCategoryDropdownOpen(false)}
@@ -807,11 +894,13 @@ export const Header: React.FC<HeaderProps> = ({
                       onClick={() => setCategoryDropdownOpen(false)}
                       className="flex items-center justify-between p-2 rounded-xl hover:bg-[#E0F7FC] hover:text-[#00AEEF] transition-colors"
                     >
-                      <span className="flex items-center gap-2">
-                        <cat.icon className="w-4 h-4 text-slate-500" />
-                        <span>{cat.name}</span>
+                      <span className="flex items-center gap-2 min-w-0">
+                        <span className="w-6 h-6 rounded-lg bg-slate-50 flex items-center justify-center shrink-0 border border-slate-100 text-[#00AEEF]">
+                          <cat.icon className="w-3.5 h-3.5" />
+                        </span>
+                        <span className="truncate">{cat.name}</span>
                       </span>
-                      <ChevronRight className="w-3 h-3 text-slate-400" />
+                      <ChevronRight className="w-3 h-3 text-slate-400 shrink-0" />
                     </Link>
                   ))}
                 </div>

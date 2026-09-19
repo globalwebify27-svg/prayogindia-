@@ -34,6 +34,20 @@ export async function POST(
         return NextResponse.json({ success: false, message: "Company not found" }, { status: 404, headers });
       }
 
+      let dbStaffId: string | null = null;
+      if (staff?.id) {
+        const foundStaff = await db.staffUser.findFirst({
+          where: {
+            OR: [
+              { id: staff.id },
+              { username: staff.username },
+              ...(staff.email ? [{ email: staff.email }] : []),
+            ],
+          },
+        });
+        dbStaffId = foundStaff ? foundStaff.id : null;
+      }
+
       const activity = await db.b2BActivity.create({
         data: {
           companyId,
@@ -41,7 +55,7 @@ export async function POST(
           activityType,
           title: title.trim(),
           description: description || null,
-          performedByStaffId: staff.id,
+          performedByStaffId: dbStaffId,
         },
         include: {
           contact: { select: { id: true, name: true, designation: true } },

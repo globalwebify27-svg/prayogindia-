@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
 import { getAuthenticatedStaff, hasStoreAccess } from "@/lib/staffAuth";
-import { PRODUCTS } from "@/data/mockData";
+import { db } from "@/lib/db";
 import { getSecurityHeaders } from "@/lib/security";
-import { getProductStockForStore } from "@/lib/inventoryEngine";
 import { StoreId } from "@/data/storeConfig";
 
 // GET /api/store/inventory - Store-scoped Inventory Data
@@ -48,26 +47,50 @@ export async function GET(request: Request) {
   ) as StoreId;
   const isCentral = activeStoreCode === "ranchi";
 
-  const storeInventory = PRODUCTS.map((p: any) => {
-    const localStock = getProductStockForStore(p.id, activeStoreCode);
-    return {
-      id: p.id,
-      name: p.name,
-      sku: p.sku,
-      category: p.category,
-      price: p.price,
-      storeCode: activeStoreCode.toUpperCase(),
-      isCentralInventory: isCentral,
-      localStock,
-      status:
-        localStock > 10
-          ? "Optimal"
-          : localStock > 0
-            ? "Low Stock"
-            : "Out of Stock",
-      reorderThreshold: 10,
-    };
+  // Resolve store DB id
+  const dbStore = await db.store.findFirst({
+    where: { OR: [{ code: activeStoreCode.toUpperCase() }, { id: activeStoreCode }] },
   });
+
+  if (!dbStore) {
+    return NextResponse.json({ success: false, message: "Store not found." }, { status: 404, headers });
+  }
+
+  const invRows = await db.storeInventory.findMany({
+    where: { storeId: dbStore.id },
+    include: {
+      product: {
+        include: {
+          category: { select: { name: true } },
+          images: { select: { imageUrl: true }, orderBy: { sortOrder: "asc" }, take: 1 },
+        },
+      },
+    },
+  });
+
+  const storeInventory = invRows.map((inv) => ({
+    id: inv.product.id,
+    name: inv.product.name,
+    sku: inv.product.sku,
+    category: inv.product.category?.name ?? "",
+    price: inv.product.price,
+    image: (inv.product.images as Array<{imageUrl: string}>)?.[0]?.imageUrl ?? "",
+    storeCode: activeStoreCode.toUpperCase(),
+    isCentralInventory: isCentral,
+    localStock: inv.availableQuantity,
+    quantity: inv.quantity,
+    reservedQuantity: inv.reservedQuantity,
+    reorderThreshold: inv.reorderLevel,
+    lowStockThreshold: inv.lowStockThreshold,
+    status:
+      inv.availableQuantity === 0
+        ? "Out of Stock"
+        : inv.availableQuantity <= inv.lowStockThreshold
+          ? "Low Stock"
+          : "Optimal",
+    dbStatus: inv.status,
+    updatedAt: inv.updatedAt.toISOString(),
+  }));
 
   return NextResponse.json(
     {
@@ -76,15 +99,9 @@ export async function GET(request: Request) {
       isCentralInventory: isCentral,
       data: {
         items: storeInventory,
-        totalUnits: storeInventory.reduce(
-          (acc, curr) => acc + curr.localStock,
-          0,
-        ),
-        lowStockCount: storeInventory.filter((i) => i.status === "Low Stock")
-          .length,
-        outOfStockCount: storeInventory.filter(
-          (i) => i.status === "Out of Stock",
-        ).length,
+        totalUnits: storeInventory.reduce((acc, curr) => acc + curr.quantity, 0),
+        lowStockCount: storeInventory.filter((i) => i.status === "Low Stock").length,
+        outOfStockCount: storeInventory.filter((i) => i.status === "Out of Stock").length,
       },
     },
     { headers },

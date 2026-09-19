@@ -168,7 +168,7 @@ export async function POST(request: Request) {
         ? images[0]
         : "https://images.unsplash.com/photo-1553406830-ef2513450d76?auto=format&fit=crop&w=800&q=80";
 
-    // Register in in-memory Multi-Store Inventory Engine
+    // Prepare in-memory fallback product object
     const productForEngine = {
       id: `prod-${Date.now()}`,
       slug,
@@ -197,8 +197,6 @@ export async function POST(request: Request) {
       airFreightAllowed,
       surfaceFreightAllowed,
     };
-
-    registerProductInEngine(productForEngine, parsedStock);
 
     if (process.env.DATABASE_URL) {
       // Find or match category
@@ -276,31 +274,7 @@ export async function POST(request: Request) {
 
       // Also upsert Central Ranchi store stock in DB if store exists
       try {
-        const ranchiStore = await db.store.findFirst({
-          where: { OR: [{ code: "RANCHI" }, { isCentralHub: true }] },
-        });
-        if (ranchiStore) {
-          await db.storeInventory.upsert({
-            where: {
-              storeId_productId: {
-                storeId: ranchiStore.id,
-                productId: createdProduct.id,
-              },
-            },
-            create: {
-              storeId: ranchiStore.id,
-              productId: createdProduct.id,
-              quantity: parsedStock,
-              availableQuantity: parsedStock,
-              status: inStock ? "IN_STOCK" : "OUT_OF_STOCK",
-            },
-            update: {
-              quantity: parsedStock,
-              availableQuantity: parsedStock,
-              status: inStock ? "IN_STOCK" : "OUT_OF_STOCK",
-            },
-          });
-        }
+        await registerProductInEngine(createdProduct.id, parsedStock);
       } catch {
         // Non-blocking
       }

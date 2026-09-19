@@ -148,3 +148,8 @@ export function getEmailService(): EmailService {
   }
   return new ConsoleEmailService();
 }
+
+/** Convenience helper function to dispatch emails */
+export async function sendEmail(message: EmailMessage): Promise<boolean> {
+  return getEmailService().send(message);
+}

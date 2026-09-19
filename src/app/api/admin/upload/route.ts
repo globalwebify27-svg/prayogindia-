@@ -53,12 +53,14 @@ export async function POST(request: Request) {
         url: uploadRes.secure_url,
         publicId: uploadRes.public_id,
         bytes: uploadRes.bytes,
+        originalBytes: uploadRes.original_bytes || buffer.length,
+        savingsPercentage: uploadRes.savings_percentage || 0,
       });
     }
 
     return NextResponse.json({
       success: true,
-      message: `Successfully uploaded ${uploadedResults.length} asset(s) to Cloudinary CDN.`,
+      message: `Successfully compressed and uploaded ${uploadedResults.length} asset(s) to Cloudinary CDN.`,
       data: uploadedResults,
     });
   } catch (error: unknown) {

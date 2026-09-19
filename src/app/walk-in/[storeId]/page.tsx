@@ -36,6 +36,8 @@ import { PRODUCTS, Product } from "@/data/mockData";
 import { QuickViewModal } from "@/components/products/QuickViewModal";
 import { RoboticOrderSuccess } from "@/components/walk-in/RoboticOrderSuccess";
 import { OrderTruckButton } from "@/components/walk-in/OrderTruckButton";
+import { CATEGORIES_DATA } from "@/data/categories";
+import { CATEGORIES_HIERARCHY } from "@/data/categoriesHierarchy";
 
 // ─────────────────────────────────────────────────────
 // Cart item in kiosk state
@@ -47,14 +49,9 @@ interface KioskCartItem {
 
 type KioskView = "browse" | "cart" | "checkout" | "success";
 
-const CATEGORIES = [
+const KIOSK_CATEGORIES = [
   "All",
-  "Arduino & Microcontrollers",
-  "Drones & UAV Parts",
-  "IoT & Wireless Modules",
-  "Single Board Computers & Dev Boards",
-  "Robotics & DIY Kits",
-  "Sensors & Electronic Modules",
+  ...CATEGORIES_DATA.map((c) => c.name),
 ];
 
 // ─────────────────────────────────────────────────────
@@ -398,13 +395,77 @@ export default function StoreKioskPage() {
 
   // Derived values
   const filteredProducts = PRODUCTS.filter((p) => {
+    const term = search.trim().toLowerCase();
     const matchesSearch =
-      search.trim() === "" ||
-      p.name.toLowerCase().includes(search.toLowerCase()) ||
-      p.sku.toLowerCase().includes(search.toLowerCase());
-    const matchesCat =
-      selectedCategory === "All" || p.category === selectedCategory;
-    return matchesSearch && matchesCat;
+      term === "" ||
+      p.name.toLowerCase().includes(term) ||
+      p.sku.toLowerCase().includes(term) ||
+      p.category.toLowerCase().includes(term) ||
+      (p.brand && p.brand.toLowerCase().includes(term));
+
+    if (!matchesSearch) return false;
+    if (selectedCategory === "All") return true;
+
+    const pCat = p.category.toLowerCase();
+    const pSub = (p.subcategory || "").toLowerCase();
+    const selLower = selectedCategory.toLowerCase();
+
+    // 1. Exact category or subcategory match
+    if (pCat === selLower || pSub === selLower || pCat.includes(selLower) || selLower.includes(pCat)) {
+      return true;
+    }
+
+    // 2. Canonical category model match from CATEGORIES_DATA
+    const targetCat = CATEGORIES_DATA.find(
+      (c) =>
+        c.name.toLowerCase() === selLower ||
+        (c.shortName && c.shortName.toLowerCase() === selLower) ||
+        c.slug.toLowerCase() === selLower ||
+        (c.slugAlias && c.slugAlias.toLowerCase() === selLower),
+    );
+    if (targetCat) {
+      const catName = targetCat.name.toLowerCase();
+      const shortName = (targetCat.shortName || "").toLowerCase();
+      if (
+        pCat === catName ||
+        pCat === shortName ||
+        pCat.includes(shortName) ||
+        catName.includes(pCat)
+      ) {
+        return true;
+      }
+      const subMatch = targetCat.subcategories.some((sub) => {
+        const subName = sub.name.toLowerCase();
+        return (
+          pCat.includes(subName) ||
+          subName.includes(pCat) ||
+          pSub.includes(subName) ||
+          subName.includes(pSub) ||
+          p.name.toLowerCase().includes(subName)
+        );
+      });
+      if (subMatch) return true;
+    }
+
+    // 3. Hierarchical match using CATEGORIES_HIERARCHY
+    const parentNode = CATEGORIES_HIERARCHY.find(
+      (c) => c.name.toLowerCase() === selLower,
+    );
+    if (parentNode) {
+      const parentName = parentNode.name.toLowerCase();
+      if (pCat.includes(parentName) || parentName.includes(pCat)) {
+        return true;
+      }
+      const childMatch = parentNode.children?.some(
+        (ch) =>
+          ch.name.toLowerCase() === pCat ||
+          pCat.includes(ch.name.toLowerCase()) ||
+          (p.subcategory && ch.name.toLowerCase() === p.subcategory.toLowerCase()),
+      );
+      if (childMatch) return true;
+    }
+
+    return false;
   });
 
   const cartCount = cart.reduce((s, i) => s + i.quantity, 0);
@@ -541,15 +602,15 @@ export default function StoreKioskPage() {
             </button>
           )}
         </div>
-        <div className="flex gap-2 overflow-x-auto scrollbar-none pb-0.5">
-          {CATEGORIES.map((cat) => (
+        <div className="flex gap-2 overflow-x-auto scrollbar-none pb-1 pt-0.5 scroll-smooth">
+          {KIOSK_CATEGORIES.map((cat) => (
             <button
               key={cat}
               onClick={() => setSelectedCategory(cat)}
-              className={`px-3 py-1.5 rounded-xl font-bold text-xs whitespace-nowrap transition-colors shrink-0 ${
+              className={`px-3.5 py-1.5 rounded-xl font-bold text-xs whitespace-nowrap transition-all shrink-0 cursor-pointer ${
                 selectedCategory === cat
-                  ? "text-white shadow-sm"
-                  : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                  ? "text-white shadow-md scale-100"
+                  : "bg-slate-100 text-slate-700 hover:bg-slate-200 active:scale-95"
               }`}
               style={
                 selectedCategory === cat

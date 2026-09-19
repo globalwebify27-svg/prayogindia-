@@ -12,9 +12,11 @@ export interface CartItem {
 }
 
 export interface CustomerUser {
+  id?: string;
   name: string;
   email: string;
   phone: string;
+  avatarUrl?: string;
   customerType: CustomerType;
   companyName?: string;
   gstin?: string;

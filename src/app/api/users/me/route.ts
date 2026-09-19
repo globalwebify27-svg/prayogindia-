@@ -47,8 +47,13 @@ export async function GET() {
   }
 
   try {
-    const dbUser = await db.user.findUnique({
-      where: { id: user.id },
+    let dbUser = await db.user.findFirst({
+      where: {
+        OR: [
+          ...(user.id ? [{ id: user.id }] : []),
+          ...(user.email ? [{ email: normalizeEmail(user.email) }] : []),
+        ],
+      },
       select: {
         id: true,
         name: true,
@@ -61,6 +66,34 @@ export async function GET() {
         createdAt: true,
       },
     });
+
+    if (!dbUser && user.email) {
+      // Auto-create in PostgreSQL if missing
+      const cleanEmail = normalizeEmail(user.email);
+      const created = await db.user.create({
+        data: {
+          name: user.name || "Prayog Customer",
+          email: cleanEmail,
+          phone: user.phone || "",
+          passwordHash: "",
+          role: "CUSTOMER",
+          customerType: "B2C",
+          rewardPoints: user.rewardPoints || 100,
+        },
+      });
+
+      dbUser = {
+        id: created.id,
+        name: created.name,
+        email: created.email,
+        phone: created.phone,
+        customerType: created.customerType,
+        companyName: created.companyName,
+        gstin: created.gstin,
+        rewardPoints: created.rewardPoints,
+        createdAt: created.createdAt,
+      };
+    }
 
     if (!dbUser) {
       return NextResponse.json(
@@ -95,10 +128,10 @@ export async function PATCH(request: Request) {
   }
 
   const ip = request.headers.get("x-forwarded-for") || "127.0.0.1";
-  const rateLimit = checkRateLimit(`profile-update:${user.id}:${ip}`, 10, 60000);
+  const rateLimit = checkRateLimit(`profile-update:${user.id || user.email}:${ip}`, 10, 60000);
   if (!rateLimit.allowed) {
     return NextResponse.json(
-      { success: false, message: "Too many update requests." },
+      { success: false, message: "Too many update requests. Please try again later." },
       { status: 429, headers },
     );
   }
@@ -141,7 +174,7 @@ export async function PATCH(request: Request) {
         const gstinPattern = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
         if (!gstinPattern.test(gstin.toUpperCase().trim())) {
           return NextResponse.json(
-            { success: false, message: "Invalid GSTIN format." },
+            { success: false, message: "Invalid GSTIN format. Must be 15 alphanumeric characters." },
             { status: 400, headers },
           );
         }
@@ -179,8 +212,35 @@ export async function PATCH(request: Request) {
       });
     }
 
+    // 1. Locate target user by ID or Email
+    let targetUser = await db.user.findFirst({
+      where: {
+        OR: [
+          ...(user.id ? [{ id: user.id }] : []),
+          ...(user.email ? [{ email: normalizeEmail(user.email) }] : []),
+        ],
+      },
+    });
+
+    // 2. If not found in DB, create record
+    if (!targetUser) {
+      const cleanEmail = normalizeEmail(user.email || `user_${Date.now()}@prayogindia.com`);
+      targetUser = await db.user.create({
+        data: {
+          name: updateData.name || user.name || "Prayog Customer",
+          email: cleanEmail,
+          phone: updateData.phone || user.phone || "",
+          passwordHash: "",
+          role: "CUSTOMER",
+          customerType: "B2C",
+          rewardPoints: user.rewardPoints || 100,
+        },
+      });
+    }
+
+    // 3. Update database record
     const updatedUser = await db.user.update({
-      where: { id: user.id },
+      where: { id: targetUser.id },
       data: updateData,
       select: {
         id: true,
@@ -194,11 +254,34 @@ export async function PATCH(request: Request) {
       },
     });
 
-    return NextResponse.json({
+    // 4. Update session cookie
+    const updatedPayload = {
+      ...user,
+      id: updatedUser.id,
+      name: updatedUser.name,
+      phone: updatedUser.phone,
+      customerType: updatedUser.customerType,
+      companyName: updatedUser.companyName,
+      gstin: updatedUser.gstin,
+    };
+
+    const response = NextResponse.json({
       success: true,
       message: "Profile updated successfully.",
       data: updatedUser,
     });
+
+    response.cookies.set({
+      name: "prayog_customer_session",
+      value: JSON.stringify(updatedPayload),
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+      maxAge: 60 * 60 * 24 * 7,
+    });
+
+    return response;
   } catch (error: any) {
     return NextResponse.json(
       { success: false, message: error.message || "Failed to update profile." },

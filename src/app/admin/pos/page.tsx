@@ -49,10 +49,9 @@ import {
 } from "lucide-react";
 import { PRODUCTS, Product } from "@/data/mockData";
 import { QuickViewModal } from "@/components/Modals";
-import {
-  getProductStockForStore,
-  deductStoreInventory,
-} from "@/lib/inventoryEngine";
+// NOTE: inventoryEngine functions (getProductStockForStore, deductStoreInventory)
+// are now server-only (DB-backed via Prisma). Stock is retrieved via /api/pos/products API.
+// Deduction happens server-side via /api/store/orders.
 import {
   WalkInSession,
   SessionStatus,
@@ -537,29 +536,18 @@ export default function WalkInPOSPage() {
   const [companyAddress, setCompanyAddress] = useState("");
   const [communityOptIn, setCommunityOptIn] = useState(true);
 
+  // API-fetched products with real DB stock data
+  const [apiProducts, setApiProducts] = useState<Record<string, {availableQuantity: number}>>({});
+
+  // Helper: get live stock for a product from API-fetched data
+  const getLocalStock = (productId: string): number => {
+    return apiProducts[productId]?.availableQuantity ?? 0;
+  };
+
   // Search & Cart State
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
-  const [posCart, setPosCart] = useState<POSCartItem[]>([
-    {
-      product: PRODUCTS[0],
-      quantity: 1,
-      unitPrice: calculateCustomerPrice(
-        PRODUCTS[0].price,
-        "Walk-in Customer",
-        1,
-      ).unitPrice,
-    },
-    {
-      product: PRODUCTS[2],
-      quantity: 1,
-      unitPrice: calculateCustomerPrice(
-        PRODUCTS[2].price,
-        "Walk-in Customer",
-        1,
-      ).unitPrice,
-    },
-  ]);
+  const [posCart, setPosCart] = useState<POSCartItem[]>([]);
 
   // Recalculate cart prices when customerType changes
   useEffect(() => {
@@ -635,6 +623,26 @@ export default function WalkInPOSPage() {
     checkStaffAuth();
   }, []);
 
+  // Fetch live stock data from API whenever store changes
+  useEffect(() => {
+    async function fetchStoreStock() {
+      try {
+        const res = await fetch(`/api/pos/products?storeId=${encodeURIComponent(selectedStore)}`);
+        const data = await res.json();
+        if (data?.success && Array.isArray(data.data)) {
+          const stockMap: Record<string, {availableQuantity: number}> = {};
+          data.data.forEach((p: {id: string; availableQuantity?: number; localStock?: number}) => {
+            stockMap[p.id] = { availableQuantity: p.availableQuantity ?? p.localStock ?? 0 };
+          });
+          setApiProducts(stockMap);
+        }
+      } catch {
+        // Fallback: stock remains at 0, add-to-cart will use conservative defaults
+      }
+    }
+    fetchStoreStock();
+  }, [selectedStore]);
+
   // Handle Terminal Key Activation
   const handleAuthorizeDevice = (e: React.FormEvent) => {
     e.preventDefault();
@@ -709,7 +717,7 @@ export default function WalkInPOSPage() {
   });
 
   const handleAddToCart = (product: Product) => {
-    const storeStock = getProductStockForStore(product.id, selectedStore);
+    const storeStock = getLocalStock(product.id);
     if (storeStock <= 0) {
       alert(
         `Cannot add "${product.name}" to cart: Out of stock at ${selectedStore.toUpperCase()} store (Available: 0). Central product catalogue is available but this branch has 0 inventory.`,
@@ -748,7 +756,7 @@ export default function WalkInPOSPage() {
   };
 
   const handleUpdateQuantity = (productId: string, delta: number) => {
-    const storeStock = getProductStockForStore(productId, selectedStore);
+    const storeStock = getLocalStock(productId);
 
     setPosCart(
       (prev) =>
@@ -799,15 +807,8 @@ export default function WalkInPOSPage() {
     const typeRule = CUSTOMER_TYPE_RULES[ruleCode];
     const { coinsEarned } = calculateEarnedRewards(grandTotal, customerType);
 
-    // Deduct stock specifically from the active physical store branch
-    posCart.forEach((item) => {
-      deductStoreInventory({
-        productId: item.product.id,
-        quantity: item.quantity,
-        orderSource: "WALK_IN",
-        storeId: selectedStore,
-      });
-    });
+    // Inventory deduction happens server-side via /api/store/orders
+    // when handleCompleteSale submits to the store orders API.
 
     setCompletedTransaction({
       invoiceNo: `POS-${currentStoreId}-${Date.now().toString().slice(-6)}`,
@@ -1532,10 +1533,7 @@ export default function WalkInPOSPage() {
                 {/* Product Quick-Click Grid */}
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 max-h-[600px] overflow-y-auto pr-1">
                   {filteredProducts.map((product) => {
-                    const storeStock = getProductStockForStore(
-                      product.id,
-                      selectedStore,
-                    );
+                    const storeStock = getLocalStock(product.id);
                     const isStoreAvailable = storeStock > 0;
 
                     return (

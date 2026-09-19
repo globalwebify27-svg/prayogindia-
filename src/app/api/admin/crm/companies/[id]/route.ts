@@ -156,6 +156,21 @@ export async function PATCH(
         return NextResponse.json({ success: false, message: "Unauthorized for this store" }, { status: 403, headers });
       }
 
+      // Resolve staff user ID if exists in DB
+      let dbStaffId: string | null = null;
+      if (staff?.id) {
+        const foundStaff = await db.staffUser.findFirst({
+          where: {
+            OR: [
+              { id: staff.id },
+              { username: staff.username },
+              ...(staff.email ? [{ email: staff.email }] : []),
+            ],
+          },
+        });
+        dbStaffId = foundStaff ? foundStaff.id : null;
+      }
+
       const updateData: any = {};
       if (name) updateData.name = name.trim();
       if (companyType) updateData.companyType = companyType;
@@ -169,9 +184,27 @@ export async function PATCH(
       if (city !== undefined) updateData.city = city;
       if (state !== undefined) updateData.state = state;
       if (pincode !== undefined) updateData.pincode = pincode;
-      if (status) updateData.status = status;
-      if (assignedStoreId !== undefined) updateData.assignedStoreId = assignedStoreId;
-      if (assignedStaffId !== undefined) updateData.assignedStaffId = assignedStaffId;
+      if (status) {
+        const validStatuses = ["LEAD", "PROSPECT", "NEGOTIATION", "ACTIVE_CUSTOMER", "INACTIVE", "LOST", "BLOCKED"];
+        if (validStatuses.includes(status)) updateData.status = status;
+      }
+      if (assignedStoreId !== undefined) {
+        let dbStoreId: string | null = null;
+        if (assignedStoreId) {
+          const foundStore = await db.store.findFirst({
+            where: {
+              OR: [
+                { id: assignedStoreId },
+                { code: { equals: assignedStoreId.toUpperCase(), mode: "insensitive" } },
+                { name: { contains: assignedStoreId, mode: "insensitive" } },
+              ],
+            },
+          });
+          dbStoreId = foundStore ? foundStore.id : null;
+        }
+        updateData.assignedStoreId = dbStoreId;
+      }
+      if (assignedStaffId !== undefined) updateData.assignedStaffId = dbStaffId;
       if (notes !== undefined) updateData.notes = notes;
       if (rating !== undefined) updateData.rating = Number(rating);
 
@@ -181,14 +214,14 @@ export async function PATCH(
           activityType: "NOTE",
           title: `Status Changed: ${existing.status} → ${status}`,
           description: activityNote || `Relationship status updated by ${staff.name} (${staff.role}).`,
-          performedByStaffId: staff.id,
+          performedByStaffId: dbStaffId,
         };
       } else if (activityNote) {
         activityCreate = {
           activityType: "NOTE",
           title: "Account Details Updated",
           description: activityNote,
-          performedByStaffId: staff.id,
+          performedByStaffId: dbStaffId,
         };
       }
 

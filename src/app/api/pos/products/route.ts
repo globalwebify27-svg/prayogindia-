@@ -39,7 +39,7 @@ export async function GET(request: Request) {
   }
 
   const storeId = (requestedStore.toLowerCase() || "ranchi") as StoreId;
-  const products = searchStoreProducts({
+  const products = await searchStoreProducts({
     storeId,
     query,
     category,

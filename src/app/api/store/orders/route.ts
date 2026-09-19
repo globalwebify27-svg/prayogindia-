@@ -122,7 +122,7 @@ export async function POST(request: Request) {
     }
 
     // 1. Authoritative Backend Cart Stock Validation
-    const validation = validateCartForStore({
+    const validation = await validateCartForStore({
       storeId: targetStore,
       items: items.map((i: any) => ({
         productId: i.productId || i.id,
@@ -152,9 +152,9 @@ export async function POST(request: Request) {
     for (const item of items) {
       const pid = item.productId || item.id;
       const qty = item.quantity || 1;
-      const unitPrice = getProductPriceForStore(pid, targetStore);
+      const unitPrice = await getProductPriceForStore(pid, targetStore);
 
-      const deductionResult = deductStoreInventory({
+      const deductionResult = await deductStoreInventory({
         productId: pid,
         quantity: qty,
         orderSource: "WALK_IN",

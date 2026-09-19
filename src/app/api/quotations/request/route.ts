@@ -175,6 +175,63 @@ export async function POST(request: Request) {
         },
       });
 
+      // 3. Automatically register or update B2B CRM Account in /admin/relationships
+      try {
+        let b2bCompany = await db.b2BCompany.findFirst({
+          where: {
+            OR: [
+              { name: { equals: finalCompanyName, mode: "insensitive" } },
+              { email: finalEmail ? { equals: finalEmail, mode: "insensitive" } : undefined },
+            ],
+          },
+        });
+
+        if (!b2bCompany) {
+          b2bCompany = await db.b2BCompany.create({
+            data: {
+              name: finalCompanyName,
+              companyType: institutionType || "Corporate",
+              email: finalEmail,
+              phone: finalPhone,
+              gstin: gstin || null,
+              shippingAddress: shippingAddress || null,
+              billingAddress: billingAddress || null,
+              status: "PROSPECT",
+              assignedStoreId: store.id,
+              notes: notes ? `Quote #${quoteNumber} notes: ${notes}` : `Auto-created from B2B Quote Request #${quoteNumber}`,
+              contacts: {
+                create: {
+                  name: finalCustomerName,
+                  phone: finalPhone,
+                  email: finalEmail,
+                  designation: "Procurement / Contact Person",
+                  isPrimary: true,
+                },
+              },
+              activities: {
+                create: {
+                  activityType: "QUOTE_EVENT",
+                  title: `New B2B Quotation Request (#${quoteNumber})`,
+                  description: `Submitted quotation request for ${items.length} line item(s). Status: REQUESTED.`,
+                },
+              },
+            },
+          });
+        } else {
+          // Log activity on existing company
+          await db.b2BActivity.create({
+            data: {
+              companyId: b2bCompany.id,
+              activityType: "QUOTE_EVENT",
+              title: `New Quotation Request Submitted (#${quoteNumber})`,
+              description: `Submitted quotation request for ${items.length} line item(s).`,
+            },
+          });
+        }
+      } catch (crmErr) {
+        console.warn("B2B CRM Auto-Sync Notice:", crmErr);
+      }
+
       return NextResponse.json({
         success: true,
         message: "Quotation request submitted successfully. Our B2B desk will review and send formal pricing.",

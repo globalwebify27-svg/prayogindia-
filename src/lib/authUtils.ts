@@ -5,7 +5,12 @@ export interface AuthSessionUser {
   name: string;
   email: string;
   phone: string;
-  role: "CUSTOMER";
+  role: "CUSTOMER" | "ADMIN";
+  customerType?: string;
+  companyName?: string | null;
+  gstin?: string | null;
+  rewardPoints?: number;
+  avatarUrl?: string;
 }
 
 /**

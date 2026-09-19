@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import {
@@ -26,6 +26,25 @@ import {
 export default function AdminDashboardPage() {
   const [selectedBranchFilter, setSelectedBranchFilter] =
     useState("All Locations");
+  const [stats, setStats] = useState<{
+    totalProducts?: number;
+    activeProducts?: number;
+    lowStockProducts?: number;
+    totalOrders?: number;
+    totalCustomers?: number;
+    openSupportTickets?: number;
+  }>({});
+
+  useEffect(() => {
+    fetch("/api/admin/dashboard/stats")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && data.data?.metrics) {
+          setStats(data.data.metrics);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
@@ -99,15 +118,14 @@ export default function AdminDashboardPage() {
           </div>
           <div className="mt-2">
             <div className="text-xl font-black text-slate-900">
-              24,832{" "}
+              {stats.totalProducts !== undefined ? stats.totalProducts.toLocaleString("en-IN") : "24,832"}{" "}
               <span className="text-xs font-semibold text-slate-500">
-                Units
+                Products
               </span>
             </div>
             <div className="flex items-center justify-between mt-1 text-[11px]">
               <span className="text-emerald-600 font-bold flex items-center gap-0.5">
-                <TrendingUp className="w-3 h-3" /> 8.4%{" "}
-                <span className="text-slate-400 font-normal">vs last week</span>
+                <TrendingUp className="w-3 h-3" /> {stats.activeProducts !== undefined ? `${stats.activeProducts} Active` : "8.4% vs last week"}
               </span>
               <svg
                 className="w-16 h-5 text-emerald-500"
@@ -134,14 +152,13 @@ export default function AdminDashboardPage() {
           </div>
           <div className="mt-2">
             <div className="text-xl font-black text-slate-900">
-              128{" "}
+              {stats.lowStockProducts !== undefined ? stats.lowStockProducts : 128}{" "}
               <span className="text-xs font-semibold text-slate-500">
                 Items
               </span>
             </div>
             <div className="mt-1 text-[11px] text-rose-500 font-bold flex items-center gap-0.5">
-              <TrendingDown className="w-3 h-3" /> 3.1%{" "}
-              <span className="text-slate-400 font-normal">vs last week</span>
+              <TrendingDown className="w-3 h-3" /> Requires Reorder
             </div>
           </div>
         </div>
@@ -150,17 +167,18 @@ export default function AdminDashboardPage() {
         <div className="bg-white border border-slate-200/90 rounded-2xl p-4 shadow-2xs flex flex-col justify-between">
           <div className="flex items-start justify-between">
             <span className="text-xs font-bold text-slate-600">
-              Inter-Store Transfers
+              Open Support Tickets
             </span>
             <div className="w-9 h-9 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center">
               <ArrowLeftRight className="w-5 h-5" />
             </div>
           </div>
           <div className="mt-2">
-            <div className="text-xl font-black text-slate-900">24</div>
+            <div className="text-xl font-black text-slate-900">
+              {stats.openSupportTickets !== undefined ? stats.openSupportTickets : 24}
+            </div>
             <div className="mt-1 text-[11px] text-emerald-600 font-bold flex items-center gap-0.5">
-              <TrendingUp className="w-3 h-3" /> 18.2%{" "}
-              <span className="text-slate-400 font-normal">vs last week</span>
+              <TrendingUp className="w-3 h-3" /> Live Customer Tickets
             </div>
           </div>
         </div>
@@ -169,17 +187,18 @@ export default function AdminDashboardPage() {
         <div className="bg-white border border-slate-200/90 rounded-2xl p-4 shadow-2xs flex flex-col justify-between">
           <div className="flex items-start justify-between">
             <span className="text-xs font-bold text-slate-600">
-              Pending Orders
+              Total Customer Orders
             </span>
             <div className="w-9 h-9 rounded-xl bg-sky-50 text-sky-500 flex items-center justify-center">
               <ShoppingBag className="w-5 h-5" />
             </div>
           </div>
           <div className="mt-2">
-            <div className="text-xl font-black text-slate-900">56</div>
-            <div className="mt-1 text-[11px] text-rose-500 font-bold flex items-center gap-0.5">
-              <TrendingDown className="w-3 h-3" /> 4.3%{" "}
-              <span className="text-slate-400 font-normal">vs last week</span>
+            <div className="text-xl font-black text-slate-900">
+              {stats.totalOrders !== undefined ? stats.totalOrders : 56}
+            </div>
+            <div className="mt-1 text-[11px] text-emerald-600 font-bold flex items-center gap-0.5">
+              <CheckCircle2 className="w-3 h-3" /> {stats.totalCustomers !== undefined ? `${stats.totalCustomers} Customers` : "Active Operations"}
             </div>
           </div>
         </div>

@@ -44,7 +44,7 @@ export async function GET(request: Request) {
 
   // 1. Audit Trail Transactions Log
   if (mode === "transactions") {
-    const transactions = getInventoryTransactions({
+    const transactions = await getInventoryTransactions({
       storeId: storeIdParam
         ? (storeIdParam.toLowerCase() as StoreId)
         : undefined,
@@ -65,7 +65,7 @@ export async function GET(request: Request) {
 
   // 2. Single Store View
   if (mode === "store") {
-    let items = getStoreInventory(storeId);
+    let items = await getStoreInventory(storeId);
     if (q) {
       items = items.filter(
         (i) =>
@@ -92,7 +92,7 @@ export async function GET(request: Request) {
   }
 
   // 3. Multi-Store Matrix View (Default for Super Admin)
-  let matrix = getMultiStoreInventoryMatrix();
+  let matrix = await getMultiStoreInventoryMatrix();
   if (q) {
     matrix = matrix.filter(
       (m) =>
@@ -156,7 +156,7 @@ export async function PATCH(request: Request) {
       );
     }
 
-    const result = adjustStoreInventory({
+    const result = await adjustStoreInventory({
       storeId,
       productId,
       quantityChange,
@@ -166,74 +166,12 @@ export async function PATCH(request: Request) {
       deviceId: staff.deviceId || "ADMIN-CONSOLE",
     });
 
-    // PostgreSQL Persistent Sync
-    if (process.env.DATABASE_URL) {
+    // Audit log (inventory engine already persists to DB; log to unified audit trail)
+    if (result.success) {
       try {
-        const dbStore = await db.store.findFirst({
-          where: {
-            OR: [
-              { code: storeId.toUpperCase() },
-              { id: storeId },
-            ],
-          },
-        });
-
-        const dbProduct = await db.product.findFirst({
-          where: {
-            OR: [
-              { id: productId },
-              { sku: productId },
-            ],
-          },
-        });
-
+        const dbStore = await db.store.findFirst({ where: { OR: [{ code: storeId.toUpperCase() }, { id: storeId }] } });
+        const dbProduct = await db.product.findFirst({ where: { OR: [{ id: productId }, { sku: productId }] } });
         if (dbStore && dbProduct) {
-          const invRecord = await db.storeInventory.upsert({
-            where: {
-              storeId_productId: {
-                storeId: dbStore.id,
-                productId: dbProduct.id,
-              },
-            },
-            update: {
-              quantity: result.newQuantity,
-              availableQuantity: result.newQuantity,
-              status:
-                result.newQuantity === 0
-                  ? "OUT_OF_STOCK"
-                  : result.newQuantity <= 5
-                    ? "LOW_STOCK"
-                    : "IN_STOCK",
-            },
-            create: {
-              storeId: dbStore.id,
-              productId: dbProduct.id,
-              quantity: result.newQuantity,
-              availableQuantity: result.newQuantity,
-              status:
-                result.newQuantity === 0
-                  ? "OUT_OF_STOCK"
-                  : result.newQuantity <= 5
-                    ? "LOW_STOCK"
-                    : "IN_STOCK",
-            },
-          });
-
-          await db.inventoryTransaction.create({
-            data: {
-              storeId: dbStore.id,
-              productId: dbProduct.id,
-              transactionType,
-              quantityBefore: Math.max(0, result.newQuantity - quantityChange),
-              quantityChange,
-              quantityAfter: result.newQuantity,
-              userId: staff.id,
-              referenceId: invRecord.id,
-              notes: reason || `Manual adjustment: ${transactionType}`,
-            },
-          });
-
-          // Immutable Unified Audit Log
           await recordAuditLog({
             actionCategory: "INVENTORY",
             action: `INVENTORY_ADJUST_${transactionType}`,
@@ -242,29 +180,12 @@ export async function PATCH(request: Request) {
             description: `Inventory adjusted by ${quantityChange > 0 ? "+" : ""}${quantityChange} for ${dbProduct.name} (${dbProduct.sku}) in ${dbStore.name}. Reason: ${reason || "Manual adjustment"}`,
             actor: staff,
             storeId: dbStore.id,
-            previousValue: {
-              productId: dbProduct.id,
-              productName: dbProduct.name,
-              sku: dbProduct.sku,
-              quantity: Math.max(0, result.newQuantity - quantityChange),
-            },
-            newValue: {
-              productId: dbProduct.id,
-              productName: dbProduct.name,
-              sku: dbProduct.sku,
-              quantity: result.newQuantity,
-            },
-            metadata: {
-              transactionType,
-              quantityChange,
-              reason: reason || null,
-              deviceId: staff.deviceId || null,
-            },
+            metadata: { transactionType, quantityChange, reason: reason || null },
             req: request,
           });
         }
-      } catch (dbErr) {
-        console.warn("DB inventory sync skipped:", dbErr);
+      } catch (auditErr) {
+        console.warn("Audit log write skipped:", auditErr);
       }
     }
 
@@ -287,4 +208,9 @@ export async function PATCH(request: Request) {
       { status: 500, headers },
     );
   }
+}
+
+// POST alias for clients submitting adjustments via POST
+export async function POST(request: Request) {
+  return PATCH(request);
 }

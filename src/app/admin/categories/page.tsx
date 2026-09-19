@@ -81,7 +81,10 @@ function CategoryRow({
       </button>
 
       {/* Folder Icon */}
-      <span className="text-slate-400 shrink-0">
+      <span
+        onClick={hasChildren ? onToggle : undefined}
+        className={`text-slate-400 shrink-0 ${hasChildren ? "cursor-pointer" : ""}`}
+      >
         {hasChildren ? (
           expanded ? (
             <FolderOpen className="w-4 h-4 text-amber-500" />
@@ -94,8 +97,11 @@ function CategoryRow({
       </span>
 
       {/* Category Name */}
-      <div className="flex-1 min-w-0">
-        <span className="text-xs font-bold text-slate-900 truncate block">
+      <div
+        onClick={hasChildren ? onToggle : undefined}
+        className={`flex-1 min-w-0 ${hasChildren ? "cursor-pointer" : ""}`}
+      >
+        <span className="text-xs font-bold text-slate-900 truncate block hover:text-[#00AEEF] transition-colors">
           {node.name}
         </span>
         <span className="text-[9px] font-mono text-slate-400 truncate block">
@@ -104,7 +110,7 @@ function CategoryRow({
       </div>
 
       {/* Meta */}
-      <div className="flex items-center gap-2 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+      <div className="flex items-center gap-2 shrink-0">
         <span className="text-[9px] text-slate-400 font-medium hidden sm:block">
           {node.productCount.toLocaleString()} products
         </span>
@@ -218,7 +224,9 @@ export default function AdminCategoriesPage() {
                 ? transform(c.children, (level + 1) as 0|1|2)
                 : undefined,
             }));
-          setCategories(transform(data.data));
+          const transformed = transform(data.data);
+          setCategories(transformed);
+          setExpandedIds(new Set(transformed.slice(0, 5).map((c) => c.id)));
           setApiLoaded(true);
         }
       })
