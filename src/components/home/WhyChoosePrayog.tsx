@@ -69,13 +69,13 @@ export const WhyChoosePrayog: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
         {/* Section Header */}
         <div className="text-center max-w-2xl mx-auto space-y-2">
-          <span className="text-[11px] font-black uppercase tracking-widest text-[#00AEEF]">
+          <span className="text-[11px] font-bold uppercase tracking-wider text-[#00AEEF]">
             The Prayog Advantage
           </span>
-          <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+          <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
             Why Choose Prayog India
           </h2>
-          <p className="text-xs sm:text-sm text-slate-500">
+          <p className="text-xs sm:text-sm text-slate-500 font-normal">
             India’s trusted ecosystem for authentic robotics hardware,
             institutional lab setups & technical support.
           </p>
@@ -95,10 +95,10 @@ export const WhyChoosePrayog: React.FC = () => {
               <div className="w-12 h-12 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-center group-hover:scale-110 transition-transform">
                 {feat.icon}
               </div>
-              <h3 className="text-base font-extrabold text-slate-900 group-hover:text-[#00AEEF] transition-colors">
+              <h3 className="text-base font-bold text-slate-900 group-hover:text-[#00AEEF] transition-colors">
                 {feat.title}
               </h3>
-              <p className="text-xs text-slate-500 leading-relaxed">
+              <p className="text-xs text-slate-500 leading-relaxed font-normal">
                 {feat.description}
               </p>
             </motion.div>

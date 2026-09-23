@@ -78,7 +78,7 @@ export const FeaturedCategories: React.FC<Props> = ({
         {/* Section Header */}
         <div className="flex items-center justify-between border-b border-slate-100 pb-3">
           <div className="flex items-center gap-3">
-            <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+            <h2 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
               Featured Products
             </h2>
             <div className="h-1 w-12 bg-[#00AEEF] rounded-full hidden sm:block" />
@@ -86,7 +86,7 @@ export const FeaturedCategories: React.FC<Props> = ({
 
           <Link
             href="/products?filter=featured"
-            className="text-xs font-bold text-[#00AEEF] hover:text-white bg-[#00AEEF]/5 hover:bg-[#00AEEF] border border-[#00AEEF]/30 hover:border-[#00AEEF] px-4 py-1.5 rounded-xl transition-all shadow-xs"
+            className="text-xs font-semibold text-[#00AEEF] hover:text-white bg-[#00AEEF]/5 hover:bg-[#00AEEF] border border-[#00AEEF]/30 hover:border-[#00AEEF] px-4 py-1.5 rounded-xl transition-all shadow-xs"
           >
             View All
           </Link>
@@ -97,7 +97,7 @@ export const FeaturedCategories: React.FC<Props> = ({
           {/* Left Promo Card: visible on lg+ desktop to prevent banner crowding on smaller viewports */}
           <div className="hidden lg:flex lg:col-span-3 bg-gradient-to-b from-[#F8FAFC] to-[#EEF2F6] border border-slate-200/80 rounded-2xl p-6 flex-col justify-between overflow-hidden relative shadow-xs min-h-[380px]">
             <div className="relative z-10 space-y-2">
-              <h3 className="text-xl font-extrabold text-[#1E293B] leading-snug">
+              <h3 className="text-xl font-bold text-slate-900 leading-snug">
                 Welcome to Our Store
               </h3>
               <p className="text-xs text-slate-500 font-medium leading-relaxed">
@@ -106,7 +106,7 @@ export const FeaturedCategories: React.FC<Props> = ({
               <div className="pt-2">
                 <Link
                   href="/products"
-                  className="inline-block bg-[#00AEEF] hover:bg-[#0098D4] text-white text-xs font-black px-5 py-2.5 rounded-xl shadow-md shadow-[#00AEEF]/20 hover:shadow-lg transition-all active:scale-95 cursor-pointer"
+                  className="inline-block bg-[#00AEEF] hover:bg-[#0098D4] text-white text-xs font-semibold px-5 py-2.5 rounded-xl shadow-md shadow-[#00AEEF]/20 hover:shadow-lg transition-all active:scale-95 cursor-pointer"
                 >
                   Shop Now
                 </Link>

@@ -232,11 +232,11 @@ export const BrandPartners: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6 text-center">
         {/* Section Header */}
         <div className="flex flex-col items-center gap-1.5">
-          <span className="text-[10.5px] font-black uppercase tracking-widest text-slate-400 select-none">
-            OFFICIAL HARDWARE & COMPONENT PARTNERS
+          <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 select-none">
+            Official Hardware &amp; Component Partners
           </span>
-          <span className="text-[11px] text-slate-400">
-            India&apos;s authorized source for authentic robotics microchips, autopilots & sensors
+          <span className="text-xs text-slate-400 font-normal">
+            India&apos;s authorized source for authentic robotics microchips, autopilots &amp; sensors
           </span>
         </div>
 
@@ -256,7 +256,7 @@ export const BrandPartners: React.FC = () => {
                   />
 
                   {/* Brand Name */}
-                  <span className="text-xs font-bold text-slate-700 group-hover:text-slate-900 transition-colors whitespace-nowrap tracking-tight">
+                  <span className="text-xs font-semibold text-slate-700 group-hover:text-slate-900 transition-colors whitespace-nowrap tracking-tight">
                     {b.name}
                   </span>
                 </div>

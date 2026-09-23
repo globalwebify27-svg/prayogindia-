@@ -36,7 +36,8 @@ interface ProductInfoProps {
   product: Product;
   selectedVariant: ProductVariant | null;
   onSelectVariant: (variant: ProductVariant) => void;
-  onAddToCart: (product: Product) => void;
+  onAddToCart: (product: Product, quantity?: number) => void;
+  onBuyNow?: (product: Product, quantity?: number) => void;
   onToggleWishlist: (product: Product) => void;
   isWishlisted: boolean;
 }
@@ -46,9 +47,11 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
   selectedVariant,
   onSelectVariant,
   onAddToCart,
+  onBuyNow,
   onToggleWishlist,
   isWishlisted,
 }) => {
+  const [quantity, setQuantity] = React.useState(1);
   const currentPrice = selectedVariant ? selectedVariant.price : product.price;
   const currentMrp = selectedVariant ? selectedVariant.mrp : product.mrp;
   const currentSku = selectedVariant ? selectedVariant.sku : product.sku;
@@ -498,23 +501,60 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
       })()}
 
       {/* Customer Purchase Action Buttons */}
-      <div className="space-y-2.5 pt-3 border-t border-slate-100">
+      <div className="space-y-3 pt-3 border-t border-slate-100">
         {currentStock ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-            <button
-              onClick={() => onAddToCart(product)}
-              className="w-full bg-[#00AEEF] hover:bg-[#0096D6] text-white py-3 rounded-xl font-extrabold text-xs uppercase tracking-wider transition-all shadow-md shadow-[#00AEEF]/25 flex items-center justify-center gap-2 active:scale-95 cursor-pointer"
-            >
-              <ShoppingBag className="w-4 h-4" />
-              <span>Add to Cart</span>
-            </button>
+          <div className="space-y-3">
+            {/* Quantity Selector */}
+            <div className="flex items-center justify-between bg-slate-50 border border-slate-200/90 rounded-2xl p-2.5 px-3.5">
+              <span className="text-xs font-bold text-slate-700">Quantity:</span>
+              <div className="flex items-center gap-3">
+                <div className="flex items-center bg-white border border-slate-200 rounded-xl overflow-hidden shadow-2xs">
+                  <button
+                    type="button"
+                    onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                    disabled={quantity <= 1}
+                    className="w-8 h-8 flex items-center justify-center text-slate-600 hover:bg-slate-100 active:scale-95 disabled:opacity-40 disabled:hover:bg-transparent font-bold text-sm cursor-pointer transition-colors"
+                  >
+                    -
+                  </button>
+                  <span className="w-10 text-center text-xs font-black text-slate-900 select-none">
+                    {quantity}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setQuantity((q) => Math.min(50, q + 1))}
+                    disabled={quantity >= 50}
+                    className="w-8 h-8 flex items-center justify-center text-slate-600 hover:bg-slate-100 active:scale-95 disabled:opacity-40 disabled:hover:bg-transparent font-bold text-sm cursor-pointer transition-colors"
+                  >
+                    +
+                  </button>
+                </div>
+                <span className="text-xs font-extrabold text-[#00AEEF]">
+                  ₹{(currentPrice * quantity).toLocaleString("en-IN")}
+                </span>
+              </div>
+            </div>
 
-            <button
-              onClick={() => onAddToCart(product)}
-              className="w-full bg-slate-900 hover:bg-slate-800 text-white py-3 rounded-xl font-extrabold text-xs uppercase tracking-wider transition-all shadow-md flex items-center justify-center gap-2 active:scale-95 cursor-pointer"
-            >
-              <span>Buy Now</span>
-            </button>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              <button
+                onClick={() => onAddToCart(product, quantity)}
+                className="w-full bg-[#00AEEF] hover:bg-[#0096D6] text-white py-3 rounded-xl font-extrabold text-xs uppercase tracking-wider transition-all shadow-md shadow-[#00AEEF]/25 flex items-center justify-center gap-2 active:scale-95 cursor-pointer"
+              >
+                <ShoppingBag className="w-4 h-4" />
+                <span>Add to Cart</span>
+              </button>
+
+              <button
+                onClick={() =>
+                  onBuyNow
+                    ? onBuyNow(product, quantity)
+                    : onAddToCart(product, quantity)
+                }
+                className="w-full bg-slate-900 hover:bg-slate-800 text-white py-3 rounded-xl font-extrabold text-xs uppercase tracking-wider transition-all shadow-md flex items-center justify-center gap-2 active:scale-95 cursor-pointer"
+              >
+                <span>Buy Now</span>
+              </button>
+            </div>
           </div>
         ) : (
           <div className="space-y-3 bg-red-50/50 border border-red-200/80 rounded-2xl p-4 sm:p-5">

@@ -22,7 +22,7 @@ const ECOSYSTEM_CARDS: EcosystemCard[] = [
     id: "arts-design",
     title: "Arts & Design",
     category: "Rapid Prototyping",
-    description: "Generative 3D structures, digital fashion & avant-garde sculptures.",
+    description: "3D prototyping and computational design tools.",
     image: "https://res.cloudinary.com/fyueflvh/image/upload/v1788595369/prayog/ecosystem/arts-and-design.jpg",
     icon: Palette,
   },
@@ -30,7 +30,7 @@ const ECOSYSTEM_CARDS: EcosystemCard[] = [
     id: "uavs-drones",
     title: "UAVs & Drones",
     category: "Drone Technology",
-    description: "Autonomous Pixhawk flight autopilots, aerial telemetry & gimbal rigs.",
+    description: "Flight controllers, telemetry, and aerial kits.",
     image: "https://res.cloudinary.com/fyueflvh/image/upload/v1788595374/prayog/ecosystem/uavs-and-drones.jpg",
     icon: Plane,
   },
@@ -38,7 +38,7 @@ const ECOSYSTEM_CARDS: EcosystemCard[] = [
     id: "robotics",
     title: "Robotics",
     category: "Robotics Kits",
-    description: "Bio-inspired quadruped AGVs, metal servos & ROS 2 manipulators.",
+    description: "Manipulators, metal servos, and AGV components.",
     image: "https://res.cloudinary.com/fyueflvh/image/upload/v1788595373/prayog/ecosystem/robotics.jpg",
     icon: Bot,
   },
@@ -46,7 +46,7 @@ const ECOSYSTEM_CARDS: EcosystemCard[] = [
     id: "rapid-prototyping",
     title: "Rapid Prototyping",
     category: "Electronic Components",
-    description: "Industrial gear assemblies, mechatronic joints & fast CNC prototyping.",
+    description: "CNC tooling, mechatronic joints, and hardware.",
     image: "https://res.cloudinary.com/fyueflvh/image/upload/v1788595372/prayog/ecosystem/rapid-prototyping.jpg",
     icon: Layers,
   },
@@ -60,12 +60,11 @@ export const RoboticsCollectionShowcase: React.FC<Props> = ({
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="text-center max-w-2xl mx-auto space-y-1.5 mb-6 sm:mb-8">
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 tracking-tight">
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-900 tracking-tight">
             Robotics &amp; UAV Ecosystem
           </h2>
-          <p className="text-xs sm:text-sm text-slate-500 max-w-lg mx-auto leading-relaxed">
-            Engineered hardware ecosystems for universities, AI researchers,
-            drone pilots, and industrial automation labs.
+          <p className="text-sm text-slate-500 max-w-lg mx-auto leading-relaxed font-normal">
+            Engineered hardware for researchers, makers, and automation labs.
           </p>
         </div>
 
@@ -99,11 +98,11 @@ export const RoboticsCollectionShowcase: React.FC<Props> = ({
                 <div className="relative z-10 h-full flex flex-col justify-between items-start p-5 sm:p-7 pointer-events-none">
                   {/* Top-Left Heading & Reveal Subtitle */}
                   <div className="space-y-2 max-w-full">
-                    <span className="text-[10px] font-black uppercase tracking-widest text-[#00AEEF] bg-black/50 backdrop-blur-md px-2.5 py-1 rounded-full border border-white/15 inline-flex items-center gap-1.5 shadow-sm whitespace-nowrap">
+                    <span className="text-[10px] font-semibold uppercase tracking-wider text-[#00AEEF] bg-black/50 backdrop-blur-md px-2.5 py-1 rounded-full border border-white/15 inline-flex items-center gap-1.5 shadow-sm whitespace-nowrap">
                       <Icon className="w-3 h-3 shrink-0" />
                       {card.category}
                     </span>
-                    <h3 className="text-lg sm:text-xl lg:text-2xl font-extrabold text-white leading-tight tracking-tight drop-shadow-md group-hover:text-[#00AEEF] transition-colors duration-300">
+                    <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-white leading-tight tracking-tight group-hover:text-[#00AEEF] transition-colors duration-300">
                       {card.title}
                     </h3>
                     {/* Expandable description on hover */}

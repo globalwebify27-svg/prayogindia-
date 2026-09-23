@@ -20,6 +20,7 @@ import {
   Globe,
   Tag,
   Eye,
+  Edit3,
   RefreshCw,
   ArrowRight,
   ArrowLeft,
@@ -46,13 +47,24 @@ interface ProductItemRow {
   sku: string;
   brand?: string;
   category?: string | { name: string };
+  categoryName?: string;
   subcategory?: string;
   price: number;
+  mrp?: number;
+  stock?: number;
+  inStock?: boolean;
+  gstPercent?: number;
+  description?: string;
   weightGrams?: number;
   dimensionsCm?: { length: number; width: number; height: number };
   shippingTag?: string;
   image?: string;
   images?: Array<string | { imageUrl: string }>;
+  videoUrl?: string;
+  features?: string[];
+  applications?: string[];
+  whatsIncluded?: string[];
+  specs?: Record<string, string>;
   slug?: string;
 }
 
@@ -60,6 +72,8 @@ export default function AdminProductsPage() {
   const [products, setProducts] = useState<ProductItemRow[]>(PRODUCTS as unknown as ProductItemRow[]);
   const [searchQuery, setSearchQuery] = useState("");
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [modalMode, setModalMode] = useState<"create" | "edit">("create");
+  const [editingProduct, setEditingProduct] = useState<ProductItemRow | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [activeTab, setActiveTab] = useState<"general" | "media" | "specs" | "shipping">("general");
 
@@ -289,8 +303,144 @@ export default function AdminProductsPage() {
     }
   };
 
-  // Submit Product
-  const handleCreateProduct = async (e: React.FormEvent) => {
+  // Open Create Modal
+  const handleOpenCreate = () => {
+    setModalMode("create");
+    setEditingProduct(null);
+    setNewName("");
+    setNewSku("");
+    setNewBrand("Prayog India");
+    setNewCategory("Arduino & Microcontrollers");
+    setNewSubcategory("Development Boards");
+    setNewPrice("");
+    setNewMrp("");
+    setNewGstPercent("18");
+    setNewStock("25");
+    setNewDescription("");
+    setMediaList([]);
+    setVideoUrlInput("");
+    setFeaturesList([
+      "High-speed 32-bit core microcontroller",
+      "Onboard USB-C interface & voltage regulators",
+    ]);
+    setApplicationsList(["Robotics", "STEM Education", "IoT Smart Devices"]);
+    setIncludedList(["1x Hardware Board Module", "1x Quickstart Pinout Guide"]);
+    setSpecsRows([
+      { key: "Operating Voltage", val: "5V DC" },
+      { key: "Input Voltage (Limits)", val: "6-20V" },
+      { key: "Clock Speed", val: "16 MHz" },
+    ]);
+    setWeightGrams("250");
+    setDimLength("15");
+    setDimWidth("10");
+    setDimHeight("5");
+    setShippingTag("Standard Product");
+    setIsBatteryProduct(false);
+    setIsFragileItem(false);
+    setIsHazardousItem(false);
+    setIsDangerousGoods(false);
+    setAirFreightAllowed(true);
+    setSurfaceFreightAllowed(true);
+    setLocalPickupAllowed(true);
+    setActiveTab("general");
+    setShowCreateModal(true);
+  };
+
+  // Open Edit Modal with Pre-populated Product Data
+  const handleOpenEdit = (p: ProductItemRow) => {
+    setModalMode("edit");
+    setEditingProduct(p);
+    setNewName(p.name || "");
+    setNewSku(p.sku || "");
+    setNewBrand(p.brand || "Prayog India");
+
+    const catName =
+      typeof p.category === "object" && p.category !== null
+        ? p.category.name
+        : p.category || p.categoryName || "Arduino & Microcontrollers";
+    setNewCategory(catName);
+    setNewSubcategory(p.subcategory || "");
+    setNewPrice(String(p.price ?? ""));
+    setNewMrp(String(p.mrp ?? (p.price ? Math.round(p.price * 1.3) : "")));
+    setNewGstPercent(String(p.gstPercent ?? "18"));
+    setNewStock(String(p.stock ?? 25));
+    setNewDescription(p.description || "");
+
+    // Media
+    const loadedMedia: UploadedMediaItem[] = [];
+    if (Array.isArray(p.images) && p.images.length > 0) {
+      p.images.forEach((img, idx) => {
+        const url = typeof img === "string" ? img : img.imageUrl;
+        if (url) {
+          loadedMedia.push({
+            name: `Image ${idx + 1}`,
+            type: "image",
+            url,
+          });
+        }
+      });
+    } else if (p.image) {
+      loadedMedia.push({
+        name: "Primary Image",
+        type: "image",
+        url: p.image,
+      });
+    }
+    setMediaList(loadedMedia);
+    setVideoUrlInput(p.videoUrl || "");
+
+    // Features, applications, included
+    setFeaturesList(
+      p.features && p.features.length > 0 ? [...p.features] : [],
+    );
+    setApplicationsList(
+      p.applications && p.applications.length > 0 ? [...p.applications] : [],
+    );
+    setIncludedList(
+      p.whatsIncluded && p.whatsIncluded.length > 0 ? [...p.whatsIncluded] : [],
+    );
+
+    // Specs
+    if (p.specs && typeof p.specs === "object") {
+      setSpecsRows(
+        Object.entries(p.specs).map(([key, val]) => ({
+          key,
+          val: String(val),
+        })),
+      );
+    } else {
+      setSpecsRows([]);
+    }
+
+    // Weight & Dims
+    setWeightGrams(String(p.weightGrams ?? 250));
+    setDimLength(String(p.dimensionsCm?.length ?? 15));
+    setDimWidth(String(p.dimensionsCm?.width ?? 10));
+    setDimHeight(String(p.dimensionsCm?.height ?? 5));
+
+    // Shipping tag
+    const tag = (p.shippingTag as ShippingTagType) || "Standard Product";
+    setShippingTag(tag);
+    setIsBatteryProduct(
+      tag === "Battery Product" || (tag as string) === "Battery",
+    );
+    setIsFragileItem(
+      tag === "Fragile Product" || (tag as string) === "Fragile",
+    );
+    setIsHazardousItem(false);
+    setIsDangerousGoods(false);
+    setAirFreightAllowed(
+      !(tag === "Battery Product" || (tag as string) === "Battery"),
+    );
+    setSurfaceFreightAllowed(true);
+    setLocalPickupAllowed(true);
+
+    setActiveTab("general");
+    setShowCreateModal(true);
+  };
+
+  // Submit Product (Create or Edit)
+  const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newName || !newPrice || !newSku) {
       alert("Please fill in the Product Name, SKU, and Price.");
@@ -310,16 +460,21 @@ export default function AdminProductsPage() {
       if (r.key.trim()) specsObj[r.key.trim()] = r.val.trim();
     });
 
+    const parsedPrice = parseFloat(newPrice);
+    const parsedMrp = newMrp ? parseFloat(newMrp) : Math.round(parsedPrice * 1.3);
+    const parsedStock = parseInt(newStock, 10) || 0;
+
     const payload = {
       name: newName.trim(),
       sku: newSku.toUpperCase().trim(),
       brand: newBrand.trim(),
       categoryName: newCategory,
       subcategory: newSubcategory.trim(),
-      price: parseFloat(newPrice),
-      mrp: newMrp ? parseFloat(newMrp) : Math.round(parseFloat(newPrice) * 1.3),
+      price: parsedPrice,
+      mrp: parsedMrp,
       gstPercent: parseInt(newGstPercent, 10),
-      stock: parseInt(newStock, 10) || 0,
+      stock: parsedStock,
+      inStock: parsedStock > 0,
       description: newDescription.trim(),
       images: imageUrls,
       videoUrl: finalVideoUrl,
@@ -344,31 +499,55 @@ export default function AdminProductsPage() {
     };
 
     try {
-      const res = await fetch("/api/admin/products", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
+      if (modalMode === "edit" && editingProduct) {
+        const targetId = editingProduct.id || editingProduct.slug || editingProduct.sku;
+        const res = await fetch(`/api/admin/products/${targetId}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
 
-      const json = await res.json();
-      if (!res.ok || !json.success) {
-        throw new Error(json.message || "Failed to create product.");
+        const json = await res.json();
+        if (!res.ok || !json.success) {
+          throw new Error(json.message || "Failed to update product.");
+        }
+
+        // Update local state directly so table updates instantly
+        setProducts((prev) =>
+          prev.map((item) =>
+            item.id === editingProduct.id || item.sku === editingProduct.sku
+              ? {
+                  ...item,
+                  ...payload,
+                  category: newCategory,
+                  image: imageUrls[0] || item.image,
+                }
+              : item,
+          ),
+        );
+
+        alert(`✅ Product "${newName}" updated successfully!`);
+      } else {
+        const res = await fetch("/api/admin/products", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+
+        const json = await res.json();
+        if (!res.ok || !json.success) {
+          throw new Error(json.message || "Failed to create product.");
+        }
+
+        alert(
+          `✅ Product "${newName}" published successfully to Cloudinary & Central Catalog!`,
+        );
+        refreshProductList();
       }
 
-      alert(`✅ Product "${newName}" published successfully to Cloudinary & Central Catalog!`);
       setShowCreateModal(false);
-      refreshProductList();
-
-      // Reset form
-      setNewName("");
-      setNewSku("");
-      setNewPrice("");
-      setNewMrp("");
-      setNewDescription("");
-      setMediaList([]);
-      setVideoUrlInput("");
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Error creating product.";
+      const msg = err instanceof Error ? err.message : "Error saving product.";
       alert(`❌ ${msg}`);
     } finally {
       setIsSubmitting(false);
@@ -395,12 +574,12 @@ export default function AdminProductsPage() {
             Products &amp; Master Catalog
           </h1>
           <p className="text-xs text-slate-500">
-            Add products with rich frontend specs (Key Features, In-Box, Technical Specs) and multi-image / video Cloudinary CDN uploads.
+            Add and edit products with rich frontend specs (Key Features, In-Box, Technical Specs) and multi-image / video Cloudinary CDN uploads.
           </p>
         </div>
 
         <button
-          onClick={() => setShowCreateModal(true)}
+          onClick={handleOpenCreate}
           className="bg-[#00AEEF] hover:bg-[#0096D6] text-white px-5 py-2.5 rounded-2xl font-black text-xs uppercase tracking-wider flex items-center gap-2 shadow-md active:scale-95 cursor-pointer transition-all"
         >
           <Plus className="w-4 h-4 text-[#FFC20E]" />
@@ -524,15 +703,27 @@ export default function AdminProductsPage() {
                     </td>
 
                     <td className="py-3.5 text-right">
-                      <a
-                        href={`/products/${p.slug || p.id}`}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="inline-flex items-center gap-1 text-[11px] font-bold text-[#00AEEF] hover:underline"
-                      >
-                        <Eye className="w-3.5 h-3.5" />
-                        <span>View</span>
-                      </a>
+                      <div className="flex items-center justify-end gap-2">
+                        <button
+                          type="button"
+                          onClick={() => handleOpenEdit(p)}
+                          className="inline-flex items-center gap-1 text-[11px] font-bold text-slate-700 hover:text-[#00AEEF] bg-slate-100 hover:bg-sky-50 px-2.5 py-1 rounded-lg transition-colors cursor-pointer border border-slate-200/80 hover:border-sky-200"
+                          title="Edit Product Details"
+                        >
+                          <Edit3 className="w-3.5 h-3.5 text-[#00AEEF]" />
+                          <span>Edit</span>
+                        </button>
+                        <a
+                          href={`/products/${p.slug || p.id}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="inline-flex items-center gap-1 text-[11px] font-bold text-[#00AEEF] hover:underline px-2 py-1"
+                          title="View on Live Store"
+                        >
+                          <Eye className="w-3.5 h-3.5" />
+                          <span>View</span>
+                        </a>
+                      </div>
                     </td>
                   </tr>
                 );
@@ -542,7 +733,7 @@ export default function AdminProductsPage() {
         </div>
       </div>
 
-      {/* 3. Comprehensive Add Product Modal */}
+      {/* 3. Comprehensive Product Modal (Create & Edit) */}
       {showCreateModal && (
         <div className="fixed inset-0 z-50 overflow-hidden flex items-center justify-center p-3 sm:p-5">
           <div
@@ -555,19 +746,29 @@ export default function AdminProductsPage() {
             <div className="px-6 py-4 sm:px-7 border-b border-slate-100 flex items-center justify-between bg-white shrink-0">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-100/80 shrink-0">
-                  <Package className="w-5 h-5" />
+                  {modalMode === "edit" ? (
+                    <Edit3 className="w-5 h-5 text-[#00AEEF]" />
+                  ) : (
+                    <Package className="w-5 h-5" />
+                  )}
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
                     <h3 className="text-base sm:text-lg font-semibold text-slate-900 tracking-tight">
-                      Add New Product
+                      {modalMode === "edit"
+                        ? "Edit Product Details"
+                        : "Add New Product"}
                     </h3>
-                    <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200/60">
-                      Catalog Master
+                    <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200/60 font-mono">
+                      {modalMode === "edit" && editingProduct
+                        ? `SKU: ${editingProduct.sku}`
+                        : "Catalog Master"}
                     </span>
                   </div>
                   <p className="text-xs text-slate-500 mt-0.5">
-                    Configure general details, media assets, specifications, and shipping configuration.
+                    {modalMode === "edit"
+                      ? "Update pricing, description, rich specifications, media assets, and shipping parameters."
+                      : "Configure general details, media assets, specifications, and shipping configuration."}
                   </p>
                 </div>
               </div>
@@ -672,7 +873,7 @@ export default function AdminProductsPage() {
             </div>
 
             {/* Scrollable Form Body */}
-            <form onSubmit={handleCreateProduct} className="flex flex-col flex-1 overflow-hidden">
+            <form onSubmit={handleFormSubmit} className="flex flex-col flex-1 overflow-hidden">
               <div className="flex-1 overflow-y-auto p-6 sm:p-7 space-y-5">
                 {/* TAB 1: GENERAL & CATEGORY */}
                 {activeTab === "general" && (
@@ -1437,7 +1638,7 @@ export default function AdminProductsPage() {
                     </button>
                   )}
 
-                  {/* Primary Publish Button */}
+                  {/* Primary Publish / Save Button */}
                   <button
                     type="submit"
                     disabled={isSubmitting || isUploadingMedia}
@@ -1446,12 +1647,20 @@ export default function AdminProductsPage() {
                     {isSubmitting ? (
                       <>
                         <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                        <span>Publishing...</span>
+                        <span>
+                          {modalMode === "edit"
+                            ? "Saving Changes..."
+                            : "Publishing..."}
+                        </span>
                       </>
                     ) : (
                       <>
                         <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-                        <span>Publish Product</span>
+                        <span>
+                          {modalMode === "edit"
+                            ? "Save Changes"
+                            : "Publish Product"}
+                        </span>
                       </>
                     )}
                   </button>

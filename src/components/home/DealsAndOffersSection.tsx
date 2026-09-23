@@ -69,27 +69,27 @@ export const DealsAndOffersSection: React.FC<Props> = ({ onShopDeals }) => {
         {/* Section Header */}
         <div className="flex items-center justify-between">
           <div>
-            <div className="flex items-center gap-1.5 text-[11px] font-black uppercase tracking-widest text-[#FF3B30]">
+            <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-[#FF3B30]">
               <Sparkles className="w-3.5 h-3.5 text-[#FF3B30]" />
-              <span>Limited Time Deals</span>
+              <span>Limited Time</span>
             </div>
-            <h2 className="text-xl sm:text-2xl lg:text-3xl font-black text-slate-900 tracking-tight mt-1">
+            <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight mt-1">
               Deals &amp; Offers
             </h2>
           </div>
 
           <button
             onClick={handleClaim}
-            className="text-xs sm:text-sm font-extrabold text-[#00AEEF] hover:text-[#0096D6] flex items-center gap-1.5 group cursor-pointer transition-colors"
+            className="text-xs sm:text-sm font-semibold text-[#00AEEF] hover:text-[#0096D6] flex items-center gap-1.5 group cursor-pointer transition-colors"
           >
             <span>View All Deals</span>
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </button>
         </div>
 
-        {/* Completely New Concept: Balanced 3-Column Interactive Deal Cards Grid */}
+        {/* 3-Column Deal Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
-          {/* Deal Card 1: Flash Sale (Robotics & Drones) */}
+          {/* Deal Card 1: Flash Sale */}
           <motion.div
             whileHover={{ y: -4 }}
             className="rounded-3xl bg-white border border-red-100 hover:border-red-300 shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col justify-between group"
@@ -106,20 +106,17 @@ export const DealsAndOffersSection: React.FC<Props> = ({ onShopDeals }) => {
 
               {/* Badges Overlay */}
               <div className="absolute top-3 left-3 right-3 flex items-center justify-between gap-2 z-10">
-                <span className="bg-[#FF3B30] text-white text-[10px] font-black uppercase px-2.5 py-1 rounded-full flex items-center gap-1 shadow-md">
-                  <Zap className="w-3 h-3 fill-white" /> 35% OFF FLASH DEAL
+                <span className="bg-[#FF3B30] text-white text-[11px] font-semibold uppercase px-2.5 py-1 rounded-full flex items-center gap-1 shadow-md">
+                  <Zap className="w-3 h-3 fill-white" /> 35% OFF
                 </span>
-                <span className="bg-black/60 backdrop-blur-md text-[#FFC20E] text-[10px] font-mono font-bold px-2 py-0.5 rounded-lg border border-white/15">
+                <span className="bg-black/60 backdrop-blur-md text-[#FFC20E] text-[11px] font-mono font-medium px-2 py-0.5 rounded-lg border border-white/15">
                   Ends {String(timeLeft.hours).padStart(2, "0")}h {String(timeLeft.minutes).padStart(2, "0")}m {String(timeLeft.seconds).padStart(2, "0")}s
                 </span>
               </div>
 
               {/* Title on Image */}
               <div className="absolute bottom-3 left-3 right-3 z-10">
-                <span className="text-[10px] font-extrabold uppercase tracking-wider text-red-400">
-                  Lab Equipment &amp; Drones
-                </span>
-                <h3 className="text-lg font-black text-white leading-tight">
+                <h3 className="text-lg font-bold text-white leading-tight">
                   STEM Robotics &amp; UAV Bundles
                 </h3>
               </div>
@@ -127,19 +124,19 @@ export const DealsAndOffersSection: React.FC<Props> = ({ onShopDeals }) => {
 
             {/* Card Body */}
             <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
-              <p className="text-xs text-slate-600 leading-relaxed font-medium">
-                Save up to ₹2,500 on Pixhawk 6C flight controllers, 6-DOF robot arm kits, and high-torque metal gear servos.
+              <p className="text-xs text-slate-600 leading-relaxed font-normal">
+                Save up to ₹2,500 on flight controllers, robot arm kits, and high-torque servos.
               </p>
 
               {/* Voucher Copy Bar */}
               <div className="pt-2 border-t border-slate-100 flex items-center justify-between gap-2">
-                <div className="text-[11px] font-semibold text-slate-500">
+                <div className="text-xs font-medium text-slate-500">
                   Coupon:
                 </div>
                 <button
                   type="button"
                   onClick={() => handleCopyCode("PRAYOG35")}
-                  className="inline-flex items-center gap-1.5 bg-slate-50 hover:bg-red-50 text-slate-700 hover:text-red-600 px-2.5 py-1 rounded-lg border border-slate-200 hover:border-red-200 text-xs font-mono font-bold transition-all cursor-pointer"
+                  className="inline-flex items-center gap-1.5 bg-slate-50 hover:bg-red-50 text-slate-700 hover:text-red-600 px-2.5 py-1 rounded-lg border border-slate-200 hover:border-red-200 text-xs font-mono font-semibold transition-all cursor-pointer"
                 >
                   <span>PRAYOG35</span>
                   {copiedCode === "PRAYOG35" ? (
@@ -153,15 +150,15 @@ export const DealsAndOffersSection: React.FC<Props> = ({ onShopDeals }) => {
               {/* Action CTA */}
               <button
                 onClick={handleClaim}
-                className="w-full bg-slate-900 hover:bg-[#FF3B30] text-white font-bold py-2.5 rounded-xl text-xs uppercase tracking-wider transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-xs group-hover:shadow-md"
+                className="w-full bg-slate-900 hover:bg-[#FF3B30] text-white font-semibold py-2.5 rounded-xl text-xs uppercase tracking-wider transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-xs"
               >
-                <span>Claim Flash Deal</span>
+                <span>Claim Deal</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </button>
             </div>
           </motion.div>
 
-          {/* Deal Card 2: New Maker Welcome Offer */}
+          {/* Deal Card 2: Welcome Offer */}
           <motion.div
             whileHover={{ y: -4 }}
             className="rounded-3xl bg-white border border-sky-100 hover:border-[#00AEEF]/50 shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col justify-between group"
@@ -178,20 +175,17 @@ export const DealsAndOffersSection: React.FC<Props> = ({ onShopDeals }) => {
 
               {/* Badges Overlay */}
               <div className="absolute top-3 left-3 right-3 flex items-center justify-between gap-2 z-10">
-                <span className="bg-[#00AEEF] text-white text-[10px] font-black uppercase px-2.5 py-1 rounded-full flex items-center gap-1 shadow-md">
+                <span className="bg-[#00AEEF] text-white text-[11px] font-semibold uppercase px-2.5 py-1 rounded-full flex items-center gap-1 shadow-md">
                   <Gift className="w-3 h-3" /> FIRST ORDER 10% OFF
                 </span>
-                <span className="bg-black/60 backdrop-blur-md text-white/90 text-[10px] font-bold px-2 py-0.5 rounded-lg border border-white/15">
+                <span className="bg-black/60 backdrop-blur-md text-white/90 text-[11px] font-medium px-2 py-0.5 rounded-lg border border-white/15">
                   New Makers
                 </span>
               </div>
 
               {/* Title on Image */}
               <div className="absolute bottom-3 left-3 right-3 z-10">
-                <span className="text-[10px] font-extrabold uppercase tracking-wider text-sky-400">
-                  Microcontrollers &amp; IoT
-                </span>
-                <h3 className="text-lg font-black text-white leading-tight">
+                <h3 className="text-lg font-bold text-white leading-tight">
                   Arduino &amp; Raspberry Pi Kits
                 </h3>
               </div>
@@ -199,19 +193,19 @@ export const DealsAndOffersSection: React.FC<Props> = ({ onShopDeals }) => {
 
             {/* Card Body */}
             <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
-              <p className="text-xs text-slate-600 leading-relaxed font-medium">
-                Instant 10% discount on official ATmega328P UNO boards, Raspberry Pi 5 single boards &amp; ESP32 wireless sensors.
+              <p className="text-xs text-slate-600 leading-relaxed font-normal">
+                Instant 10% discount on UNO boards, Raspberry Pi, and wireless IoT sensor modules.
               </p>
 
               {/* Voucher Copy Bar */}
               <div className="pt-2 border-t border-slate-100 flex items-center justify-between gap-2">
-                <div className="text-[11px] font-semibold text-slate-500">
+                <div className="text-xs font-medium text-slate-500">
                   Coupon:
                 </div>
                 <button
                   type="button"
                   onClick={() => handleCopyCode("NEWMAKER10")}
-                  className="inline-flex items-center gap-1.5 bg-slate-50 hover:bg-sky-50 text-slate-700 hover:text-[#00AEEF] px-2.5 py-1 rounded-lg border border-slate-200 hover:border-sky-200 text-xs font-mono font-bold transition-all cursor-pointer"
+                  className="inline-flex items-center gap-1.5 bg-slate-50 hover:bg-sky-50 text-slate-700 hover:text-[#00AEEF] px-2.5 py-1 rounded-lg border border-slate-200 hover:border-sky-200 text-xs font-mono font-semibold transition-all cursor-pointer"
                 >
                   <span>NEWMAKER10</span>
                   {copiedCode === "NEWMAKER10" ? (
@@ -225,15 +219,15 @@ export const DealsAndOffersSection: React.FC<Props> = ({ onShopDeals }) => {
               {/* Action CTA */}
               <button
                 onClick={handleClaim}
-                className="w-full bg-[#00AEEF] hover:bg-[#0096D6] text-white font-bold py-2.5 rounded-xl text-xs uppercase tracking-wider transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-md shadow-[#00AEEF]/20"
+                className="w-full bg-[#00AEEF] hover:bg-[#0096D6] text-white font-semibold py-2.5 rounded-xl text-xs uppercase tracking-wider transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-md shadow-[#00AEEF]/20"
               >
-                <span>Claim Welcome Discount</span>
-                <ArrowRight className="w-3.5 h-3.5 text-[#FFC20E]" />
+                <span>Claim Discount</span>
+                <ArrowRight className="w-3.5 h-3.5 text-white" />
               </button>
             </div>
           </motion.div>
 
-          {/* Deal Card 3: Free Express Delivery & Genuine Guarantee */}
+          {/* Deal Card 3: Free Express Delivery */}
           <motion.div
             whileHover={{ y: -4 }}
             className="rounded-3xl bg-white border border-emerald-100 hover:border-emerald-300 shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col justify-between group"
@@ -250,37 +244,34 @@ export const DealsAndOffersSection: React.FC<Props> = ({ onShopDeals }) => {
 
               {/* Badges Overlay */}
               <div className="absolute top-3 left-3 right-3 flex items-center justify-between gap-2 z-10">
-                <span className="bg-emerald-600 text-white text-[10px] font-black uppercase px-2.5 py-1 rounded-full flex items-center gap-1 shadow-md">
+                <span className="bg-emerald-600 text-white text-[11px] font-semibold uppercase px-2.5 py-1 rounded-full flex items-center gap-1 shadow-md">
                   <Truck className="w-3 h-3" /> FREE SHIPPING &gt; ₹999
                 </span>
-                <span className="bg-black/60 backdrop-blur-md text-emerald-400 text-[10px] font-bold px-2 py-0.5 rounded-lg border border-white/15 flex items-center gap-1">
-                  <ShieldCheck className="w-3 h-3" /> GST Verified
+                <span className="bg-black/60 backdrop-blur-md text-emerald-400 text-[11px] font-medium px-2 py-0.5 rounded-lg border border-white/15 flex items-center gap-1">
+                  <ShieldCheck className="w-3 h-3" /> Verified
                 </span>
               </div>
 
               {/* Title on Image */}
               <div className="absolute bottom-3 left-3 right-3 z-10">
-                <span className="text-[10px] font-extrabold uppercase tracking-wider text-emerald-400">
-                  Regional Fast Logistics
-                </span>
-                <h3 className="text-lg font-black text-white leading-tight">
-                  Pan-India Express Dispatch
+                <h3 className="text-lg font-bold text-white leading-tight">
+                  Pan-India Express Delivery
                 </h3>
               </div>
             </div>
 
             {/* Card Body */}
             <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
-              <p className="text-xs text-slate-600 leading-relaxed font-medium">
-                Automatic zero shipping cost on orders above ₹999. Fast 24-48h fulfillment from Ranchi &amp; Patna hubs.
+              <p className="text-xs text-slate-600 leading-relaxed font-normal">
+                Free shipping on orders above ₹999 with fast 24-48h dispatch from regional hubs.
               </p>
 
               {/* Voucher Copy Bar */}
               <div className="pt-2 border-t border-slate-100 flex items-center justify-between gap-2">
-                <div className="text-[11px] font-semibold text-slate-500">
+                <div className="text-xs font-medium text-slate-500">
                   Perk:
                 </div>
-                <div className="inline-flex items-center gap-1 text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200 text-xs font-bold">
+                <div className="inline-flex items-center gap-1 text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200 text-xs font-semibold">
                   <span>Auto-Applied at ₹999</span>
                 </div>
               </div>
@@ -288,7 +279,7 @@ export const DealsAndOffersSection: React.FC<Props> = ({ onShopDeals }) => {
               {/* Action CTA */}
               <button
                 onClick={handleClaim}
-                className="w-full bg-slate-900 hover:bg-emerald-600 text-white font-bold py-2.5 rounded-xl text-xs uppercase tracking-wider transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-xs group-hover:shadow-md"
+                className="w-full bg-slate-900 hover:bg-emerald-600 text-white font-semibold py-2.5 rounded-xl text-xs uppercase tracking-wider transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-xs"
               >
                 <span>Shop Eligible Products</span>
                 <ArrowRight className="w-3.5 h-3.5" />

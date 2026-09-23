@@ -192,10 +192,7 @@ export const ShopByCategory: React.FC<Props> = ({ onSelectCategory }) => {
         {/* Section Header with Controls */}
         <div className="flex items-end justify-between">
           <div>
-            <span className="text-[11px] font-black uppercase tracking-widest text-[#00AEEF]">
-              Hardware Taxonomy
-            </span>
-            <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight mt-1">
+            <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
               Shop by Category
             </h2>
           </div>
@@ -203,9 +200,9 @@ export const ShopByCategory: React.FC<Props> = ({ onSelectCategory }) => {
           <div className="flex items-center gap-3">
             <Link
               href="/categories"
-              className="text-xs sm:text-sm font-extrabold text-[#00AEEF] hover:underline flex items-center gap-1 group cursor-pointer"
+              className="text-xs sm:text-sm font-semibold text-[#00AEEF] hover:underline flex items-center gap-1 group cursor-pointer"
             >
-              <span>Explore All Categories</span>{" "}
+              <span>View All</span>{" "}
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Link>
           </div>
@@ -226,7 +223,7 @@ export const ShopByCategory: React.FC<Props> = ({ onSelectCategory }) => {
                   <div className="w-10 h-10 rounded-xl bg-white border border-slate-200/80 flex items-center justify-center shadow-2xs group-hover:bg-[#00AEEF] transition-colors">
                     <Icon className="w-5 h-5 text-[#00AEEF] group-hover:text-white transition-colors" />
                   </div>
-                  <span className="text-[11px] font-bold text-slate-500 bg-white px-2.5 py-1 rounded-full border border-slate-200/70 shadow-2xs">
+                  <span className="text-[11px] font-medium text-slate-600 bg-white px-2.5 py-1 rounded-full border border-slate-200/70 shadow-2xs">
                     {cat.count}
                   </span>
                 </div>
@@ -243,7 +240,7 @@ export const ShopByCategory: React.FC<Props> = ({ onSelectCategory }) => {
 
                 {/* Category Name */}
                 <div className="flex items-center justify-between gap-1">
-                  <h3 className="text-xs sm:text-sm font-black text-slate-900 group-hover:text-[#00AEEF] transition-colors leading-tight">
+                  <h3 className="text-xs sm:text-sm font-semibold text-slate-900 group-hover:text-[#00AEEF] transition-colors leading-tight">
                     {cat.name}
                   </h3>
                   <ArrowRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-[#00AEEF] group-hover:translate-x-1 transition-all opacity-0 group-hover:opacity-100 shrink-0" />

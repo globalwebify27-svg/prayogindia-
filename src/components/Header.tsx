@@ -977,12 +977,12 @@ export const Header: React.FC<HeaderProps> = ({
             : "border-t border-slate-100 shadow-2xs"
         }`}
       >
-        <div className="max-w-7xl mx-auto px-6 sm:px-8 flex items-center justify-between text-[13px] font-bold text-slate-800 h-13">
+        <div className="max-w-7xl mx-auto px-6 sm:px-8 flex items-center justify-between text-[13px] font-medium text-slate-700 h-13">
           <div className="flex items-center gap-7">
             {/* 0. All Categories Direct Link */}
             <Link
               href="/categories"
-              className="flex items-center gap-1.5 text-slate-800 hover:text-[#00AEEF] font-black py-3 transition-colors"
+              className="flex items-center gap-1.5 text-slate-900 hover:text-[#00AEEF] font-semibold py-3 transition-colors"
             >
               <LayoutGrid className="w-4 h-4 text-[#00AEEF]" />
               <span>All Categories</span>
@@ -993,7 +993,7 @@ export const Header: React.FC<HeaderProps> = ({
               onClick={() => handleTabClick("home", "/")}
               className={`py-3 focus:outline-none transition-colors duration-150 cursor-pointer ${
                 activeTab === "home"
-                  ? "text-[#00AEEF] font-extrabold"
+                  ? "text-[#00AEEF] font-bold"
                   : "hover:text-[#00AEEF]"
               }`}
             >
@@ -1005,7 +1005,7 @@ export const Header: React.FC<HeaderProps> = ({
               onClick={() => handleTabClick("about", "/about")}
               className={`py-3 focus:outline-none transition-colors duration-150 cursor-pointer ${
                 activeTab === "about"
-                  ? "text-[#00AEEF] font-extrabold"
+                  ? "text-[#00AEEF] font-bold"
                   : "hover:text-[#00AEEF]"
               }`}
             >
@@ -1022,7 +1022,7 @@ export const Header: React.FC<HeaderProps> = ({
                 onClick={() => handleTabClick("services", "/services")}
                 className={`flex items-center gap-1 focus:outline-none transition-colors duration-150 cursor-pointer ${
                   activeTab === "services" || servicesDropdownOpen
-                    ? "text-[#00AEEF]"
+                    ? "text-[#00AEEF] font-bold"
                     : "hover:text-[#00AEEF]"
                 }`}
               >
@@ -1033,9 +1033,9 @@ export const Header: React.FC<HeaderProps> = ({
               </button>
 
               {servicesDropdownOpen && (
-                <div className="absolute top-full left-0 mt-0.5 w-64 bg-white rounded-2xl shadow-2xl border border-slate-200 p-3 z-50 animate-in fade-in slide-in-from-top-1 duration-150 text-xs font-semibold text-slate-700 space-y-1">
+                <div className="absolute top-full left-0 mt-0.5 w-64 bg-white rounded-2xl shadow-2xl border border-slate-200 p-3 z-50 animate-in fade-in slide-in-from-top-1 duration-150 text-xs font-medium text-slate-700 space-y-1">
                   <div className="px-3 py-1.5 border-b border-slate-100 mb-1">
-                    <span className="text-[10px] font-black uppercase text-[#00AEEF] tracking-wider block">
+                    <span className="text-[10px] font-bold uppercase text-[#00AEEF] tracking-wider block">
                       Institutional Services
                     </span>
                   </div>
@@ -1084,7 +1084,7 @@ export const Header: React.FC<HeaderProps> = ({
                     <Link
                       href="/services"
                       onClick={() => setServicesDropdownOpen(false)}
-                      className="w-full bg-[#00AEEF] text-white text-center py-2 rounded-xl font-bold block transition-colors hover:bg-[#0096D6]"
+                      className="w-full bg-[#00AEEF] text-white text-center py-2 rounded-xl font-semibold block transition-colors hover:bg-[#0096D6]"
                     >
                       All Services Overview →
                     </Link>
@@ -1103,7 +1103,7 @@ export const Header: React.FC<HeaderProps> = ({
                 onClick={() => handleTabClick("products", "/products")}
                 className={`flex items-center gap-1 focus:outline-none transition-colors duration-150 cursor-pointer ${
                   activeTab === "products" || productsDropdownOpen
-                    ? "text-[#00AEEF]"
+                    ? "text-[#00AEEF] font-bold"
                     : "hover:text-[#00AEEF]"
                 }`}
               >
@@ -1114,12 +1114,12 @@ export const Header: React.FC<HeaderProps> = ({
               </button>
 
               {productsDropdownOpen && (
-                <div className="absolute top-full left-0 mt-0.5 w-72 bg-white rounded-2xl shadow-2xl border border-slate-200 p-3 z-50 animate-in fade-in slide-in-from-top-1 duration-150 text-xs font-semibold text-slate-700 space-y-1">
+                <div className="absolute top-full left-0 mt-0.5 w-72 bg-white rounded-2xl shadow-2xl border border-slate-200 p-3 z-50 animate-in fade-in slide-in-from-top-1 duration-150 text-xs font-medium text-slate-700 space-y-1">
                   <div className="px-3 py-1.5 border-b border-slate-100 mb-1 flex items-center justify-between">
-                    <span className="text-[10px] font-black uppercase text-[#00AEEF] tracking-wider">
+                    <span className="text-[10px] font-bold uppercase text-[#00AEEF] tracking-wider">
                       Hardware Shop
                     </span>
-                    <span className="text-[10px] text-slate-400 font-bold">
+                    <span className="text-[10px] text-slate-400 font-semibold">
                       80+ Products
                     </span>
                   </div>
@@ -1186,7 +1186,7 @@ export const Header: React.FC<HeaderProps> = ({
                     <span className="flex items-center gap-2 text-[#FF3B30]">
                       <Tag className="w-3.5 h-3.5" /> Deals &amp; Offers
                     </span>
-                    <span className="bg-red-100 text-red-700 text-[9px] font-black px-1.5 py-0.2 rounded uppercase">
+                    <span className="bg-red-100 text-red-700 text-[9px] font-bold px-1.5 py-0.2 rounded uppercase">
                       Active
                     </span>
                   </Link>
@@ -1204,7 +1204,7 @@ export const Header: React.FC<HeaderProps> = ({
                     <Link
                       href="/products"
                       onClick={() => setProductsDropdownOpen(false)}
-                      className="w-full bg-slate-900 text-white text-center py-2 rounded-xl font-bold block transition-colors hover:bg-[#00AEEF]"
+                      className="w-full bg-slate-900 text-white text-center py-2 rounded-xl font-semibold block transition-colors hover:bg-[#00AEEF]"
                     >
                       Browse Full Store Catalogue →
                     </Link>
@@ -1218,7 +1218,7 @@ export const Header: React.FC<HeaderProps> = ({
               onClick={() => handleTabClick("contact", "/contact")}
               className={`py-3 focus:outline-none transition-colors duration-150 cursor-pointer ${
                 activeTab === "contact"
-                  ? "text-[#00AEEF] font-extrabold"
+                  ? "text-[#00AEEF] font-bold"
                   : "hover:text-[#00AEEF]"
               }`}
             >
@@ -1230,7 +1230,7 @@ export const Header: React.FC<HeaderProps> = ({
               onClick={() => handleTabClick("careers", "/careers")}
               className={`py-3 focus:outline-none transition-colors duration-150 cursor-pointer ${
                 activeTab === "careers"
-                  ? "text-[#00AEEF] font-extrabold"
+                  ? "text-[#00AEEF] font-bold"
                   : "hover:text-[#00AEEF]"
               }`}
             >

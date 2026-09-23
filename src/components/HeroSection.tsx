@@ -99,13 +99,13 @@ export const HeroSection: React.FC<HeroProps> = ({
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center">
           {/* Left Column Content & Headline - Positioned directly over landscape background video */}
           <div className="lg:col-span-6 space-y-5 sm:space-y-6 text-left">
-            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-[1.15] text-white drop-shadow-md">
+            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.16] text-white">
               Saw It Online? <br />
               <span className="text-[#00AEEF]">Now Build Your Own</span> <br />
               <span className="text-[#FFC20E]">with Prayog India</span>
             </h1>
 
-            <p className="text-slate-200 text-sm sm:text-base max-w-lg font-normal leading-relaxed drop-shadow-sm">
+            <p className="text-slate-300 text-sm sm:text-base max-w-lg font-normal leading-relaxed">
               Explore 10,000+ authentic robotics components, Raspberry Pi 5,
               drones, STEM lab kits, and microcontrollers built for students,
               makers & industries.
@@ -115,7 +115,7 @@ export const HeroSection: React.FC<HeroProps> = ({
             <div className="flex flex-wrap items-center gap-3 sm:gap-4 pt-1">
               <button
                 onClick={onExploreProducts}
-                className="bg-[#00AEEF] hover:bg-[#0096D6] text-white font-bold px-7 sm:px-8 py-3.5 rounded-lg text-xs sm:text-sm transition-all flex items-center gap-2 shadow-lg shadow-[#00AEEF]/25"
+                className="bg-[#00AEEF] hover:bg-[#0096D6] text-white font-semibold px-7 sm:px-8 py-3.5 rounded-xl text-xs sm:text-sm transition-all flex items-center gap-2 shadow-md shadow-[#00AEEF]/20 cursor-pointer"
               >
                 <span>Shop Now</span>
                 <ArrowRight className="w-4 h-4 text-[#FFC20E]" />
@@ -123,7 +123,7 @@ export const HeroSection: React.FC<HeroProps> = ({
 
               <button
                 onClick={onExploreSolutions}
-                className="bg-slate-900/60 hover:bg-slate-900/80 text-white font-semibold px-6 sm:px-7 py-3.5 rounded-lg text-xs sm:text-sm border border-slate-700 transition-all flex items-center gap-2 hover:border-[#00AEEF] backdrop-blur-md"
+                className="bg-slate-900/60 hover:bg-slate-900/80 text-white font-semibold px-6 sm:px-7 py-3.5 rounded-xl text-xs sm:text-sm border border-slate-700 transition-all flex items-center gap-2 hover:border-[#00AEEF] backdrop-blur-md cursor-pointer"
               >
                 <Layers className="w-4 h-4 text-[#00AEEF]" />
                 <span>Explore Lab Setups</span>
@@ -135,7 +135,7 @@ export const HeroSection: React.FC<HeroProps> = ({
               <div className="flex items-center gap-2">
                 <Box className="w-4 h-4 text-[#00AEEF] shrink-0" />
                 <div>
-                  <div className="text-xs font-bold text-white">10,000+</div>
+                  <div className="text-xs font-semibold text-white">10,000+</div>
                   <div className="text-[10px] text-slate-400">Products</div>
                 </div>
               </div>
@@ -143,7 +143,7 @@ export const HeroSection: React.FC<HeroProps> = ({
               <div className="flex items-center gap-2">
                 <ShieldCheck className="w-4 h-4 text-[#FFC20E] shrink-0" />
                 <div>
-                  <div className="text-xs font-bold text-white">100%</div>
+                  <div className="text-xs font-semibold text-white">100%</div>
                   <div className="text-[10px] text-slate-400">Authentic</div>
                 </div>
               </div>
@@ -151,7 +151,7 @@ export const HeroSection: React.FC<HeroProps> = ({
               <div className="flex items-center gap-2">
                 <Headphones className="w-4 h-4 text-[#00AEEF] shrink-0" />
                 <div>
-                  <div className="text-xs font-bold text-white">Dedicated</div>
+                  <div className="text-xs font-semibold text-white">Dedicated</div>
                   <div className="text-[10px] text-slate-400">Tech Support</div>
                 </div>
               </div>

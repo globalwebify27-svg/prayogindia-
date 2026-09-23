@@ -48,14 +48,13 @@ export const KnowledgeCenterSection: React.FC = () => {
         {/* Section Header */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
           <div>
-            <span className="text-[11px] font-black uppercase tracking-widest text-[#00AEEF] flex items-center gap-1.5">
-              <BookOpen className="w-3.5 h-3.5" /> PRAYOG KNOWLEDGE CENTER & DIY
-              GUIDES
+            <span className="text-[11px] font-bold uppercase tracking-wider text-[#00AEEF] flex items-center gap-1.5">
+              <BookOpen className="w-3.5 h-3.5" /> Prayog Knowledge Center &amp; DIY Guides
             </span>
-            <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight mt-1">
-              Developer Tutorials & Hardware Guides
+            <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight mt-1">
+              Developer Tutorials &amp; Hardware Guides
             </h2>
-            <p className="text-xs text-slate-500 font-medium mt-0.5">
+            <p className="text-xs sm:text-sm text-slate-500 font-normal mt-0.5">
               Learn how to wire, code, and deploy robotics, drone autopilots,
               and IoT systems.
             </p>
@@ -63,7 +62,7 @@ export const KnowledgeCenterSection: React.FC = () => {
 
           <Link
             href="/learning"
-            className="text-xs sm:text-sm font-extrabold text-[#00AEEF] hover:underline flex items-center gap-1 group self-start sm:self-auto cursor-pointer"
+            className="text-xs sm:text-sm font-semibold text-[#00AEEF] hover:underline flex items-center gap-1 group self-start sm:self-auto cursor-pointer"
           >
             <span>Explore All 50+ Guides</span>
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
@@ -87,30 +86,30 @@ export const KnowledgeCenterSection: React.FC = () => {
                     fill
                     className="object-cover group-hover:scale-105 transition-transform duration-500"
                   />
-                  <span className="absolute top-3 left-3 bg-slate-900/80 backdrop-blur-md text-[#FFC20E] text-[10px] font-black uppercase px-2.5 py-1 rounded-full">
+                  <span className="absolute top-3 left-3 bg-slate-900/80 backdrop-blur-md text-[#FFC20E] text-[10px] font-semibold uppercase px-2.5 py-1 rounded-full">
                     {post.category}
                   </span>
                 </div>
 
                 {/* Content */}
                 <div className="p-5 space-y-2">
-                  <div className="flex items-center gap-2 text-[10px] font-bold text-slate-400">
+                  <div className="flex items-center gap-2 text-[10px] font-medium text-slate-400">
                     <Clock className="w-3.5 h-3.5" />
                     <span>{post.readTime}</span>
                   </div>
 
-                  <h3 className="text-sm font-black text-slate-900 group-hover:text-[#00AEEF] transition-colors leading-snug">
+                  <h3 className="text-sm font-bold text-slate-900 group-hover:text-[#00AEEF] transition-colors leading-snug">
                     {post.title}
                   </h3>
 
-                  <p className="text-xs text-slate-500 leading-relaxed">
+                  <p className="text-xs text-slate-500 leading-relaxed font-normal">
                     {post.summary}
                   </p>
                 </div>
               </div>
 
               {/* Read Action */}
-              <div className="p-5 pt-0 flex items-center gap-1 text-xs font-black text-[#00AEEF]">
+              <div className="p-5 pt-0 flex items-center gap-1 text-xs font-semibold text-[#00AEEF]">
                 <span>Read Full Guide</span>
                 <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
               </div>

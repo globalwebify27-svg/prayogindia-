@@ -8,7 +8,7 @@ import {
   Star,
   Heart,
   Eye,
-  ShoppingCart,
+  ShoppingBag,
   Zap,
   Package,
   CheckCircle,
@@ -45,200 +45,105 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   const displayMrp = activeVariant?.mrp ?? product.mrp;
   const isInStock = activeVariant ? activeVariant.inStock : product.inStock;
 
-  const discountPct =
-    displayMrp > displayPrice
-      ? Math.round(((displayMrp - displayPrice) / displayMrp) * 100)
-      : null;
-
-  // Short tech spec pills — up to 2 clean entries for high scannability
-  const specPills = product.specs
-    ? Object.entries(product.specs)
-        .slice(0, 2)
-        .map(([key, val]) => `${key}: ${val}`)
-    : [];
-
   return (
     <div
       id={`product-card-${product.id}`}
-      className="group bg-white rounded-2xl sm:rounded-3xl border border-slate-200/80 flex flex-col justify-between hover:border-[#00AEEF]/50 hover:shadow-lg hover:shadow-sky-500/5 transition-all duration-300 relative overflow-hidden"
+      className="group bg-white rounded-3xl border border-slate-200/90 p-4 sm:p-5 flex flex-col justify-between hover:border-[#00AEEF] hover:shadow-xl hover:shadow-sky-500/10 transition-all duration-300 relative overflow-hidden"
     >
-      {/* ── Top Badge Row ── */}
-      <div className="absolute top-2.5 left-2.5 right-2.5 z-10 flex items-start justify-between pointer-events-none">
-        <div className="flex flex-col gap-1">
-          {discountPct && (
-            <span className="bg-[#FF3B30] text-white text-[9px] font-black px-2 py-0.5 rounded-md uppercase tracking-wider shadow-2xs pointer-events-none">
-              {discountPct}% OFF
-            </span>
-          )}
-          {product.badge && (
-            <span className="bg-slate-900 text-[#00AEEF] text-[9px] font-black px-2 py-0.5 rounded-md uppercase tracking-wider shadow-2xs pointer-events-none">
-              {product.badge}
-            </span>
-          )}
-        </div>
-
-        {/* Wishlist & Quick View buttons */}
-        <div className="flex flex-col gap-1 pointer-events-auto">
-          {onToggleWishlist && (
-            <button
-              onClick={() => onToggleWishlist(product)}
-              className={`w-7 h-7 rounded-full flex items-center justify-center shadow-xs transition-colors cursor-pointer ${
-                isWishlisted
-                  ? "bg-red-500 text-white"
-                  : "bg-white/95 text-slate-400 hover:text-red-500 hover:bg-white"
-              }`}
-              title="Add to Wishlist"
-              aria-label="Wishlist"
-            >
-              <Heart
-                className={`w-3.5 h-3.5 ${isWishlisted ? "fill-current" : ""}`}
-              />
-            </button>
-          )}
-          {onQuickView && (
-            <button
-              onClick={() => onQuickView(product)}
-              className="w-7 h-7 rounded-full bg-white/95 flex items-center justify-center shadow-xs text-slate-400 hover:text-[#00AEEF] hover:bg-white transition-colors cursor-pointer"
-              title="Quick View"
-              aria-label="Quick View"
-            >
-              <Eye className="w-3.5 h-3.5" />
-            </button>
-          )}
-        </div>
+      {/* ── Top: Category Name & Circular Wishlist Button ── */}
+      <div className="flex items-center justify-between gap-2 mb-2">
+        <span className="text-xs font-semibold text-slate-700 truncate">
+          {product.category || "Arduino & Microcontrollers"}
+        </span>
+        {onToggleWishlist && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onToggleWishlist(product);
+            }}
+            className="w-8 h-8 rounded-full border border-slate-200/90 hover:border-slate-300 bg-white flex items-center justify-center text-slate-400 hover:text-red-500 transition-colors shrink-0 cursor-pointer shadow-2xs"
+            title="Add to Wishlist"
+            aria-label="Wishlist"
+          >
+            <Heart
+              className={`w-4 h-4 ${isWishlisted ? "fill-red-500 text-red-500" : ""}`}
+            />
+          </button>
+        )}
       </div>
 
       {/* ── Product Image ── */}
       <Link href={`/products/${product.slug || product.id}`} className="block">
-        <div className="relative h-44 sm:h-48 w-full flex items-center justify-center overflow-hidden bg-slate-50/50 rounded-t-2xl sm:rounded-t-3xl">
+        <div className="relative h-40 sm:h-44 w-full mb-3 flex items-center justify-center overflow-hidden rounded-2xl bg-white p-2 group-hover:scale-[1.02] transition-transform duration-300 cursor-pointer">
           <Image
             src={getOptimizedImageUrl(product.image, { width: 400, quality: "auto" })}
             alt={product.name}
             fill
-            className="object-contain p-4 group-hover:scale-105 transition-transform duration-500"
+            className="object-contain p-2"
           />
         </div>
       </Link>
 
       {/* ── Card Body ── */}
-      <div className="flex-1 flex flex-col justify-between p-3.5 sm:p-4 space-y-2.5 sm:space-y-3">
-        {/* SKU + Rating Row */}
-        <div className="flex items-center justify-between text-[10px] text-slate-400 font-bold">
-          <span className="font-mono uppercase tracking-wider text-slate-400">
-            {product.sku}
-          </span>
-          <div className="flex items-center gap-0.5 text-amber-500 font-bold">
-            <Star className="w-3 h-3 fill-current" />
-            <span className="text-slate-700">{product.rating}</span>
-            <span className="text-slate-400 font-normal">
-              ({product.reviews})
+      <div className="flex-1 flex flex-col justify-between space-y-2">
+        <div>
+          {/* Product Name */}
+          <Link
+            href={`/products/${product.slug || product.id}`}
+            className="block"
+          >
+            <h3 className="text-sm font-bold text-slate-900 line-clamp-1 hover:text-[#00AEEF] transition-colors cursor-pointer">
+              {product.name}
+            </h3>
+          </Link>
+
+          {/* SKU */}
+          <div className="text-xs font-semibold text-slate-400 mt-1">
+            SKU: <span className="font-mono text-slate-500">{activeVariant?.sku || product.sku}</span>
+          </div>
+
+          {/* Rating Stars */}
+          <div className="flex items-center gap-1 mt-1 text-xs text-slate-500">
+            <div className="flex items-center text-amber-400 gap-0.5">
+              {[...Array(5)].map((_, i) => (
+                <Star
+                  key={i}
+                  className={`w-3.5 h-3.5 ${
+                    i < Math.floor(product.rating || 5)
+                      ? "fill-amber-400 text-amber-400"
+                      : "fill-slate-200 text-slate-200"
+                  }`}
+                />
+              ))}
+            </div>
+            <span className="text-slate-500 font-medium ml-0.5">
+              ({product.reviews || 87})
+            </span>
+          </div>
+
+          {/* Price with (Incl. GST) */}
+          <div className="flex items-baseline gap-1 mt-2.5">
+            <span className="text-base sm:text-lg font-bold text-slate-900">
+              ₹{displayPrice.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            </span>
+            <span className="text-[11px] text-slate-400 font-normal">
+              (Incl. GST)
             </span>
           </div>
         </div>
 
-        {/* Product Name */}
-        <Link
-          href={`/products/${product.slug || product.id}`}
-          className="block"
-        >
-          <h3 className="text-xs sm:text-[13px] font-bold text-slate-900 line-clamp-2 leading-snug group-hover:text-[#00AEEF] transition-colors">
-            {product.name}
-          </h3>
-        </Link>
-
-        {/* Short Spec Pills */}
-        {specPills.length > 0 && (
-          <div className="flex flex-wrap gap-1">
-            {specPills.map((pill) => (
-              <span
-                key={pill}
-                className="bg-slate-50 text-slate-500 border border-slate-200/60 text-[9px] font-medium px-1.5 py-0.5 rounded-md truncate max-w-full"
-              >
-                {pill}
-              </span>
-            ))}
-          </div>
-        )}
-
-        {/* Variant Selector Chips */}
-        {product.variants && product.variants.length > 1 && (
-          <div className="flex flex-wrap gap-1">
-            {product.variants.map((v) => (
-              <button
-                key={v.id}
-                onClick={() => setSelectedVariantId(v.id)}
-                className={`text-[9px] font-bold px-2 py-0.5 rounded-lg border transition-all cursor-pointer ${
-                  selectedVariantId === v.id
-                    ? "bg-[#00AEEF] text-white border-[#00AEEF]"
-                    : "bg-slate-50 text-slate-600 border-slate-200 hover:border-[#00AEEF]/50"
-                }`}
-              >
-                {v.name}
-              </button>
-            ))}
-          </div>
-        )}
-
-        {/* Price + Stock Row */}
-        <div className="flex items-baseline justify-between pt-2 border-t border-slate-100">
-          <div>
-            <div className="flex items-baseline gap-1.5">
-              <span className="text-sm sm:text-base font-black text-slate-900">
-                ₹{displayPrice.toLocaleString("en-IN")}
-              </span>
-              {displayMrp > displayPrice && (
-                <span className="text-[10px] text-slate-400 line-through font-medium">
-                  ₹{displayMrp.toLocaleString("en-IN")}
-                </span>
-              )}
-            </div>
-            {product.gstInclusive && (
-              <span className="text-[9px] text-slate-400 font-medium flex items-center gap-0.5">
-                <Info className="w-2.5 h-2.5" /> GST incl.
-              </span>
-            )}
-          </div>
-
-          <span
-            className={`text-[9px] font-bold flex items-center gap-0.5 px-1.5 py-0.5 rounded-md ${
-              isInStock
-                ? "bg-emerald-50 text-emerald-700"
-                : "bg-slate-100 text-slate-500"
-            }`}
-          >
-            {isInStock ? (
-              <>
-                <CheckCircle className="w-2.5 h-2.5" /> In Stock
-              </>
-            ) : (
-              <>
-                <XCircle className="w-2.5 h-2.5" /> Out of Stock
-              </>
-            )}
-          </span>
-        </div>
-
-        {/* Action Buttons */}
-        {isInStock ? (
-          <div className="grid grid-cols-2 gap-2 pt-0.5">
+        {/* Action: Add to Cart Full Width */}
+        <div className="pt-2 mt-auto">
+          {isInStock ? (
             <button
               id={`add-to-cart-${product.id}`}
               onClick={() => onAddToCart?.(product, selectedVariantId)}
-              className="border border-[#00AEEF] text-[#00AEEF] hover:bg-[#E0F7FC] py-2 rounded-xl text-[10px] font-extrabold transition-all active:scale-95 flex items-center justify-center gap-1 cursor-pointer"
+              className="w-full border border-[#00AEEF] text-[#00AEEF] hover:bg-[#00AEEF] hover:text-white py-2.5 px-4 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition-all duration-200 active:scale-[0.98] cursor-pointer shadow-2xs group/btn"
             >
-              <ShoppingCart className="w-3 h-3" />
-              ADD
+              <span>Add to Cart</span>
+              <ShoppingBag className="w-4 h-4" />
             </button>
-            <button
-              id={`buy-now-${product.id}`}
-              onClick={() => onAddToCart?.(product, selectedVariantId)}
-              className="bg-[#00AEEF] hover:bg-[#0096D6] text-white py-2 rounded-xl text-[10px] font-extrabold transition-all active:scale-95 shadow-xs flex items-center justify-center gap-1 cursor-pointer"
-            >
-              <Zap className="w-3 h-3" />
-              BUY NOW
-            </button>
-          </div>
-        ) : (
+          ) : (
           <a
             href={(() => {
               const origin =
@@ -294,6 +199,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             Inquire on WhatsApp
           </a>
         )}
+        </div>
       </div>
     </div>
   );

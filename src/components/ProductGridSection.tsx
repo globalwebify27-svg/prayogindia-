@@ -27,6 +27,7 @@ import {
   CheckCircle2,
   SlidersHorizontal,
   PackageCheck,
+  ShoppingBag,
 } from "lucide-react";
 import { PRODUCTS, Product } from "@/data/mockData";
 
@@ -418,140 +419,110 @@ export const ProductGridSection: React.FC<ProductSectionProps> = ({
       <div
         key={product.id}
         id={`product-${product.id}`}
-        className="w-60 sm:w-72 shrink-0 bg-white rounded-2xl sm:rounded-3xl border border-slate-200/80 p-4 sm:p-5 flex flex-col justify-between hover:border-[#00AEEF]/50 hover:shadow-lg hover:shadow-sky-500/5 transition-all duration-300 relative group"
+        className="w-64 sm:w-72 shrink-0 bg-white rounded-3xl border border-slate-200/90 p-4 sm:p-5 flex flex-col justify-between hover:border-[#00AEEF] hover:shadow-xl hover:shadow-sky-500/10 transition-all duration-300 relative group"
       >
-        {/* Top Badges & Actions */}
-        <div className="flex items-start justify-between z-10 mb-2 gap-2">
-          <div className="flex flex-wrap items-center gap-1.5 min-w-0">
-            {product.badge && (
-              <span className="bg-[#00AEEF] text-white text-[9px] sm:text-[10px] font-black px-1.5 sm:px-2 py-0.5 rounded-md uppercase tracking-wide shadow-2xs whitespace-nowrap shrink-0">
-                {product.badge}
-              </span>
-            )}
-            {product.discount && (
-              <span className="bg-[#FF3B30] text-white text-[9px] sm:text-[10px] font-black px-1.5 sm:px-2 py-0.5 rounded-md uppercase tracking-wide shadow-2xs whitespace-nowrap shrink-0">
-                {product.discount}
-              </span>
-            )}
-          </div>
-
-          <div className="flex items-center gap-1 shrink-0">
-            {onToggleWishlist && (
-              <button
-                onClick={() => onToggleWishlist(product)}
-                className={`p-1.5 rounded-full transition-colors cursor-pointer ${
-                  isWishlisted
-                    ? "text-[#FF3B30] bg-red-50"
-                    : "text-slate-400 hover:text-slate-700 hover:bg-slate-100"
-                }`}
-                title="Add to Wishlist"
-                aria-label="Wishlist"
-              >
-                <Heart
-                  className={`w-4 h-4 ${isWishlisted ? "fill-current" : ""}`}
-                />
-              </button>
-            )}
+        {/* Top: Category Name & Circular Wishlist Button */}
+        <div className="flex items-center justify-between gap-2 mb-2">
+          <span className="text-xs font-semibold text-slate-700 truncate">
+            {product.category || "Arduino & Microcontrollers"}
+          </span>
+          {onToggleWishlist && (
             <button
-              onClick={() => onQuickView(product)}
-              className="text-slate-400 hover:text-[#00AEEF] hover:bg-sky-50 p-1.5 rounded-full transition-colors cursor-pointer"
-              title="Quick Spec View"
-              aria-label="Quick Spec View"
+              onClick={(e) => {
+                e.stopPropagation();
+                onToggleWishlist(product);
+              }}
+              className="w-8 h-8 rounded-full border border-slate-200/90 hover:border-slate-300 bg-white flex items-center justify-center text-slate-400 hover:text-red-500 transition-colors shrink-0 cursor-pointer shadow-2xs"
+              title="Add to Wishlist"
+              aria-label="Wishlist"
             >
-              <Eye className="w-4 h-4" />
+              <Heart
+                className={`w-4 h-4 ${isWishlisted ? "fill-red-500 text-red-500" : ""}`}
+              />
             </button>
-          </div>
+          )}
         </div>
 
-        {/* Product Image Link */}
+        {/* Product Image */}
         <Link
           href={`/products/${product.slug || product.id}`}
           className="block"
         >
-          <div className="relative h-44 sm:h-48 w-full mb-3 flex items-center justify-center overflow-hidden rounded-2xl bg-slate-50/60 p-3 border border-slate-100/60 group-hover:bg-white transition-colors cursor-pointer">
+          <div className="relative h-40 sm:h-44 w-full mb-3 flex items-center justify-center overflow-hidden rounded-2xl bg-white p-2 group-hover:scale-[1.02] transition-transform duration-300 cursor-pointer">
             <Image
               src={product.image}
               alt={product.name}
               fill
               sizes="(max-width: 640px) 256px, 288px"
-              className="object-contain p-2 group-hover:scale-105 transition-transform duration-500"
+              className="object-contain p-2"
             />
           </div>
         </Link>
 
         {/* Content */}
-        <div className="flex-1 flex flex-col justify-between space-y-2.5">
+        <div className="flex-1 flex flex-col justify-between space-y-2">
           <div>
-            <div className="flex items-center justify-between text-[10px] text-slate-400 font-bold uppercase mb-1">
-              <span className="font-mono tracking-tight">{product.sku}</span>
-              <div className="flex items-center text-amber-500 font-extrabold gap-0.5">
-                <Star className="w-3 h-3 fill-current" />
-                <span>{product.rating}</span>
-                <span className="text-slate-400 font-normal">
-                  ({product.reviews})
-                </span>
-              </div>
-            </div>
-
+            {/* Title */}
             <Link
               href={`/products/${product.slug || product.id}`}
               className="block"
             >
-              <h4 className="text-xs font-bold text-slate-900 line-clamp-2 leading-snug hover:text-[#00AEEF] transition-colors cursor-pointer">
+              <h4 className="text-sm font-bold text-slate-900 line-clamp-1 hover:text-[#00AEEF] transition-colors cursor-pointer">
                 {product.name}
               </h4>
             </Link>
 
-            {product.description && (
-              <Link
-                href={`/products/${product.slug || product.id}`}
-                className="block"
-              >
-                <p className="text-[11px] text-slate-500 line-clamp-1 mt-1 font-medium hover:text-slate-700">
-                  {product.description}
-                </p>
-              </Link>
-            )}
-          </div>
+            {/* SKU */}
+            <div className="text-xs font-semibold text-slate-400 mt-1">
+              SKU: <span className="font-mono text-slate-500">{product.sku}</span>
+            </div>
 
-          {/* Pricing & Stock Line */}
-          <div className="pt-2 border-t border-slate-100 space-y-2 mt-auto">
-            <div className="flex items-baseline justify-between">
-              <div>
-                <span className="text-base font-black text-slate-900">
-                  ₹{product.price.toLocaleString()}
-                </span>
-                <span className="text-[10px] text-slate-400 line-through ml-1.5">
-                  ₹{product.mrp.toLocaleString()}
-                </span>
+            {/* Rating Stars */}
+            <div className="flex items-center gap-1 mt-1 text-xs text-slate-500">
+              <div className="flex items-center text-amber-400 gap-0.5">
+                {[...Array(5)].map((_, i) => (
+                  <Star
+                    key={i}
+                    className={`w-3.5 h-3.5 ${
+                      i < Math.floor(product.rating || 5)
+                        ? "fill-amber-400 text-amber-400"
+                        : "fill-slate-200 text-slate-200"
+                    }`}
+                  />
+                ))}
               </div>
-              <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded">
-                Save ₹{(product.mrp - product.price).toLocaleString()}
+              <span className="text-slate-500 font-medium ml-0.5">
+                ({product.reviews || 87})
               </span>
             </div>
 
-            {/* Actions: Add to Cart / Buy Now or WhatsApp */}
+            {/* Price with (Incl. GST) */}
+            <div className="flex items-baseline gap-1 mt-2.5">
+              <span className="text-base sm:text-lg font-bold text-slate-900">
+                ₹{product.price.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </span>
+              <span className="text-[11px] text-slate-400 font-normal">
+                (Incl. GST)
+              </span>
+            </div>
+          </div>
+
+          {/* Action: Add to Cart Full Width */}
+          <div className="pt-2 mt-auto">
             {product.inStock ? (
-              <div className="grid grid-cols-2 gap-2 pt-0.5">
-                <button
-                  onClick={() => onAddToCart(product)}
-                  className="border border-[#00AEEF] text-[#00AEEF] hover:bg-[#E0F7FC] py-2 rounded-xl text-[11px] font-black transition-all duration-150 active:scale-95 text-center cursor-pointer shadow-2xs"
-                >
-                  ADD TO CART
-                </button>
-                <button
-                  onClick={() => onAddToCart(product)}
-                  className="bg-[#00AEEF] hover:bg-[#0096D6] text-white py-2 rounded-xl text-[11px] font-black transition-all duration-150 active:scale-95 shadow-xs text-center cursor-pointer"
-                >
-                  BUY NOW
-                </button>
-              </div>
+              <button
+                onClick={() => onAddToCart(product)}
+                className="w-full border border-[#00AEEF] text-[#00AEEF] hover:bg-[#00AEEF] hover:text-white py-2.5 px-4 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition-all duration-200 active:scale-[0.98] cursor-pointer shadow-2xs group/btn"
+              >
+                <span>Add to Cart</span>
+                <ShoppingBag className="w-4 h-4" />
+              </button>
             ) : (
               <a
                 href={`https://wa.me/919876543210?text=${encodeURIComponent(`Hi Prayog India, I am interested in ${product.name} (SKU: ${product.sku}). Please let me know the availability and latest price.`)}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full bg-emerald-500 hover:bg-emerald-600 text-white py-2 px-2 rounded-xl text-[10px] font-black uppercase tracking-wider flex items-center justify-center gap-1 transition-all text-center cursor-pointer shadow-xs"
+                className="w-full bg-emerald-500 hover:bg-emerald-600 text-white py-2.5 px-4 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition-all duration-200 active:scale-[0.98] cursor-pointer shadow-2xs"
               >
                 <span>Ask Availability</span>
               </a>
@@ -567,61 +538,52 @@ export const ProductGridSection: React.FC<ProductSectionProps> = ({
       id="featured-products"
       className="py-12 bg-slate-50/70 border-b border-slate-200/80 scroll-mt-20"
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
         {/* Main Section Header */}
         <div className="space-y-4">
-          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
             <div>
-              <div className="flex items-center gap-2">
-                <span className="text-[11px] font-black uppercase tracking-widest text-[#00AEEF] bg-sky-50 px-2.5 py-0.5 rounded-full border border-sky-200">
-                  OFFICIAL HARDWARE CATALOGUE
-                </span>
-                <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200 flex items-center gap-1">
-                  <CheckCircle2 className="w-3 h-3" /> Verified Components
-                </span>
-              </div>
-              <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight mt-1.5">
-                Explore Every Category Shelf
+              <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
+                Explore Products
               </h2>
-              <p className="text-xs sm:text-sm text-slate-500 font-semibold mt-1 max-w-2xl">
-                Browse certified developer components, flight kits, sensors, and
-                robotics modules per category with pan-India express dispatch.
+              <p className="text-sm text-slate-500 font-normal mt-1">
+                Quality robotics, development boards, and electronic components.
               </p>
             </div>
 
             {/* View Mode Switcher + Explore Store */}
-            <div className="flex items-center gap-2 self-start lg:self-auto flex-wrap">
-              <div className="bg-white border border-slate-200 p-1 rounded-2xl flex items-center shadow-2xs text-xs font-extrabold">
+            <div className="flex items-center gap-2 self-start sm:self-auto flex-wrap">
+              <div className="bg-white border border-slate-200 p-1 rounded-xl flex items-center shadow-2xs text-xs font-semibold">
                 <button
                   onClick={() => setViewMode("all_categories")}
-                  className={`px-3.5 py-2 rounded-xl transition-all flex items-center gap-1.5 cursor-pointer ${
+                  className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 cursor-pointer ${
                     viewMode === "all_categories"
                       ? "bg-slate-900 text-white shadow-xs"
                       : "text-slate-600 hover:text-slate-900"
                   }`}
                 >
                   <Layers className="w-3.5 h-3.5" />
-                  <span>All Category Shelves</span>
+                  <span>All Categories</span>
                 </button>
 
                 <button
                   onClick={() => setViewMode("curated")}
-                  className={`px-3.5 py-2 rounded-xl transition-all flex items-center gap-1.5 cursor-pointer ${
+                  className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 cursor-pointer ${
                     viewMode === "curated"
                       ? "bg-[#00AEEF] text-white shadow-xs"
                       : "text-slate-600 hover:text-slate-900"
                   }`}
                 >
                   <Sparkles className="w-3.5 h-3.5" />
-                  <span>Curated Highlights</span>
+                  <span>Highlights</span>
                 </button>
               </div>
 
               <button
                 onClick={() => onSeeAll?.("all")}
-                className="text-xs sm:text-sm font-extrabold text-[#00AEEF] hover:text-[#0086B8] hover:underline flex items-center gap-1 group/seeall px-3 py-2 cursor-pointer"
+                className="text-xs sm:text-sm font-semibold text-[#00AEEF] hover:text-[#0086B8] hover:underline flex items-center gap-1 group/seeall px-3 py-1.5 cursor-pointer"
               >
-                <span>Full Catalogue</span>
+                <span>View All</span>
                 <ArrowRight className="w-4 h-4 group-hover/seeall:translate-x-1 transition-transform" />
               </button>
             </div>
@@ -636,7 +598,7 @@ export const ProductGridSection: React.FC<ProductSectionProps> = ({
             onTouchEnd={() => setIsJumpPaused(false)}
           >
             {/* Pinned "Jump To:" label badge */}
-            <div className="pl-2 pr-3 shrink-0 flex items-center gap-1.5 border-r border-slate-200/80 text-[11px] font-black uppercase tracking-wider text-slate-500 z-20 bg-white/90">
+            <div className="pl-2 pr-3 shrink-0 flex items-center gap-1.5 border-r border-slate-200 text-xs font-semibold text-slate-500 z-20 bg-white/90">
               <SlidersHorizontal className="w-3.5 h-3.5 text-[#00AEEF]" />
               <span className="whitespace-nowrap">Jump To:</span>
             </div>
@@ -658,7 +620,7 @@ export const ProductGridSection: React.FC<ProductSectionProps> = ({
                   <button
                     key={`${catName}-${idx}`}
                     onClick={() => scrollToCategoryShelf(catName)}
-                    className="shrink-0 bg-slate-50 hover:bg-[#E0F7FC] text-slate-700 hover:text-[#00AEEF] border border-slate-200/80 hover:border-[#00AEEF]/40 px-3.5 py-2 rounded-xl font-extrabold flex items-center gap-1.5 transition-all cursor-pointer shadow-2xs group"
+                    className="shrink-0 bg-slate-50 hover:bg-[#E0F7FC] text-slate-700 hover:text-[#00AEEF] border border-slate-200/80 hover:border-[#00AEEF]/40 px-3 py-1.5 rounded-lg font-medium flex items-center gap-1.5 transition-all cursor-pointer shadow-2xs group text-xs"
                   >
                     <IconComponent className="w-3.5 h-3.5 text-slate-500 group-hover:text-[#00AEEF]" />
                     <span className="whitespace-nowrap">{catName}</span>
@@ -673,7 +635,7 @@ export const ProductGridSection: React.FC<ProductSectionProps> = ({
         {/* VIEW 1: All Category Shelves */}
         {/* ==================================================== */}
         {viewMode === "all_categories" ? (
-          <div className="space-y-16 animate-in fade-in duration-300">
+          <div className="space-y-12 animate-in fade-in duration-300">
             {categoryOrder.map((category) => {
               let categoryProducts = liveProducts.filter((p) =>
                 isProductInShelfCategory(p, category),
@@ -697,29 +659,22 @@ export const ProductGridSection: React.FC<ProductSectionProps> = ({
                   className="space-y-4 relative group/section scroll-mt-24"
                 >
                   {/* Category Header Row */}
-                  <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 border-b border-slate-200/80 pb-3">
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2.5">
-                        <div className="w-8 h-8 rounded-xl bg-[#00AEEF]/10 text-[#00AEEF] flex items-center justify-center border border-[#00AEEF]/20">
-                          <IconComp className="w-4 h-4" />
-                        </div>
-                        <h3 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-                          {category}
-                        </h3>
+                  <div className="flex items-center justify-between border-b border-slate-200/80 pb-3">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-8 h-8 rounded-lg bg-[#00AEEF]/10 text-[#00AEEF] flex items-center justify-center border border-[#00AEEF]/20">
+                        <IconComp className="w-4 h-4" />
                       </div>
-                      {config?.description && (
-                        <p className="text-xs text-slate-500 font-medium pl-10">
-                          {config.description}
-                        </p>
-                      )}
+                      <h3 className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight">
+                        {category}
+                      </h3>
                     </div>
 
                     {/* See All Category Link */}
                     <button
                       onClick={() => onSeeAll?.(category)}
-                      className="text-xs sm:text-sm font-black text-[#00AEEF] hover:text-[#0086B8] hover:underline transition-colors flex items-center gap-1 group/seeall cursor-pointer self-start sm:self-auto shrink-0 pl-10 sm:pl-0"
+                      className="text-xs sm:text-sm font-semibold text-[#00AEEF] hover:text-[#0086B8] hover:underline transition-colors flex items-center gap-1 group/seeall cursor-pointer shrink-0"
                     >
-                      <span>Explore all items</span>
+                      <span>View all</span>
                       <ChevronRight className="w-4 h-4 group-hover/seeall:translate-x-1 transition-transform" />
                     </button>
                   </div>

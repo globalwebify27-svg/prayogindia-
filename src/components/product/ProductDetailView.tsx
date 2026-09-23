@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { CategoryBreadcrumb } from "@/components/categories/CategoryBreadcrumb";
 import { ProductGallery } from "@/components/product/ProductGallery";
 import { ProductInformation } from "@/components/product/ProductInformation";
@@ -218,8 +219,18 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
     }
   };
 
+  const router = useRouter();
   const handleToggleWishlist = (prod: Product) => {
     storeToggleWishlist(prod);
+  };
+
+  const handleAddToCart = (prod: Product, qty: number = 1) => {
+    storeAddToCart(prod, selectedVariant || undefined, qty);
+  };
+
+  const handleBuyNow = (prod: Product, qty: number = 1) => {
+    storeAddToCart(prod, selectedVariant || undefined, qty);
+    router.push("/checkout");
   };
 
   const isProductWishlisted = wishlist.some((p) => p.id === product.id);
@@ -288,7 +299,8 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
             product={product}
             selectedVariant={selectedVariant}
             onSelectVariant={setSelectedVariant}
-            onAddToCart={(p) => storeAddToCart(p, selectedVariant || undefined)}
+            onAddToCart={handleAddToCart}
+            onBuyNow={handleBuyNow}
             onToggleWishlist={handleToggleWishlist}
             isWishlisted={isProductWishlisted}
           />
@@ -341,9 +353,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
           </div>
 
           <button
-            onClick={() =>
-              storeAddToCart(product, selectedVariant || undefined)
-            }
+            onClick={() => handleAddToCart(product, 1)}
             className="flex-1 bg-[#00AEEF] hover:bg-[#0096D6] text-white py-2.5 rounded-xl font-extrabold text-[11px] uppercase tracking-wider flex items-center justify-center gap-1.5 shadow-md active:scale-95 transition-all cursor-pointer"
           >
             <ShoppingBag className="w-3.5 h-3.5" />
@@ -351,9 +361,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
           </button>
 
           <button
-            onClick={() =>
-              storeAddToCart(product, selectedVariant || undefined)
-            }
+            onClick={() => handleBuyNow(product, 1)}
             className="flex-1 bg-slate-900 hover:bg-slate-800 text-white py-2.5 rounded-xl font-extrabold text-[11px] uppercase tracking-wider flex items-center justify-center gap-1.5 shadow-md active:scale-95 transition-all cursor-pointer"
           >
             <span>Buy Now</span>
