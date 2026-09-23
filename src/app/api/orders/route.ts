@@ -528,6 +528,16 @@ export async function POST(request: Request) {
         });
       }
 
+      // 5e. Initialize Payment Record
+      await tx.payment.create({
+        data: {
+          orderId: order.id,
+          method: isCod ? "cod" : paymentMethod || "upi",
+          amount: grandTotal,
+          status: "PENDING",
+        },
+      });
+
       // Clear Customer Cart Items
       await tx.cartItem.deleteMany({
         where: { cartId: cart.id },

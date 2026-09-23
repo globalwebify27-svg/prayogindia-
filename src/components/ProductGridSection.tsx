@@ -117,6 +117,108 @@ const CATEGORY_CONFIGS: Record<string, CategoryConfig> = {
   },
 };
 
+export const isProductInShelfCategory = (
+  product: Product,
+  shelfCategory: string,
+): boolean => {
+  const pCat = (product.category || "").toLowerCase().trim();
+  const sCat = (shelfCategory || "").toLowerCase().trim();
+  const name = (product.name || "").toLowerCase();
+  const sku = (product.sku || "").toUpperCase();
+
+  if (pCat === sCat || pCat.includes(sCat) || sCat.includes(pCat)) return true;
+
+  if (sCat.includes("stem")) {
+    return (
+      pCat.includes("stem") ||
+      pCat.includes("educational") ||
+      pCat.includes("tinkering") ||
+      pCat.includes("science") ||
+      sku.includes("STM") ||
+      name.includes("stem") ||
+      name.includes("atl") ||
+      name.includes("science kit")
+    );
+  }
+  if (sCat.includes("motor")) {
+    return (
+      pCat.includes("motor") ||
+      pCat.includes("stepper") ||
+      pCat.includes("driver") ||
+      name.includes("motor") ||
+      name.includes("stepper") ||
+      name.includes("driver") ||
+      name.includes("nema") ||
+      name.includes("servo") ||
+      sku.includes("MOT")
+    );
+  }
+  if (sCat.includes("single board") || sCat.includes("dev board")) {
+    return (
+      pCat.includes("single board") ||
+      pCat.includes("dev board") ||
+      pCat.includes("development board") ||
+      pCat.includes("raspberry pi") ||
+      pCat.includes("sbc") ||
+      pCat.includes("jetson") ||
+      sku.includes("SBC") ||
+      name.includes("raspberry pi") ||
+      name.includes("jetson")
+    );
+  }
+  if (sCat.includes("arduino")) {
+    return (
+      pCat.includes("arduino") ||
+      pCat.includes("microcontroller") ||
+      sku.includes("ARD") ||
+      name.includes("arduino") ||
+      name.includes("atmega")
+    );
+  }
+  if (sCat.includes("drone") || sCat.includes("uav")) {
+    return (
+      pCat.includes("drone") ||
+      pCat.includes("uav") ||
+      pCat.includes("flight controller") ||
+      pCat.includes("quadcopter") ||
+      sku.includes("DRN") ||
+      name.includes("pixhawk") ||
+      name.includes("propeller")
+    );
+  }
+  if (sCat.includes("robotics") || sCat.includes("robot")) {
+    return (
+      ((pCat.includes("robot") || pCat.includes("diy kit")) &&
+        !pCat.includes("stem")) ||
+      sku.includes("ROB") ||
+      sku.includes("KIT")
+    );
+  }
+  if (sCat.includes("iot") || sCat.includes("wireless")) {
+    return (
+      pCat.includes("iot") ||
+      pCat.includes("wireless") ||
+      pCat.includes("lora") ||
+      pCat.includes("bluetooth") ||
+      pCat.includes("gsm") ||
+      sku.includes("IOT") ||
+      name.includes("esp32") ||
+      name.includes("lora")
+    );
+  }
+  if (sCat.includes("sensor")) {
+    return (
+      pCat.includes("sensor") ||
+      pCat.includes("electronic module") ||
+      sku.includes("SEN") ||
+      name.includes("sensor") ||
+      name.includes("lidar")
+    );
+  }
+
+  return false;
+};
+
 interface ProductSectionProps {
   onAddToCart: (product: Product) => void;
   onToggleWishlist?: (product: Product) => void;
@@ -573,9 +675,17 @@ export const ProductGridSection: React.FC<ProductSectionProps> = ({
         {viewMode === "all_categories" ? (
           <div className="space-y-16 animate-in fade-in duration-300">
             {categoryOrder.map((category) => {
-              const categoryProducts = liveProducts.filter(
-                (p) => p.category.toLowerCase().includes(category.toLowerCase()) || category.toLowerCase().includes(p.category.toLowerCase()),
+              let categoryProducts = liveProducts.filter((p) =>
+                isProductInShelfCategory(p, category),
               );
+
+              // Fallback safeguard to ensure category is never rendered empty if mock products exist
+              if (categoryProducts.length === 0) {
+                categoryProducts = PRODUCTS.filter((p) =>
+                  isProductInShelfCategory(p, category),
+                );
+              }
+
               const config = CATEGORY_CONFIGS[category];
               const IconComp = config?.Icon || PackageCheck;
               const elementId = `shelf-${category.toLowerCase().replace(/[^a-z0-9]/g, "-")}`;

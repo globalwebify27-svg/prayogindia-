@@ -235,9 +235,35 @@ export default function AdminOrdersPage() {
                       </div>
                     </td>
 
-                    {/* Total Amount */}
-                    <td className="p-4 font-black text-slate-900 text-sm">
-                      ₹{ord.totalAmount?.toLocaleString()}
+                    {/* Total Amount & Payment Status */}
+                    <td className="p-4">
+                      <div className="font-black text-slate-900 text-sm">
+                        ₹{ord.totalAmount?.toLocaleString()}
+                      </div>
+                      <div className="text-[10px] mt-0.5">
+                        {ord.paymentMethod?.toLowerCase().includes("neft") ||
+                        ord.paymentMethod?.toLowerCase().includes("rtgs") ||
+                        ord.paymentMethod?.toLowerCase().includes("bank") ? (
+                          <a
+                            href={`/admin/payments?search=${encodeURIComponent(ord.orderNumber)}`}
+                            className="inline-flex items-center gap-1 font-bold text-[#005CA9] hover:underline"
+                            title="Review in Bank Verification Desk"
+                          >
+                            <span>{ord.paymentMethod}</span>
+                            <span className={`px-1.5 py-0.2 rounded text-[9px] font-black ${
+                              ord.paymentStatus === "PAID"
+                                ? "bg-emerald-100 text-emerald-800"
+                                : "bg-amber-100 text-amber-800"
+                            }`}>
+                              {ord.paymentStatus === "PAID" ? "VERIFIED" : "PENDING UTR"}
+                            </span>
+                          </a>
+                        ) : (
+                          <span className="text-slate-500 font-medium">
+                            {ord.paymentMethod || "Online"} · {ord.paymentStatus || "PENDING"}
+                          </span>
+                        )}
+                      </div>
                     </td>
 
                     {/* Section 31 Weight & Freight Mode */}

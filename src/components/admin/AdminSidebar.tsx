@@ -36,7 +36,10 @@ import {
   BookOpen,
   FolderKanban,
   Quote,
+  Landmark,
 } from "lucide-react";
+import { PrayogLogo } from "@/components/PrayogLogo";
+
 
 interface AdminSidebarProps {
   mobileOpen?: boolean;
@@ -105,6 +108,7 @@ const NAV_GROUPS = [
   {
     group: "FINANCE & REWARDS",
     items: [
+      { label: "Bank Verifications", href: "/admin/payments", icon: Landmark, badge: "NEFT" },
       { label: "Order Profit & Margins", href: "/admin/profit", icon: Lock },
       { label: "Rewards & Loyalty", href: "/admin/rewards", icon: Award },
       { label: "Offers & Coupons", href: "/admin/offers", icon: BadgePercent },
@@ -155,19 +159,14 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
   const content = (
     <div className="flex flex-col h-full bg-[#0B132B] text-slate-300 w-64 select-none border-r border-slate-800">
       {/* Admin Panel Header Brand */}
-      <div className="p-5 border-b border-slate-800/80 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-[#00AEEF] text-white flex items-center justify-center font-black text-base shadow-md shadow-[#00AEEF]/30">
-            P
-          </div>
-          <div>
-            <h1 className="text-sm font-black text-white tracking-wide leading-tight">
-              PRAYOG INDIA
-            </h1>
-            <span className="text-[9px] text-[#00AEEF] font-bold uppercase tracking-wider block leading-tight">
-              Admin Operations
-            </span>
-          </div>
+      <div className="p-4 border-b border-slate-800/80 flex items-center justify-between">
+        <div className="flex flex-col gap-1">
+          <Link href="/admin">
+            <PrayogLogo size="sm" dark={true} />
+          </Link>
+          <span className="text-[9px] text-[#00AEEF] font-bold uppercase tracking-wider block leading-tight pl-0.5">
+            Admin Operations
+          </span>
         </div>
         {mobileOpen && (
           <button

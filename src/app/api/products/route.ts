@@ -26,7 +26,7 @@ export async function GET(request: Request) {
     const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
     const limit = Math.max(
       1,
-      Math.min(50, parseInt(searchParams.get("limit") || "12", 10)),
+      Math.min(100, parseInt(searchParams.get("limit") || "12", 10)),
     );
 
     // Validate & Clamp Price Range Filters

@@ -249,7 +249,10 @@ enum OrderStatus {
 
 enum PaymentStatus {
   PENDING
+  PENDING_VERIFICATION
+  VERIFIED
   PAID
+  REJECTED
   FAILED
   REFUNDED
   PARTIAL_REFUNDED
@@ -662,28 +665,60 @@ model Notification {
 
 // 16. Payment Records
 model Payment {
-  id              String        @id @default(uuid())
-  orderId         String        @unique
-  order           Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  gatewayOrderId  String?       // Razorpay order_id
-  gatewayPaymentId String?      // Razorpay payment_id
-  gatewaySignature String?      // Razorpay signature for verification
-  amount          Float
-  currency        String        @default("INR")
-  method          String?       // card | upi | netbanking | wallet | emi
-  status          PaymentStatus @default(PENDING)
-  gatewayResponse Json?         // Full raw gateway response
-  verifiedAt      DateTime?
-  failureReason   String?
-  refundId        String?
-  refundAmount    Float         @default(0)
-  refundedAt      DateTime?
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
+  id               String        @id @default(uuid())
+  orderId          String        @unique
+  order            Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  gatewayOrderId   String?       // Razorpay order_id
+  gatewayPaymentId String?       // Razorpay payment_id
+  gatewaySignature String?       // Razorpay signature for verification
+  amount           Float
+  currency         String        @default("INR")
+  method           String?       // card | upi | netbanking | wallet | emi | NEFT | RTGS | bank_transfer
+  status           PaymentStatus @default(PENDING)
+  gatewayResponse  Json?         // Full raw gateway response
+  
+  // NEFT / RTGS / Bank Wire Audit Fields
+  utrNumber        String?       // Unique Transaction Reference number
+  transactionDate  DateTime?     // Date when customer executed transfer
+  proofUrl         String?       // Receipt / Screenshot proof URL
+  customerRemarks  String?       // Optional customer notes
+  proformaInvoiceId String?      // Related proforma reference if applicable
+  submittedAt      DateTime?     // When customer submitted UTR
+  verifiedByStaffId String?      // Staff ID who approved/rejected
+  verifiedByStaffName String?    // Snapshot of verifier name
+  verifiedAt       DateTime?     // When admin approved/rejected
+  rejectionReason  String?       // Reason provided by accounts admin if rejected
+  adminRemarks     String?       // Internal accounts team notes
+
+  failureReason    String?
+  refundId         String?
+  refundAmount     Float         @default(0)
+  refundedAt       DateTime?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
 
   @@index([orderId])
   @@index([gatewayPaymentId])
+  @@index([utrNumber])
   @@index([status])
+  @@index([method])
+}
+
+// 16b. Company Bank Details Configuration
+model CompanyBankDetail {
+  id             String   @id @default(uuid())
+  accountName    String   @default("Prayog India Private Limited")
+  bankName       String   @default("State Bank of India")
+  accountNumber  String   @default("40892301982739")
+  ifscCode       String   @default("SBIN0000167")
+  branchName     String   @default("Main Branch, Kutchery Chowk, Ranchi")
+  accountType    String   @default("Current Account")
+  upiId          String   @default("prayogindia@sbi")
+  instructions   String?  @default("Please include your Order Number or Proforma Quote Number in the transfer remarks/description.")
+  isActive       Boolean  @default(true)
+  isPrimary      Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 }
 
 // 17. Tax Invoices

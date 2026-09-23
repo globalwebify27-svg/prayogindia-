@@ -801,6 +801,26 @@ export default function FlutterPreviewPage() {
     }
   ];
 
+  const searchHints = [
+    'Search "Arduino Uno, Mega, Nano..."',
+    'Search "Raspberry Pi 4 & 5 Kits..."',
+    'Search "BLDC Motors, ESCs & Servos..."',
+    'Search "Sensors, Modules & Displays..."',
+    'Search "Robotics Arms & Grippers..."',
+    'Search "3D Printers & PLA Filaments..."',
+    'Search "FPV Drones & Flight Controllers..."',
+    'Search "LiPo Batteries & BMS Modules..."',
+  ];
+  const [searchHintIndex, setSearchHintIndex] = useState(0);
+
+  // Auto rotate search hint placeholder index
+  useEffect(() => {
+    const hintTimer = setInterval(() => {
+      setSearchHintIndex((prev) => (prev + 1) % searchHints.length);
+    }, 3000);
+    return () => clearInterval(hintTimer);
+  }, [searchHints.length]);
+
   // Auto rotate banner
   useEffect(() => {
     const timer = setInterval(() => {
@@ -917,7 +937,7 @@ export default function FlutterPreviewPage() {
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder='Search "Arduino, Raspberry Pi, Sensors..."'
+              placeholder={searchHints[searchHintIndex]}
               className="w-full text-xs text-slate-800 placeholder-slate-400 focus:outline-none bg-transparent"
             />
             {searchQuery ? (

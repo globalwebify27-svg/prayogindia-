@@ -52,7 +52,7 @@ export const HeroSection: React.FC<HeroProps> = ({
   }, [currentVideoIndex]);
 
   return (
-    <section className="bg-[#0B1528] text-white pt-8 pb-14 sm:pt-12 sm:pb-18 lg:pt-14 lg:pb-20 relative border-b border-slate-800 overflow-hidden min-h-[460px] sm:min-h-[500px] lg:min-h-[520px] flex items-center">
+    <section className="bg-[#0B1528] text-white pt-8 pb-10 sm:pt-12 sm:pb-12 lg:pt-14 lg:pb-14 relative border-b border-slate-800 overflow-hidden min-h-[440px] sm:min-h-[480px] lg:min-h-[500px] flex items-center">
       {/* Background Video Layer - Disabled on Mobile (hidden lg:block), Active on Desktop */}
       <div className="hidden lg:block absolute inset-y-0 right-0 w-[65%] h-full z-0 pointer-events-none overflow-hidden">
         {HERO_VIDEOS.map((videoSrc, idx) => (

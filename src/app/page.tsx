@@ -159,8 +159,6 @@ export default function Home() {
               onExploreSolutions={() => handleTabChange("services")}
             />
 
-            <StatsSection />
-
             {/* 1. Shop by Category */}
             <ShopByCategory onSelectCategory={handleCategoryNavigation} />
 
@@ -207,6 +205,9 @@ export default function Home() {
             <KnowledgeCenterSection />
 
             <B2BSection onOpenB2BModal={() => setB2bOpen(true)} />
+
+            {/* 14. Trust Stats & Capabilities */}
+            <StatsSection />
           </>
         )}
 

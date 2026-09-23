@@ -254,6 +254,7 @@ export const Header: React.FC<HeaderProps> = ({
   const [mobileServicesOpen, setMobileServicesOpen] = useState(false);
   const [mobileProductsOpen, setMobileProductsOpen] = useState(false);
   const [mobileAccountOpen, setMobileAccountOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
 
   const searchContainerRef = useRef<HTMLDivElement>(null);
   const categoryMenuRef = useRef<HTMLDivElement>(null);
@@ -290,7 +291,9 @@ export const Header: React.FC<HeaderProps> = ({
       setServicesDropdownOpen(false);
       setProductsDropdownOpen(false);
       setAccountDropdownOpen(false);
+      setIsScrolled(window.scrollY > 40);
     };
+    handleScroll();
     document.addEventListener("mousedown", handleOutside);
     document.addEventListener("touchstart", handleOutside, { passive: true });
     window.addEventListener("scroll", handleScroll, { passive: true });
@@ -403,9 +406,27 @@ export const Header: React.FC<HeaderProps> = ({
   }, [liveAnnouncements.length]);
 
   return (
-    <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-xs">
-      {/* Top Header Announcement Bar Slider (Section 5 Spec) */}
-      <div className="bg-[#0A1128] text-white text-xs py-2 px-4 border-b border-slate-800">
+    <header
+      className={`sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 transition-shadow duration-200 ${
+        isScrolled ? "shadow-sm" : "shadow-xs"
+      }`}
+    >
+      {/* Collapsible Top Header Container (Announcement Bar + Main Header) */}
+      <div
+        className={`transition-all duration-300 ease-in-out overflow-hidden ${
+          isScrolled
+            ? "lg:max-h-0 lg:opacity-0 lg:pointer-events-none"
+            : "max-h-[500px] opacity-100"
+        }`}
+      >
+        {/* Top Header Announcement Bar Slider (Section 5 Spec) */}
+        <div
+          className={`bg-[#0A1128] text-white text-xs border-b border-slate-800 transition-all duration-300 ${
+            isScrolled
+              ? "max-h-0 py-0 opacity-0 border-none overflow-hidden"
+              : "py-2 px-4 opacity-100"
+          }`}
+        >
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
           <div className="flex items-center gap-2 overflow-hidden w-full sm:w-auto justify-center sm:justify-start">
             {liveAnnouncements.length > 0 &&
@@ -471,8 +492,12 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
       </div>
 
-      {/* Main Header Container with Logo & Action Icons */}
-      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-2.5 sm:py-3">
+        {/* Main Header Container with Logo & Action Icons */}
+        <div
+          className={`max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 transition-all duration-300 ${
+            isScrolled ? "lg:py-0 py-2.5 sm:py-3" : "py-2.5 sm:py-3"
+          }`}
+        >
         <div className="flex items-center justify-between gap-2 sm:gap-4">
           {/* Brand Logo */}
           <Link href="/" className="shrink-0 flex items-center min-w-0">
@@ -940,11 +965,18 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
         </div>
       </div>
+      </div>
 
       {/* ======================================================== */}
       {/* SECTION 3: Main Desktop Primary Navigation Bar */}
       {/* ======================================================== */}
-      <div className="border-t border-slate-100 bg-white hidden lg:block relative shadow-2xs">
+      <div
+        className={`bg-white hidden lg:block relative transition-all duration-200 ${
+          isScrolled
+            ? "border-t-0 shadow-none"
+            : "border-t border-slate-100 shadow-2xs"
+        }`}
+      >
         <div className="max-w-7xl mx-auto px-6 sm:px-8 flex items-center justify-between text-[13px] font-bold text-slate-800 h-13">
           <div className="flex items-center gap-7">
             {/* 0. All Categories Direct Link */}

@@ -187,7 +187,7 @@ export const ShopByCategory: React.FC<Props> = ({ onSelectCategory }) => {
   const INFINITE_CATEGORIES = [...CATEGORIES, ...CATEGORIES];
 
   return (
-    <section className="pt-2 sm:pt-4 lg:pt-5 pb-6 sm:pb-8 lg:pb-10 bg-white border-b border-slate-100">
+    <section className="pt-8 sm:pt-10 lg:pt-12 pb-6 sm:pb-8 lg:pb-10 bg-white border-b border-slate-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4 sm:space-y-5">
         {/* Section Header with Controls */}
         <div className="flex items-end justify-between">
