@@ -1,20 +1,8 @@
 import { NextResponse, NextRequest } from "next/server";
-import { cookies } from "next/headers";
 import { db } from "@/lib/db";
-import { AuthSessionUser } from "@/lib/authUtils";
+import { getAuthenticatedCustomer } from "@/lib/authUtils";
 import { getSecurityHeaders } from "@/lib/security";
 import { DEFAULT_COMPANY_BANK_DETAILS } from "../bank-details/route";
-
-async function getAuthenticatedUser(): Promise<AuthSessionUser | null> {
-  const cookieStore = await cookies();
-  const sessionCookie = cookieStore.get("prayog_customer_session");
-  if (!sessionCookie?.value) return null;
-  try {
-    return JSON.parse(sessionCookie.value);
-  } catch {
-    return null;
-  }
-}
 
 /**
  * GET /api/payment/status?orderId=...
@@ -22,15 +10,18 @@ async function getAuthenticatedUser(): Promise<AuthSessionUser | null> {
  */
 export async function GET(req: NextRequest) {
   const headers = getSecurityHeaders();
-  const user = await getAuthenticatedUser();
+  const user = await getAuthenticatedCustomer();
   const { searchParams } = new URL(req.url);
   const orderId = searchParams.get("orderId");
   const paymentId = searchParams.get("paymentId");
 
   if (!orderId && !paymentId) {
     return NextResponse.json(
-      { success: false, message: "orderId or paymentId parameter is required." },
-      { status: 400, headers }
+      {
+        success: false,
+        message: "orderId or paymentId parameter is required.",
+      },
+      { status: 400, headers },
     );
   }
 
@@ -47,7 +38,7 @@ export async function GET(req: NextRequest) {
           bankDetails: DEFAULT_COMPANY_BANK_DETAILS,
         },
       },
-      { headers }
+      { headers },
     );
   }
 
@@ -55,7 +46,9 @@ export async function GET(req: NextRequest) {
     const payment = await db.payment.findFirst({
       where: {
         OR: [
-          ...(orderId ? [{ orderId }, { order: { orderNumber: orderId } }] : []),
+          ...(orderId
+            ? [{ orderId }, { order: { orderNumber: orderId } }]
+            : []),
           ...(paymentId ? [{ id: paymentId }] : []),
         ],
       },
@@ -107,14 +100,14 @@ export async function GET(req: NextRequest) {
                 bankDetails: DEFAULT_COMPANY_BANK_DETAILS,
               },
             },
-            { headers }
+            { headers },
           );
         }
       }
 
       return NextResponse.json(
         { success: false, message: "Payment record not found." },
-        { status: 404, headers }
+        { status: 404, headers },
       );
     }
 
@@ -139,12 +132,12 @@ export async function GET(req: NextRequest) {
           bankDetails: DEFAULT_COMPANY_BANK_DETAILS,
         },
       },
-      { headers }
+      { headers },
     );
   } catch (error: any) {
     return NextResponse.json(
       { success: false, message: error.message },
-      { status: 500, headers }
+      { status: 500, headers },
     );
   }
 }

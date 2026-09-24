@@ -115,11 +115,7 @@ export class CloudinaryStorageService implements StorageService {
       process.env.CLOUDINARY_API_SECRET || "rYfAb_4wHeuE6FfCMaSFNFMjsPc";
   }
 
-  async upload(
-    key: string,
-    buffer: Buffer,
-    mimeType: string,
-  ): Promise<string> {
+  async upload(key: string, buffer: Buffer, mimeType: string): Promise<string> {
     const { v2: cloudinary } = await import("cloudinary");
     cloudinary.config({
       cloud_name: this.cloudName,
@@ -129,7 +125,9 @@ export class CloudinaryStorageService implements StorageService {
     });
 
     const publicId = key.replace(/\.[^/.]+$/, ""); // strip extension
-    const isImage = mimeType.startsWith("image/") || (!mimeType.startsWith("video/") && !mimeType.includes("pdf"));
+    const isImage =
+      mimeType.startsWith("image/") ||
+      (!mimeType.startsWith("video/") && !mimeType.includes("pdf"));
 
     let uploadBuffer = buffer;
     if (isImage) {

@@ -6,7 +6,10 @@ import { getAuthenticatedAdmin } from "@/lib/adminAuth";
 export async function GET(request: Request) {
   const admin = await getAuthenticatedAdmin();
   if (!admin) {
-    return NextResponse.json({ success: false, message: "Forbidden" }, { status: 403 });
+    return NextResponse.json(
+      { success: false, message: "Forbidden" },
+      { status: 403 },
+    );
   }
 
   const { searchParams } = new URL(request.url);
@@ -67,7 +70,10 @@ export async function GET(request: Request) {
       const customersWithStats = customers.map((c) => ({
         ...c,
         totalOrders: c._count.orders,
-        totalSpent: c.orders.reduce((sum: number, o: any) => sum + (o.totalAmount || 0), 0),
+        totalSpent: c.orders.reduce(
+          (sum: number, o: any) => sum + (o.totalAmount || 0),
+          0,
+        ),
         openTickets: c._count.tickets,
         orders: undefined,
         _count: undefined,
@@ -79,9 +85,16 @@ export async function GET(request: Request) {
         pagination: { total, page, limit, pages: Math.ceil(total / limit) },
       });
     } catch (error: any) {
-      return NextResponse.json({ success: false, message: error.message }, { status: 500 });
+      return NextResponse.json(
+        { success: false, message: error.message },
+        { status: 500 },
+      );
     }
   }
 
-  return NextResponse.json({ success: true, data: [], pagination: { total: 0, page: 1, limit, pages: 0 } });
+  return NextResponse.json({
+    success: true,
+    data: [],
+    pagination: { total: 0, page: 1, limit, pages: 0 },
+  });
 }

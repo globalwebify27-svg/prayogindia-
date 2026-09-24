@@ -56,11 +56,9 @@ export async function GET(request: Request) {
         },
       });
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : "Failed to fetch products.";
-      return NextResponse.json(
-        { success: false, message },
-        { status: 500 },
-      );
+      const message =
+        error instanceof Error ? error.message : "Failed to fetch products.";
+      return NextResponse.json({ success: false, message }, { status: 500 });
     }
   }
 
@@ -126,20 +124,35 @@ export async function POST(request: Request) {
       isHazardousItem: _isHazardousItem = false,
       isFragileItem: _isFragileItem = false,
       isDangerousGoods: _isDangerousGoods = false,
+      metaTitle,
+      metaDescription,
+      metaKeywords,
+      canonicalUrl,
+      ogImage,
+      indexFollow,
+      structuredDataType,
+      seoSlug,
     } = body;
 
     if (!name || !price || !sku || !description) {
       return NextResponse.json(
-        { success: false, message: "Name, price, SKU, and description are required." },
+        {
+          success: false,
+          message: "Name, price, SKU, and description are required.",
+        },
         { status: 400 },
       );
     }
 
     const cleanSku = String(sku).trim().toUpperCase();
-    const baseSlug = name
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/(^-|-$)+/g, "") || "product";
+    const rawSlugCandidate = (seoSlug && typeof seoSlug === "string" && seoSlug.trim())
+      ? seoSlug.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)+/g, "")
+      : name
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, "-")
+          .replace(/(^-|-$)+/g, "");
+
+    const baseSlug = rawSlugCandidate || "product";
 
     let slug = baseSlug;
 
@@ -168,6 +181,21 @@ export async function POST(request: Request) {
         ? images[0]
         : "https://images.unsplash.com/photo-1553406830-ef2513450d76?auto=format&fit=crop&w=800&q=80";
 
+    const finalSeo = {
+      metaTitle: metaTitle || `${name} - Buy Online at Best Price | Prayog India`,
+      metaDescription: metaDescription || description?.slice(0, 160) || "",
+      metaKeywords: Array.isArray(metaKeywords) ? metaKeywords : [],
+      canonicalUrl: canonicalUrl || `https://www.prayogindia.com/products/${slug}`,
+      ogImage: ogImage || primaryImage,
+      indexFollow: typeof indexFollow === "boolean" ? indexFollow : true,
+      structuredDataType: structuredDataType || "Product",
+    };
+
+    const finalSpecs = {
+      ...(typeof specs === "object" && specs !== null ? specs : {}),
+      _seo: finalSeo,
+    };
+
     // Prepare in-memory fallback product object
     const productForEngine = {
       id: `prod-${Date.now()}`,
@@ -190,12 +218,19 @@ export async function POST(request: Request) {
       features: Array.isArray(features) ? features : [],
       applications: Array.isArray(applications) ? applications : [],
       whatsIncluded: Array.isArray(whatsIncluded) ? whatsIncluded : [],
-      specs: typeof specs === "object" && specs !== null ? specs : {},
+      specs: finalSpecs,
       weightGrams: Number(weightGrams) || 250,
       dimensionsCm,
       shippingTag,
       airFreightAllowed,
       surfaceFreightAllowed,
+      metaTitle: finalSeo.metaTitle,
+      metaDescription: finalSeo.metaDescription,
+      metaKeywords: finalSeo.metaKeywords,
+      canonicalUrl: finalSeo.canonicalUrl,
+      ogImage: finalSeo.ogImage,
+      indexFollow: finalSeo.indexFollow,
+      structuredDataType: finalSeo.structuredDataType,
     };
 
     if (process.env.DATABASE_URL) {
@@ -206,7 +241,13 @@ export async function POST(request: Request) {
           where: {
             OR: [
               { name: { equals: categoryName, mode: "insensitive" } },
-              { slug: { equals: categoryName.toLowerCase().replace(/[^a-z0-9]+/g, "-") } },
+              {
+                slug: {
+                  equals: categoryName
+                    .toLowerCase()
+                    .replace(/[^a-z0-9]+/g, "-"),
+                },
+              },
             ],
           },
         });
@@ -239,7 +280,10 @@ export async function POST(request: Request) {
 
       if (existing) {
         return NextResponse.json(
-          { success: false, message: `Product with SKU "${cleanSku}" already exists.` },
+          {
+            success: false,
+            message: `Product with SKU "${cleanSku}" already exists.`,
+          },
           { status: 409 },
         );
       }
@@ -257,7 +301,7 @@ export async function POST(request: Request) {
           brand,
           categoryId: targetCatId,
           features: Array.isArray(features) ? features : [],
-          specifications: specs || {},
+          specifications: finalSpecs,
           images: {
             create: images.map((imgUrl: string, idx: number) => ({
               imageUrl: imgUrl,
@@ -292,7 +336,8 @@ export async function POST(request: Request) {
       data: productForEngine,
     });
   } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : "Failed to create product.";
+    const message =
+      error instanceof Error ? error.message : "Failed to create product.";
     return NextResponse.json({ success: false, message }, { status: 500 });
   }
 }

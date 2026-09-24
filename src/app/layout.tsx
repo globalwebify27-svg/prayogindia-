@@ -17,7 +17,10 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Prayog India | Mechatronics, Robotics & STEM Hardware Store",
+  title: {
+    default: "Prayog India | Mechatronics, Robotics & STEM Hardware Store",
+    template: "%s | Prayog India",
+  },
   description:
     "Official online store for robotics kits, microcontrollers, Arduino, Raspberry Pi, drone components, STEM educational kits, and electronic sensors with Pan-India dispatch.",
   icons: {

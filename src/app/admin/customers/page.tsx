@@ -204,7 +204,9 @@ export default function AdminCustomersPage() {
             openTickets: c.openTickets || 0,
             communityOptIn: false,
             registeredDate: new Date(c.createdAt).toLocaleDateString("en-IN", {
-              day: "2-digit", month: "short", year: "numeric",
+              day: "2-digit",
+              month: "short",
+              year: "numeric",
             }),
             lastActive: "—",
           }));

@@ -49,11 +49,16 @@ export async function GET(request: Request) {
 
   // Resolve store DB id
   const dbStore = await db.store.findFirst({
-    where: { OR: [{ code: activeStoreCode.toUpperCase() }, { id: activeStoreCode }] },
+    where: {
+      OR: [{ code: activeStoreCode.toUpperCase() }, { id: activeStoreCode }],
+    },
   });
 
   if (!dbStore) {
-    return NextResponse.json({ success: false, message: "Store not found." }, { status: 404, headers });
+    return NextResponse.json(
+      { success: false, message: "Store not found." },
+      { status: 404, headers },
+    );
   }
 
   const invRows = await db.storeInventory.findMany({
@@ -62,7 +67,11 @@ export async function GET(request: Request) {
       product: {
         include: {
           category: { select: { name: true } },
-          images: { select: { imageUrl: true }, orderBy: { sortOrder: "asc" }, take: 1 },
+          images: {
+            select: { imageUrl: true },
+            orderBy: { sortOrder: "asc" },
+            take: 1,
+          },
         },
       },
     },
@@ -74,7 +83,8 @@ export async function GET(request: Request) {
     sku: inv.product.sku,
     category: inv.product.category?.name ?? "",
     price: inv.product.price,
-    image: (inv.product.images as Array<{imageUrl: string}>)?.[0]?.imageUrl ?? "",
+    image:
+      (inv.product.images as Array<{ imageUrl: string }>)?.[0]?.imageUrl ?? "",
     storeCode: activeStoreCode.toUpperCase(),
     isCentralInventory: isCentral,
     localStock: inv.availableQuantity,
@@ -99,9 +109,15 @@ export async function GET(request: Request) {
       isCentralInventory: isCentral,
       data: {
         items: storeInventory,
-        totalUnits: storeInventory.reduce((acc, curr) => acc + curr.quantity, 0),
-        lowStockCount: storeInventory.filter((i) => i.status === "Low Stock").length,
-        outOfStockCount: storeInventory.filter((i) => i.status === "Out of Stock").length,
+        totalUnits: storeInventory.reduce(
+          (acc, curr) => acc + curr.quantity,
+          0,
+        ),
+        lowStockCount: storeInventory.filter((i) => i.status === "Low Stock")
+          .length,
+        outOfStockCount: storeInventory.filter(
+          (i) => i.status === "Out of Stock",
+        ).length,
       },
     },
     { headers },

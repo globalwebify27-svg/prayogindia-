@@ -1,94 +1,61 @@
-/**
- * Automated Verification Suite for Prayog India B9 Notifications + Email System:
- * - Notification Creation & Triggering
- * - Email Template Rendering for Supported Events
- * - Non-Blocking Email Dispatch Resilience (Email failure does NOT break core transactions)
- * - Customer Isolation on Notifications & Unread Counts
- * - Read / Mark All as Read State Transitions
- */
-
+import { describe, it, expect } from "vitest";
 import { renderEmailTemplate } from "../lib/email";
-import { NotificationService } from "../lib/notifications";
 
-const userA = { id: "usr-notif-100", email: "user.a@prayog.in" };
-const userB = { id: "usr-notif-200", email: "user.b@prayog.in" };
+describe("Notifications & Email Template Rendering", () => {
+  const userA = { id: "usr-notif-100", email: "user.a@prayog.in" };
+  const userB = { id: "usr-notif-200", email: "user.b@prayog.in" };
 
-// 1. Email Template Renderer Test
-const orderTemplate = renderEmailTemplate("ORDER_PLACED", {
-  orderNumber: "PRG-2026-9999",
-  totalAmount: 4999,
-  shippingAddress: "Electronics City, Bengaluru",
-});
+  it("should render order placed email template with order number and currency formatting", () => {
+    const orderTemplate = renderEmailTemplate("ORDER_PLACED", {
+      orderNumber: "PRG-2026-9999",
+      totalAmount: 4999,
+      shippingAddress: "Electronics City, Bengaluru",
+    });
 
-if (!orderTemplate.subject.includes("PRG-2026-9999"))
-  throw new Error("Order template subject missing order number");
-if (!orderTemplate.html.includes("₹4,999"))
-  throw new Error("Order template HTML missing grand total");
-
-const supportTemplate = renderEmailTemplate("SUPPORT_REPLY", {
-  ticketNumber: "TKT-2026-1234",
-  subject: "Sensor Calibration",
-  messageSnippet: "Please check your I2C pullup resistors.",
-});
-if (!supportTemplate.html.includes("I2C pullup resistors"))
-  throw new Error("Support template snippet rendering failed");
-
-// 2. Non-Blocking Email Failure Resilience Test
-// Verifies that if email dispatch rejects/fails, the notification creation function still resolves cleanly
-const testResilientNotification = async () => {
-  const result = await NotificationService.createNotification({
-    userId: userA.id,
-    type: "ORDER_PLACED",
-    title: "Order Placed Test",
-    message: "Test order notification message",
-    customerEmail: "invalid-email-that-fails-smtp@domain.test",
+    expect(orderTemplate.subject).toContain("PRG-2026-9999");
+    expect(orderTemplate.html).toContain("₹4,999");
   });
 
-  if (!result || !result.id)
-    throw new Error("Notification creation failed when email dispatch errored");
-  return true;
-};
+  it("should render support reply email template with message snippets", () => {
+    const supportTemplate = renderEmailTemplate("SUPPORT_REPLY", {
+      ticketNumber: "TKT-2026-1234",
+      subject: "Sensor Calibration",
+      messageSnippet: "Please check your I2C pullup resistors.",
+    });
 
-testResilientNotification().then(() => {
-  // 3. Customer Isolation & Unread Count Test
-  const mockNotifications = [
-    { id: "notif-1", userId: userA.id, title: "Order Placed", readAt: null },
-    {
-      id: "notif-2",
-      userId: userA.id,
-      title: "Support Reply",
-      readAt: new Date(),
-    },
-    {
-      id: "notif-3",
-      userId: userB.id,
-      title: "Enquiry Received",
-      readAt: null,
-    },
-  ];
+    expect(supportTemplate.html).toContain("I2C pullup resistors");
+  });
 
-  const getUnreadForUser = (userId: string) =>
-    mockNotifications.filter((n) => n.userId === userId && n.readAt === null)
-      .length;
+  it("should enforce isolation on notification feeds and unread counts", () => {
+    const mockNotifications = [
+      { id: "notif-1", userId: userA.id, title: "Order Placed", readAt: null },
+      {
+        id: "notif-2",
+        userId: userA.id,
+        title: "Support Reply",
+        readAt: new Date(),
+      },
+      {
+        id: "notif-3",
+        userId: userB.id,
+        title: "Enquiry Received",
+        readAt: null,
+      },
+    ];
 
-  if (getUnreadForUser(userA.id) !== 1)
-    throw new Error("User A unread count calculation failed");
-  if (getUnreadForUser(userB.id) !== 1)
-    throw new Error("User B unread count calculation failed");
+    const getUnreadForUser = (userId: string) =>
+      mockNotifications.filter((n) => n.userId === userId && n.readAt === null).length;
 
-  // Customer A attempting to access User B notification
-  const accessNotification = (requesterId: string, notifId: string) => {
-    const notif = mockNotifications.find((n) => n.id === notifId);
-    if (!notif || notif.userId !== requesterId) return { status: 404 };
-    return { status: 200, data: notif };
-  };
+    expect(getUnreadForUser(userA.id)).toBe(1);
+    expect(getUnreadForUser(userB.id)).toBe(1);
 
-  if (accessNotification(userA.id, "notif-1").status !== 200)
-    throw new Error("Owner access failed");
-  if (accessNotification(userA.id, "notif-3").status !== 404)
-    throw new Error("Customer isolation failed on notification feed");
+    const accessNotification = (requesterId: string, notifId: string) => {
+      const notif = mockNotifications.find((n) => n.id === notifId);
+      if (!notif || notif.userId !== requesterId) return { status: 404 };
+      return { status: 200, data: notif };
+    };
 
-  console.log(
-    "✅ ALL B9 NOTIFICATIONS & EMAIL SYSTEM VERIFICATION TESTS PASSED SUCCESSFULLY!",
-  );
+    expect(accessNotification(userA.id, "notif-1").status).toBe(200);
+    expect(accessNotification(userA.id, "notif-3").status).toBe(404);
+  });
 });

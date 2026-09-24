@@ -187,12 +187,12 @@ export const ShopByCategory: React.FC<Props> = ({ onSelectCategory }) => {
   const INFINITE_CATEGORIES = [...CATEGORIES, ...CATEGORIES];
 
   return (
-    <section className="pt-8 sm:pt-10 lg:pt-12 pb-6 sm:pb-8 lg:pb-10 bg-white border-b border-slate-100">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4 sm:space-y-5">
+    <section className="py-6 sm:py-8 lg:py-10 bg-white border-b border-slate-100">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-3.5 sm:space-y-5">
         {/* Section Header with Controls */}
-        <div className="flex items-end justify-between">
+        <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
+            <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-slate-900 tracking-tight">
               Shop by Category
             </h2>
           </div>
@@ -209,45 +209,29 @@ export const ShopByCategory: React.FC<Props> = ({ onSelectCategory }) => {
         </div>
 
         {/* Categories Grid - 2 Rows (4 columns on desktop / tablet, 2 on mobile) */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-5 pt-1">
-          {CATEGORIES.map((cat) => {
-            const Icon = cat.IconComponent;
-            return (
-              <div
-                key={cat.id}
-                onClick={() => onSelectCategory?.(cat.name)}
-                className="bg-slate-50/80 hover:bg-[#E0F7FC]/40 border border-slate-200/80 hover:border-[#00AEEF]/50 rounded-2xl p-4 cursor-pointer transition-all duration-300 hover:shadow-xl hover:-translate-y-1 group flex flex-col justify-between"
-              >
-                {/* Top: Icon & Count Badge */}
-                <div className="flex items-center justify-between mb-3">
-                  <div className="w-10 h-10 rounded-xl bg-white border border-slate-200/80 flex items-center justify-center shadow-2xs group-hover:bg-[#00AEEF] transition-colors">
-                    <Icon className="w-5 h-5 text-[#00AEEF] group-hover:text-white transition-colors" />
-                  </div>
-                  <span className="text-[11px] font-medium text-slate-600 bg-white px-2.5 py-1 rounded-full border border-slate-200/70 shadow-2xs">
-                    {cat.count}
-                  </span>
-                </div>
-
-                {/* Category Image */}
-                <div className="relative h-28 sm:h-32 w-full mb-3 rounded-xl overflow-hidden bg-white p-1 border border-slate-100 shadow-2xs">
-                  <Image
-                    src={cat.image}
-                    alt={cat.name}
-                    fill
-                    className="object-cover rounded-lg group-hover:scale-105 transition-transform duration-500"
-                  />
-                </div>
-
-                {/* Category Name */}
-                <div className="flex items-center justify-between gap-1">
-                  <h3 className="text-xs sm:text-sm font-semibold text-slate-900 group-hover:text-[#00AEEF] transition-colors leading-tight">
-                    {cat.name}
-                  </h3>
-                  <ArrowRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-[#00AEEF] group-hover:translate-x-1 transition-all opacity-0 group-hover:opacity-100 shrink-0" />
-                </div>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-5 pt-1">
+          {CATEGORIES.map((cat) => (
+            <div
+              key={cat.id}
+              onClick={() => onSelectCategory?.(cat.name)}
+              className="bg-white hover:bg-[#E0F7FC]/30 border border-slate-200/90 hover:border-[#00AEEF]/50 rounded-2xl p-2.5 sm:p-4 cursor-pointer transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 group flex flex-col items-center text-center"
+            >
+              {/* Category Image */}
+              <div className="relative h-24 sm:h-36 w-full mb-2 sm:mb-3 rounded-xl overflow-hidden bg-slate-50 border border-slate-100 shadow-2xs">
+                <Image
+                  src={cat.image}
+                  alt={cat.name}
+                  fill
+                  className="object-cover rounded-xl group-hover:scale-105 transition-transform duration-500"
+                />
               </div>
-            );
-          })}
+
+              {/* Category Name */}
+              <h3 className="text-xs sm:text-sm font-semibold text-slate-800 group-hover:text-[#00AEEF] transition-colors leading-tight">
+                {cat.name}
+              </h3>
+            </div>
+          ))}
         </div>
       </div>
     </section>

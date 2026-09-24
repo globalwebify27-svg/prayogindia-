@@ -68,7 +68,8 @@ export function resolveTierCode(rawType?: string | null): string {
   if (!rawType) return "B2C";
   const upper = rawType.toUpperCase().trim();
   if (upper.includes("B2B")) return "B2B";
-  if (upper.includes("REGISTERED") || upper.includes("MAKER")) return "REGISTERED";
+  if (upper.includes("REGISTERED") || upper.includes("MAKER"))
+    return "REGISTERED";
   if (upper.includes("WALK") || upper.includes("POS")) return "WALK_IN";
   return "B2C";
 }
@@ -77,7 +78,9 @@ export class LoyaltyEngine {
   /**
    * 1. Get active Tier Rule for a customer type (DB with fallback)
    */
-  static async getTierRule(customerType?: string | null): Promise<TierRuleConfig> {
+  static async getTierRule(
+    customerType?: string | null,
+  ): Promise<TierRuleConfig> {
     const code = resolveTierCode(customerType);
     if (process.env.DATABASE_URL) {
       try {
@@ -98,7 +101,10 @@ export class LoyaltyEngine {
           };
         }
       } catch (err) {
-        console.warn("[LoyaltyEngine] DB tier rule lookup error, using fallback:", err);
+        console.warn(
+          "[LoyaltyEngine] DB tier rule lookup error, using fallback:",
+          err,
+        );
       }
     }
     return FALLBACK_TIER_RULES[code] || FALLBACK_TIER_RULES.B2C;
@@ -116,7 +122,8 @@ export class LoyaltyEngine {
       return { points: 0, rupeeValue: 0, tierCode: rule.tierCode };
     }
     const points = Math.floor((eligibleAmount / 100) * rule.pointsPer100Spent);
-    const rupeeValue = Math.round(points * rule.redemptionRateRupees * 100) / 100;
+    const rupeeValue =
+      Math.round(points * rule.redemptionRateRupees * 100) / 100;
     return { points, rupeeValue, tierCode: rule.tierCode };
   }
 
@@ -141,7 +148,12 @@ export class LoyaltyEngine {
 
     const rule = await this.getTierRule(customerType);
     if (!rule.isActive) {
-      return { valid: false, sanitizedPoints: 0, discountAmount: 0, message: "Loyalty redemption is currently inactive for this tier." };
+      return {
+        valid: false,
+        sanitizedPoints: 0,
+        discountAmount: 0,
+        message: "Loyalty redemption is currently inactive for this tier.",
+      };
     }
 
     // Check customer's actual balance from DB
@@ -155,7 +167,12 @@ export class LoyaltyEngine {
     }
 
     if (userBalance <= 0) {
-      return { valid: false, sanitizedPoints: 0, discountAmount: 0, message: "You have 0 Prayog Coins available." };
+      return {
+        valid: false,
+        sanitizedPoints: 0,
+        discountAmount: 0,
+        message: "You have 0 Prayog Coins available.",
+      };
     }
 
     // Check minimum redemption points
@@ -170,7 +187,9 @@ export class LoyaltyEngine {
 
     // Check max cart percentage cap
     const maxDiscountAllowed = (subtotal * rule.maxRedemptionPercentage) / 100;
-    const maxPointsAllowedBySubtotal = Math.floor(maxDiscountAllowed / rule.redemptionRateRupees);
+    const maxPointsAllowedBySubtotal = Math.floor(
+      maxDiscountAllowed / rule.redemptionRateRupees,
+    );
 
     const safePoints = Math.min(
       Math.floor(requestedPoints),
@@ -187,7 +206,8 @@ export class LoyaltyEngine {
       };
     }
 
-    const discountAmount = Math.round(safePoints * rule.redemptionRateRupees * 100) / 100;
+    const discountAmount =
+      Math.round(safePoints * rule.redemptionRateRupees * 100) / 100;
 
     return {
       valid: true,
@@ -205,7 +225,11 @@ export class LoyaltyEngine {
     req?: Request | null,
   ): Promise<{ success: boolean; pointsAwarded: number; message: string }> {
     if (!process.env.DATABASE_URL) {
-      return { success: true, pointsAwarded: 0, message: "Mock mode — DB not connected." };
+      return {
+        success: true,
+        pointsAwarded: 0,
+        message: "Mock mode — DB not connected.",
+      };
     }
 
     const order = await db.order.findUnique({
@@ -234,10 +258,17 @@ export class LoyaltyEngine {
       };
     }
 
-    const { points } = await this.calculatePointsForOrder(order.totalAmount, order.customerType);
+    const { points } = await this.calculatePointsForOrder(
+      order.totalAmount,
+      order.customerType,
+    );
 
     if (points <= 0) {
-      return { success: true, pointsAwarded: 0, message: "Order total not eligible for points." };
+      return {
+        success: true,
+        pointsAwarded: 0,
+        message: "Order total not eligible for points.",
+      };
     }
 
     const currentBalance = order.user?.rewardPoints || 0;
@@ -293,7 +324,11 @@ export class LoyaltyEngine {
       req,
     });
 
-    return { success: true, pointsAwarded: points, message: `Successfully awarded ${points} coins.` };
+    return {
+      success: true,
+      pointsAwarded: points,
+      message: `Successfully awarded ${points} coins.`,
+    };
   }
 
   /**
@@ -306,7 +341,11 @@ export class LoyaltyEngine {
     reason: string,
     actor?: any,
     req?: Request | null,
-  ): Promise<{ success: boolean; earnedReversed: number; redeemedRefunded: number }> {
+  ): Promise<{
+    success: boolean;
+    earnedReversed: number;
+    redeemedRefunded: number;
+  }> {
     if (!process.env.DATABASE_URL) {
       return { success: true, earnedReversed: 0, redeemedRefunded: 0 };
     }
@@ -324,7 +363,9 @@ export class LoyaltyEngine {
     let redeemedRefunded = 0;
 
     await db.$transaction(async (tx) => {
-      const freshUser = await tx.user.findUnique({ where: { id: order.userId } });
+      const freshUser = await tx.user.findUnique({
+        where: { id: order.userId },
+      });
       let currentBal = freshUser?.rewardPoints || 0;
 
       // 5a. Reverse earned points if any were awarded
@@ -407,7 +448,11 @@ export class LoyaltyEngine {
         entityType: "User",
         entityId: order.userId,
         description: `Order #${order.orderNumber} points adjusted (${reason}). Revoked: -${earnedReversed} PTS, Restored: +${redeemedRefunded} PTS.`,
-        actor: actor || { id: "system", name: "Loyalty Engine", role: "SYSTEM" },
+        actor: actor || {
+          id: "system",
+          name: "Loyalty Engine",
+          role: "SYSTEM",
+        },
         metadata: { orderId: order.id, reason },
         req,
       });
@@ -429,7 +474,9 @@ export class LoyaltyEngine {
     req?: Request | null;
   }): Promise<{ success: boolean; newBalance: number; transactionId: string }> {
     if (!process.env.DATABASE_URL) {
-      throw new Error("Database connection required for manual loyalty adjustments.");
+      throw new Error(
+        "Database connection required for manual loyalty adjustments.",
+      );
     }
 
     const user = await db.user.findUnique({
@@ -467,7 +514,9 @@ export class LoyaltyEngine {
           points: delta,
           balanceBefore,
           balanceAfter,
-          description: params.reason || `Manual ${params.type} by ${params.actor?.name || "Administrator"}`,
+          description:
+            params.reason ||
+            `Manual ${params.type} by ${params.actor?.name || "Administrator"}`,
           referenceType: "ADMIN_ADJUSTMENT",
           referenceId: params.actor?.id || null,
           metadata: {
@@ -492,7 +541,11 @@ export class LoyaltyEngine {
       req: params.req,
     });
 
-    return { success: true, newBalance: balanceAfter, transactionId: txRecord.id };
+    return {
+      success: true,
+      newBalance: balanceAfter,
+      transactionId: txRecord.id,
+    };
   }
 
   /**

@@ -2,11 +2,21 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { Mail, ArrowRight, CheckCircle2, ArrowLeft, KeyRound, Lock, Loader2 } from "lucide-react";
+import {
+  Mail,
+  ArrowRight,
+  CheckCircle2,
+  ArrowLeft,
+  KeyRound,
+  Lock,
+  Loader2,
+} from "lucide-react";
 
 export const ForgotPasswordForm: React.FC = () => {
   const [identifier, setIdentifier] = useState("");
-  const [step, setStep] = useState<"REQUEST" | "VERIFY" | "COMPLETED">("REQUEST");
+  const [step, setStep] = useState<"REQUEST" | "VERIFY" | "COMPLETED">(
+    "REQUEST",
+  );
   const [code, setCode] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -39,7 +49,9 @@ export const ForgotPasswordForm: React.FC = () => {
         return;
       }
 
-      setMessage(data.message || "A 6-digit verification code has been dispatched.");
+      setMessage(
+        data.message || "A 6-digit verification code has been dispatched.",
+      );
       setStep("VERIFY");
     } catch {
       setError("Network error. Please try again.");
@@ -106,7 +118,8 @@ export const ForgotPasswordForm: React.FC = () => {
               Forgot Password?
             </h1>
             <p className="text-xs text-slate-500">
-              Enter your registered Email Address or Mobile Number. We will issue a 6-digit reset code.
+              Enter your registered Email Address or Mobile Number. We will
+              issue a 6-digit reset code.
             </p>
           </div>
 
@@ -165,7 +178,9 @@ export const ForgotPasswordForm: React.FC = () => {
               Enter Verification Code
             </h1>
             <p className="text-xs text-slate-500">
-              Enter the 6-digit code sent for <strong className="text-slate-800">{identifier}</strong> and set your new password.
+              Enter the 6-digit code sent for{" "}
+              <strong className="text-slate-800">{identifier}</strong> and set
+              your new password.
             </p>
           </div>
 
@@ -254,7 +269,10 @@ export const ForgotPasswordForm: React.FC = () => {
 
             <button
               type="button"
-              onClick={() => { setStep("REQUEST"); setError(null); }}
+              onClick={() => {
+                setStep("REQUEST");
+                setError(null);
+              }}
               className="w-full text-center text-xs font-bold text-slate-500 hover:text-slate-800 cursor-pointer pt-1"
             >
               Change Email/Mobile
@@ -272,7 +290,8 @@ export const ForgotPasswordForm: React.FC = () => {
             Password Reset Complete
           </h2>
           <p className="text-xs text-slate-600 max-w-xs mx-auto leading-relaxed">
-            Your password has been successfully updated. You can now sign in with your new credentials.
+            Your password has been successfully updated. You can now sign in
+            with your new credentials.
           </p>
           <Link
             href="/login"

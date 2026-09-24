@@ -1,21 +1,26 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { verifySessionToken } from "@/lib/jwt";
+import { StaffSessionUser } from "@/lib/staffAuth";
+import { AdminSessionUser } from "@/lib/adminAuth";
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Read staff session cookie
+  // Read session cookies
   const staffCookie = request.cookies.get("prayog_staff_session");
   const adminCookie = request.cookies.get("prayog_admin_session");
 
-  // Helper to parse staff user
-  let staffUser: any = null;
+  // Cryptographically verify staff user token
+  let staffUser: StaffSessionUser | null = null;
   if (staffCookie?.value) {
-    try {
-      staffUser = JSON.parse(staffCookie.value);
-    } catch {
-      staffUser = null;
-    }
+    staffUser = await verifySessionToken<StaffSessionUser>(staffCookie.value);
+  }
+
+  // Cryptographically verify admin user token
+  let adminUser: AdminSessionUser | null = null;
+  if (adminCookie?.value) {
+    adminUser = await verifySessionToken<AdminSessionUser>(adminCookie.value);
   }
 
   // 1. Guard /store/* routes (Only STORE_MANAGER & SUPER_ADMIN)
@@ -45,9 +50,9 @@ export function middleware(request: NextRequest) {
   // 3. Guard /admin/* routes (except /admin/login)
   if (pathname.startsWith("/admin") && pathname !== "/admin/login") {
     const isSuperAdmin = staffUser?.role === "SUPER_ADMIN";
-    const hasLegacyAdmin = Boolean(adminCookie?.value);
+    const isAdmin = adminUser?.role === "ADMIN";
 
-    if (!isSuperAdmin && !hasLegacyAdmin) {
+    if (!isSuperAdmin && !isAdmin) {
       const loginUrl = new URL("/login-staff", request.url);
       loginUrl.searchParams.set("redirect", pathname);
       return NextResponse.redirect(loginUrl);

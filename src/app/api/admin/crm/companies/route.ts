@@ -9,8 +9,16 @@ export async function GET(request: Request) {
   const headers = getSecurityHeaders();
   const staff = await getAuthenticatedStaff();
 
-  if (!staff || (staff.role !== "SUPER_ADMIN" && staff.role !== "REGIONAL_MANAGER" && staff.role !== "STORE_MANAGER")) {
-    return NextResponse.json({ success: false, message: "Forbidden" }, { status: 403, headers });
+  if (
+    !staff ||
+    (staff.role !== "SUPER_ADMIN" &&
+      staff.role !== "REGIONAL_MANAGER" &&
+      staff.role !== "STORE_MANAGER")
+  ) {
+    return NextResponse.json(
+      { success: false, message: "Forbidden" },
+      { status: 403, headers },
+    );
   }
 
   const { searchParams } = new URL(request.url);
@@ -26,7 +34,10 @@ export async function GET(request: Request) {
       // Role-based store scoping
       if (staff.role === "STORE_MANAGER" && staff.storeId) {
         where.assignedStoreId = staff.storeId;
-      } else if (staff.role === "REGIONAL_MANAGER" && staff.allowedStoreCodes?.length) {
+      } else if (
+        staff.role === "REGIONAL_MANAGER" &&
+        staff.allowedStoreCodes?.length
+      ) {
         const regionalStores = await db.store.findMany({
           where: { code: { in: staff.allowedStoreCodes } },
           select: { id: true },
@@ -50,7 +61,11 @@ export async function GET(request: Request) {
           { phone: { contains: search } },
           { gstin: { contains: search, mode: "insensitive" } },
           { city: { contains: search, mode: "insensitive" } },
-          { contacts: { some: { name: { contains: search, mode: "insensitive" } } } },
+          {
+            contacts: {
+              some: { name: { contains: search, mode: "insensitive" } },
+            },
+          },
         ];
       }
 
@@ -87,7 +102,11 @@ export async function GET(request: Request) {
               where: {
                 OR: [
                   { companyName: { equals: comp.name, mode: "insensitive" } },
-                  { customerEmail: comp.email ? { equals: comp.email, mode: "insensitive" } : undefined },
+                  {
+                    customerEmail: comp.email
+                      ? { equals: comp.email, mode: "insensitive" }
+                      : undefined,
+                  },
                 ],
               },
             }),
@@ -96,16 +115,28 @@ export async function GET(request: Request) {
                 user: {
                   OR: [
                     { companyName: { equals: comp.name, mode: "insensitive" } },
-                    { email: comp.email ? { equals: comp.email, mode: "insensitive" } : undefined },
+                    {
+                      email: comp.email
+                        ? { equals: comp.email, mode: "insensitive" }
+                        : undefined,
+                    },
                   ],
                 },
               },
-              select: { totalAmount: true, status: true, paymentStatus: true, createdAt: true },
+              select: {
+                totalAmount: true,
+                status: true,
+                paymentStatus: true,
+                createdAt: true,
+              },
               orderBy: { createdAt: "desc" },
             }),
           ]);
 
-          const totalBusiness = orderList.reduce((sum, o) => sum + o.totalAmount, 0);
+          const totalBusiness = orderList.reduce(
+            (sum, o) => sum + o.totalAmount,
+            0,
+          );
           const outstanding = orderList
             .filter((o) => o.paymentStatus === "PENDING")
             .reduce((sum, o) => sum + o.totalAmount, 0);
@@ -118,12 +149,15 @@ export async function GET(request: Request) {
             outstanding,
             lastOrderDate: orderList[0]?.createdAt || null,
           };
-        })
+        }),
       );
 
       return NextResponse.json({ success: true, data: enriched }, { headers });
     } catch (error: any) {
-      return NextResponse.json({ success: false, message: error.message }, { status: 500, headers });
+      return NextResponse.json(
+        { success: false, message: error.message },
+        { status: 500, headers },
+      );
     }
   }
 
@@ -135,8 +169,16 @@ export async function POST(request: Request) {
   const headers = getSecurityHeaders();
   const staff = await getAuthenticatedStaff();
 
-  if (!staff || (staff.role !== "SUPER_ADMIN" && staff.role !== "REGIONAL_MANAGER" && staff.role !== "STORE_MANAGER")) {
-    return NextResponse.json({ success: false, message: "Forbidden" }, { status: 403, headers });
+  if (
+    !staff ||
+    (staff.role !== "SUPER_ADMIN" &&
+      staff.role !== "REGIONAL_MANAGER" &&
+      staff.role !== "STORE_MANAGER")
+  ) {
+    return NextResponse.json(
+      { success: false, message: "Forbidden" },
+      { status: 403, headers },
+    );
   }
 
   try {
@@ -163,7 +205,10 @@ export async function POST(request: Request) {
     } = body;
 
     if (!name) {
-      return NextResponse.json({ success: false, message: "Company name is required." }, { status: 400, headers });
+      return NextResponse.json(
+        { success: false, message: "Company name is required." },
+        { status: 400, headers },
+      );
     }
 
     if (process.env.DATABASE_URL) {
@@ -178,7 +223,12 @@ export async function POST(request: Request) {
           where: {
             OR: [
               { id: targetStoreLookup },
-              { code: { equals: targetStoreLookup.toUpperCase(), mode: "insensitive" } },
+              {
+                code: {
+                  equals: targetStoreLookup.toUpperCase(),
+                  mode: "insensitive",
+                },
+              },
               { name: { contains: targetStoreLookup, mode: "insensitive" } },
             ],
           },
@@ -208,8 +258,18 @@ export async function POST(request: Request) {
       }
 
       // 3. Ensure valid status enum
-      const validStatuses = ["LEAD", "PROSPECT", "NEGOTIATION", "ACTIVE_CUSTOMER", "INACTIVE", "LOST", "BLOCKED"];
-      const finalStatus = validStatuses.includes(status) ? (status as any) : "LEAD";
+      const validStatuses = [
+        "LEAD",
+        "PROSPECT",
+        "NEGOTIATION",
+        "ACTIVE_CUSTOMER",
+        "INACTIVE",
+        "LOST",
+        "BLOCKED",
+      ];
+      const finalStatus = validStatuses.includes(status)
+        ? (status as any)
+        : "LEAD";
 
       // Check for duplicate company
       const existing = await db.b2BCompany.findFirst({
@@ -218,8 +278,11 @@ export async function POST(request: Request) {
 
       if (existing) {
         return NextResponse.json(
-          { success: false, message: `Company "${name}" already exists in CRM.` },
-          { status: 400, headers }
+          {
+            success: false,
+            message: `Company "${name}" already exists in CRM.`,
+          },
+          { status: 400, headers },
         );
       }
 
@@ -267,7 +330,9 @@ export async function POST(request: Request) {
             ? {
                 create: {
                   dueDate: new Date(initialFollowUp.dueDate),
-                  reason: initialFollowUp.reason || "Introductory relationship call & product discovery",
+                  reason:
+                    initialFollowUp.reason ||
+                    "Introductory relationship call & product discovery",
                   notes: initialFollowUp.notes || null,
                   assignedStaffId: dbStaffId,
                   status: "PENDING",
@@ -308,19 +373,28 @@ export async function POST(request: Request) {
         req: request,
       });
 
-      return NextResponse.json({
-        success: true,
-        message: "B2B Account successfully created.",
-        data: company,
-      }, { status: 201, headers });
+      return NextResponse.json(
+        {
+          success: true,
+          message: "B2B Account successfully created.",
+          data: company,
+        },
+        { status: 201, headers },
+      );
     }
 
-    return NextResponse.json({
-      success: true,
-      message: "Company created (Mock Mode)",
-      data: { id: `crm-${Date.now()}`, name },
-    }, { status: 201, headers });
+    return NextResponse.json(
+      {
+        success: true,
+        message: "Company created (Mock Mode)",
+        data: { id: `crm-${Date.now()}`, name },
+      },
+      { status: 201, headers },
+    );
   } catch (error: any) {
-    return NextResponse.json({ success: false, message: error.message }, { status: 500, headers });
+    return NextResponse.json(
+      { success: false, message: error.message },
+      { status: 500, headers },
+    );
   }
 }

@@ -18,9 +18,13 @@ export async function POST(request: Request) {
       );
     }
 
-    const cleanEmail = email ? normalizeEmail(email) : `user_${uid.slice(0, 8)}@prayogindia.com`;
+    const cleanEmail = email
+      ? normalizeEmail(email)
+      : `user_${uid.slice(0, 8)}@prayogindia.com`;
     const cleanPhone = phoneNumber || "";
-    const name = displayName || (cleanEmail ? cleanEmail.split("@")[0] : "Prayog Customer");
+    const name =
+      displayName ||
+      (cleanEmail ? cleanEmail.split("@")[0] : "Prayog Customer");
 
     let userPayload: any = null;
 
@@ -67,7 +71,9 @@ export async function POST(request: Request) {
 
     // 2. Fallback / Sync in-memory UserDB
     if (!userPayload) {
-      let existing = UserDB.findByEmailOrPhone(cleanEmail) || (cleanPhone ? UserDB.findByEmailOrPhone(cleanPhone) : null);
+      let existing =
+        UserDB.findByEmailOrPhone(cleanEmail) ||
+        (cleanPhone ? UserDB.findByEmailOrPhone(cleanPhone) : null);
       if (!existing) {
         existing = UserDB.create({
           name,

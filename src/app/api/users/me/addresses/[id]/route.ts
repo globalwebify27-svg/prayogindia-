@@ -1,19 +1,9 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
 import { db } from "@/lib/db";
-import { AuthSessionUser } from "@/lib/authUtils";
+import { getAuthenticatedCustomer } from "@/lib/authUtils";
 import { getSecurityHeaders } from "@/lib/security";
 
-async function getAuthenticatedUser(): Promise<AuthSessionUser | null> {
-  const cookieStore = await cookies();
-  const sessionCookie = cookieStore.get("prayog_customer_session");
-  if (!sessionCookie?.value) return null;
-  try {
-    return JSON.parse(sessionCookie.value);
-  } catch {
-    return null;
-  }
-}
+const getAuthenticatedUser = getAuthenticatedCustomer;
 
 /**
  * PATCH /api/users/me/addresses/[id]
@@ -57,7 +47,17 @@ export async function PATCH(
       return NextResponse.json({
         success: true,
         message: "Address updated (Mock Mode).",
-        data: { id: addressId, name, phone, street, city, state, pincode, type, isDefault },
+        data: {
+          id: addressId,
+          name,
+          phone,
+          street,
+          city,
+          state,
+          pincode,
+          type,
+          isDefault,
+        },
       });
     }
 

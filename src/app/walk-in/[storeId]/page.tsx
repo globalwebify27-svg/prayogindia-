@@ -49,10 +49,7 @@ interface KioskCartItem {
 
 type KioskView = "browse" | "cart" | "checkout" | "success";
 
-const KIOSK_CATEGORIES = [
-  "All",
-  ...CATEGORIES_DATA.map((c) => c.name),
-];
+const KIOSK_CATEGORIES = ["All", ...CATEGORIES_DATA.map((c) => c.name)];
 
 // ─────────────────────────────────────────────────────
 // Kiosk Header
@@ -411,7 +408,12 @@ export default function StoreKioskPage() {
     const selLower = selectedCategory.toLowerCase();
 
     // 1. Exact category or subcategory match
-    if (pCat === selLower || pSub === selLower || pCat.includes(selLower) || selLower.includes(pCat)) {
+    if (
+      pCat === selLower ||
+      pSub === selLower ||
+      pCat.includes(selLower) ||
+      selLower.includes(pCat)
+    ) {
       return true;
     }
 
@@ -460,7 +462,8 @@ export default function StoreKioskPage() {
         (ch) =>
           ch.name.toLowerCase() === pCat ||
           pCat.includes(ch.name.toLowerCase()) ||
-          (p.subcategory && ch.name.toLowerCase() === p.subcategory.toLowerCase()),
+          (p.subcategory &&
+            ch.name.toLowerCase() === p.subcategory.toLowerCase()),
       );
       if (childMatch) return true;
     }
@@ -521,7 +524,8 @@ export default function StoreKioskPage() {
       }));
 
       // Calculate total accounting for any in-store coupon applied
-      const payableAmount = typeof finalTotal === "number" ? finalTotal : grandTotal;
+      const payableAmount =
+        typeof finalTotal === "number" ? finalTotal : grandTotal;
 
       const session: WalkInSession = {
         id: generateSessionId(storeId),

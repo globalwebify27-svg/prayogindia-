@@ -43,6 +43,9 @@ export async function verifyPassword(
  */
 export const AUTH_COOKIE_NAME = "prayog_customer_session";
 
+import { cookies } from "next/headers";
+import { verifySessionToken } from "@/lib/jwt";
+
 /**
  * Helper to build safe user payload excluding password hashes
  */
@@ -60,4 +63,18 @@ export function sanitizeUser(user: {
     phone: user.phone,
     role: "CUSTOMER",
   };
+}
+
+/**
+ * Get and verify current authenticated customer from session cookie
+ */
+export async function getAuthenticatedCustomer(): Promise<AuthSessionUser | null> {
+  try {
+    const cookieStore = await cookies();
+    const sessionCookie = cookieStore.get(AUTH_COOKIE_NAME);
+    if (!sessionCookie?.value) return null;
+    return await verifySessionToken<AuthSessionUser>(sessionCookie.value);
+  } catch {
+    return null;
+  }
 }

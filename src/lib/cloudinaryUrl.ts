@@ -46,8 +46,14 @@ export function getOptimizedImageUrl(
     .filter(Boolean)
     .join(",");
 
-  if (publicIdOrUrl.startsWith("http://") || publicIdOrUrl.startsWith("https://")) {
-    if (publicIdOrUrl.includes("res.cloudinary.com") && publicIdOrUrl.includes("/upload/")) {
+  if (
+    publicIdOrUrl.startsWith("http://") ||
+    publicIdOrUrl.startsWith("https://")
+  ) {
+    if (
+      publicIdOrUrl.includes("res.cloudinary.com") &&
+      publicIdOrUrl.includes("/upload/")
+    ) {
       const parts = publicIdOrUrl.split("/upload/");
       return `${parts[0]}/upload/${transformations}/${parts[1]}`;
     }
@@ -80,8 +86,14 @@ export function getOptimizedVideoUrl(
     .filter(Boolean)
     .join(",");
 
-  if (publicIdOrUrl.startsWith("http://") || publicIdOrUrl.startsWith("https://")) {
-    if (publicIdOrUrl.includes("res.cloudinary.com") && publicIdOrUrl.includes("/upload/")) {
+  if (
+    publicIdOrUrl.startsWith("http://") ||
+    publicIdOrUrl.startsWith("https://")
+  ) {
+    if (
+      publicIdOrUrl.includes("res.cloudinary.com") &&
+      publicIdOrUrl.includes("/upload/")
+    ) {
       const parts = publicIdOrUrl.split("/upload/");
       return `${parts[0]}/upload/${transformations}/${parts[1]}`;
     }
@@ -111,8 +123,14 @@ export function getAnimatedWebpUrl(
     .filter(Boolean)
     .join(",");
 
-  if (publicIdOrUrl.startsWith("http://") || publicIdOrUrl.startsWith("https://")) {
-    if (publicIdOrUrl.includes("res.cloudinary.com") && publicIdOrUrl.includes("/upload/")) {
+  if (
+    publicIdOrUrl.startsWith("http://") ||
+    publicIdOrUrl.startsWith("https://")
+  ) {
+    if (
+      publicIdOrUrl.includes("res.cloudinary.com") &&
+      publicIdOrUrl.includes("/upload/")
+    ) {
       const parts = publicIdOrUrl.split("/upload/");
       return `${parts[0]}/upload/${transformations}/${parts[1]}`;
     }

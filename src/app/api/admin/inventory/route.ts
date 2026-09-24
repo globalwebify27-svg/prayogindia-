@@ -169,8 +169,12 @@ export async function PATCH(request: Request) {
     // Audit log (inventory engine already persists to DB; log to unified audit trail)
     if (result.success) {
       try {
-        const dbStore = await db.store.findFirst({ where: { OR: [{ code: storeId.toUpperCase() }, { id: storeId }] } });
-        const dbProduct = await db.product.findFirst({ where: { OR: [{ id: productId }, { sku: productId }] } });
+        const dbStore = await db.store.findFirst({
+          where: { OR: [{ code: storeId.toUpperCase() }, { id: storeId }] },
+        });
+        const dbProduct = await db.product.findFirst({
+          where: { OR: [{ id: productId }, { sku: productId }] },
+        });
         if (dbStore && dbProduct) {
           await recordAuditLog({
             actionCategory: "INVENTORY",
@@ -180,7 +184,11 @@ export async function PATCH(request: Request) {
             description: `Inventory adjusted by ${quantityChange > 0 ? "+" : ""}${quantityChange} for ${dbProduct.name} (${dbProduct.sku}) in ${dbStore.name}. Reason: ${reason || "Manual adjustment"}`,
             actor: staff,
             storeId: dbStore.id,
-            metadata: { transactionType, quantityChange, reason: reason || null },
+            metadata: {
+              transactionType,
+              quantityChange,
+              reason: reason || null,
+            },
             req: request,
           });
         }

@@ -1,23 +1,16 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
 import { db } from "@/lib/db";
-import { AuthSessionUser } from "@/lib/authUtils";
+import { getAuthenticatedCustomer, AuthSessionUser } from "@/lib/authUtils";
 import { NotificationService } from "@/lib/notifications";
 import { OrderStatus } from "@prisma/client";
 import { INITIAL_PROMO_COUPONS, evaluatePromoCoupon } from "@/data/promoData";
-import { calculateEarnedRewards, getCustomerTypeCode } from "@/data/customerTypes";
+import {
+  calculateEarnedRewards,
+  getCustomerTypeCode,
+} from "@/data/customerTypes";
 import { LoyaltyEngine } from "@/lib/loyaltyEngine";
 
-async function getAuthenticatedUser(): Promise<AuthSessionUser | null> {
-  const cookieStore = await cookies();
-  const sessionCookie = cookieStore.get("prayog_customer_session");
-  if (!sessionCookie?.value) return null;
-  try {
-    return JSON.parse(sessionCookie.value);
-  } catch {
-    return null;
-  }
-}
+const getAuthenticatedUser = getAuthenticatedCustomer;
 
 // Generate Safe Unique Customer-Facing Order Identifier (e.g., PRG-2026-8941)
 function generateOrderNumber(): string {
@@ -327,7 +320,11 @@ export async function POST(request: Request) {
     // Reward Points validation via authoritative LoyaltyEngine
     let pointsDiscount = 0;
     let sanitizedPointsUsed = 0;
-    if (rewardPointsUsed && typeof rewardPointsUsed === "number" && rewardPointsUsed > 0) {
+    if (
+      rewardPointsUsed &&
+      typeof rewardPointsUsed === "number" &&
+      rewardPointsUsed > 0
+    ) {
       const redemptionCheck = await LoyaltyEngine.validateRedemption(
         dbUser.id,
         rewardPointsUsed,
@@ -340,12 +337,19 @@ export async function POST(request: Request) {
       }
     }
 
-    const totalDiscount = Math.round((couponDiscount + pointsDiscount) * 100) / 100;
+    const totalDiscount =
+      Math.round((couponDiscount + pointsDiscount) * 100) / 100;
     const gstAmount = Math.round(calculatedSubtotal * 0.18 * 100) / 100;
     const validatedShippingCost = Math.max(0, Number(shippingCost) || 0);
     const grandTotal = Math.max(
       0,
-      Math.round((calculatedSubtotal + gstAmount + validatedShippingCost - totalDiscount) * 100) / 100,
+      Math.round(
+        (calculatedSubtotal +
+          gstAmount +
+          validatedShippingCost -
+          totalDiscount) *
+          100,
+      ) / 100,
     );
 
     // Generate Unique Order Number
@@ -389,7 +393,9 @@ export async function POST(request: Request) {
 
       // 5b. Deduct redeemed points from user & log transaction
       if (sanitizedPointsUsed > 0) {
-        const currentUser = await tx.user.findUnique({ where: { id: dbUser.id } });
+        const currentUser = await tx.user.findUnique({
+          where: { id: dbUser.id },
+        });
         const currentBal = currentUser?.rewardPoints || 0;
         await tx.user.update({
           where: { id: dbUser.id },
@@ -438,13 +444,21 @@ export async function POST(request: Request) {
             });
             if (inv) {
               const newQty = Math.max(0, inv.quantity - item.quantity);
-              const newAvailable = Math.max(0, inv.availableQuantity - item.quantity);
+              const newAvailable = Math.max(
+                0,
+                inv.availableQuantity - item.quantity,
+              );
               await tx.storeInventory.update({
                 where: { id: inv.id },
                 data: {
                   quantity: newQty,
                   availableQuantity: newAvailable,
-                  status: newQty === 0 ? "OUT_OF_STOCK" : newQty <= inv.lowStockThreshold ? "LOW_STOCK" : "IN_STOCK",
+                  status:
+                    newQty === 0
+                      ? "OUT_OF_STOCK"
+                      : newQty <= inv.lowStockThreshold
+                        ? "LOW_STOCK"
+                        : "IN_STOCK",
                 },
               });
               await tx.inventoryTransaction.create({

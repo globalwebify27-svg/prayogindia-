@@ -10,12 +10,16 @@ export interface RecordAuditParams {
   entityType: string;
   entityId: string;
   description: string;
-  actor?: StaffSessionUser | AdminSessionUser | {
-    id?: string | null;
-    name?: string | null;
-    role?: string | null;
-    email?: string | null;
-  } | null;
+  actor?:
+    | StaffSessionUser
+    | AdminSessionUser
+    | {
+        id?: string | null;
+        name?: string | null;
+        role?: string | null;
+        email?: string | null;
+      }
+    | null;
   storeId?: string | null;
   previousValue?: unknown;
   newValue?: unknown;
@@ -26,7 +30,9 @@ export interface RecordAuditParams {
 /**
  * Extracts client IP safely from request headers
  */
-export function extractClientIp(req?: NextRequest | Request | null): string | null {
+export function extractClientIp(
+  req?: NextRequest | Request | null,
+): string | null {
   if (!req) return null;
   try {
     const headers = req.headers;
@@ -48,7 +54,9 @@ export function extractClientIp(req?: NextRequest | Request | null): string | nu
 /**
  * Extracts client User-Agent safely
  */
-export function extractUserAgent(req?: NextRequest | Request | null): string | null {
+export function extractUserAgent(
+  req?: NextRequest | Request | null,
+): string | null {
   if (!req) return null;
   try {
     return req.headers.get("user-agent") || null;
@@ -79,7 +87,7 @@ function sanitizeAuditData(data: unknown): unknown {
     "authorization",
     "cookie",
     "apikey",
-    "api_key"
+    "api_key",
   ]);
 
   const sanitized: Record<string, unknown> = {};
@@ -104,24 +112,31 @@ export async function recordAuditLog(params: RecordAuditParams): Promise<void> {
     const actorId = params.actor?.id || null;
     const actorName = params.actor?.name || "System";
     const actorRole = params.actor?.role || "SYSTEM";
-    const actorEmail = ("email" in (params.actor || {})) ? (params.actor?.email as string || null) : null;
+    const actorEmail =
+      "email" in (params.actor || {})
+        ? (params.actor?.email as string) || null
+        : null;
 
     const ipAddress = extractClientIp(params.req);
     const userAgent = extractUserAgent(params.req);
 
-    const prevStr = params.previousValue !== undefined
-      ? (typeof params.previousValue === "object"
+    const prevStr =
+      params.previousValue !== undefined
+        ? typeof params.previousValue === "object"
           ? JSON.stringify(sanitizeAuditData(params.previousValue))
-          : String(params.previousValue))
-      : null;
+          : String(params.previousValue)
+        : null;
 
-    const newStr = params.newValue !== undefined
-      ? (typeof params.newValue === "object"
+    const newStr =
+      params.newValue !== undefined
+        ? typeof params.newValue === "object"
           ? JSON.stringify(sanitizeAuditData(params.newValue))
-          : String(params.newValue))
-      : null;
+          : String(params.newValue)
+        : null;
 
-    const metaJson = params.metadata ? (sanitizeAuditData(params.metadata) as any) : undefined;
+    const metaJson = params.metadata
+      ? (sanitizeAuditData(params.metadata) as any)
+      : undefined;
 
     await prisma.auditLog.create({
       data: {

@@ -537,7 +537,9 @@ export default function WalkInPOSPage() {
   const [communityOptIn, setCommunityOptIn] = useState(true);
 
   // API-fetched products with real DB stock data
-  const [apiProducts, setApiProducts] = useState<Record<string, {availableQuantity: number}>>({});
+  const [apiProducts, setApiProducts] = useState<
+    Record<string, { availableQuantity: number }>
+  >({});
 
   // Helper: get live stock for a product from API-fetched data
   const getLocalStock = (productId: string): number => {
@@ -627,13 +629,23 @@ export default function WalkInPOSPage() {
   useEffect(() => {
     async function fetchStoreStock() {
       try {
-        const res = await fetch(`/api/pos/products?storeId=${encodeURIComponent(selectedStore)}`);
+        const res = await fetch(
+          `/api/pos/products?storeId=${encodeURIComponent(selectedStore)}`,
+        );
         const data = await res.json();
         if (data?.success && Array.isArray(data.data)) {
-          const stockMap: Record<string, {availableQuantity: number}> = {};
-          data.data.forEach((p: {id: string; availableQuantity?: number; localStock?: number}) => {
-            stockMap[p.id] = { availableQuantity: p.availableQuantity ?? p.localStock ?? 0 };
-          });
+          const stockMap: Record<string, { availableQuantity: number }> = {};
+          data.data.forEach(
+            (p: {
+              id: string;
+              availableQuantity?: number;
+              localStock?: number;
+            }) => {
+              stockMap[p.id] = {
+                availableQuantity: p.availableQuantity ?? p.localStock ?? 0,
+              };
+            },
+          );
           setApiProducts(stockMap);
         }
       } catch {

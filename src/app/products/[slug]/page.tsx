@@ -28,10 +28,19 @@ async function getProduct(slug: string): Promise<Product | null> {
             ? imageUrls[0]
             : "https://images.unsplash.com/photo-1553406830-ef2513450d76?auto=format&fit=crop&w=800&q=80";
 
-        const specsObj =
-          dbProduct.specifications && typeof dbProduct.specifications === "object"
-            ? (dbProduct.specifications as Record<string, string>)
+        const rawSpecs =
+          dbProduct.specifications &&
+          typeof dbProduct.specifications === "object"
+            ? (dbProduct.specifications as Record<string, unknown>)
             : {};
+
+        const seoData = (rawSpecs._seo as Record<string, unknown>) || {};
+        const cleanSpecs: Record<string, string> = {};
+        for (const [k, v] of Object.entries(rawSpecs)) {
+          if (k !== "_seo" && typeof v === "string") {
+            cleanSpecs[k] = v;
+          }
+        }
 
         return {
           id: dbProduct.id,
@@ -50,7 +59,14 @@ async function getProduct(slug: string): Promise<Product | null> {
           images: imageUrls.length > 0 ? imageUrls : [primaryImage],
           description: dbProduct.description,
           features: dbProduct.features || [],
-          specs: specsObj,
+          specs: cleanSpecs,
+          metaTitle: (seoData.metaTitle as string) || undefined,
+          metaDescription: (seoData.metaDescription as string) || undefined,
+          metaKeywords: Array.isArray(seoData.metaKeywords) ? (seoData.metaKeywords as string[]) : undefined,
+          canonicalUrl: (seoData.canonicalUrl as string) || undefined,
+          ogImage: (seoData.ogImage as string) || undefined,
+          indexFollow: typeof seoData.indexFollow === "boolean" ? seoData.indexFollow : true,
+          structuredDataType: (seoData.structuredDataType as string) || "Product",
         };
       }
     } catch {
@@ -72,20 +88,54 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const product = (await getProduct(slug)) || PRODUCTS[0];
 
-  const title = product
-    ? `${product.name} | Prayog India Store`
-    : "Product Details | Prayog India";
-  const description = product
-    ? product.description
-    : "Buy genuine robotics & STEM hardware components.";
+  const title =
+    product?.metaTitle ||
+    (product
+      ? `${product.name} - Buy Online at Best Price | Prayog India`
+      : "Product Details | Prayog India");
+
+  const description =
+    product?.metaDescription ||
+    product?.description ||
+    "Buy genuine robotics, STEM kits, and hardware components with fast express shipping from Prayog India.";
+
+  const canonicalUrl =
+    product?.canonicalUrl ||
+    `https://www.prayogindia.com/products/${product?.slug || slug}`;
+
+  const ogImageUrl = product?.ogImage || product?.image;
 
   return {
     title,
     description,
+    keywords: product?.metaKeywords || [
+      product?.name,
+      product?.brand,
+      product?.category,
+      "Prayog India",
+      "Robotics India",
+      "STEM Hardware",
+    ].filter(Boolean) as string[],
+    alternates: {
+      canonical: canonicalUrl,
+    },
+    robots: {
+      index: product?.indexFollow !== false,
+      follow: product?.indexFollow !== false,
+    },
     openGraph: {
       title,
       description,
-      images: product?.image ? [{ url: product.image }] : [],
+      url: canonicalUrl,
+      siteName: "Prayog India",
+      type: "website",
+      images: ogImageUrl ? [{ url: ogImageUrl, alt: title }] : [],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: ogImageUrl ? [ogImageUrl] : [],
     },
   };
 }
@@ -94,13 +144,15 @@ export default async function ProductSlugPage({ params }: Props) {
   const { slug } = await params;
   const product = await getProduct(slug);
 
+  const schemaType = product?.structuredDataType || "Product";
+
   const jsonLd = product
     ? {
         "@context": "https://schema.org",
-        "@type": "Product",
-        name: product.name,
+        "@type": schemaType,
+        name: product.metaTitle || product.name,
         image: product.images || [product.image],
-        description: product.description,
+        description: product.metaDescription || product.description,
         sku: product.sku,
         brand: {
           "@type": "Brand",
@@ -108,7 +160,7 @@ export default async function ProductSlugPage({ params }: Props) {
         },
         offers: {
           "@type": "Offer",
-          url: `https://www.prayogindia.com/products/${product.slug || slug}`,
+          url: product.canonicalUrl || `https://www.prayogindia.com/products/${product.slug || slug}`,
           priceCurrency: "INR",
           price: product.price,
           availability: product.inStock
@@ -121,7 +173,7 @@ export default async function ProductSlugPage({ params }: Props) {
         },
         aggregateRating: {
           "@type": "AggregateRating",
-          ratingValue: product.rating || 4.5,
+          ratingValue: product.rating || 4.9,
           reviewCount: product.reviews || 12,
         },
       }
@@ -139,4 +191,3 @@ export default async function ProductSlugPage({ params }: Props) {
     </>
   );
 }
-

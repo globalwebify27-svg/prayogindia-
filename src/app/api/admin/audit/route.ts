@@ -13,12 +13,18 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const isSuperAdmin = (admin?.role as string) === "SUPER_ADMIN" || (admin?.role as string) === "ADMIN" || staff?.role === "SUPER_ADMIN";
+    const isSuperAdmin =
+      (admin?.role as string) === "SUPER_ADMIN" ||
+      (admin?.role as string) === "ADMIN" ||
+      staff?.role === "SUPER_ADMIN";
     const isRegional = staff?.role === "REGIONAL_MANAGER";
 
     const { searchParams } = new URL(req.url);
     const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
-    const limit = Math.min(100, Math.max(10, parseInt(searchParams.get("limit") || "30", 10)));
+    const limit = Math.min(
+      100,
+      Math.max(10, parseInt(searchParams.get("limit") || "30", 10)),
+    );
     const skip = (page - 1) * limit;
 
     const category = searchParams.get("category") as AuditActionCategory | null;
@@ -49,7 +55,10 @@ export async function GET(req: NextRequest) {
     } else {
       // Store Manager / Cashier / Kiosk -> strictly scoped to their assigned storeId
       if (!staff?.storeId) {
-        return NextResponse.json({ error: "Forbidden: No assigned store context" }, { status: 403 });
+        return NextResponse.json(
+          { error: "Forbidden: No assigned store context" },
+          { status: 403 },
+        );
       }
       where.storeId = staff.storeId;
     }
@@ -115,6 +124,12 @@ export async function GET(req: NextRequest) {
     });
   } catch (error: any) {
     console.error("GET /api/admin/audit error:", error);
-    return NextResponse.json({ error: "Failed to fetch audit logs", details: error?.message || String(error) }, { status: 500 });
+    return NextResponse.json(
+      {
+        error: "Failed to fetch audit logs",
+        details: error?.message || String(error),
+      },
+      { status: 500 },
+    );
   }
 }

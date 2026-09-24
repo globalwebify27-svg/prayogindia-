@@ -1,19 +1,8 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
 import { db } from "@/lib/db";
 import { LogisticsEngine } from "@/lib/logisticsEngine";
 import { getSecurityHeaders } from "@/lib/security";
-
-async function getAdminUser() {
-  const cookieStore = await cookies();
-  const sessionCookie = cookieStore.get("prayog_admin_session");
-  if (!sessionCookie?.value) return null;
-  try {
-    return JSON.parse(sessionCookie.value);
-  } catch {
-    return null;
-  }
-}
+import { getAuthenticatedAdmin } from "@/lib/adminAuth";
 
 /**
  * GET /api/admin/logistics
@@ -21,9 +10,12 @@ async function getAdminUser() {
  */
 export async function GET(request: Request) {
   const headers = getSecurityHeaders();
-  const admin = await getAdminUser();
+  const admin = await getAuthenticatedAdmin();
   if (!admin) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401, headers });
+    return NextResponse.json(
+      { error: "Unauthorized" },
+      { status: 401, headers },
+    );
   }
 
   const { searchParams } = new URL(request.url);
@@ -31,7 +23,10 @@ export async function GET(request: Request) {
   const courier = searchParams.get("courier");
   const search = searchParams.get("search")?.trim();
   const page = Math.max(1, parseInt(searchParams.get("page") || "1"));
-  const limit = Math.max(1, Math.min(50, parseInt(searchParams.get("limit") || "20")));
+  const limit = Math.max(
+    1,
+    Math.min(50, parseInt(searchParams.get("limit") || "20")),
+  );
   const skip = (page - 1) * limit;
 
   try {
@@ -46,8 +41,12 @@ export async function GET(request: Request) {
       where.OR = [
         { trackingNumber: { contains: search, mode: "insensitive" } },
         { order: { orderNumber: { contains: search, mode: "insensitive" } } },
-        { order: { user: { name: { contains: search, mode: "insensitive" } } } },
-        { order: { user: { phone: { contains: search, mode: "insensitive" } } } },
+        {
+          order: { user: { name: { contains: search, mode: "insensitive" } } },
+        },
+        {
+          order: { user: { phone: { contains: search, mode: "insensitive" } } },
+        },
       ];
     }
 
@@ -61,7 +60,12 @@ export async function GET(request: Request) {
                 select: { id: true, name: true, email: true, phone: true },
               },
               items: {
-                select: { id: true, productName: true, quantity: true, price: true },
+                select: {
+                  id: true,
+                  productName: true,
+                  quantity: true,
+                  price: true,
+                },
               },
             },
           },
@@ -89,7 +93,12 @@ export async function GET(request: Request) {
     ]);
 
     // Statistics aggregates
-    const [totalManifested, totalInTransit, totalOutForDelivery, totalDelivered] = await Promise.all([
+    const [
+      totalManifested,
+      totalInTransit,
+      totalOutForDelivery,
+      totalDelivered,
+    ] = await Promise.all([
       db.shipment.count(),
       db.shipment.count({ where: { status: "In Transit" } }),
       db.shipment.count({ where: { status: "Out for Delivery" } }),
@@ -119,7 +128,10 @@ export async function GET(request: Request) {
   } catch (error: any) {
     console.error("[Admin Logistics GET Error]", error);
     return NextResponse.json(
-      { success: false, message: error.message || "Failed to fetch shipments." },
+      {
+        success: false,
+        message: error.message || "Failed to fetch shipments.",
+      },
       { status: 500, headers },
     );
   }
@@ -131,14 +143,25 @@ export async function GET(request: Request) {
  */
 export async function POST(request: Request) {
   const headers = getSecurityHeaders();
-  const admin = await getAdminUser();
+  const admin = await getAuthenticatedAdmin();
   if (!admin) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401, headers });
+    return NextResponse.json(
+      { error: "Unauthorized" },
+      { status: 401, headers },
+    );
   }
 
   try {
     const body = await request.json();
-    const { orderId, courierCode, weightKg, lengthCm, breadthCm, heightCm, customAwb } = body;
+    const {
+      orderId,
+      courierCode,
+      weightKg,
+      lengthCm,
+      breadthCm,
+      heightCm,
+      customAwb,
+    } = body;
 
     if (!orderId || !courierCode) {
       return NextResponse.json(
@@ -170,7 +193,10 @@ export async function POST(request: Request) {
   } catch (error: any) {
     console.error("[Admin Logistics POST Error]", error);
     return NextResponse.json(
-      { success: false, message: error.message || "Failed to create shipment." },
+      {
+        success: false,
+        message: error.message || "Failed to create shipment.",
+      },
       { status: 500, headers },
     );
   }

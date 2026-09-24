@@ -29,7 +29,9 @@ export const RewardsView: React.FC = () => {
   const [liveBalance, setLiveBalance] = useState<number | null>(null);
   const [liveRupeeValue, setLiveRupeeValue] = useState<number | null>(null);
   const [liveTierRule, setLiveTierRule] = useState<any | null>(null);
-  const [liveTransactions, setLiveTransactions] = useState<PointsLedgerEntry[] | null>(null);
+  const [liveTransactions, setLiveTransactions] = useState<
+    PointsLedgerEntry[] | null
+  >(null);
 
   const [activeTab, setActiveTab] = useState<"overview" | "history" | "rules">(
     "overview",
@@ -62,7 +64,11 @@ export const RewardsView: React.FC = () => {
                   points: t.points,
                   balanceAfter: t.balanceAfter,
                   notes: t.description,
-                  orderNumber: t.referenceId ? `Ref: ${t.referenceId}` : (t.orderId ? `Order: ${t.orderId.slice(0, 8)}` : undefined),
+                  orderNumber: t.referenceId
+                    ? `Ref: ${t.referenceId}`
+                    : t.orderId
+                      ? `Order: ${t.orderId.slice(0, 8)}`
+                      : undefined,
                   userEmail: user?.email || "",
                 })),
               );
@@ -76,16 +82,20 @@ export const RewardsView: React.FC = () => {
     loadRewards();
   }, [user?.email]);
 
-  const points = liveBalance !== null ? liveBalance : (user?.rewardPoints || 0);
+  const points = liveBalance !== null ? liveBalance : user?.rewardPoints || 0;
 
   // Applicable rule for current user from API or fallback
-  const activeRule = liveTierRule || (
+  const activeRule =
+    liveTierRule ||
     DEFAULT_REWARD_RULES.find(
       (r) => r.customerType === (user?.customerType || "Registered Customer"),
-    ) || DEFAULT_REWARD_RULES[0]
-  );
+    ) ||
+    DEFAULT_REWARD_RULES[0];
 
-  const cashValue = liveRupeeValue !== null ? liveRupeeValue : Math.round(points * (activeRule.redemptionRateRupees || 0.5));
+  const cashValue =
+    liveRupeeValue !== null
+      ? liveRupeeValue
+      : Math.round(points * (activeRule.redemptionRateRupees || 0.5));
 
   // Customer-specific ledger activity filter
   const userLedger: PointsLedgerEntry[] =

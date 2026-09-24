@@ -55,7 +55,9 @@ function BulkEditContent() {
     "Arduino & Microcontrollers",
   );
   const [targetStore, setTargetStore] = useState<StoreId>("ranchi");
-  const [stockOperation, setStockOperation] = useState<"INCREMENT" | "SET" | "LOW_THRESHOLD">("INCREMENT");
+  const [stockOperation, setStockOperation] = useState<
+    "INCREMENT" | "SET" | "LOW_THRESHOLD"
+  >("INCREMENT");
   const [showApplyModal, setShowApplyModal] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [successNotice, setSuccessNotice] = useState<string | null>(null);
@@ -181,7 +183,9 @@ function BulkEditContent() {
           return;
         }
       } catch (err: any) {
-        setErrorNotice(err.message || "Network error while updating inventory.");
+        setErrorNotice(
+          err.message || "Network error while updating inventory.",
+        );
         return;
       } finally {
         setSubmitting(false);
@@ -630,14 +634,17 @@ function BulkEditContent() {
                     </label>
                     <select
                       value={targetStore}
-                      onChange={(e) => setTargetStore(e.target.value as StoreId)}
+                      onChange={(e) =>
+                        setTargetStore(e.target.value as StoreId)
+                      }
                       className="w-full bg-white border border-slate-200 p-2.5 rounded-xl font-bold text-slate-900 focus:outline-none"
                     >
                       {ALL_STORE_IDS.map((sId) => {
                         const s = STORES[sId];
                         return (
                           <option key={sId} value={sId}>
-                            {s.name} ({s.city}) {s.isCentralInventory ? "★ Central Hub" : ""}
+                            {s.name} ({s.city}){" "}
+                            {s.isCentralInventory ? "★ Central Hub" : ""}
                           </option>
                         );
                       })}
@@ -653,9 +660,15 @@ function BulkEditContent() {
                       onChange={(e) => setStockOperation(e.target.value as any)}
                       className="w-full bg-white border border-slate-200 p-2.5 rounded-xl font-bold text-slate-900 focus:outline-none"
                     >
-                      <option value="INCREMENT">Increment / Restock Stock (+ Units)</option>
-                      <option value="SET">Set Exact Stock Count (Overwrites Quantity)</option>
-                      <option value="LOW_THRESHOLD">Set Low-Stock Reorder Threshold</option>
+                      <option value="INCREMENT">
+                        Increment / Restock Stock (+ Units)
+                      </option>
+                      <option value="SET">
+                        Set Exact Stock Count (Overwrites Quantity)
+                      </option>
+                      <option value="LOW_THRESHOLD">
+                        Set Low-Stock Reorder Threshold
+                      </option>
                     </select>
                   </div>
                 </div>
@@ -719,9 +732,19 @@ function BulkEditContent() {
                   Will modify <strong>{selectedProductIds.length}</strong>{" "}
                   selected hardware products
                   {bulkActionType === "STOCK_UPDATE" ? (
-                    <> in <strong>{STORES[targetStore]?.name}</strong> ({STORES[targetStore]?.city})</>
+                    <>
+                      {" "}
+                      in <strong>{STORES[targetStore]?.name}</strong> (
+                      {STORES[targetStore]?.city})
+                    </>
                   ) : (
-                    <> under category "{selectedCategory}" {selectedSubcategory !== "All" ? `> "${selectedSubcategory}"` : ""}</>
+                    <>
+                      {" "}
+                      under category "{selectedCategory}"{" "}
+                      {selectedSubcategory !== "All"
+                        ? `> "${selectedSubcategory}"`
+                        : ""}
+                    </>
                   )}
                   .
                 </p>

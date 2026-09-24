@@ -65,9 +65,14 @@ export async function GET() {
           deviceModel: d.deviceType?.replace(/_/g, " ") || "POS Terminal",
           token: d.deviceCode,
           assignedStaff: d.deviceName,
-          status: (d.status === "ACTIVE" ? "Active / Paired" : "Suspended") as any,
+          status: (d.status === "ACTIVE"
+            ? "Active / Paired"
+            : "Suspended") as any,
           lastActiveAt: d.lastLogin
-            ? new Date(d.lastLogin).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            ? new Date(d.lastLogin).toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit",
+              })
             : "Active",
         })),
       }));

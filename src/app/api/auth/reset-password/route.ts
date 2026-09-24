@@ -14,15 +14,21 @@ export async function POST(request: Request) {
 
     if (!identifier || !code || !newPassword) {
       return NextResponse.json(
-        { success: false, message: "Missing required fields (identifier, code, new password)." },
-        { status: 400, headers }
+        {
+          success: false,
+          message: "Missing required fields (identifier, code, new password).",
+        },
+        { status: 400, headers },
       );
     }
 
     if (typeof newPassword !== "string" || newPassword.length < 6) {
       return NextResponse.json(
-        { success: false, message: "Password must be at least 6 characters long." },
-        { status: 400, headers }
+        {
+          success: false,
+          message: "Password must be at least 6 characters long.",
+        },
+        { status: 400, headers },
       );
     }
 
@@ -32,7 +38,9 @@ export async function POST(request: Request) {
     const cleanCode = code.toString().trim();
 
     // Lookup token by identifier, phone, or direct key
-    let token = RESET_TOKENS.get(clean) || (cleanPhone ? RESET_TOKENS.get(cleanPhone) : undefined);
+    let token =
+      RESET_TOKENS.get(clean) ||
+      (cleanPhone ? RESET_TOKENS.get(cleanPhone) : undefined);
 
     if (!token) {
       // Scan tokens for matching email or phone
@@ -49,8 +57,11 @@ export async function POST(request: Request) {
 
     if (!token) {
       return NextResponse.json(
-        { success: false, message: "Invalid or expired reset code. Please request a new one." },
-        { status: 400, headers }
+        {
+          success: false,
+          message: "Invalid or expired reset code. Please request a new one.",
+        },
+        { status: 400, headers },
       );
     }
 
@@ -59,15 +70,21 @@ export async function POST(request: Request) {
       if (cleanPhone) RESET_TOKENS.delete(cleanPhone);
       if (clean) RESET_TOKENS.delete(clean);
       return NextResponse.json(
-        { success: false, message: "Reset code has expired. Please request a new one." },
-        { status: 400, headers }
+        {
+          success: false,
+          message: "Reset code has expired. Please request a new one.",
+        },
+        { status: 400, headers },
       );
     }
 
     if (token.code !== cleanCode) {
       return NextResponse.json(
-        { success: false, message: "Incorrect reset code. Please check your SMS/email." },
-        { status: 400, headers }
+        {
+          success: false,
+          message: "Incorrect reset code. Please check your SMS/email.",
+        },
+        { status: 400, headers },
       );
     }
 
@@ -87,7 +104,9 @@ export async function POST(request: Request) {
     }
 
     // Update in memory fallback
-    const memUser = UserDB.findByEmailOrPhone(clean) || (cleanPhone ? UserDB.findByEmailOrPhone(cleanPhone) : undefined);
+    const memUser =
+      UserDB.findByEmailOrPhone(clean) ||
+      (cleanPhone ? UserDB.findByEmailOrPhone(cleanPhone) : undefined);
     if (memUser) {
       memUser.passwordHash = passwordHash;
     }
@@ -102,12 +121,12 @@ export async function POST(request: Request) {
         success: true,
         message: "Password has been successfully updated. You can now log in.",
       },
-      { headers }
+      { headers },
     );
   } catch (error: any) {
     return NextResponse.json(
       { success: false, message: error.message || "Failed to reset password." },
-      { status: 500, headers }
+      { status: 500, headers },
     );
   }
 }

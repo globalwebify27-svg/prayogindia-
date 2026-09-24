@@ -133,22 +133,22 @@ export const OffersLandingView: React.FC = () => {
           </div>
 
           {/* Search & Sort Controls */}
-          <div className="flex items-center gap-3">
-            <div className="relative">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-3 w-full sm:w-auto">
+            <div className="relative flex-1">
               <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search deal products..."
-                className="bg-slate-50 text-xs pl-9 pr-3 py-2 rounded-xl border border-slate-200 focus:outline-none"
+                className="w-full bg-slate-50 text-xs pl-9 pr-3 py-2.5 rounded-xl border border-slate-200 focus:outline-none"
               />
             </div>
 
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as any)}
-              className="bg-slate-50 text-xs font-bold px-3 py-2 rounded-xl border border-slate-200 focus:outline-none"
+              className="bg-slate-50 text-xs font-bold px-3 py-2.5 rounded-xl border border-slate-200 focus:outline-none cursor-pointer shrink-0"
             >
               <option value="featured">Sort by Featured</option>
               <option value="price-asc">Price: Low to High</option>

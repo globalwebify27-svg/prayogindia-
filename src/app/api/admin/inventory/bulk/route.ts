@@ -43,12 +43,18 @@ export async function POST(request: Request) {
   }
 
   // Role validation
-  const allowedRoles = ["SUPER_ADMIN", "REGIONAL_MANAGER", "STORE_MANAGER", "ADMIN"];
+  const allowedRoles = [
+    "SUPER_ADMIN",
+    "REGIONAL_MANAGER",
+    "STORE_MANAGER",
+    "ADMIN",
+  ];
   if (!allowedRoles.includes(staff.role as string)) {
     return NextResponse.json(
       {
         success: false,
-        message: "Forbidden. Admin or Manager role required to perform bulk inventory updates.",
+        message:
+          "Forbidden. Admin or Manager role required to perform bulk inventory updates.",
       },
       { status: 403, headers },
     );
@@ -99,7 +105,10 @@ export async function POST(request: Request) {
 
     if (!store) {
       return NextResponse.json(
-        { success: false, message: `Store not found for identifier '${rawStoreId}'.` },
+        {
+          success: false,
+          message: `Store not found for identifier '${rawStoreId}'.`,
+        },
         { status: 404, headers },
       );
     }
@@ -118,10 +127,7 @@ export async function POST(request: Request) {
     // 3. Resolve Products
     const products = await db.product.findMany({
       where: {
-        OR: [
-          { id: { in: productIds } },
-          { sku: { in: productIds } },
-        ],
+        OR: [{ id: { in: productIds } }, { sku: { in: productIds } }],
       },
     });
 
@@ -186,7 +192,10 @@ export async function POST(request: Request) {
             },
             update: {
               quantity: newQty,
-              availableQuantity: Math.max(0, newQty - (existingInv?.reservedQuantity || 0)),
+              availableQuantity: Math.max(
+                0,
+                newQty - (existingInv?.reservedQuantity || 0),
+              ),
               lowStockThreshold: newLowThreshold,
               status: newStatus,
             },
@@ -204,7 +213,9 @@ export async function POST(request: Request) {
                 quantityAfter: newQty,
                 userId: staff.id,
                 referenceId: updatedInv.id,
-                notes: reason || `Bulk update: ${operation} (${qtyChange > 0 ? "+" : ""}${qtyChange})`,
+                notes:
+                  reason ||
+                  `Bulk update: ${operation} (${qtyChange > 0 ? "+" : ""}${qtyChange})`,
               },
             });
 

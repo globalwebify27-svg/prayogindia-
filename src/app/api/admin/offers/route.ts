@@ -6,7 +6,10 @@ import { getAuthenticatedAdmin } from "@/lib/adminAuth";
 export async function GET(request: Request) {
   const admin = await getAuthenticatedAdmin();
   if (!admin) {
-    return NextResponse.json({ success: false, message: "Forbidden" }, { status: 403 });
+    return NextResponse.json(
+      { success: false, message: "Forbidden" },
+      { status: 403 },
+    );
   }
 
   const { searchParams } = new URL(request.url);
@@ -22,7 +25,9 @@ export async function GET(request: Request) {
         include: {
           products: {
             include: {
-              product: { select: { id: true, name: true, slug: true, price: true } },
+              product: {
+                select: { id: true, name: true, slug: true, price: true },
+              },
             },
           },
         },
@@ -31,7 +36,10 @@ export async function GET(request: Request) {
 
       return NextResponse.json({ success: true, data: offers });
     } catch (error: any) {
-      return NextResponse.json({ success: false, message: error.message }, { status: 500 });
+      return NextResponse.json(
+        { success: false, message: error.message },
+        { status: 500 },
+      );
     }
   }
 
@@ -42,18 +50,33 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   const admin = await getAuthenticatedAdmin();
   if (!admin) {
-    return NextResponse.json({ success: false, message: "Forbidden" }, { status: 403 });
+    return NextResponse.json(
+      { success: false, message: "Forbidden" },
+      { status: 403 },
+    );
   }
 
   try {
     const body = await request.json();
     const {
-      slug, title, shortDescription, image, badge, status,
-      startDate, endDate, couponCode, customerEligibility, productIds,
+      slug,
+      title,
+      shortDescription,
+      image,
+      badge,
+      status,
+      startDate,
+      endDate,
+      couponCode,
+      customerEligibility,
+      productIds,
     } = body;
 
     if (!title || !slug) {
-      return NextResponse.json({ success: false, message: "Title and slug required" }, { status: 400 });
+      return NextResponse.json(
+        { success: false, message: "Title and slug required" },
+        { status: 400 },
+      );
     }
 
     if (process.env.DATABASE_URL) {
@@ -81,9 +104,15 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: true, data: offer }, { status: 201 });
     }
 
-    return NextResponse.json({ success: true, data: { id: `mock-${Date.now()}`, title, slug } }, { status: 201 });
+    return NextResponse.json(
+      { success: true, data: { id: `mock-${Date.now()}`, title, slug } },
+      { status: 201 },
+    );
   } catch (error: any) {
-    return NextResponse.json({ success: false, message: error.message }, { status: 500 });
+    return NextResponse.json(
+      { success: false, message: error.message },
+      { status: 500 },
+    );
   }
 }
 
@@ -91,7 +120,10 @@ export async function POST(request: Request) {
 export async function PATCH(request: Request) {
   const admin = await getAuthenticatedAdmin();
   if (!admin) {
-    return NextResponse.json({ success: false, message: "Forbidden" }, { status: 403 });
+    return NextResponse.json(
+      { success: false, message: "Forbidden" },
+      { status: 403 },
+    );
   }
 
   try {
@@ -99,7 +131,10 @@ export async function PATCH(request: Request) {
     const { id, status, title, couponCode, endDate, badge } = body;
 
     if (!id) {
-      return NextResponse.json({ success: false, message: "Offer ID required" }, { status: 400 });
+      return NextResponse.json(
+        { success: false, message: "Offer ID required" },
+        { status: 400 },
+      );
     }
 
     if (process.env.DATABASE_URL) {
@@ -118,7 +153,10 @@ export async function PATCH(request: Request) {
 
     return NextResponse.json({ success: true });
   } catch (error: any) {
-    return NextResponse.json({ success: false, message: error.message }, { status: 500 });
+    return NextResponse.json(
+      { success: false, message: error.message },
+      { status: 500 },
+    );
   }
 }
 
@@ -126,7 +164,10 @@ export async function PATCH(request: Request) {
 export async function DELETE(request: Request) {
   const admin = await getAuthenticatedAdmin();
   if (!admin) {
-    return NextResponse.json({ success: false, message: "Forbidden" }, { status: 403 });
+    return NextResponse.json(
+      { success: false, message: "Forbidden" },
+      { status: 403 },
+    );
   }
 
   try {
@@ -134,7 +175,10 @@ export async function DELETE(request: Request) {
     const { id } = body;
 
     if (!id) {
-      return NextResponse.json({ success: false, message: "Offer ID required" }, { status: 400 });
+      return NextResponse.json(
+        { success: false, message: "Offer ID required" },
+        { status: 400 },
+      );
     }
 
     if (process.env.DATABASE_URL) {
@@ -144,6 +188,9 @@ export async function DELETE(request: Request) {
 
     return NextResponse.json({ success: true });
   } catch (error: any) {
-    return NextResponse.json({ success: false, message: error.message }, { status: 500 });
+    return NextResponse.json(
+      { success: false, message: error.message },
+      { status: 500 },
+    );
   }
 }

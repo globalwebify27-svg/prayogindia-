@@ -6,7 +6,10 @@ import { getAuthenticatedAdmin } from "@/lib/adminAuth";
 export async function GET(request: Request) {
   const admin = await getAuthenticatedAdmin();
   if (!admin) {
-    return NextResponse.json({ success: false, message: "Forbidden" }, { status: 403 });
+    return NextResponse.json(
+      { success: false, message: "Forbidden" },
+      { status: 403 },
+    );
   }
 
   if (process.env.DATABASE_URL) {
@@ -27,7 +30,10 @@ export async function GET(request: Request) {
 
       return NextResponse.json({ success: true, data: categories });
     } catch (error: any) {
-      return NextResponse.json({ success: false, message: error.message }, { status: 500 });
+      return NextResponse.json(
+        { success: false, message: error.message },
+        { status: 500 },
+      );
     }
   }
 
@@ -38,7 +44,10 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   const admin = await getAuthenticatedAdmin();
   if (!admin) {
-    return NextResponse.json({ success: false, message: "Forbidden" }, { status: 403 });
+    return NextResponse.json(
+      { success: false, message: "Forbidden" },
+      { status: 403 },
+    );
   }
 
   try {
@@ -46,25 +55,40 @@ export async function POST(request: Request) {
     const { name, slug, description, image, parentId } = body;
 
     if (!name || !slug) {
-      return NextResponse.json({ success: false, message: "Name and slug are required" }, { status: 400 });
+      return NextResponse.json(
+        { success: false, message: "Name and slug are required" },
+        { status: 400 },
+      );
     }
 
     if (process.env.DATABASE_URL) {
       const existing = await db.category.findUnique({ where: { slug } });
       if (existing) {
-        return NextResponse.json({ success: false, message: "Slug already exists" }, { status: 409 });
+        return NextResponse.json(
+          { success: false, message: "Slug already exists" },
+          { status: 409 },
+        );
       }
 
       const category = await db.category.create({
         data: { name, slug, description, image, parentId: parentId || null },
       });
 
-      return NextResponse.json({ success: true, data: category }, { status: 201 });
+      return NextResponse.json(
+        { success: true, data: category },
+        { status: 201 },
+      );
     }
 
-    return NextResponse.json({ success: true, data: { id: `mock-${Date.now()}`, name, slug } }, { status: 201 });
+    return NextResponse.json(
+      { success: true, data: { id: `mock-${Date.now()}`, name, slug } },
+      { status: 201 },
+    );
   } catch (error: any) {
-    return NextResponse.json({ success: false, message: error.message }, { status: 500 });
+    return NextResponse.json(
+      { success: false, message: error.message },
+      { status: 500 },
+    );
   }
 }
 
@@ -72,7 +96,10 @@ export async function POST(request: Request) {
 export async function PATCH(request: Request) {
   const admin = await getAuthenticatedAdmin();
   if (!admin) {
-    return NextResponse.json({ success: false, message: "Forbidden" }, { status: 403 });
+    return NextResponse.json(
+      { success: false, message: "Forbidden" },
+      { status: 403 },
+    );
   }
 
   try {
@@ -80,7 +107,10 @@ export async function PATCH(request: Request) {
     const { id, name, slug, description, image, parentId } = body;
 
     if (!id) {
-      return NextResponse.json({ success: false, message: "Category ID required" }, { status: 400 });
+      return NextResponse.json(
+        { success: false, message: "Category ID required" },
+        { status: 400 },
+      );
     }
 
     if (process.env.DATABASE_URL) {
@@ -93,7 +123,10 @@ export async function PATCH(request: Request) {
 
     return NextResponse.json({ success: true, data: { id, name } });
   } catch (error: any) {
-    return NextResponse.json({ success: false, message: error.message }, { status: 500 });
+    return NextResponse.json(
+      { success: false, message: error.message },
+      { status: 500 },
+    );
   }
 }
 
@@ -101,7 +134,10 @@ export async function PATCH(request: Request) {
 export async function DELETE(request: Request) {
   const admin = await getAuthenticatedAdmin();
   if (!admin) {
-    return NextResponse.json({ success: false, message: "Forbidden" }, { status: 403 });
+    return NextResponse.json(
+      { success: false, message: "Forbidden" },
+      { status: 403 },
+    );
   }
 
   try {
@@ -109,7 +145,10 @@ export async function DELETE(request: Request) {
     const { id } = body;
 
     if (!id) {
-      return NextResponse.json({ success: false, message: "Category ID required" }, { status: 400 });
+      return NextResponse.json(
+        { success: false, message: "Category ID required" },
+        { status: 400 },
+      );
     }
 
     if (process.env.DATABASE_URL) {
@@ -117,8 +156,11 @@ export async function DELETE(request: Request) {
       const count = await db.product.count({ where: { categoryId: id } });
       if (count > 0) {
         return NextResponse.json(
-          { success: false, message: `Cannot delete — ${count} products are assigned to this category` },
-          { status: 409 }
+          {
+            success: false,
+            message: `Cannot delete — ${count} products are assigned to this category`,
+          },
+          { status: 409 },
         );
       }
 
@@ -128,6 +170,9 @@ export async function DELETE(request: Request) {
 
     return NextResponse.json({ success: true, message: "Deleted (mock)" });
   } catch (error: any) {
-    return NextResponse.json({ success: false, message: error.message }, { status: 500 });
+    return NextResponse.json(
+      { success: false, message: error.message },
+      { status: 500 },
+    );
   }
 }

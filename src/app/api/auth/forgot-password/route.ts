@@ -7,11 +7,32 @@ import { getSecurityHeaders } from "@/lib/security";
 
 // Global singleton map for reset tokens across hot reloads
 const globalForResetTokens = globalThis as unknown as {
-  passwordResetTokens: Map<string, { code: string; userId: string; email?: string; phone?: string; expiresAt: number }> | undefined;
+  passwordResetTokens:
+    | Map<
+        string,
+        {
+          code: string;
+          userId: string;
+          email?: string;
+          phone?: string;
+          expiresAt: number;
+        }
+      >
+    | undefined;
 };
 
 export const RESET_TOKENS =
-  globalForResetTokens.passwordResetTokens ?? new Map<string, { code: string; userId: string; email?: string; phone?: string; expiresAt: number }>();
+  globalForResetTokens.passwordResetTokens ??
+  new Map<
+    string,
+    {
+      code: string;
+      userId: string;
+      email?: string;
+      phone?: string;
+      expiresAt: number;
+    }
+  >();
 
 if (process.env.NODE_ENV !== "production") {
   globalForResetTokens.passwordResetTokens = RESET_TOKENS;
@@ -26,8 +47,11 @@ export async function POST(request: Request) {
 
     if (!identifier || typeof identifier !== "string" || !identifier.trim()) {
       return NextResponse.json(
-        { success: false, message: "Please provide a valid email or mobile number." },
-        { status: 400, headers }
+        {
+          success: false,
+          message: "Please provide a valid email or mobile number.",
+        },
+        { status: 400, headers },
       );
     }
 
@@ -45,7 +69,9 @@ export async function POST(request: Request) {
         const user = await db.user.findFirst({
           where: {
             OR: [
-              ...(isEmail ? [{ email: { equals: clean, mode: "insensitive" as const } }] : []),
+              ...(isEmail
+                ? [{ email: { equals: clean, mode: "insensitive" as const } }]
+                : []),
               ...(cleanPhone ? [{ phone: { contains: cleanPhone } }] : []),
             ],
           },
@@ -93,7 +119,10 @@ export async function POST(request: Request) {
       if (targetPhone) {
         const digits = targetPhone.replace(/\D/g, "").slice(-10);
         if (digits.length === 10) {
-          await sendSMS(digits, `Your Prayog India password reset code is: ${resetCode}. Valid for 15 minutes.`);
+          await sendSMS(
+            digits,
+            `Your Prayog India password reset code is: ${resetCode}. Valid for 15 minutes.`,
+          );
         }
       }
 
@@ -111,15 +140,19 @@ export async function POST(request: Request) {
     return NextResponse.json(
       {
         success: true,
-        message: "If an account matches your details, a 6-digit password reset code has been sent.",
+        message:
+          "If an account matches your details, a 6-digit password reset code has been sent.",
         identifier: cleanPhone || clean,
       },
-      { headers }
+      { headers },
     );
   } catch (error: any) {
     return NextResponse.json(
-      { success: false, message: error.message || "Failed to process password reset request." },
-      { status: 500, headers }
+      {
+        success: false,
+        message: error.message || "Failed to process password reset request.",
+      },
+      { status: 500, headers },
     );
   }
 }

@@ -65,7 +65,8 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
         (p.slug && p.slug === slug) ||
         p.id === slug ||
         p.name.toLowerCase().replace(/[^a-z0-9]+/g, "-") === slug,
-    ) || null;
+    ) ||
+    null;
 
   const isInvalidSlug = !product;
 
@@ -259,7 +260,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
 
       {/* ── Sticky Section Tab Bar ── */}
       <div
-        className={`sticky top-16 z-30 bg-white/95 backdrop-blur-md border-b border-slate-200 transition-all duration-300 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 ${
+        className={`sticky top-16 z-30 bg-white/95 backdrop-blur-md border-b border-slate-200 transition-all duration-300 rounded-xl px-2 sm:px-4 ${
           stickyBarVisible ? "shadow-md" : ""
         }`}
       >

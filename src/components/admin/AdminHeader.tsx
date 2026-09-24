@@ -33,7 +33,9 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({
   onToggleMobileSidebar,
 }) => {
   const router = useRouter();
-  const [notifications, setNotifications] = useState<AdminNotificationItem[]>([]);
+  const [notifications, setNotifications] = useState<AdminNotificationItem[]>(
+    [],
+  );
   const [unreadCount, setUnreadCount] = useState<number>(0);
   const [showNotifications, setShowNotifications] = useState<boolean>(false);
   const [loadingNotifs, setLoadingNotifs] = useState<boolean>(false);

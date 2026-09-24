@@ -515,7 +515,6 @@ export const CartView: React.FC = () => {
                 {/* Express Air */}
                 <button
                   type="button"
-                  disabled={hasBatteryOrHazardous}
                   onClick={() => {
                     if (hasBatteryOrHazardous) {
                       setShowRestrictionModal(true);
@@ -527,7 +526,7 @@ export const CartView: React.FC = () => {
                     effectiveDeliveryMethod === "express"
                       ? "border-[#00AEEF] bg-[#E0F7FC]/40 ring-2 ring-[#00AEEF]/20 cursor-pointer"
                       : hasBatteryOrHazardous
-                        ? "border-red-200 bg-red-50/40 opacity-75 cursor-not-allowed"
+                        ? "border-red-200 bg-red-50/40 opacity-90 cursor-pointer hover:border-red-300"
                         : "border-slate-200 hover:border-slate-300 cursor-pointer"
                   }`}
                 >

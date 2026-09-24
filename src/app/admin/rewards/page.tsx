@@ -1,10 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
-import {
-  RewardPointsRule,
-  PointsLedgerEntry,
-} from "@/data/rewardsData";
+import { RewardPointsRule, PointsLedgerEntry } from "@/data/rewardsData";
 import {
   Award,
   Coins,
@@ -53,7 +50,10 @@ export interface LiveLedgerEntry {
 export default function AdminRewardsPage() {
   const [rules, setRules] = useState<any[]>([]);
   const [ledger, setLedger] = useState<LiveLedgerEntry[]>([]);
-  const [stats, setStats] = useState<{ totalCirculatingCoins: number; totalCustomers: number }>({
+  const [stats, setStats] = useState<{
+    totalCirculatingCoins: number;
+    totalCustomers: number;
+  }>({
     totalCirculatingCoins: 0,
     totalCustomers: 0,
   });
@@ -68,7 +68,9 @@ export default function AdminRewardsPage() {
   const [showAdjustModal, setShowAdjustModal] = useState(false);
   const [adjustEmail, setAdjustEmail] = useState("");
   const [adjustPoints, setAdjustPoints] = useState(100);
-  const [adjustType, setAdjustType] = useState<"Earned" | "Admin Adjustment" | "Expired" | "Bonus">("Admin Adjustment");
+  const [adjustType, setAdjustType] = useState<
+    "Earned" | "Admin Adjustment" | "Expired" | "Bonus"
+  >("Admin Adjustment");
   const [adjustNotes, setAdjustNotes] = useState("");
   const [submittingAdjust, setSubmittingAdjust] = useState(false);
   const [adjustError, setAdjustError] = useState<string | null>(null);
@@ -197,7 +199,9 @@ export default function AdminRewardsPage() {
             Rewards &amp; Loyalty Configuration
           </h1>
           <p className="text-xs text-slate-500">
-            Authoritative loyalty engine for earning multipliers, checkout redemption caps, validity expiry rules, and customer point adjustments.
+            Authoritative loyalty engine for earning multipliers, checkout
+            redemption caps, validity expiry rules, and customer point
+            adjustments.
           </p>
         </div>
 
@@ -210,7 +214,9 @@ export default function AdminRewardsPage() {
             className="p-2.5 bg-white border border-slate-200 rounded-2xl hover:bg-slate-50 text-slate-600 transition-colors cursor-pointer"
             title="Refresh"
           >
-            <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin text-[#00AEEF]" : ""}`} />
+            <RefreshCw
+              className={`w-4 h-4 ${loading ? "animate-spin text-[#00AEEF]" : ""}`}
+            />
           </button>
           <button
             onClick={() => setShowAdjustModal(true)}
@@ -229,9 +235,16 @@ export default function AdminRewardsPage() {
             <Coins className="w-6 h-6" />
           </div>
           <div>
-            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Total Circulating Coins</span>
-            <div className="text-2xl font-black text-slate-900">{stats.totalCirculatingCoins.toLocaleString()} PTS</div>
-            <span className="text-[10px] text-emerald-600 font-bold">≈ ₹{(stats.totalCirculatingCoins * 0.5).toLocaleString("en-IN")} Value</span>
+            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+              Total Circulating Coins
+            </span>
+            <div className="text-2xl font-black text-slate-900">
+              {stats.totalCirculatingCoins.toLocaleString()} PTS
+            </div>
+            <span className="text-[10px] text-emerald-600 font-bold">
+              ≈ ₹{(stats.totalCirculatingCoins * 0.5).toLocaleString("en-IN")}{" "}
+              Value
+            </span>
           </div>
         </div>
 
@@ -240,9 +253,15 @@ export default function AdminRewardsPage() {
             <Users className="w-6 h-6" />
           </div>
           <div>
-            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Registered Accounts</span>
-            <div className="text-2xl font-black text-slate-900">{stats.totalCustomers.toLocaleString()}</div>
-            <span className="text-[10px] text-slate-500 font-medium">Eligible for loyalty perks</span>
+            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+              Registered Accounts
+            </span>
+            <div className="text-2xl font-black text-slate-900">
+              {stats.totalCustomers.toLocaleString()}
+            </div>
+            <span className="text-[10px] text-slate-500 font-medium">
+              Eligible for loyalty perks
+            </span>
           </div>
         </div>
 
@@ -251,12 +270,16 @@ export default function AdminRewardsPage() {
             <ShieldCheck className="w-6 h-6" />
           </div>
           <div>
-            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Loyalty Engine Status</span>
+            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+              Loyalty Engine Status
+            </span>
             <div className="text-2xl font-black text-emerald-600 flex items-center gap-1.5">
               <span>ACTIVE</span>
               <span className="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
             </div>
-            <span className="text-[10px] text-slate-500 font-medium">{rules.length} Configured Tiers</span>
+            <span className="text-[10px] text-slate-500 font-medium">
+              {rules.length} Configured Tiers
+            </span>
           </div>
         </div>
       </div>
@@ -266,10 +289,12 @@ export default function AdminRewardsPage() {
         <div className="flex items-center justify-between border-b border-slate-100 pb-3">
           <div>
             <h2 className="text-sm font-black text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
-              <Coins className="w-4 h-4 text-amber-500" /> Customer Type Loyalty Tiers
+              <Coins className="w-4 h-4 text-amber-500" /> Customer Type Loyalty
+              Tiers
             </h2>
             <p className="text-xs text-slate-500">
-              Per-tier earning rates, redemption values, minimum thresholds, and checkout percentage caps.
+              Per-tier earning rates, redemption values, minimum thresholds, and
+              checkout percentage caps.
             </p>
           </div>
         </div>
@@ -300,31 +325,41 @@ export default function AdminRewardsPage() {
 
               <div className="space-y-1.5 text-xs text-slate-600">
                 <div className="flex justify-between">
-                  <span className="text-slate-400 font-bold">Earning Rate:</span>
+                  <span className="text-slate-400 font-bold">
+                    Earning Rate:
+                  </span>
                   <span className="font-black text-slate-900">
                     {rule.pointsPer100Spent} pt / ₹100
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-slate-400 font-bold">Redemption Value:</span>
+                  <span className="text-slate-400 font-bold">
+                    Redemption Value:
+                  </span>
                   <span className="font-black text-emerald-600">
                     1 pt = ₹{rule.redemptionRateRupees}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-slate-400 font-bold">Min. Redeem Points:</span>
+                  <span className="text-slate-400 font-bold">
+                    Min. Redeem Points:
+                  </span>
                   <span className="font-bold text-slate-900">
                     {rule.minRedemptionPoints} PTS
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-slate-400 font-bold">Max Cart Cap:</span>
+                  <span className="text-slate-400 font-bold">
+                    Max Cart Cap:
+                  </span>
                   <span className="font-bold text-slate-900">
                     {rule.maxRedemptionPercentage}% of subtotal
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-slate-400 font-bold">Welcome Bonus:</span>
+                  <span className="text-slate-400 font-bold">
+                    Welcome Bonus:
+                  </span>
                   <span className="font-bold text-purple-700">
                     +{rule.registrationBonus} PTS
                   </span>
@@ -346,10 +381,12 @@ export default function AdminRewardsPage() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
           <div>
             <h2 className="text-sm font-black text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
-              <Award className="w-4 h-4 text-[#00AEEF]" /> Global Points Ledger &amp; Adjustments History
+              <Award className="w-4 h-4 text-[#00AEEF]" /> Global Points Ledger
+              &amp; Adjustments History
             </h2>
             <p className="text-xs text-slate-500">
-              Live immutable audit log of customer earnings, checkout redemptions, welcome bonuses, and manual adjustments.
+              Live immutable audit log of customer earnings, checkout
+              redemptions, welcome bonuses, and manual adjustments.
             </p>
           </div>
 
@@ -402,14 +439,20 @@ export default function AdminRewardsPage() {
             <tbody className="divide-y divide-slate-100">
               {loading && ledger.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="py-8 text-center text-slate-400 font-bold">
+                  <td
+                    colSpan={6}
+                    className="py-8 text-center text-slate-400 font-bold"
+                  >
                     <RefreshCw className="w-5 h-5 animate-spin mx-auto mb-2 text-[#00AEEF]" />
                     Loading loyalty transactions...
                   </td>
                 </tr>
               ) : ledger.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="py-8 text-center text-slate-400 font-bold">
+                  <td
+                    colSpan={6}
+                    className="py-8 text-center text-slate-400 font-bold"
+                  >
                     No reward transactions found matching current criteria.
                   </td>
                 </tr>
@@ -417,7 +460,10 @@ export default function AdminRewardsPage() {
                 ledger.map((entry) => {
                   const isPositive = entry.points > 0;
                   return (
-                    <tr key={entry.id} className="hover:bg-slate-50/80 transition-colors">
+                    <tr
+                      key={entry.id}
+                      className="hover:bg-slate-50/80 transition-colors"
+                    >
                       <td className="py-3">
                         <div className="font-extrabold text-slate-900">
                           {entry.user?.name || "Customer"}
@@ -447,14 +493,20 @@ export default function AdminRewardsPage() {
                         )}
                       </td>
                       <td className="py-3">
-                        <span className={`font-black text-sm ${isPositive ? "text-emerald-600" : "text-red-600"}`}>
+                        <span
+                          className={`font-black text-sm ${isPositive ? "text-emerald-600" : "text-red-600"}`}
+                        >
                           {isPositive ? `+${entry.points}` : entry.points} PTS
                         </span>
                       </td>
                       <td className="py-3 font-mono text-slate-600">
-                        <span className="line-through text-slate-400">{entry.balanceBefore}</span>
+                        <span className="line-through text-slate-400">
+                          {entry.balanceBefore}
+                        </span>
                         <span className="mx-1 text-slate-300">→</span>
-                        <span className="font-bold text-slate-900">{entry.balanceAfter} PTS</span>
+                        <span className="font-bold text-slate-900">
+                          {entry.balanceAfter} PTS
+                        </span>
                       </td>
                       <td className="py-3 font-semibold text-slate-600">
                         {new Date(entry.createdAt).toLocaleString("en-IN", {
@@ -512,7 +564,8 @@ export default function AdminRewardsPage() {
           <div className="relative max-w-md w-full bg-white rounded-3xl p-6 shadow-2xl z-10 space-y-4 text-xs">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <h3 className="text-sm font-black text-slate-900 uppercase flex items-center gap-1.5">
-                <Plus className="w-4 h-4 text-[#00AEEF]" /> Manual Points Adjustment
+                <Plus className="w-4 h-4 text-[#00AEEF]" /> Manual Points
+                Adjustment
               </h3>
               <button
                 onClick={() => setShowAdjustModal(false)}
@@ -557,7 +610,9 @@ export default function AdminRewardsPage() {
                     onChange={(e) => setAdjustPoints(Number(e.target.value))}
                     className="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl font-bold text-slate-900 focus:outline-none focus:border-[#00AEEF]"
                   />
-                  <span className="text-[10px] text-slate-400">Positive adds, negative deducts</span>
+                  <span className="text-[10px] text-slate-400">
+                    Positive adds, negative deducts
+                  </span>
                 </div>
                 <div>
                   <label className="block font-bold text-slate-700 mb-1">

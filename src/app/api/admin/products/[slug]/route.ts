@@ -47,6 +47,14 @@ export async function PATCH(
       isBatteryProduct,
       isFragileItem,
       isDangerousGoods,
+      metaTitle,
+      metaDescription,
+      metaKeywords,
+      canonicalUrl,
+      ogImage,
+      indexFollow,
+      structuredDataType,
+      seoSlug,
     } = body;
 
     if (process.env.DATABASE_URL) {
@@ -89,9 +97,39 @@ export async function PATCH(
         if (shippingTag) {
           updateData.tags = [shippingTag];
         }
-        if (specs && typeof specs === "object") {
-          updateData.specifications = specs;
+
+        if (seoSlug && typeof seoSlug === "string" && seoSlug.trim()) {
+          const cleanSlug = seoSlug.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)+/g, "");
+          if (cleanSlug && cleanSlug !== existing.slug) {
+            // Check if cleanSlug is not taken by another product
+            const conflict = await db.product.findUnique({ where: { slug: cleanSlug } });
+            if (!conflict || conflict.id === existing.id) {
+              updateData.slug = cleanSlug;
+            }
+          }
         }
+
+        const existingSpecs = (existing.specifications && typeof existing.specifications === "object")
+          ? (existing.specifications as Record<string, unknown>)
+          : {};
+        const incomingSpecs = (specs && typeof specs === "object") ? specs : {};
+        const mergedSpecs: Record<string, unknown> = { ...existingSpecs, ...incomingSpecs };
+
+        const existingSeo = (existingSpecs._seo && typeof existingSpecs._seo === "object")
+          ? (existingSpecs._seo as Record<string, unknown>)
+          : {};
+
+        mergedSpecs._seo = {
+          metaTitle: metaTitle !== undefined ? metaTitle : (existingSeo.metaTitle || `${name || existing.name} - Buy Online at Best Price | Prayog India`),
+          metaDescription: metaDescription !== undefined ? metaDescription : (existingSeo.metaDescription || (description || existing.description)?.slice(0, 160) || ""),
+          metaKeywords: Array.isArray(metaKeywords) ? metaKeywords : (existingSeo.metaKeywords || []),
+          canonicalUrl: canonicalUrl !== undefined ? canonicalUrl : (existingSeo.canonicalUrl || `https://www.prayogindia.com/products/${updateData.slug || existing.slug}`),
+          ogImage: ogImage !== undefined ? ogImage : (existingSeo.ogImage || (Array.isArray(images) && images[0]) || ""),
+          indexFollow: typeof indexFollow === "boolean" ? indexFollow : (existingSeo.indexFollow !== undefined ? existingSeo.indexFollow : true),
+          structuredDataType: structuredDataType || existingSeo.structuredDataType || "Product",
+        };
+
+        updateData.specifications = mergedSpecs;
 
         // Handle category association if categoryName provided
         if (categoryName) {

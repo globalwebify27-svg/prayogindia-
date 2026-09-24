@@ -207,8 +207,12 @@ export default function AdminRelationshipsPage() {
   const [companies, setCompanies] = useState<B2BCompany[]>([]);
   const [dashboardMetrics, setDashboardMetrics] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [selectedCompanyId, setSelectedCompanyId] = useState<string | null>(null);
-  const [selectedCompanyProfile, setSelectedCompanyProfile] = useState<any | null>(null);
+  const [selectedCompanyId, setSelectedCompanyId] = useState<string | null>(
+    null,
+  );
+  const [selectedCompanyProfile, setSelectedCompanyProfile] = useState<
+    any | null
+  >(null);
   const [profileLoading, setProfileLoading] = useState(false);
 
   // Filters & Search
@@ -246,7 +250,9 @@ export default function AdminRelationshipsPage() {
   });
 
   // Drawer Action Modals
-  const [activeDrawerTab, setActiveDrawerTab] = useState<"overview" | "contacts" | "quotes" | "orders" | "activities" | "followups">("overview");
+  const [activeDrawerTab, setActiveDrawerTab] = useState<
+    "overview" | "contacts" | "quotes" | "orders" | "activities" | "followups"
+  >("overview");
   const [newContactModal, setNewContactModal] = useState(false);
   const [contactForm, setContactForm] = useState({
     name: "",
@@ -272,7 +278,8 @@ export default function AdminRelationshipsPage() {
   });
 
   // Product Intelligence State (Preserved)
-  const [relationshipMap, setRelationshipMap] = useState<RelationshipMap>(buildInitialMap);
+  const [relationshipMap, setRelationshipMap] =
+    useState<RelationshipMap>(buildInitialMap);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [productSearch, setProductSearch] = useState("");
 
@@ -281,7 +288,9 @@ export default function AdminRelationshipsPage() {
     setLoading(true);
     try {
       const [compRes, dashRes] = await Promise.all([
-        fetch(`/api/admin/crm/companies?status=${statusFilter}&storeId=${storeFilter}&industry=${industryFilter}&search=${encodeURIComponent(searchQuery)}`),
+        fetch(
+          `/api/admin/crm/companies?status=${statusFilter}&storeId=${storeFilter}&industry=${industryFilter}&search=${encodeURIComponent(searchQuery)}`,
+        ),
         fetch("/api/admin/crm/dashboard"),
       ]);
       const compData = await compRes.json();
@@ -344,11 +353,14 @@ export default function AdminRelationshipsPage() {
     e.preventDefault();
     if (!selectedCompanyId) return;
     try {
-      const res = await fetch(`/api/admin/crm/companies/${selectedCompanyId}/contacts`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(contactForm),
-      });
+      const res = await fetch(
+        `/api/admin/crm/companies/${selectedCompanyId}/contacts`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(contactForm),
+        },
+      );
       const data = await res.json();
       if (data.success) {
         setNewContactModal(false);
@@ -365,11 +377,14 @@ export default function AdminRelationshipsPage() {
     e.preventDefault();
     if (!selectedCompanyId) return;
     try {
-      const res = await fetch(`/api/admin/crm/companies/${selectedCompanyId}/activities`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(activityForm),
-      });
+      const res = await fetch(
+        `/api/admin/crm/companies/${selectedCompanyId}/activities`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(activityForm),
+        },
+      );
       const data = await res.json();
       if (data.success) {
         setNewActivityModal(false);
@@ -387,15 +402,22 @@ export default function AdminRelationshipsPage() {
     e.preventDefault();
     if (!selectedCompanyId) return;
     try {
-      const res = await fetch(`/api/admin/crm/companies/${selectedCompanyId}/follow-ups`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(followUpForm),
-      });
+      const res = await fetch(
+        `/api/admin/crm/companies/${selectedCompanyId}/follow-ups`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(followUpForm),
+        },
+      );
       const data = await res.json();
       if (data.success) {
         setNewFollowUpModal(false);
-        setFollowUpForm({ dueDate: new Date().toISOString().split("T")[0], reason: "", notes: "" });
+        setFollowUpForm({
+          dueDate: new Date().toISOString().split("T")[0],
+          reason: "",
+          notes: "",
+        });
         openCompanyProfile(selectedCompanyId);
         fetchCompanies();
       } else {
@@ -423,7 +445,10 @@ export default function AdminRelationshipsPage() {
     }
   };
 
-  const handleStatusChange = async (companyId: string, newStatus: RelationshipStatus) => {
+  const handleStatusChange = async (
+    companyId: string,
+    newStatus: RelationshipStatus,
+  ) => {
     try {
       const res = await fetch(`/api/admin/crm/companies/${companyId}`, {
         method: "PATCH",
@@ -445,20 +470,48 @@ export default function AdminRelationshipsPage() {
   const getStatusBadge = (status: RelationshipStatus) => {
     switch (status) {
       case "ACTIVE_CUSTOMER":
-        return <span className="bg-emerald-100 text-emerald-800 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase">Active Customer</span>;
+        return (
+          <span className="bg-emerald-100 text-emerald-800 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase">
+            Active Customer
+          </span>
+        );
       case "PROSPECT":
-        return <span className="bg-blue-100 text-blue-800 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase">Prospect</span>;
+        return (
+          <span className="bg-blue-100 text-blue-800 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase">
+            Prospect
+          </span>
+        );
       case "NEGOTIATION":
-        return <span className="bg-amber-100 text-amber-800 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase">Negotiation</span>;
+        return (
+          <span className="bg-amber-100 text-amber-800 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase">
+            Negotiation
+          </span>
+        );
       case "LEAD":
-        return <span className="bg-purple-100 text-purple-800 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase">New Lead</span>;
+        return (
+          <span className="bg-purple-100 text-purple-800 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase">
+            New Lead
+          </span>
+        );
       case "LOST":
-        return <span className="bg-rose-100 text-rose-800 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase">Lost</span>;
+        return (
+          <span className="bg-rose-100 text-rose-800 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase">
+            Lost
+          </span>
+        );
       case "BLOCKED":
-        return <span className="bg-slate-900 text-white px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase">Blocked</span>;
+        return (
+          <span className="bg-slate-900 text-white px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase">
+            Blocked
+          </span>
+        );
       case "INACTIVE":
       default:
-        return <span className="bg-slate-100 text-slate-700 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase">Inactive</span>;
+        return (
+          <span className="bg-slate-100 text-slate-700 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase">
+            Inactive
+          </span>
+        );
     }
   };
 
@@ -479,7 +532,8 @@ export default function AdminRelationshipsPage() {
             B2B Relationships &amp; CRM Console
           </h1>
           <p className="text-xs text-slate-400 mt-0.5">
-            Manage enterprise &amp; institutional accounts, contacts, activity logs, follow-ups, quotes, and lifetime business value.
+            Manage enterprise &amp; institutional accounts, contacts, activity
+            logs, follow-ups, quotes, and lifetime business value.
           </p>
         </div>
 
@@ -514,29 +568,51 @@ export default function AdminRelationshipsPage() {
           {/* Dashboard Summary Cards */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-2xs space-y-1">
-              <span className="text-[10px] uppercase font-black tracking-wider text-slate-400">Total B2B Accounts</span>
-              <div className="text-2xl font-black text-slate-900">{dashboardMetrics?.totalCompanies || companies.length}</div>
-              <div className="text-[11px] text-emerald-600 font-bold">{dashboardMetrics?.activeCustomers || 0} Active Customers</div>
+              <span className="text-[10px] uppercase font-black tracking-wider text-slate-400">
+                Total B2B Accounts
+              </span>
+              <div className="text-2xl font-black text-slate-900">
+                {dashboardMetrics?.totalCompanies || companies.length}
+              </div>
+              <div className="text-[11px] text-emerald-600 font-bold">
+                {dashboardMetrics?.activeCustomers || 0} Active Customers
+              </div>
             </div>
 
             <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-2xs space-y-1">
-              <span className="text-[10px] uppercase font-black tracking-wider text-slate-400">Sales Pipeline</span>
-              <div className="text-2xl font-black text-[#00AEEF]">{dashboardMetrics?.prospects || 0}</div>
-              <div className="text-[11px] text-slate-500 font-medium">Leads &amp; Prospects In Negotiation</div>
+              <span className="text-[10px] uppercase font-black tracking-wider text-slate-400">
+                Sales Pipeline
+              </span>
+              <div className="text-2xl font-black text-[#00AEEF]">
+                {dashboardMetrics?.prospects || 0}
+              </div>
+              <div className="text-[11px] text-slate-500 font-medium">
+                Leads &amp; Prospects In Negotiation
+              </div>
             </div>
 
             <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-2xs space-y-1">
-              <span className="text-[10px] uppercase font-black tracking-wider text-slate-400">Pending Follow-ups</span>
-              <div className="text-2xl font-black text-amber-500">{dashboardMetrics?.pendingFollowUps || 0}</div>
-              <div className="text-[11px] text-rose-500 font-bold">{dashboardMetrics?.overdueFollowUps || 0} Overdue Action Items</div>
+              <span className="text-[10px] uppercase font-black tracking-wider text-slate-400">
+                Pending Follow-ups
+              </span>
+              <div className="text-2xl font-black text-amber-500">
+                {dashboardMetrics?.pendingFollowUps || 0}
+              </div>
+              <div className="text-[11px] text-rose-500 font-bold">
+                {dashboardMetrics?.overdueFollowUps || 0} Overdue Action Items
+              </div>
             </div>
 
             <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-2xs space-y-1">
-              <span className="text-[10px] uppercase font-black tracking-wider text-slate-400">Monthly Realized Value</span>
+              <span className="text-[10px] uppercase font-black tracking-wider text-slate-400">
+                Monthly Realized Value
+              </span>
               <div className="text-2xl font-black text-purple-600 font-mono">
                 ₹{(dashboardMetrics?.monthlySales || 0).toLocaleString("en-IN")}
               </div>
-              <div className="text-[11px] text-slate-500 font-medium">{dashboardMetrics?.monthlyQuotes || 0} New Quotes This Month</div>
+              <div className="text-[11px] text-slate-500 font-medium">
+                {dashboardMetrics?.monthlyQuotes || 0} New Quotes This Month
+              </div>
             </div>
           </div>
 
@@ -604,13 +680,18 @@ export default function AdminRelationshipsPage() {
             </div>
 
             {loading ? (
-              <div className="p-12 text-center text-xs font-bold text-slate-400">Loading B2B accounts...</div>
+              <div className="p-12 text-center text-xs font-bold text-slate-400">
+                Loading B2B accounts...
+              </div>
             ) : companies.length === 0 ? (
               <div className="p-12 text-center space-y-2">
                 <Building2 className="w-10 h-10 text-slate-300 mx-auto" />
-                <h4 className="text-sm font-bold text-slate-700">No B2B Accounts Found</h4>
+                <h4 className="text-sm font-bold text-slate-700">
+                  No B2B Accounts Found
+                </h4>
                 <p className="text-xs text-slate-400 max-w-sm mx-auto">
-                  Get started by adding your first enterprise client, university research lab, or institutional prospect.
+                  Get started by adding your first enterprise client, university
+                  research lab, or institutional prospect.
                 </p>
               </div>
             ) : (
@@ -627,7 +708,9 @@ export default function AdminRelationshipsPage() {
                     >
                       <div className="space-y-1.5 flex-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <span className="font-extrabold text-sm text-slate-900 truncate">{comp.name}</span>
+                          <span className="font-extrabold text-sm text-slate-900 truncate">
+                            {comp.name}
+                          </span>
                           {getStatusBadge(comp.status)}
                           <span className="text-[10px] font-bold bg-slate-100 text-slate-600 px-2 py-0.5 rounded-md">
                             {comp.companyType}
@@ -643,7 +726,8 @@ export default function AdminRelationshipsPage() {
                           {primaryContact && (
                             <span className="flex items-center gap-1 font-medium">
                               <Users className="w-3.5 h-3.5 text-slate-400" />
-                              {primaryContact.name} ({primaryContact.designation || "Contact"})
+                              {primaryContact.name} (
+                              {primaryContact.designation || "Contact"})
                             </span>
                           )}
                           {comp.phone && (
@@ -653,14 +737,24 @@ export default function AdminRelationshipsPage() {
                             </span>
                           )}
                           {comp.city && (
-                            <span>📍 {comp.city}, {comp.state}</span>
+                            <span>
+                              📍 {comp.city}, {comp.state}
+                            </span>
                           )}
                         </div>
 
                         {nextFollowUp && (
                           <div className="text-[11px] text-amber-700 bg-amber-50 border border-amber-200 px-2.5 py-0.5 rounded-lg inline-flex items-center gap-1.5 font-medium">
                             <Clock className="w-3 h-3" />
-                            <span>Follow-up: <strong>{new Date(nextFollowUp.dueDate).toLocaleDateString("en-IN")}</strong> — {nextFollowUp.reason}</span>
+                            <span>
+                              Follow-up:{" "}
+                              <strong>
+                                {new Date(
+                                  nextFollowUp.dueDate,
+                                ).toLocaleDateString("en-IN")}
+                              </strong>{" "}
+                              — {nextFollowUp.reason}
+                            </span>
                           </div>
                         )}
                       </div>
@@ -668,12 +762,16 @@ export default function AdminRelationshipsPage() {
                       {/* Right metrics */}
                       <div className="flex items-center gap-6 self-end md:self-auto shrink-0">
                         <div className="text-right">
-                          <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Total Business</div>
+                          <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                            Total Business
+                          </div>
                           <div className="text-sm font-black font-mono text-slate-900">
-                            ₹{comp.totalBusiness?.toLocaleString("en-IN") || "0"}
+                            ₹
+                            {comp.totalBusiness?.toLocaleString("en-IN") || "0"}
                           </div>
                           <div className="text-[10px] text-slate-400">
-                            {comp.orderCount || 0} orders • {comp.quoteCount || 0} quotes
+                            {comp.orderCount || 0} orders •{" "}
+                            {comp.quoteCount || 0} quotes
                           </div>
                         </div>
 
@@ -701,7 +799,9 @@ export default function AdminRelationshipsPage() {
 
               <div className="relative w-full max-w-3xl bg-white h-full min-h-screen shadow-2xl border-l border-slate-200 p-6 sm:p-8 z-10 overflow-y-auto space-y-6">
                 {profileLoading || !selectedCompanyProfile ? (
-                  <div className="p-12 text-center text-xs font-bold text-slate-400">Loading company profile...</div>
+                  <div className="p-12 text-center text-xs font-bold text-slate-400">
+                    Loading company profile...
+                  </div>
                 ) : (
                   <>
                     <div className="flex items-start justify-between border-b border-slate-100 pb-4">
@@ -712,9 +812,15 @@ export default function AdminRelationshipsPage() {
                           </span>
                           {getStatusBadge(selectedCompanyProfile.status)}
                         </div>
-                        <h2 className="text-2xl font-black text-slate-900 mt-1">{selectedCompanyProfile.name}</h2>
+                        <h2 className="text-2xl font-black text-slate-900 mt-1">
+                          {selectedCompanyProfile.name}
+                        </h2>
                         <p className="text-xs text-slate-500">
-                          {selectedCompanyProfile.industry || "General Institutional Partner"} • Serviced by {selectedCompanyProfile.store?.name || "Ranchi Central Hub"}
+                          {selectedCompanyProfile.industry ||
+                            "General Institutional Partner"}{" "}
+                          • Serviced by{" "}
+                          {selectedCompanyProfile.store?.name ||
+                            "Ranchi Central Hub"}
                         </p>
                       </div>
 
@@ -732,16 +838,25 @@ export default function AdminRelationshipsPage() {
                     {/* Quick Status Bar */}
                     <div className="flex items-center justify-between bg-slate-50 p-3 rounded-2xl border border-slate-200 text-xs">
                       <div className="flex items-center gap-2">
-                        <span className="font-bold text-slate-600">Relationship Status:</span>
+                        <span className="font-bold text-slate-600">
+                          Relationship Status:
+                        </span>
                         <select
                           value={selectedCompanyProfile.status}
-                          onChange={(e) => handleStatusChange(selectedCompanyProfile.id, e.target.value as RelationshipStatus)}
+                          onChange={(e) =>
+                            handleStatusChange(
+                              selectedCompanyProfile.id,
+                              e.target.value as RelationshipStatus,
+                            )
+                          }
                           className="bg-white border border-slate-200 rounded-xl px-3 py-1 font-bold text-slate-800"
                         >
                           <option value="LEAD">Lead</option>
                           <option value="PROSPECT">Prospect</option>
                           <option value="NEGOTIATION">Negotiation</option>
-                          <option value="ACTIVE_CUSTOMER">Active Customer</option>
+                          <option value="ACTIVE_CUSTOMER">
+                            Active Customer
+                          </option>
                           <option value="INACTIVE">Inactive</option>
                           <option value="LOST">Lost</option>
                           <option value="BLOCKED">Blocked</option>
@@ -768,11 +883,26 @@ export default function AdminRelationshipsPage() {
                     <div className="flex items-center gap-2 border-b border-slate-200 pb-2 overflow-x-auto text-xs font-bold">
                       {[
                         { id: "overview", label: "Overview & Stats" },
-                        { id: "contacts", label: `Contacts (${selectedCompanyProfile.contacts?.length || 0})` },
-                        { id: "quotes", label: `Quotes (${selectedCompanyProfile.quotations?.length || 0})` },
-                        { id: "orders", label: `Orders (${selectedCompanyProfile.orders?.length || 0})` },
-                        { id: "activities", label: `Timeline (${selectedCompanyProfile.activities?.length || 0})` },
-                        { id: "followups", label: `Follow-ups (${selectedCompanyProfile.followUps?.length || 0})` },
+                        {
+                          id: "contacts",
+                          label: `Contacts (${selectedCompanyProfile.contacts?.length || 0})`,
+                        },
+                        {
+                          id: "quotes",
+                          label: `Quotes (${selectedCompanyProfile.quotations?.length || 0})`,
+                        },
+                        {
+                          id: "orders",
+                          label: `Orders (${selectedCompanyProfile.orders?.length || 0})`,
+                        },
+                        {
+                          id: "activities",
+                          label: `Timeline (${selectedCompanyProfile.activities?.length || 0})`,
+                        },
+                        {
+                          id: "followups",
+                          label: `Follow-ups (${selectedCompanyProfile.followUps?.length || 0})`,
+                        },
                       ].map((t) => (
                         <button
                           key={t.id}
@@ -794,27 +924,45 @@ export default function AdminRelationshipsPage() {
                         {/* Metrics Grid */}
                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                           <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                            <span className="text-[10px] text-slate-400 uppercase font-black">Lifetime Revenue</span>
+                            <span className="text-[10px] text-slate-400 uppercase font-black">
+                              Lifetime Revenue
+                            </span>
                             <div className="text-lg font-black font-mono text-slate-900 mt-1">
-                              ₹{selectedCompanyProfile.metrics?.totalBusiness?.toLocaleString("en-IN") || "0"}
+                              ₹
+                              {selectedCompanyProfile.metrics?.totalBusiness?.toLocaleString(
+                                "en-IN",
+                              ) || "0"}
                             </div>
                           </div>
                           <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                            <span className="text-[10px] text-slate-400 uppercase font-black">Outstanding Due</span>
+                            <span className="text-[10px] text-slate-400 uppercase font-black">
+                              Outstanding Due
+                            </span>
                             <div className="text-lg font-black font-mono text-rose-600 mt-1">
-                              ₹{selectedCompanyProfile.metrics?.outstanding?.toLocaleString("en-IN") || "0"}
+                              ₹
+                              {selectedCompanyProfile.metrics?.outstanding?.toLocaleString(
+                                "en-IN",
+                              ) || "0"}
                             </div>
                           </div>
                           <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                            <span className="text-[10px] text-slate-400 uppercase font-black">Quote Win Rate</span>
+                            <span className="text-[10px] text-slate-400 uppercase font-black">
+                              Quote Win Rate
+                            </span>
                             <div className="text-lg font-black text-emerald-600 mt-1">
-                              {selectedCompanyProfile.metrics?.quoteConversionRate || 0}%
+                              {selectedCompanyProfile.metrics
+                                ?.quoteConversionRate || 0}
+                              %
                             </div>
                           </div>
                           <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                            <span className="text-[10px] text-slate-400 uppercase font-black">Orders / Quotes</span>
+                            <span className="text-[10px] text-slate-400 uppercase font-black">
+                              Orders / Quotes
+                            </span>
                             <div className="text-lg font-black text-slate-900 mt-1">
-                              {selectedCompanyProfile.metrics?.totalOrders || 0} / {selectedCompanyProfile.metrics?.totalQuotes || 0}
+                              {selectedCompanyProfile.metrics?.totalOrders || 0}{" "}
+                              /{" "}
+                              {selectedCompanyProfile.metrics?.totalQuotes || 0}
                             </div>
                           </div>
                         </div>
@@ -822,30 +970,68 @@ export default function AdminRelationshipsPage() {
                         {/* Account Info Details */}
                         <div className="grid grid-cols-2 gap-4 text-xs">
                           <div className="space-y-1 bg-slate-50 p-4 rounded-2xl border border-slate-100">
-                            <span className="font-bold text-slate-400 uppercase text-[10px]">Contact &amp; Tax Info</span>
-                            <div>Email: <strong>{selectedCompanyProfile.email || "Not Provided"}</strong></div>
-                            <div>Phone: <strong>{selectedCompanyProfile.phone || "Not Provided"}</strong></div>
+                            <span className="font-bold text-slate-400 uppercase text-[10px]">
+                              Contact &amp; Tax Info
+                            </span>
+                            <div>
+                              Email:{" "}
+                              <strong>
+                                {selectedCompanyProfile.email || "Not Provided"}
+                              </strong>
+                            </div>
+                            <div>
+                              Phone:{" "}
+                              <strong>
+                                {selectedCompanyProfile.phone || "Not Provided"}
+                              </strong>
+                            </div>
                             {selectedCompanyProfile.gstin && (
-                              <div>GSTIN: <strong className="font-mono text-slate-800">{selectedCompanyProfile.gstin}</strong></div>
+                              <div>
+                                GSTIN:{" "}
+                                <strong className="font-mono text-slate-800">
+                                  {selectedCompanyProfile.gstin}
+                                </strong>
+                              </div>
                             )}
                             {selectedCompanyProfile.website && (
-                              <div>Website: <a href={selectedCompanyProfile.website} target="_blank" className="text-[#00AEEF] underline font-bold">{selectedCompanyProfile.website}</a></div>
+                              <div>
+                                Website:{" "}
+                                <a
+                                  href={selectedCompanyProfile.website}
+                                  target="_blank"
+                                  className="text-[#00AEEF] underline font-bold"
+                                >
+                                  {selectedCompanyProfile.website}
+                                </a>
+                              </div>
                             )}
                           </div>
 
                           <div className="space-y-1 bg-slate-50 p-4 rounded-2xl border border-slate-100">
-                            <span className="font-bold text-slate-400 uppercase text-[10px]">Campus / Delivery Location</span>
+                            <span className="font-bold text-slate-400 uppercase text-[10px]">
+                              Campus / Delivery Location
+                            </span>
                             <p className="text-slate-700 leading-relaxed font-medium">
-                              {selectedCompanyProfile.shippingAddress || selectedCompanyProfile.billingAddress || `${selectedCompanyProfile.city || "Ranchi"}, ${selectedCompanyProfile.state || "Jharkhand"}`}
+                              {selectedCompanyProfile.shippingAddress ||
+                                selectedCompanyProfile.billingAddress ||
+                                `${selectedCompanyProfile.city || "Ranchi"}, ${selectedCompanyProfile.state || "Jharkhand"}`}
                             </p>
-                            <p className="text-slate-400 text-[11px]">Assigned Store: <strong>{selectedCompanyProfile.store?.name || "Ranchi Hub"}</strong></p>
+                            <p className="text-slate-400 text-[11px]">
+                              Assigned Store:{" "}
+                              <strong>
+                                {selectedCompanyProfile.store?.name ||
+                                  "Ranchi Hub"}
+                              </strong>
+                            </p>
                           </div>
                         </div>
 
                         {/* Notes */}
                         {selectedCompanyProfile.notes && (
                           <div className="space-y-1 text-xs">
-                            <span className="font-bold text-slate-600 uppercase text-[10px]">Account Notes &amp; Scope:</span>
+                            <span className="font-bold text-slate-600 uppercase text-[10px]">
+                              Account Notes &amp; Scope:
+                            </span>
                             <p className="bg-slate-50 p-3 rounded-2xl border border-slate-100 text-slate-700 leading-relaxed">
                               {selectedCompanyProfile.notes}
                             </p>
@@ -858,7 +1044,9 @@ export default function AdminRelationshipsPage() {
                     {activeDrawerTab === "contacts" && (
                       <div className="space-y-4">
                         <div className="flex items-center justify-between">
-                          <h3 className="text-xs font-black uppercase text-slate-800">Authorized Company Contacts</h3>
+                          <h3 className="text-xs font-black uppercase text-slate-800">
+                            Authorized Company Contacts
+                          </h3>
                           <button
                             onClick={() => setNewContactModal(true)}
                             className="bg-[#00AEEF] text-white text-xs font-bold px-3 py-1.5 rounded-xl cursor-pointer"
@@ -868,26 +1056,39 @@ export default function AdminRelationshipsPage() {
                         </div>
 
                         <div className="space-y-2">
-                          {selectedCompanyProfile.contacts?.map((contact: B2BContact) => (
-                            <div key={contact.id} className="p-4 bg-slate-50 rounded-2xl border border-slate-200 flex items-center justify-between text-xs">
-                              <div>
-                                <div className="flex items-center gap-2">
-                                  <span className="font-bold text-slate-900 text-sm">{contact.name}</span>
-                                  {contact.isPrimary && (
-                                    <span className="bg-amber-100 text-amber-800 text-[9px] font-black uppercase px-2 py-0.5 rounded-full">Primary</span>
-                                  )}
-                                  <span className="bg-slate-200 text-slate-700 text-[9px] font-bold px-2 py-0.5 rounded-md">
-                                    {contact.contactType}
-                                  </span>
-                                </div>
-                                <p className="text-slate-500 mt-0.5">{contact.designation || "Contact Person"}</p>
-                                <div className="flex items-center gap-3 text-slate-600 mt-1 font-mono text-[11px]">
-                                  <span>📞 {contact.phone}</span>
-                                  {contact.email && <span>✉️ {contact.email}</span>}
+                          {selectedCompanyProfile.contacts?.map(
+                            (contact: B2BContact) => (
+                              <div
+                                key={contact.id}
+                                className="p-4 bg-slate-50 rounded-2xl border border-slate-200 flex items-center justify-between text-xs"
+                              >
+                                <div>
+                                  <div className="flex items-center gap-2">
+                                    <span className="font-bold text-slate-900 text-sm">
+                                      {contact.name}
+                                    </span>
+                                    {contact.isPrimary && (
+                                      <span className="bg-amber-100 text-amber-800 text-[9px] font-black uppercase px-2 py-0.5 rounded-full">
+                                        Primary
+                                      </span>
+                                    )}
+                                    <span className="bg-slate-200 text-slate-700 text-[9px] font-bold px-2 py-0.5 rounded-md">
+                                      {contact.contactType}
+                                    </span>
+                                  </div>
+                                  <p className="text-slate-500 mt-0.5">
+                                    {contact.designation || "Contact Person"}
+                                  </p>
+                                  <div className="flex items-center gap-3 text-slate-600 mt-1 font-mono text-[11px]">
+                                    <span>📞 {contact.phone}</span>
+                                    {contact.email && (
+                                      <span>✉️ {contact.email}</span>
+                                    )}
+                                  </div>
                                 </div>
                               </div>
-                            </div>
-                          ))}
+                            ),
+                          )}
                         </div>
                       </div>
                     )}
@@ -896,28 +1097,52 @@ export default function AdminRelationshipsPage() {
                     {activeDrawerTab === "quotes" && (
                       <div className="space-y-3">
                         <div className="flex items-center justify-between">
-                          <h3 className="text-xs font-black uppercase text-slate-800">Connected Quotation History</h3>
-                          <Link href="/admin/quotations" className="text-xs font-bold text-[#00AEEF] underline">
+                          <h3 className="text-xs font-black uppercase text-slate-800">
+                            Connected Quotation History
+                          </h3>
+                          <Link
+                            href="/admin/quotations"
+                            className="text-xs font-bold text-[#00AEEF] underline"
+                          >
                             Open Quotations Desk →
                           </Link>
                         </div>
 
                         {selectedCompanyProfile.quotations?.length === 0 ? (
-                          <div className="p-8 text-center text-xs text-slate-400">No quotation history found for this account.</div>
+                          <div className="p-8 text-center text-xs text-slate-400">
+                            No quotation history found for this account.
+                          </div>
                         ) : (
                           <div className="space-y-2">
-                            {selectedCompanyProfile.quotations?.map((q: any) => (
-                              <div key={q.id} className="p-3 bg-slate-50 rounded-2xl border border-slate-200 flex items-center justify-between text-xs">
-                                <div>
-                                  <div className="font-mono font-bold text-slate-900">{q.quoteNumber}</div>
-                                  <div className="text-slate-500">{q.items?.length || 0} hardware items • Issued {new Date(q.createdAt).toLocaleDateString("en-IN")}</div>
+                            {selectedCompanyProfile.quotations?.map(
+                              (q: any) => (
+                                <div
+                                  key={q.id}
+                                  className="p-3 bg-slate-50 rounded-2xl border border-slate-200 flex items-center justify-between text-xs"
+                                >
+                                  <div>
+                                    <div className="font-mono font-bold text-slate-900">
+                                      {q.quoteNumber}
+                                    </div>
+                                    <div className="text-slate-500">
+                                      {q.items?.length || 0} hardware items •
+                                      Issued{" "}
+                                      {new Date(q.createdAt).toLocaleDateString(
+                                        "en-IN",
+                                      )}
+                                    </div>
+                                  </div>
+                                  <div className="text-right">
+                                    <div className="font-mono font-black text-slate-900">
+                                      ₹{q.grandTotal?.toLocaleString("en-IN")}
+                                    </div>
+                                    <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-slate-200 text-slate-700">
+                                      {q.status}
+                                    </span>
+                                  </div>
                                 </div>
-                                <div className="text-right">
-                                  <div className="font-mono font-black text-slate-900">₹{q.grandTotal?.toLocaleString("en-IN")}</div>
-                                  <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-slate-200 text-slate-700">{q.status}</span>
-                                </div>
-                              </div>
-                            ))}
+                              ),
+                            )}
                           </div>
                         )}
                       </div>
@@ -927,25 +1152,46 @@ export default function AdminRelationshipsPage() {
                     {activeDrawerTab === "orders" && (
                       <div className="space-y-3">
                         <div className="flex items-center justify-between">
-                          <h3 className="text-xs font-black uppercase text-slate-800">Connected Order Records</h3>
-                          <Link href="/admin/orders" className="text-xs font-bold text-[#00AEEF] underline">
+                          <h3 className="text-xs font-black uppercase text-slate-800">
+                            Connected Order Records
+                          </h3>
+                          <Link
+                            href="/admin/orders"
+                            className="text-xs font-bold text-[#00AEEF] underline"
+                          >
                             Open Orders Desk →
                           </Link>
                         </div>
 
                         {selectedCompanyProfile.orders?.length === 0 ? (
-                          <div className="p-8 text-center text-xs text-slate-400">No confirmed orders found yet.</div>
+                          <div className="p-8 text-center text-xs text-slate-400">
+                            No confirmed orders found yet.
+                          </div>
                         ) : (
                           <div className="space-y-2">
                             {selectedCompanyProfile.orders?.map((ord: any) => (
-                              <div key={ord.id} className="p-3 bg-slate-50 rounded-2xl border border-slate-200 flex items-center justify-between text-xs">
+                              <div
+                                key={ord.id}
+                                className="p-3 bg-slate-50 rounded-2xl border border-slate-200 flex items-center justify-between text-xs"
+                              >
                                 <div>
-                                  <div className="font-mono font-bold text-slate-900">{ord.orderNumber}</div>
-                                  <div className="text-slate-500">{ord.items?.length || 0} items • {new Date(ord.createdAt).toLocaleDateString("en-IN")}</div>
+                                  <div className="font-mono font-bold text-slate-900">
+                                    {ord.orderNumber}
+                                  </div>
+                                  <div className="text-slate-500">
+                                    {ord.items?.length || 0} items •{" "}
+                                    {new Date(ord.createdAt).toLocaleDateString(
+                                      "en-IN",
+                                    )}
+                                  </div>
                                 </div>
                                 <div className="text-right">
-                                  <div className="font-mono font-black text-slate-900">₹{ord.totalAmount?.toLocaleString("en-IN")}</div>
-                                  <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">{ord.status}</span>
+                                  <div className="font-mono font-black text-slate-900">
+                                    ₹{ord.totalAmount?.toLocaleString("en-IN")}
+                                  </div>
+                                  <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
+                                    {ord.status}
+                                  </span>
                                 </div>
                               </div>
                             ))}
@@ -958,7 +1204,9 @@ export default function AdminRelationshipsPage() {
                     {activeDrawerTab === "activities" && (
                       <div className="space-y-4">
                         <div className="flex items-center justify-between">
-                          <h3 className="text-xs font-black uppercase text-slate-800">Activity &amp; Interaction Timeline</h3>
+                          <h3 className="text-xs font-black uppercase text-slate-800">
+                            Activity &amp; Interaction Timeline
+                          </h3>
                           <button
                             onClick={() => setNewActivityModal(true)}
                             className="bg-[#00AEEF] text-white text-xs font-bold px-3 py-1.5 rounded-xl cursor-pointer"
@@ -968,20 +1216,37 @@ export default function AdminRelationshipsPage() {
                         </div>
 
                         <div className="relative pl-6 border-l-2 border-slate-200 space-y-6">
-                          {selectedCompanyProfile.activities?.map((act: B2BActivity) => (
-                            <div key={act.id} className="relative space-y-1 text-xs">
-                              <div className="absolute -left-[31px] top-0.5 w-4 h-4 rounded-full bg-[#00AEEF] border-2 border-white shadow-xs" />
-                              <div className="flex items-center gap-2">
-                                <span className="font-bold text-slate-900">{act.title}</span>
-                                <span className="text-[10px] text-slate-400">
-                                  {new Date(act.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}
-                                </span>
+                          {selectedCompanyProfile.activities?.map(
+                            (act: B2BActivity) => (
+                              <div
+                                key={act.id}
+                                className="relative space-y-1 text-xs"
+                              >
+                                <div className="absolute -left-[31px] top-0.5 w-4 h-4 rounded-full bg-[#00AEEF] border-2 border-white shadow-xs" />
+                                <div className="flex items-center gap-2">
+                                  <span className="font-bold text-slate-900">
+                                    {act.title}
+                                  </span>
+                                  <span className="text-[10px] text-slate-400">
+                                    {new Date(act.createdAt).toLocaleDateString(
+                                      "en-IN",
+                                      {
+                                        day: "numeric",
+                                        month: "short",
+                                        hour: "2-digit",
+                                        minute: "2-digit",
+                                      },
+                                    )}
+                                  </span>
+                                </div>
+                                {act.description && (
+                                  <p className="text-slate-600 bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+                                    {act.description}
+                                  </p>
+                                )}
                               </div>
-                              {act.description && (
-                                <p className="text-slate-600 bg-slate-50 p-2.5 rounded-xl border border-slate-100">{act.description}</p>
-                              )}
-                            </div>
-                          ))}
+                            ),
+                          )}
                         </div>
                       </div>
                     )}
@@ -990,7 +1255,9 @@ export default function AdminRelationshipsPage() {
                     {activeDrawerTab === "followups" && (
                       <div className="space-y-4">
                         <div className="flex items-center justify-between">
-                          <h3 className="text-xs font-black uppercase text-slate-800">Action Items &amp; Follow-ups</h3>
+                          <h3 className="text-xs font-black uppercase text-slate-800">
+                            Action Items &amp; Follow-ups
+                          </h3>
                           <button
                             onClick={() => setNewFollowUpModal(true)}
                             className="bg-[#00AEEF] text-white text-xs font-bold px-3 py-1.5 rounded-xl cursor-pointer"
@@ -1000,31 +1267,53 @@ export default function AdminRelationshipsPage() {
                         </div>
 
                         <div className="space-y-2">
-                          {selectedCompanyProfile.followUps?.map((fu: B2BFollowUp) => (
-                            <div key={fu.id} className="p-4 bg-slate-50 rounded-2xl border border-slate-200 flex items-start justify-between gap-4 text-xs">
-                              <div className="space-y-1">
-                                <div className="flex items-center gap-2">
-                                  <span className="font-bold text-slate-900">{fu.reason}</span>
-                                  <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-full ${fu.status === "COMPLETED" ? "bg-emerald-100 text-emerald-800" : "bg-amber-100 text-amber-800"}`}>
-                                    {fu.status}
-                                  </span>
+                          {selectedCompanyProfile.followUps?.map(
+                            (fu: B2BFollowUp) => (
+                              <div
+                                key={fu.id}
+                                className="p-4 bg-slate-50 rounded-2xl border border-slate-200 flex items-start justify-between gap-4 text-xs"
+                              >
+                                <div className="space-y-1">
+                                  <div className="flex items-center gap-2">
+                                    <span className="font-bold text-slate-900">
+                                      {fu.reason}
+                                    </span>
+                                    <span
+                                      className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-full ${fu.status === "COMPLETED" ? "bg-emerald-100 text-emerald-800" : "bg-amber-100 text-amber-800"}`}
+                                    >
+                                      {fu.status}
+                                    </span>
+                                  </div>
+                                  <div className="text-slate-500 text-[11px]">
+                                    Due:{" "}
+                                    <strong>
+                                      {new Date(fu.dueDate).toLocaleDateString(
+                                        "en-IN",
+                                      )}
+                                    </strong>{" "}
+                                    • Assigned to:{" "}
+                                    {fu.assignedStaff?.name || "Sales Manager"}
+                                  </div>
+                                  {fu.notes && (
+                                    <p className="text-slate-600 italic mt-1">
+                                      {fu.notes}
+                                    </p>
+                                  )}
                                 </div>
-                                <div className="text-slate-500 text-[11px]">
-                                  Due: <strong>{new Date(fu.dueDate).toLocaleDateString("en-IN")}</strong> • Assigned to: {fu.assignedStaff?.name || "Sales Manager"}
-                                </div>
-                                {fu.notes && <p className="text-slate-600 italic mt-1">{fu.notes}</p>}
-                              </div>
 
-                              {fu.status === "PENDING" && (
-                                <button
-                                  onClick={() => handleMarkFollowUpDone(fu.id)}
-                                  className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold cursor-pointer"
-                                >
-                                  Mark Done ✓
-                                </button>
-                              )}
-                            </div>
-                          ))}
+                                {fu.status === "PENDING" && (
+                                  <button
+                                    onClick={() =>
+                                      handleMarkFollowUpDone(fu.id)
+                                    }
+                                    className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold cursor-pointer"
+                                  >
+                                    Mark Done ✓
+                                  </button>
+                                )}
+                              </div>
+                            ),
+                          )}
                         </div>
                       </div>
                     )}
@@ -1037,26 +1326,43 @@ export default function AdminRelationshipsPage() {
           {/* ── CREATE COMPANY MODAL ── */}
           {isCreatingCompany && (
             <div className="fixed inset-0 z-60 overflow-y-auto flex items-center justify-center p-4">
-              <div onClick={() => setIsCreatingCompany(false)} className="fixed inset-0 bg-slate-950/70 backdrop-blur-xs" />
+              <div
+                onClick={() => setIsCreatingCompany(false)}
+                className="fixed inset-0 bg-slate-950/70 backdrop-blur-xs"
+              />
               <div className="relative w-full max-w-xl bg-white rounded-3xl shadow-2xl p-6 sm:p-8 z-10 space-y-4 max-h-[90vh] overflow-y-auto">
-                <h3 className="text-lg font-black text-slate-900">Add B2B Account / Lead</h3>
-                <form onSubmit={handleCreateCompany} className="space-y-4 text-xs">
+                <h3 className="text-lg font-black text-slate-900">
+                  Add B2B Account / Lead
+                </h3>
+                <form
+                  onSubmit={handleCreateCompany}
+                  className="space-y-4 text-xs"
+                >
                   <div className="grid grid-cols-2 gap-3">
                     <input
                       required
                       placeholder="Company / Institution Name *"
                       value={companyForm.name}
-                      onChange={(e) => setCompanyForm({ ...companyForm, name: e.target.value })}
+                      onChange={(e) =>
+                        setCompanyForm({ ...companyForm, name: e.target.value })
+                      }
                       className="p-3 bg-slate-50 border border-slate-200 rounded-xl"
                     />
                     <select
                       value={companyForm.companyType}
-                      onChange={(e) => setCompanyForm({ ...companyForm, companyType: e.target.value })}
+                      onChange={(e) =>
+                        setCompanyForm({
+                          ...companyForm,
+                          companyType: e.target.value,
+                        })
+                      }
                       className="p-3 bg-slate-50 border border-slate-200 rounded-xl"
                     >
                       <option value="School">School / ATL Lab</option>
                       <option value="College">College / Polytechnic</option>
-                      <option value="University">University Research Lab</option>
+                      <option value="University">
+                        University Research Lab
+                      </option>
                       <option value="Corporate">Corporate / Enterprise</option>
                       <option value="STEM Lab">STEM / Robotics Lab</option>
                       <option value="Government">Government / Tender</option>
@@ -1067,13 +1373,23 @@ export default function AdminRelationshipsPage() {
                     <input
                       placeholder="Email"
                       value={companyForm.email}
-                      onChange={(e) => setCompanyForm({ ...companyForm, email: e.target.value })}
+                      onChange={(e) =>
+                        setCompanyForm({
+                          ...companyForm,
+                          email: e.target.value,
+                        })
+                      }
                       className="p-3 bg-slate-50 border border-slate-200 rounded-xl"
                     />
                     <input
                       placeholder="Phone"
                       value={companyForm.phone}
-                      onChange={(e) => setCompanyForm({ ...companyForm, phone: e.target.value })}
+                      onChange={(e) =>
+                        setCompanyForm({
+                          ...companyForm,
+                          phone: e.target.value,
+                        })
+                      }
                       className="p-3 bg-slate-50 border border-slate-200 rounded-xl"
                     />
                   </div>
@@ -1082,12 +1398,22 @@ export default function AdminRelationshipsPage() {
                     <input
                       placeholder="GSTIN (Optional)"
                       value={companyForm.gstin}
-                      onChange={(e) => setCompanyForm({ ...companyForm, gstin: e.target.value.toUpperCase() })}
+                      onChange={(e) =>
+                        setCompanyForm({
+                          ...companyForm,
+                          gstin: e.target.value.toUpperCase(),
+                        })
+                      }
                       className="p-3 bg-slate-50 border border-slate-200 rounded-xl uppercase"
                     />
                     <select
                       value={companyForm.assignedStoreId}
-                      onChange={(e) => setCompanyForm({ ...companyForm, assignedStoreId: e.target.value })}
+                      onChange={(e) =>
+                        setCompanyForm({
+                          ...companyForm,
+                          assignedStoreId: e.target.value,
+                        })
+                      }
                       className="p-3 bg-slate-50 border border-slate-200 rounded-xl"
                     >
                       <option value="ranchi">Ranchi Central Hub</option>
@@ -1098,24 +1424,36 @@ export default function AdminRelationshipsPage() {
                   </div>
 
                   <div className="border border-slate-200 p-3 rounded-2xl space-y-2 bg-slate-50/50">
-                    <span className="font-bold text-slate-700">Primary Contact Person</span>
+                    <span className="font-bold text-slate-700">
+                      Primary Contact Person
+                    </span>
                     <div className="grid grid-cols-2 gap-2">
                       <input
                         placeholder="Contact Name"
                         value={companyForm.primaryContact.name}
-                        onChange={(e) => setCompanyForm({
-                          ...companyForm,
-                          primaryContact: { ...companyForm.primaryContact, name: e.target.value },
-                        })}
+                        onChange={(e) =>
+                          setCompanyForm({
+                            ...companyForm,
+                            primaryContact: {
+                              ...companyForm.primaryContact,
+                              name: e.target.value,
+                            },
+                          })
+                        }
                         className="p-2.5 bg-white border border-slate-200 rounded-xl"
                       />
                       <input
                         placeholder="Designation"
                         value={companyForm.primaryContact.designation}
-                        onChange={(e) => setCompanyForm({
-                          ...companyForm,
-                          primaryContact: { ...companyForm.primaryContact, designation: e.target.value },
-                        })}
+                        onChange={(e) =>
+                          setCompanyForm({
+                            ...companyForm,
+                            primaryContact: {
+                              ...companyForm.primaryContact,
+                              designation: e.target.value,
+                            },
+                          })
+                        }
                         className="p-2.5 bg-white border border-slate-200 rounded-xl"
                       />
                     </div>
@@ -1144,34 +1482,50 @@ export default function AdminRelationshipsPage() {
           {/* ── ADD CONTACT MODAL ── */}
           {newContactModal && (
             <div className="fixed inset-0 z-60 overflow-y-auto flex items-center justify-center p-4">
-              <div onClick={() => setNewContactModal(false)} className="fixed inset-0 bg-slate-950/70 backdrop-blur-xs" />
+              <div
+                onClick={() => setNewContactModal(false)}
+                className="fixed inset-0 bg-slate-950/70 backdrop-blur-xs"
+              />
               <div className="relative w-full max-w-md bg-white rounded-3xl p-6 z-10 space-y-4">
-                <h3 className="text-base font-black text-slate-900">Add Company Contact</h3>
+                <h3 className="text-base font-black text-slate-900">
+                  Add Company Contact
+                </h3>
                 <form onSubmit={handleAddContact} className="space-y-3 text-xs">
                   <input
                     required
                     placeholder="Contact Full Name *"
                     value={contactForm.name}
-                    onChange={(e) => setContactForm({ ...contactForm, name: e.target.value })}
+                    onChange={(e) =>
+                      setContactForm({ ...contactForm, name: e.target.value })
+                    }
                     className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl"
                   />
                   <input
                     placeholder="Designation (e.g. Purchase Manager)"
                     value={contactForm.designation}
-                    onChange={(e) => setContactForm({ ...contactForm, designation: e.target.value })}
+                    onChange={(e) =>
+                      setContactForm({
+                        ...contactForm,
+                        designation: e.target.value,
+                      })
+                    }
                     className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl"
                   />
                   <input
                     required
                     placeholder="Mobile Phone (+91) *"
                     value={contactForm.phone}
-                    onChange={(e) => setContactForm({ ...contactForm, phone: e.target.value })}
+                    onChange={(e) =>
+                      setContactForm({ ...contactForm, phone: e.target.value })
+                    }
                     className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl"
                   />
                   <input
                     placeholder="Email"
                     value={contactForm.email}
-                    onChange={(e) => setContactForm({ ...contactForm, email: e.target.value })}
+                    onChange={(e) =>
+                      setContactForm({ ...contactForm, email: e.target.value })
+                    }
                     className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl"
                   />
                   <div className="flex items-center gap-2">
@@ -1179,13 +1533,34 @@ export default function AdminRelationshipsPage() {
                       type="checkbox"
                       id="isPrimary"
                       checked={contactForm.isPrimary}
-                      onChange={(e) => setContactForm({ ...contactForm, isPrimary: e.target.checked })}
+                      onChange={(e) =>
+                        setContactForm({
+                          ...contactForm,
+                          isPrimary: e.target.checked,
+                        })
+                      }
                     />
-                    <label htmlFor="isPrimary" className="font-medium text-slate-700">Set as primary contact</label>
+                    <label
+                      htmlFor="isPrimary"
+                      className="font-medium text-slate-700"
+                    >
+                      Set as primary contact
+                    </label>
                   </div>
                   <div className="flex justify-end gap-2 pt-2">
-                    <button type="button" onClick={() => setNewContactModal(false)} className="px-4 py-2 bg-slate-100 rounded-xl font-bold cursor-pointer">Cancel</button>
-                    <button type="submit" className="px-5 py-2 bg-[#00AEEF] text-white rounded-xl font-bold cursor-pointer">Save Contact</button>
+                    <button
+                      type="button"
+                      onClick={() => setNewContactModal(false)}
+                      className="px-4 py-2 bg-slate-100 rounded-xl font-bold cursor-pointer"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      className="px-5 py-2 bg-[#00AEEF] text-white rounded-xl font-bold cursor-pointer"
+                    >
+                      Save Contact
+                    </button>
                   </div>
                 </form>
               </div>
@@ -1195,13 +1570,26 @@ export default function AdminRelationshipsPage() {
           {/* ── LOG ACTIVITY MODAL ── */}
           {newActivityModal && (
             <div className="fixed inset-0 z-60 overflow-y-auto flex items-center justify-center p-4">
-              <div onClick={() => setNewActivityModal(false)} className="fixed inset-0 bg-slate-950/70 backdrop-blur-xs" />
+              <div
+                onClick={() => setNewActivityModal(false)}
+                className="fixed inset-0 bg-slate-950/70 backdrop-blur-xs"
+              />
               <div className="relative w-full max-w-md bg-white rounded-3xl p-6 z-10 space-y-4">
-                <h3 className="text-base font-black text-slate-900">Log Interaction</h3>
-                <form onSubmit={handleLogActivity} className="space-y-3 text-xs">
+                <h3 className="text-base font-black text-slate-900">
+                  Log Interaction
+                </h3>
+                <form
+                  onSubmit={handleLogActivity}
+                  className="space-y-3 text-xs"
+                >
                   <select
                     value={activityForm.activityType}
-                    onChange={(e) => setActivityForm({ ...activityForm, activityType: e.target.value })}
+                    onChange={(e) =>
+                      setActivityForm({
+                        ...activityForm,
+                        activityType: e.target.value,
+                      })
+                    }
                     className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl font-bold"
                   >
                     <option value="CALL">📞 Phone Call</option>
@@ -1213,19 +1601,40 @@ export default function AdminRelationshipsPage() {
                     required
                     placeholder="Activity Title (e.g. Discussed ATL Lab Grant) *"
                     value={activityForm.title}
-                    onChange={(e) => setActivityForm({ ...activityForm, title: e.target.value })}
+                    onChange={(e) =>
+                      setActivityForm({
+                        ...activityForm,
+                        title: e.target.value,
+                      })
+                    }
                     className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl font-bold"
                   />
                   <textarea
                     rows={3}
                     placeholder="Interaction details, customer expectations, next action..."
                     value={activityForm.description}
-                    onChange={(e) => setActivityForm({ ...activityForm, description: e.target.value })}
+                    onChange={(e) =>
+                      setActivityForm({
+                        ...activityForm,
+                        description: e.target.value,
+                      })
+                    }
                     className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl"
                   />
                   <div className="flex justify-end gap-2 pt-2">
-                    <button type="button" onClick={() => setNewActivityModal(false)} className="px-4 py-2 bg-slate-100 rounded-xl font-bold cursor-pointer">Cancel</button>
-                    <button type="submit" className="px-5 py-2 bg-[#00AEEF] text-white rounded-xl font-bold cursor-pointer">Save Log</button>
+                    <button
+                      type="button"
+                      onClick={() => setNewActivityModal(false)}
+                      className="px-4 py-2 bg-slate-100 rounded-xl font-bold cursor-pointer"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      className="px-5 py-2 bg-[#00AEEF] text-white rounded-xl font-bold cursor-pointer"
+                    >
+                      Save Log
+                    </button>
                   </div>
                 </form>
               </div>
@@ -1235,17 +1644,32 @@ export default function AdminRelationshipsPage() {
           {/* ── SCHEDULE FOLLOW-UP MODAL ── */}
           {newFollowUpModal && (
             <div className="fixed inset-0 z-60 overflow-y-auto flex items-center justify-center p-4">
-              <div onClick={() => setNewFollowUpModal(false)} className="fixed inset-0 bg-slate-950/70 backdrop-blur-xs" />
+              <div
+                onClick={() => setNewFollowUpModal(false)}
+                className="fixed inset-0 bg-slate-950/70 backdrop-blur-xs"
+              />
               <div className="relative w-full max-w-md bg-white rounded-3xl p-6 z-10 space-y-4">
-                <h3 className="text-base font-black text-slate-900">Schedule CRM Follow-up</h3>
-                <form onSubmit={handleScheduleFollowUp} className="space-y-3 text-xs">
+                <h3 className="text-base font-black text-slate-900">
+                  Schedule CRM Follow-up
+                </h3>
+                <form
+                  onSubmit={handleScheduleFollowUp}
+                  className="space-y-3 text-xs"
+                >
                   <div>
-                    <label className="font-bold text-slate-700 block mb-1">Due Date *</label>
+                    <label className="font-bold text-slate-700 block mb-1">
+                      Due Date *
+                    </label>
                     <input
                       required
                       type="date"
                       value={followUpForm.dueDate}
-                      onChange={(e) => setFollowUpForm({ ...followUpForm, dueDate: e.target.value })}
+                      onChange={(e) =>
+                        setFollowUpForm({
+                          ...followUpForm,
+                          dueDate: e.target.value,
+                        })
+                      }
                       className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl"
                     />
                   </div>
@@ -1253,19 +1677,40 @@ export default function AdminRelationshipsPage() {
                     required
                     placeholder="Follow-up Reason (e.g. Confirm PO approval) *"
                     value={followUpForm.reason}
-                    onChange={(e) => setFollowUpForm({ ...followUpForm, reason: e.target.value })}
+                    onChange={(e) =>
+                      setFollowUpForm({
+                        ...followUpForm,
+                        reason: e.target.value,
+                      })
+                    }
                     className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl font-bold"
                   />
                   <textarea
                     rows={2}
                     placeholder="Preparation notes or agenda..."
                     value={followUpForm.notes}
-                    onChange={(e) => setFollowUpForm({ ...followUpForm, notes: e.target.value })}
+                    onChange={(e) =>
+                      setFollowUpForm({
+                        ...followUpForm,
+                        notes: e.target.value,
+                      })
+                    }
                     className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl"
                   />
                   <div className="flex justify-end gap-2 pt-2">
-                    <button type="button" onClick={() => setNewFollowUpModal(false)} className="px-4 py-2 bg-slate-100 rounded-xl font-bold cursor-pointer">Cancel</button>
-                    <button type="submit" className="px-5 py-2 bg-[#00AEEF] text-white rounded-xl font-bold cursor-pointer">Schedule Follow-up</button>
+                    <button
+                      type="button"
+                      onClick={() => setNewFollowUpModal(false)}
+                      className="px-4 py-2 bg-slate-100 rounded-xl font-bold cursor-pointer"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      className="px-5 py-2 bg-[#00AEEF] text-white rounded-xl font-bold cursor-pointer"
+                    >
+                      Schedule Follow-up
+                    </button>
                   </div>
                 </form>
               </div>
@@ -1277,20 +1722,31 @@ export default function AdminRelationshipsPage() {
         <div className="space-y-6">
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {RELATIONSHIP_CONFIGS.map((config) => (
-              <div key={config.id} className="bg-white border border-slate-200 rounded-2xl p-4 space-y-2">
+              <div
+                key={config.id}
+                className="bg-white border border-slate-200 rounded-2xl p-4 space-y-2"
+              >
                 <div className="flex items-center justify-between">
                   <span className={`${config.color}`}>{config.icon}</span>
-                  <span className="text-[10px] font-bold text-slate-400">Max {config.maxItems}</span>
+                  <span className="text-[10px] font-bold text-slate-400">
+                    Max {config.maxItems}
+                  </span>
                 </div>
-                <h4 className="text-xs font-bold text-slate-900">{config.label}</h4>
-                <p className="text-[11px] text-slate-500 line-clamp-2 leading-relaxed">{config.description}</p>
+                <h4 className="text-xs font-bold text-slate-900">
+                  {config.label}
+                </h4>
+                <p className="text-[11px] text-slate-500 line-clamp-2 leading-relaxed">
+                  {config.description}
+                </p>
               </div>
             ))}
           </div>
 
           <div className="bg-white rounded-3xl border border-slate-200 p-6 shadow-xs space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="text-sm font-black uppercase text-slate-900">Select Product to Configure Recommendations</h3>
+              <h3 className="text-sm font-black uppercase text-slate-900">
+                Select Product to Configure Recommendations
+              </h3>
               <div className="relative w-72">
                 <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
                 <input
@@ -1304,23 +1760,37 @@ export default function AdminRelationshipsPage() {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-              {PRODUCTS.filter(p => !productSearch || p.name.toLowerCase().includes(productSearch.toLowerCase())).slice(0, 12).map((prod) => (
-                <div
-                  key={prod.id}
-                  onClick={() => setSelectedProduct(prod)}
-                  className={`p-3 rounded-2xl border transition-all cursor-pointer flex items-center gap-3 ${
-                    selectedProduct?.id === prod.id
-                      ? "border-[#00AEEF] bg-[#E0F7FC]/30 shadow-xs"
-                      : "border-slate-200 hover:border-slate-300 bg-white"
-                  }`}
-                >
-                  <img src={prod.image} alt={prod.name} className="w-10 h-10 object-contain rounded-lg bg-slate-50" />
-                  <div className="min-w-0 flex-1">
-                    <div className="text-xs font-bold text-slate-900 truncate">{prod.name}</div>
-                    <div className="text-[11px] text-slate-400 font-mono">₹{prod.price}</div>
+              {PRODUCTS.filter(
+                (p) =>
+                  !productSearch ||
+                  p.name.toLowerCase().includes(productSearch.toLowerCase()),
+              )
+                .slice(0, 12)
+                .map((prod) => (
+                  <div
+                    key={prod.id}
+                    onClick={() => setSelectedProduct(prod)}
+                    className={`p-3 rounded-2xl border transition-all cursor-pointer flex items-center gap-3 ${
+                      selectedProduct?.id === prod.id
+                        ? "border-[#00AEEF] bg-[#E0F7FC]/30 shadow-xs"
+                        : "border-slate-200 hover:border-slate-300 bg-white"
+                    }`}
+                  >
+                    <img
+                      src={prod.image}
+                      alt={prod.name}
+                      className="w-10 h-10 object-contain rounded-lg bg-slate-50"
+                    />
+                    <div className="min-w-0 flex-1">
+                      <div className="text-xs font-bold text-slate-900 truncate">
+                        {prod.name}
+                      </div>
+                      <div className="text-[11px] text-slate-400 font-mono">
+                        ₹{prod.price}
+                      </div>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
             </div>
           </div>
         </div>

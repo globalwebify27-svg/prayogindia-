@@ -1,23 +1,16 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
 import { createHmac } from "crypto";
 import { db } from "@/lib/db";
-import { AuthSessionUser } from "@/lib/authUtils";
+import { AuthSessionUser, getAuthenticatedCustomer } from "@/lib/authUtils";
 import { NotificationService } from "@/lib/notifications";
 import { getSecurityHeaders } from "@/lib/security";
-import { calculateEarnedRewards, getCustomerTypeCode } from "@/data/customerTypes";
+import {
+  calculateEarnedRewards,
+  getCustomerTypeCode,
+} from "@/data/customerTypes";
 import { LoyaltyEngine } from "@/lib/loyaltyEngine";
 
-async function getAuthenticatedUser(): Promise<AuthSessionUser | null> {
-  const cookieStore = await cookies();
-  const sessionCookie = cookieStore.get("prayog_customer_session");
-  if (!sessionCookie?.value) return null;
-  try {
-    return JSON.parse(sessionCookie.value);
-  } catch {
-    return null;
-  }
-}
+const getAuthenticatedUser = getAuthenticatedCustomer;
 
 /** Generate sequential invoice number */
 async function generateInvoiceNumber(): Promise<string> {
@@ -61,7 +54,12 @@ export async function POST(request: Request) {
     } = body;
 
     // 1. Input validation
-    if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature || !orderId) {
+    if (
+      !razorpay_order_id ||
+      !razorpay_payment_id ||
+      !razorpay_signature ||
+      !orderId
+    ) {
       return NextResponse.json(
         { success: false, message: "Missing payment verification fields." },
         { status: 400, headers },
@@ -193,9 +191,16 @@ export async function POST(request: Request) {
 
           if (inv) {
             const newQty = Math.max(0, inv.quantity - item.quantity);
-            const newAvailable = Math.max(0, inv.availableQuantity - item.quantity);
+            const newAvailable = Math.max(
+              0,
+              inv.availableQuantity - item.quantity,
+            );
             const newStatus =
-              newQty === 0 ? "OUT_OF_STOCK" : newQty <= inv.lowStockThreshold ? "LOW_STOCK" : "IN_STOCK";
+              newQty === 0
+                ? "OUT_OF_STOCK"
+                : newQty <= inv.lowStockThreshold
+                  ? "LOW_STOCK"
+                  : "IN_STOCK";
 
             await tx.storeInventory.update({
               where: { id: inv.id },
@@ -273,7 +278,10 @@ export async function POST(request: Request) {
     try {
       await LoyaltyEngine.awardOrderPoints(order.id, request);
     } catch (rewardErr) {
-      console.error("[PaymentVerify] LoyaltyEngine point award error:", rewardErr);
+      console.error(
+        "[PaymentVerify] LoyaltyEngine point award error:",
+        rewardErr,
+      );
     }
 
     // 6. Non-blocking notification

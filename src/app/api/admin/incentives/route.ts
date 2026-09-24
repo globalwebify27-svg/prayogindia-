@@ -14,8 +14,11 @@ export async function GET(request: Request) {
       staff.role !== "STORE_MANAGER")
   ) {
     return NextResponse.json(
-      { success: false, message: "Forbidden. Manager or Admin access required." },
-      { status: 403, headers }
+      {
+        success: false,
+        message: "Forbidden. Manager or Admin access required.",
+      },
+      { status: 403, headers },
     );
   }
 
@@ -46,7 +49,13 @@ export async function GET(request: Request) {
       // 2. Fetch staff executives
       const staffMembers = await db.staffUser.findMany({
         where: { status: "ACTIVE" },
-        select: { id: true, name: true, role: true, storeId: true, username: true },
+        select: {
+          id: true,
+          name: true,
+          role: true,
+          storeId: true,
+          username: true,
+        },
       });
 
       // 3. Compute Profit & Incentive Records
@@ -64,7 +73,10 @@ export async function GET(request: Request) {
         const grossProfit = Math.max(0, sellingPrice - estimatedPurchaseCost);
         const netProfit = Math.max(
           0,
-          sellingPrice - estimatedPurchaseCost - shippingCost - additionalExpenses
+          sellingPrice -
+            estimatedPurchaseCost -
+            shippingCost -
+            additionalExpenses,
         );
         const profitMarginPct =
           sellingPrice > 0 ? Math.round((netProfit / sellingPrice) * 100) : 0;
@@ -74,7 +86,9 @@ export async function GET(request: Request) {
         totalShipping += shippingCost;
         totalProfit += netProfit;
 
-        const assignedStaff = staffMembers[idx % (staffMembers.length || 1)] || {
+        const assignedStaff = staffMembers[
+          idx % (staffMembers.length || 1)
+        ] || {
           name: "Amitabh Sen",
         };
 
@@ -89,8 +103,8 @@ export async function GET(request: Request) {
             order.customerType === "B2B"
               ? ("B2B" as const)
               : order.customerType === "WALK_IN"
-              ? ("WALK-IN" as const)
-              : ("ONLINE" as const),
+                ? ("WALK-IN" as const)
+                : ("ONLINE" as const),
           executiveName: assignedStaff.name,
           clientName: order.user?.name || "Customer",
           sellingPrice,
@@ -107,9 +121,12 @@ export async function GET(request: Request) {
       // 4. Executive Stats Rollup
       const executiveStats = staffMembers.map((exec) => {
         const execOrders = attributedOrders.filter(
-          (o) => o.executiveName === exec.name
+          (o) => o.executiveName === exec.name,
         );
-        const achievedSales = execOrders.reduce((sum, o) => sum + o.sellingPrice, 0);
+        const achievedSales = execOrders.reduce(
+          (sum, o) => sum + o.sellingPrice,
+          0,
+        );
         const execProfit = execOrders.reduce((sum, o) => sum + o.netProfit, 0);
         const commission = Math.round(execProfit * 0.1); // 10% profit sharing
 
@@ -135,18 +152,23 @@ export async function GET(request: Request) {
               totalShipping,
               totalProfit,
               averageMarginPct:
-                totalRevenue > 0 ? Math.round((totalProfit / totalRevenue) * 100) : 28,
+                totalRevenue > 0
+                  ? Math.round((totalProfit / totalRevenue) * 100)
+                  : 28,
             },
             executiveStats,
             orders: attributedOrders,
           },
         },
-        { headers }
+        { headers },
       );
     } catch (error: any) {
       return NextResponse.json(
-        { success: false, message: error.message || "Failed to load incentive data." },
-        { status: 500, headers }
+        {
+          success: false,
+          message: error.message || "Failed to load incentive data.",
+        },
+        { status: 500, headers },
       );
     }
   }
@@ -188,6 +210,6 @@ export async function GET(request: Request) {
         orders: [],
       },
     },
-    { headers }
+    { headers },
   );
 }

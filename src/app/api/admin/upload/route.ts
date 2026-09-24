@@ -3,12 +3,6 @@ import { NextResponse } from "next/server";
 import { getAuthenticatedAdmin } from "@/lib/adminAuth";
 import { uploadToCloudinary } from "@/lib/cloudinary";
 
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
-
 // POST /api/admin/upload - Multi-file direct upload for Images & Videos to Cloudinary
 export async function POST(request: Request) {
   const admin = await getAuthenticatedAdmin();
@@ -37,8 +31,10 @@ export async function POST(request: Request) {
       const buffer = Buffer.from(await file.arrayBuffer());
       const isVideo = file.type.startsWith("video/");
       const resourceType = isVideo ? "video" : "image";
-      
-      const cleanName = file.name.replace(/\.[^/.]+$/, "").replace(/[^a-zA-Z0-9_-]/g, "_");
+
+      const cleanName = file.name
+        .replace(/\.[^/.]+$/, "")
+        .replace(/[^a-zA-Z0-9_-]/g, "_");
       const publicId = `${folder}/${cleanName}_${Date.now()}`;
 
       const uploadRes = await uploadToCloudinary(buffer, {
@@ -64,10 +60,8 @@ export async function POST(request: Request) {
       data: uploadedResults,
     });
   } catch (error: unknown) {
-    const msg = error instanceof Error ? error.message : "Failed to upload media.";
-    return NextResponse.json(
-      { success: false, message: msg },
-      { status: 500 },
-    );
+    const msg =
+      error instanceof Error ? error.message : "Failed to upload media.";
+    return NextResponse.json({ success: false, message: msg }, { status: 500 });
   }
 }

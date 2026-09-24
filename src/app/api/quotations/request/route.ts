@@ -3,16 +3,13 @@ import { cookies } from "next/headers";
 import { db } from "@/lib/db";
 import { AuthSessionUser } from "@/lib/authUtils";
 import { getSecurityHeaders } from "@/lib/security";
+import { verifySessionToken } from "@/lib/jwt";
 
 async function getCustomerSession(): Promise<AuthSessionUser | null> {
   const cookieStore = await cookies();
   const sessionCookie = cookieStore.get("prayog_customer_session");
   if (!sessionCookie?.value) return null;
-  try {
-    return JSON.parse(sessionCookie.value);
-  } catch {
-    return null;
-  }
+  return await verifySessionToken<AuthSessionUser>(sessionCookie.value);
 }
 
 // Generate unique Quote Number: PRG-QT-YYYY-XXXX
@@ -51,15 +48,21 @@ export async function POST(request: Request) {
 
     if (!finalCompanyName || !finalCustomerName || !finalEmail || !finalPhone) {
       return NextResponse.json(
-        { success: false, message: "Company name, contact name, email, and phone are required." },
-        { status: 400, headers }
+        {
+          success: false,
+          message: "Company name, contact name, email, and phone are required.",
+        },
+        { status: 400, headers },
       );
     }
 
     if (!Array.isArray(items) || items.length === 0) {
       return NextResponse.json(
-        { success: false, message: "Please specify at least one product requirement." },
-        { status: 400, headers }
+        {
+          success: false,
+          message: "Please specify at least one product requirement.",
+        },
+        { status: 400, headers },
       );
     }
 
@@ -68,7 +71,12 @@ export async function POST(request: Request) {
       let store = null;
       if (requestedStoreId) {
         store = await db.store.findFirst({
-          where: { OR: [{ id: requestedStoreId }, { code: requestedStoreId.toUpperCase() }] },
+          where: {
+            OR: [
+              { id: requestedStoreId },
+              { code: requestedStoreId.toUpperCase() },
+            ],
+          },
         });
       }
       if (!store) {
@@ -82,8 +90,11 @@ export async function POST(request: Request) {
 
       if (!store) {
         return NextResponse.json(
-          { success: false, message: "No operational store found to service this quote." },
-          { status: 500, headers }
+          {
+            success: false,
+            message: "No operational store found to service this quote.",
+          },
+          { status: 500, headers },
         );
       }
 
@@ -98,11 +109,16 @@ export async function POST(request: Request) {
       for (const itm of items) {
         let prodName = itm.productName || "Custom B2B Hardware Component";
         let sku = itm.productSku || "PRG-CUSTOM";
-        let unitPrice = typeof itm.unitPrice === "number" && itm.unitPrice > 0 ? itm.unitPrice : 0;
+        let unitPrice =
+          typeof itm.unitPrice === "number" && itm.unitPrice > 0
+            ? itm.unitPrice
+            : 0;
         const qty = Math.max(1, parseInt(itm.quantity, 10) || 1);
 
         if (itm.productId) {
-          const dbProd = await db.product.findUnique({ where: { id: itm.productId } });
+          const dbProd = await db.product.findUnique({
+            where: { id: itm.productId },
+          });
           if (dbProd) {
             prodName = dbProd.name;
             sku = dbProd.sku;
@@ -150,8 +166,13 @@ export async function POST(request: Request) {
           discountAmount: 0,
           shippingCharge: 0,
           grandTotal,
-          notes: notes ? `${notes}${preferredDeliveryDate ? ` (Preferred delivery: ${preferredDeliveryDate})` : ""}` : (preferredDeliveryDate ? `Preferred delivery: ${preferredDeliveryDate}` : null),
-          terms: "1. Quotation valid for 30 days from date of issue.\n2. Official GST invoice provided upon dispatch.\n3. Standard Prayog India OEM replacement warranty applies.",
+          notes: notes
+            ? `${notes}${preferredDeliveryDate ? ` (Preferred delivery: ${preferredDeliveryDate})` : ""}`
+            : preferredDeliveryDate
+              ? `Preferred delivery: ${preferredDeliveryDate}`
+              : null,
+          terms:
+            "1. Quotation valid for 30 days from date of issue.\n2. Official GST invoice provided upon dispatch.\n3. Standard Prayog India OEM replacement warranty applies.",
           items: {
             create: quotationItemCreates,
           },
@@ -181,7 +202,11 @@ export async function POST(request: Request) {
           where: {
             OR: [
               { name: { equals: finalCompanyName, mode: "insensitive" } },
-              { email: finalEmail ? { equals: finalEmail, mode: "insensitive" } : undefined },
+              {
+                email: finalEmail
+                  ? { equals: finalEmail, mode: "insensitive" }
+                  : undefined,
+              },
             ],
           },
         });
@@ -198,7 +223,9 @@ export async function POST(request: Request) {
               billingAddress: billingAddress || null,
               status: "PROSPECT",
               assignedStoreId: store.id,
-              notes: notes ? `Quote #${quoteNumber} notes: ${notes}` : `Auto-created from B2B Quote Request #${quoteNumber}`,
+              notes: notes
+                ? `Quote #${quoteNumber} notes: ${notes}`
+                : `Auto-created from B2B Quote Request #${quoteNumber}`,
               contacts: {
                 create: {
                   name: finalCustomerName,
@@ -232,25 +259,35 @@ export async function POST(request: Request) {
         console.warn("B2B CRM Auto-Sync Notice:", crmErr);
       }
 
-      return NextResponse.json({
-        success: true,
-        message: "Quotation request submitted successfully. Our B2B desk will review and send formal pricing.",
-        data: quotation,
-      }, { status: 201, headers });
+      return NextResponse.json(
+        {
+          success: true,
+          message:
+            "Quotation request submitted successfully. Our B2B desk will review and send formal pricing.",
+          data: quotation,
+        },
+        { status: 201, headers },
+      );
     }
 
     // Mock Mode fallback
-    return NextResponse.json({
-      success: true,
-      message: "Quotation request received (Mock Mode).",
-      data: {
-        id: `qt-${Date.now()}`,
-        quoteNumber: `PRG-QT-2026-${Math.floor(1000 + Math.random() * 9000)}`,
-        companyName: finalCompanyName,
-        status: "REQUESTED",
+    return NextResponse.json(
+      {
+        success: true,
+        message: "Quotation request received (Mock Mode).",
+        data: {
+          id: `qt-${Date.now()}`,
+          quoteNumber: `PRG-QT-2026-${Math.floor(1000 + Math.random() * 9000)}`,
+          companyName: finalCompanyName,
+          status: "REQUESTED",
+        },
       },
-    }, { status: 201, headers });
+      { status: 201, headers },
+    );
   } catch (error: any) {
-    return NextResponse.json({ success: false, message: error.message }, { status: 500, headers });
+    return NextResponse.json(
+      { success: false, message: error.message },
+      { status: 500, headers },
+    );
   }
 }

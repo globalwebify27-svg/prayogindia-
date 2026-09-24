@@ -92,7 +92,8 @@ export async function GET(request: Request) {
       // Determine sort order based on tag or sort param
       let orderBy: any = { createdAt: "desc" };
       if (tag === "new-arrivals") orderBy = { createdAt: "desc" };
-      else if (tag === "trending") orderBy = [{ rating: "desc" }, { reviewCount: "desc" }];
+      else if (tag === "trending")
+        orderBy = [{ rating: "desc" }, { reviewCount: "desc" }];
       else if (tag === "deals") orderBy = { mrp: "desc" };
       else if (safeSort === "price-asc") orderBy = { price: "asc" };
       else if (safeSort === "price-desc") orderBy = { price: "desc" };

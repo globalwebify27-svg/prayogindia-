@@ -113,7 +113,9 @@ export function RoboticOrderSuccess({ session, store, onReset }: Props) {
           </h1>
           <p className="text-slate-600 text-xs sm:text-sm max-w-md mx-auto font-medium">
             Your hardware items have been packaged and sent to the{" "}
-            <strong className="text-slate-900 font-bold">{store.shortName}</strong>{" "}
+            <strong className="text-slate-900 font-bold">
+              {store.shortName}
+            </strong>{" "}
             billing counter.
           </p>
         </div>
@@ -237,9 +239,10 @@ export function RoboticOrderSuccess({ session, store, onReset }: Props) {
                 Proceed to Store Billing Counter
               </div>
               <p className="text-[11.5px] leading-relaxed text-amber-800">
-                Show this screen or give your name (<strong>{customerName}</strong>)
-                or Token (<strong>{sessionId.slice(-8)}</strong>) to the staff to
-                complete payment &amp; collect your hardware.
+                Show this screen or give your name (
+                <strong>{customerName}</strong>) or Token (
+                <strong>{sessionId.slice(-8)}</strong>) to the staff to complete
+                payment &amp; collect your hardware.
               </p>
             </div>
           </div>

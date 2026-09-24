@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { normalizeEmail, hashPassword, sanitizeUser } from "@/lib/authUtils";
 import { UserDB } from "@/lib/userDB";
 import { checkRateLimit, getSecurityHeaders } from "@/lib/security";
+import { registerSchema } from "@/lib/validations";
 
 export async function POST(request: Request) {
   const headers = getSecurityHeaders();
@@ -22,44 +23,21 @@ export async function POST(request: Request) {
 
   try {
     const body = await request.json();
-    const { name, email, phone, password } = body;
-
-    // 1. Full Name Validation
-    if (!name || typeof name !== "string" || name.trim().length < 2) {
+    const parseResult = registerSchema.safeParse(body);
+    if (!parseResult.success) {
       return NextResponse.json(
         {
           success: false,
-          message: "Full name must contain at least 2 characters.",
+          message: parseResult.error.issues[0]?.message || "Invalid registration data.",
+          errors: parseResult.error.issues,
         },
         { status: 400, headers },
       );
     }
 
-    // 2. Email Validation (RFC 5322 regex)
-    const cleanEmail = normalizeEmail(email || "");
-    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    if (!cleanEmail || !emailRegex.test(cleanEmail)) {
-      return NextResponse.json(
-        {
-          success: false,
-          message:
-            "Please provide a valid email address (e.g. user@domain.com).",
-        },
-        { status: 400, headers },
-      );
-    }
-
-    // 3. Indian Mobile Phone Validation (10-15 digits)
-    const cleanPhone = (phone || "").replace(/\D/g, "");
-    if (!cleanPhone || cleanPhone.length < 10 || cleanPhone.length > 15) {
-      return NextResponse.json(
-        {
-          success: false,
-          message: "Please provide a valid 10-digit mobile phone number.",
-        },
-        { status: 400, headers },
-      );
-    }
+    const { name, email, phone, password } = parseResult.data;
+    const cleanEmail = normalizeEmail(email);
+    const cleanPhone = phone.replace(/\D/g, "");
 
     // 4. Password Complexity Validation
     // Requires min 6 characters
@@ -129,7 +107,11 @@ export async function POST(request: Request) {
 
         // Award welcome bonus points via authoritative LoyaltyEngine
         const { LoyaltyEngine } = await import("@/lib/loyaltyEngine");
-        await LoyaltyEngine.awardRegistrationBonus(dbNewUser.id, "Registered Customer", request);
+        await LoyaltyEngine.awardRegistrationBonus(
+          dbNewUser.id,
+          "Registered Customer",
+          request,
+        );
       } catch (dbErr) {
         console.warn("Prisma DB sync fallback:", dbErr);
       }

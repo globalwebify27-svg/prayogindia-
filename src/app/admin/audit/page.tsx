@@ -133,12 +133,17 @@ export default function AdminAuditPage() {
   const formatDisplayValue = (val: any) => {
     if (!val) return null;
     try {
-      const parsed = typeof val === "string" && (val.startsWith("{") || val.startsWith("[")) ? JSON.parse(val) : val;
+      const parsed =
+        typeof val === "string" && (val.startsWith("{") || val.startsWith("["))
+          ? JSON.parse(val)
+          : val;
       if (typeof parsed === "object" && parsed !== null) {
         if ("quantity" in parsed) return `Stock: ${parsed.quantity} units`;
         if ("status" in parsed) return `Status: ${parsed.status}`;
-        if ("grandTotal" in parsed) return `₹${Number(parsed.grandTotal).toLocaleString("en-IN")}`;
-        if ("name" in parsed && "status" in parsed) return `${parsed.name} (${parsed.status})`;
+        if ("grandTotal" in parsed)
+          return `₹${Number(parsed.grandTotal).toLocaleString("en-IN")}`;
+        if ("name" in parsed && "status" in parsed)
+          return `${parsed.name} (${parsed.status})`;
         if ("name" in parsed) return `${parsed.name}`;
         // Fallback: take first key-value pair cleanly
         const entries = Object.entries(parsed);
@@ -159,14 +164,16 @@ export default function AdminAuditPage() {
         <div>
           <div className="flex items-center gap-2">
             <span className="text-[10px] font-black uppercase tracking-widest text-purple-800 bg-purple-100 px-3.5 py-1 rounded-full border border-purple-200 flex items-center gap-1">
-              <ShieldCheck className="w-3.5 h-3.5 text-purple-700" /> Section 103 · Immutable System Activity &amp; Audit Logs
+              <ShieldCheck className="w-3.5 h-3.5 text-purple-700" /> Section
+              103 · Immutable System Activity &amp; Audit Logs
             </span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight mt-1">
             System Audit &amp; Activity Trail
           </h1>
           <p className="text-xs text-slate-500">
-            Immutable tracking of stock adjustments, order fulfillment, B2B quotes, CRM updates, procurement, and administrative actions.
+            Immutable tracking of stock adjustments, order fulfillment, B2B
+            quotes, CRM updates, procurement, and administrative actions.
           </p>
         </div>
 
@@ -177,7 +184,9 @@ export default function AdminAuditPage() {
             className="bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 p-2.5 rounded-2xl shadow-xs transition-colors cursor-pointer"
             title="Refresh Audit Logs"
           >
-            <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin text-purple-600" : ""}`} />
+            <RefreshCw
+              className={`w-4 h-4 ${loading ? "animate-spin text-purple-600" : ""}`}
+            />
           </button>
           <button
             onClick={handleExportCsv}
@@ -273,20 +282,29 @@ export default function AdminAuditPage() {
             <tbody className="divide-y divide-slate-100 font-medium">
               {loading && logs.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="py-12 text-center text-slate-400 font-bold">
+                  <td
+                    colSpan={6}
+                    className="py-12 text-center text-slate-400 font-bold"
+                  >
                     <RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2 text-purple-600" />
                     Loading immutable audit logs...
                   </td>
                 </tr>
               ) : logs.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="py-12 text-center text-slate-400 font-bold">
+                  <td
+                    colSpan={6}
+                    className="py-12 text-center text-slate-400 font-bold"
+                  >
                     No audit records matching your current filter criteria.
                   </td>
                 </tr>
               ) : (
                 logs.map((log) => (
-                  <tr key={log.id} className="hover:bg-slate-50/80 transition-colors">
+                  <tr
+                    key={log.id}
+                    className="hover:bg-slate-50/80 transition-colors"
+                  >
                     {/* Timestamp & User */}
                     <td className="py-3.5 space-y-0.5">
                       <div className="font-mono text-[11px] font-black text-slate-900">
@@ -299,7 +317,9 @@ export default function AdminAuditPage() {
                           second: "2-digit",
                         })}
                       </div>
-                      <div className="font-bold text-slate-800">{log.actorName}</div>
+                      <div className="font-bold text-slate-800">
+                        {log.actorName}
+                      </div>
                       <span className="text-[10px] text-slate-400 block font-mono">
                         {log.actorRole}
                       </span>
@@ -307,7 +327,9 @@ export default function AdminAuditPage() {
 
                     {/* Category & Action */}
                     <td className="py-3.5 space-y-1">
-                      <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-md border inline-block ${getCategoryBadgeClass(log.actionCategory)}`}>
+                      <span
+                        className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-md border inline-block ${getCategoryBadgeClass(log.actionCategory)}`}
+                      >
                         {log.actionCategory.replace(/_/g, " ")}
                       </span>
                       <div className="font-mono text-[10px] text-slate-500 font-bold">
@@ -410,13 +432,17 @@ export default function AdminAuditPage() {
           <div className="bg-white rounded-3xl border border-slate-200 p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto space-y-4 shadow-2xl text-xs">
             <div className="flex items-start justify-between border-b border-slate-100 pb-3">
               <div>
-                <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-md border inline-block ${getCategoryBadgeClass(selectedLog.actionCategory)}`}>
+                <span
+                  className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-md border inline-block ${getCategoryBadgeClass(selectedLog.actionCategory)}`}
+                >
                   {selectedLog.actionCategory}
                 </span>
                 <h3 className="font-extrabold text-base text-slate-900 mt-1">
                   {selectedLog.action}
                 </h3>
-                <p className="text-[11px] text-slate-400 font-mono">Log ID: {selectedLog.id}</p>
+                <p className="text-[11px] text-slate-400 font-mono">
+                  Log ID: {selectedLog.id}
+                </p>
               </div>
               <button
                 onClick={() => setSelectedLog(null)}
@@ -428,34 +454,61 @@ export default function AdminAuditPage() {
 
             <div className="space-y-3">
               <div>
-                <span className="font-bold text-slate-500 uppercase text-[10px] block">Description</span>
-                <p className="text-slate-900 font-bold text-sm mt-0.5">{selectedLog.description}</p>
+                <span className="font-bold text-slate-500 uppercase text-[10px] block">
+                  Description
+                </span>
+                <p className="text-slate-900 font-bold text-sm mt-0.5">
+                  {selectedLog.description}
+                </p>
               </div>
 
               <div className="grid grid-cols-2 gap-4 bg-slate-50 p-3 rounded-2xl border border-slate-100">
                 <div>
-                  <span className="font-bold text-slate-400 uppercase text-[10px] block">Actor</span>
-                  <p className="font-bold text-slate-900">{selectedLog.actorName}</p>
-                  <p className="text-[10px] font-mono text-slate-500">{selectedLog.actorRole} · {selectedLog.actorEmail || "No Email"}</p>
+                  <span className="font-bold text-slate-400 uppercase text-[10px] block">
+                    Actor
+                  </span>
+                  <p className="font-bold text-slate-900">
+                    {selectedLog.actorName}
+                  </p>
+                  <p className="text-[10px] font-mono text-slate-500">
+                    {selectedLog.actorRole} ·{" "}
+                    {selectedLog.actorEmail || "No Email"}
+                  </p>
                 </div>
                 <div>
-                  <span className="font-bold text-slate-400 uppercase text-[10px] block">Store Context</span>
-                  <p className="font-bold text-slate-900">{selectedLog.store?.name || "Global / Central Hub"}</p>
-                  <p className="text-[10px] font-mono text-slate-500">{selectedLog.store?.code || "GLOBAL"}</p>
+                  <span className="font-bold text-slate-400 uppercase text-[10px] block">
+                    Store Context
+                  </span>
+                  <p className="font-bold text-slate-900">
+                    {selectedLog.store?.name || "Global / Central Hub"}
+                  </p>
+                  <p className="text-[10px] font-mono text-slate-500">
+                    {selectedLog.store?.code || "GLOBAL"}
+                  </p>
                 </div>
                 <div>
-                  <span className="font-bold text-slate-400 uppercase text-[10px] block">Client IP Address</span>
-                  <p className="font-mono text-slate-700">{selectedLog.ipAddress || "Direct Internal"}</p>
+                  <span className="font-bold text-slate-400 uppercase text-[10px] block">
+                    Client IP Address
+                  </span>
+                  <p className="font-mono text-slate-700">
+                    {selectedLog.ipAddress || "Direct Internal"}
+                  </p>
                 </div>
                 <div>
-                  <span className="font-bold text-slate-400 uppercase text-[10px] block">Timestamp</span>
-                  <p className="font-mono text-slate-700">{new Date(selectedLog.createdAt).toISOString()}</p>
+                  <span className="font-bold text-slate-400 uppercase text-[10px] block">
+                    Timestamp
+                  </span>
+                  <p className="font-mono text-slate-700">
+                    {new Date(selectedLog.createdAt).toISOString()}
+                  </p>
                 </div>
               </div>
 
               {selectedLog.previousValue && (
                 <div>
-                  <span className="font-bold text-slate-500 uppercase text-[10px] block">Previous State</span>
+                  <span className="font-bold text-slate-500 uppercase text-[10px] block">
+                    Previous State
+                  </span>
                   <pre className="bg-slate-900 text-slate-200 p-3 rounded-xl font-mono text-[11px] overflow-x-auto mt-1">
                     {JSON.stringify(selectedLog.previousValue, null, 2)}
                   </pre>
@@ -464,7 +517,9 @@ export default function AdminAuditPage() {
 
               {selectedLog.newValue && (
                 <div>
-                  <span className="font-bold text-slate-500 uppercase text-[10px] block">New State Committed</span>
+                  <span className="font-bold text-slate-500 uppercase text-[10px] block">
+                    New State Committed
+                  </span>
                   <pre className="bg-slate-900 text-emerald-400 p-3 rounded-xl font-mono text-[11px] overflow-x-auto mt-1">
                     {JSON.stringify(selectedLog.newValue, null, 2)}
                   </pre>
@@ -473,7 +528,9 @@ export default function AdminAuditPage() {
 
               {selectedLog.metadata && (
                 <div>
-                  <span className="font-bold text-slate-500 uppercase text-[10px] block">Metadata</span>
+                  <span className="font-bold text-slate-500 uppercase text-[10px] block">
+                    Metadata
+                  </span>
                   <pre className="bg-slate-50 text-slate-700 p-3 rounded-xl border border-slate-200 font-mono text-[11px] overflow-x-auto mt-1">
                     {JSON.stringify(selectedLog.metadata, null, 2)}
                   </pre>

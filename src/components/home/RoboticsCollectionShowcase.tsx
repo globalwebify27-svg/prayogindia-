@@ -23,7 +23,8 @@ const ECOSYSTEM_CARDS: EcosystemCard[] = [
     title: "Arts & Design",
     category: "Rapid Prototyping",
     description: "3D prototyping and computational design tools.",
-    image: "https://res.cloudinary.com/fyueflvh/image/upload/v1788595369/prayog/ecosystem/arts-and-design.jpg",
+    image:
+      "https://res.cloudinary.com/fyueflvh/image/upload/v1788595369/prayog/ecosystem/arts-and-design.jpg",
     icon: Palette,
   },
   {
@@ -31,7 +32,8 @@ const ECOSYSTEM_CARDS: EcosystemCard[] = [
     title: "UAVs & Drones",
     category: "Drone Technology",
     description: "Flight controllers, telemetry, and aerial kits.",
-    image: "https://res.cloudinary.com/fyueflvh/image/upload/v1788595374/prayog/ecosystem/uavs-and-drones.jpg",
+    image:
+      "https://res.cloudinary.com/fyueflvh/image/upload/v1788595374/prayog/ecosystem/uavs-and-drones.jpg",
     icon: Plane,
   },
   {
@@ -39,7 +41,8 @@ const ECOSYSTEM_CARDS: EcosystemCard[] = [
     title: "Robotics",
     category: "Robotics Kits",
     description: "Manipulators, metal servos, and AGV components.",
-    image: "https://res.cloudinary.com/fyueflvh/image/upload/v1788595373/prayog/ecosystem/robotics.jpg",
+    image:
+      "https://res.cloudinary.com/fyueflvh/image/upload/v1788595373/prayog/ecosystem/robotics.jpg",
     icon: Bot,
   },
   {
@@ -47,7 +50,8 @@ const ECOSYSTEM_CARDS: EcosystemCard[] = [
     title: "Rapid Prototyping",
     category: "Electronic Components",
     description: "CNC tooling, mechatronic joints, and hardware.",
-    image: "https://res.cloudinary.com/fyueflvh/image/upload/v1788595372/prayog/ecosystem/rapid-prototyping.jpg",
+    image:
+      "https://res.cloudinary.com/fyueflvh/image/upload/v1788595372/prayog/ecosystem/rapid-prototyping.jpg",
     icon: Layers,
   },
 ];
@@ -56,7 +60,7 @@ export const RoboticsCollectionShowcase: React.FC<Props> = ({
   onExploreCollection,
 }) => {
   return (
-    <section className="pt-2 pb-10 sm:pt-4 sm:pb-12 bg-white">
+    <section className="pt-2 pb-10 sm:pt-4 sm:pb-12 bg-white overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="text-center max-w-2xl mx-auto space-y-1.5 mb-6 sm:mb-8">

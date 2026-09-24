@@ -101,8 +101,14 @@ export async function compressImageBuffer(
 
     return {
       buffer: finalBuffer,
-      mimeType: compressedBytes < originalBytes ? mimeType : (metadata.format ? `image/${metadata.format}` : "image/webp"),
-      format: compressedBytes < originalBytes ? format : (metadata.format || "webp"),
+      mimeType:
+        compressedBytes < originalBytes
+          ? mimeType
+          : metadata.format
+            ? `image/${metadata.format}`
+            : "image/webp",
+      format:
+        compressedBytes < originalBytes ? format : metadata.format || "webp",
       originalBytes,
       compressedBytes: finalBytes,
       savingsPercentage: savings,

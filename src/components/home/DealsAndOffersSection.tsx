@@ -110,7 +110,9 @@ export const DealsAndOffersSection: React.FC<Props> = ({ onShopDeals }) => {
                   <Zap className="w-3 h-3 fill-white" /> 35% OFF
                 </span>
                 <span className="bg-black/60 backdrop-blur-md text-[#FFC20E] text-[11px] font-mono font-medium px-2 py-0.5 rounded-lg border border-white/15">
-                  Ends {String(timeLeft.hours).padStart(2, "0")}h {String(timeLeft.minutes).padStart(2, "0")}m {String(timeLeft.seconds).padStart(2, "0")}s
+                  Ends {String(timeLeft.hours).padStart(2, "0")}h{" "}
+                  {String(timeLeft.minutes).padStart(2, "0")}m{" "}
+                  {String(timeLeft.seconds).padStart(2, "0")}s
                 </span>
               </div>
 
@@ -125,7 +127,8 @@ export const DealsAndOffersSection: React.FC<Props> = ({ onShopDeals }) => {
             {/* Card Body */}
             <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
               <p className="text-xs text-slate-600 leading-relaxed font-normal">
-                Save up to ₹2,500 on flight controllers, robot arm kits, and high-torque servos.
+                Save up to ₹2,500 on flight controllers, robot arm kits, and
+                high-torque servos.
               </p>
 
               {/* Voucher Copy Bar */}
@@ -194,7 +197,8 @@ export const DealsAndOffersSection: React.FC<Props> = ({ onShopDeals }) => {
             {/* Card Body */}
             <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
               <p className="text-xs text-slate-600 leading-relaxed font-normal">
-                Instant 10% discount on UNO boards, Raspberry Pi, and wireless IoT sensor modules.
+                Instant 10% discount on UNO boards, Raspberry Pi, and wireless
+                IoT sensor modules.
               </p>
 
               {/* Voucher Copy Bar */}
@@ -263,14 +267,13 @@ export const DealsAndOffersSection: React.FC<Props> = ({ onShopDeals }) => {
             {/* Card Body */}
             <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
               <p className="text-xs text-slate-600 leading-relaxed font-normal">
-                Free shipping on orders above ₹999 with fast 24-48h dispatch from regional hubs.
+                Free shipping on orders above ₹999 with fast 24-48h dispatch
+                from regional hubs.
               </p>
 
               {/* Voucher Copy Bar */}
               <div className="pt-2 border-t border-slate-100 flex items-center justify-between gap-2">
-                <div className="text-xs font-medium text-slate-500">
-                  Perk:
-                </div>
+                <div className="text-xs font-medium text-slate-500">Perk:</div>
                 <div className="inline-flex items-center gap-1 text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200 text-xs font-semibold">
                   <span>Auto-Applied at ₹999</span>
                 </div>

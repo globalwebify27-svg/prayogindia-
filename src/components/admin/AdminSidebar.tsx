@@ -40,7 +40,6 @@ import {
 } from "lucide-react";
 import { PrayogLogo } from "@/components/PrayogLogo";
 
-
 interface AdminSidebarProps {
   mobileOpen?: boolean;
   onCloseMobile?: () => void;
@@ -102,13 +101,23 @@ const NAV_GROUPS = [
       },
       { label: "Walk-in POS Desk", href: "/admin/pos", icon: Tablet },
       { label: "Quotations", href: "/admin/quotations", icon: Quote },
-      { label: "Service Enquiries", href: "/admin/services", icon: Wrench, badge: "New" },
+      {
+        label: "Service Enquiries",
+        href: "/admin/services",
+        icon: Wrench,
+        badge: "New",
+      },
     ],
   },
   {
     group: "FINANCE & REWARDS",
     items: [
-      { label: "Bank Verifications", href: "/admin/payments", icon: Landmark, badge: "NEFT" },
+      {
+        label: "Bank Verifications",
+        href: "/admin/payments",
+        icon: Landmark,
+        badge: "NEFT",
+      },
       { label: "Order Profit & Margins", href: "/admin/profit", icon: Lock },
       { label: "Rewards & Loyalty", href: "/admin/rewards", icon: Award },
       { label: "Offers & Coupons", href: "/admin/offers", icon: BadgePercent },
@@ -119,21 +128,27 @@ const NAV_GROUPS = [
     group: "CRM & MARKETING",
     items: [
       { label: "Customer CRM", href: "/admin/customers", icon: Users },
-      { label: "B2B Relationships", href: "/admin/relationships", icon: Handshake },
+      {
+        label: "B2B Relationships",
+        href: "/admin/relationships",
+        icon: Handshake,
+      },
       {
         label: "Executive Incentives",
         href: "/admin/incentives",
         icon: AwardIcon,
       },
       { label: "Announcements & CMS", href: "/admin/cms", icon: Megaphone },
-      { label: "WhatsApp Automation", href: "/admin/whatsapp", icon: MessageCircle },
+      {
+        label: "WhatsApp Automation",
+        href: "/admin/whatsapp",
+        icon: MessageCircle,
+      },
     ],
   },
   {
     group: "CONTENT & LEARNING",
-    items: [
-      { label: "Learning Hub", href: "/admin/learning", icon: BookOpen },
-    ],
+    items: [{ label: "Learning Hub", href: "/admin/learning", icon: BookOpen }],
   },
   {
     group: "SYSTEM & SETTINGS",

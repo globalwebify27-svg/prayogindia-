@@ -1,19 +1,10 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
 import { db } from "@/lib/db";
-import { AuthSessionUser, normalizeEmail, hashPassword } from "@/lib/authUtils";
+import { AuthSessionUser, normalizeEmail, hashPassword, getAuthenticatedCustomer } from "@/lib/authUtils";
 import { getSecurityHeaders, checkRateLimit } from "@/lib/security";
+import { signSessionToken } from "@/lib/jwt";
 
-async function getAuthenticatedUser(): Promise<AuthSessionUser | null> {
-  const cookieStore = await cookies();
-  const sessionCookie = cookieStore.get("prayog_customer_session");
-  if (!sessionCookie?.value) return null;
-  try {
-    return JSON.parse(sessionCookie.value);
-  } catch {
-    return null;
-  }
-}
+const getAuthenticatedUser = getAuthenticatedCustomer;
 
 /**
  * GET /api/users/me
@@ -21,7 +12,7 @@ async function getAuthenticatedUser(): Promise<AuthSessionUser | null> {
  */
 export async function GET() {
   const headers = getSecurityHeaders();
-  const user = await getAuthenticatedUser();
+  const user = await getAuthenticatedCustomer();
   if (!user) {
     return NextResponse.json(
       { success: false, message: "Unauthenticated" },
@@ -128,10 +119,17 @@ export async function PATCH(request: Request) {
   }
 
   const ip = request.headers.get("x-forwarded-for") || "127.0.0.1";
-  const rateLimit = checkRateLimit(`profile-update:${user.id || user.email}:${ip}`, 10, 60000);
+  const rateLimit = checkRateLimit(
+    `profile-update:${user.id || user.email}:${ip}`,
+    10,
+    60000,
+  );
   if (!rateLimit.allowed) {
     return NextResponse.json(
-      { success: false, message: "Too many update requests. Please try again later." },
+      {
+        success: false,
+        message: "Too many update requests. Please try again later.",
+      },
       { status: 429, headers },
     );
   }
@@ -171,10 +169,15 @@ export async function PATCH(request: Request) {
 
     if (gstin !== undefined) {
       if (gstin) {
-        const gstinPattern = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
+        const gstinPattern =
+          /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
         if (!gstinPattern.test(gstin.toUpperCase().trim())) {
           return NextResponse.json(
-            { success: false, message: "Invalid GSTIN format. Must be 15 alphanumeric characters." },
+            {
+              success: false,
+              message:
+                "Invalid GSTIN format. Must be 15 alphanumeric characters.",
+            },
             { status: 400, headers },
           );
         }
@@ -224,7 +227,9 @@ export async function PATCH(request: Request) {
 
     // 2. If not found in DB, create record
     if (!targetUser) {
-      const cleanEmail = normalizeEmail(user.email || `user_${Date.now()}@prayogindia.com`);
+      const cleanEmail = normalizeEmail(
+        user.email || `user_${Date.now()}@prayogindia.com`,
+      );
       targetUser = await db.user.create({
         data: {
           name: updateData.name || user.name || "Prayog Customer",
@@ -265,6 +270,8 @@ export async function PATCH(request: Request) {
       gstin: updatedUser.gstin,
     };
 
+    const sessionToken = await signSessionToken(updatedPayload, "7d");
+
     const response = NextResponse.json({
       success: true,
       message: "Profile updated successfully.",
@@ -273,7 +280,7 @@ export async function PATCH(request: Request) {
 
     response.cookies.set({
       name: "prayog_customer_session",
-      value: JSON.stringify(updatedPayload),
+      value: sessionToken,
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",

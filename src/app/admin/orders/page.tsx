@@ -250,17 +250,22 @@ export default function AdminOrdersPage() {
                             title="Review in Bank Verification Desk"
                           >
                             <span>{ord.paymentMethod}</span>
-                            <span className={`px-1.5 py-0.2 rounded text-[9px] font-black ${
-                              ord.paymentStatus === "PAID"
-                                ? "bg-emerald-100 text-emerald-800"
-                                : "bg-amber-100 text-amber-800"
-                            }`}>
-                              {ord.paymentStatus === "PAID" ? "VERIFIED" : "PENDING UTR"}
+                            <span
+                              className={`px-1.5 py-0.2 rounded text-[9px] font-black ${
+                                ord.paymentStatus === "PAID"
+                                  ? "bg-emerald-100 text-emerald-800"
+                                  : "bg-amber-100 text-amber-800"
+                              }`}
+                            >
+                              {ord.paymentStatus === "PAID"
+                                ? "VERIFIED"
+                                : "PENDING UTR"}
                             </span>
                           </a>
                         ) : (
                           <span className="text-slate-500 font-medium">
-                            {ord.paymentMethod || "Online"} · {ord.paymentStatus || "PENDING"}
+                            {ord.paymentMethod || "Online"} ·{" "}
+                            {ord.paymentStatus || "PENDING"}
                           </span>
                         )}
                       </div>

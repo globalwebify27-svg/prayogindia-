@@ -130,11 +130,11 @@ export const FeaturedCategories: React.FC<Props> = ({
             onMouseEnter={() => setIsPaused(true)}
             onMouseLeave={() => setIsPaused(false)}
           >
-            {/* Scroll Navigation Arrows */}
+            {/* Scroll Navigation Arrows (Desktop Only on hover) */}
             <button
               onClick={() => handleManualScroll("left")}
               aria-label="Previous Products"
-              className="absolute left-2 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-white/95 border border-slate-200 shadow-lg text-slate-700 hover:text-slate-950 flex items-center justify-center transition-all hover:scale-105 active:scale-95 cursor-pointer backdrop-blur-xs"
+              className="hidden lg:flex absolute left-2 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-white/95 border border-slate-200 shadow-lg text-slate-700 hover:text-slate-950 items-center justify-center transition-all hover:scale-105 active:scale-95 cursor-pointer backdrop-blur-xs opacity-0 group-hover:opacity-100"
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
@@ -142,7 +142,7 @@ export const FeaturedCategories: React.FC<Props> = ({
             <button
               onClick={() => handleManualScroll("right")}
               aria-label="Next Products"
-              className="absolute right-2 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-white/95 border border-slate-200 shadow-lg text-slate-700 hover:text-slate-950 flex items-center justify-center transition-all hover:scale-105 active:scale-95 cursor-pointer backdrop-blur-xs"
+              className="hidden lg:flex absolute right-2 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-white/95 border border-slate-200 shadow-lg text-slate-700 hover:text-slate-950 items-center justify-center transition-all hover:scale-105 active:scale-95 cursor-pointer backdrop-blur-xs opacity-0 group-hover:opacity-100"
             >
               <ChevronRight className="w-4 h-4" />
             </button>
@@ -150,7 +150,8 @@ export const FeaturedCategories: React.FC<Props> = ({
             {/* Continuous Smooth Scrollable Track */}
             <div
               ref={scrollContainerRef}
-              className="flex gap-4 sm:gap-5 overflow-x-hidden py-1.5 select-none"
+              className="flex gap-3.5 sm:gap-5 overflow-x-auto lg:overflow-x-hidden scrollbar-none snap-x snap-mandatory py-2 select-none"
+              style={{ scrollbarWidth: "none" }}
             >
               {featuredProducts.map((product, idx) => {
                 const isWishlisted = wishlistIds.includes(product.id);
@@ -158,11 +159,11 @@ export const FeaturedCategories: React.FC<Props> = ({
                 return (
                   <div
                     key={`${product.id}-${idx}`}
-                    className="w-[230px] sm:w-[260px] shrink-0 bg-white border border-slate-200/80 rounded-2xl sm:rounded-3xl p-4 sm:p-5 flex flex-col justify-between hover:border-[#00AEEF]/50 hover:shadow-lg hover:shadow-sky-500/5 transition-all duration-300 relative group/card"
+                    className="w-[210px] sm:w-[250px] shrink-0 snap-start bg-white border border-slate-200/90 rounded-2xl p-3.5 sm:p-4 flex flex-col justify-between hover:border-[#00AEEF]/50 hover:shadow-lg transition-all duration-300 relative group/card"
                   >
                     {/* Card Header: Category & Wishlist Button */}
                     <div className="flex items-center justify-between gap-2">
-                      <span className="text-[11px] font-semibold text-slate-600 truncate">
+                      <span className="text-[10px] sm:text-[11px] font-semibold text-slate-500 truncate">
                         {product.category}
                       </span>
                       <button
@@ -187,18 +188,18 @@ export const FeaturedCategories: React.FC<Props> = ({
                     {/* Product Image */}
                     <Link
                       href={`/products/${product.slug || product.id}`}
-                      className="relative h-36 w-full my-3 flex items-center justify-center overflow-hidden"
+                      className="relative h-28 sm:h-36 w-full my-2 flex items-center justify-center overflow-hidden"
                     >
                       <Image
                         src={product.image}
                         alt={product.name}
                         fill
-                        className="object-contain p-2 group-hover/card:scale-105 transition-transform duration-300"
+                        className="object-contain p-1 group-hover/card:scale-105 transition-transform duration-300"
                       />
                     </Link>
 
                     {/* Product Info */}
-                    <div className="space-y-1.5">
+                    <div className="space-y-1">
                       <Link
                         href={`/products/${product.slug || product.id}`}
                         className="block font-bold text-xs text-slate-900 truncate hover:text-[#00AEEF] transition-colors"
@@ -207,20 +208,20 @@ export const FeaturedCategories: React.FC<Props> = ({
                         {product.name}
                       </Link>
 
-                      <div className="text-[10px] font-bold text-slate-500 font-mono">
+                      <div className="text-[10px] font-medium text-slate-400 font-mono truncate">
                         SKU: {product.sku}
                       </div>
 
                       {/* 5-Star Rating */}
                       <div className="flex items-center gap-1 text-[11px] text-slate-400">
-                        <div className="flex text-slate-300">
+                        <div className="flex text-amber-400 gap-0.5">
                           {[...Array(5)].map((_, i) => (
                             <Star
                               key={i}
                               className={`w-3 h-3 ${
                                 i < Math.floor(product.rating || 4)
-                                  ? "text-amber-400 fill-amber-400"
-                                  : "text-slate-200 fill-slate-200"
+                                  ? "fill-amber-400 text-amber-400"
+                                  : "fill-slate-200 text-slate-200"
                               }`}
                             />
                           ))}
@@ -232,10 +233,10 @@ export const FeaturedCategories: React.FC<Props> = ({
 
                       {/* Price Tag with GST */}
                       <div className="pt-1 flex items-baseline gap-1">
-                        <span className="text-sm font-black text-slate-900">
+                        <span className="text-sm font-bold text-slate-900">
                           ₹{product.price.toLocaleString("en-IN")}.00
                         </span>
-                        <span className="text-[9px] font-semibold text-slate-400">
+                        <span className="text-[9px] font-medium text-slate-400">
                           (Incl. GST)
                         </span>
                       </div>
@@ -245,7 +246,7 @@ export const FeaturedCategories: React.FC<Props> = ({
                     <button
                       type="button"
                       onClick={() => onAddToCart?.(product)}
-                      className="mt-3 w-full py-2 px-3 rounded-xl border border-[#00AEEF] hover:bg-[#00AEEF] text-[#00AEEF] hover:text-white text-xs font-extrabold flex items-center justify-center gap-1.5 transition-all active:scale-95 shadow-xs cursor-pointer"
+                      className="mt-2.5 w-full py-2 px-3 rounded-xl border border-[#00AEEF] hover:bg-[#00AEEF] text-[#00AEEF] hover:text-white text-xs font-bold flex items-center justify-center gap-1.5 transition-all active:scale-95 shadow-2xs cursor-pointer"
                     >
                       <span>Add to Cart</span>
                       <ShoppingBag className="w-3.5 h-3.5" />

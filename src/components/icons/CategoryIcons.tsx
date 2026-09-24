@@ -175,7 +175,12 @@ export const DevBoardCategoryIcon = ({
   >
     <rect x="3" y="3" width="18" height="18" rx="2" />
     <rect x="7" y="7" width="5" height="5" rx="1" />
-    <path d="M15 6v12" strokeWidth="2" strokeDasharray="1 2" strokeLinecap="butt" />
+    <path
+      d="M15 6v12"
+      strokeWidth="2"
+      strokeDasharray="1 2"
+      strokeLinecap="butt"
+    />
     <circle cx="6" cy="18" r="1" fill="currentColor" />
     <circle cx="18" cy="18" r="1" fill="currentColor" />
     <path d="M7 15h4" />

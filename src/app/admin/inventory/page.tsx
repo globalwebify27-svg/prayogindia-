@@ -169,7 +169,8 @@ export default function AdminInventoryPage() {
                 previousStock: t.quantityBefore,
                 adjustmentQuantity: t.quantityChange,
                 newStock: t.quantityAfter,
-                reason: (t.notes || t.transactionType) as StockAdjustmentEntry["reason"],
+                reason: (t.notes ||
+                  t.transactionType) as StockAdjustmentEntry["reason"],
                 adjustedBy: t.userId || "System",
                 timestamp: t.createdAt.replace("T", " ").slice(0, 16),
                 notes: t.notes || "",
@@ -305,10 +306,13 @@ export default function AdminInventoryPage() {
   };
 
   const handleOpenAddStock = (productItem?: InventoryItemRow) => {
-    const target = productItem || items[0] || (PRODUCTS[0] as unknown as InventoryItemRow);
+    const target =
+      productItem || items[0] || (PRODUCTS[0] as unknown as InventoryItemRow);
     setSelectedProductForStock(target);
     setAddStockQuantity(50);
-    setAddStockPoNumber(`PO-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`);
+    setAddStockPoNumber(
+      `PO-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`,
+    );
     setAddStockBatchNumber(`BAT-${Date.now().toString().slice(-6)}`);
     setAddStockNotes("Inward Restock Shipment Verified");
     setShowAddStockModal(true);
@@ -344,13 +348,14 @@ export default function AdminInventoryPage() {
         fetchInventory();
         fetchTransactions();
         alert(
-          `✅ Stock Inward Successfully Recorded!\n\nAdded +${addStockQuantity} units of "${selectedProductForStock.name}" to ${addStockStore.toUpperCase()}.\nAudit Reference: ${addStockPoNumber}`
+          `✅ Stock Inward Successfully Recorded!\n\nAdded +${addStockQuantity} units of "${selectedProductForStock.name}" to ${addStockStore.toUpperCase()}.\nAudit Reference: ${addStockPoNumber}`,
         );
       } else {
         alert(data.message || "Failed to add stock.");
       }
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Failed to commit stock inward.";
+      const msg =
+        err instanceof Error ? err.message : "Failed to commit stock inward.";
       alert(msg);
     } finally {
       setIsSubmittingStock(false);
@@ -1067,12 +1072,15 @@ export default function AdminInventoryPage() {
                     Stock Inward &amp; Restock
                   </h3>
                   <p className="text-[11px] text-slate-400">
-                    Receive shipments, allocate to store inventory, and log audit entries.
+                    Receive shipments, allocate to store inventory, and log
+                    audit entries.
                   </p>
                 </div>
               </div>
               <button
-                onClick={() => !isSubmittingStock && setShowAddStockModal(false)}
+                onClick={() =>
+                  !isSubmittingStock && setShowAddStockModal(false)
+                }
                 className="text-slate-400 hover:text-slate-700"
               >
                 <X className="w-5 h-5" />
@@ -1086,16 +1094,24 @@ export default function AdminInventoryPage() {
                   Target Product *
                 </label>
                 <select
-                  value={selectedProductForStock?.id || selectedProductForStock?.sku || ""}
+                  value={
+                    selectedProductForStock?.id ||
+                    selectedProductForStock?.sku ||
+                    ""
+                  }
                   onChange={(e) => {
-                    const found = items.find((i) => i.id === e.target.value || i.sku === e.target.value);
+                    const found = items.find(
+                      (i) =>
+                        i.id === e.target.value || i.sku === e.target.value,
+                    );
                     if (found) setSelectedProductForStock(found);
                   }}
                   className="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl font-bold text-slate-900"
                 >
                   {items.map((i) => (
                     <option key={i.id} value={i.id}>
-                      {i.name} ({i.sku}) — Current Ranchi: {i.ranchiStock ?? i.stock} units
+                      {i.name} ({i.sku}) — Current Ranchi:{" "}
+                      {i.ranchiStock ?? i.stock} units
                     </option>
                   ))}
                 </select>
@@ -1112,17 +1128,18 @@ export default function AdminInventoryPage() {
                     onChange={(e) =>
                       setAddStockStore(
                         e.target.value as
-                          | "ranchi"
-                          | "patna"
-                          | "delhi"
-                          | "mumbai",
+                          "ranchi" | "patna" | "delhi" | "mumbai",
                       )
                     }
                     className="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl font-bold text-slate-900"
                   >
-                    <option value="ranchi">🏢 Ranchi Central Hub (Web + Ranchi)</option>
+                    <option value="ranchi">
+                      🏢 Ranchi Central Hub (Web + Ranchi)
+                    </option>
                     <option value="patna">🏬 Patna Robotics Branch</option>
-                    <option value="delhi">🏬 Delhi NCR Innovation Center</option>
+                    <option value="delhi">
+                      🏬 Delhi NCR Innovation Center
+                    </option>
                     <option value="mumbai">🏬 Mumbai Western Drone Hub</option>
                   </select>
                 </div>
@@ -1137,7 +1154,9 @@ export default function AdminInventoryPage() {
                       min={1}
                       required
                       value={addStockQuantity}
-                      onChange={(e) => setAddStockQuantity(Number(e.target.value))}
+                      onChange={(e) =>
+                        setAddStockQuantity(Number(e.target.value))
+                      }
                       className="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl font-black text-slate-900 text-sm focus:border-emerald-500 focus:outline-none"
                     />
                     <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-[10px]">
@@ -1207,7 +1226,8 @@ export default function AdminInventoryPage() {
               {/* Summary Pill */}
               <div className="bg-emerald-50/70 border border-emerald-200 p-3 rounded-2xl flex items-center justify-between text-[11px]">
                 <span className="font-bold text-emerald-900">
-                  Total Addition: +{addStockQuantity} units to {addStockStore.toUpperCase()}
+                  Total Addition: +{addStockQuantity} units to{" "}
+                  {addStockStore.toUpperCase()}
                 </span>
                 <span className="font-extrabold text-emerald-700">
                   RESTOCK Audit Logged
@@ -1230,7 +1250,11 @@ export default function AdminInventoryPage() {
                   className="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-xl font-black uppercase shadow-md flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
                 >
                   <Plus className="w-4 h-4" />
-                  <span>{isSubmittingStock ? "Committing Inward..." : "Confirm & Inward Stock"}</span>
+                  <span>
+                    {isSubmittingStock
+                      ? "Committing Inward..."
+                      : "Confirm & Inward Stock"}
+                  </span>
                 </button>
               </div>
             </form>

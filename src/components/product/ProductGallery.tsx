@@ -2,7 +2,10 @@
 
 import React, { useState, useRef, useCallback } from "react";
 import Image from "next/image";
-import { getOptimizedImageUrl, getOptimizedVideoUrl } from "@/lib/cloudinaryUrl";
+import {
+  getOptimizedImageUrl,
+  getOptimizedVideoUrl,
+} from "@/lib/cloudinaryUrl";
 import {
   Play,
   Maximize2,
@@ -40,7 +43,9 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
         ]
   ).map((img) => getOptimizedImageUrl(img, { width: 1200, quality: "auto" }));
 
-  const optimizedVideoUrl = videoUrl ? getOptimizedVideoUrl(videoUrl) : undefined;
+  const optimizedVideoUrl = videoUrl
+    ? getOptimizedVideoUrl(videoUrl)
+    : undefined;
 
   const [activeMode, setActiveMode] = useState<MediaMode>("image");
   const [selectedIdx, setSelectedIdx] = useState(0);

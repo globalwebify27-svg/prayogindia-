@@ -13,7 +13,10 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const isSuperAdmin = (admin?.role as string) === "SUPER_ADMIN" || (admin?.role as string) === "ADMIN" || staff?.role === "SUPER_ADMIN";
+    const isSuperAdmin =
+      (admin?.role as string) === "SUPER_ADMIN" ||
+      (admin?.role as string) === "ADMIN" ||
+      staff?.role === "SUPER_ADMIN";
     const isRegional = staff?.role === "REGIONAL_MANAGER";
 
     const { searchParams } = new URL(req.url);
@@ -42,7 +45,10 @@ export async function GET(req: NextRequest) {
       }
     } else {
       if (!staff?.storeId) {
-        return NextResponse.json({ error: "Forbidden: No assigned store context" }, { status: 403 });
+        return NextResponse.json(
+          { error: "Forbidden: No assigned store context" },
+          { status: 403 },
+        );
       }
       where.storeId = staff.storeId;
     }
@@ -121,7 +127,10 @@ export async function GET(req: NextRequest) {
       escapeCsv(log.ipAddress || ""),
     ]);
 
-    const csvContent = [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
+    const csvContent = [
+      headers.join(","),
+      ...rows.map((r) => r.join(",")),
+    ].join("\n");
 
     return new NextResponse(csvContent, {
       status: 200,
@@ -132,6 +141,9 @@ export async function GET(req: NextRequest) {
     });
   } catch (error: any) {
     console.error("GET /api/admin/audit/export error:", error);
-    return NextResponse.json({ error: "Failed to export audit logs" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to export audit logs" },
+      { status: 500 },
+    );
   }
 }

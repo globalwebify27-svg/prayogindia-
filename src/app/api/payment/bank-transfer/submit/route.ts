@@ -1,33 +1,21 @@
 import { NextResponse, NextRequest } from "next/server";
-import { cookies } from "next/headers";
 import { db } from "@/lib/db";
-import { AuthSessionUser } from "@/lib/authUtils";
+import { getAuthenticatedCustomer } from "@/lib/authUtils";
 import { NotificationService } from "@/lib/notifications";
 import { getSecurityHeaders } from "@/lib/security";
 import { recordAuditLog } from "@/lib/auditLogger";
 
-async function getAuthenticatedUser(): Promise<AuthSessionUser | null> {
-  const cookieStore = await cookies();
-  const sessionCookie = cookieStore.get("prayog_customer_session");
-  if (!sessionCookie?.value) return null;
-  try {
-    return JSON.parse(sessionCookie.value);
-  } catch {
-    return null;
-  }
-}
-
 /**
  * POST /api/payment/bank-transfer/submit
  * Submits customer's NEFT / RTGS / Wire transfer details for verification.
- * 
+ *
  * Strict State Machine Rule:
  * Submitting UTR details sets payment status to PENDING_VERIFICATION.
  * It NEVER automatically marks payment as PAID or VERIFIED.
  */
 export async function POST(req: NextRequest) {
   const headers = getSecurityHeaders();
-  const user = await getAuthenticatedUser();
+  const user = await getAuthenticatedCustomer();
 
   try {
     const body = await req.json().catch(() => ({}));
@@ -45,33 +33,43 @@ export async function POST(req: NextRequest) {
     if (!orderId) {
       return NextResponse.json(
         { success: false, message: "Order identifier is required." },
-        { status: 400, headers }
+        { status: 400, headers },
       );
     }
 
     if (!utrNumber || typeof utrNumber !== "string") {
       return NextResponse.json(
-        { success: false, message: "A valid UTR / Transaction Reference number is required." },
-        { status: 400, headers }
+        {
+          success: false,
+          message: "A valid UTR / Transaction Reference number is required.",
+        },
+        { status: 400, headers },
       );
     }
 
-    const sanitizedUtr = utrNumber.trim().toUpperCase().replace(/[^A-Z0-9]/g, "");
+    const sanitizedUtr = utrNumber
+      .trim()
+      .toUpperCase()
+      .replace(/[^A-Z0-9]/g, "");
     if (sanitizedUtr.length < 6 || sanitizedUtr.length > 35) {
       return NextResponse.json(
         {
           success: false,
-          message: "Invalid UTR format. UTR must be an alphanumeric reference between 6 and 35 characters.",
+          message:
+            "Invalid UTR format. UTR must be an alphanumeric reference between 6 and 35 characters.",
         },
-        { status: 400, headers }
+        { status: 400, headers },
       );
     }
 
     const parsedAmount = parseFloat(amount);
     if (isNaN(parsedAmount) || parsedAmount <= 0) {
       return NextResponse.json(
-        { success: false, message: "Payment amount must be a positive number." },
-        { status: 400, headers }
+        {
+          success: false,
+          message: "Payment amount must be a positive number.",
+        },
+        { status: 400, headers },
       );
     }
 
@@ -81,20 +79,25 @@ export async function POST(req: NextRequest) {
       if (isNaN(d.getTime())) {
         return NextResponse.json(
           { success: false, message: "Invalid transaction date format." },
-          { status: 400, headers }
+          { status: 400, headers },
         );
       }
       // Cannot be in future (allow 5 min clock drift)
       if (d.getTime() > Date.now() + 5 * 60 * 1000) {
         return NextResponse.json(
-          { success: false, message: "Transaction date cannot be in the future." },
-          { status: 400, headers }
+          {
+            success: false,
+            message: "Transaction date cannot be in the future.",
+          },
+          { status: 400, headers },
         );
       }
       parsedDate = d;
     }
 
-    const normalizedMethod = ["RTGS", "NEFT", "bank_transfer", "UPI"].includes(paymentMethod)
+    const normalizedMethod = ["RTGS", "NEFT", "bank_transfer", "UPI"].includes(
+      paymentMethod,
+    )
       ? paymentMethod
       : "NEFT";
 
@@ -103,7 +106,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         {
           success: true,
-          message: "Payment details submitted successfully. Your payment is pending verification.",
+          message:
+            "Payment details submitted successfully. Your payment is pending verification.",
           data: {
             orderId,
             utrNumber: sanitizedUtr,
@@ -112,7 +116,7 @@ export async function POST(req: NextRequest) {
             submittedAt: new Date().toISOString(),
           },
         },
-        { headers }
+        { headers },
       );
     }
 
@@ -130,30 +134,40 @@ export async function POST(req: NextRequest) {
     if (!order) {
       return NextResponse.json(
         { success: false, message: "Order not found." },
-        { status: 404, headers }
+        { status: 404, headers },
       );
     }
 
     // Security: Validate customer isolation
     if (user && order.userId !== user.id && order.user.email !== user.email) {
       return NextResponse.json(
-        { success: false, message: "Forbidden: You are not authorized to submit payments for this order." },
-        { status: 403, headers }
+        {
+          success: false,
+          message:
+            "Forbidden: You are not authorized to submit payments for this order.",
+        },
+        { status: 403, headers },
       );
     }
 
     // Verify order is not cancelled or already paid
     if (order.status === "CANCELLED") {
       return NextResponse.json(
-        { success: false, message: "Cannot submit payment for a cancelled order." },
-        { status: 400, headers }
+        {
+          success: false,
+          message: "Cannot submit payment for a cancelled order.",
+        },
+        { status: 400, headers },
       );
     }
 
     if (order.paymentStatus === "PAID") {
       return NextResponse.json(
-        { success: false, message: "This order has already been verified and paid." },
-        { status: 400, headers }
+        {
+          success: false,
+          message: "This order has already been verified and paid.",
+        },
+        { status: 400, headers },
       );
     }
 
@@ -173,7 +187,7 @@ export async function POST(req: NextRequest) {
           success: false,
           message: `This UTR reference (${sanitizedUtr}) has already been submitted for another order (#${duplicatePayment.order?.orderNumber || "EXISTING"}). Duplicate submissions are not allowed.`,
         },
-        { status: 409, headers }
+        { status: 409, headers },
       );
     }
 
@@ -267,7 +281,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(
       {
         success: true,
-        message: "Payment details submitted successfully. Your payment is pending verification.",
+        message:
+          "Payment details submitted successfully. Your payment is pending verification.",
         data: {
           id: result.id,
           orderId: order.id,
@@ -278,13 +293,16 @@ export async function POST(req: NextRequest) {
           transactionDate: parsedDate.toISOString(),
         },
       },
-      { headers }
+      { headers },
     );
   } catch (error: any) {
     console.error("[BankTransfer Submit Error]:", error);
     return NextResponse.json(
-      { success: false, message: error.message || "Failed to submit bank transfer details." },
-      { status: 500, headers }
+      {
+        success: false,
+        message: error.message || "Failed to submit bank transfer details.",
+      },
+      { status: 500, headers },
     );
   }
 }

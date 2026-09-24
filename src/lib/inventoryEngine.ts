@@ -106,7 +106,9 @@ export interface MultiStoreProductStock {
 // ─────────────────────────────────────────────
 // Helper: Resolve store DB id from store code or UUID
 // ─────────────────────────────────────────────
-async function resolveStoreDbId(storeId: StoreId | string): Promise<string | null> {
+async function resolveStoreDbId(
+  storeId: StoreId | string,
+): Promise<string | null> {
   try {
     const store = await db.store.findFirst({
       where: {
@@ -128,11 +130,7 @@ async function resolveProductDbId(productId: string): Promise<string | null> {
   try {
     const prod = await db.product.findFirst({
       where: {
-        OR: [
-          { id: productId },
-          { sku: productId },
-          { slug: productId },
-        ],
+        OR: [{ id: productId }, { sku: productId }, { slug: productId }],
       },
       select: { id: true },
     });
@@ -142,15 +140,14 @@ async function resolveProductDbId(productId: string): Promise<string | null> {
   }
 }
 
-async function resolveDeviceDbId(deviceId?: string | null): Promise<string | null> {
+async function resolveDeviceDbId(
+  deviceId?: string | null,
+): Promise<string | null> {
   if (!deviceId) return null;
   try {
     const dev = await db.device.findFirst({
       where: {
-        OR: [
-          { id: deviceId },
-          { deviceCode: deviceId },
-        ],
+        OR: [{ id: deviceId }, { deviceCode: deviceId }],
       },
       select: { id: true },
     });
@@ -231,7 +228,11 @@ export async function getStoreInventory(storeId: StoreId) {
         product: {
           include: {
             category: { select: { name: true } },
-            images: { select: { imageUrl: true }, orderBy: { sortOrder: "asc" }, take: 1 },
+            images: {
+              select: { imageUrl: true },
+              orderBy: { sortOrder: "asc" },
+              take: 1,
+            },
           },
         },
       },
@@ -248,8 +249,10 @@ export async function getStoreInventory(storeId: StoreId) {
         price: p.price,
         basePrice: p.price,
         mrp: p.mrp,
-        image: (p.images as Array<{imageUrl: string}>)?.[0]?.imageUrl ?? "",
-        images: (p.images as Array<{imageUrl: string}>)?.map((i) => i.imageUrl) ?? [],
+        image: (p.images as Array<{ imageUrl: string }>)?.[0]?.imageUrl ?? "",
+        images:
+          (p.images as Array<{ imageUrl: string }>)?.map((i) => i.imageUrl) ??
+          [],
         storeId,
         storeName: STORES[storeId]?.name || storeId,
         isCentralInventory: isCentral,
@@ -282,7 +285,12 @@ export async function searchStoreProducts(params: {
   const q = query.toLowerCase().trim();
 
   return items.filter((item) => {
-    if (category && category !== "all" && item.category.toLowerCase() !== category.toLowerCase()) return false;
+    if (
+      category &&
+      category !== "all" &&
+      item.category.toLowerCase() !== category.toLowerCase()
+    )
+      return false;
     if (inStockOnly && item.availableQuantity <= 0) return false;
     if (!q) return true;
     return (
@@ -307,29 +315,48 @@ export async function adjustStoreInventory(params: {
   userId?: string;
   deviceId?: string;
 }): Promise<{ success: boolean; newQuantity: number; message: string }> {
-  const { storeId, productId, quantityChange, transactionType, reason, userId, deviceId } = params;
+  const {
+    storeId,
+    productId,
+    quantityChange,
+    transactionType,
+    reason,
+    userId,
+    deviceId,
+  } = params;
 
   try {
     const storeDbId = await resolveStoreDbId(storeId);
     if (!storeDbId) {
-      return { success: false, newQuantity: 0, message: `Store '${storeId}' not found in database.` };
+      return {
+        success: false,
+        newQuantity: 0,
+        message: `Store '${storeId}' not found in database.`,
+      };
     }
 
     const productDbId = (await resolveProductDbId(productId)) ?? productId;
     const dbDevice = await resolveDeviceDbId(deviceId);
 
     const currentInv = await db.storeInventory.findUnique({
-      where: { storeId_productId: { storeId: storeDbId, productId: productDbId } },
+      where: {
+        storeId_productId: { storeId: storeDbId, productId: productDbId },
+      },
     });
     const currentQty = currentInv?.quantity ?? 0;
     const newQuantity = Math.max(0, currentQty + quantityChange);
     const lowThreshold = currentInv?.lowStockThreshold ?? 5;
 
     const updated = await db.storeInventory.upsert({
-      where: { storeId_productId: { storeId: storeDbId, productId: productDbId } },
+      where: {
+        storeId_productId: { storeId: storeDbId, productId: productDbId },
+      },
       update: {
         quantity: newQuantity,
-        availableQuantity: Math.max(0, newQuantity - (currentInv?.reservedQuantity ?? 0)),
+        availableQuantity: Math.max(
+          0,
+          newQuantity - (currentInv?.reservedQuantity ?? 0),
+        ),
         status: computeStatus(newQuantity, lowThreshold),
         updatedAt: new Date(),
       },
@@ -363,14 +390,18 @@ export async function adjustStoreInventory(params: {
       console.error("[inventoryEngine] transaction log error:", txErr);
     }
 
-    const product = await db.product.findUnique({ where: { id: productDbId }, select: { name: true } });
+    const product = await db.product.findUnique({
+      where: { id: productDbId },
+      select: { name: true },
+    });
     return {
       success: true,
       newQuantity: updated.quantity,
-      message: `Updated ${product?.name ?? productId} in ${STORES[(storeId as StoreId)]?.name ?? storeId} to ${updated.quantity} units.`,
+      message: `Updated ${product?.name ?? productId} in ${STORES[storeId as StoreId]?.name ?? storeId} to ${updated.quantity} units.`,
     };
   } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : "Inventory adjustment failed";
+    const msg =
+      err instanceof Error ? err.message : "Inventory adjustment failed";
     console.error("[inventoryEngine] adjustStoreInventory error:", err);
     return { success: false, newQuantity: 0, message: msg };
   }
@@ -393,20 +424,36 @@ export async function deductStoreInventory(params: {
   remainingStock: number;
   message: string;
 }> {
-  const { productId, quantity, orderSource, storeId, orderId, userId, deviceId } = params;
-  const targetStore: StoreId = orderSource === "WALK_IN" ? storeId || "ranchi" : "ranchi";
+  const {
+    productId,
+    quantity,
+    orderSource,
+    storeId,
+    orderId,
+    userId,
+    deviceId,
+  } = params;
+  const targetStore: StoreId =
+    orderSource === "WALK_IN" ? storeId || "ranchi" : "ranchi";
 
   try {
     const storeDbId = await resolveStoreDbId(targetStore);
     if (!storeDbId) {
-      return { success: false, deductedFrom: targetStore, remainingStock: 0, message: `Store '${targetStore}' not found.` };
+      return {
+        success: false,
+        deductedFrom: targetStore,
+        remainingStock: 0,
+        message: `Store '${targetStore}' not found.`,
+      };
     }
 
     const productDbId = (await resolveProductDbId(productId)) ?? productId;
     const dbDevice = await resolveDeviceDbId(deviceId);
 
     const inv = await db.storeInventory.findUnique({
-      where: { storeId_productId: { storeId: storeDbId, productId: productDbId } },
+      where: {
+        storeId_productId: { storeId: storeDbId, productId: productDbId },
+      },
     });
     const currentStock = inv?.quantity ?? 0;
 
@@ -421,10 +468,15 @@ export async function deductStoreInventory(params: {
 
     const updatedQty = currentStock - quantity;
     await db.storeInventory.update({
-      where: { storeId_productId: { storeId: storeDbId, productId: productDbId } },
+      where: {
+        storeId_productId: { storeId: storeDbId, productId: productDbId },
+      },
       data: {
         quantity: updatedQty,
-        availableQuantity: Math.max(0, updatedQty - (inv?.reservedQuantity ?? 0)),
+        availableQuantity: Math.max(
+          0,
+          updatedQty - (inv?.reservedQuantity ?? 0),
+        ),
         status: computeStatus(updatedQty, inv?.lowStockThreshold ?? 5),
         updatedAt: new Date(),
       },
@@ -436,7 +488,8 @@ export async function deductStoreInventory(params: {
           storeId: storeDbId,
           productId: productDbId,
           orderId: orderId ?? null,
-          transactionType: orderSource === "WALK_IN" ? "SALE" : "ONLINE_FULFILLMENT",
+          transactionType:
+            orderSource === "WALK_IN" ? "SALE" : "ONLINE_FULFILLMENT",
           quantityBefore: currentStock,
           quantityChange: -quantity,
           quantityAfter: updatedQty,
@@ -459,7 +512,12 @@ export async function deductStoreInventory(params: {
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : "Deduction failed";
     console.error("[inventoryEngine] deductStoreInventory error:", err);
-    return { success: false, deductedFrom: targetStore, remainingStock: 0, message: msg };
+    return {
+      success: false,
+      deductedFrom: targetStore,
+      remainingStock: 0,
+      message: msg,
+    };
   }
 }
 
@@ -482,13 +540,21 @@ export async function getProductMultiStoreBreakdown(
 
     for (const sid of storeIds) {
       const storeDbId = await resolveStoreDbId(sid);
-      let stock = 0, available = 0, allocated = 0, status: StockStatus = "OUT_OF_STOCK";
+      let stock = 0,
+        available = 0,
+        allocated = 0,
+        status: StockStatus = "OUT_OF_STOCK";
       let price = product.price;
 
       if (storeDbId) {
         const [inv, settings] = await Promise.all([
-          db.storeInventory.findUnique({ where: { storeId_productId: { storeId: storeDbId, productId } } }),
-          db.storeProductSettings.findUnique({ where: { storeId_productId: { storeId: storeDbId, productId } }, select: { priceOverride: true } }),
+          db.storeInventory.findUnique({
+            where: { storeId_productId: { storeId: storeDbId, productId } },
+          }),
+          db.storeProductSettings.findUnique({
+            where: { storeId_productId: { storeId: storeDbId, productId } },
+            select: { priceOverride: true },
+          }),
         ]);
         stock = inv?.quantity ?? 0;
         available = inv?.availableQuantity ?? 0;
@@ -498,12 +564,32 @@ export async function getProductMultiStoreBreakdown(
       }
 
       totalNetworkStock += stock;
-      storeStocks[sid] = { storeId: sid, storeName: STORES[sid]?.name ?? sid, isCentral: sid === "ranchi", stock, allocated, available, status, price };
+      storeStocks[sid] = {
+        storeId: sid,
+        storeName: STORES[sid]?.name ?? sid,
+        isCentral: sid === "ranchi",
+        stock,
+        allocated,
+        available,
+        status,
+        price,
+      };
     }
 
-    return { productId: product.id, sku: product.sku, name: product.name, basePrice: product.price, centralStock: storeStocks.ranchi.stock, storeStocks, totalNetworkStock };
+    return {
+      productId: product.id,
+      sku: product.sku,
+      name: product.name,
+      basePrice: product.price,
+      centralStock: storeStocks.ranchi.stock,
+      storeStocks,
+      totalNetworkStock,
+    };
   } catch (err) {
-    console.error("[inventoryEngine] getProductMultiStoreBreakdown error:", err);
+    console.error(
+      "[inventoryEngine] getProductMultiStoreBreakdown error:",
+      err,
+    );
     return null;
   }
 }
@@ -514,7 +600,9 @@ export async function getProductMultiStoreBreakdown(
 export async function getMultiStoreInventoryMatrix() {
   try {
     const products = await db.product.findMany({ select: { id: true } });
-    const results = await Promise.all(products.map((p) => getProductMultiStoreBreakdown(p.id)));
+    const results = await Promise.all(
+      products.map((p) => getProductMultiStoreBreakdown(p.id)),
+    );
     return results.filter(Boolean);
   } catch (err) {
     console.error("[inventoryEngine] getMultiStoreInventoryMatrix error:", err);
@@ -538,7 +626,8 @@ export async function getInventoryTransactions(filters?: {
       if (storeDbId) where.storeId = storeDbId;
     }
     if (filters?.productId) where.productId = filters.productId;
-    if (filters?.transactionType) where.transactionType = filters.transactionType;
+    if (filters?.transactionType)
+      where.transactionType = filters.transactionType;
 
     const rows = await db.inventoryTransaction.findMany({
       where,
@@ -547,9 +636,13 @@ export async function getInventoryTransactions(filters?: {
       include: { product: { select: { name: true, sku: true } } },
     });
 
-    const storeRows = await db.store.findMany({ select: { id: true, code: true } });
+    const storeRows = await db.store.findMany({
+      select: { id: true, code: true },
+    });
     const storeCodeMap: Record<string, StoreId> = {};
-    storeRows.forEach((s) => { storeCodeMap[s.id] = s.code.toLowerCase() as StoreId; });
+    storeRows.forEach((s) => {
+      storeCodeMap[s.id] = s.code.toLowerCase() as StoreId;
+    });
 
     return rows.map((r) => {
       const row = r as typeof r & { product?: { name?: string; sku?: string } };
@@ -583,13 +676,19 @@ export async function getInventoryTransactions(filters?: {
 export async function validateCartForStore(params: {
   storeId: StoreId;
   items: Array<{ productId: string; quantity: number }>;
-}): Promise<{ valid: boolean; errors: Array<{ productId: string; message: string }> }> {
+}): Promise<{
+  valid: boolean;
+  errors: Array<{ productId: string; message: string }>;
+}> {
   const { storeId, items } = params;
   const errors: Array<{ productId: string; message: string }> = [];
   for (const item of items) {
     const available = await getProductStockForStore(item.productId, storeId);
     if (available < item.quantity) {
-      errors.push({ productId: item.productId, message: `Insufficient stock in ${STORES[storeId]?.name ?? storeId}. Available: ${available}, Requested: ${item.quantity}.` });
+      errors.push({
+        productId: item.productId,
+        message: `Insufficient stock in ${STORES[storeId]?.name ?? storeId}. Available: ${available}, Requested: ${item.quantity}.`,
+      });
     }
   }
   return { valid: errors.length === 0, errors };
@@ -604,26 +703,46 @@ export async function transferStockBetweenStores(params: {
   items: Array<{ productId: string; quantity: number }>;
   userId?: string;
   notes?: string;
-}): Promise<{ success: boolean; transfer?: StockTransferRecord; message: string }> {
+}): Promise<{
+  success: boolean;
+  transfer?: StockTransferRecord;
+  message: string;
+}> {
   const { sourceStoreId, destinationStoreId, items, userId, notes } = params;
 
   if (sourceStoreId === destinationStoreId) {
-    return { success: false, message: "Source and destination stores cannot be identical." };
+    return {
+      success: false,
+      message: "Source and destination stores cannot be identical.",
+    };
   }
 
   try {
     for (const item of items) {
-      const available = await getProductStockForStore(item.productId, sourceStoreId);
+      const available = await getProductStockForStore(
+        item.productId,
+        sourceStoreId,
+      );
       if (available < item.quantity) {
-        const p = await db.product.findUnique({ where: { id: item.productId }, select: { name: true } });
-        return { success: false, message: `Insufficient stock in ${STORES[sourceStoreId]?.name} for ${p?.name ?? item.productId}. Available: ${available}, Required: ${item.quantity}.` };
+        const p = await db.product.findUnique({
+          where: { id: item.productId },
+          select: { name: true },
+        });
+        return {
+          success: false,
+          message: `Insufficient stock in ${STORES[sourceStoreId]?.name} for ${p?.name ?? item.productId}. Available: ${available}, Required: ${item.quantity}.`,
+        };
       }
     }
 
     const transferNumber = `TR-${new Date().getFullYear()}-${Date.now().toString().slice(-6)}`;
     const sourceDbId = await resolveStoreDbId(sourceStoreId);
     const destDbId = await resolveStoreDbId(destinationStoreId);
-    if (!sourceDbId || !destDbId) return { success: false, message: "One or both stores not found in database." };
+    if (!sourceDbId || !destDbId)
+      return {
+        success: false,
+        message: "One or both stores not found in database.",
+      };
 
     const transfer = await db.$transaction(async (tx) => {
       const created = await tx.stockTransfer.create({
@@ -635,27 +754,111 @@ export async function transferStockBetweenStores(params: {
           requestedByUserId: userId ?? null,
           approvedByUserId: userId ?? null,
           notes: notes ?? null,
-          items: { create: items.map((i) => ({ productId: i.productId, quantity: i.quantity, receivedQuantity: i.quantity })) },
+          items: {
+            create: items.map((i) => ({
+              productId: i.productId,
+              quantity: i.quantity,
+              receivedQuantity: i.quantity,
+            })),
+          },
         },
-        include: { items: { include: { product: { select: { name: true, sku: true } } } } },
+        include: {
+          items: {
+            include: { product: { select: { name: true, sku: true } } },
+          },
+        },
       });
 
       for (const item of items) {
-        const srcInv = await tx.storeInventory.findUnique({ where: { storeId_productId: { storeId: sourceDbId, productId: item.productId } } });
+        const srcInv = await tx.storeInventory.findUnique({
+          where: {
+            storeId_productId: {
+              storeId: sourceDbId,
+              productId: item.productId,
+            },
+          },
+        });
         const srcQty = Math.max(0, (srcInv?.quantity ?? 0) - item.quantity);
-        await tx.storeInventory.update({ where: { storeId_productId: { storeId: sourceDbId, productId: item.productId } }, data: { quantity: srcQty, availableQuantity: Math.max(0, srcQty - (srcInv?.reservedQuantity ?? 0)), status: computeStatus(srcQty) } });
-        await tx.inventoryTransaction.create({ data: { storeId: sourceDbId, productId: item.productId, transactionType: "TRANSFER_OUT", quantityBefore: srcInv?.quantity ?? 0, quantityChange: -item.quantity, quantityAfter: srcQty, userId: userId ?? null, referenceId: transferNumber } });
+        await tx.storeInventory.update({
+          where: {
+            storeId_productId: {
+              storeId: sourceDbId,
+              productId: item.productId,
+            },
+          },
+          data: {
+            quantity: srcQty,
+            availableQuantity: Math.max(
+              0,
+              srcQty - (srcInv?.reservedQuantity ?? 0),
+            ),
+            status: computeStatus(srcQty),
+          },
+        });
+        await tx.inventoryTransaction.create({
+          data: {
+            storeId: sourceDbId,
+            productId: item.productId,
+            transactionType: "TRANSFER_OUT",
+            quantityBefore: srcInv?.quantity ?? 0,
+            quantityChange: -item.quantity,
+            quantityAfter: srcQty,
+            userId: userId ?? null,
+            referenceId: transferNumber,
+          },
+        });
 
-        const dstInv = await tx.storeInventory.findUnique({ where: { storeId_productId: { storeId: destDbId, productId: item.productId } } });
+        const dstInv = await tx.storeInventory.findUnique({
+          where: {
+            storeId_productId: { storeId: destDbId, productId: item.productId },
+          },
+        });
         const dstQty = (dstInv?.quantity ?? 0) + item.quantity;
-        await tx.storeInventory.upsert({ where: { storeId_productId: { storeId: destDbId, productId: item.productId } }, update: { quantity: dstQty, availableQuantity: Math.max(0, dstQty - (dstInv?.reservedQuantity ?? 0)), status: computeStatus(dstQty) }, create: { storeId: destDbId, productId: item.productId, quantity: dstQty, availableQuantity: dstQty, reservedQuantity: 0, reorderLevel: 10, lowStockThreshold: 5, status: computeStatus(dstQty) } });
-        await tx.inventoryTransaction.create({ data: { storeId: destDbId, productId: item.productId, transactionType: "TRANSFER_IN", quantityBefore: dstInv?.quantity ?? 0, quantityChange: item.quantity, quantityAfter: dstQty, userId: userId ?? null, referenceId: transferNumber } });
+        await tx.storeInventory.upsert({
+          where: {
+            storeId_productId: { storeId: destDbId, productId: item.productId },
+          },
+          update: {
+            quantity: dstQty,
+            availableQuantity: Math.max(
+              0,
+              dstQty - (dstInv?.reservedQuantity ?? 0),
+            ),
+            status: computeStatus(dstQty),
+          },
+          create: {
+            storeId: destDbId,
+            productId: item.productId,
+            quantity: dstQty,
+            availableQuantity: dstQty,
+            reservedQuantity: 0,
+            reorderLevel: 10,
+            lowStockThreshold: 5,
+            status: computeStatus(dstQty),
+          },
+        });
+        await tx.inventoryTransaction.create({
+          data: {
+            storeId: destDbId,
+            productId: item.productId,
+            transactionType: "TRANSFER_IN",
+            quantityBefore: dstInv?.quantity ?? 0,
+            quantityChange: item.quantity,
+            quantityAfter: dstQty,
+            userId: userId ?? null,
+            referenceId: transferNumber,
+          },
+        });
       }
       return created;
     });
 
     const storeCodeMap: Record<string, StoreId> = {};
-    (await db.store.findMany({ select: { id: true, code: true } })).forEach((s) => { storeCodeMap[s.id] = s.code.toLowerCase() as StoreId; });
+    (await db.store.findMany({ select: { id: true, code: true } })).forEach(
+      (s) => {
+        storeCodeMap[s.id] = s.code.toLowerCase() as StoreId;
+      },
+    );
 
     const transferRecord: StockTransferRecord = {
       id: transfer.id,
@@ -664,8 +867,16 @@ export async function transferStockBetweenStores(params: {
       destinationStoreId,
       status: "COMPLETED",
       items: transfer.items.map((i) => {
-        const item = i as typeof i & { product?: { name?: string; sku?: string } };
-        return { productId: i.productId, productName: item.product?.name ?? i.productId, sku: item.product?.sku ?? "", quantity: i.quantity, receivedQuantity: i.receivedQuantity };
+        const item = i as typeof i & {
+          product?: { name?: string; sku?: string };
+        };
+        return {
+          productId: i.productId,
+          productName: item.product?.name ?? i.productId,
+          sku: item.product?.sku ?? "",
+          quantity: i.quantity,
+          receivedQuantity: i.receivedQuantity,
+        };
       }),
       requestedByUserId: userId,
       approvedByUserId: userId,
@@ -674,7 +885,11 @@ export async function transferStockBetweenStores(params: {
       updatedAt: transfer.updatedAt.toISOString(),
     };
 
-    return { success: true, transfer: transferRecord, message: `Transferred ${items.reduce((s, i) => s + i.quantity, 0)} units from ${STORES[sourceStoreId]?.name} to ${STORES[destinationStoreId]?.name}.` };
+    return {
+      success: true,
+      transfer: transferRecord,
+      message: `Transferred ${items.reduce((s, i) => s + i.quantity, 0)} units from ${STORES[sourceStoreId]?.name} to ${STORES[destinationStoreId]?.name}.`,
+    };
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : "Transfer failed";
     console.error("[inventoryEngine] transferStockBetweenStores error:", err);
@@ -687,25 +902,41 @@ export async function transferStockBetweenStores(params: {
  */
 export async function getStockTransfers(): Promise<StockTransferRecord[]> {
   try {
-    const storeRows = await db.store.findMany({ select: { id: true, code: true } });
+    const storeRows = await db.store.findMany({
+      select: { id: true, code: true },
+    });
     const storeCodeMap: Record<string, StoreId> = {};
-    storeRows.forEach((s) => { storeCodeMap[s.id] = s.code.toLowerCase() as StoreId; });
+    storeRows.forEach((s) => {
+      storeCodeMap[s.id] = s.code.toLowerCase() as StoreId;
+    });
 
     const transfers = await db.stockTransfer.findMany({
       orderBy: { createdAt: "desc" },
       take: 200,
-      include: { items: { include: { product: { select: { name: true, sku: true } } } } },
+      include: {
+        items: { include: { product: { select: { name: true, sku: true } } } },
+      },
     });
 
     return transfers.map((t) => ({
       id: t.id,
       transferNumber: t.transferNumber,
-      sourceStoreId: storeCodeMap[t.sourceStoreId] ?? (t.sourceStoreId as StoreId),
-      destinationStoreId: storeCodeMap[t.destinationStoreId] ?? (t.destinationStoreId as StoreId),
+      sourceStoreId:
+        storeCodeMap[t.sourceStoreId] ?? (t.sourceStoreId as StoreId),
+      destinationStoreId:
+        storeCodeMap[t.destinationStoreId] ?? (t.destinationStoreId as StoreId),
       status: t.status as StockTransferRecord["status"],
       items: t.items.map((i) => {
-        const item = i as typeof i & { product?: { name?: string; sku?: string } };
-        return { productId: i.productId, productName: item.product?.name ?? i.productId, sku: item.product?.sku ?? "", quantity: i.quantity, receivedQuantity: i.receivedQuantity };
+        const item = i as typeof i & {
+          product?: { name?: string; sku?: string };
+        };
+        return {
+          productId: i.productId,
+          productName: item.product?.name ?? i.productId,
+          sku: item.product?.sku ?? "",
+          quantity: i.quantity,
+          receivedQuantity: i.receivedQuantity,
+        };
       }),
       requestedByUserId: t.requestedByUserId ?? undefined,
       approvedByUserId: t.approvedByUserId ?? undefined,
@@ -734,7 +965,16 @@ export async function registerProductInEngine(
     await db.storeInventory.upsert({
       where: { storeId_productId: { storeId: storeDbId, productId } },
       update: {},
-      create: { storeId: storeDbId, productId, quantity: qty, availableQuantity: qty, reservedQuantity: 0, reorderLevel: 10, lowStockThreshold: 5, status: computeStatus(qty) },
+      create: {
+        storeId: storeDbId,
+        productId,
+        quantity: qty,
+        availableQuantity: qty,
+        reservedQuantity: 0,
+        reorderLevel: 10,
+        lowStockThreshold: 5,
+        status: computeStatus(qty),
+      },
     });
   }
 }

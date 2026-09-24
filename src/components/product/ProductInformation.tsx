@@ -217,12 +217,17 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
             type="button"
             onClick={() => {
               if (typeof navigator !== "undefined" && navigator.share) {
-                navigator.share({
-                  title: product.name,
-                  text: product.description,
-                  url: window.location.href,
-                }).catch(() => {});
-              } else if (typeof navigator !== "undefined" && navigator.clipboard) {
+                navigator
+                  .share({
+                    title: product.name,
+                    text: product.description,
+                    url: window.location.href,
+                  })
+                  .catch(() => {});
+              } else if (
+                typeof navigator !== "undefined" &&
+                navigator.clipboard
+              ) {
                 navigator.clipboard.writeText(window.location.href);
                 alert("Product link copied to clipboard!");
               }
@@ -506,7 +511,9 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
           <div className="space-y-3">
             {/* Quantity Selector */}
             <div className="flex items-center justify-between bg-slate-50 border border-slate-200/90 rounded-2xl p-2.5 px-3.5">
-              <span className="text-xs font-bold text-slate-700">Quantity:</span>
+              <span className="text-xs font-bold text-slate-700">
+                Quantity:
+              </span>
               <div className="flex items-center gap-3">
                 <div className="flex items-center bg-white border border-slate-200 rounded-xl overflow-hidden shadow-2xs">
                   <button
@@ -567,7 +574,9 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
                   Currently Out of Stock
                 </h4>
                 <p className="text-[11px] text-red-700 leading-relaxed">
-                  This item is momentarily sold out. Chat with our engineers on WhatsApp to receive restock alerts, lead times, or reserve priority dispatch.
+                  This item is momentarily sold out. Chat with our engineers on
+                  WhatsApp to receive restock alerts, lead times, or reserve
+                  priority dispatch.
                 </p>
               </div>
             </div>

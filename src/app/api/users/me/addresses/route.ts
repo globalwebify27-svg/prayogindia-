@@ -1,19 +1,9 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
 import { db } from "@/lib/db";
-import { AuthSessionUser } from "@/lib/authUtils";
+import { getAuthenticatedCustomer } from "@/lib/authUtils";
 import { MOCK_SAVED_ADDRESSES, Address } from "@/data/accountData";
 
-async function getAuthenticatedUser(): Promise<AuthSessionUser | null> {
-  const cookieStore = await cookies();
-  const sessionCookie = cookieStore.get("prayog_customer_session");
-  if (!sessionCookie?.value) return null;
-  try {
-    return JSON.parse(sessionCookie.value);
-  } catch {
-    return null;
-  }
-}
+const getAuthenticatedUser = getAuthenticatedCustomer;
 
 // GET /api/users/me/addresses
 export async function GET() {

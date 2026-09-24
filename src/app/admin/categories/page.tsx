@@ -206,7 +206,10 @@ export default function AdminCategoriesPage() {
       .then((data) => {
         if (data.success && data.data?.length) {
           // Transform DB Category nodes to CategoryNode shape
-          const transform = (cats: any[], level: 0|1|2 = 0): CategoryNode[] =>
+          const transform = (
+            cats: any[],
+            level: 0 | 1 | 2 = 0,
+          ): CategoryNode[] =>
             cats.map((c: any) => ({
               id: c.id,
               name: c.name,
@@ -221,7 +224,7 @@ export default function AdminCategoriesPage() {
               productCount: c._count?.products || 0,
               sortOrder: 0,
               children: c.children?.length
-                ? transform(c.children, (level + 1) as 0|1|2)
+                ? transform(c.children, (level + 1) as 0 | 1 | 2)
                 : undefined,
             }));
           const transformed = transform(data.data);
@@ -232,7 +235,6 @@ export default function AdminCategoriesPage() {
       })
       .catch(() => {}); // Keep mock data as fallback
   }, []);
-
 
   // Create form state
   const [newName, setNewName] = useState("");
@@ -311,8 +313,13 @@ export default function AdminCategoriesPage() {
         : 2
       : 0;
 
-    const slug = newSlug.trim() ||
-      newName.trim().toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
+    const slug =
+      newSlug.trim() ||
+      newName
+        .trim()
+        .toLowerCase()
+        .replace(/\s+/g, "-")
+        .replace(/[^a-z0-9-]/g, "");
 
     // Try real API
     let newId = `cat-${Date.now()}`;

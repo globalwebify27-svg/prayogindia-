@@ -156,7 +156,8 @@ const ATTRIBUTED_ORDERS: AttributedOrder[] = [
 
 export default function IncentivesPage() {
   const [executives, setExecutives] = useState<ExecutiveStat[]>(EXECUTIVES);
-  const [attributedOrders, setAttributedOrders] = useState<AttributedOrder[]>(ATTRIBUTED_ORDERS);
+  const [attributedOrders, setAttributedOrders] =
+    useState<AttributedOrder[]>(ATTRIBUTED_ORDERS);
   const [calculationMode, setCalculationMode] =
     useState<IncentiveFormulaMode>("profit_based");
   const [payoutApproved, setPayoutApproved] = useState<Record<string, boolean>>(

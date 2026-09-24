@@ -3,6 +3,8 @@ import { db } from "@/lib/db";
 import { normalizeEmail, verifyPassword, sanitizeUser } from "@/lib/authUtils";
 import { UserDB } from "@/lib/userDB";
 import { checkRateLimit, getSecurityHeaders } from "@/lib/security";
+import { loginSchema } from "@/lib/validations";
+import { signSessionToken } from "@/lib/jwt";
 
 export async function POST(request: Request) {
   const headers = getSecurityHeaders();
@@ -22,26 +24,19 @@ export async function POST(request: Request) {
 
   try {
     const body = await request.json();
-    const { email, password } = body;
+    const validation = loginSchema.safeParse(body);
 
-    // 1. Mandatory Input Checks
-    if (!email || typeof email !== "string" || !email.trim()) {
+    if (!validation.success) {
       return NextResponse.json(
         {
           success: false,
-          message:
-            "Please enter your registered email address or mobile number.",
+          message: validation.error.issues[0]?.message || "Invalid input data.",
         },
         { status: 400, headers },
       );
     }
 
-    if (!password || typeof password !== "string" || password.length < 6) {
-      return NextResponse.json(
-        { success: false, message: "Password must be at least 6 characters." },
-        { status: 400, headers },
-      );
-    }
+    const { email, password } = validation.data;
 
     const identifier = email.trim();
 
@@ -116,7 +111,9 @@ export async function POST(request: Request) {
       );
     }
 
-    // 7. Set HttpOnly Customer Session Cookie
+    // 7. Set Cryptographically Signed HttpOnly Customer Session Cookie
+    const sessionToken = await signSessionToken(userPayload, "7d");
+
     const response = NextResponse.json({
       success: true,
       message: "Login successful.",
@@ -125,7 +122,7 @@ export async function POST(request: Request) {
 
     response.cookies.set({
       name: "prayog_customer_session",
-      value: JSON.stringify(userPayload),
+      value: sessionToken,
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",

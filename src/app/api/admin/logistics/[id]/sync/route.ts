@@ -1,18 +1,7 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
 import { LogisticsEngine } from "@/lib/logisticsEngine";
 import { getSecurityHeaders } from "@/lib/security";
-
-async function getAdminUser() {
-  const cookieStore = await cookies();
-  const sessionCookie = cookieStore.get("prayog_admin_session");
-  if (!sessionCookie?.value) return null;
-  try {
-    return JSON.parse(sessionCookie.value);
-  } catch {
-    return null;
-  }
-}
+import { getAuthenticatedAdmin } from "@/lib/adminAuth";
 
 /**
  * POST /api/admin/logistics/[id]/sync
@@ -23,9 +12,12 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> },
 ) {
   const headers = getSecurityHeaders();
-  const admin = await getAdminUser();
+  const admin = await getAuthenticatedAdmin();
   if (!admin) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401, headers });
+    return NextResponse.json(
+      { error: "Unauthorized" },
+      { status: 401, headers },
+    );
   }
 
   const resolvedParams = await params;
@@ -52,7 +44,10 @@ export async function POST(
   } catch (error: any) {
     console.error("[Logistics Sync Error]", error);
     return NextResponse.json(
-      { success: false, message: error.message || "Failed to synchronize tracking." },
+      {
+        success: false,
+        message: error.message || "Failed to synchronize tracking.",
+      },
       { status: 500, headers },
     );
   }

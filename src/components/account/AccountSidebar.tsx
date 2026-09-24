@@ -23,7 +23,11 @@ export const AccountSidebar: React.FC = () => {
   const navItems = [
     { label: "My Profile", href: "/account/profile", icon: User },
     { label: "My Orders", href: "/account/orders", icon: ShoppingBag },
-    { label: "My Quotations (B2B)", href: "/account/quotations", icon: FileText },
+    {
+      label: "My Quotations (B2B)",
+      href: "/account/quotations",
+      icon: FileText,
+    },
     { label: "Saved Wishlist", href: "/wishlist", icon: Heart },
     { label: "Saved Addresses", href: "/account/addresses", icon: MapPin },
     { label: "Reward Points", href: "/account/rewards", icon: Award },

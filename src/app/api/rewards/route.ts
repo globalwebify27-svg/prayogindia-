@@ -1,19 +1,7 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
 import { db } from "@/lib/db";
-import { AuthSessionUser } from "@/lib/authUtils";
+import { getAuthenticatedCustomer } from "@/lib/authUtils";
 import { getSecurityHeaders } from "@/lib/security";
-
-async function getAuthenticatedUser(): Promise<AuthSessionUser | null> {
-  const cookieStore = await cookies();
-  const sessionCookie = cookieStore.get("prayog_customer_session");
-  if (!sessionCookie?.value) return null;
-  try {
-    return JSON.parse(sessionCookie.value);
-  } catch {
-    return null;
-  }
-}
 
 /**
  * GET /api/rewards
@@ -21,7 +9,7 @@ async function getAuthenticatedUser(): Promise<AuthSessionUser | null> {
  */
 export async function GET(request: Request) {
   const headers = getSecurityHeaders();
-  const user = await getAuthenticatedUser();
+  const user = await getAuthenticatedCustomer();
   if (!user) {
     return NextResponse.json(
       { success: false, message: "Unauthenticated" },
@@ -31,7 +19,10 @@ export async function GET(request: Request) {
 
   const { searchParams } = new URL(request.url);
   const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
-  const limit = Math.min(50, Math.max(1, parseInt(searchParams.get("limit") || "20", 10)));
+  const limit = Math.min(
+    50,
+    Math.max(1, parseInt(searchParams.get("limit") || "20", 10)),
+  );
 
   if (!process.env.DATABASE_URL) {
     return NextResponse.json({
@@ -55,7 +46,9 @@ export async function GET(request: Request) {
     const { LoyaltyEngine } = await import("@/lib/loyaltyEngine");
     const tierRule = await LoyaltyEngine.getTierRule(dbUser?.customerType);
 
-    const total = await db.rewardTransaction.count({ where: { userId: user.id } });
+    const total = await db.rewardTransaction.count({
+      where: { userId: user.id },
+    });
     const totalPages = Math.ceil(total / limit) || 1;
 
     const transactions = await db.rewardTransaction.findMany({
@@ -80,7 +73,8 @@ export async function GET(request: Request) {
       success: true,
       data: {
         balance,
-        rupeeValue: Math.round(balance * tierRule.redemptionRateRupees * 100) / 100,
+        rupeeValue:
+          Math.round(balance * tierRule.redemptionRateRupees * 100) / 100,
         lifetimeEarned: earnedAggregate._sum.points || 0,
         lifetimeRedeemed: Math.abs(redeemedAggregate._sum.points || 0),
         tierRule: {

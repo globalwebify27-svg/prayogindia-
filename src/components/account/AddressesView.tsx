@@ -1,7 +1,15 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
-import { MapPin, Plus, Trash2, Edit3, CheckCircle2, Loader2, AlertCircle } from "lucide-react";
+import {
+  MapPin,
+  Plus,
+  Trash2,
+  Edit3,
+  CheckCircle2,
+  Loader2,
+  AlertCircle,
+} from "lucide-react";
 
 interface Address {
   id: string;
@@ -15,7 +23,9 @@ interface Address {
   isDefault: boolean;
 }
 
-type AddressFormData = Omit<Address, "id" | "isDefault"> & { isDefault?: boolean };
+type AddressFormData = Omit<Address, "id" | "isDefault"> & {
+  isDefault?: boolean;
+};
 
 const EMPTY_FORM: AddressFormData = {
   name: "",
@@ -90,7 +100,10 @@ export const AddressesView: React.FC = () => {
     setShowForm(true);
   };
 
-  const handleFormChange = (key: keyof AddressFormData, val: string | boolean) => {
+  const handleFormChange = (
+    key: keyof AddressFormData,
+    val: string | boolean,
+  ) => {
     setForm((prev) => ({ ...prev, [key]: val }));
   };
 
@@ -130,7 +143,9 @@ export const AddressesView: React.FC = () => {
     if (!confirm("Delete this address?")) return;
     setDeletingId(id);
     try {
-      const res = await fetch(`/api/users/me/addresses/${id}`, { method: "DELETE" });
+      const res = await fetch(`/api/users/me/addresses/${id}`, {
+        method: "DELETE",
+      });
       const data = await res.json();
       if (data.success) {
         showMessage("Address deleted.");
@@ -189,7 +204,9 @@ export const AddressesView: React.FC = () => {
       {(success || error) && (
         <div
           className={`rounded-xl px-4 py-3 text-xs font-semibold flex items-center gap-2 ${
-            error ? "bg-red-50 text-red-700 border border-red-200" : "bg-emerald-50 text-emerald-700 border border-emerald-200"
+            error
+              ? "bg-red-50 text-red-700 border border-red-200"
+              : "bg-emerald-50 text-emerald-700 border border-emerald-200"
           }`}
         >
           <AlertCircle className="w-4 h-4 flex-shrink-0" />
@@ -277,7 +294,9 @@ export const AddressesView: React.FC = () => {
               <input
                 type="checkbox"
                 checked={!!form.isDefault}
-                onChange={(e) => handleFormChange("isDefault", e.target.checked)}
+                onChange={(e) =>
+                  handleFormChange("isDefault", e.target.checked)
+                }
                 className="rounded"
               />
               Set as default
@@ -345,8 +364,12 @@ export const AddressesView: React.FC = () => {
               </div>
 
               <div>
-                <h4 className="text-xs font-black text-slate-900">{addr.name}</h4>
-                <p className="text-[11px] text-slate-500 font-semibold">{addr.phone}</p>
+                <h4 className="text-xs font-black text-slate-900">
+                  {addr.name}
+                </h4>
+                <p className="text-[11px] text-slate-500 font-semibold">
+                  {addr.phone}
+                </p>
                 <p className="text-xs text-slate-700 font-medium mt-1 leading-relaxed">
                   {addr.street}, {addr.city}, {addr.state} —{" "}
                   <strong>{addr.pincode}</strong>

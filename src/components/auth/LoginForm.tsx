@@ -59,7 +59,7 @@ export const LoginForm: React.FC = () => {
       if (!res.ok || !data.success) {
         setError(
           data.message ||
-            "Invalid email/phone or password. Please check your credentials."
+            "Invalid email/phone or password. Please check your credentials.",
         );
         setLoading(false);
         return;
@@ -125,10 +125,10 @@ export const LoginForm: React.FC = () => {
   };
 
   return (
-    <div className="w-full min-h-[calc(100vh-200px)] flex items-center justify-center py-12 px-4 bg-[#F8FAFC]">
-      <div className="w-full max-w-[500px] bg-white rounded-2xl border border-slate-200/90 p-8 sm:p-12 shadow-[0_4px_25px_rgba(0,0,0,0.03)] animate-in fade-in duration-300">
+    <div className="w-full min-h-[calc(100vh-200px)] flex items-center justify-center py-8 sm:py-12 px-3 sm:px-4 bg-[#F8FAFC]">
+      <div className="w-full max-w-[500px] bg-white rounded-2xl border border-slate-200/90 p-6 sm:p-10 shadow-[0_4px_25px_rgba(0,0,0,0.03)] animate-in fade-in duration-300">
         {/* Title */}
-        <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight mb-8">
+        <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight mb-6 sm:mb-8">
           Login
         </h1>
 
@@ -136,7 +136,8 @@ export const LoginForm: React.FC = () => {
           <div className="mb-6 bg-emerald-50 text-emerald-800 text-xs font-medium p-3.5 rounded-xl border border-emerald-200 flex items-center gap-2 animate-in fade-in">
             <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
             <span>
-              Account created successfully! Please enter your password to sign in.
+              Account created successfully! Please enter your password to sign
+              in.
             </span>
           </div>
         )}
@@ -148,7 +149,7 @@ export const LoginForm: React.FC = () => {
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-5">
+        <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
           {/* Input 1: Email or Mobile No */}
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
@@ -206,7 +207,7 @@ export const LoginForm: React.FC = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-32 bg-[#00AEEF] hover:bg-[#0096D6] active:scale-[0.98] disabled:opacity-40 text-white py-3 rounded-xl font-bold text-sm transition-all shadow-md shadow-[#00AEEF]/20 flex items-center justify-center cursor-pointer"
+              className="w-full sm:w-36 bg-[#00AEEF] hover:bg-[#0096D6] active:scale-[0.98] disabled:opacity-40 text-white py-3.5 rounded-xl font-bold text-sm transition-all shadow-md shadow-[#00AEEF]/20 flex items-center justify-center cursor-pointer"
             >
               {loading ? "Logging in..." : "Login"}
             </button>

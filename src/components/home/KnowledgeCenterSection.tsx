@@ -49,7 +49,8 @@ export const KnowledgeCenterSection: React.FC = () => {
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
           <div>
             <span className="text-[11px] font-bold uppercase tracking-wider text-[#00AEEF] flex items-center gap-1.5">
-              <BookOpen className="w-3.5 h-3.5" /> Prayog Knowledge Center &amp; DIY Guides
+              <BookOpen className="w-3.5 h-3.5" /> Prayog Knowledge Center &amp;
+              DIY Guides
             </span>
             <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight mt-1">
               Developer Tutorials &amp; Hardware Guides

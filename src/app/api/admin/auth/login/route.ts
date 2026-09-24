@@ -9,6 +9,7 @@ import {
 import { Role } from "@prisma/client";
 import { checkRateLimit, getSecurityHeaders } from "@/lib/security";
 import { recordAuditLog } from "@/lib/auditLogger";
+import { signSessionToken } from "@/lib/jwt";
 
 export async function POST(request: Request) {
   const headers = getSecurityHeaders();
@@ -115,6 +116,8 @@ export async function POST(request: Request) {
       req: request,
     });
 
+    const sessionJwt = await signSessionToken(adminPayload, "12h");
+
     const response = NextResponse.json({
       success: true,
       message: "Admin authentication successful.",
@@ -123,7 +126,7 @@ export async function POST(request: Request) {
 
     response.cookies.set({
       name: AUTH_ADMIN_COOKIE_NAME,
-      value: JSON.stringify(adminPayload),
+      value: sessionJwt,
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",

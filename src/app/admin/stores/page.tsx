@@ -125,7 +125,6 @@ export default function AdminStoresPage() {
     }
   };
 
-
   const handleAddDevice = (e: React.FormEvent) => {
     e.preventDefault();
     if (!activeStoreForDevice) return;
@@ -231,9 +230,12 @@ export default function AdminStoresPage() {
       ) : stores.length === 0 ? (
         <div className="bg-white border border-dashed border-slate-200 rounded-3xl p-12 text-center space-y-3">
           <Building2 className="w-10 h-10 text-slate-300 mx-auto" />
-          <h3 className="font-bold text-slate-700">No Store Branches Configured</h3>
+          <h3 className="font-bold text-slate-700">
+            No Store Branches Configured
+          </h3>
           <p className="text-xs text-slate-400 max-w-sm mx-auto">
-            Add your central warehouse or regional retail branches to enable inventory routing and in-store POS checkouts.
+            Add your central warehouse or regional retail branches to enable
+            inventory routing and in-store POS checkouts.
           </p>
           <button
             onClick={() => setShowAddStoreModal(true)}
@@ -345,8 +347,8 @@ export default function AdminStoresPage() {
                 <div className="space-y-2 border-t border-slate-100 pt-3">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-black uppercase text-slate-900 flex items-center gap-1.5">
-                      <Tablet className="w-3.5 h-3.5 text-[#00AEEF]" /> Authorized
-                      Devices ({devices.length})
+                      <Tablet className="w-3.5 h-3.5 text-[#00AEEF]" />{" "}
+                      Authorized Devices ({devices.length})
                     </span>
                     <button
                       onClick={() => {
@@ -380,7 +382,8 @@ export default function AdminStoresPage() {
                               {dev.token}
                             </div>
                             <div className="text-[9px] text-slate-400">
-                              Staff: {dev.assignedStaff || "Store Staff"} · {dev.lastActiveAt || "Active"}
+                              Staff: {dev.assignedStaff || "Store Staff"} ·{" "}
+                              {dev.lastActiveAt || "Active"}
                             </div>
                           </div>
 
@@ -570,7 +573,9 @@ export default function AdminStoresPage() {
                 </button>
               </div>
               {storeError && (
-                <p className="text-xs text-red-600 font-bold text-center mt-2">{storeError}</p>
+                <p className="text-xs text-red-600 font-bold text-center mt-2">
+                  {storeError}
+                </p>
               )}
             </form>
           </div>

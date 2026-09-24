@@ -1,18 +1,6 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
 import { db } from "@/lib/db";
-import { AuthSessionUser } from "@/lib/authUtils";
-
-async function getAuthenticatedUser(): Promise<AuthSessionUser | null> {
-  const cookieStore = await cookies();
-  const sessionCookie = cookieStore.get("prayog_customer_session");
-  if (!sessionCookie?.value) return null;
-  try {
-    return JSON.parse(sessionCookie.value);
-  } catch {
-    return null;
-  }
-}
+import { getAuthenticatedCustomer } from "@/lib/authUtils";
 
 /**
  * GET /api/service-enquiries/[id]
@@ -22,7 +10,7 @@ export async function GET(
   request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const user = await getAuthenticatedUser();
+  const user = await getAuthenticatedCustomer();
   if (!user) {
     return NextResponse.json(
       { success: false, message: "Unauthenticated" },

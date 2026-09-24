@@ -135,7 +135,9 @@ export const HeroSection: React.FC<HeroProps> = ({
               <div className="flex items-center gap-2">
                 <Box className="w-4 h-4 text-[#00AEEF] shrink-0" />
                 <div>
-                  <div className="text-xs font-semibold text-white">10,000+</div>
+                  <div className="text-xs font-semibold text-white">
+                    10,000+
+                  </div>
                   <div className="text-[10px] text-slate-400">Products</div>
                 </div>
               </div>
@@ -151,7 +153,9 @@ export const HeroSection: React.FC<HeroProps> = ({
               <div className="flex items-center gap-2">
                 <Headphones className="w-4 h-4 text-[#00AEEF] shrink-0" />
                 <div>
-                  <div className="text-xs font-semibold text-white">Dedicated</div>
+                  <div className="text-xs font-semibold text-white">
+                    Dedicated
+                  </div>
                   <div className="text-[10px] text-slate-400">Tech Support</div>
                 </div>
               </div>

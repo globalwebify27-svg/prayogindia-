@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import Image from "next/image";
 import {
   Package,
   Plus,
   Search,
+  Filter,
   CheckCircle2,
   AlertTriangle,
   Boxes,
@@ -25,10 +26,24 @@ import {
   ArrowRight,
   ArrowLeft,
   Info,
+  Share2,
+  ExternalLink,
+  Copy,
+  Smartphone,
+  Monitor,
+  Sliders,
+  Check,
+  CheckCircle,
+  TrendingUp,
+  BarChart2,
+  Zap,
 } from "lucide-react";
 import { PRODUCTS } from "@/data/mockData";
 import { ShippingTagType } from "@/data/productShippingConfig";
-import { CATEGORIES_HIERARCHY, flattenCategories } from "@/data/categoriesHierarchy";
+import {
+  CATEGORIES_HIERARCHY,
+  flattenCategories,
+} from "@/data/categoriesHierarchy";
 import { compressImageOnClient } from "@/lib/clientImageCompressor";
 
 interface UploadedMediaItem {
@@ -66,16 +81,30 @@ interface ProductItemRow {
   whatsIncluded?: string[];
   specs?: Record<string, string>;
   slug?: string;
+  metaTitle?: string;
+  metaDescription?: string;
+  metaKeywords?: string[];
+  canonicalUrl?: string;
+  ogImage?: string;
+  indexFollow?: boolean;
+  structuredDataType?: string;
+  seoSlug?: string;
 }
 
 export default function AdminProductsPage() {
-  const [products, setProducts] = useState<ProductItemRow[]>(PRODUCTS as unknown as ProductItemRow[]);
+  const [products, setProducts] = useState<ProductItemRow[]>(
+    PRODUCTS as unknown as ProductItemRow[],
+  );
   const [searchQuery, setSearchQuery] = useState("");
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [modalMode, setModalMode] = useState<"create" | "edit">("create");
-  const [editingProduct, setEditingProduct] = useState<ProductItemRow | null>(null);
+  const [editingProduct, setEditingProduct] = useState<ProductItemRow | null>(
+    null,
+  );
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [activeTab, setActiveTab] = useState<"general" | "media" | "specs" | "shipping">("general");
+  const [activeTab, setActiveTab] = useState<
+    "general" | "media" | "specs" | "shipping" | "seo"
+  >("general");
 
   // Categories list from Hierarchy
   const flatCategories = React.useMemo(() => {
@@ -121,7 +150,9 @@ export default function AdminProductsPage() {
   ]);
   const [includedInput, setIncludedInput] = useState("");
 
-  const [specsRows, setSpecsRows] = useState<Array<{ key: string; val: string }>>([
+  const [specsRows, setSpecsRows] = useState<
+    Array<{ key: string; val: string }>
+  >([
     { key: "Operating Voltage", val: "5V DC" },
     { key: "Input Voltage (Limits)", val: "6-20V" },
     { key: "Clock Speed", val: "16 MHz" },
@@ -141,11 +172,116 @@ export default function AdminProductsPage() {
   const [localPickupAllowed, setLocalPickupAllowed] = useState(true);
 
   // Shipping Tags Classification
-  const [shippingTag, setShippingTag] = useState<ShippingTagType>("Standard Product");
+  const [shippingTag, setShippingTag] =
+    useState<ShippingTagType>("Standard Product");
   const [isHazardousItem, setIsHazardousItem] = useState(false);
   const [isBatteryProduct, setIsBatteryProduct] = useState(false);
   const [isFragileItem, setIsFragileItem] = useState(false);
   const [isDangerousGoods, setIsDangerousGoods] = useState(false);
+
+  // Form Fields - SEO & Search Optimization
+  const [seoTitle, setSeoTitle] = useState("");
+  const [seoDescription, setSeoDescription] = useState("");
+  const [seoSlug, setSeoSlug] = useState("");
+  const [seoKeywords, setSeoKeywords] = useState<string[]>([
+    "arduino",
+    "robotics india",
+    "stem hardware",
+    "buy online",
+  ]);
+  const [keywordInput, setKeywordInput] = useState("");
+  const [seoOgImage, setSeoOgImage] = useState("");
+  const [seoIndexFollow, setSeoIndexFollow] = useState(true);
+  const [seoStructuredType, setSeoStructuredType] = useState("Product");
+  const [seoCanonicalUrl, setSeoCanonicalUrl] = useState("");
+  const [serpPreviewDevice, setSerpPreviewDevice] = useState<"desktop" | "mobile">("desktop");
+  const [copiedLink, setCopiedLink] = useState(false);
+
+  // Calculate Real-time SEO Readiness Score (0-100)
+  const seoScore = useMemo(() => {
+    let score = 0;
+    const effectiveTitle = (seoTitle || newName).trim();
+    if (effectiveTitle.length >= 30 && effectiveTitle.length <= 65) score += 25;
+    else if (effectiveTitle.length > 0) score += 12;
+
+    const effectiveDesc = (seoDescription || newDescription).trim();
+    if (effectiveDesc.length >= 80 && effectiveDesc.length <= 170) score += 25;
+    else if (effectiveDesc.length > 0) score += 12;
+
+    const effectiveSlug = (seoSlug || newName).trim();
+    if (effectiveSlug && /^[a-z0-9-]+$/.test(effectiveSlug.toLowerCase())) score += 20;
+    else if (effectiveSlug) score += 10;
+
+    if (seoKeywords.length >= 3) score += 15;
+    else if (seoKeywords.length > 0) score += 8;
+
+    if (seoOgImage || mediaList.length > 0) score += 15;
+
+    return Math.min(100, score);
+  }, [seoTitle, newName, seoDescription, newDescription, seoSlug, seoKeywords, seoOgImage, mediaList]);
+
+  // AI / Smart Auto-Generate SEO assistant
+  const handleAutoGenerateSEO = () => {
+    const brandStr = newBrand.trim() || "Prayog India";
+    const nameStr = newName.trim() || "Robotics Hardware Component";
+    const baseTitle = `${nameStr} - Buy Online at Best Price | ${brandStr}`;
+
+    let generatedDesc = "";
+    if (newDescription.trim()) {
+      generatedDesc =
+        newDescription.trim().length > 155
+          ? newDescription.trim().slice(0, 152) + "..."
+          : newDescription.trim();
+    } else {
+      generatedDesc = `Buy genuine ${nameStr} by ${brandStr} online in India. Best price with fast express delivery, official warranty & STEM project support.`;
+    }
+
+    const autoSlug = (newName.trim() || "product")
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)+/g, "");
+
+    const newKws: string[] = [
+      "prayog india",
+      brandStr.toLowerCase(),
+      newCategory.toLowerCase(),
+      "buy online india",
+      "stem kit",
+      "robotics components",
+    ];
+
+    if (newName.trim()) {
+      newKws.unshift(newName.trim().toLowerCase());
+    }
+    if (newSubcategory.trim()) {
+      newKws.push(newSubcategory.trim().toLowerCase());
+    }
+
+    const uniqueKws = Array.from(new Set(newKws.filter(Boolean))).slice(0, 8);
+
+    setSeoTitle(baseTitle.slice(0, 65));
+    setSeoDescription(generatedDesc);
+    setSeoSlug(autoSlug);
+    setSeoKeywords(uniqueKws);
+    if (!seoOgImage && mediaList.length > 0) {
+      setSeoOgImage(mediaList[0].url);
+    }
+    if (!seoCanonicalUrl) {
+      setSeoCanonicalUrl(`https://www.prayogindia.com/products/${autoSlug}`);
+    }
+  };
+
+  const handleAddKeyword = () => {
+    const kw = keywordInput.trim().toLowerCase();
+    if (kw && !seoKeywords.includes(kw)) {
+      setSeoKeywords([...seoKeywords, kw]);
+      setKeywordInput("");
+    }
+  };
+
+  const handleRemoveKeyword = (idx: number) => {
+    setSeoKeywords(seoKeywords.filter((_, i) => i !== idx));
+  };
 
   const refreshProductList = React.useCallback(async () => {
     try {
@@ -218,7 +354,7 @@ export default function AdminProductsPage() {
 
     try {
       const formData = new FormData();
-      
+
       for (const file of Array.from(files)) {
         if (file.type.startsWith("image/")) {
           // Pre-compress image client-side to save bandwidth & time
@@ -242,10 +378,17 @@ export default function AdminProductsPage() {
 
       const json = await res.json();
       if (!res.ok || !json.success) {
-        throw new Error(json.message || "Failed to upload files to Cloudinary.");
+        throw new Error(
+          json.message || "Failed to upload files to Cloudinary.",
+        );
       }
 
-      const newMedia: UploadedMediaItem[] = (json.data as (UploadedMediaItem & { originalBytes?: number; savingsPercentage?: number })[]).map((item) => ({
+      const newMedia: UploadedMediaItem[] = (
+        json.data as (UploadedMediaItem & {
+          originalBytes?: number;
+          savingsPercentage?: number;
+        })[]
+      ).map((item) => ({
         name: item.name,
         type: item.type,
         url: item.url,
@@ -297,7 +440,10 @@ export default function AdminProductsPage() {
   // Add Spec Row
   const handleAddSpec = () => {
     if (specKey.trim() && specVal.trim()) {
-      setSpecsRows([...specsRows, { key: specKey.trim(), val: specVal.trim() }]);
+      setSpecsRows([
+        ...specsRows,
+        { key: specKey.trim(), val: specVal.trim() },
+      ]);
       setSpecKey("");
       setSpecVal("");
     }
@@ -342,6 +488,19 @@ export default function AdminProductsPage() {
     setAirFreightAllowed(true);
     setSurfaceFreightAllowed(true);
     setLocalPickupAllowed(true);
+
+    // Reset SEO Settings
+    setSeoTitle("");
+    setSeoDescription("");
+    setSeoSlug("");
+    setSeoKeywords(["arduino", "robotics india", "stem kit", "buy online"]);
+    setKeywordInput("");
+    setSeoOgImage("");
+    setSeoIndexFollow(true);
+    setSeoStructuredType("Product");
+    setSeoCanonicalUrl("");
+    setSerpPreviewDevice("desktop");
+
     setActiveTab("general");
     setShowCreateModal(true);
   };
@@ -390,9 +549,7 @@ export default function AdminProductsPage() {
     setVideoUrlInput(p.videoUrl || "");
 
     // Features, applications, included
-    setFeaturesList(
-      p.features && p.features.length > 0 ? [...p.features] : [],
-    );
+    setFeaturesList(p.features && p.features.length > 0 ? [...p.features] : []);
     setApplicationsList(
       p.applications && p.applications.length > 0 ? [...p.applications] : [],
     );
@@ -401,12 +558,17 @@ export default function AdminProductsPage() {
     );
 
     // Specs
-    if (p.specs && typeof p.specs === "object") {
+    const rawSpecs = p.specs && typeof p.specs === "object" ? p.specs : {};
+    const rawSeo = (rawSpecs as Record<string, unknown>)._seo as Record<string, unknown> | undefined;
+
+    if (rawSpecs && typeof rawSpecs === "object") {
       setSpecsRows(
-        Object.entries(p.specs).map(([key, val]) => ({
-          key,
-          val: String(val),
-        })),
+        Object.entries(rawSpecs)
+          .filter(([key]) => key !== "_seo")
+          .map(([key, val]) => ({
+            key,
+            val: String(val),
+          })),
       );
     } else {
       setSpecsRows([]);
@@ -435,6 +597,34 @@ export default function AdminProductsPage() {
     setSurfaceFreightAllowed(true);
     setLocalPickupAllowed(true);
 
+    // Pre-populate SEO Settings from Product or _seo json
+    setSeoTitle(p.metaTitle || (rawSeo?.metaTitle as string) || "");
+    setSeoDescription(p.metaDescription || (rawSeo?.metaDescription as string) || "");
+    setSeoSlug(p.seoSlug || p.slug || "");
+    setSeoKeywords(
+      Array.isArray(p.metaKeywords) && p.metaKeywords.length > 0
+        ? [...p.metaKeywords]
+        : Array.isArray(rawSeo?.metaKeywords) && (rawSeo.metaKeywords as string[]).length > 0
+          ? [...(rawSeo.metaKeywords as string[])]
+          : ["prayog india", p.brand || "hardware", (p.name || "").toLowerCase().slice(0, 20)]
+    );
+    setKeywordInput("");
+    setSeoOgImage(p.ogImage || (rawSeo?.ogImage as string) || (loadedMedia[0]?.url || ""));
+    setSeoIndexFollow(
+      typeof p.indexFollow === "boolean"
+        ? p.indexFollow
+        : typeof rawSeo?.indexFollow === "boolean"
+          ? (rawSeo.indexFollow as boolean)
+          : true
+    );
+    setSeoStructuredType(
+      p.structuredDataType || (rawSeo?.structuredDataType as string) || "Product"
+    );
+    setSeoCanonicalUrl(
+      p.canonicalUrl || (rawSeo?.canonicalUrl as string) || `https://www.prayogindia.com/products/${p.slug || ""}`
+    );
+    setSerpPreviewDevice("desktop");
+
     setActiveTab("general");
     setShowCreateModal(true);
   };
@@ -461,8 +651,15 @@ export default function AdminProductsPage() {
     });
 
     const parsedPrice = parseFloat(newPrice);
-    const parsedMrp = newMrp ? parseFloat(newMrp) : Math.round(parsedPrice * 1.3);
+    const parsedMrp = newMrp
+      ? parseFloat(newMrp)
+      : Math.round(parsedPrice * 1.3);
     const parsedStock = parseInt(newStock, 10) || 0;
+
+    const finalSlug = (seoSlug.trim() || newName.trim())
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)+/g, "");
 
     const payload = {
       name: newName.trim(),
@@ -496,11 +693,26 @@ export default function AdminProductsPage() {
       isBatteryProduct,
       isFragileItem,
       isDangerousGoods,
+      // SEO & Structured Data fields
+      metaTitle:
+        seoTitle.trim() ||
+        `${newName.trim()} - Buy Online at Best Price | ${newBrand.trim() || "Prayog India"}`,
+      metaDescription:
+        seoDescription.trim() || newDescription.trim().slice(0, 160),
+      metaKeywords: seoKeywords,
+      canonicalUrl:
+        seoCanonicalUrl.trim() ||
+        `https://www.prayogindia.com/products/${finalSlug}`,
+      ogImage: seoOgImage.trim() || imageUrls[0] || "",
+      indexFollow: seoIndexFollow,
+      structuredDataType: seoStructuredType,
+      seoSlug: finalSlug,
     };
 
     try {
       if (modalMode === "edit" && editingProduct) {
-        const targetId = editingProduct.id || editingProduct.slug || editingProduct.sku;
+        const targetId =
+          editingProduct.id || editingProduct.slug || editingProduct.sku;
         const res = await fetch(`/api/admin/products/${targetId}`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
@@ -526,7 +738,7 @@ export default function AdminProductsPage() {
           ),
         );
 
-        alert(`✅ Product "${newName}" updated successfully!`);
+        alert(`✅ Product "${newName}" updated successfully with SEO settings!`);
       } else {
         const res = await fetch("/api/admin/products", {
           method: "POST",
@@ -540,7 +752,7 @@ export default function AdminProductsPage() {
         }
 
         alert(
-          `✅ Product "${newName}" published successfully to Cloudinary & Central Catalog!`,
+          `✅ Product "${newName}" published and SEO indexed successfully!`,
         );
         refreshProductList();
       }
@@ -554,11 +766,45 @@ export default function AdminProductsPage() {
     }
   };
 
-  const filteredProducts = products.filter(
-    (p) =>
-      p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      p.sku.toLowerCase().includes(searchQuery.toLowerCase()),
-  );
+  const [selectedCategoryFilter, setSelectedCategoryFilter] =
+    useState<string>("ALL");
+
+  const getProductCategory = (p: ProductItemRow): string => {
+    if (typeof p.category === "object" && p.category?.name)
+      return p.category.name;
+    if (typeof p.category === "string" && p.category) return p.category;
+    if (p.categoryName) return p.categoryName;
+    return "Uncategorized";
+  };
+
+  const availableCategories = useMemo(() => {
+    const catMap = new Map<string, number>();
+    products.forEach((p) => {
+      const cat = getProductCategory(p);
+      catMap.set(cat, (catMap.get(cat) || 0) + 1);
+    });
+    return Array.from(catMap.entries()).sort((a, b) =>
+      a[0].localeCompare(b[0]),
+    );
+  }, [products]);
+
+  const filteredProducts = useMemo(() => {
+    return products.filter((p) => {
+      const pCat = getProductCategory(p);
+      const matchesCategory =
+        selectedCategoryFilter === "ALL" ||
+        pCat.toLowerCase() === selectedCategoryFilter.toLowerCase();
+
+      const q = searchQuery.toLowerCase().trim();
+      const matchesSearch =
+        !q ||
+        p.name.toLowerCase().includes(q) ||
+        p.sku.toLowerCase().includes(q) ||
+        pCat.toLowerCase().includes(q);
+
+      return matchesCategory && matchesSearch;
+    });
+  }, [products, searchQuery, selectedCategoryFilter]);
 
   return (
     <div className="p-6 sm:p-8 space-y-8 animate-in fade-in duration-300">
@@ -574,7 +820,9 @@ export default function AdminProductsPage() {
             Products &amp; Master Catalog
           </h1>
           <p className="text-xs text-slate-500">
-            Add and edit products with rich frontend specs (Key Features, In-Box, Technical Specs) and multi-image / video Cloudinary CDN uploads.
+            Add and edit products with rich frontend specs (Key Features,
+            In-Box, Technical Specs) and multi-image / video Cloudinary CDN
+            uploads.
           </p>
         </div>
 
@@ -589,19 +837,62 @@ export default function AdminProductsPage() {
 
       {/* 2. Products List Table */}
       <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-2xs space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
-          <div className="relative w-full sm:w-72">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search product name or SKU..."
-              className="w-full bg-slate-50 border border-slate-200 pl-10 pr-4 py-2 rounded-xl text-xs font-bold text-slate-900 focus:outline-none focus:border-[#00AEEF]"
-            />
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 flex-1 max-w-2xl">
+            {/* Search Input */}
+            <div className="relative flex-1">
+              <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search product name, SKU..."
+                className="w-full bg-slate-50 border border-slate-200 pl-10 pr-8 py-2 rounded-xl text-xs font-bold text-slate-900 focus:outline-none focus:border-[#00AEEF]"
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery("")}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
+
+            {/* Category Filter Dropdown */}
+            <div className="relative min-w-[210px]">
+              <Filter className="w-3.5 h-3.5 text-[#00AEEF] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <select
+                value={selectedCategoryFilter}
+                onChange={(e) => setSelectedCategoryFilter(e.target.value)}
+                className="w-full bg-slate-50 border border-slate-200 pl-8 pr-8 py-2 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:border-[#00AEEF] cursor-pointer"
+              >
+                <option value="ALL">All Categories ({products.length})</option>
+                {availableCategories.map(([catName, count]) => (
+                  <option key={catName} value={catName}>
+                    {catName} ({count})
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Reset Button */}
+            {(selectedCategoryFilter !== "ALL" || searchQuery) && (
+              <button
+                onClick={() => {
+                  setSelectedCategoryFilter("ALL");
+                  setSearchQuery("");
+                }}
+                className="px-2.5 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 rounded-xl text-[11px] font-bold flex items-center justify-center gap-1 transition-colors cursor-pointer shrink-0"
+                title="Reset Filters"
+              >
+                <X className="w-3 h-3" />
+                <span>Reset</span>
+              </button>
+            )}
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 shrink-0">
             <button
               onClick={refreshProductList}
               className="text-xs font-bold text-slate-500 hover:text-[#00AEEF] flex items-center gap-1.5 cursor-pointer"
@@ -610,7 +901,7 @@ export default function AdminProductsPage() {
               <span>Refresh</span>
             </button>
             <span className="text-xs font-bold text-slate-400">
-              Showing {filteredProducts.length} items
+              Showing {filteredProducts.length} of {products.length} items
             </span>
           </div>
         </div>
@@ -645,7 +936,10 @@ export default function AdminProductsPage() {
                       "https://images.unsplash.com/photo-1553406830-ef2513450d76?auto=format&fit=crop&w=120&q=80";
 
                 return (
-                  <tr key={p.id} className="hover:bg-slate-50/80 transition-colors">
+                  <tr
+                    key={p.id}
+                    className="hover:bg-slate-50/80 transition-colors"
+                  >
                     <td className="py-3">
                       <div className="w-12 h-12 rounded-xl bg-slate-100 border border-slate-200 overflow-hidden relative shrink-0">
                         <img
@@ -661,14 +955,23 @@ export default function AdminProductsPage() {
                         {p.name}
                       </div>
                       <div className="text-[11px] text-slate-400 font-mono font-bold">
-                        {p.sku} &middot; <span className="text-slate-500 font-sans">{p.brand || "Prayog India"}</span>
+                        {p.sku} &middot;{" "}
+                        <span className="text-slate-500 font-sans">
+                          {p.brand || "Prayog India"}
+                        </span>
                       </div>
                     </td>
 
                     <td className="py-3.5 font-semibold text-slate-600">
-                      <div>{typeof p.category === "object" ? p.category?.name : p.category}</div>
+                      <div>
+                        {typeof p.category === "object"
+                          ? p.category?.name
+                          : p.category}
+                      </div>
                       {p.subcategory && (
-                        <div className="text-[10px] text-slate-400">{p.subcategory}</div>
+                        <div className="text-[10px] text-slate-400">
+                          {p.subcategory}
+                        </div>
                       )}
                     </td>
 
@@ -785,7 +1088,7 @@ export default function AdminProductsPage() {
 
             {/* Stepper / Segmented Navigation Tabs */}
             <div className="px-6 pt-3 pb-3 sm:px-7 bg-slate-50/70 border-b border-slate-200/70 shrink-0">
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 p-1 bg-slate-200/60 rounded-xl">
+              <div className="grid grid-cols-2 sm:grid-cols-5 gap-1.5 p-1 bg-slate-200/60 rounded-xl">
                 <button
                   type="button"
                   onClick={() => setActiveTab("general")}
@@ -869,11 +1172,38 @@ export default function AdminProductsPage() {
                   </span>
                   <span>Shipping &amp; Safety</span>
                 </button>
+
+                <button
+                  type="button"
+                  onClick={() => setActiveTab("seo")}
+                  className={`py-2 px-3 text-xs rounded-lg flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                    activeTab === "seo"
+                      ? "bg-white text-slate-900 shadow-xs font-semibold"
+                      : "text-slate-600 hover:text-slate-900 hover:bg-white/50 font-medium"
+                  }`}
+                >
+                  <span
+                    className={`w-5 h-5 rounded-full text-[10px] flex items-center justify-center font-bold ${
+                      activeTab === "seo"
+                        ? "bg-purple-600 text-white"
+                        : "bg-slate-300 text-slate-700"
+                    }`}
+                  >
+                    5
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <Sparkles className="w-3 h-3 text-purple-600" />
+                    <span>SEO &amp; Search</span>
+                  </span>
+                </button>
               </div>
             </div>
 
             {/* Scrollable Form Body */}
-            <form onSubmit={handleFormSubmit} className="flex flex-col flex-1 overflow-hidden">
+            <form
+              onSubmit={handleFormSubmit}
+              className="flex flex-col flex-1 overflow-hidden"
+            >
               <div className="flex-1 overflow-y-auto p-6 sm:p-7 space-y-5">
                 {/* TAB 1: GENERAL & CATEGORY */}
                 {activeTab === "general" && (
@@ -895,13 +1225,16 @@ export default function AdminProductsPage() {
                       </div>
                       <div>
                         <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-                          SKU (Stock Keeping Unit) <span className="text-rose-500">*</span>
+                          SKU (Stock Keeping Unit){" "}
+                          <span className="text-rose-500">*</span>
                         </label>
                         <input
                           type="text"
                           required
                           value={newSku}
-                          onChange={(e) => setNewSku(e.target.value.toUpperCase())}
+                          onChange={(e) =>
+                            setNewSku(e.target.value.toUpperCase())
+                          }
                           placeholder="PRG-ARD-R4W"
                           className="w-full bg-white border border-slate-200 hover:border-slate-300 focus:border-blue-500 focus:ring-3 focus:ring-blue-500/10 rounded-xl px-3.5 py-2.5 text-sm font-mono font-medium text-slate-900 placeholder:text-slate-400 transition-all shadow-2xs"
                         />
@@ -963,7 +1296,9 @@ export default function AdminProductsPage() {
                           Selling Price <span className="text-rose-500">*</span>
                         </label>
                         <div className="relative">
-                          <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 font-medium text-sm">₹</span>
+                          <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 font-medium text-sm">
+                            ₹
+                          </span>
                           <input
                             type="number"
                             required
@@ -980,12 +1315,18 @@ export default function AdminProductsPage() {
                           MRP
                         </label>
                         <div className="relative">
-                          <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 font-medium text-sm">₹</span>
+                          <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 font-medium text-sm">
+                            ₹
+                          </span>
                           <input
                             type="number"
                             value={newMrp}
                             onChange={(e) => setNewMrp(e.target.value)}
-                            placeholder={newPrice ? String(Math.round(parseFloat(newPrice) * 1.3)) : "3299"}
+                            placeholder={
+                              newPrice
+                                ? String(Math.round(parseFloat(newPrice) * 1.3))
+                                : "3299"
+                            }
                             className="w-full bg-white border border-slate-200 hover:border-slate-300 focus:border-blue-500 focus:ring-3 focus:ring-blue-500/10 rounded-xl pl-8 pr-3 py-2 text-sm font-semibold text-slate-900 placeholder:text-slate-400 transition-all shadow-2xs"
                           />
                         </div>
@@ -1025,9 +1366,12 @@ export default function AdminProductsPage() {
                     <div>
                       <div className="flex items-center justify-between mb-1.5">
                         <label className="block text-xs font-semibold text-slate-700">
-                          Product Overview / Description <span className="text-rose-500">*</span>
+                          Product Overview / Description{" "}
+                          <span className="text-rose-500">*</span>
                         </label>
-                        <span className="text-[11px] text-slate-400">Publicly visible on store page</span>
+                        <span className="text-[11px] text-slate-400">
+                          Publicly visible on store page
+                        </span>
                       </div>
                       <textarea
                         rows={4}
@@ -1053,7 +1397,8 @@ export default function AdminProductsPage() {
                           Upload Product Images &amp; Video
                         </h4>
                         <p className="text-xs text-slate-500 mt-0.5">
-                          High-resolution PNG, JPG, WEBP or MP4 video (Max 25MB). Auto-optimized on Cloudinary CDN.
+                          High-resolution PNG, JPG, WEBP or MP4 video (Max
+                          25MB). Auto-optimized on Cloudinary CDN.
                         </p>
                       </div>
 
@@ -1087,7 +1432,9 @@ export default function AdminProductsPage() {
                       </div>
 
                       {uploadError && (
-                        <p className="text-rose-600 font-medium text-xs pt-1">{uploadError}</p>
+                        <p className="text-rose-600 font-medium text-xs pt-1">
+                          {uploadError}
+                        </p>
                       )}
                     </div>
 
@@ -1095,7 +1442,9 @@ export default function AdminProductsPage() {
                     <div className="bg-slate-50/80 p-4 rounded-2xl border border-slate-200/80 space-y-2">
                       <label className="block text-xs font-semibold text-slate-700 flex items-center gap-2">
                         <Video className="w-4 h-4 text-blue-600" />
-                        <span>Product Video URL (Cloudinary / YouTube / Direct MP4)</span>
+                        <span>
+                          Product Video URL (Cloudinary / YouTube / Direct MP4)
+                        </span>
                       </label>
                       <input
                         type="url"
@@ -1120,7 +1469,8 @@ export default function AdminProductsPage() {
                       {mediaList.length === 0 ? (
                         <div className="p-8 text-center bg-slate-50 rounded-2xl border border-slate-200/70">
                           <p className="text-slate-400 text-xs">
-                            No media uploaded yet. You can still save and upload images later.
+                            No media uploaded yet. You can still save and upload
+                            images later.
                           </p>
                         </div>
                       ) : (
@@ -1133,7 +1483,9 @@ export default function AdminProductsPage() {
                               {item.type === "video" ? (
                                 <div className="w-full h-full flex flex-col items-center justify-center bg-slate-900 text-white p-3 text-center">
                                   <Video className="w-8 h-8 text-blue-400 mb-1.5" />
-                                  <span className="text-[10px] font-mono line-clamp-1">{item.name}</span>
+                                  <span className="text-[10px] font-mono line-clamp-1">
+                                    {item.name}
+                                  </span>
                                 </div>
                               ) : (
                                 <img
@@ -1153,7 +1505,9 @@ export default function AdminProductsPage() {
                                 <div className="absolute bottom-1.5 left-1.5 right-1.5 flex items-center justify-between pointer-events-none">
                                   <span className="bg-emerald-600/90 backdrop-blur-xs text-white text-[9px] font-black px-1.5 py-0.5 rounded-md shadow-xs flex items-center gap-1">
                                     <span>⚡ WebP</span>
-                                    {item.savingsPercentage ? <span>-{item.savingsPercentage}%</span> : null}
+                                    {item.savingsPercentage ? (
+                                      <span>-{item.savingsPercentage}%</span>
+                                    ) : null}
                                   </span>
                                   {item.bytes ? (
                                     <span className="bg-slate-900/80 text-white text-[9px] font-mono px-1.5 py-0.5 rounded-md">
@@ -1198,7 +1552,10 @@ export default function AdminProductsPage() {
                           type="text"
                           value={featureInput}
                           onChange={(e) => setFeatureInput(e.target.value)}
-                          onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), handleAddFeature())}
+                          onKeyDown={(e) =>
+                            e.key === "Enter" &&
+                            (e.preventDefault(), handleAddFeature())
+                          }
                           placeholder="e.g. Dual-core Xtensa 32-bit LX7 CPU up to 240MHz"
                           className="flex-1 bg-white border border-slate-200 hover:border-slate-300 focus:border-blue-500 focus:ring-3 focus:ring-blue-500/10 px-3 py-2 rounded-xl text-xs text-slate-900 placeholder:text-slate-400 transition-all shadow-2xs"
                         />
@@ -1222,7 +1579,11 @@ export default function AdminProductsPage() {
                               <span>{feat}</span>
                               <button
                                 type="button"
-                                onClick={() => setFeaturesList(featuresList.filter((_, i) => i !== idx))}
+                                onClick={() =>
+                                  setFeaturesList(
+                                    featuresList.filter((_, i) => i !== idx),
+                                  )
+                                }
                                 className="text-slate-400 hover:text-rose-600 transition-colors ml-1"
                               >
                                 &times;
@@ -1249,7 +1610,10 @@ export default function AdminProductsPage() {
                           type="text"
                           value={appInput}
                           onChange={(e) => setAppInput(e.target.value)}
-                          onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), handleAddApp())}
+                          onKeyDown={(e) =>
+                            e.key === "Enter" &&
+                            (e.preventDefault(), handleAddApp())
+                          }
                           placeholder="e.g. Industrial Automation, Drone Telemetry, Robotics"
                           className="flex-1 bg-white border border-slate-200 hover:border-slate-300 focus:border-blue-500 focus:ring-3 focus:ring-blue-500/10 px-3 py-2 rounded-xl text-xs text-slate-900 placeholder:text-slate-400 transition-all shadow-2xs"
                         />
@@ -1272,7 +1636,13 @@ export default function AdminProductsPage() {
                               <span>{app}</span>
                               <button
                                 type="button"
-                                onClick={() => setApplicationsList(applicationsList.filter((_, i) => i !== idx))}
+                                onClick={() =>
+                                  setApplicationsList(
+                                    applicationsList.filter(
+                                      (_, i) => i !== idx,
+                                    ),
+                                  )
+                                }
                                 className="text-blue-400 hover:text-rose-600 transition-colors ml-1"
                               >
                                 &times;
@@ -1299,7 +1669,10 @@ export default function AdminProductsPage() {
                           type="text"
                           value={includedInput}
                           onChange={(e) => setIncludedInput(e.target.value)}
-                          onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), handleAddIncluded())}
+                          onKeyDown={(e) =>
+                            e.key === "Enter" &&
+                            (e.preventDefault(), handleAddIncluded())
+                          }
                           placeholder="e.g. 1x USB-C High Speed Cable (1 Meter)"
                           className="flex-1 bg-white border border-slate-200 hover:border-slate-300 focus:border-blue-500 focus:ring-3 focus:ring-blue-500/10 px-3 py-2 rounded-xl text-xs text-slate-900 placeholder:text-slate-400 transition-all shadow-2xs"
                         />
@@ -1319,11 +1692,17 @@ export default function AdminProductsPage() {
                               key={idx}
                               className="bg-white border border-slate-200 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-800 flex items-center gap-2 shadow-2xs"
                             >
-                              <span className="text-slate-400 font-mono text-[10px]">{idx + 1}.</span>
+                              <span className="text-slate-400 font-mono text-[10px]">
+                                {idx + 1}.
+                              </span>
                               <span>{item}</span>
                               <button
                                 type="button"
-                                onClick={() => setIncludedList(includedList.filter((_, i) => i !== idx))}
+                                onClick={() =>
+                                  setIncludedList(
+                                    includedList.filter((_, i) => i !== idx),
+                                  )
+                                }
                                 className="text-slate-400 hover:text-rose-600 transition-colors ml-1"
                               >
                                 &times;
@@ -1376,18 +1755,28 @@ export default function AdminProductsPage() {
                               <tr className="bg-slate-100/70 text-slate-600 font-semibold border-b border-slate-200">
                                 <th className="py-2.5 px-3">Parameter</th>
                                 <th className="py-2.5 px-3">Value</th>
-                                <th className="py-2.5 px-3 text-right">Action</th>
+                                <th className="py-2.5 px-3 text-right">
+                                  Action
+                                </th>
                               </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-100 font-medium">
                               {specsRows.map((r, idx) => (
                                 <tr key={idx} className="hover:bg-slate-50/50">
-                                  <td className="py-2 px-3 text-slate-700 font-medium">{r.key}</td>
-                                  <td className="py-2 px-3 text-slate-900">{r.val}</td>
+                                  <td className="py-2 px-3 text-slate-700 font-medium">
+                                    {r.key}
+                                  </td>
+                                  <td className="py-2 px-3 text-slate-900">
+                                    {r.val}
+                                  </td>
                                   <td className="py-2 px-3 text-right">
                                     <button
                                       type="button"
-                                      onClick={() => setSpecsRows(specsRows.filter((_, i) => i !== idx))}
+                                      onClick={() =>
+                                        setSpecsRows(
+                                          specsRows.filter((_, i) => i !== idx),
+                                        )
+                                      }
                                       className="text-slate-400 hover:text-rose-600 transition-colors"
                                     >
                                       <Trash2 className="w-3.5 h-3.5 ml-auto" />
@@ -1415,7 +1804,8 @@ export default function AdminProductsPage() {
                       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                         <div>
                           <label className="block text-xs font-semibold text-slate-600 mb-1">
-                            Weight (grams) <span className="text-rose-500">*</span>
+                            Weight (grams){" "}
+                            <span className="text-rose-500">*</span>
                           </label>
                           <input
                             type="number"
@@ -1472,7 +1862,9 @@ export default function AdminProductsPage() {
                         <select
                           value={shippingTag}
                           onChange={(e) =>
-                            handleShippingTagChange(e.target.value as ShippingTagType)
+                            handleShippingTagChange(
+                              e.target.value as ShippingTagType,
+                            )
                           }
                           className="w-full bg-white border border-slate-200 hover:border-slate-300 focus:border-blue-500 focus:ring-3 focus:ring-blue-500/10 rounded-xl p-2.5 text-xs font-medium text-slate-800 shadow-2xs cursor-pointer"
                         >
@@ -1480,7 +1872,8 @@ export default function AdminProductsPage() {
                             Standard Product (General Air &amp; Surface)
                           </option>
                           <option value="Battery Product">
-                            Battery Product (DGCA Safety Restriction - Surface Only)
+                            Battery Product (DGCA Safety Restriction - Surface
+                            Only)
                           </option>
                           <option value="Fragile Product">
                             Fragile Product (Bubble Packing Required)
@@ -1504,7 +1897,9 @@ export default function AdminProductsPage() {
                             <input
                               type="checkbox"
                               checked={airFreightAllowed}
-                              onChange={(e) => setAirFreightAllowed(e.target.checked)}
+                              onChange={(e) =>
+                                setAirFreightAllowed(e.target.checked)
+                              }
                               disabled={isBatteryProduct || isHazardousItem}
                               className="rounded text-blue-600 focus:ring-blue-500"
                             />
@@ -1515,7 +1910,9 @@ export default function AdminProductsPage() {
                             <input
                               type="checkbox"
                               checked={surfaceFreightAllowed}
-                              onChange={(e) => setSurfaceFreightAllowed(e.target.checked)}
+                              onChange={(e) =>
+                                setSurfaceFreightAllowed(e.target.checked)
+                              }
                               className="rounded text-emerald-600 focus:ring-emerald-500"
                             />
                             <span>Surface Freight</span>
@@ -1525,7 +1922,9 @@ export default function AdminProductsPage() {
                             <input
                               type="checkbox"
                               checked={localPickupAllowed}
-                              onChange={(e) => setLocalPickupAllowed(e.target.checked)}
+                              onChange={(e) =>
+                                setLocalPickupAllowed(e.target.checked)
+                              }
                               className="rounded text-purple-600 focus:ring-purple-500"
                             />
                             <span>Local Store Pickup</span>
@@ -1543,7 +1942,9 @@ export default function AdminProductsPage() {
                             <input
                               type="checkbox"
                               checked={isBatteryProduct}
-                              onChange={(e) => handleBatteryToggle(e.target.checked)}
+                              onChange={(e) =>
+                                handleBatteryToggle(e.target.checked)
+                              }
                               className="rounded text-amber-600 focus:ring-amber-500"
                             />
                             <span>Battery Product</span>
@@ -1553,7 +1954,9 @@ export default function AdminProductsPage() {
                             <input
                               type="checkbox"
                               checked={isHazardousItem}
-                              onChange={(e) => setIsHazardousItem(e.target.checked)}
+                              onChange={(e) =>
+                                setIsHazardousItem(e.target.checked)
+                              }
                               className="rounded text-rose-600 focus:ring-rose-500"
                             />
                             <span>Hazardous Item</span>
@@ -1563,7 +1966,9 @@ export default function AdminProductsPage() {
                             <input
                               type="checkbox"
                               checked={isFragileItem}
-                              onChange={(e) => setIsFragileItem(e.target.checked)}
+                              onChange={(e) =>
+                                setIsFragileItem(e.target.checked)
+                              }
                               className="rounded text-purple-600 focus:ring-purple-500"
                             />
                             <span>Fragile Item</span>
@@ -1573,7 +1978,9 @@ export default function AdminProductsPage() {
                             <input
                               type="checkbox"
                               checked={isDangerousGoods}
-                              onChange={(e) => setIsDangerousGoods(e.target.checked)}
+                              onChange={(e) =>
+                                setIsDangerousGoods(e.target.checked)
+                              }
                               className="rounded text-rose-600 focus:ring-rose-500"
                             />
                             <span>Dangerous Goods</span>
@@ -1585,10 +1992,536 @@ export default function AdminProductsPage() {
                         <div className="text-xs text-amber-900 bg-amber-50 border border-amber-200/70 p-3 rounded-xl flex items-center gap-2 font-medium">
                           <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
                           <span>
-                            DGCA Safety Rule: Air cargo disabled automatically for LiPo / battery packs.
+                            DGCA Safety Rule: Air cargo disabled automatically
+                            for LiPo / battery packs.
                           </span>
                         </div>
                       )}
+                    </div>
+                  </div>
+                )}
+
+                {/* TAB 5: SEO & SEARCH ENGINE OPTIMIZATION */}
+                {activeTab === "seo" && (
+                  <div className="space-y-5 animate-in fade-in-50 duration-150">
+                    {/* 1. AI SEO Assistant & Health Score Banner */}
+                    <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-purple-900 via-indigo-900 to-slate-900 text-white shadow-lg border border-purple-800/40 relative overflow-hidden">
+                      <div className="absolute right-0 top-0 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 relative z-10">
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2">
+                            <span className="p-1.5 rounded-lg bg-purple-500/20 text-purple-300 border border-purple-400/30">
+                              <Sparkles className="w-4 h-4 text-purple-300" />
+                            </span>
+                            <h4 className="font-bold text-sm tracking-tight text-white flex items-center gap-2">
+                              <span>AI Search &amp; Metadata Optimizer</span>
+                              <span className="text-[10px] bg-purple-500/30 text-purple-200 px-2 py-0.5 rounded-full font-mono font-medium border border-purple-400/20">
+                                Google Ready
+                              </span>
+                            </h4>
+                          </div>
+                          <p className="text-xs text-purple-200/80 max-w-xl leading-relaxed">
+                            Auto-generate high-CTR meta titles, rich descriptions, and search keyword tags tailored for Indian STEM and hardware buyers.
+                          </p>
+                        </div>
+
+                        <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
+                          <div className="text-right">
+                            <div className="flex items-center gap-1.5">
+                              <span className="text-xs text-slate-300 font-medium">SEO Health:</span>
+                              <span
+                                className={`text-sm font-black font-mono px-2 py-0.5 rounded-lg ${
+                                  seoScore >= 80
+                                    ? "bg-emerald-500/20 text-emerald-300 border border-emerald-400/30"
+                                    : seoScore >= 50
+                                      ? "bg-amber-500/20 text-amber-300 border border-amber-400/30"
+                                      : "bg-rose-500/20 text-rose-300 border border-rose-400/30"
+                                }`}
+                              >
+                                {seoScore}%
+                              </span>
+                            </div>
+                            <span className="text-[10px] text-slate-400">
+                              {seoScore >= 80 ? "Optimal Ranking" : seoScore >= 50 ? "Moderate" : "Needs Attention"}
+                            </span>
+                          </div>
+
+                          <button
+                            type="button"
+                            onClick={handleAutoGenerateSEO}
+                            className="bg-white hover:bg-purple-50 text-purple-950 font-bold text-xs px-4 py-2.5 rounded-xl shadow-md transition-all active:scale-98 flex items-center gap-2 cursor-pointer shrink-0"
+                          >
+                            <Zap className="w-3.5 h-3.5 text-purple-600 fill-purple-600" />
+                            <span>Auto-Generate SEO</span>
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Score Progress Bar */}
+                      <div className="mt-3.5 w-full bg-slate-800/80 rounded-full h-1.5 overflow-hidden border border-slate-700/50">
+                        <div
+                          className={`h-full transition-all duration-500 rounded-full ${
+                            seoScore >= 80
+                              ? "bg-gradient-to-r from-emerald-500 to-teal-400"
+                              : seoScore >= 50
+                                ? "bg-gradient-to-r from-amber-500 to-yellow-400"
+                                : "bg-gradient-to-r from-rose-500 to-red-400"
+                          }`}
+                          style={{ width: `${seoScore}%` }}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+                      {/* Left Column: Form Settings (7 cols) */}
+                      <div className="lg:col-span-7 space-y-4">
+                        {/* Meta Title */}
+                        <div className="bg-slate-50/80 p-4 rounded-2xl border border-slate-200/80 space-y-2">
+                          <div className="flex items-center justify-between">
+                            <label className="block text-xs font-semibold text-slate-800 flex items-center gap-1.5">
+                              <Globe className="w-3.5 h-3.5 text-blue-600" />
+                              <span>Meta Title (Search Heading)</span>
+                            </label>
+                            <div className="flex items-center gap-2">
+                              <span
+                                className={`text-[11px] font-mono px-1.5 py-0.5 rounded-md font-medium ${
+                                  (seoTitle || newName).length >= 40 && (seoTitle || newName).length <= 60
+                                    ? "bg-emerald-100 text-emerald-800"
+                                    : (seoTitle || newName).length > 60
+                                      ? "bg-amber-100 text-amber-800"
+                                      : "bg-slate-200 text-slate-700"
+                                }`}
+                              >
+                                {(seoTitle || newName).length} / 60 chars
+                              </span>
+                            </div>
+                          </div>
+                          <input
+                            type="text"
+                            value={seoTitle}
+                            onChange={(e) => setSeoTitle(e.target.value)}
+                            placeholder={newName ? `${newName} - Buy Online | Prayog India` : "e.g. Arduino UNO R4 WiFi Official Board - Buy Online in India | Prayog India"}
+                            className="w-full bg-white border border-slate-200 hover:border-slate-300 focus:border-purple-500 focus:ring-3 focus:ring-purple-500/10 rounded-xl px-3 py-2 text-xs font-medium text-slate-900 placeholder:text-slate-400 transition-all shadow-2xs"
+                          />
+                          <p className="text-[11px] text-slate-500">
+                            Recommended: 50-60 characters. Highlight brand, model, and &quot;Buy Online India&quot; for higher search CTR.
+                          </p>
+                        </div>
+
+                        {/* Meta Description */}
+                        <div className="bg-slate-50/80 p-4 rounded-2xl border border-slate-200/80 space-y-2">
+                          <div className="flex items-center justify-between">
+                            <label className="block text-xs font-semibold text-slate-800 flex items-center gap-1.5">
+                              <FileText className="w-3.5 h-3.5 text-blue-600" />
+                              <span>Meta Description (SERP Snippet)</span>
+                            </label>
+                            <span
+                              className={`text-[11px] font-mono px-1.5 py-0.5 rounded-md font-medium ${
+                                (seoDescription || newDescription).length >= 120 && (seoDescription || newDescription).length <= 160
+                                  ? "bg-emerald-100 text-emerald-800"
+                                  : (seoDescription || newDescription).length > 160
+                                    ? "bg-amber-100 text-amber-800"
+                                    : "bg-slate-200 text-slate-700"
+                              }`}
+                            >
+                              {(seoDescription || newDescription).length} / 160 chars
+                            </span>
+                          </div>
+                          <textarea
+                            rows={3}
+                            value={seoDescription}
+                            onChange={(e) => setSeoDescription(e.target.value)}
+                            placeholder={newDescription ? newDescription.slice(0, 160) : "Comprehensive search summary mentioning product specs, express dispatch, and warranty..."}
+                            className="w-full bg-white border border-slate-200 hover:border-slate-300 focus:border-purple-500 focus:ring-3 focus:ring-purple-500/10 rounded-xl p-3 text-xs text-slate-900 placeholder:text-slate-400 leading-relaxed transition-all shadow-2xs"
+                          />
+                          <p className="text-[11px] text-slate-500">
+                            Recommended: 130-160 characters. Displayed beneath the clickable link on Google and Bing.
+                          </p>
+                        </div>
+
+                        {/* Custom URL Slug / Permalink */}
+                        <div className="bg-slate-50/80 p-4 rounded-2xl border border-slate-200/80 space-y-2">
+                          <label className="block text-xs font-semibold text-slate-800 flex items-center gap-1.5">
+                            <Globe className="w-3.5 h-3.5 text-blue-600" />
+                            <span>Product URL Slug / Permalink</span>
+                          </label>
+                          <div className="flex items-center rounded-xl bg-white border border-slate-200 focus-within:border-purple-500 focus-within:ring-3 focus-within:ring-purple-500/10 overflow-hidden shadow-2xs">
+                            <span className="px-3 py-2 bg-slate-100 text-slate-500 font-mono text-[11px] border-r border-slate-200 select-none whitespace-nowrap">
+                              prayogindia.com/products/
+                            </span>
+                            <input
+                              type="text"
+                              value={seoSlug}
+                              onChange={(e) =>
+                                setSeoSlug(
+                                  e.target.value
+                                    .toLowerCase()
+                                    .replace(/\s+/g, "-")
+                                    .replace(/[^a-z0-9-]/g, "")
+                                )
+                              }
+                              placeholder={
+                                newName
+                                  ? newName.toLowerCase().replace(/[^a-z0-9]+/g, "-")
+                                  : "arduino-uno-r4-wifi"
+                              }
+                              className="w-full bg-transparent px-3 py-2 text-xs font-mono font-medium text-slate-900 placeholder:text-slate-400 outline-none"
+                            />
+                            {seoSlug && (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  navigator.clipboard.writeText(
+                                    `https://www.prayogindia.com/products/${seoSlug}`
+                                  );
+                                  setCopiedLink(true);
+                                  setTimeout(() => setCopiedLink(false), 2000);
+                                }}
+                                className="px-2.5 py-1.5 mr-1.5 text-[11px] text-slate-600 hover:text-purple-700 bg-slate-100 hover:bg-purple-50 rounded-lg transition-colors flex items-center gap-1 cursor-pointer"
+                                title="Copy full URL"
+                              >
+                                {copiedLink ? (
+                                  <Check className="w-3 h-3 text-emerald-600" />
+                                ) : (
+                                  <Copy className="w-3 h-3" />
+                                )}
+                              </button>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Target Meta Keywords & Tags */}
+                        <div className="bg-slate-50/80 p-4 rounded-2xl border border-slate-200/80 space-y-3">
+                          <div className="flex items-center justify-between">
+                            <label className="block text-xs font-semibold text-slate-800 flex items-center gap-1.5">
+                              <Tag className="w-3.5 h-3.5 text-blue-600" />
+                              <span>Search Keywords &amp; Meta Tags ({seoKeywords.length})</span>
+                            </label>
+                            <span className="text-[11px] text-slate-400">
+                              Press Enter or Add
+                            </span>
+                          </div>
+
+                          <div className="flex gap-2">
+                            <input
+                              type="text"
+                              value={keywordInput}
+                              onChange={(e) => setKeywordInput(e.target.value)}
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter") {
+                                  e.preventDefault();
+                                  handleAddKeyword();
+                                }
+                              }}
+                              placeholder="e.g. iot board, wifi microcontroller, stem kits india"
+                              className="flex-1 bg-white border border-slate-200 hover:border-slate-300 focus:border-purple-500 focus:ring-3 focus:ring-purple-500/10 px-3 py-2 rounded-xl text-xs text-slate-900 placeholder:text-slate-400 shadow-2xs"
+                            />
+                            <button
+                              type="button"
+                              onClick={handleAddKeyword}
+                              className="bg-slate-900 hover:bg-slate-800 text-white px-3.5 py-2 rounded-xl font-medium text-xs transition-colors cursor-pointer"
+                            >
+                              Add Tag
+                            </button>
+                          </div>
+
+                          {/* Quick Keyword Suggestions */}
+                          <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
+                            <span className="text-[10px] text-slate-400 font-medium">Quick suggestions:</span>
+                            {[
+                              "arduino",
+                              "robotics",
+                              "microcontroller",
+                              "stem education",
+                              "diy kits",
+                              "sensors",
+                              "express shipping",
+                            ]
+                              .filter((s) => !seoKeywords.includes(s))
+                              .map((suggestion) => (
+                                <button
+                                  key={suggestion}
+                                  type="button"
+                                  onClick={() => setSeoKeywords([...seoKeywords, suggestion])}
+                                  className="text-[10px] bg-white hover:bg-purple-50 text-slate-600 hover:text-purple-700 border border-slate-200 hover:border-purple-300 px-2 py-0.5 rounded-md transition-colors cursor-pointer"
+                                >
+                                  + {suggestion}
+                                </button>
+                              ))}
+                          </div>
+
+                          {/* Active Keywords Chips */}
+                          {seoKeywords.length > 0 && (
+                            <div className="flex flex-wrap gap-1.5 pt-1">
+                              {seoKeywords.map((kw, idx) => (
+                                <span
+                                  key={idx}
+                                  className="bg-purple-50 border border-purple-200 text-purple-900 px-2.5 py-1 rounded-lg text-xs font-medium flex items-center gap-1.5 shadow-2xs"
+                                >
+                                  <span>#{kw}</span>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleRemoveKeyword(idx)}
+                                    className="text-purple-400 hover:text-rose-600 transition-colors ml-0.5 cursor-pointer"
+                                  >
+                                    &times;
+                                  </button>
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+
+                        {/* OpenGraph & Social Image */}
+                        <div className="bg-slate-50/80 p-4 rounded-2xl border border-slate-200/80 space-y-2">
+                          <label className="block text-xs font-semibold text-slate-800 flex items-center gap-1.5">
+                            <Share2 className="w-3.5 h-3.5 text-blue-600" />
+                            <span>Social Sharing Image URL (OpenGraph / Twitter Card)</span>
+                          </label>
+                          <div className="flex gap-2">
+                            <input
+                              type="url"
+                              value={seoOgImage}
+                              onChange={(e) => setSeoOgImage(e.target.value)}
+                              placeholder={mediaList[0]?.url || "https://res.cloudinary.com/..."}
+                              className="flex-1 bg-white border border-slate-200 hover:border-slate-300 focus:border-purple-500 focus:ring-3 focus:ring-purple-500/10 px-3 py-2 rounded-xl text-xs font-mono text-slate-900 placeholder:text-slate-400 shadow-2xs"
+                            />
+                            {mediaList.length > 0 && (
+                              <button
+                                type="button"
+                                onClick={() => setSeoOgImage(mediaList[0].url)}
+                                className="bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 px-3 py-2 rounded-xl text-xs font-medium transition-colors cursor-pointer whitespace-nowrap"
+                              >
+                                Use 1st Image
+                              </button>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Search Indexing & Schema Type Options */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-slate-50/80 p-4 rounded-2xl border border-slate-200/80">
+                          <div>
+                            <label className="block text-xs font-semibold text-slate-800 mb-1.5">
+                              Schema.org Structured Type
+                            </label>
+                            <select
+                              value={seoStructuredType}
+                              onChange={(e) => setSeoStructuredType(e.target.value)}
+                              className="w-full bg-white border border-slate-200 hover:border-slate-300 focus:border-purple-500 rounded-xl px-3 py-2 text-xs font-medium text-slate-800 shadow-2xs cursor-pointer"
+                            >
+                              <option value="Product">Product (Standard E-Commerce)</option>
+                              <option value="IndividualProduct">Individual Product (Single Item)</option>
+                              <option value="STEMKit">STEM / Educational Resource</option>
+                              <option value="ElectronicComponent">Hardware / Electronic Component</option>
+                            </select>
+                          </div>
+
+                          <div>
+                            <label className="block text-xs font-semibold text-slate-800 mb-1.5">
+                              Search Engine Robots Directives
+                            </label>
+                            <label className="flex items-center gap-2 p-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 cursor-pointer text-xs font-medium text-slate-800 transition-colors">
+                              <input
+                                type="checkbox"
+                                checked={seoIndexFollow}
+                                onChange={(e) => setSeoIndexFollow(e.target.checked)}
+                                className="rounded text-purple-600 focus:ring-purple-500"
+                              />
+                              <span>Allow Indexing (index, follow)</span>
+                            </label>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Right Column: Live Interactive Previews (5 cols) */}
+                      <div className="lg:col-span-5 space-y-4">
+                        {/* Google SERP Preview Card */}
+                        <div className="bg-white p-4.5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+                          <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
+                            <div className="flex items-center gap-2">
+                              <div className="w-5 h-5 rounded-full bg-slate-900 text-white flex items-center justify-center text-[10px] font-bold">
+                                G
+                              </div>
+                              <h5 className="text-xs font-bold text-slate-800">
+                                Google Search Snippet Preview
+                              </h5>
+                            </div>
+
+                            {/* Device Switcher */}
+                            <div className="flex items-center bg-slate-100 rounded-lg p-0.5 text-[11px] font-medium text-slate-600">
+                              <button
+                                type="button"
+                                onClick={() => setSerpPreviewDevice("desktop")}
+                                className={`px-2 py-1 rounded-md flex items-center gap-1 transition-all cursor-pointer ${
+                                  serpPreviewDevice === "desktop"
+                                    ? "bg-white text-slate-900 shadow-xs font-semibold"
+                                    : "hover:text-slate-900"
+                                }`}
+                              >
+                                <Monitor className="w-3 h-3" />
+                                <span>Desktop</span>
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => setSerpPreviewDevice("mobile")}
+                                className={`px-2 py-1 rounded-md flex items-center gap-1 transition-all cursor-pointer ${
+                                  serpPreviewDevice === "mobile"
+                                    ? "bg-white text-slate-900 shadow-xs font-semibold"
+                                    : "hover:text-slate-900"
+                                }`}
+                              >
+                                <Smartphone className="w-3 h-3" />
+                                <span>Mobile</span>
+                              </button>
+                            </div>
+                          </div>
+
+                          {/* SERP Mockup */}
+                          <div
+                            className={`p-3.5 rounded-xl border border-slate-100 bg-[#ffffff] space-y-1.5 transition-all ${
+                              serpPreviewDevice === "mobile"
+                                ? "max-w-[320px] mx-auto shadow-xs"
+                                : "w-full"
+                            }`}
+                          >
+                            {/* Breadcrumb */}
+                            <div className="flex items-center gap-1.5 text-[11px] text-[#202124]">
+                              <div className="w-4 h-4 rounded-full bg-blue-600 text-white flex items-center justify-center text-[8px] font-black">
+                                P
+                              </div>
+                              <div className="flex flex-col leading-tight">
+                                <span className="font-medium text-slate-800 text-[11px]">
+                                  Prayog India
+                                </span>
+                                <span className="text-[10px] text-slate-500 font-mono line-clamp-1">
+                                  https://www.prayogindia.com › products › {seoSlug || (newName ? newName.toLowerCase().replace(/[^a-z0-9]+/g, "-") : "item")}
+                                </span>
+                              </div>
+                            </div>
+
+                            {/* Clickable Blue Title */}
+                            <h4 className="text-[15px] leading-snug font-medium text-[#1a0dab] hover:underline cursor-pointer line-clamp-2">
+                              {seoTitle || (newName ? `${newName} - Buy Online | Prayog India` : "Product Name - Buy Online at Best Price | Prayog India")}
+                            </h4>
+
+                            {/* Rich Snippet Attributes (Price & Stock) */}
+                            <div className="flex items-center gap-1.5 text-[11px] text-slate-600 font-medium">
+                              <span className="text-amber-500">★★★★★</span>
+                              <span className="text-slate-700 font-semibold">4.9</span>
+                              <span className="text-slate-400">·</span>
+                              <span className="text-emerald-700 font-semibold">In stock</span>
+                              <span className="text-slate-400">·</span>
+                              <span className="text-slate-900 font-bold">₹{newPrice || "1,499"}</span>
+                            </div>
+
+                            {/* Description snippet */}
+                            <p className="text-xs text-[#4d5156] leading-relaxed line-clamp-2">
+                              {seoDescription || (newDescription ? newDescription.slice(0, 155) : "Buy genuine STEM kits, robotics modules and development boards with superfast courier dispatch across India.")}
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Social Media Card Preview (OpenGraph) */}
+                        <div className="bg-white p-4.5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+                          <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
+                            <div className="flex items-center gap-2">
+                              <Share2 className="w-4 h-4 text-purple-600" />
+                              <h5 className="text-xs font-bold text-slate-800">
+                                Social Share Card Preview (WhatsApp / X / FB)
+                              </h5>
+                            </div>
+                            <span className="text-[10px] text-purple-700 bg-purple-50 font-semibold px-2 py-0.5 rounded-md border border-purple-200">
+                              OpenGraph
+                            </span>
+                          </div>
+
+                          <div className="rounded-xl border border-slate-200 overflow-hidden bg-slate-50">
+                            {/* Card Image */}
+                            <div className="aspect-video bg-slate-900 relative overflow-hidden flex items-center justify-center">
+                              {seoOgImage || mediaList[0]?.url ? (
+                                <img
+                                  src={seoOgImage || mediaList[0]?.url}
+                                  alt="Social Preview"
+                                  className="w-full h-full object-cover"
+                                />
+                              ) : (
+                                <div className="text-center p-4">
+                                  <Package className="w-8 h-8 text-slate-600 mx-auto mb-1" />
+                                  <span className="text-[11px] text-slate-400">
+                                    Upload an image in Tab 2 or enter URL above
+                                  </span>
+                                </div>
+                              )}
+                              <div className="absolute top-2 left-2 bg-slate-900/80 backdrop-blur-xs text-white px-2 py-0.5 rounded text-[9px] font-bold">
+                                PRAYOG INDIA
+                              </div>
+                            </div>
+
+                            {/* Card Text */}
+                            <div className="p-3 bg-white space-y-1">
+                              <span className="text-[10px] uppercase font-bold text-slate-400 font-mono">
+                                PRAYOGINDIA.COM
+                              </span>
+                              <h5 className="text-xs font-bold text-slate-900 line-clamp-1">
+                                {seoTitle || newName || "Product Name | Prayog India"}
+                              </h5>
+                              <p className="text-[11px] text-slate-500 line-clamp-2 leading-tight">
+                                {seoDescription || newDescription || "Genuine robotics & STEM hardware components."}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* SEO Best Practice Audit Checklist */}
+                        <div className="bg-slate-50/80 p-4 rounded-2xl border border-slate-200/80 space-y-2.5">
+                          <h5 className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                            <TrendingUp className="w-3.5 h-3.5 text-emerald-600" />
+                            <span>SEO Readiness Checklist</span>
+                          </h5>
+                          <ul className="space-y-1.5 text-xs">
+                            <li className="flex items-center gap-2">
+                              {(seoTitle || newName).trim().length >= 30 && (seoTitle || newName).trim().length <= 65 ? (
+                                <CheckCircle className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                              ) : (
+                                <AlertTriangle className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                              )}
+                              <span className="text-slate-700">Meta Title length (30-65 chars)</span>
+                            </li>
+                            <li className="flex items-center gap-2">
+                              {(seoDescription || newDescription).trim().length >= 80 && (seoDescription || newDescription).trim().length <= 170 ? (
+                                <CheckCircle className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                              ) : (
+                                <AlertTriangle className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                              )}
+                              <span className="text-slate-700">Meta Description length (80-170 chars)</span>
+                            </li>
+                            <li className="flex items-center gap-2">
+                              {(seoSlug || newName).trim().length > 0 ? (
+                                <CheckCircle className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                              ) : (
+                                <AlertTriangle className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                              )}
+                              <span className="text-slate-700">Clean, hyphenated URL slug configured</span>
+                            </li>
+                            <li className="flex items-center gap-2">
+                              {seoKeywords.length >= 3 ? (
+                                <CheckCircle className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                              ) : (
+                                <AlertTriangle className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                              )}
+                              <span className="text-slate-700">Target search keyword tags (min 3)</span>
+                            </li>
+                            <li className="flex items-center gap-2">
+                              {seoOgImage || mediaList.length > 0 ? (
+                                <CheckCircle className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                              ) : (
+                                <AlertTriangle className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                              )}
+                              <span className="text-slate-700">High-resolution OpenGraph sharing image</span>
+                            </li>
+                          </ul>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 )}
@@ -1609,7 +2542,8 @@ export default function AdminProductsPage() {
                     <button
                       type="button"
                       onClick={() => {
-                        if (activeTab === "shipping") setActiveTab("specs");
+                        if (activeTab === "seo") setActiveTab("shipping");
+                        else if (activeTab === "shipping") setActiveTab("specs");
                         else if (activeTab === "specs") setActiveTab("media");
                         else if (activeTab === "media") setActiveTab("general");
                       }}
@@ -1622,14 +2556,17 @@ export default function AdminProductsPage() {
                 </div>
 
                 <div className="flex items-center gap-2">
-                  {/* Next Step Button (when not on final step) */}
-                  {activeTab !== "shipping" && (
+                  {/* Next Step Button (when not on final SEO step) */}
+                  {activeTab !== "seo" && (
                     <button
                       type="button"
                       onClick={() => {
                         if (activeTab === "general") setActiveTab("media");
                         else if (activeTab === "media") setActiveTab("specs");
-                        else if (activeTab === "specs") setActiveTab("shipping");
+                        else if (activeTab === "specs")
+                          setActiveTab("shipping");
+                        else if (activeTab === "shipping")
+                          setActiveTab("seo");
                       }}
                       className="px-4 py-2 text-xs font-medium text-slate-700 bg-white border border-slate-200 hover:bg-slate-100 rounded-xl transition-all shadow-2xs flex items-center gap-1.5 cursor-pointer"
                     >

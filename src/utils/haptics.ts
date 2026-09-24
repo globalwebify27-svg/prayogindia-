@@ -6,7 +6,11 @@
 export const haptic = {
   /** Ultra-light tactile click (tabs, chips, drawer toggles, bottom bar items) */
   light: () => {
-    if (typeof window !== "undefined" && typeof navigator !== "undefined" && "vibrate" in navigator) {
+    if (
+      typeof window !== "undefined" &&
+      typeof navigator !== "undefined" &&
+      "vibrate" in navigator
+    ) {
       try {
         navigator.vibrate(10);
       } catch {}
@@ -15,7 +19,11 @@ export const haptic = {
 
   /** Medium tactile response (standard button presses, action buttons, dialogs) */
   medium: () => {
-    if (typeof window !== "undefined" && typeof navigator !== "undefined" && "vibrate" in navigator) {
+    if (
+      typeof window !== "undefined" &&
+      typeof navigator !== "undefined" &&
+      "vibrate" in navigator
+    ) {
       try {
         navigator.vibrate(22);
       } catch {}
@@ -24,7 +32,11 @@ export const haptic = {
 
   /** Stepper click (quantity increment / decrement, variant / radio select) */
   selection: () => {
-    if (typeof window !== "undefined" && typeof navigator !== "undefined" && "vibrate" in navigator) {
+    if (
+      typeof window !== "undefined" &&
+      typeof navigator !== "undefined" &&
+      "vibrate" in navigator
+    ) {
       try {
         navigator.vibrate(12);
       } catch {}
@@ -33,7 +45,11 @@ export const haptic = {
 
   /** Satisfying confirmation pulse (Add to Cart, Wishlist toggle, Order Placed, OTP Verified) */
   success: () => {
-    if (typeof window !== "undefined" && typeof navigator !== "undefined" && "vibrate" in navigator) {
+    if (
+      typeof window !== "undefined" &&
+      typeof navigator !== "undefined" &&
+      "vibrate" in navigator
+    ) {
       try {
         navigator.vibrate([15, 50, 22]);
       } catch {}
@@ -42,7 +58,11 @@ export const haptic = {
 
   /** Alert / Warning pattern (form validation errors, out of stock, removal) */
   warning: () => {
-    if (typeof window !== "undefined" && typeof navigator !== "undefined" && "vibrate" in navigator) {
+    if (
+      typeof window !== "undefined" &&
+      typeof navigator !== "undefined" &&
+      "vibrate" in navigator
+    ) {
       try {
         navigator.vibrate([30, 40, 30]);
       } catch {}

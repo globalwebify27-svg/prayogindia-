@@ -287,11 +287,15 @@ export const B2BModal: React.FC<B2BModalProps> = ({ isOpen, onClose }) => {
 
     try {
       // Build items array from either structured items or textarea requirements
-      let formattedItems = formData.items.filter((i) => i.productName.trim().length > 0);
+      let formattedItems = formData.items.filter(
+        (i) => i.productName.trim().length > 0,
+      );
       if (formattedItems.length === 0) {
         formattedItems = [
           {
-            productName: formData.requirements.slice(0, 120) || "B2B Hardware / Component Requirement",
+            productName:
+              formData.requirements.slice(0, 120) ||
+              "B2B Hardware / Component Requirement",
             quantity: 1,
           },
         ];
@@ -354,7 +358,9 @@ export const B2BModal: React.FC<B2BModalProps> = ({ isOpen, onClose }) => {
               Quote Ref: {quoteNumber}
             </p>
             <p className="text-xs text-slate-500 max-w-sm mx-auto leading-relaxed">
-              Our B2B institutional procurement desk has logged your request. You will receive an official GST proforma quotation with negotiated volume pricing within 2 business hours.
+              Our B2B institutional procurement desk has logged your request.
+              You will receive an official GST proforma quotation with
+              negotiated volume pricing within 2 business hours.
             </p>
             <button
               onClick={() => {
@@ -377,7 +383,8 @@ export const B2BModal: React.FC<B2BModalProps> = ({ isOpen, onClose }) => {
               Request Official B2B Quotation
             </h2>
             <p className="text-xs text-slate-500">
-              Direct institutional pricing for Schools, Colleges, STEM Labs, Universities &amp; Enterprises.
+              Direct institutional pricing for Schools, Colleges, STEM Labs,
+              Universities &amp; Enterprises.
             </p>
 
             {error && (
@@ -393,7 +400,9 @@ export const B2BModal: React.FC<B2BModalProps> = ({ isOpen, onClose }) => {
                   type="text"
                   placeholder="Procurement Officer / Contact Name *"
                   value={formData.fullName}
-                  onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, fullName: e.target.value })
+                  }
                   className="w-full bg-slate-50 p-3 rounded-xl border border-slate-200 focus:bg-white focus:outline-none"
                 />
                 <input
@@ -401,7 +410,9 @@ export const B2BModal: React.FC<B2BModalProps> = ({ isOpen, onClose }) => {
                   type="email"
                   placeholder="Institutional / Work Email *"
                   value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, email: e.target.value })
+                  }
                   className="w-full bg-slate-50 p-3 rounded-xl border border-slate-200 focus:bg-white focus:outline-none"
                 />
               </div>
@@ -412,7 +423,9 @@ export const B2BModal: React.FC<B2BModalProps> = ({ isOpen, onClose }) => {
                   type="tel"
                   placeholder="Phone Number (+91) *"
                   value={formData.phone}
-                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, phone: e.target.value })
+                  }
                   className="w-full bg-slate-50 p-3 rounded-xl border border-slate-200 focus:bg-white focus:outline-none"
                 />
                 <input
@@ -420,7 +433,12 @@ export const B2BModal: React.FC<B2BModalProps> = ({ isOpen, onClose }) => {
                   type="text"
                   placeholder="Institution / Company Name *"
                   value={formData.institutionName}
-                  onChange={(e) => setFormData({ ...formData, institutionName: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      institutionName: e.target.value,
+                    })
+                  }
                   className="w-full bg-slate-50 p-3 rounded-xl border border-slate-200 focus:bg-white focus:outline-none"
                 />
               </div>
@@ -428,7 +446,12 @@ export const B2BModal: React.FC<B2BModalProps> = ({ isOpen, onClose }) => {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <select
                   value={formData.institutionType}
-                  onChange={(e) => setFormData({ ...formData, institutionType: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      institutionType: e.target.value,
+                    })
+                  }
                   className="w-full bg-slate-50 p-3 rounded-xl border border-slate-200 focus:bg-white focus:outline-none text-slate-700 font-medium"
                 >
                   <option value="School">School / ATL Lab</option>
@@ -436,14 +459,21 @@ export const B2BModal: React.FC<B2BModalProps> = ({ isOpen, onClose }) => {
                   <option value="University">University Research Lab</option>
                   <option value="Corporate">Corporate / Enterprise</option>
                   <option value="STEM Lab">Private Robotics Center</option>
-                  <option value="Government / Tender">Govt Dept / Tender</option>
+                  <option value="Government / Tender">
+                    Govt Dept / Tender
+                  </option>
                 </select>
 
                 <input
                   type="text"
                   placeholder="GST Number (Optional)"
                   value={formData.gstin}
-                  onChange={(e) => setFormData({ ...formData, gstin: e.target.value.toUpperCase() })}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      gstin: e.target.value.toUpperCase(),
+                    })
+                  }
                   className="w-full bg-slate-50 p-3 rounded-xl border border-slate-200 focus:bg-white focus:outline-none uppercase"
                 />
               </div>
@@ -451,7 +481,9 @@ export const B2BModal: React.FC<B2BModalProps> = ({ isOpen, onClose }) => {
               {/* Product items list */}
               <div className="border border-slate-200 rounded-2xl p-3 bg-slate-50/50 space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="font-bold text-slate-700">Requested Products &amp; Quantities</span>
+                  <span className="font-bold text-slate-700">
+                    Requested Products &amp; Quantities
+                  </span>
                   <button
                     type="button"
                     onClick={handleAddItem}
@@ -503,7 +535,9 @@ export const B2BModal: React.FC<B2BModalProps> = ({ isOpen, onClose }) => {
                 rows={2}
                 placeholder="Additional notes, project specs, preferred delivery timeline..."
                 value={formData.requirements}
-                onChange={(e) => setFormData({ ...formData, requirements: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, requirements: e.target.value })
+                }
                 className="w-full bg-slate-50 p-3 rounded-xl border border-slate-200 focus:bg-white focus:outline-none"
               ></textarea>
 
@@ -511,7 +545,9 @@ export const B2BModal: React.FC<B2BModalProps> = ({ isOpen, onClose }) => {
                 type="text"
                 placeholder="Delivery City / Campus Address"
                 value={formData.deliveryAddress}
-                onChange={(e) => setFormData({ ...formData, deliveryAddress: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, deliveryAddress: e.target.value })
+                }
                 className="w-full bg-slate-50 p-3 rounded-xl border border-slate-200 focus:bg-white focus:outline-none"
               />
             </div>
@@ -521,7 +557,9 @@ export const B2BModal: React.FC<B2BModalProps> = ({ isOpen, onClose }) => {
               disabled={loading}
               className="w-full bg-[#0A1128] hover:bg-[#1E56A0] disabled:bg-slate-300 text-white py-3.5 rounded-full text-xs font-bold shadow-md cursor-pointer transition-all"
             >
-              {loading ? "Submitting Quotation Request..." : "Submit Quotation Request"}
+              {loading
+                ? "Submitting Quotation Request..."
+                : "Submit Quotation Request"}
             </button>
           </form>
         )}

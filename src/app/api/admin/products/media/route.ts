@@ -113,7 +113,8 @@ export async function GET(request: Request) {
 // POST /api/admin/products/media
 // Authorized Super Admin requests upload slot for global product or saves media link
 export async function POST(request: Request) {
-  const staff = (await getAuthenticatedStaff()) || (await getAuthenticatedAdmin());
+  const staff =
+    (await getAuthenticatedStaff()) || (await getAuthenticatedAdmin());
 
   // Only SUPER_ADMIN is permitted to manage global product media catalog
   const isSuperAdmin =
@@ -287,7 +288,8 @@ export async function POST(request: Request) {
 
 // DELETE /api/admin/products/media?mediaId=...
 export async function DELETE(request: Request) {
-  const staff = (await getAuthenticatedStaff()) || (await getAuthenticatedAdmin());
+  const staff =
+    (await getAuthenticatedStaff()) || (await getAuthenticatedAdmin());
 
   const isSuperAdmin =
     staff &&

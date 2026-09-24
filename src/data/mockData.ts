@@ -68,6 +68,16 @@ export interface Product {
   shippingTag?: ShippingTag;
   airFreightAllowed?: boolean;
   surfaceFreightAllowed?: boolean;
+
+  // Section 6: Search Engine Optimization (SEO) & OpenGraph
+  metaTitle?: string;
+  metaDescription?: string;
+  metaKeywords?: string[];
+  canonicalUrl?: string;
+  ogImage?: string;
+  indexFollow?: boolean;
+  structuredDataType?: string;
+  seoSlug?: string;
 }
 
 export interface Category {
@@ -1510,8 +1520,22 @@ export const PRODUCTS: Product[] = [
     inStock: false,
     badge: "AI EDGE SPEC",
     variants: [
-      { id: "v-8gb", name: "8GB Dev Kit (Out of Stock)", sku: "PRG-RPI-509-8G", price: 49999, mrp: 56000, inStock: false },
-      { id: "v-16gb", name: "16GB AI Industrial Kit", sku: "PRG-RPI-509-16G", price: 68999, mrp: 74999, inStock: true }
+      {
+        id: "v-8gb",
+        name: "8GB Dev Kit (Out of Stock)",
+        sku: "PRG-RPI-509-8G",
+        price: 49999,
+        mrp: 56000,
+        inStock: false,
+      },
+      {
+        id: "v-16gb",
+        name: "16GB AI Industrial Kit",
+        sku: "PRG-RPI-509-16G",
+        price: 68999,
+        mrp: 74999,
+        inStock: true,
+      },
     ],
     image:
       "https://images.unsplash.com/photo-1608564697071-ddf911d81370?auto=format&fit=crop&w=600&q=80",

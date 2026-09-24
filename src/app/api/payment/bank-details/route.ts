@@ -40,14 +40,19 @@ export async function GET() {
               branchName: dbBank.branchName,
               accountType: dbBank.accountType,
               upiId: dbBank.upiId,
-              instructions: dbBank.instructions || DEFAULT_COMPANY_BANK_DETAILS.instructions,
+              instructions:
+                dbBank.instructions ||
+                DEFAULT_COMPANY_BANK_DETAILS.instructions,
             },
           },
-          { headers }
+          { headers },
         );
       }
     } catch (error) {
-      console.warn("[BankDetails API] Falling back to default configuration:", error);
+      console.warn(
+        "[BankDetails API] Falling back to default configuration:",
+        error,
+      );
     }
   }
 
@@ -56,6 +61,6 @@ export async function GET() {
       success: true,
       data: DEFAULT_COMPANY_BANK_DETAILS,
     },
-    { headers }
+    { headers },
   );
 }

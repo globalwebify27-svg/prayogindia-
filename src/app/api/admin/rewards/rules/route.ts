@@ -11,12 +11,19 @@ export async function GET() {
     const admin = await getAuthenticatedAdmin();
     const staff = await getAuthenticatedStaff();
 
-    if (!admin && (!staff || (staff.role !== "SUPER_ADMIN" && staff.role !== "REGIONAL_MANAGER"))) {
+    if (
+      !admin &&
+      (!staff ||
+        (staff.role !== "SUPER_ADMIN" && staff.role !== "REGIONAL_MANAGER"))
+    ) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     if (!process.env.DATABASE_URL) {
-      return NextResponse.json({ success: true, rules: Object.values(FALLBACK_TIER_RULES) });
+      return NextResponse.json({
+        success: true,
+        rules: Object.values(FALLBACK_TIER_RULES),
+      });
     }
 
     // Fetch from DB or seed defaults if table is empty
@@ -44,7 +51,10 @@ export async function GET() {
     return NextResponse.json({ success: true, rules });
   } catch (error: any) {
     console.error("GET /api/admin/rewards/rules error:", error);
-    return NextResponse.json({ error: "Failed to fetch rules", details: error.message }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to fetch rules", details: error.message },
+      { status: 500 },
+    );
   }
 }
 
@@ -55,7 +65,10 @@ export async function PATCH(req: NextRequest) {
     const staff = await getAuthenticatedStaff();
 
     if (!admin && (!staff || staff.role !== "SUPER_ADMIN")) {
-      return NextResponse.json({ error: "Forbidden: Super Admin required" }, { status: 403 });
+      return NextResponse.json(
+        { error: "Forbidden: Super Admin required" },
+        { status: 403 },
+      );
     }
 
     const body = await req.json();
@@ -72,7 +85,10 @@ export async function PATCH(req: NextRequest) {
     } = body;
 
     if (!tierCode) {
-      return NextResponse.json({ error: "tierCode is required" }, { status: 400 });
+      return NextResponse.json(
+        { error: "tierCode is required" },
+        { status: 400 },
+      );
     }
 
     const existing = await db.loyaltyRule.findUnique({
@@ -94,12 +110,28 @@ export async function PATCH(req: NextRequest) {
       },
       update: {
         name: name || undefined,
-        pointsPer100Spent: pointsPer100Spent !== undefined ? Number(pointsPer100Spent) : undefined,
-        redemptionRateRupees: redemptionRateRupees !== undefined ? Number(redemptionRateRupees) : undefined,
-        minRedemptionPoints: minRedemptionPoints !== undefined ? Number(minRedemptionPoints) : undefined,
-        maxRedemptionPercentage: maxRedemptionPercentage !== undefined ? Number(maxRedemptionPercentage) : undefined,
-        validityDays: validityDays !== undefined ? Number(validityDays) : undefined,
-        registrationBonus: registrationBonus !== undefined ? Number(registrationBonus) : undefined,
+        pointsPer100Spent:
+          pointsPer100Spent !== undefined
+            ? Number(pointsPer100Spent)
+            : undefined,
+        redemptionRateRupees:
+          redemptionRateRupees !== undefined
+            ? Number(redemptionRateRupees)
+            : undefined,
+        minRedemptionPoints:
+          minRedemptionPoints !== undefined
+            ? Number(minRedemptionPoints)
+            : undefined,
+        maxRedemptionPercentage:
+          maxRedemptionPercentage !== undefined
+            ? Number(maxRedemptionPercentage)
+            : undefined,
+        validityDays:
+          validityDays !== undefined ? Number(validityDays) : undefined,
+        registrationBonus:
+          registrationBonus !== undefined
+            ? Number(registrationBonus)
+            : undefined,
         isActive: isActive !== undefined ? Boolean(isActive) : undefined,
       },
     });
@@ -112,11 +144,13 @@ export async function PATCH(req: NextRequest) {
       entityId: updated.id,
       description: `Loyalty rule updated for tier "${updated.name}" (${updated.tierCode}). Earning: ${updated.pointsPer100Spent} pts/₹100, Max Cap: ${updated.maxRedemptionPercentage}%.`,
       actor: admin || staff,
-      previousValue: existing ? {
-        pointsPer100Spent: existing.pointsPer100Spent,
-        redemptionRateRupees: existing.redemptionRateRupees,
-        maxRedemptionPercentage: existing.maxRedemptionPercentage,
-      } : null,
+      previousValue: existing
+        ? {
+            pointsPer100Spent: existing.pointsPer100Spent,
+            redemptionRateRupees: existing.redemptionRateRupees,
+            maxRedemptionPercentage: existing.maxRedemptionPercentage,
+          }
+        : null,
       newValue: {
         pointsPer100Spent: updated.pointsPer100Spent,
         redemptionRateRupees: updated.redemptionRateRupees,
@@ -133,6 +167,9 @@ export async function PATCH(req: NextRequest) {
     });
   } catch (error: any) {
     console.error("PATCH /api/admin/rewards/rules error:", error);
-    return NextResponse.json({ error: "Failed to update rule", details: error.message }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to update rule", details: error.message },
+      { status: 500 },
+    );
   }
 }

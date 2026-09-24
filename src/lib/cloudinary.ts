@@ -5,7 +5,8 @@ import { compressImageBuffer } from "./mediaCompressor";
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME || "fyueflvh",
   api_key: process.env.CLOUDINARY_API_KEY || "544111356368169",
-  api_secret: process.env.CLOUDINARY_API_SECRET || "rYfAb_4wHeuE6FfCMaSFNFMjsPc",
+  api_secret:
+    process.env.CLOUDINARY_API_SECRET || "rYfAb_4wHeuE6FfCMaSFNFMjsPc",
   secure: true,
 });
 
@@ -122,7 +123,9 @@ export async function uploadToCloudinary(
       uploadParams,
       (error, result) => {
         if (error || !result) {
-          return reject(error || new Error("Cloudinary upload returned empty result"));
+          return reject(
+            error || new Error("Cloudinary upload returned empty result"),
+          );
         }
         resolve({
           url: result.url,

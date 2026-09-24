@@ -5,7 +5,13 @@ import { getSecurityHeaders } from "@/lib/security";
 
 export interface AdminNotificationItem {
   id: string;
-  type: "LOW_STOCK" | "PENDING_TRANSFER" | "NEW_ORDER" | "B2B_QUOTATION" | "SUPPORT_TICKET" | "SYSTEM_ALERT";
+  type:
+    | "LOW_STOCK"
+    | "PENDING_TRANSFER"
+    | "NEW_ORDER"
+    | "B2B_QUOTATION"
+    | "SUPPORT_TICKET"
+    | "SYSTEM_ALERT";
   title: string;
   description: string;
   timeAgo: string;
@@ -55,7 +61,10 @@ export async function GET() {
       // 2. Check Pending Transfers
       const pendingTransfers = await db.stockTransfer.findMany({
         where: { status: "PENDING" },
-        include: { sourceStore: { select: { code: true } }, destinationStore: { select: { code: true } } },
+        include: {
+          sourceStore: { select: { code: true } },
+          destinationStore: { select: { code: true } },
+        },
         take: 5,
       });
 
@@ -65,17 +74,22 @@ export async function GET() {
           type: "PENDING_TRANSFER",
           title: `Stock Transfer Request #${tr.transferNumber}`,
           description: `Transfer from ${tr.sourceStore.code} to ${tr.destinationStore.code} requires review.`,
-          timeAgo: new Date(tr.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+          timeAgo: new Date(tr.createdAt).toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+          }),
           link: "/admin/transfers",
           severity: "warning",
         });
       });
 
       // 3. Check Pending B2B Quotations
-      const pendingQuotes = await db.quotation.findMany({
-        where: { status: "DRAFT" },
-        take: 3,
-      }).catch(() => []);
+      const pendingQuotes = await db.quotation
+        .findMany({
+          where: { status: "DRAFT" },
+          take: 3,
+        })
+        .catch(() => []);
 
       pendingQuotes.forEach((q: any) => {
         notifications.push({
@@ -90,10 +104,12 @@ export async function GET() {
       });
 
       // 4. Check Open Support Tickets
-      const openTickets = await db.supportTicket.findMany({
-        where: { status: "OPEN" },
-        take: 4,
-      }).catch(() => []);
+      const openTickets = await db.supportTicket
+        .findMany({
+          where: { status: "OPEN" },
+          take: 4,
+        })
+        .catch(() => []);
 
       openTickets.forEach((ticket: any) => {
         notifications.push({
@@ -118,7 +134,8 @@ export async function GET() {
         id: "notif-sync-01",
         type: "SYSTEM_ALERT",
         title: "Store Sync Completed",
-        description: "Ranchi Central Hub and regional branches are synchronized.",
+        description:
+          "Ranchi Central Hub and regional branches are synchronized.",
         timeAgo: "5m ago",
         link: "/admin/stores",
         severity: "info",

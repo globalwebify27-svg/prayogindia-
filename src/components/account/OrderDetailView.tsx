@@ -64,7 +64,10 @@ export const OrderDetailView: React.FC<OrderDetailProps> = ({ orderId }) => {
   const [loading, setLoading] = useState(true);
 
   // Review Modal State
-  const [reviewProduct, setReviewProduct] = useState<{ id: string; name: string } | null>(null);
+  const [reviewProduct, setReviewProduct] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
   const [reviewRating, setReviewRating] = useState(5);
   const [reviewTitle, setReviewTitle] = useState("");
   const [reviewBody, setReviewBody] = useState("");
@@ -99,20 +102,24 @@ export const OrderDetailView: React.FC<OrderDetailProps> = ({ orderId }) => {
               courierName: d.shipment?.courierName || "Delhivery Surface Cargo",
               courierCode: d.shipment?.courierCode || "DELHIVERY",
               trackingNumber: d.shipment?.trackingNumber || "DEL-99228811IN",
-              trackingUrl: d.shipment?.trackingUrl || "https://www.delhivery.com",
+              trackingUrl:
+                d.shipment?.trackingUrl || "https://www.delhivery.com",
               labelUrl: d.shipment?.labelUrl,
               estimatedDelivery: d.shipment?.estimatedDelivery,
               trackingEvents: d.shipment?.trackingEvents || [],
-              isCancelable: d.status === "ORDER_PLACED" || d.status === "PAYMENT_FAILED",
+              isCancelable:
+                d.status === "ORDER_PLACED" || d.status === "PAYMENT_FAILED",
               isReturnable: d.status === "DELIVERED",
-              items: d.items?.map((item: any) => ({
-                id: item.productId,
-                name: item.productName,
-                sku: item.productSku,
-                quantity: item.quantity,
-                price: item.price,
-                image: item.product?.images?.[0]?.imageUrl || "/placeholder.png",
-              })) || [],
+              items:
+                d.items?.map((item: any) => ({
+                  id: item.productId,
+                  name: item.productName,
+                  sku: item.productSku,
+                  quantity: item.quantity,
+                  price: item.price,
+                  image:
+                    item.product?.images?.[0]?.imageUrl || "/placeholder.png",
+                })) || [],
             };
             setLiveOrder(mapped);
           }
@@ -238,7 +245,9 @@ export const OrderDetailView: React.FC<OrderDetailProps> = ({ orderId }) => {
         setRequestSubmittedMessage(data.message || "Failed to cancel order.");
       }
     } catch {
-      setRequestSubmittedMessage("Network error while processing cancellation.");
+      setRequestSubmittedMessage(
+        "Network error while processing cancellation.",
+      );
     } finally {
       setIsCancelling(false);
       setModalType(null);
@@ -444,8 +453,12 @@ export const OrderDetailView: React.FC<OrderDetailProps> = ({ orderId }) => {
             </div>
             {order.estimatedDelivery && (
               <div className="flex justify-between items-center">
-                <span className="text-slate-500 font-bold">Estimated Delivery:</span>
-                <span className="font-black text-[#005CA9]">{order.estimatedDelivery}</span>
+                <span className="text-slate-500 font-bold">
+                  Estimated Delivery:
+                </span>
+                <span className="font-black text-[#005CA9]">
+                  {order.estimatedDelivery}
+                </span>
               </div>
             )}
             <div className="pt-1 flex items-center justify-between">
@@ -478,13 +491,23 @@ export const OrderDetailView: React.FC<OrderDetailProps> = ({ orderId }) => {
                 </div>
                 <div className="space-y-2 max-h-40 overflow-y-auto pr-1">
                   {order.trackingEvents.map((evt, eIdx) => (
-                    <div key={eIdx} className="text-[11px] flex items-start gap-2 border-l-2 border-[#00AEEF] pl-2 py-0.5">
+                    <div
+                      key={eIdx}
+                      className="text-[11px] flex items-start gap-2 border-l-2 border-[#00AEEF] pl-2 py-0.5"
+                    >
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center justify-between text-[10px] text-slate-400 font-mono">
                           <span>{evt.location}</span>
-                          <span>{new Date(evt.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
+                          <span>
+                            {new Date(evt.timestamp).toLocaleTimeString([], {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })}
+                          </span>
                         </div>
-                        <p className="font-medium text-slate-800 text-[11px] leading-snug">{evt.message}</p>
+                        <p className="font-medium text-slate-800 text-[11px] leading-snug">
+                          {evt.message}
+                        </p>
                       </div>
                     </div>
                   ))}
@@ -531,11 +554,15 @@ export const OrderDetailView: React.FC<OrderDetailProps> = ({ orderId }) => {
                 {order.status === "Delivered" && (
                   <button
                     onClick={() =>
-                      setReviewProduct({ id: item.id || item.sku, name: item.name })
+                      setReviewProduct({
+                        id: item.id || item.sku,
+                        name: item.name,
+                      })
                     }
                     className="bg-[#E0F7FC] hover:bg-[#bceefb] text-[#00AEEF] px-3 py-1.5 rounded-xl font-bold text-[11px] flex items-center gap-1 transition-all cursor-pointer shadow-2xs"
                   >
-                    <Sparkles className="w-3 h-3 text-[#00AEEF]" /> Rate &amp; Review
+                    <Sparkles className="w-3 h-3 text-[#00AEEF]" /> Rate &amp;
+                    Review
                   </button>
                 )}
               </div>

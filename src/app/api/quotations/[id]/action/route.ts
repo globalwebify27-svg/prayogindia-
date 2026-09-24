@@ -1,27 +1,15 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
 import { db } from "@/lib/db";
-import { AuthSessionUser } from "@/lib/authUtils";
+import { getAuthenticatedCustomer } from "@/lib/authUtils";
 import { getSecurityHeaders } from "@/lib/security";
-
-async function getCustomerSession(): Promise<AuthSessionUser | null> {
-  const cookieStore = await cookies();
-  const sessionCookie = cookieStore.get("prayog_customer_session");
-  if (!sessionCookie?.value) return null;
-  try {
-    return JSON.parse(sessionCookie.value);
-  } catch {
-    return null;
-  }
-}
 
 // POST /api/quotations/[id]/action — Customer accepts, rejects, or requests changes on quotation
 export async function POST(
   request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const headers = getSecurityHeaders();
-  const user = await getCustomerSession();
+  const user = await getAuthenticatedCustomer();
   const { id } = await params;
 
   try {
@@ -30,40 +18,56 @@ export async function POST(
 
     if (!["ACCEPT", "REJECT", "REQUEST_CHANGES"].includes(action)) {
       return NextResponse.json(
-        { success: false, message: "Invalid action. Choose ACCEPT, REJECT, or REQUEST_CHANGES." },
-        { status: 400, headers }
+        {
+          success: false,
+          message: "Invalid action. Choose ACCEPT, REJECT, or REQUEST_CHANGES.",
+        },
+        { status: 400, headers },
       );
     }
 
     if (process.env.DATABASE_URL) {
       const quote = await db.quotation.findUnique({
         where: { id },
-        include: { revisions: { orderBy: { revisionNumber: "desc" }, take: 1 } },
+        include: {
+          revisions: { orderBy: { revisionNumber: "desc" }, take: 1 },
+        },
       });
 
       if (!quote) {
-        return NextResponse.json({ success: false, message: "Quotation not found" }, { status: 404, headers });
+        return NextResponse.json(
+          { success: false, message: "Quotation not found" },
+          { status: 404, headers },
+        );
       }
 
       // Security check if logged in
       if (user) {
-        const isOwner = quote.userId === user.id || quote.customerEmail.toLowerCase() === user.email.toLowerCase();
+        const isOwner =
+          quote.userId === user.id ||
+          quote.customerEmail.toLowerCase() === user.email.toLowerCase();
         if (!isOwner) {
-          return NextResponse.json({ success: false, message: "Forbidden" }, { status: 403, headers });
+          return NextResponse.json(
+            { success: false, message: "Forbidden" },
+            { status: 403, headers },
+          );
         }
       }
 
       if (quote.status === "CONVERTED") {
         return NextResponse.json(
-          { success: false, message: "This quotation has already been converted to an order." },
-          { status: 400, headers }
+          {
+            success: false,
+            message: "This quotation has already been converted to an order.",
+          },
+          { status: 400, headers },
         );
       }
 
       if (quote.status === "CANCELLED") {
         return NextResponse.json(
           { success: false, message: "This quotation has been cancelled." },
-          { status: 400, headers }
+          { status: 400, headers },
         );
       }
 
@@ -100,15 +104,24 @@ export async function POST(
         include: { items: true, store: true },
       });
 
-      return NextResponse.json({
-        success: true,
-        message: `Quotation status updated to ${newStatus}.`,
-        data: updated,
-      }, { headers });
+      return NextResponse.json(
+        {
+          success: true,
+          message: `Quotation status updated to ${newStatus}.`,
+          data: updated,
+        },
+        { headers },
+      );
     }
 
-    return NextResponse.json({ success: true, message: `Quotation updated (Mock Mode).` }, { headers });
+    return NextResponse.json(
+      { success: true, message: `Quotation updated (Mock Mode).` },
+      { headers },
+    );
   } catch (error: any) {
-    return NextResponse.json({ success: false, message: error.message }, { status: 500, headers });
+    return NextResponse.json(
+      { success: false, message: error.message },
+      { status: 500, headers },
+    );
   }
 }

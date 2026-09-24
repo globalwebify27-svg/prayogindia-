@@ -86,7 +86,7 @@ export const LearningHubSection: React.FC = () => {
           <LinkButton href="#community" label="Explore All Tutorials" />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           {LEARNING_HUB.map((item) => (
             <div
               key={item.id}
@@ -180,7 +180,7 @@ export const WhyPrayogSection: React.FC = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
           {features.map((f, idx) => (
             <div
               key={idx}
@@ -220,7 +220,8 @@ export const B2BSection: React.FC<AdditionalSectionsProps> = ({
             {/* Left Column (Span 7): Core Messaging & Actions */}
             <div className="lg:col-span-7 space-y-4">
               <span className="inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-[#00AEEF] bg-[#E0F7FC] border border-[#00AEEF]/20 px-3.5 py-1 rounded-full shadow-2xs">
-                <Building2 className="w-3.5 h-3.5 text-[#00AEEF]" /> Institutional &amp; B2B Desk
+                <Building2 className="w-3.5 h-3.5 text-[#00AEEF]" />{" "}
+                Institutional &amp; B2B Desk
               </span>
 
               <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 tracking-tight leading-tight">
@@ -229,7 +230,10 @@ export const B2BSection: React.FC<AdditionalSectionsProps> = ({
               </h2>
 
               <p className="text-slate-600 text-xs sm:text-sm leading-relaxed max-w-xl font-medium">
-                Access specialized institutional procurement, volume discounts, official GST tax invoicing, and turnkey robotics &amp; STEM hardware packages tailored for schools, universities, and research labs.
+                Access specialized institutional procurement, volume discounts,
+                official GST tax invoicing, and turnkey robotics &amp; STEM
+                hardware packages tailored for schools, universities, and
+                research labs.
               </p>
 
               {/* Action Buttons */}
@@ -283,7 +287,8 @@ export const B2BSection: React.FC<AdditionalSectionsProps> = ({
                     Tiered Institutional Pricing
                   </h4>
                   <p className="text-[11px] text-slate-500 font-medium leading-relaxed mt-0.5">
-                    Official GST proforma tax invoices with volume discounts up to 35% on batch orders.
+                    Official GST proforma tax invoices with volume discounts up
+                    to 35% on batch orders.
                   </p>
                 </div>
               </div>
@@ -298,7 +303,8 @@ export const B2BSection: React.FC<AdditionalSectionsProps> = ({
                     Turnkey Lab &amp; Curriculum Kits
                   </h4>
                   <p className="text-[11px] text-slate-500 font-medium leading-relaxed mt-0.5">
-                    Complete setups for robotics, IoT sensors, drone flight controllers, and microcontrollers.
+                    Complete setups for robotics, IoT sensors, drone flight
+                    controllers, and microcontrollers.
                   </p>
                 </div>
               </div>
@@ -313,7 +319,8 @@ export const B2BSection: React.FC<AdditionalSectionsProps> = ({
                     Priority Regional Dispatch
                   </h4>
                   <p className="text-[11px] text-slate-500 font-medium leading-relaxed mt-0.5">
-                    Same-day and 24h dispatch from Ranchi &amp; Patna hubs with dedicated technical support.
+                    Same-day and 24h dispatch from Ranchi &amp; Patna hubs with
+                    dedicated technical support.
                   </p>
                 </div>
               </div>
@@ -442,13 +449,15 @@ export const TestimonialsSection: React.FC = () => {
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto space-y-2.5">
           <div className="inline-flex items-center gap-1.5 bg-[#E0F7FC] text-[#00AEEF] text-[11px] font-black tracking-widest uppercase px-3.5 py-1 rounded-full border border-[#00AEEF]/20">
-            <CheckCircle2 className="w-3.5 h-3.5" /> VERIFIED CUSTOMER REVIEWS &amp; BUILDS
+            <CheckCircle2 className="w-3.5 h-3.5" /> VERIFIED CUSTOMER REVIEWS
+            &amp; BUILDS
           </div>
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 tracking-tight">
             Trusted by 5,000+ Innovators, Labs &amp; Schools
           </h2>
           <p className="text-xs sm:text-sm text-slate-500 font-medium">
-            Real customer hardware setups, verified ratings, and project builds across India.
+            Real customer hardware setups, verified ratings, and project builds
+            across India.
           </p>
         </div>
 

@@ -5,6 +5,7 @@ import { Header } from "@/components/Header";
 import { FooterSection } from "@/components/FooterSection";
 import { CartDrawer } from "@/components/CartDrawer";
 import { CartToast } from "@/components/CartToast";
+import { SuccessToast } from "@/components/SuccessToast";
 import { B2BModal } from "@/components/Modals";
 import { useStore } from "@/context/StoreContext";
 import { usePathname } from "next/navigation";
@@ -19,6 +20,8 @@ export const AppShell: React.FC<{ children: React.ReactNode }> = ({
     wishlist,
     cartNotification,
     dismissCartNotification,
+    toast,
+    dismissToast,
     updateQuantity,
     removeFromCart,
   } = useStore();
@@ -39,11 +42,15 @@ export const AppShell: React.FC<{ children: React.ReactNode }> = ({
   const wishlistCount = wishlist.length;
 
   if (isIsolatedOperationsRoute) {
-    return <main className="flex-1 bg-[#0F172A]">{children}</main>;
+    return (
+      <main className="flex-1 bg-[#0F172A] w-full max-w-full overflow-x-hidden">
+        {children}
+      </main>
+    );
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-white text-slate-900 font-sans selection:bg-[#1E56A0] selection:text-white">
+    <div className="min-h-screen flex flex-col bg-white text-slate-900 font-sans selection:bg-[#1E56A0] selection:text-white w-full">
       <Header
         cartCount={cartCount}
         wishlistCount={wishlistCount}
@@ -62,7 +69,9 @@ export const AppShell: React.FC<{ children: React.ReactNode }> = ({
         }}
       />
 
-      <main className="flex-1">{children}</main>
+      <main className="flex-1 w-full">
+        {children}
+      </main>
 
       <FooterSection />
 
@@ -85,6 +94,8 @@ export const AppShell: React.FC<{ children: React.ReactNode }> = ({
         onClose={dismissCartNotification}
         onOpenCart={() => setCartOpen(true)}
       />
+
+      <SuccessToast toast={toast} onClose={dismissToast} />
     </div>
   );
 };

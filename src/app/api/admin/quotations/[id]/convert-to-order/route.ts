@@ -19,13 +19,21 @@ async function generateInvoiceNumber(): Promise<string> {
 // POST /api/admin/quotations/[id]/convert-to-order — Converts an ACCEPTED quotation into an Order atomically
 export async function POST(
   request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const headers = getSecurityHeaders();
   const staff = await getAuthenticatedStaff();
 
-  if (!staff || (staff.role !== "SUPER_ADMIN" && staff.role !== "REGIONAL_MANAGER" && staff.role !== "STORE_MANAGER")) {
-    return NextResponse.json({ success: false, message: "Forbidden" }, { status: 403, headers });
+  if (
+    !staff ||
+    (staff.role !== "SUPER_ADMIN" &&
+      staff.role !== "REGIONAL_MANAGER" &&
+      staff.role !== "STORE_MANAGER")
+  ) {
+    return NextResponse.json(
+      { success: false, message: "Forbidden" },
+      { status: 403, headers },
+    );
   }
 
   const { id } = await params;
@@ -43,7 +51,10 @@ export async function POST(
       });
 
       if (!quotation) {
-        return NextResponse.json({ success: false, message: "Quotation not found" }, { status: 404, headers });
+        return NextResponse.json(
+          { success: false, message: "Quotation not found" },
+          { status: 404, headers },
+        );
       }
 
       // Prevent duplicate order conversions
@@ -53,19 +64,31 @@ export async function POST(
             success: false,
             message: `Quotation is already converted to order #${quotation.order?.orderNumber || "EXISTING"}.`,
           },
-          { status: 400, headers }
+          { status: 400, headers },
         );
       }
 
       // Security: Store manager scoping
-      if (staff.role === "STORE_MANAGER" && staff.storeId && quotation.storeId !== staff.storeId) {
-        return NextResponse.json({ success: false, message: "Unauthorized for this store's quotations" }, { status: 403, headers });
+      if (
+        staff.role === "STORE_MANAGER" &&
+        staff.storeId &&
+        quotation.storeId !== staff.storeId
+      ) {
+        return NextResponse.json(
+          {
+            success: false,
+            message: "Unauthorized for this store's quotations",
+          },
+          { status: 403, headers },
+        );
       }
 
       // Resolve or create user account for this B2B customer
       let customerUser = quotation.user;
       if (!customerUser && quotation.customerEmail) {
-        customerUser = await db.user.findUnique({ where: { email: quotation.customerEmail.toLowerCase() } });
+        customerUser = await db.user.findUnique({
+          where: { email: quotation.customerEmail.toLowerCase() },
+        });
       }
       if (!customerUser) {
         customerUser = await db.user.create({
@@ -100,7 +123,10 @@ export async function POST(
             discountAmount: quotation.discountAmount,
             shippingCost: quotation.shippingCharge,
             totalAmount: quotation.grandTotal,
-            shippingAddress: quotation.shippingAddress || quotation.billingAddress || `${quotation.companyName}, ${quotation.store.city}`,
+            shippingAddress:
+              quotation.shippingAddress ||
+              quotation.billingAddress ||
+              `${quotation.companyName}, ${quotation.store.city}`,
             quotationId: quotation.id,
             items: {
               create: quotation.items.map((item) => ({
@@ -149,7 +175,10 @@ export async function POST(
             revisions: {
               create: {
                 revisionNumber: 99,
-                snapshotJson: JSON.stringify({ orderId: order.id, orderNumber }),
+                snapshotJson: JSON.stringify({
+                  orderId: order.id,
+                  orderNumber,
+                }),
                 changedByRole: staff.role,
                 changeNotes: `Quotation converted to Order ${orderNumber} by ${staff.name}`,
               },
@@ -160,19 +189,28 @@ export async function POST(
         return { order, quotation: updatedQuotation };
       });
 
-      return NextResponse.json({
-        success: true,
-        message: `Quotation successfully converted to Order ${result.order.orderNumber}.`,
-        data: result,
-      }, { status: 201, headers });
+      return NextResponse.json(
+        {
+          success: true,
+          message: `Quotation successfully converted to Order ${result.order.orderNumber}.`,
+          data: result,
+        },
+        { status: 201, headers },
+      );
     } catch (error: any) {
-      return NextResponse.json({ success: false, message: error.message }, { status: 500, headers });
+      return NextResponse.json(
+        { success: false, message: error.message },
+        { status: 500, headers },
+      );
     }
   }
 
-  return NextResponse.json({
-    success: true,
-    message: "Quotation converted (Mock Mode).",
-    data: { orderNumber: generateOrderNumber() },
-  }, { headers });
+  return NextResponse.json(
+    {
+      success: true,
+      message: "Quotation converted (Mock Mode).",
+      data: { orderNumber: generateOrderNumber() },
+    },
+    { headers },
+  );
 }

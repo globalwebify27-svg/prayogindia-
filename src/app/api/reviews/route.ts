@@ -1,19 +1,9 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
 import { db } from "@/lib/db";
-import { AuthSessionUser } from "@/lib/authUtils";
+import { AuthSessionUser, getAuthenticatedCustomer } from "@/lib/authUtils";
 import { getSecurityHeaders, checkRateLimit } from "@/lib/security";
 
-async function getAuthenticatedUser(): Promise<AuthSessionUser | null> {
-  const cookieStore = await cookies();
-  const sessionCookie = cookieStore.get("prayog_customer_session");
-  if (!sessionCookie?.value) return null;
-  try {
-    return JSON.parse(sessionCookie.value);
-  } catch {
-    return null;
-  }
-}
+const getAuthenticatedUser = getAuthenticatedCustomer;
 
 /**
  * GET /api/reviews?productId=xxx&page=1&limit=10
@@ -25,7 +15,10 @@ export async function GET(request: Request) {
     const productId = searchParams.get("productId");
     const slug = searchParams.get("slug");
     const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
-    const limit = Math.min(20, Math.max(1, parseInt(searchParams.get("limit") || "10", 10)));
+    const limit = Math.min(
+      20,
+      Math.max(1, parseInt(searchParams.get("limit") || "10", 10)),
+    );
 
     if (!productId && !slug) {
       return NextResponse.json(
@@ -58,7 +51,9 @@ export async function GET(request: Request) {
       resolvedProductId = product.id;
     }
 
-    const total = await db.review.count({ where: { productId: resolvedProductId! } });
+    const total = await db.review.count({
+      where: { productId: resolvedProductId! },
+    });
     const totalPages = Math.ceil(total / limit) || 1;
 
     const reviews = await db.review.findMany({
@@ -129,7 +124,11 @@ export async function POST(request: Request) {
   }
 
   const ip = request.headers.get("x-forwarded-for") || "127.0.0.1";
-  const rateLimit = checkRateLimit(`review:${user.id}:${ip}`, 5, 60 * 60 * 1000); // 5 per hour
+  const rateLimit = checkRateLimit(
+    `review:${user.id}:${ip}`,
+    5,
+    60 * 60 * 1000,
+  ); // 5 per hour
   if (!rateLimit.allowed) {
     return NextResponse.json(
       { success: false, message: "Too many review submissions. Wait an hour." },
@@ -156,7 +155,11 @@ export async function POST(request: Request) {
       );
     }
 
-    if (!reviewBody || typeof reviewBody !== "string" || reviewBody.trim().length < 10) {
+    if (
+      !reviewBody ||
+      typeof reviewBody !== "string" ||
+      reviewBody.trim().length < 10
+    ) {
       return NextResponse.json(
         { success: false, message: "Review must be at least 10 characters." },
         { status: 400, headers },
@@ -241,7 +244,10 @@ export async function POST(request: Request) {
     } catch (err: any) {
       if (err.code === "P2002") {
         return NextResponse.json(
-          { success: false, message: "You have already reviewed this product." },
+          {
+            success: false,
+            message: "You have already reviewed this product.",
+          },
           { status: 409, headers },
         );
       }

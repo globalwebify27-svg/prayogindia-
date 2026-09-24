@@ -67,12 +67,16 @@ export async function PATCH(
       // Record Audit Log for Order Updates / Status Change
       await recordAuditLog({
         actionCategory: "ORDER_FULFILLMENT",
-        action: status && existingOrder?.status !== status ? `ORDER_STATUS_${status}` : "ORDER_SHIPMENT_UPDATE",
+        action:
+          status && existingOrder?.status !== status
+            ? `ORDER_STATUS_${status}`
+            : "ORDER_SHIPMENT_UPDATE",
         entityType: "Order",
         entityId: orderId,
-        description: status && existingOrder?.status !== status
-          ? `Order #${updatedOrder.orderNumber || orderId.slice(0, 8)} status changed from ${existingOrder?.status} to ${status}`
-          : `Order #${updatedOrder.orderNumber || orderId.slice(0, 8)} shipping details updated (${courierName} #${trackingNumber})`,
+        description:
+          status && existingOrder?.status !== status
+            ? `Order #${updatedOrder.orderNumber || orderId.slice(0, 8)} status changed from ${existingOrder?.status} to ${status}`
+            : `Order #${updatedOrder.orderNumber || orderId.slice(0, 8)} shipping details updated (${courierName} #${trackingNumber})`,
         actor: admin,
         storeId: null,
         previousValue: {
@@ -96,11 +100,22 @@ export async function PATCH(
       if (status && existingOrder?.status !== status) {
         if (status === "CANCELLED" || status === "REFUNDED") {
           try {
-            await LoyaltyEngine.reverseOrderPoints(orderId, `Admin status changed to ${status}`, admin, request);
+            await LoyaltyEngine.reverseOrderPoints(
+              orderId,
+              `Admin status changed to ${status}`,
+              admin,
+              request,
+            );
           } catch (loyaltyErr) {
-            console.error("[AdminOrderPatch] Loyalty reversal error:", loyaltyErr);
+            console.error(
+              "[AdminOrderPatch] Loyalty reversal error:",
+              loyaltyErr,
+            );
           }
-        } else if (status === "DELIVERED" && updatedOrder.paymentStatus === "PAID") {
+        } else if (
+          status === "DELIVERED" &&
+          updatedOrder.paymentStatus === "PAID"
+        ) {
           try {
             await LoyaltyEngine.awardOrderPoints(orderId, request);
           } catch (loyaltyErr) {

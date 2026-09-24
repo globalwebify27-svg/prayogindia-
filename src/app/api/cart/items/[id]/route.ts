@@ -1,26 +1,14 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
 import { db } from "@/lib/db";
-import { AuthSessionUser } from "@/lib/authUtils";
+import { getAuthenticatedCustomer } from "@/lib/authUtils";
 
 interface Props {
   params: Promise<{ id: string }>;
 }
 
-async function getAuthenticatedUser(): Promise<AuthSessionUser | null> {
-  const cookieStore = await cookies();
-  const sessionCookie = cookieStore.get("prayog_customer_session");
-  if (!sessionCookie?.value) return null;
-  try {
-    return JSON.parse(sessionCookie.value);
-  } catch {
-    return null;
-  }
-}
-
 // PATCH /api/cart/items/[id] - Update Quantity with Customer Authorization & Stock Check
 export async function PATCH(request: Request, { params }: Props) {
-  const user = await getAuthenticatedUser();
+  const user = await getAuthenticatedCustomer();
   if (!user) {
     return NextResponse.json(
       { success: false, message: "Unauthorized" },
@@ -94,7 +82,7 @@ export async function PATCH(request: Request, { params }: Props) {
 
 // DELETE /api/cart/items/[id] - Remove Item with Customer Authorization Security
 export async function DELETE(request: Request, { params }: Props) {
-  const user = await getAuthenticatedUser();
+  const user = await getAuthenticatedCustomer();
   if (!user) {
     return NextResponse.json(
       { success: false, message: "Unauthorized" },

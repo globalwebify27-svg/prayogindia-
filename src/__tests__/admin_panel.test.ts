@@ -1,86 +1,93 @@
-/**
- * Automated Verification Suite for Prayog India Admin Panel & Dashboard:
- * - Admin Login & Session Cookie Generation
- * - Role-Based Authorization & Customer Access Blockage
- * - Admin Dashboard Stats API
- * - Admin Product CRUD API
- * - Admin Order Processing & Tracking Update API
- * - Support Desk Admin Reply API
- * - Customer Website Protection Verification
- */
-
-import { sanitizeAdminUser, AUTH_ADMIN_COOKIE_NAME } from "../lib/adminAuth";
+import { describe, it, expect } from "vitest";
+import { sanitizeAdminUser } from "../lib/adminAuth";
 import { Role } from "@prisma/client";
 
-const adminUser = {
-  id: "usr-admin-test",
-  name: "System Admin",
-  email: "admin.test@prayogindia.com",
-  phone: "+91 99999 00000",
-  role: "ADMIN" as Role,
-};
+describe("Admin Panel & Dashboard Authorization Verification", () => {
+  const adminUser = {
+    id: "usr-admin-test",
+    name: "System Admin",
+    email: "admin.test@prayogindia.com",
+    phone: "+91 99999 00000",
+    role: "ADMIN" as Role,
+  };
 
-const customerUser = {
-  id: "usr-customer-test",
-  name: "Normal Customer",
-  email: "customer.test@prayogindia.com",
-  phone: "+91 88888 00000",
-  role: "CUSTOMER" as Role,
-};
+  const customerUser = {
+    id: "usr-customer-test",
+    name: "Normal Customer",
+    email: "customer.test@prayogindia.com",
+    phone: "+91 88888 00000",
+    role: "CUSTOMER" as Role,
+  };
 
-// 1. Admin Session Sanitization & Role Check Test
-const sanitized = sanitizeAdminUser(adminUser);
-if (sanitized.role !== "ADMIN")
-  throw new Error("Admin role sanitization failed");
+  it("should sanitize admin user and preserve admin role", () => {
+    const sanitized = sanitizeAdminUser(adminUser);
+    expect(sanitized.role).toBe("ADMIN");
+  });
 
-// 2. Authorization & Customer Access Blockage Test
-const verifyAdminAccess = (role: string) => {
-  if (role !== "ADMIN" && role !== "SUPER_ADMIN") {
-    return { status: 403, message: "Forbidden. Admin role required." };
-  }
-  return { status: 200, message: "Access granted." };
-};
+  it("should allow ADMIN and block CUSTOMER from admin desk", () => {
+    const verifyAdminAccess = (role: string) => {
+      if (role !== "ADMIN" && role !== "SUPER_ADMIN") {
+        return { status: 403, message: "Forbidden. Admin role required." };
+      }
+      return { status: 200, message: "Access granted." };
+    };
 
-if (verifyAdminAccess(adminUser.role).status !== 200) {
-  throw new Error("Valid Admin user was denied access to Admin Desk!");
-}
+    expect(verifyAdminAccess(adminUser.role).status).toBe(200);
+    expect(verifyAdminAccess(customerUser.role).status).toBe(403);
+  });
 
-if (verifyAdminAccess(customerUser.role).status !== 403) {
-  throw new Error(
-    "Security Breach! Customer user granted access to Admin Desk!",
-  );
-}
+  it("should validate product input rules", () => {
+    const validateProductInput = (name: string, price: number, stock: number) => {
+      if (!name || name.trim().length < 2) return false;
+      if (isNaN(price) || price <= 0) return false;
+      if (isNaN(stock) || stock < 0) return false;
+      return true;
+    };
 
-// 3. Product CRUD Input Validation Test
-const validateProductInput = (name: string, price: number, stock: number) => {
-  if (!name || name.trim().length < 2) return false;
-  if (isNaN(price) || price <= 0) return false;
-  if (isNaN(stock) || stock < 0) return false;
-  return true;
-};
+    expect(validateProductInput("", 1200, 10)).toBe(false);
+    expect(validateProductInput("Sensors Pack", -50, 10)).toBe(false);
+    expect(validateProductInput("Sensors Pack", 1200, 10)).toBe(true);
+  });
 
-if (validateProductInput("", 1200, 10) !== false)
-  throw new Error("Empty product name allowed");
-if (validateProductInput("Sensors Pack", -50, 10) !== false)
-  throw new Error("Negative product price allowed");
-if (validateProductInput("Sensors Pack", 1200, 10) !== true)
-  throw new Error("Valid product creation input rejected");
+  it("should validate order status transitions", () => {
+    const ALLOWED_ORDER_STATUSES = [
+      "PROCESSING",
+      "PACKED",
+      "SHIPPED",
+      "DELIVERED",
+      "CANCELLED",
+    ];
+    const isValidOrderStatus = (st: string) => ALLOWED_ORDER_STATUSES.includes(st);
 
-// 4. Order Status Transition Validation Test
-const ALLOWED_ORDER_STATUSES = [
-  "PROCESSING",
-  "PACKED",
-  "SHIPPED",
-  "DELIVERED",
-  "CANCELLED",
-];
-const isValidOrderStatus = (st: string) => ALLOWED_ORDER_STATUSES.includes(st);
+    expect(isValidOrderStatus("SHIPPED")).toBe(true);
+    expect(isValidOrderStatus("PAID_FAKE")).toBe(false);
+  });
 
-if (isValidOrderStatus("SHIPPED") !== true)
-  throw new Error("Valid status SHIPPED rejected");
-if (isValidOrderStatus("PAID_FAKE") !== false)
-  throw new Error("Fake status accepted");
+  it("should validate and compute product SEO health score and slug generation", () => {
+    const generateSlug = (name: string) =>
+      name
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/(^-|-$)+/g, "");
 
-console.log(
-  "✅ ALL ADMIN PANEL & DASHBOARD VERIFICATION TESTS PASSED SUCCESSFULLY!",
-);
+    const computeSeoScore = (title: string, desc: string, slug: string, kws: string[]) => {
+      let score = 0;
+      if (title.length >= 30 && title.length <= 65) score += 25;
+      if (desc.length >= 80 && desc.length <= 170) score += 25;
+      if (slug && /^[a-z0-9-]+$/.test(slug)) score += 25;
+      if (kws.length >= 3) score += 25;
+      return score;
+    };
+
+    const productName = "Arduino UNO R4 WiFi Board";
+    const slug = generateSlug(productName);
+    expect(slug).toBe("arduino-uno-r4-wifi-board");
+
+    const seoTitle = "Arduino UNO R4 WiFi Board - Buy Online | Prayog India";
+    const seoDesc = "Buy genuine Arduino UNO R4 WiFi board with Renesas RA4M1 & ESP32-S3 microcontroller online at Prayog India with express courier shipping.";
+    const keywords = ["arduino", "microcontroller", "wifi board", "stem kits"];
+
+    const score = computeSeoScore(seoTitle, seoDesc, slug, keywords);
+    expect(score).toBe(100);
+  });
+});

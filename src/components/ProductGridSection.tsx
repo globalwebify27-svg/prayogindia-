@@ -252,7 +252,9 @@ export const ProductGridSection: React.FC<ProductSectionProps> = ({
                 ? item.images[0]
                 : "/placeholder-product.png");
             const allImages = Array.isArray(item.images)
-              ? item.images.map((im: any) => (typeof im === "string" ? im : im.imageUrl))
+              ? item.images.map((im: any) =>
+                  typeof im === "string" ? im : im.imageUrl,
+                )
               : [primaryImg];
 
             return {
@@ -270,7 +272,7 @@ export const ProductGridSection: React.FC<ProductSectionProps> = ({
                   : "",
               rating: item.rating ?? 4.8,
               reviews: item.reviewCount ?? 12,
-              inStock: item.inStock ?? (item.stock > 0),
+              inStock: item.inStock ?? item.stock > 0,
               image: primaryImg,
               images: allImages,
               badge: item.badge,
@@ -283,7 +285,9 @@ export const ProductGridSection: React.FC<ProductSectionProps> = ({
           const existingIds = new Set(PRODUCTS.map((p) => p.id));
           const newDbOnly = apiProducts.filter((p) => !existingIds.has(p.id));
           const updatedMock = PRODUCTS.map((p) => {
-            const match = apiProducts.find((ap) => ap.id === p.id || ap.slug === p.slug);
+            const match = apiProducts.find(
+              (ap) => ap.id === p.id || ap.slug === p.slug,
+            );
             return match || p;
           });
 
@@ -291,7 +295,10 @@ export const ProductGridSection: React.FC<ProductSectionProps> = ({
         }
       })
       .catch((err) => {
-        console.warn("ProductGridSection: Failed to fetch products from API", err);
+        console.warn(
+          "ProductGridSection: Failed to fetch products from API",
+          err,
+        );
       });
   }, []);
 
@@ -419,11 +426,11 @@ export const ProductGridSection: React.FC<ProductSectionProps> = ({
       <div
         key={product.id}
         id={`product-${product.id}`}
-        className="w-64 sm:w-72 shrink-0 bg-white rounded-3xl border border-slate-200/90 p-4 sm:p-5 flex flex-col justify-between hover:border-[#00AEEF] hover:shadow-xl hover:shadow-sky-500/10 transition-all duration-300 relative group"
+        className="w-[195px] sm:w-[250px] md:w-64 shrink-0 snap-start bg-white rounded-2xl sm:rounded-3xl border border-slate-200/90 p-3 sm:p-4 flex flex-col justify-between hover:border-[#00AEEF] hover:shadow-lg transition-all duration-300 relative group"
       >
         {/* Top: Category Name & Circular Wishlist Button */}
-        <div className="flex items-center justify-between gap-2 mb-2">
-          <span className="text-xs font-semibold text-slate-700 truncate">
+        <div className="flex items-center justify-between gap-2 mb-1.5">
+          <span className="text-[10px] sm:text-xs font-semibold text-slate-500 truncate">
             {product.category || "Arduino & Microcontrollers"}
           </span>
           {onToggleWishlist && (
@@ -432,12 +439,12 @@ export const ProductGridSection: React.FC<ProductSectionProps> = ({
                 e.stopPropagation();
                 onToggleWishlist(product);
               }}
-              className="w-8 h-8 rounded-full border border-slate-200/90 hover:border-slate-300 bg-white flex items-center justify-center text-slate-400 hover:text-red-500 transition-colors shrink-0 cursor-pointer shadow-2xs"
+              className="w-7 h-7 rounded-full border border-slate-200 hover:border-slate-300 bg-white flex items-center justify-center text-slate-400 hover:text-red-500 transition-colors shrink-0 cursor-pointer shadow-2xs"
               title="Add to Wishlist"
               aria-label="Wishlist"
             >
               <Heart
-                className={`w-4 h-4 ${isWishlisted ? "fill-red-500 text-red-500" : ""}`}
+                className={`w-3.5 h-3.5 ${isWishlisted ? "fill-red-500 text-red-500" : ""}`}
               />
             </button>
           )}
@@ -448,42 +455,43 @@ export const ProductGridSection: React.FC<ProductSectionProps> = ({
           href={`/products/${product.slug || product.id}`}
           className="block"
         >
-          <div className="relative h-40 sm:h-44 w-full mb-3 flex items-center justify-center overflow-hidden rounded-2xl bg-white p-2 group-hover:scale-[1.02] transition-transform duration-300 cursor-pointer">
+          <div className="relative h-28 sm:h-36 w-full mb-2 flex items-center justify-center overflow-hidden rounded-xl bg-white p-1 group-hover:scale-[1.02] transition-transform duration-300 cursor-pointer">
             <Image
               src={product.image}
               alt={product.name}
               fill
-              sizes="(max-width: 640px) 256px, 288px"
-              className="object-contain p-2"
+              sizes="(max-width: 640px) 210px, 256px"
+              className="object-contain p-1"
             />
           </div>
         </Link>
 
         {/* Content */}
-        <div className="flex-1 flex flex-col justify-between space-y-2">
+        <div className="flex-1 flex flex-col justify-between space-y-1.5">
           <div>
             {/* Title */}
             <Link
               href={`/products/${product.slug || product.id}`}
               className="block"
             >
-              <h4 className="text-sm font-bold text-slate-900 line-clamp-1 hover:text-[#00AEEF] transition-colors cursor-pointer">
+              <h4 className="text-xs sm:text-sm font-bold text-slate-900 line-clamp-1 hover:text-[#00AEEF] transition-colors cursor-pointer">
                 {product.name}
               </h4>
             </Link>
 
             {/* SKU */}
-            <div className="text-xs font-semibold text-slate-400 mt-1">
-              SKU: <span className="font-mono text-slate-500">{product.sku}</span>
+            <div className="text-[10px] font-medium text-slate-400 mt-0.5 truncate">
+              SKU:{" "}
+              <span className="font-mono text-slate-500">{product.sku}</span>
             </div>
 
             {/* Rating Stars */}
-            <div className="flex items-center gap-1 mt-1 text-xs text-slate-500">
+            <div className="flex items-center gap-1 mt-0.5 text-xs text-slate-500">
               <div className="flex items-center text-amber-400 gap-0.5">
                 {[...Array(5)].map((_, i) => (
                   <Star
                     key={i}
-                    className={`w-3.5 h-3.5 ${
+                    className={`w-3 h-3 ${
                       i < Math.floor(product.rating || 5)
                         ? "fill-amber-400 text-amber-400"
                         : "fill-slate-200 text-slate-200"
@@ -491,17 +499,21 @@ export const ProductGridSection: React.FC<ProductSectionProps> = ({
                   />
                 ))}
               </div>
-              <span className="text-slate-500 font-medium ml-0.5">
+              <span className="text-[10px] text-slate-400 font-medium ml-0.5">
                 ({product.reviews || 87})
               </span>
             </div>
 
             {/* Price with (Incl. GST) */}
-            <div className="flex items-baseline gap-1 mt-2.5">
-              <span className="text-base sm:text-lg font-bold text-slate-900">
-                ₹{product.price.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            <div className="flex items-baseline gap-1 mt-1.5">
+              <span className="text-sm sm:text-base font-bold text-slate-900">
+                ₹
+                {product.price.toLocaleString("en-IN", {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })}
               </span>
-              <span className="text-[11px] text-slate-400 font-normal">
+              <span className="text-[9px] text-slate-400 font-medium">
                 (Incl. GST)
               </span>
             </div>
@@ -512,17 +524,17 @@ export const ProductGridSection: React.FC<ProductSectionProps> = ({
             {product.inStock ? (
               <button
                 onClick={() => onAddToCart(product)}
-                className="w-full border border-[#00AEEF] text-[#00AEEF] hover:bg-[#00AEEF] hover:text-white py-2.5 px-4 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition-all duration-200 active:scale-[0.98] cursor-pointer shadow-2xs group/btn"
+                className="w-full border border-[#00AEEF] text-[#00AEEF] hover:bg-[#00AEEF] hover:text-white py-2 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all duration-200 active:scale-[0.98] cursor-pointer shadow-2xs group/btn"
               >
                 <span>Add to Cart</span>
-                <ShoppingBag className="w-4 h-4" />
+                <ShoppingBag className="w-3.5 h-3.5" />
               </button>
             ) : (
               <a
                 href={`https://wa.me/919876543210?text=${encodeURIComponent(`Hi Prayog India, I am interested in ${product.name} (SKU: ${product.sku}). Please let me know the availability and latest price.`)}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full bg-emerald-500 hover:bg-emerald-600 text-white py-2.5 px-4 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition-all duration-200 active:scale-[0.98] cursor-pointer shadow-2xs"
+                className="w-full bg-emerald-500 hover:bg-emerald-600 text-white py-2 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all duration-200 active:scale-[0.98] cursor-pointer shadow-2xs"
               >
                 <span>Ask Availability</span>
               </a>
@@ -536,17 +548,17 @@ export const ProductGridSection: React.FC<ProductSectionProps> = ({
   return (
     <section
       id="featured-products"
-      className="py-12 bg-slate-50/70 border-b border-slate-200/80 scroll-mt-20"
+      className="py-6 sm:py-10 lg:py-12 bg-slate-50/70 border-b border-slate-200/80 scroll-mt-20"
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-5 sm:space-y-8">
         {/* Main Section Header */}
-        <div className="space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+        <div className="space-y-3 sm:space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 sm:gap-4">
             <div>
-              <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
+              <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-slate-900 tracking-tight">
                 Explore Products
               </h2>
-              <p className="text-sm text-slate-500 font-normal mt-1">
+              <p className="text-xs sm:text-sm text-slate-500 font-normal mt-0.5 sm:mt-1">
                 Quality robotics, development boards, and electronic components.
               </p>
             </div>
@@ -556,7 +568,7 @@ export const ProductGridSection: React.FC<ProductSectionProps> = ({
               <div className="bg-white border border-slate-200 p-1 rounded-xl flex items-center shadow-2xs text-xs font-semibold">
                 <button
                   onClick={() => setViewMode("all_categories")}
-                  className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 cursor-pointer ${
+                  className={`px-2.5 sm:px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 cursor-pointer ${
                     viewMode === "all_categories"
                       ? "bg-slate-900 text-white shadow-xs"
                       : "text-slate-600 hover:text-slate-900"
@@ -568,7 +580,7 @@ export const ProductGridSection: React.FC<ProductSectionProps> = ({
 
                 <button
                   onClick={() => setViewMode("curated")}
-                  className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 cursor-pointer ${
+                  className={`px-2.5 sm:px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 cursor-pointer ${
                     viewMode === "curated"
                       ? "bg-[#00AEEF] text-white shadow-xs"
                       : "text-slate-600 hover:text-slate-900"
@@ -581,7 +593,7 @@ export const ProductGridSection: React.FC<ProductSectionProps> = ({
 
               <button
                 onClick={() => onSeeAll?.("all")}
-                className="text-xs sm:text-sm font-semibold text-[#00AEEF] hover:text-[#0086B8] hover:underline flex items-center gap-1 group/seeall px-3 py-1.5 cursor-pointer"
+                className="text-xs sm:text-sm font-semibold text-[#00AEEF] hover:text-[#0086B8] hover:underline flex items-center gap-1 group/seeall px-2 sm:px-3 py-1.5 cursor-pointer"
               >
                 <span>View All</span>
                 <ArrowRight className="w-4 h-4 group-hover/seeall:translate-x-1 transition-transform" />
@@ -591,26 +603,26 @@ export const ProductGridSection: React.FC<ProductSectionProps> = ({
 
           {/* Quick Jump Category Bar with smooth continuous auto-scroll */}
           <div
-            className="bg-white/90 backdrop-blur-md rounded-2xl border border-slate-200/90 p-2 shadow-2xs relative flex items-center overflow-hidden"
+            className="bg-white/90 backdrop-blur-md rounded-2xl border border-slate-200/90 p-1.5 sm:p-2 shadow-2xs relative flex items-center overflow-hidden"
             onMouseEnter={() => setIsJumpPaused(true)}
             onMouseLeave={() => setIsJumpPaused(false)}
             onTouchStart={() => setIsJumpPaused(true)}
             onTouchEnd={() => setIsJumpPaused(false)}
           >
             {/* Pinned "Jump To:" label badge */}
-            <div className="pl-2 pr-3 shrink-0 flex items-center gap-1.5 border-r border-slate-200 text-xs font-semibold text-slate-500 z-20 bg-white/90">
+            <div className="pl-2 pr-2.5 sm:pr-3 shrink-0 flex items-center gap-1.5 border-r border-slate-200 text-xs font-semibold text-slate-500 z-20 bg-white/90">
               <SlidersHorizontal className="w-3.5 h-3.5 text-[#00AEEF]" />
               <span className="whitespace-nowrap">Jump To:</span>
             </div>
 
             {/* Left and Right Fade Mask Gradients */}
-            <div className="pointer-events-none absolute left-[90px] sm:left-[100px] top-0 bottom-0 w-6 bg-gradient-to-r from-white via-white/80 to-transparent z-10" />
+            <div className="pointer-events-none absolute left-[85px] sm:left-[100px] top-0 bottom-0 w-6 bg-gradient-to-r from-white via-white/80 to-transparent z-10" />
             <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-white via-white/80 to-transparent z-10" />
 
             {/* Auto-scrolling Track */}
             <div
               ref={jumpScrollRef}
-              className="flex items-center gap-2 overflow-x-auto scrollbar-none py-1 pl-3 pr-8 text-xs select-none"
+              className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto scrollbar-none py-1 pl-2.5 pr-8 text-xs select-none"
             >
               {[...categoryOrder, ...categoryOrder].map((catName, idx) => {
                 const config = CATEGORY_CONFIGS[catName];
@@ -620,7 +632,7 @@ export const ProductGridSection: React.FC<ProductSectionProps> = ({
                   <button
                     key={`${catName}-${idx}`}
                     onClick={() => scrollToCategoryShelf(catName)}
-                    className="shrink-0 bg-slate-50 hover:bg-[#E0F7FC] text-slate-700 hover:text-[#00AEEF] border border-slate-200/80 hover:border-[#00AEEF]/40 px-3 py-1.5 rounded-lg font-medium flex items-center gap-1.5 transition-all cursor-pointer shadow-2xs group text-xs"
+                    className="shrink-0 bg-slate-50 hover:bg-[#E0F7FC] text-slate-700 hover:text-[#00AEEF] border border-slate-200/80 hover:border-[#00AEEF]/40 px-2.5 sm:px-3 py-1.5 rounded-lg font-medium flex items-center gap-1.5 transition-all cursor-pointer shadow-2xs group text-xs"
                   >
                     <IconComponent className="w-3.5 h-3.5 text-slate-500 group-hover:text-[#00AEEF]" />
                     <span className="whitespace-nowrap">{catName}</span>
@@ -635,7 +647,7 @@ export const ProductGridSection: React.FC<ProductSectionProps> = ({
         {/* VIEW 1: All Category Shelves */}
         {/* ==================================================== */}
         {viewMode === "all_categories" ? (
-          <div className="space-y-12 animate-in fade-in duration-300">
+          <div className="space-y-8 sm:space-y-12 animate-in fade-in duration-300">
             {categoryOrder.map((category) => {
               let categoryProducts = liveProducts.filter((p) =>
                 isProductInShelfCategory(p, category),
@@ -656,15 +668,15 @@ export const ProductGridSection: React.FC<ProductSectionProps> = ({
                 <div
                   key={category}
                   id={elementId}
-                  className="space-y-4 relative group/section scroll-mt-24"
+                  className="space-y-3 sm:space-y-4 relative group/section scroll-mt-24"
                 >
                   {/* Category Header Row */}
-                  <div className="flex items-center justify-between border-b border-slate-200/80 pb-3">
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-8 h-8 rounded-lg bg-[#00AEEF]/10 text-[#00AEEF] flex items-center justify-center border border-[#00AEEF]/20">
-                        <IconComp className="w-4 h-4" />
+                  <div className="flex items-center justify-between border-b border-slate-200/80 pb-2.5 sm:pb-3">
+                    <div className="flex items-center gap-2 sm:gap-2.5">
+                      <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-[#00AEEF]/10 text-[#00AEEF] flex items-center justify-center border border-[#00AEEF]/20">
+                        <IconComp className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                       </div>
-                      <h3 className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight">
+                      <h3 className="text-base sm:text-xl font-bold text-slate-900 tracking-tight">
                         {category}
                       </h3>
                     </div>
@@ -704,7 +716,7 @@ export const ProductGridSection: React.FC<ProductSectionProps> = ({
                       ref={(el) => {
                         categoryScrollContainers.current[category] = el;
                       }}
-                      className="flex items-stretch gap-4 sm:gap-5 lg:gap-6 overflow-x-auto scrollbar-none pb-4 pt-1 px-1 scroll-smooth"
+                      className="flex items-stretch gap-3.5 sm:gap-5 lg:gap-6 overflow-x-auto scrollbar-none snap-x snap-mandatory pb-3 pt-1 px-1 scroll-smooth"
                       style={{ scrollbarWidth: "none" }}
                     >
                       {categoryProducts.map((product) =>

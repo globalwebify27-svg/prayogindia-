@@ -54,9 +54,19 @@ export default function AdminLogisticsPage() {
   const [filterStatus, setFilterStatus] = useState<string>("All");
   const [loading, setLoading] = useState(false);
   const [syncingId, setSyncingId] = useState<string | null>(null);
-  const [pendingOrders, setPendingOrders] = useState<Array<{ id: string; orderNumber: string; totalAmount: number; user?: { name: string; phone: string } }>>([]);
+  const [pendingOrders, setPendingOrders] = useState<
+    Array<{
+      id: string;
+      orderNumber: string;
+      totalAmount: number;
+      user?: { name: string; phone: string };
+    }>
+  >([]);
   const [creatingShipment, setCreatingShipment] = useState(false);
-  const [feedbackMsg, setFeedbackMsg] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const [feedbackMsg, setFeedbackMsg] = useState<{
+    type: "success" | "error";
+    text: string;
+  } | null>(null);
 
   // Load live shipments from API
   const fetchShipments = async () => {
@@ -71,12 +81,15 @@ export default function AdminLogisticsPage() {
             orderNumber: s.order?.orderNumber || "PRG-ORD",
             customerName: s.order?.user?.name || "Customer",
             customerPhone: s.order?.user?.phone || "+91 0000000000",
-            deliveryCity: s.order?.shippingAddress ? s.order.shippingAddress.split(",").pop()?.trim() || "India" : "India",
+            deliveryCity: s.order?.shippingAddress
+              ? s.order.shippingAddress.split(",").pop()?.trim() || "India"
+              : "India",
             pincode: "834001",
             courierPartner: s.courierName,
             courierCode: s.courierCode || "DELHIVERY",
             awbNumber: s.trackingNumber,
-            mode: s.courierCode === "BLUEDART" ? "Air Priority" : "Surface Ground",
+            mode:
+              s.courierCode === "BLUEDART" ? "Air Priority" : "Surface Ground",
             weightKg: s.weightKg || 0.5,
             lengthCm: 20,
             breadthCm: 15,
@@ -85,7 +98,10 @@ export default function AdminLogisticsPage() {
             status: s.status,
             labelGenerated: !!s.labelUrl,
             labelUrl: s.labelUrl || `/labels/${s.trackingNumber}.pdf`,
-            createdAt: new Date(s.createdAt).toISOString().replace("T", " ").slice(0, 16),
+            createdAt: new Date(s.createdAt)
+              .toISOString()
+              .replace("T", " ")
+              .slice(0, 16),
             estimatedDelivery: s.estimatedDelivery || "In Transit",
           }));
           setShipments(mapped);
@@ -187,7 +203,10 @@ export default function AdminLogisticsPage() {
 
       const json = await res.json();
       if (res.ok && json.success) {
-        setFeedbackMsg({ type: "success", text: json.message || "Shipment and AWB created successfully!" });
+        setFeedbackMsg({
+          type: "success",
+          text: json.message || "Shipment and AWB created successfully!",
+        });
         setShowManifestModal(false);
         setManifestOrderNo("");
         setManifestCustomer("");
@@ -214,7 +233,8 @@ export default function AdminLogisticsPage() {
           breadthCm: Number(manifestBreadth),
           heightCm: Number(manifestHeight),
           shippingCharge: Math.round(
-            courierObj.baseRatePer500g * Math.ceil(Number(manifestWeight) / 0.5),
+            courierObj.baseRatePer500g *
+              Math.ceil(Number(manifestWeight) / 0.5),
           ),
           status: "Manifest Created",
           labelGenerated: true,
@@ -228,10 +248,16 @@ export default function AdminLogisticsPage() {
         };
         setShipments([newShipment, ...shipments]);
         setShowManifestModal(false);
-        setFeedbackMsg({ type: "success", text: `Manifest created for #${newShipment.orderNumber} with AWB ${generatedAwb}` });
+        setFeedbackMsg({
+          type: "success",
+          text: `Manifest created for #${newShipment.orderNumber} with AWB ${generatedAwb}`,
+        });
       }
     } catch (err: any) {
-      setFeedbackMsg({ type: "error", text: err.message || "Failed to create shipment." });
+      setFeedbackMsg({
+        type: "error",
+        text: err.message || "Failed to create shipment.",
+      });
     } finally {
       setCreatingShipment(false);
     }
@@ -245,7 +271,10 @@ export default function AdminLogisticsPage() {
       });
       const json = await res.json();
       if (res.ok && json.success) {
-        setFeedbackMsg({ type: "success", text: `Tracking synchronized for AWB ${shp.awbNumber}: ${json.data?.status || "Updated"}` });
+        setFeedbackMsg({
+          type: "success",
+          text: `Tracking synchronized for AWB ${shp.awbNumber}: ${json.data?.status || "Updated"}`,
+        });
         await fetchShipments();
       } else {
         // Progressive local milestone progression
@@ -265,10 +294,16 @@ export default function AdminLogisticsPage() {
             return s;
           }),
         );
-        setFeedbackMsg({ type: "success", text: `Simulated tracking progression for AWB ${shp.awbNumber}` });
+        setFeedbackMsg({
+          type: "success",
+          text: `Simulated tracking progression for AWB ${shp.awbNumber}`,
+        });
       }
     } catch (err: any) {
-      setFeedbackMsg({ type: "error", text: "Tracking synchronization failed." });
+      setFeedbackMsg({
+        type: "error",
+        text: "Tracking synchronization failed.",
+      });
     } finally {
       setSyncingId(null);
     }
@@ -712,7 +747,9 @@ export default function AdminLogisticsPage() {
                       className="p-2 bg-[#E0F7FC] hover:bg-[#c9f1fa] text-[#00AEEF] rounded-xl transition-colors inline-flex items-center gap-1 font-bold text-[11px] disabled:opacity-50"
                       title="Sync Live Tracking from Courier"
                     >
-                      <RefreshCw className={`w-3.5 h-3.5 ${syncingId === shp.id ? "animate-spin" : ""}`} />
+                      <RefreshCw
+                        className={`w-3.5 h-3.5 ${syncingId === shp.id ? "animate-spin" : ""}`}
+                      />
                       <span>Sync</span>
                     </button>
 
@@ -823,11 +860,14 @@ export default function AdminLogisticsPage() {
               {pendingOrders.length > 0 && (
                 <div className="bg-slate-50 border border-slate-200 p-3 rounded-2xl space-y-1">
                   <label className="block text-[10px] font-black uppercase text-slate-500 tracking-wider">
-                    Quick Fill from Ready-to-Ship Orders ({pendingOrders.length})
+                    Quick Fill from Ready-to-Ship Orders ({pendingOrders.length}
+                    )
                   </label>
                   <select
                     onChange={(e) => {
-                      const sel = pendingOrders.find((o) => o.orderNumber === e.target.value);
+                      const sel = pendingOrders.find(
+                        (o) => o.orderNumber === e.target.value,
+                      );
                       if (sel) {
                         setManifestOrderNo(sel.orderNumber);
                         if (sel.user?.name) setManifestCustomer(sel.user.name);
@@ -837,10 +877,14 @@ export default function AdminLogisticsPage() {
                     className="w-full bg-white border border-slate-200 p-2 rounded-xl font-bold text-slate-900 focus:outline-none"
                     defaultValue=""
                   >
-                    <option value="" disabled>-- Select an active order --</option>
+                    <option value="" disabled>
+                      -- Select an active order --
+                    </option>
                     {pendingOrders.map((po) => (
                       <option key={po.id} value={po.orderNumber}>
-                        {po.orderNumber} • ₹{po.totalAmount.toLocaleString("en-IN")} • {po.user?.name || "Customer"}
+                        {po.orderNumber} • ₹
+                        {po.totalAmount.toLocaleString("en-IN")} •{" "}
+                        {po.user?.name || "Customer"}
                       </option>
                     ))}
                   </select>

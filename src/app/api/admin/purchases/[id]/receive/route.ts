@@ -7,13 +7,24 @@ import { StoreId } from "@/data/storeConfig";
 import { recordAuditLog } from "@/lib/auditLogger";
 
 // POST /api/admin/purchases/[id]/receive — Record goods receipt & update inventory
-export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function POST(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> },
+) {
   const headers = getSecurityHeaders();
   const staff = await getAuthenticatedStaff();
   const { id: purchaseOrderId } = await params;
 
-  if (!staff || (staff.role !== "SUPER_ADMIN" && staff.role !== "REGIONAL_MANAGER" && staff.role !== "STORE_MANAGER")) {
-    return NextResponse.json({ success: false, message: "Forbidden" }, { status: 403, headers });
+  if (
+    !staff ||
+    (staff.role !== "SUPER_ADMIN" &&
+      staff.role !== "REGIONAL_MANAGER" &&
+      staff.role !== "STORE_MANAGER")
+  ) {
+    return NextResponse.json(
+      { success: false, message: "Forbidden" },
+      { status: 403, headers },
+    );
   }
 
   try {
@@ -22,11 +33,17 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     const { items, notes } = body;
 
     if (!items?.length) {
-      return NextResponse.json({ success: false, message: "No items provided for receiving" }, { status: 400, headers });
+      return NextResponse.json(
+        { success: false, message: "No items provided for receiving" },
+        { status: 400, headers },
+      );
     }
 
     if (!process.env.DATABASE_URL) {
-      return NextResponse.json({ success: false, message: "Database not configured" }, { status: 503, headers });
+      return NextResponse.json(
+        { success: false, message: "Database not configured" },
+        { status: 503, headers },
+      );
     }
 
     // Load the PO
@@ -38,15 +55,32 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       },
     });
 
-    if (!po) return NextResponse.json({ success: false, message: "Purchase order not found" }, { status: 404, headers });
+    if (!po)
+      return NextResponse.json(
+        { success: false, message: "Purchase order not found" },
+        { status: 404, headers },
+      );
 
     // Store Manager scope check
-    if (staff.role === "STORE_MANAGER" && staff.storeId && po.storeId !== staff.storeId) {
-      return NextResponse.json({ success: false, message: "Forbidden — not your store" }, { status: 403, headers });
+    if (
+      staff.role === "STORE_MANAGER" &&
+      staff.storeId &&
+      po.storeId !== staff.storeId
+    ) {
+      return NextResponse.json(
+        { success: false, message: "Forbidden — not your store" },
+        { status: 403, headers },
+      );
     }
 
     if (po.status === "CANCELLED") {
-      return NextResponse.json({ success: false, message: "Cannot receive stock for a cancelled purchase order" }, { status: 409, headers });
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Cannot receive stock for a cancelled purchase order",
+        },
+        { status: 409, headers },
+      );
     }
 
     // Generate receipt number
@@ -58,17 +92,27 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
 
     // Validate and prepare receipt items
     const receiptItems: any[] = [];
-    const inventoryUpdates: Array<{ productId: string; productDbId: string; receivedQty: number; productName: string }> = [];
+    const inventoryUpdates: Array<{
+      productId: string;
+      productDbId: string;
+      receivedQty: number;
+      productName: string;
+    }> = [];
 
     for (const incoming of items) {
-      const poItem = po.items.find((i) => i.id === incoming.purchaseOrderItemId);
+      const poItem = po.items.find(
+        (i) => i.id === incoming.purchaseOrderItemId,
+      );
       if (!poItem) continue;
 
       const maxReceivable = poItem.orderedQty - poItem.receivedQty;
       const actualReceived = Math.min(incoming.receivedQty, maxReceivable);
       if (actualReceived <= 0) continue;
 
-      receiptItems.push({ purchaseOrderItemId: poItem.id, receivedQty: actualReceived });
+      receiptItems.push({
+        purchaseOrderItemId: poItem.id,
+        receivedQty: actualReceived,
+      });
       inventoryUpdates.push({
         productId: poItem.product.sku, // inventoryEngine uses SKU or ID
         productDbId: poItem.productId,
@@ -78,7 +122,10 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     }
 
     if (!receiptItems.length) {
-      return NextResponse.json({ success: false, message: "No valid quantities to receive" }, { status: 400, headers });
+      return NextResponse.json(
+        { success: false, message: "No valid quantities to receive" },
+        { status: 400, headers },
+      );
     }
 
     // Create goods receipt record
@@ -129,8 +176,16 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
 
         if (dbProduct) {
           await db.storeInventory.upsert({
-            where: { storeId_productId: { storeId: po.storeId, productId: dbProduct.id } },
-            update: { quantity: { increment: inv.receivedQty }, availableQuantity: { increment: inv.receivedQty } },
+            where: {
+              storeId_productId: {
+                storeId: po.storeId,
+                productId: dbProduct.id,
+              },
+            },
+            update: {
+              quantity: { increment: inv.receivedQty },
+              availableQuantity: { increment: inv.receivedQty },
+            },
             create: {
               storeId: po.storeId,
               productId: dbProduct.id,
@@ -142,7 +197,12 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
 
           // Write audit trail entry
           const inv_record = await db.storeInventory.findUnique({
-            where: { storeId_productId: { storeId: po.storeId, productId: dbProduct.id } },
+            where: {
+              storeId_productId: {
+                storeId: po.storeId,
+                productId: dbProduct.id,
+              },
+            },
           });
 
           await db.inventoryTransaction.create({
@@ -165,11 +225,16 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     }
 
     // Determine new PO status: all items received → RECEIVED, else PARTIALLY_RECEIVED
-    const updatedItems = await db.purchaseOrderItem.findMany({ where: { purchaseOrderId } });
+    const updatedItems = await db.purchaseOrderItem.findMany({
+      where: { purchaseOrderId },
+    });
     const allReceived = updatedItems.every((i) => i.pendingQty <= 0);
     const newPoStatus = allReceived ? "RECEIVED" : "PARTIALLY_RECEIVED";
 
-    await db.purchaseOrder.update({ where: { id: purchaseOrderId }, data: { status: newPoStatus } });
+    await db.purchaseOrder.update({
+      where: { id: purchaseOrderId },
+      data: { status: newPoStatus },
+    });
 
     // Record Immutable Audit Log for Goods Receipt
     await recordAuditLog({
@@ -196,24 +261,37 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       req: request,
     });
 
-    return NextResponse.json({
-      success: true,
-      message: `${receiptItems.reduce((s, i) => s + i.receivedQty, 0)} units received. Inventory updated. PO status: ${newPoStatus}.`,
-      receiptNumber,
-      data: { receiptId: receipt.id, newPoStatus },
-    }, { headers });
+    return NextResponse.json(
+      {
+        success: true,
+        message: `${receiptItems.reduce((s, i) => s + i.receivedQty, 0)} units received. Inventory updated. PO status: ${newPoStatus}.`,
+        receiptNumber,
+        data: { receiptId: receipt.id, newPoStatus },
+      },
+      { headers },
+    );
   } catch (error: any) {
-    return NextResponse.json({ success: false, message: error.message }, { status: 500, headers });
+    return NextResponse.json(
+      { success: false, message: error.message },
+      { status: 500, headers },
+    );
   }
 }
 
 // GET /api/admin/purchases/[id]/receive — List all goods receipts for a PO
-export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function GET(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> },
+) {
   const headers = getSecurityHeaders();
   const staff = await getAuthenticatedStaff();
   const { id: purchaseOrderId } = await params;
 
-  if (!staff) return NextResponse.json({ success: false, message: "Forbidden" }, { status: 403, headers });
+  if (!staff)
+    return NextResponse.json(
+      { success: false, message: "Forbidden" },
+      { status: 403, headers },
+    );
 
   if (process.env.DATABASE_URL) {
     try {
@@ -223,7 +301,9 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
           items: {
             include: {
               purchaseOrderItem: {
-                include: { product: { select: { id: true, name: true, sku: true } } },
+                include: {
+                  product: { select: { id: true, name: true, sku: true } },
+                },
               },
             },
           },
@@ -233,7 +313,10 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
 
       return NextResponse.json({ success: true, data: receipts }, { headers });
     } catch (error: any) {
-      return NextResponse.json({ success: false, message: error.message }, { status: 500, headers });
+      return NextResponse.json(
+        { success: false, message: error.message },
+        { status: 500, headers },
+      );
     }
   }
 

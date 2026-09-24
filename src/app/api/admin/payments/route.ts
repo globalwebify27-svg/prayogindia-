@@ -41,8 +41,11 @@ export async function GET(req: NextRequest) {
 
   if (!staff) {
     return NextResponse.json(
-      { success: false, message: "Forbidden: Admin or Accounts permission required." },
-      { status: 403, headers }
+      {
+        success: false,
+        message: "Forbidden: Admin or Accounts permission required.",
+      },
+      { status: 403, headers },
     );
   }
 
@@ -51,7 +54,10 @@ export async function GET(req: NextRequest) {
   const method = searchParams.get("method") || "all";
   const search = searchParams.get("search")?.trim().toLowerCase() || "";
   const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
-  const limit = Math.min(50, Math.max(1, parseInt(searchParams.get("limit") || "15", 10)));
+  const limit = Math.min(
+    50,
+    Math.max(1, parseInt(searchParams.get("limit") || "15", 10)),
+  );
 
   if (process.env.DATABASE_URL) {
     try {
@@ -79,9 +85,21 @@ export async function GET(req: NextRequest) {
         where.OR = [
           { utrNumber: { contains: search, mode: "insensitive" } },
           { order: { orderNumber: { contains: search, mode: "insensitive" } } },
-          { order: { user: { name: { contains: search, mode: "insensitive" } } } },
-          { order: { user: { email: { contains: search, mode: "insensitive" } } } },
-          { order: { user: { phone: { contains: search, mode: "insensitive" } } } },
+          {
+            order: {
+              user: { name: { contains: search, mode: "insensitive" } },
+            },
+          },
+          {
+            order: {
+              user: { email: { contains: search, mode: "insensitive" } },
+            },
+          },
+          {
+            order: {
+              user: { phone: { contains: search, mode: "insensitive" } },
+            },
+          },
         ];
       }
 
@@ -136,13 +154,13 @@ export async function GET(req: NextRequest) {
             },
           },
         },
-        { headers }
+        { headers },
       );
     } catch (error: any) {
       console.error("[Admin Payments API Error]:", error);
       return NextResponse.json(
         { success: false, message: error.message },
-        { status: 500, headers }
+        { status: 500, headers },
       );
     }
   }
@@ -169,8 +187,16 @@ export async function GET(req: NextRequest) {
           customerType: "B2B",
         },
         items: [
-          { productName: "STM32 Nucleo Development Board", quantity: 6, price: 4200 },
-          { productName: "High Precision Lidar Sensor Kit", quantity: 2, price: 5850 },
+          {
+            productName: "STM32 Nucleo Development Board",
+            quantity: 6,
+            price: 4200,
+          },
+          {
+            productName: "High Precision Lidar Sensor Kit",
+            quantity: 2,
+            price: 5850,
+          },
         ],
       },
       amount: 48900,
@@ -180,7 +206,8 @@ export async function GET(req: NextRequest) {
       utrNumber: "SBIN829102938475",
       transactionDate: new Date(Date.now() - 2 * 3600 * 1000).toISOString(),
       submittedAt: new Date(Date.now() - 2 * 3600 * 1000).toISOString(),
-      customerRemarks: "Payment for PO #IITB-ROB-2026-09 via SBI Corporate Banking",
+      customerRemarks:
+        "Payment for PO #IITB-ROB-2026-09 via SBI Corporate Banking",
       createdAt: new Date(Date.now() - 2 * 3600 * 1000).toISOString(),
     },
     {
@@ -203,7 +230,11 @@ export async function GET(req: NextRequest) {
           customerType: "B2B",
         },
         items: [
-          { productName: "Pixhawk 6X Autopilot Flight Controller", quantity: 5, price: 29000 },
+          {
+            productName: "Pixhawk 6X Autopilot Flight Controller",
+            quantity: 5,
+            price: 29000,
+          },
         ],
       },
       amount: 145000,
@@ -233,6 +264,6 @@ export async function GET(req: NextRequest) {
         },
       },
     },
-    { headers }
+    { headers },
   );
 }

@@ -1,18 +1,6 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
-import { AuthSessionUser } from "@/lib/authUtils";
+import { getAuthenticatedCustomer } from "@/lib/authUtils";
 import { NotificationService } from "@/lib/notifications";
-
-async function getAuthenticatedUser(): Promise<AuthSessionUser | null> {
-  const cookieStore = await cookies();
-  const sessionCookie = cookieStore.get("prayog_customer_session");
-  if (!sessionCookie?.value) return null;
-  try {
-    return JSON.parse(sessionCookie.value);
-  } catch {
-    return null;
-  }
-}
 
 /**
  * PATCH /api/notifications/[id]/read
@@ -22,7 +10,7 @@ export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const user = await getAuthenticatedUser();
+  const user = await getAuthenticatedCustomer();
   if (!user) {
     return NextResponse.json(
       { success: false, message: "Unauthenticated" },

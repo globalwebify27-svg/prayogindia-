@@ -14,8 +14,16 @@ export async function GET(request: Request) {
   const headers = getSecurityHeaders();
   const staff = await getAuthenticatedStaff();
 
-  if (!staff || (staff.role !== "SUPER_ADMIN" && staff.role !== "REGIONAL_MANAGER" && staff.role !== "STORE_MANAGER")) {
-    return NextResponse.json({ success: false, message: "Forbidden" }, { status: 403, headers });
+  if (
+    !staff ||
+    (staff.role !== "SUPER_ADMIN" &&
+      staff.role !== "REGIONAL_MANAGER" &&
+      staff.role !== "STORE_MANAGER")
+  ) {
+    return NextResponse.json(
+      { success: false, message: "Forbidden" },
+      { status: 403, headers },
+    );
   }
 
   const { searchParams } = new URL(request.url);
@@ -33,7 +41,10 @@ export async function GET(request: Request) {
       // Role-based store isolation
       if (staff.role === "STORE_MANAGER" && staff.storeId) {
         where.storeId = staff.storeId;
-      } else if (staff.role === "REGIONAL_MANAGER" && staff.allowedStoreCodes?.length) {
+      } else if (
+        staff.role === "REGIONAL_MANAGER" &&
+        staff.allowedStoreCodes?.length
+      ) {
         const regionalStores = await db.store.findMany({
           where: { code: { in: staff.allowedStoreCodes } },
           select: { id: true },
@@ -74,22 +85,31 @@ export async function GET(request: Request) {
         db.quotation.count({ where }),
       ]);
 
-      return NextResponse.json({
-        success: true,
-        data: {
-          items: quotations,
-          total,
-          page,
-          limit,
-          totalPages: Math.ceil(total / limit),
+      return NextResponse.json(
+        {
+          success: true,
+          data: {
+            items: quotations,
+            total,
+            page,
+            limit,
+            totalPages: Math.ceil(total / limit),
+          },
         },
-      }, { headers });
+        { headers },
+      );
     } catch (error: any) {
-      return NextResponse.json({ success: false, message: error.message }, { status: 500, headers });
+      return NextResponse.json(
+        { success: false, message: error.message },
+        { status: 500, headers },
+      );
     }
   }
 
-  return NextResponse.json({ success: true, data: { items: [], total: 0 } }, { headers });
+  return NextResponse.json(
+    { success: true, data: { items: [], total: 0 } },
+    { headers },
+  );
 }
 
 // POST /api/admin/quotations — Admin creates a new official quotation
@@ -97,8 +117,16 @@ export async function POST(request: Request) {
   const headers = getSecurityHeaders();
   const staff = await getAuthenticatedStaff();
 
-  if (!staff || (staff.role !== "SUPER_ADMIN" && staff.role !== "REGIONAL_MANAGER" && staff.role !== "STORE_MANAGER")) {
-    return NextResponse.json({ success: false, message: "Forbidden" }, { status: 403, headers });
+  if (
+    !staff ||
+    (staff.role !== "SUPER_ADMIN" &&
+      staff.role !== "REGIONAL_MANAGER" &&
+      staff.role !== "STORE_MANAGER")
+  ) {
+    return NextResponse.json(
+      { success: false, message: "Forbidden" },
+      { status: 403, headers },
+    );
   }
 
   try {
@@ -124,15 +152,22 @@ export async function POST(request: Request) {
 
     if (!companyName || !customerName || !customerEmail || !customerPhone) {
       return NextResponse.json(
-        { success: false, message: "Company name, customer name, email, and phone are required." },
-        { status: 400, headers }
+        {
+          success: false,
+          message:
+            "Company name, customer name, email, and phone are required.",
+        },
+        { status: 400, headers },
       );
     }
 
     if (!Array.isArray(items) || items.length === 0) {
       return NextResponse.json(
-        { success: false, message: "At least one product line item is required." },
-        { status: 400, headers }
+        {
+          success: false,
+          message: "At least one product line item is required.",
+        },
+        { status: 400, headers },
       );
     }
 
@@ -150,11 +185,16 @@ export async function POST(request: Request) {
       }
 
       if (!finalStoreId) {
-        return NextResponse.json({ success: false, message: "Store is required" }, { status: 400, headers });
+        return NextResponse.json(
+          { success: false, message: "Store is required" },
+          { status: 400, headers },
+        );
       }
 
       const quoteNumber = await generateQuoteNumber();
-      const validUntilDate = reqValidUntil ? new Date(reqValidUntil) : new Date(Date.now() + 30 * 86400000);
+      const validUntilDate = reqValidUntil
+        ? new Date(reqValidUntil)
+        : new Date(Date.now() + 30 * 86400000);
 
       let subtotal = 0;
       let totalDiscount = 0;
@@ -164,7 +204,8 @@ export async function POST(request: Request) {
         const unitPrice = parseFloat(item.unitPrice) || 0;
         const discountPct = parseFloat(item.discountPct) || 0;
         const lineGross = qty * unitPrice;
-        const lineDiscount = Math.round((lineGross * (discountPct / 100)) * 100) / 100;
+        const lineDiscount =
+          Math.round(lineGross * (discountPct / 100) * 100) / 100;
         const lineTotal = lineGross - lineDiscount;
 
         subtotal += lineGross;
@@ -186,7 +227,8 @@ export async function POST(request: Request) {
       const netTaxable = subtotal - totalDiscount;
       const taxAmount = Math.round(netTaxable * (taxRate / 100) * 100) / 100;
       const shipCost = parseFloat(shippingCharge) || 0;
-      const grandTotal = Math.round((netTaxable + taxAmount + shipCost) * 100) / 100;
+      const grandTotal =
+        Math.round((netTaxable + taxAmount + shipCost) * 100) / 100;
 
       const quotation = await db.quotation.create({
         data: {
@@ -209,7 +251,9 @@ export async function POST(request: Request) {
           shippingCharge: shipCost,
           grandTotal,
           notes: notes || "Official Prayog India Institutional Quotation.",
-          terms: terms || "1. 100% Advance payment via NEFT/RTGS/UPI for dispatch.\n2. Delivery within 5-7 working days from PO confirmation.\n3. Covered under Prayog 1-Year OEM replacement warranty.",
+          terms:
+            terms ||
+            "1. 100% Advance payment via NEFT/RTGS/UPI for dispatch.\n2. Delivery within 5-7 working days from PO confirmation.\n3. Covered under Prayog 1-Year OEM replacement warranty.",
           createdByStaffId: staff.id,
           items: {
             create: quotationItemsData,
@@ -235,19 +279,31 @@ export async function POST(request: Request) {
         },
       });
 
-      return NextResponse.json({
-        success: true,
-        message: "Quotation created successfully.",
-        data: quotation,
-      }, { status: 201, headers });
+      return NextResponse.json(
+        {
+          success: true,
+          message: "Quotation created successfully.",
+          data: quotation,
+        },
+        { status: 201, headers },
+      );
     }
 
-    return NextResponse.json({
-      success: true,
-      message: "Quotation created (Mock Mode)",
-      data: { id: `qt-${Date.now()}`, quoteNumber: `PRG-QT-2026-${Math.floor(1000 + Math.random() * 9000)}` },
-    }, { status: 201, headers });
+    return NextResponse.json(
+      {
+        success: true,
+        message: "Quotation created (Mock Mode)",
+        data: {
+          id: `qt-${Date.now()}`,
+          quoteNumber: `PRG-QT-2026-${Math.floor(1000 + Math.random() * 9000)}`,
+        },
+      },
+      { status: 201, headers },
+    );
   } catch (error: any) {
-    return NextResponse.json({ success: false, message: error.message }, { status: 500, headers });
+    return NextResponse.json(
+      { success: false, message: error.message },
+      { status: 500, headers },
+    );
   }
 }

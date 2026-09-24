@@ -28,11 +28,27 @@ export const PrayogLogo: React.FC<PrayogLogoProps> = ({
     <div
       className={`inline-flex flex-col items-start select-none group cursor-pointer ${className}`}
     >
-      <div className="flex items-center">
+      <div className="flex items-center relative">
+        {/* Precise contrast backplate for 'The World of ROBOTICS' pill when rendered on light/white backgrounds */}
+        {!dark && (
+          <div
+            className="absolute bg-[#0F172A] rounded-full pointer-events-none transition-transform duration-200 group-hover:scale-[1.02]"
+            style={{
+              left: "17.0%",
+              top: "68.2%",
+              width: "67.2%",
+              height: "23.9%",
+              borderRadius: "9999px",
+            }}
+            aria-hidden="true"
+          />
+        )}
         <img
-          src="/images/prayog-logo.webp"
+          src={
+            dark ? "/images/prayog-logo-white.png" : "/images/prayog-logo.png"
+          }
           alt="Prayog India - The World of Robotics"
-          className={`${sizeClasses[size]} object-contain drop-shadow-xs transition-transform duration-200 group-hover:scale-[1.02]`}
+          className={`${sizeClasses[size]} object-contain relative z-10 drop-shadow-xs transition-transform duration-200 group-hover:scale-[1.02]`}
           loading="eager"
         />
       </div>
@@ -58,4 +74,3 @@ export const PrayogLogo: React.FC<PrayogLogoProps> = ({
 };
 
 export default PrayogLogo;
-

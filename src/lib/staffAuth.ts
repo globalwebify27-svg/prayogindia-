@@ -166,6 +166,8 @@ export const MOCK_STAFF_USERS: Record<string, StaffSessionUser> = {
   },
 };
 
+import { verifySessionToken } from "@/lib/jwt";
+
 /**
  * Server-side Helper: Extract & Verify Authenticated Staff Session
  */
@@ -175,20 +177,16 @@ export async function getAuthenticatedStaff(): Promise<StaffSessionUser | null> 
 
   if (!sessionCookie?.value) return null;
 
-  try {
-    const user: StaffSessionUser = JSON.parse(sessionCookie.value);
-    if (!user || !user.role || !user.username) {
-      return null;
-    }
-
-    if (user.status && user.status !== "ACTIVE") {
-      return null;
-    }
-
-    return user;
-  } catch {
+  const user = await verifySessionToken<StaffSessionUser>(sessionCookie.value);
+  if (!user || !user.role || !user.username) {
     return null;
   }
+
+  if (user.status && user.status !== "ACTIVE") {
+    return null;
+  }
+
+  return user;
 }
 
 /**

@@ -25,19 +25,65 @@ import {
 } from "lucide-react";
 
 const SERVICE_TYPES = [
-  { slug: "all", label: "All Enquiries", icon: Wrench, color: "text-slate-600" },
-  { slug: "STEM_LAB_SETUP", label: "STEM Lab Setup", icon: Cpu, color: "text-blue-600" },
-  { slug: "ROBOTICS_LAB_SETUP", label: "Robotics Lab", icon: Cpu, color: "text-purple-600" },
-  { slug: "DRONE_LAB_SETUP", label: "Drone Lab", icon: Wind, color: "text-sky-600" },
-  { slug: "INDUSTRIAL_PROJECTS", label: "Industrial Projects", icon: Factory, color: "text-orange-600" },
-  { slug: "CONSULTANCY", label: "Consultancy", icon: BriefcaseBusiness, color: "text-emerald-600" },
+  {
+    slug: "all",
+    label: "All Enquiries",
+    icon: Wrench,
+    color: "text-slate-600",
+  },
+  {
+    slug: "STEM_LAB_SETUP",
+    label: "STEM Lab Setup",
+    icon: Cpu,
+    color: "text-blue-600",
+  },
+  {
+    slug: "ROBOTICS_LAB_SETUP",
+    label: "Robotics Lab",
+    icon: Cpu,
+    color: "text-purple-600",
+  },
+  {
+    slug: "DRONE_LAB_SETUP",
+    label: "Drone Lab",
+    icon: Wind,
+    color: "text-sky-600",
+  },
+  {
+    slug: "INDUSTRIAL_PROJECTS",
+    label: "Industrial Projects",
+    icon: Factory,
+    color: "text-orange-600",
+  },
+  {
+    slug: "CONSULTANCY",
+    label: "Consultancy",
+    icon: BriefcaseBusiness,
+    color: "text-emerald-600",
+  },
 ];
 
 const STATUS_OPTIONS = [
-  { value: "NEW", label: "New", color: "bg-blue-100 text-blue-800 border-blue-200" },
-  { value: "CONTACTED", label: "Contacted", color: "bg-amber-100 text-amber-800 border-amber-200" },
-  { value: "IN_PROGRESS", label: "In Progress", color: "bg-purple-100 text-purple-800 border-purple-200" },
-  { value: "CLOSED", label: "Closed", color: "bg-emerald-100 text-emerald-800 border-emerald-200" },
+  {
+    value: "NEW",
+    label: "New",
+    color: "bg-blue-100 text-blue-800 border-blue-200",
+  },
+  {
+    value: "CONTACTED",
+    label: "Contacted",
+    color: "bg-amber-100 text-amber-800 border-amber-200",
+  },
+  {
+    value: "IN_PROGRESS",
+    label: "In Progress",
+    color: "bg-purple-100 text-purple-800 border-purple-200",
+  },
+  {
+    value: "CLOSED",
+    label: "Closed",
+    color: "bg-emerald-100 text-emerald-800 border-emerald-200",
+  },
 ];
 
 export default function AdminServicesPage() {
@@ -47,7 +93,9 @@ export default function AdminServicesPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedService, setSelectedService] = useState("all");
   const [selectedEnquiry, setSelectedEnquiry] = useState<any | null>(null);
-  const [localStatuses, setLocalStatuses] = useState<Record<string, string>>({});
+  const [localStatuses, setLocalStatuses] = useState<Record<string, string>>(
+    {},
+  );
 
   const fetchData = async () => {
     setLoading(true);
@@ -92,7 +140,9 @@ export default function AdminServicesPage() {
   const totalThisMonth = enquiries.filter((e) => {
     const d = new Date(e.createdAt);
     const now = new Date();
-    return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+    return (
+      d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear()
+    );
   }).length;
 
   return (
@@ -109,7 +159,8 @@ export default function AdminServicesPage() {
             Service Enquiries
           </h1>
           <p className="text-xs text-slate-500 font-medium mt-0.5">
-            Manage B2B & institutional enquiries for STEM Labs, Robotics, Drone Labs, and consultancy services
+            Manage B2B & institutional enquiries for STEM Labs, Robotics, Drone
+            Labs, and consultancy services
           </p>
         </div>
         <button
@@ -138,22 +189,30 @@ export default function AdminServicesPage() {
           },
           {
             label: "New / Unread",
-            value: enquiries.filter((e) => getStatusForEnquiry(e.id) === "NEW").length,
+            value: enquiries.filter((e) => getStatusForEnquiry(e.id) === "NEW")
+              .length,
             color: "bg-amber-50 border-amber-200",
             valueColor: "text-amber-800",
           },
           {
             label: "Closed / Done",
-            value: enquiries.filter((e) => getStatusForEnquiry(e.id) === "CLOSED").length,
+            value: enquiries.filter(
+              (e) => getStatusForEnquiry(e.id) === "CLOSED",
+            ).length,
             color: "bg-emerald-50 border-emerald-200",
             valueColor: "text-emerald-800",
           },
         ].map((stat) => (
-          <div key={stat.label} className={`rounded-2xl border p-4 ${stat.color} flex flex-col`}>
+          <div
+            key={stat.label}
+            className={`rounded-2xl border p-4 ${stat.color} flex flex-col`}
+          >
             <span className="text-[10px] font-extrabold uppercase text-slate-500 tracking-wider">
               {stat.label}
             </span>
-            <span className={`text-3xl font-black mt-1 ${stat.valueColor}`}>{stat.value}</span>
+            <span className={`text-3xl font-black mt-1 ${stat.valueColor}`}>
+              {stat.value}
+            </span>
           </div>
         ))}
       </div>
@@ -162,9 +221,10 @@ export default function AdminServicesPage() {
       <div className="flex flex-wrap gap-2">
         {SERVICE_TYPES.map((svc) => {
           const Icon = svc.icon;
-          const count = svc.slug === "all"
-            ? enquiries.length
-            : enquiries.filter((e) => e.service?.slug === svc.slug).length;
+          const count =
+            svc.slug === "all"
+              ? enquiries.length
+              : enquiries.filter((e) => e.service?.slug === svc.slug).length;
 
           return (
             <button
@@ -176,12 +236,16 @@ export default function AdminServicesPage() {
                   : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
               }`}
             >
-              <Icon className={`w-3.5 h-3.5 ${selectedService === svc.slug ? "text-[#00AEEF]" : svc.color}`} />
+              <Icon
+                className={`w-3.5 h-3.5 ${selectedService === svc.slug ? "text-[#00AEEF]" : svc.color}`}
+              />
               <span>{svc.label}</span>
               {count > 0 && (
                 <span
                   className={`text-[9px] font-black px-1.5 py-0.5 rounded-full ${
-                    selectedService === svc.slug ? "bg-[#00AEEF] text-white" : "bg-slate-100 text-slate-600"
+                    selectedService === svc.slug
+                      ? "bg-[#00AEEF] text-white"
+                      : "bg-slate-100 text-slate-600"
                   }`}
                 >
                   {count}
@@ -203,7 +267,10 @@ export default function AdminServicesPage() {
           className="flex-1 bg-transparent text-xs font-bold text-slate-900 focus:outline-none placeholder:text-slate-400 placeholder:font-normal"
         />
         {searchQuery && (
-          <button onClick={() => setSearchQuery("")} className="text-slate-400 hover:text-slate-600 cursor-pointer">
+          <button
+            onClick={() => setSearchQuery("")}
+            className="text-slate-400 hover:text-slate-600 cursor-pointer"
+          >
             <X className="w-3.5 h-3.5" />
           </button>
         )}
@@ -230,7 +297,9 @@ export default function AdminServicesPage() {
                   <td colSpan={7} className="py-16 text-center">
                     <div className="flex flex-col items-center gap-3 text-slate-400">
                       <RefreshCw className="w-6 h-6 animate-spin text-[#00AEEF]" />
-                      <span className="text-xs">Loading service enquiries...</span>
+                      <span className="text-xs">
+                        Loading service enquiries...
+                      </span>
                     </div>
                   </td>
                 </tr>
@@ -239,8 +308,13 @@ export default function AdminServicesPage() {
                   <td colSpan={7} className="py-16 text-center">
                     <div className="flex flex-col items-center gap-3 text-slate-400">
                       <Wrench className="w-8 h-8 opacity-30" />
-                      <span className="text-xs font-bold">No service enquiries found</span>
-                      <span className="text-[11px]">Enquiries submitted via the services pages will appear here</span>
+                      <span className="text-xs font-bold">
+                        No service enquiries found
+                      </span>
+                      <span className="text-[11px]">
+                        Enquiries submitted via the services pages will appear
+                        here
+                      </span>
                     </div>
                   </td>
                 </tr>
@@ -249,7 +323,10 @@ export default function AdminServicesPage() {
                   const status = getStatusForEnquiry(enq.id);
                   const statusConfig = getStatusConfig(status);
                   return (
-                    <tr key={enq.id} className="hover:bg-slate-50/80 transition-colors">
+                    <tr
+                      key={enq.id}
+                      className="hover:bg-slate-50/80 transition-colors"
+                    >
                       {/* Customer */}
                       <td className="p-4">
                         <div className="flex items-center gap-2.5">
@@ -257,9 +334,13 @@ export default function AdminServicesPage() {
                             {(enq.name || "?")[0].toUpperCase()}
                           </div>
                           <div>
-                            <div className="font-extrabold text-slate-900">{enq.name}</div>
+                            <div className="font-extrabold text-slate-900">
+                              {enq.name}
+                            </div>
                             {enq.user && (
-                              <div className="text-[10px] text-[#00AEEF] font-bold">Registered Customer</div>
+                              <div className="text-[10px] text-[#00AEEF] font-bold">
+                                Registered Customer
+                              </div>
                             )}
                           </div>
                         </div>
@@ -309,7 +390,10 @@ export default function AdminServicesPage() {
                         <select
                           value={status}
                           onChange={(e) =>
-                            setLocalStatuses((prev) => ({ ...prev, [enq.id]: e.target.value }))
+                            setLocalStatuses((prev) => ({
+                              ...prev,
+                              [enq.id]: e.target.value,
+                            }))
                           }
                           className={`border rounded-lg px-2 py-1 text-[11px] font-bold focus:outline-none cursor-pointer ${statusConfig.color}`}
                         >
@@ -354,8 +438,12 @@ export default function AdminServicesPage() {
                 <span className="text-[10px] font-black uppercase tracking-widest text-[#00AEEF] block mb-1">
                   Service Enquiry Detail
                 </span>
-                <h2 className="text-lg font-black text-white">{selectedEnquiry.name}</h2>
-                <p className="text-xs text-slate-400 font-medium">{selectedEnquiry.service?.name}</p>
+                <h2 className="text-lg font-black text-white">
+                  {selectedEnquiry.name}
+                </h2>
+                <p className="text-xs text-slate-400 font-medium">
+                  {selectedEnquiry.service?.name}
+                </p>
               </div>
               <button
                 onClick={() => setSelectedEnquiry(null)}
@@ -369,31 +457,46 @@ export default function AdminServicesPage() {
             <div className="p-6 space-y-4">
               <div className="grid grid-cols-2 gap-3">
                 <div className="bg-slate-50 border border-slate-200 p-3 rounded-xl">
-                  <span className="text-[10px] font-black uppercase text-slate-400 block mb-1">Phone</span>
+                  <span className="text-[10px] font-black uppercase text-slate-400 block mb-1">
+                    Phone
+                  </span>
                   <div className="flex items-center gap-1.5 font-bold text-slate-900 text-sm">
                     <Phone className="w-4 h-4 text-[#00AEEF]" />
                     {selectedEnquiry.phone}
                   </div>
                 </div>
                 <div className="bg-slate-50 border border-slate-200 p-3 rounded-xl">
-                  <span className="text-[10px] font-black uppercase text-slate-400 block mb-1">Email</span>
+                  <span className="text-[10px] font-black uppercase text-slate-400 block mb-1">
+                    Email
+                  </span>
                   <div className="flex items-center gap-1.5 font-bold text-slate-900 text-sm">
                     <Mail className="w-4 h-4 text-[#00AEEF]" />
-                    <span className="truncate text-xs">{selectedEnquiry.email}</span>
+                    <span className="truncate text-xs">
+                      {selectedEnquiry.email}
+                    </span>
                   </div>
                 </div>
                 <div className="bg-slate-50 border border-slate-200 p-3 rounded-xl">
-                  <span className="text-[10px] font-black uppercase text-slate-400 block mb-1">Service</span>
-                  <div className="font-bold text-slate-900 text-sm">{selectedEnquiry.service?.name}</div>
+                  <span className="text-[10px] font-black uppercase text-slate-400 block mb-1">
+                    Service
+                  </span>
+                  <div className="font-bold text-slate-900 text-sm">
+                    {selectedEnquiry.service?.name}
+                  </div>
                 </div>
                 <div className="bg-slate-50 border border-slate-200 p-3 rounded-xl">
-                  <span className="text-[10px] font-black uppercase text-slate-400 block mb-1">Submitted</span>
+                  <span className="text-[10px] font-black uppercase text-slate-400 block mb-1">
+                    Submitted
+                  </span>
                   <div className="font-bold text-slate-900 text-sm">
-                    {new Date(selectedEnquiry.createdAt).toLocaleDateString("en-IN", {
-                      day: "2-digit",
-                      month: "short",
-                      year: "numeric",
-                    })}
+                    {new Date(selectedEnquiry.createdAt).toLocaleDateString(
+                      "en-IN",
+                      {
+                        day: "2-digit",
+                        month: "short",
+                        year: "numeric",
+                      },
+                    )}
                   </div>
                 </div>
               </div>
@@ -416,8 +519,12 @@ export default function AdminServicesPage() {
                     <span className="text-[10px] font-black uppercase text-blue-500 block">
                       Linked Customer Account
                     </span>
-                    <span className="font-bold text-blue-900 text-sm">{selectedEnquiry.user.name}</span>
-                    <span className="text-xs text-blue-600 block">{selectedEnquiry.user.email}</span>
+                    <span className="font-bold text-blue-900 text-sm">
+                      {selectedEnquiry.user.name}
+                    </span>
+                    <span className="text-xs text-blue-600 block">
+                      {selectedEnquiry.user.email}
+                    </span>
                   </div>
                 </div>
               )}
@@ -434,7 +541,10 @@ export default function AdminServicesPage() {
                       <button
                         key={s.value}
                         onClick={() =>
-                          setLocalStatuses((prev) => ({ ...prev, [selectedEnquiry.id]: s.value }))
+                          setLocalStatuses((prev) => ({
+                            ...prev,
+                            [selectedEnquiry.id]: s.value,
+                          }))
                         }
                         className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-all cursor-pointer ${
                           current === s.value

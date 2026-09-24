@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
-import { AuthSessionUser } from "@/lib/authUtils";
+import { AuthSessionUser, getAuthenticatedCustomer } from "@/lib/authUtils";
 import {
   generateStorageKey,
   ALLOWED_ATTACHMENT_MIME_TYPES,
@@ -8,16 +7,7 @@ import {
   getStorageService,
 } from "@/lib/storage";
 
-async function getAuthenticatedUser(): Promise<AuthSessionUser | null> {
-  const cookieStore = await cookies();
-  const sessionCookie = cookieStore.get("prayog_customer_session");
-  if (!sessionCookie?.value) return null;
-  try {
-    return JSON.parse(sessionCookie.value);
-  } catch {
-    return null;
-  }
-}
+const getAuthenticatedUser = getAuthenticatedCustomer;
 
 /**
  * POST /api/uploads/request

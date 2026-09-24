@@ -72,7 +72,9 @@ function ProductsContent() {
                 ? item.images[0]
                 : "/placeholder-product.png");
             const allImages = Array.isArray(item.images)
-              ? item.images.map((im: any) => (typeof im === "string" ? im : im.imageUrl))
+              ? item.images.map((im: any) =>
+                  typeof im === "string" ? im : im.imageUrl,
+                )
               : [primaryImg];
 
             return {
@@ -90,7 +92,7 @@ function ProductsContent() {
                   : "",
               rating: item.rating ?? 4.8,
               reviews: item.reviewCount ?? 12,
-              inStock: item.inStock ?? (item.stock > 0),
+              inStock: item.inStock ?? item.stock > 0,
               image: primaryImg,
               images: allImages,
               badge: item.badge,
@@ -105,7 +107,9 @@ function ProductsContent() {
           const newDbOnly = apiProducts.filter((p) => !existingIds.has(p.id));
           // Also update any matching product with live database data
           const updatedMock = PRODUCTS.map((p) => {
-            const match = apiProducts.find((ap) => ap.id === p.id || ap.slug === p.slug);
+            const match = apiProducts.find(
+              (ap) => ap.id === p.id || ap.slug === p.slug,
+            );
             return match || p;
           });
 
@@ -113,7 +117,10 @@ function ProductsContent() {
         }
       })
       .catch((err) => {
-        console.warn("Could not fetch latest products from API, using fallback", err);
+        console.warn(
+          "Could not fetch latest products from API, using fallback",
+          err,
+        );
       });
   }, []);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");

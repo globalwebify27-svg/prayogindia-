@@ -79,7 +79,12 @@ export interface QuotationDoc {
   adminNotes?: string;
   customerFeedback?: string;
   convertedAt?: string;
-  order?: { id: string; orderNumber: string; status: string; totalAmount: number };
+  order?: {
+    id: string;
+    orderNumber: string;
+    status: string;
+    totalAmount: number;
+  };
   revisions?: any[];
 }
 
@@ -107,7 +112,7 @@ export default function QuotationsPage() {
   const [shippingFee, setShippingFee] = useState(0);
   const [notes, setNotes] = useState("");
   const [terms, setTerms] = useState(
-    "1. 100% Advance payment against Proforma Invoice.\n2. Delivery within 3-5 days via Surface / Air Express.\n3. Standard 1-Year OEM warranty with dedicated engineer support."
+    "1. 100% Advance payment against Proforma Invoice.\n2. Delivery within 3-5 days via Surface / Air Express.\n3. Standard 1-Year OEM warranty with dedicated engineer support.",
   );
   const [gstRate, setGstRate] = useState(18);
   const [items, setItems] = useState<QuotationItem[]>([
@@ -162,7 +167,7 @@ export default function QuotationsPage() {
   const handleUpdateItem = (
     index: number,
     field: keyof QuotationItem,
-    val: any
+    val: any,
   ) => {
     setItems((prev) => {
       const next = [...prev];
@@ -209,7 +214,11 @@ export default function QuotationsPage() {
     }
   };
 
-  const handleStatusUpdate = async (id: string, newStatus: DocStage, revisionReason?: string) => {
+  const handleStatusUpdate = async (
+    id: string,
+    newStatus: DocStage,
+    revisionReason?: string,
+  ) => {
     try {
       const res = await fetch(`/api/admin/quotations/${id}`, {
         method: "PATCH",
@@ -231,7 +240,11 @@ export default function QuotationsPage() {
   };
 
   const handleConvertToOrder = async (id: string) => {
-    if (!confirm("Are you sure you want to convert this quotation into an active customer order?")) {
+    if (
+      !confirm(
+        "Are you sure you want to convert this quotation into an active customer order?",
+      )
+    ) {
       return;
     }
     setConvertingLoading(true);
@@ -244,7 +257,11 @@ export default function QuotationsPage() {
         alert(`Success! Order #${data.data?.order?.orderNumber} created.`);
         fetchQuotations();
         if (selectedDoc?.id === id) {
-          setSelectedDoc({ ...selectedDoc, status: "CONVERTED", order: data.data?.order });
+          setSelectedDoc({
+            ...selectedDoc,
+            status: "CONVERTED",
+            order: data.data?.order,
+          });
         }
       } else {
         alert(data.message || "Failed to convert to order");
@@ -295,7 +312,8 @@ export default function QuotationsPage() {
             B2B Quotations Management Desk
           </h1>
           <p className="text-xs text-slate-400">
-            Lifecycle: Request Quote → B2B Pricing → Send Quote → Customer Negotiation / Acceptance → Convert to Order
+            Lifecycle: Request Quote → B2B Pricing → Send Quote → Customer
+            Negotiation / Acceptance → Convert to Order
           </p>
         </div>
 
@@ -324,7 +342,8 @@ export default function QuotationsPage() {
                 Institutional Quotation Draft
               </h2>
               <p className="text-xs text-slate-500">
-                Set negotiated B2B unit rates, institutional discounts, and select the servicing store.
+                Set negotiated B2B unit rates, institutional discounts, and
+                select the servicing store.
               </p>
             </div>
             <button
@@ -478,7 +497,9 @@ export default function QuotationsPage() {
                 Quotation Line Items &amp; B2B Pricing
               </h3>
               <div className="flex items-center gap-2">
-                <span className="text-xs text-slate-500 font-medium">Quick add catalogue item:</span>
+                <span className="text-xs text-slate-500 font-medium">
+                  Quick add catalogue item:
+                </span>
                 <select
                   onChange={(e) => {
                     const found = PRODUCTS.find((p) => p.id === e.target.value);
@@ -487,9 +508,13 @@ export default function QuotationsPage() {
                   defaultValue=""
                   className="bg-slate-100 border border-slate-200 text-xs font-bold p-1.5 rounded-xl text-slate-700"
                 >
-                  <option value="" disabled>+ Select Product...</option>
+                  <option value="" disabled>
+                    + Select Product...
+                  </option>
                   {PRODUCTS.map((p) => (
-                    <option key={p.id} value={p.id}>{p.name} (Base: ₹{p.price})</option>
+                    <option key={p.id} value={p.id}>
+                      {p.name} (Base: ₹{p.price})
+                    </option>
                   ))}
                 </select>
               </div>
@@ -510,7 +535,8 @@ export default function QuotationsPage() {
                 </thead>
                 <tbody className="divide-y divide-slate-100 font-medium">
                   {items.map((item, idx) => {
-                    const discounted = item.unitPrice * (1 - item.discountPct / 100);
+                    const discounted =
+                      item.unitPrice * (1 - item.discountPct / 100);
                     const lineTot = Math.round(discounted * item.quantity);
                     return (
                       <tr key={idx}>
@@ -518,7 +544,13 @@ export default function QuotationsPage() {
                           <input
                             type="text"
                             value={item.productName}
-                            onChange={(e) => handleUpdateItem(idx, "productName", e.target.value)}
+                            onChange={(e) =>
+                              handleUpdateItem(
+                                idx,
+                                "productName",
+                                e.target.value,
+                              )
+                            }
                             className="w-full bg-slate-50 border border-slate-200 p-1.5 rounded-lg text-xs font-bold"
                           />
                         </td>
@@ -526,7 +558,13 @@ export default function QuotationsPage() {
                           <input
                             type="text"
                             value={item.productSku}
-                            onChange={(e) => handleUpdateItem(idx, "productSku", e.target.value)}
+                            onChange={(e) =>
+                              handleUpdateItem(
+                                idx,
+                                "productSku",
+                                e.target.value,
+                              )
+                            }
                             className="w-full bg-slate-50 border border-slate-200 p-1.5 rounded-lg text-xs font-mono"
                           />
                         </td>
@@ -534,7 +572,13 @@ export default function QuotationsPage() {
                           <input
                             type="number"
                             value={item.unitPrice}
-                            onChange={(e) => handleUpdateItem(idx, "unitPrice", Number(e.target.value))}
+                            onChange={(e) =>
+                              handleUpdateItem(
+                                idx,
+                                "unitPrice",
+                                Number(e.target.value),
+                              )
+                            }
                             className="w-full bg-slate-50 border border-slate-200 p-1.5 rounded-lg text-xs font-bold text-emerald-700"
                           />
                         </td>
@@ -543,7 +587,13 @@ export default function QuotationsPage() {
                             type="number"
                             min={1}
                             value={item.quantity}
-                            onChange={(e) => handleUpdateItem(idx, "quantity", Number(e.target.value))}
+                            onChange={(e) =>
+                              handleUpdateItem(
+                                idx,
+                                "quantity",
+                                Number(e.target.value),
+                              )
+                            }
                             className="w-full bg-slate-50 border border-slate-200 p-1.5 rounded-lg text-xs font-bold text-center"
                           />
                         </td>
@@ -553,7 +603,13 @@ export default function QuotationsPage() {
                             min={0}
                             max={100}
                             value={item.discountPct}
-                            onChange={(e) => handleUpdateItem(idx, "discountPct", Number(e.target.value))}
+                            onChange={(e) =>
+                              handleUpdateItem(
+                                idx,
+                                "discountPct",
+                                Number(e.target.value),
+                              )
+                            }
                             className="w-full bg-slate-50 border border-slate-200 p-1.5 rounded-lg text-xs font-bold text-center"
                           />
                         </td>
@@ -583,7 +639,9 @@ export default function QuotationsPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-slate-50 p-6 rounded-3xl border border-slate-200">
             <div className="space-y-4">
               <div className="space-y-1">
-                <label className="text-[11px] font-bold text-slate-700">Special Notes / Scope</label>
+                <label className="text-[11px] font-bold text-slate-700">
+                  Special Notes / Scope
+                </label>
                 <textarea
                   rows={2}
                   value={notes}
@@ -594,7 +652,9 @@ export default function QuotationsPage() {
               </div>
 
               <div className="space-y-1">
-                <label className="text-[11px] font-bold text-slate-700">Commercial Terms</label>
+                <label className="text-[11px] font-bold text-slate-700">
+                  Commercial Terms
+                </label>
                 <textarea
                   rows={3}
                   value={terms}
@@ -607,7 +667,9 @@ export default function QuotationsPage() {
             <div className="space-y-2 text-xs text-slate-700 self-end">
               <div className="flex justify-between font-medium">
                 <span>Subtotal (Net of Item Discounts):</span>
-                <span className="font-mono font-bold">₹{formSubtotal.toLocaleString()}</span>
+                <span className="font-mono font-bold">
+                  ₹{formSubtotal.toLocaleString()}
+                </span>
               </div>
               <div className="flex justify-between items-center">
                 <span>GST Tax Rate (%):</span>
@@ -620,7 +682,9 @@ export default function QuotationsPage() {
               </div>
               <div className="flex justify-between font-medium">
                 <span>GST Tax Amount:</span>
-                <span className="font-mono font-bold">₹{formTax.toLocaleString()}</span>
+                <span className="font-mono font-bold">
+                  ₹{formTax.toLocaleString()}
+                </span>
               </div>
               <div className="flex justify-between items-center">
                 <span>Insured Freight / Dispatch (₹):</span>
@@ -633,7 +697,9 @@ export default function QuotationsPage() {
               </div>
               <div className="flex justify-between border-t border-slate-200 pt-3 text-base font-black text-slate-900">
                 <span>Grand Total:</span>
-                <span className="text-[#00AEEF] font-mono">₹{formGrandTotal.toLocaleString()}</span>
+                <span className="text-[#00AEEF] font-mono">
+                  ₹{formGrandTotal.toLocaleString()}
+                </span>
               </div>
             </div>
           </div>
@@ -675,9 +741,17 @@ export default function QuotationsPage() {
 
             <div className="flex flex-wrap items-center gap-2">
               {/* Send Quote button if in DRAFT / REQUESTED / UNDER_REVIEW */}
-              {["DRAFT", "REQUESTED", "UNDER_REVIEW", "NEGOTIATION"].includes(selectedDoc.status) && (
+              {["DRAFT", "REQUESTED", "UNDER_REVIEW", "NEGOTIATION"].includes(
+                selectedDoc.status,
+              ) && (
                 <button
-                  onClick={() => handleStatusUpdate(selectedDoc.id, "SENT", "Sent official quote to customer")}
+                  onClick={() =>
+                    handleStatusUpdate(
+                      selectedDoc.id,
+                      "SENT",
+                      "Sent official quote to customer",
+                    )
+                  }
                   className="bg-[#00AEEF] hover:bg-[#0096D6] text-white text-xs font-bold px-4 py-2 rounded-xl flex items-center gap-1.5 cursor-pointer shadow-xs"
                 >
                   <Send className="w-3.5 h-3.5" /> Send to Customer
@@ -685,9 +759,17 @@ export default function QuotationsPage() {
               )}
 
               {/* Mark as Accepted button */}
-              {["SENT", "VIEWED", "NEGOTIATION"].includes(selectedDoc.status) && (
+              {["SENT", "VIEWED", "NEGOTIATION"].includes(
+                selectedDoc.status,
+              ) && (
                 <button
-                  onClick={() => handleStatusUpdate(selectedDoc.id, "ACCEPTED", "Marked accepted by admin")}
+                  onClick={() =>
+                    handleStatusUpdate(
+                      selectedDoc.id,
+                      "ACCEPTED",
+                      "Marked accepted by admin",
+                    )
+                  }
                   className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2 rounded-xl flex items-center gap-1.5 cursor-pointer shadow-xs"
                 >
                   <CheckCircle2 className="w-3.5 h-3.5" /> Mark Accepted
@@ -702,7 +784,9 @@ export default function QuotationsPage() {
                   className="bg-purple-600 hover:bg-purple-700 text-white text-xs font-black px-5 py-2 rounded-xl flex items-center gap-1.5 cursor-pointer shadow-md active:scale-95"
                 >
                   <ShoppingBag className="w-4 h-4" />
-                  <span>{convertingLoading ? "Converting..." : "Convert to Order →"}</span>
+                  <span>
+                    {convertingLoading ? "Converting..." : "Convert to Order →"}
+                  </span>
                 </button>
               )}
 
@@ -733,10 +817,12 @@ export default function QuotationsPage() {
                   PRAYOG INDIA
                 </h2>
                 <p className="text-xs text-slate-500 font-medium">
-                  Official Robotics, UAV &amp; STEM Institutional Solutions Provider
+                  Official Robotics, UAV &amp; STEM Institutional Solutions
+                  Provider
                 </p>
                 <p className="text-[11px] text-slate-400 font-mono">
-                  {selectedDoc.store?.name || "Ranchi Central Hub"} • GSTIN: 20AABCP1234F1Z9 • Email: b2b@prayogindia.in
+                  {selectedDoc.store?.name || "Ranchi Central Hub"} • GSTIN:
+                  20AABCP1234F1Z9 • Email: b2b@prayogindia.in
                 </p>
               </div>
 
@@ -745,29 +831,50 @@ export default function QuotationsPage() {
                   {selectedDoc.quoteNumber}
                 </span>
                 <span className="text-slate-500 block">
-                  Date: {new Date(selectedDoc.createdAt).toLocaleDateString("en-IN")}
+                  Date:{" "}
+                  {new Date(selectedDoc.createdAt).toLocaleDateString("en-IN")}
                 </span>
                 <span className="text-rose-600 font-bold block">
-                  Valid Until: {new Date(selectedDoc.validUntil).toLocaleDateString("en-IN")}
+                  Valid Until:{" "}
+                  {new Date(selectedDoc.validUntil).toLocaleDateString("en-IN")}
                 </span>
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-6 text-xs">
               <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 space-y-1">
-                <span className="font-bold text-slate-400 uppercase text-[10px] block">Customer / Institution</span>
-                <h4 className="font-bold text-sm text-slate-900">{selectedDoc.companyName}</h4>
-                <p className="text-slate-600">Attn: {selectedDoc.customerName} ({selectedDoc.customerPhone})</p>
+                <span className="font-bold text-slate-400 uppercase text-[10px] block">
+                  Customer / Institution
+                </span>
+                <h4 className="font-bold text-sm text-slate-900">
+                  {selectedDoc.companyName}
+                </h4>
+                <p className="text-slate-600">
+                  Attn: {selectedDoc.customerName} ({selectedDoc.customerPhone})
+                </p>
                 <p className="text-slate-600">{selectedDoc.customerEmail}</p>
-                {selectedDoc.gstin && <p className="font-mono font-bold text-slate-700">GSTIN: {selectedDoc.gstin}</p>}
+                {selectedDoc.gstin && (
+                  <p className="font-mono font-bold text-slate-700">
+                    GSTIN: {selectedDoc.gstin}
+                  </p>
+                )}
               </div>
 
               <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 space-y-1">
-                <span className="font-bold text-slate-400 uppercase text-[10px] block">Shipping &amp; Delivery</span>
+                <span className="font-bold text-slate-400 uppercase text-[10px] block">
+                  Shipping &amp; Delivery
+                </span>
                 <p className="text-slate-700 leading-relaxed font-medium">
-                  {selectedDoc.shippingAddress || selectedDoc.billingAddress || "Campus Delivery via Surface Express"}
+                  {selectedDoc.shippingAddress ||
+                    selectedDoc.billingAddress ||
+                    "Campus Delivery via Surface Express"}
                 </p>
-                <p className="text-slate-500 text-[11px]">Fulfilled by: <strong>{selectedDoc.store?.name || "Ranchi Central Hub"}</strong></p>
+                <p className="text-slate-500 text-[11px]">
+                  Fulfilled by:{" "}
+                  <strong>
+                    {selectedDoc.store?.name || "Ranchi Central Hub"}
+                  </strong>
+                </p>
               </div>
             </div>
 
@@ -789,13 +896,26 @@ export default function QuotationsPage() {
                   {selectedDoc.items?.map((item, idx) => (
                     <tr key={idx}>
                       <td className="p-3 text-slate-400">{idx + 1}</td>
-                      <td className="p-3 font-bold text-slate-900">{item.productName}</td>
-                      <td className="p-3 font-mono text-slate-500">{item.productSku}</td>
-                      <td className="p-3 text-right font-mono">₹{item.unitPrice?.toLocaleString("en-IN")}</td>
-                      <td className="p-3 text-center font-bold">{item.quantity}</td>
-                      <td className="p-3 text-center text-emerald-600">{item.discountPct}%</td>
+                      <td className="p-3 font-bold text-slate-900">
+                        {item.productName}
+                      </td>
+                      <td className="p-3 font-mono text-slate-500">
+                        {item.productSku}
+                      </td>
+                      <td className="p-3 text-right font-mono">
+                        ₹{item.unitPrice?.toLocaleString("en-IN")}
+                      </td>
+                      <td className="p-3 text-center font-bold">
+                        {item.quantity}
+                      </td>
+                      <td className="p-3 text-center text-emerald-600">
+                        {item.discountPct}%
+                      </td>
                       <td className="p-3 text-right font-mono font-bold">
-                        ₹{(item.total || item.unitPrice * item.quantity).toLocaleString("en-IN")}
+                        ₹
+                        {(
+                          item.total || item.unitPrice * item.quantity
+                        ).toLocaleString("en-IN")}
                       </td>
                     </tr>
                   ))}
@@ -808,27 +928,37 @@ export default function QuotationsPage() {
               <div className="w-80 space-y-1.5 text-xs text-slate-600">
                 <div className="flex justify-between">
                   <span>Subtotal:</span>
-                  <span className="font-mono font-bold text-slate-900">₹{selectedDoc.subtotal?.toLocaleString("en-IN")}</span>
+                  <span className="font-mono font-bold text-slate-900">
+                    ₹{selectedDoc.subtotal?.toLocaleString("en-IN")}
+                  </span>
                 </div>
                 {selectedDoc.discountAmount > 0 && (
                   <div className="flex justify-between text-emerald-600">
                     <span>Discount:</span>
-                    <span className="font-mono font-bold">-₹{selectedDoc.discountAmount?.toLocaleString("en-IN")}</span>
+                    <span className="font-mono font-bold">
+                      -₹{selectedDoc.discountAmount?.toLocaleString("en-IN")}
+                    </span>
                   </div>
                 )}
                 <div className="flex justify-between">
                   <span>GST ({selectedDoc.taxRate}%):</span>
-                  <span className="font-mono font-bold text-slate-900">₹{selectedDoc.taxAmount?.toLocaleString("en-IN")}</span>
+                  <span className="font-mono font-bold text-slate-900">
+                    ₹{selectedDoc.taxAmount?.toLocaleString("en-IN")}
+                  </span>
                 </div>
                 {selectedDoc.shippingCharge > 0 && (
                   <div className="flex justify-between">
                     <span>Freight / Shipping:</span>
-                    <span className="font-mono font-bold text-slate-900">₹{selectedDoc.shippingCharge?.toLocaleString("en-IN")}</span>
+                    <span className="font-mono font-bold text-slate-900">
+                      ₹{selectedDoc.shippingCharge?.toLocaleString("en-IN")}
+                    </span>
                   </div>
                 )}
                 <div className="flex justify-between border-t border-slate-200 pt-2 text-sm font-black text-slate-900">
                   <span>Grand Total:</span>
-                  <span className="font-mono text-[#00AEEF]">₹{selectedDoc.grandTotal?.toLocaleString("en-IN")}</span>
+                  <span className="font-mono text-[#00AEEF]">
+                    ₹{selectedDoc.grandTotal?.toLocaleString("en-IN")}
+                  </span>
                 </div>
               </div>
             </div>
@@ -837,13 +967,17 @@ export default function QuotationsPage() {
             <div className="border-t border-slate-200 pt-4 text-xs space-y-3">
               {selectedDoc.notes && (
                 <div>
-                  <span className="font-bold text-slate-800">Scope / Notes: </span>
+                  <span className="font-bold text-slate-800">
+                    Scope / Notes:{" "}
+                  </span>
                   <span className="text-slate-600">{selectedDoc.notes}</span>
                 </div>
               )}
               {selectedDoc.terms && (
                 <div>
-                  <span className="font-bold text-slate-800 block mb-1">Commercial Terms &amp; Conditions:</span>
+                  <span className="font-bold text-slate-800 block mb-1">
+                    Commercial Terms &amp; Conditions:
+                  </span>
                   <p className="bg-slate-50 p-3 rounded-xl border border-slate-100 text-slate-600 whitespace-pre-line leading-relaxed font-sans">
                     {selectedDoc.terms}
                   </p>
@@ -921,7 +1055,9 @@ export default function QuotationsPage() {
             ) : filteredQuotes.length === 0 ? (
               <div className="p-12 text-center space-y-2">
                 <FileText className="w-8 h-8 text-slate-300 mx-auto" />
-                <div className="text-xs font-bold text-slate-500">No quotations found</div>
+                <div className="text-xs font-bold text-slate-500">
+                  No quotations found
+                </div>
               </div>
             ) : (
               <div className="divide-y divide-slate-100">
@@ -938,7 +1074,8 @@ export default function QuotationsPage() {
                         </span>
                         <span
                           className={`text-[9px] font-black uppercase px-2.5 py-0.5 rounded-full ${
-                            doc.status === "ACCEPTED" || doc.status === "CONVERTED"
+                            doc.status === "ACCEPTED" ||
+                            doc.status === "CONVERTED"
                               ? "bg-emerald-100 text-emerald-800"
                               : doc.status === "NEGOTIATION"
                                 ? "bg-amber-100 text-amber-800"
@@ -963,17 +1100,20 @@ export default function QuotationsPage() {
                         {doc.companyName}
                       </h3>
                       <p className="text-xs text-slate-500">
-                        {doc.items?.length || 0} hardware lines • Attn: {doc.customerName} ({doc.customerPhone})
+                        {doc.items?.length || 0} hardware lines • Attn:{" "}
+                        {doc.customerName} ({doc.customerPhone})
                       </p>
                     </div>
 
                     <div className="flex items-center gap-4">
                       <div className="text-right">
                         <span className="text-sm font-black text-slate-900 block font-mono">
-                          ₹{doc.grandTotal?.toLocaleString("en-IN") || "Pending"}
+                          ₹
+                          {doc.grandTotal?.toLocaleString("en-IN") || "Pending"}
                         </span>
                         <span className="text-[10px] text-slate-400 block font-medium">
-                          Valid: {new Date(doc.validUntil).toLocaleDateString("en-IN")}
+                          Valid:{" "}
+                          {new Date(doc.validUntil).toLocaleDateString("en-IN")}
                         </span>
                       </div>
                       <button className="w-8 h-8 rounded-xl bg-slate-100 hover:bg-[#00AEEF] hover:text-white flex items-center justify-center transition-colors">

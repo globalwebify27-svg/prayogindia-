@@ -6,13 +6,21 @@ import { getSecurityHeaders } from "@/lib/security";
 // POST /api/admin/crm/companies/[id]/activities — Log an interaction (Call, Meeting, Email, Note)
 export async function POST(
   request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const headers = getSecurityHeaders();
   const staff = await getAuthenticatedStaff();
 
-  if (!staff || (staff.role !== "SUPER_ADMIN" && staff.role !== "REGIONAL_MANAGER" && staff.role !== "STORE_MANAGER")) {
-    return NextResponse.json({ success: false, message: "Forbidden" }, { status: 403, headers });
+  if (
+    !staff ||
+    (staff.role !== "SUPER_ADMIN" &&
+      staff.role !== "REGIONAL_MANAGER" &&
+      staff.role !== "STORE_MANAGER")
+  ) {
+    return NextResponse.json(
+      { success: false, message: "Forbidden" },
+      { status: 403, headers },
+    );
   }
 
   const { id: companyId } = await params;
@@ -24,14 +32,19 @@ export async function POST(
     if (!title) {
       return NextResponse.json(
         { success: false, message: "Activity title is required." },
-        { status: 400, headers }
+        { status: 400, headers },
       );
     }
 
     if (process.env.DATABASE_URL) {
-      const company = await db.b2BCompany.findUnique({ where: { id: companyId } });
+      const company = await db.b2BCompany.findUnique({
+        where: { id: companyId },
+      });
       if (!company) {
-        return NextResponse.json({ success: false, message: "Company not found" }, { status: 404, headers });
+        return NextResponse.json(
+          { success: false, message: "Company not found" },
+          { status: 404, headers },
+        );
       }
 
       let dbStaffId: string | null = null;
@@ -68,15 +81,24 @@ export async function POST(
         data: { updatedAt: new Date() },
       });
 
-      return NextResponse.json({
-        success: true,
-        message: "Activity logged successfully.",
-        data: activity,
-      }, { status: 201, headers });
+      return NextResponse.json(
+        {
+          success: true,
+          message: "Activity logged successfully.",
+          data: activity,
+        },
+        { status: 201, headers },
+      );
     }
 
-    return NextResponse.json({ success: true, message: "Activity logged (Mock Mode)" }, { headers });
+    return NextResponse.json(
+      { success: true, message: "Activity logged (Mock Mode)" },
+      { headers },
+    );
   } catch (error: any) {
-    return NextResponse.json({ success: false, message: error.message }, { status: 500, headers });
+    return NextResponse.json(
+      { success: false, message: error.message },
+      { status: 500, headers },
+    );
   }
 }

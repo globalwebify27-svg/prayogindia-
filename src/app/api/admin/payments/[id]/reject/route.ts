@@ -36,7 +36,7 @@ async function getAdminOrStaff() {
  */
 export async function POST(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const headers = getSecurityHeaders();
   const staff = await getAdminOrStaff();
@@ -44,7 +44,7 @@ export async function POST(
   if (!staff) {
     return NextResponse.json(
       { success: false, message: "Forbidden: Admin permission required." },
-      { status: 403, headers }
+      { status: 403, headers },
     );
   }
 
@@ -57,9 +57,10 @@ export async function POST(
     return NextResponse.json(
       {
         success: false,
-        message: "A specific rejection reason (minimum 5 characters) is required to notify the customer.",
+        message:
+          "A specific rejection reason (minimum 5 characters) is required to notify the customer.",
       },
-      { status: 400, headers }
+      { status: 400, headers },
     );
   }
 
@@ -70,7 +71,7 @@ export async function POST(
         message: "Payment rejected (Mock Mode).",
         data: { paymentId: id, status: "REJECTED", rejectionReason },
       },
-      { headers }
+      { headers },
     );
   }
 
@@ -89,7 +90,7 @@ export async function POST(
     if (!payment) {
       return NextResponse.json(
         { success: false, message: "Payment record not found." },
-        { status: 404, headers }
+        { status: 404, headers },
       );
     }
 
@@ -97,9 +98,10 @@ export async function POST(
       return NextResponse.json(
         {
           success: false,
-          message: "Cannot reject a payment that has already been verified and marked as PAID. A formal reversal process is required.",
+          message:
+            "Cannot reject a payment that has already been verified and marked as PAID. A formal reversal process is required.",
         },
-        { status: 400, headers }
+        { status: 400, headers },
       );
     }
 
@@ -159,7 +161,12 @@ export async function POST(
         entityType: "Payment",
         entityId: payment.id,
         description: `Staff ${staff.name} (${staff.role}) rejected ${payment.method} transfer UTR: ${payment.utrNumber || "N/A"} for Order #${order?.orderNumber || payment.orderId}. Reason: ${rejectionReason}`,
-        actor: { id: staff.id, name: staff.name, role: staff.role, email: staff.email },
+        actor: {
+          id: staff.id,
+          name: staff.name,
+          role: staff.role,
+          email: staff.email,
+        },
         previousValue: { status: payment.status },
         newValue: {
           status: "REJECTED",
@@ -179,13 +186,13 @@ export async function POST(
         message: `Payment marked as REJECTED. Customer has been notified with the reason.`,
         data: updatedPayment,
       },
-      { headers }
+      { headers },
     );
   } catch (error: any) {
     console.error("[Reject Payment Error]:", error);
     return NextResponse.json(
       { success: false, message: error.message || "Failed to reject payment." },
-      { status: 500, headers }
+      { status: 500, headers },
     );
   }
 }

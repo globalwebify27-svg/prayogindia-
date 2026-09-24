@@ -39,6 +39,23 @@ interface StoreContextType {
     quantity: number;
   } | null;
   dismissCartNotification: () => void;
+  toast: {
+    id: string;
+    type?: "success" | "error" | "info";
+    title: string;
+    message?: string;
+    actionLabel?: string;
+    actionHref?: string;
+  } | null;
+  showToast: (options: {
+    type?: "success" | "error" | "info";
+    title: string;
+    message?: string;
+    actionLabel?: string;
+    actionHref?: string;
+    duration?: number;
+  }) => void;
+  dismissToast: () => void;
   addToCart: (
     product: Product,
     variant?: ProductVariant,
@@ -73,6 +90,38 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({
     variant?: ProductVariant;
     quantity: number;
   } | null>(null);
+
+  const [toast, setToast] = useState<{
+    id: string;
+    type?: "success" | "error" | "info";
+    title: string;
+    message?: string;
+    actionLabel?: string;
+    actionHref?: string;
+  } | null>(null);
+
+  const showToast = (options: {
+    type?: "success" | "error" | "info";
+    title: string;
+    message?: string;
+    actionLabel?: string;
+    actionHref?: string;
+    duration?: number;
+  }) => {
+    const toastId = `toast-${Date.now()}`;
+    setToast({
+      id: toastId,
+      type: options.type || "success",
+      title: options.title,
+      message: options.message,
+      actionLabel: options.actionLabel,
+      actionHref: options.actionHref,
+    });
+  };
+
+  const dismissToast = () => {
+    setToast(null);
+  };
 
   // Initialize session from server HTTP cookie
   useEffect(() => {
@@ -176,8 +225,20 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({
     setWishlist((prev) => {
       const exists = prev.some((p) => p.id === product.id);
       if (exists) {
+        showToast({
+          type: "info",
+          title: "Removed from Wishlist",
+          message: product.name,
+        });
         return prev.filter((p) => p.id !== product.id);
       }
+      showToast({
+        type: "success",
+        title: "Added to Wishlist ❤️",
+        message: product.name,
+        actionLabel: "View Wishlist",
+        actionHref: "/wishlist",
+      });
       return [...prev, product];
     });
   };
@@ -266,6 +327,9 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({
         wishlist,
         cartNotification,
         dismissCartNotification,
+        toast,
+        showToast,
+        dismissToast,
         addToCart,
         removeFromCart,
         updateQuantity,

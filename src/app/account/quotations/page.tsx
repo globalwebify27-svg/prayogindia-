@@ -21,7 +21,9 @@ export default function CustomerQuotationsPage() {
   const [selectedQuote, setSelectedQuote] = useState<any | null>(null);
   const [actionLoading, setActionLoading] = useState(false);
   const [feedbackText, setFeedbackText] = useState("");
-  const [actionModal, setActionModal] = useState<"ACCEPT" | "REJECT" | "REQUEST_CHANGES" | null>(null);
+  const [actionModal, setActionModal] = useState<
+    "ACCEPT" | "REJECT" | "REQUEST_CHANGES" | null
+  >(null);
 
   const fetchQuotations = async () => {
     setLoading(true);
@@ -79,7 +81,9 @@ export default function CustomerQuotationsPage() {
     }
   };
 
-  const handleQuoteAction = async (action: "ACCEPT" | "REJECT" | "REQUEST_CHANGES") => {
+  const handleQuoteAction = async (
+    action: "ACCEPT" | "REJECT" | "REQUEST_CHANGES",
+  ) => {
     if (!selectedQuote) return;
     setActionLoading(true);
     try {
@@ -107,20 +111,44 @@ export default function CustomerQuotationsPage() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "ACCEPTED":
-        return <span className="bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1"><CheckCircle2 className="w-3.5 h-3.5" /> Accepted</span>;
+        return (
+          <span className="bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1">
+            <CheckCircle2 className="w-3.5 h-3.5" /> Accepted
+          </span>
+        );
       case "CONVERTED":
-        return <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1"><CheckCircle2 className="w-3.5 h-3.5" /> Converted to Order</span>;
+        return (
+          <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1">
+            <CheckCircle2 className="w-3.5 h-3.5" /> Converted to Order
+          </span>
+        );
       case "REJECTED":
-        return <span className="bg-rose-100 text-rose-800 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1"><XCircle className="w-3.5 h-3.5" /> Rejected</span>;
+        return (
+          <span className="bg-rose-100 text-rose-800 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1">
+            <XCircle className="w-3.5 h-3.5" /> Rejected
+          </span>
+        );
       case "NEGOTIATION":
-        return <span className="bg-amber-100 text-amber-800 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1"><RefreshCw className="w-3.5 h-3.5" /> Changes Requested</span>;
+        return (
+          <span className="bg-amber-100 text-amber-800 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1">
+            <RefreshCw className="w-3.5 h-3.5" /> Changes Requested
+          </span>
+        );
       case "SENT":
       case "VIEWED":
-        return <span className="bg-[#E0F7FC] text-[#00AEEF] px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1"><Clock className="w-3.5 h-3.5" /> Quote Ready</span>;
+        return (
+          <span className="bg-[#E0F7FC] text-[#00AEEF] px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1">
+            <Clock className="w-3.5 h-3.5" /> Quote Ready
+          </span>
+        );
       case "REQUESTED":
       case "UNDER_REVIEW":
       default:
-        return <span className="bg-slate-100 text-slate-700 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1"><Clock className="w-3.5 h-3.5" /> Under Review</span>;
+        return (
+          <span className="bg-slate-100 text-slate-700 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1">
+            <Clock className="w-3.5 h-3.5" /> Under Review
+          </span>
+        );
     }
   };
 
@@ -137,7 +165,8 @@ export default function CustomerQuotationsPage() {
             My B2B Quotations
           </h1>
           <p className="text-xs text-slate-500 mt-1">
-            Review formal institutional quotes, negotiate prices, review validity, and accept proposals.
+            Review formal institutional quotes, negotiate prices, review
+            validity, and accept proposals.
           </p>
         </div>
 
@@ -164,9 +193,13 @@ export default function CustomerQuotationsPage() {
           <div className="w-12 h-12 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mx-auto">
             <FileText className="w-6 h-6" />
           </div>
-          <h3 className="text-sm font-bold text-slate-800">No quotation requests found</h3>
+          <h3 className="text-sm font-bold text-slate-800">
+            No quotation requests found
+          </h3>
           <p className="text-xs text-slate-500 max-w-sm mx-auto">
-            You have not requested any institutional or enterprise quotations yet. Use our Quotation Request button on any product or lab solution page.
+            You have not requested any institutional or enterprise quotations
+            yet. Use our Quotation Request button on any product or lab solution
+            page.
           </p>
         </div>
       ) : (
@@ -188,28 +221,52 @@ export default function CustomerQuotationsPage() {
                     <Building2 className="w-3.5 h-3.5 text-slate-400" />
                     <span>{quote.companyName}</span>
                     <span>•</span>
-                    <span>Store: <strong>{quote.store?.name || "Ranchi Central Hub"}</strong></span>
+                    <span>
+                      Store:{" "}
+                      <strong>
+                        {quote.store?.name || "Ranchi Central Hub"}
+                      </strong>
+                    </span>
                   </p>
                 </div>
 
                 <div className="text-left sm:text-right">
-                  <span className="text-[11px] uppercase tracking-wider text-slate-400 font-bold block">Grand Total (Inc. GST)</span>
+                  <span className="text-[11px] uppercase tracking-wider text-slate-400 font-bold block">
+                    Grand Total (Inc. GST)
+                  </span>
                   <span className="text-lg font-black text-slate-900">
-                    ₹{quote.grandTotal ? quote.grandTotal.toLocaleString("en-IN") : "Pending Review"}
+                    ₹
+                    {quote.grandTotal
+                      ? quote.grandTotal.toLocaleString("en-IN")
+                      : "Pending Review"}
                   </span>
                 </div>
               </div>
 
               {/* Items overview */}
               <div className="space-y-2">
-                <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Requested Line Items</div>
+                <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                  Requested Line Items
+                </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
                   {quote.items?.map((item: any) => (
-                    <div key={item.id} className="p-3 bg-slate-50 rounded-2xl border border-slate-100 text-xs">
-                      <div className="font-bold text-slate-800 truncate">{item.productName}</div>
+                    <div
+                      key={item.id}
+                      className="p-3 bg-slate-50 rounded-2xl border border-slate-100 text-xs"
+                    >
+                      <div className="font-bold text-slate-800 truncate">
+                        {item.productName}
+                      </div>
                       <div className="flex justify-between text-slate-500 text-[11px] mt-1">
-                        <span>Qty: <strong>{item.quantity}</strong></span>
-                        <span>Unit: <strong>₹{item.unitPrice?.toLocaleString("en-IN")}</strong></span>
+                        <span>
+                          Qty: <strong>{item.quantity}</strong>
+                        </span>
+                        <span>
+                          Unit:{" "}
+                          <strong>
+                            ₹{item.unitPrice?.toLocaleString("en-IN")}
+                          </strong>
+                        </span>
                       </div>
                     </div>
                   ))}
@@ -219,7 +276,16 @@ export default function CustomerQuotationsPage() {
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2">
                 <div className="text-xs text-slate-400 flex items-center gap-2">
                   <Calendar className="w-3.5 h-3.5" />
-                  <span>Valid Until: <strong>{new Date(quote.validUntil).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</strong></span>
+                  <span>
+                    Valid Until:{" "}
+                    <strong>
+                      {new Date(quote.validUntil).toLocaleDateString("en-IN", {
+                        day: "numeric",
+                        month: "short",
+                        year: "numeric",
+                      })}
+                    </strong>
+                  </span>
                 </div>
 
                 <div className="flex items-center gap-2">
@@ -263,7 +329,10 @@ export default function CustomerQuotationsPage() {
                 <h2 className="text-xl font-black text-slate-900 mt-1">
                   Quotation #{selectedQuote.quoteNumber}
                 </h2>
-                <p className="text-xs text-slate-500">{selectedQuote.companyName} • Attn: {selectedQuote.customerName}</p>
+                <p className="text-xs text-slate-500">
+                  {selectedQuote.companyName} • Attn:{" "}
+                  {selectedQuote.customerName}
+                </p>
               </div>
 
               <button
@@ -276,7 +345,9 @@ export default function CustomerQuotationsPage() {
 
             {/* Pricing breakdown */}
             <div className="space-y-3">
-              <h4 className="text-xs font-black uppercase tracking-wider text-slate-700">Line Items &amp; Negotiated B2B Rates</h4>
+              <h4 className="text-xs font-black uppercase tracking-wider text-slate-700">
+                Line Items &amp; Negotiated B2B Rates
+              </h4>
               <div className="border border-slate-200 rounded-2xl overflow-hidden">
                 <table className="w-full text-left text-xs">
                   <thead className="bg-slate-50 border-b border-slate-200 font-bold text-slate-700">
@@ -292,11 +363,19 @@ export default function CustomerQuotationsPage() {
                       <tr key={item.id}>
                         <td className="p-3">
                           <div className="font-bold">{item.productName}</div>
-                          <div className="text-[11px] text-slate-400 font-mono">{item.productSku}</div>
+                          <div className="text-[11px] text-slate-400 font-mono">
+                            {item.productSku}
+                          </div>
                         </td>
-                        <td className="p-3 text-center font-bold">{item.quantity}</td>
-                        <td className="p-3 text-right">₹{item.unitPrice?.toLocaleString("en-IN")}</td>
-                        <td className="p-3 text-right font-bold">₹{item.total?.toLocaleString("en-IN")}</td>
+                        <td className="p-3 text-center font-bold">
+                          {item.quantity}
+                        </td>
+                        <td className="p-3 text-right">
+                          ₹{item.unitPrice?.toLocaleString("en-IN")}
+                        </td>
+                        <td className="p-3 text-right font-bold">
+                          ₹{item.total?.toLocaleString("en-IN")}
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -306,27 +385,37 @@ export default function CustomerQuotationsPage() {
               <div className="bg-slate-50 rounded-2xl p-4 border border-slate-200 space-y-1.5 text-xs text-slate-600">
                 <div className="flex justify-between">
                   <span>Subtotal:</span>
-                  <span className="font-bold">₹{selectedQuote.subtotal?.toLocaleString("en-IN")}</span>
+                  <span className="font-bold">
+                    ₹{selectedQuote.subtotal?.toLocaleString("en-IN")}
+                  </span>
                 </div>
                 {selectedQuote.discountAmount > 0 && (
                   <div className="flex justify-between text-emerald-600">
                     <span>Negotiated Volume Discount:</span>
-                    <span className="font-bold">-₹{selectedQuote.discountAmount?.toLocaleString("en-IN")}</span>
+                    <span className="font-bold">
+                      -₹{selectedQuote.discountAmount?.toLocaleString("en-IN")}
+                    </span>
                   </div>
                 )}
                 <div className="flex justify-between">
                   <span>GST ({selectedQuote.taxRate}%):</span>
-                  <span className="font-bold">₹{selectedQuote.taxAmount?.toLocaleString("en-IN")}</span>
+                  <span className="font-bold">
+                    ₹{selectedQuote.taxAmount?.toLocaleString("en-IN")}
+                  </span>
                 </div>
                 {selectedQuote.shippingCharge > 0 && (
                   <div className="flex justify-between">
                     <span>Insured Freight / Delivery:</span>
-                    <span className="font-bold">₹{selectedQuote.shippingCharge?.toLocaleString("en-IN")}</span>
+                    <span className="font-bold">
+                      ₹{selectedQuote.shippingCharge?.toLocaleString("en-IN")}
+                    </span>
                   </div>
                 )}
                 <div className="flex justify-between border-t border-slate-200 pt-2 text-sm font-black text-slate-900">
                   <span>Grand Total:</span>
-                  <span className="text-[#00AEEF]">₹{selectedQuote.grandTotal?.toLocaleString("en-IN")}</span>
+                  <span className="text-[#00AEEF]">
+                    ₹{selectedQuote.grandTotal?.toLocaleString("en-IN")}
+                  </span>
                 </div>
               </div>
             </div>
@@ -334,7 +423,9 @@ export default function CustomerQuotationsPage() {
             {/* Terms & Notes */}
             {selectedQuote.terms && (
               <div className="space-y-1 text-xs">
-                <span className="font-bold text-slate-700">Commercial Terms &amp; Conditions:</span>
+                <span className="font-bold text-slate-700">
+                  Commercial Terms &amp; Conditions:
+                </span>
                 <p className="bg-slate-50 p-3 rounded-2xl border border-slate-200 text-slate-600 whitespace-pre-line leading-relaxed">
                   {selectedQuote.terms}
                 </p>
@@ -342,13 +433,17 @@ export default function CustomerQuotationsPage() {
             )}
 
             {/* Customer Negotiation Actions */}
-            {["SENT", "VIEWED", "NEGOTIATION"].includes(selectedQuote.status) && (
+            {["SENT", "VIEWED", "NEGOTIATION"].includes(
+              selectedQuote.status,
+            ) && (
               <div className="border-t border-slate-100 pt-4 space-y-3">
                 <div className="flex flex-wrap items-center gap-2">
                   <button
                     onClick={() => {
                       setActionModal("ACCEPT");
-                      setFeedbackText("We agree to the proposed pricing and terms. Please proceed to fulfillment.");
+                      setFeedbackText(
+                        "We agree to the proposed pricing and terms. Please proceed to fulfillment.",
+                      );
                     }}
                     className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-xl text-xs font-bold shadow-md cursor-pointer transition-all flex items-center justify-center gap-1.5"
                   >
@@ -381,14 +476,22 @@ export default function CustomerQuotationsPage() {
             {selectedQuote.status === "ACCEPTED" && (
               <div className="p-4 bg-emerald-50 rounded-2xl border border-emerald-200 text-emerald-800 text-xs font-medium flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4" />
-                <span>You have accepted this quotation. Prayog India operations desk is preparing your dispatch order.</span>
+                <span>
+                  You have accepted this quotation. Prayog India operations desk
+                  is preparing your dispatch order.
+                </span>
               </div>
             )}
 
             {selectedQuote.status === "CONVERTED" && selectedQuote.order && (
               <div className="p-4 bg-blue-50 rounded-2xl border border-blue-200 text-blue-800 text-xs font-medium flex items-center justify-between">
-                <span>Converted to active order <strong>#{selectedQuote.order.orderNumber}</strong></span>
-                <Link href="/account/orders" className="underline font-bold">View Order</Link>
+                <span>
+                  Converted to active order{" "}
+                  <strong>#{selectedQuote.order.orderNumber}</strong>
+                </span>
+                <Link href="/account/orders" className="underline font-bold">
+                  View Order
+                </Link>
               </div>
             )}
           </div>
@@ -406,19 +509,27 @@ export default function CustomerQuotationsPage() {
           <div className="relative w-full max-w-md bg-white rounded-3xl shadow-2xl p-6 z-10 space-y-4">
             <h3 className="text-base font-black text-slate-900">
               {actionModal === "ACCEPT" && "Accept B2B Quotation"}
-              {actionModal === "REQUEST_CHANGES" && "Request Price / Quantity Revision"}
+              {actionModal === "REQUEST_CHANGES" &&
+                "Request Price / Quantity Revision"}
               {actionModal === "REJECT" && "Decline Quotation Proposal"}
             </h3>
 
             <p className="text-xs text-slate-500">
-              {actionModal === "ACCEPT" && "Confirming acceptance authorizes our sales and fulfillment team to convert this proposal into an active purchase dispatch."}
-              {actionModal === "REQUEST_CHANGES" && "State your proposed quantities or target unit prices. Our procurement manager will review and issue a revised quote."}
-              {actionModal === "REJECT" && "Please provide a reason to help us improve future quotes."}
+              {actionModal === "ACCEPT" &&
+                "Confirming acceptance authorizes our sales and fulfillment team to convert this proposal into an active purchase dispatch."}
+              {actionModal === "REQUEST_CHANGES" &&
+                "State your proposed quantities or target unit prices. Our procurement manager will review and issue a revised quote."}
+              {actionModal === "REJECT" &&
+                "Please provide a reason to help us improve future quotes."}
             </p>
 
             <textarea
               rows={3}
-              placeholder={actionModal === "REQUEST_CHANGES" ? "e.g. Can we get ₹7,500/unit for Raspberry Pi if we increase quantity to 15 units?" : "Optional notes or instructions..."}
+              placeholder={
+                actionModal === "REQUEST_CHANGES"
+                  ? "e.g. Can we get ₹7,500/unit for Raspberry Pi if we increase quantity to 15 units?"
+                  : "Optional notes or instructions..."
+              }
               value={feedbackText}
               onChange={(e) => setFeedbackText(e.target.value)}
               className="w-full bg-slate-50 p-3 rounded-xl border border-slate-200 text-xs focus:bg-white focus:outline-none"
@@ -435,7 +546,11 @@ export default function CustomerQuotationsPage() {
                 onClick={() => handleQuoteAction(actionModal)}
                 disabled={actionLoading}
                 className={`flex-1 py-2.5 rounded-xl text-xs font-bold text-white cursor-pointer ${
-                  actionModal === "ACCEPT" ? "bg-emerald-600 hover:bg-emerald-700" : actionModal === "REQUEST_CHANGES" ? "bg-amber-500 hover:bg-amber-600" : "bg-rose-600 hover:bg-rose-700"
+                  actionModal === "ACCEPT"
+                    ? "bg-emerald-600 hover:bg-emerald-700"
+                    : actionModal === "REQUEST_CHANGES"
+                      ? "bg-amber-500 hover:bg-amber-600"
+                      : "bg-rose-600 hover:bg-rose-700"
                 }`}
               >
                 {actionLoading ? "Processing..." : "Confirm Action"}

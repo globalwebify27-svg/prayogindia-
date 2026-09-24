@@ -42,7 +42,8 @@ export const AboutView: React.FC = () => {
     {
       value: "50,000+",
       label: "Components Dispatched",
-      description: "100% verified genuine microcontrollers, sensors & actuators",
+      description:
+        "100% verified genuine microcontrollers, sensors & actuators",
       icon: Cpu,
       color: "text-[#FFC20E]",
       bg: "bg-amber-50",
@@ -50,7 +51,8 @@ export const AboutView: React.FC = () => {
     {
       value: "250+",
       label: "Turnkey Labs Equipped",
-      description: "Atal Tinkering Labs (ATL) & university mechatronics centers",
+      description:
+        "Atal Tinkering Labs (ATL) & university mechatronics centers",
       icon: Building2,
       color: "text-emerald-600",
       bg: "bg-emerald-50",
@@ -103,7 +105,7 @@ export const AboutView: React.FC = () => {
       description:
         "Pixhawk 6C autopilots, MavLink telemetry, brushless motors, SimonK ESCs, GPS compass modules, and carbon-fiber quadcopter airframes.",
       image: "/images/drone_cutout.jpg",
-      href: "/category/uavs-drones",
+      href: "/categories/drone-technology",
       tag: "ArduPilot / PX4 Ready",
     },
     {
@@ -112,7 +114,7 @@ export const AboutView: React.FC = () => {
       description:
         "6-DOF robotic arms, Dilay-Bot 4WD obstacle avoiders, ROS2 SLAM mobile rovers, metal gear servos, and planetary drive systems.",
       image: "/images/ecosystem/robotics.jpg",
-      href: "/category/robotics",
+      href: "/categories/robotics",
       tag: "ROS2 & Arduino Driven",
     },
     {
@@ -121,7 +123,7 @@ export const AboutView: React.FC = () => {
       description:
         "Raspberry Pi 5 (8GB), ESP32-WROOM dual-core modules, Arduino UNO R4 WiFi, LoRa SX1278 transceivers, and precision sensor shields.",
       image: "/images/pi_hero.jpg",
-      href: "/category/development-boards",
+      href: "/categories/arduino-development-boards",
       tag: "Official Hardware",
     },
     {
@@ -163,19 +165,26 @@ export const AboutView: React.FC = () => {
               </h1>
 
               <p className="text-slate-600 text-sm sm:text-base leading-relaxed font-normal max-w-2xl">
-                Prayog India is a premier mechatronics and hardware technology ecosystem provider. From school Atal Tinkering Labs (ATL) to elite university research labs and industrial tech incubators, we deliver genuine electronic components, autonomous flight avionics, and turnkey laboratory infrastructure across India.
+                Prayog India is a premier mechatronics and hardware technology
+                ecosystem provider. From school Atal Tinkering Labs (ATL) to
+                elite university research labs and industrial tech incubators,
+                we deliver genuine electronic components, autonomous flight
+                avionics, and turnkey laboratory infrastructure across India.
               </p>
 
               {/* Trust Badges */}
               <div className="flex flex-wrap items-center gap-3 pt-1 text-xs font-bold text-slate-700">
                 <span className="inline-flex items-center gap-1.5 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-200">
-                  <CheckCircle2 className="w-4 h-4 text-[#00AEEF]" /> 100% Genuine Silicon
+                  <CheckCircle2 className="w-4 h-4 text-[#00AEEF]" /> 100%
+                  Genuine Silicon
                 </span>
                 <span className="inline-flex items-center gap-1.5 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-200">
-                  <CheckCircle2 className="w-4 h-4 text-[#FFC20E]" /> Official GST Invoiced
+                  <CheckCircle2 className="w-4 h-4 text-[#FFC20E]" /> Official
+                  GST Invoiced
                 </span>
                 <span className="inline-flex items-center gap-1.5 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-200">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600" /> Pan-India Rapid Dispatch
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600" />{" "}
+                  Pan-India Rapid Dispatch
                 </span>
               </div>
 
@@ -222,11 +231,13 @@ export const AboutView: React.FC = () => {
                     <div className="flex items-center justify-between text-xs font-black text-slate-900">
                       <span>Indigenous Hardware Ecosystem</span>
                       <span className="text-amber-500 flex items-center gap-0.5">
-                        <Star className="w-3.5 h-3.5 fill-amber-400" /> 4.9/5 Rating
+                        <Star className="w-3.5 h-3.5 fill-amber-400" /> 4.9/5
+                        Rating
                       </span>
                     </div>
                     <p className="text-[11px] text-slate-600 font-medium leading-normal">
-                      Direct hardware distribution partner for Atal Innovation Mission, IITs, NITs, and STEM educators across India.
+                      Direct hardware distribution partner for Atal Innovation
+                      Mission, IITs, NITs, and STEM educators across India.
                     </p>
                   </div>
                 </div>
@@ -245,10 +256,14 @@ export const AboutView: React.FC = () => {
                 className="bg-white border border-slate-200/90 rounded-3xl p-6 shadow-xs hover:shadow-md transition-all space-y-3 group hover:border-[#00AEEF]/40"
               >
                 <div className="flex items-center justify-between">
-                  <span className={`text-2xl sm:text-3xl font-black tracking-tight ${stat.color}`}>
+                  <span
+                    className={`text-2xl sm:text-3xl font-black tracking-tight ${stat.color}`}
+                  >
                     {stat.value}
                   </span>
-                  <div className={`w-10 h-10 rounded-2xl ${stat.bg} ${stat.color} flex items-center justify-center transition-transform group-hover:scale-110`}>
+                  <div
+                    className={`w-10 h-10 rounded-2xl ${stat.bg} ${stat.color} flex items-center justify-center transition-transform group-hover:scale-110`}
+                  >
                     <Icon className="w-5 h-5" />
                   </div>
                 </div>
@@ -275,7 +290,9 @@ export const AboutView: React.FC = () => {
               Bridging the Gap Between Engineering Theory and Hardware Reality
             </h2>
             <p className="text-xs sm:text-sm text-slate-500 max-w-2xl mx-auto leading-relaxed">
-              Prayog India was founded to eliminate the roadblocks young Indian engineers face: counterfeit silicon, missing schematics, and weeks of international shipping delays.
+              Prayog India was founded to eliminate the roadblocks young Indian
+              engineers face: counterfeit silicon, missing schematics, and weeks
+              of international shipping delays.
             </p>
           </div>
 
@@ -291,19 +308,29 @@ export const AboutView: React.FC = () => {
                   Built by Robotics Engineers, for Innovators Across India
                 </h3>
                 <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                  STEM and mechatronics education in India has long been hindered by sub-standard component clones and lack of hands-on laboratory infrastructure. When microcontrollers glitch or flight controllers lack authenticated bootloaders, student learning grinds to a halt.
+                  STEM and mechatronics education in India has long been
+                  hindered by sub-standard component clones and lack of hands-on
+                  laboratory infrastructure. When microcontrollers glitch or
+                  flight controllers lack authenticated bootloaders, student
+                  learning grinds to a halt.
                 </p>
                 <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                  Prayog India established a rigorous QC-tested supply chain, direct manufacturer distribution, and comprehensive curriculum integration. Today, we equip students from primary school robotics clubs to postgraduate UAV research laboratories with verified hardware they can trust.
+                  Prayog India established a rigorous QC-tested supply chain,
+                  direct manufacturer distribution, and comprehensive curriculum
+                  integration. Today, we equip students from primary school
+                  robotics clubs to postgraduate UAV research laboratories with
+                  verified hardware they can trust.
                 </p>
               </div>
 
               <div className="pt-4 border-t border-slate-200 flex flex-wrap items-center gap-4 text-xs font-bold text-slate-700">
                 <div className="flex items-center gap-1.5">
-                  <CheckCircle2 className="w-4 h-4 text-[#00AEEF]" /> Dual Hubs in Ranchi &amp; Bengaluru
+                  <CheckCircle2 className="w-4 h-4 text-[#00AEEF]" /> Dual Hubs
+                  in Ranchi &amp; Bengaluru
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <CheckCircle2 className="w-4 h-4 text-[#FFC20E]" /> 100% Tax Invoiced
+                  <CheckCircle2 className="w-4 h-4 text-[#FFC20E]" /> 100% Tax
+                  Invoiced
                 </div>
               </div>
             </div>
@@ -315,9 +342,14 @@ export const AboutView: React.FC = () => {
                 <div className="w-10 h-10 rounded-2xl bg-[#E0F7FC] text-[#00AEEF] flex items-center justify-center">
                   <Target className="w-5 h-5" />
                 </div>
-                <h3 className="text-base font-black text-slate-900">Our Mission</h3>
+                <h3 className="text-base font-black text-slate-900">
+                  Our Mission
+                </h3>
                 <p className="text-xs text-slate-600 leading-relaxed">
-                  To democratize experiential mechatronics, embedded systems, and robotics education across every school district, university, and innovation lab in India by providing high-reliability hardware and turnkey laboratory setups.
+                  To democratize experiential mechatronics, embedded systems,
+                  and robotics education across every school district,
+                  university, and innovation lab in India by providing
+                  high-reliability hardware and turnkey laboratory setups.
                 </p>
               </div>
 
@@ -326,9 +358,14 @@ export const AboutView: React.FC = () => {
                 <div className="w-10 h-10 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center">
                   <Eye className="w-5 h-5" />
                 </div>
-                <h3 className="text-base font-black text-slate-900">Our Vision</h3>
+                <h3 className="text-base font-black text-slate-900">
+                  Our Vision
+                </h3>
                 <p className="text-xs text-slate-600 leading-relaxed">
-                  To build India’s largest indigenous hardware engineering backbone for robotics, autonomous drones, and Industry 4.0 automation—fostering self-reliance in cutting-edge robotics technology.
+                  To build India’s largest indigenous hardware engineering
+                  backbone for robotics, autonomous drones, and Industry 4.0
+                  automation—fostering self-reliance in cutting-edge robotics
+                  technology.
                 </p>
               </div>
             </div>
@@ -345,7 +382,8 @@ export const AboutView: React.FC = () => {
               Why 5,000+ Innovators &amp; Institutions Trust Us
             </h2>
             <p className="text-xs sm:text-sm text-slate-500">
-              We stand apart from marketplace sellers with end-to-end hardware accountability.
+              We stand apart from marketplace sellers with end-to-end hardware
+              accountability.
             </p>
           </div>
 
@@ -388,7 +426,8 @@ export const AboutView: React.FC = () => {
                 Technologies &amp; Systems We Power
               </h2>
               <p className="text-xs sm:text-sm text-slate-500 font-medium">
-                Comprehensive component catalogs and turnkey laboratory setups across India’s core robotics sectors.
+                Comprehensive component catalogs and turnkey laboratory setups
+                across India’s core robotics sectors.
               </p>
             </div>
 
@@ -454,7 +493,8 @@ export const AboutView: React.FC = () => {
               Equipping India’s Premier Labs &amp; Atal Tinkering Centers
             </h2>
             <p className="text-xs text-slate-500">
-              Verified supply partner for premier universities, engineering departments, and school robotics clubs.
+              Verified supply partner for premier universities, engineering
+              departments, and school robotics clubs.
             </p>
           </div>
 
@@ -492,17 +532,22 @@ export const AboutView: React.FC = () => {
                 Setting Up a Lab or Need Bulk Hardware Procurement?
               </h2>
               <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-normal">
-                Connect directly with our lab application engineers for official GST quotations, turnkey ATL equipment lists, volume institutional pricing, or custom hardware kits.
+                Connect directly with our lab application engineers for official
+                GST quotations, turnkey ATL equipment lists, volume
+                institutional pricing, or custom hardware kits.
               </p>
               <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 pt-1 text-xs font-bold text-slate-700">
                 <span className="flex items-center gap-1.5 bg-white/80 px-3 py-1 rounded-xl border border-slate-200">
-                  <Phone className="w-4 h-4 text-[#00AEEF]" /> {COMPANY_INFO.phone}
+                  <Phone className="w-4 h-4 text-[#00AEEF]" />{" "}
+                  {COMPANY_INFO.phone}
                 </span>
                 <span className="flex items-center gap-1.5 bg-white/80 px-3 py-1 rounded-xl border border-slate-200">
-                  <Mail className="w-4 h-4 text-[#FFC20E]" /> {COMPANY_INFO.email}
+                  <Mail className="w-4 h-4 text-[#FFC20E]" />{" "}
+                  {COMPANY_INFO.email}
                 </span>
                 <span className="flex items-center gap-1.5 bg-white/80 px-3 py-1 rounded-xl border border-slate-200">
-                  <MapPin className="w-4 h-4 text-emerald-600" /> Ranchi &amp; Bengaluru, India
+                  <MapPin className="w-4 h-4 text-emerald-600" /> Ranchi &amp;
+                  Bengaluru, India
                 </span>
               </div>
             </div>

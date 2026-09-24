@@ -51,8 +51,12 @@ export const CategoriesHeader: React.FC<CategoriesHeaderProps> = ({
                 <ShieldCheck className="w-3.5 h-3.5" />
               </div>
               <div className="leading-none">
-                <div className="text-[10.5px] font-black text-slate-900">Trusted</div>
-                <div className="text-[9px] font-semibold text-slate-500">Products</div>
+                <div className="text-[10.5px] font-black text-slate-900">
+                  Trusted
+                </div>
+                <div className="text-[9px] font-semibold text-slate-500">
+                  Products
+                </div>
               </div>
             </div>
 
@@ -62,8 +66,12 @@ export const CategoriesHeader: React.FC<CategoriesHeaderProps> = ({
                 <Award className="w-3.5 h-3.5" />
               </div>
               <div className="leading-none">
-                <div className="text-[10.5px] font-black text-slate-900">Genuine</div>
-                <div className="text-[9px] font-semibold text-slate-500">Brands</div>
+                <div className="text-[10.5px] font-black text-slate-900">
+                  Genuine
+                </div>
+                <div className="text-[9px] font-semibold text-slate-500">
+                  Brands
+                </div>
               </div>
             </div>
 
@@ -73,8 +81,12 @@ export const CategoriesHeader: React.FC<CategoriesHeaderProps> = ({
                 <Truck className="w-3.5 h-3.5" />
               </div>
               <div className="leading-none">
-                <div className="text-[10.5px] font-black text-slate-900">Fast & Safe</div>
-                <div className="text-[9px] font-semibold text-slate-500">Delivery</div>
+                <div className="text-[10.5px] font-black text-slate-900">
+                  Fast & Safe
+                </div>
+                <div className="text-[9px] font-semibold text-slate-500">
+                  Delivery
+                </div>
               </div>
             </div>
 
@@ -84,8 +96,12 @@ export const CategoriesHeader: React.FC<CategoriesHeaderProps> = ({
                 <Headphones className="w-3.5 h-3.5" />
               </div>
               <div className="leading-none">
-                <div className="text-[10.5px] font-black text-slate-900">Expert</div>
-                <div className="text-[9px] font-semibold text-slate-500">Support</div>
+                <div className="text-[10.5px] font-black text-slate-900">
+                  Expert
+                </div>
+                <div className="text-[9px] font-semibold text-slate-500">
+                  Support
+                </div>
               </div>
             </div>
           </div>

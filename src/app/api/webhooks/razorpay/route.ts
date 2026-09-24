@@ -3,7 +3,10 @@ import { createHmac } from "crypto";
 import { db } from "@/lib/db";
 import { deductStoreInventory } from "@/lib/inventoryEngine";
 import { NotificationService } from "@/lib/notifications";
-import { calculateEarnedRewards, getCustomerTypeCode } from "@/data/customerTypes";
+import {
+  calculateEarnedRewards,
+  getCustomerTypeCode,
+} from "@/data/customerTypes";
 import { LoyaltyEngine } from "@/lib/loyaltyEngine";
 
 async function generateInvoiceNumber(): Promise<string> {
@@ -17,7 +20,8 @@ export async function POST(request: Request) {
   try {
     const rawBody = await request.text();
     const signature = request.headers.get("x-razorpay-signature");
-    const webhookSecret = process.env.RAZORPAY_WEBHOOK_SECRET || process.env.RAZORPAY_KEY_SECRET;
+    const webhookSecret =
+      process.env.RAZORPAY_WEBHOOK_SECRET || process.env.RAZORPAY_KEY_SECRET;
 
     // Signature verification (if webhook secret configured)
     if (webhookSecret && signature) {
@@ -28,7 +32,7 @@ export async function POST(request: Request) {
       if (expectedSignature !== signature) {
         return NextResponse.json(
           { success: false, message: "Invalid webhook signature." },
-          { status: 400 }
+          { status: 400 },
         );
       }
     }
@@ -38,7 +42,10 @@ export async function POST(request: Request) {
     const payload = event.payload;
 
     if (!process.env.DATABASE_URL) {
-      return NextResponse.json({ success: true, message: "Webhook acknowledged (Mock mode)." });
+      return NextResponse.json({
+        success: true,
+        message: "Webhook acknowledged (Mock mode).",
+      });
     }
 
     // ─────────────────────────────────────────────
@@ -46,7 +53,8 @@ export async function POST(request: Request) {
     // ─────────────────────────────────────────────
     if (eventType === "payment.captured" || eventType === "order.paid") {
       const paymentEntity = payload.payment?.entity;
-      const gatewayOrderId = paymentEntity?.order_id || payload.order?.entity?.id;
+      const gatewayOrderId =
+        paymentEntity?.order_id || payload.order?.entity?.id;
       const gatewayPaymentId = paymentEntity?.id;
       const orderIdFromNotes = paymentEntity?.notes?.orderId;
 
@@ -54,7 +62,9 @@ export async function POST(request: Request) {
       const order = await db.order.findFirst({
         where: {
           OR: [
-            ...(orderIdFromNotes ? [{ id: orderIdFromNotes }, { orderNumber: orderIdFromNotes }] : []),
+            ...(orderIdFromNotes
+              ? [{ id: orderIdFromNotes }, { orderNumber: orderIdFromNotes }]
+              : []),
             ...(gatewayOrderId ? [{ payment: { gatewayOrderId } }] : []),
           ],
         },
@@ -66,12 +76,18 @@ export async function POST(request: Request) {
       });
 
       if (!order) {
-        return NextResponse.json({ success: true, message: "Order not found or already processed." });
+        return NextResponse.json({
+          success: true,
+          message: "Order not found or already processed.",
+        });
       }
 
       // Idempotency: If already paid, do not re-deduct stock or re-credit rewards
       if (order.paymentStatus === "PAID") {
-        return NextResponse.json({ success: true, message: "Order already paid." });
+        return NextResponse.json({
+          success: true,
+          message: "Order already paid.",
+        });
       }
 
       // Execute atomic updates
@@ -93,7 +109,8 @@ export async function POST(request: Request) {
             where: { id: order.payment.id },
             data: {
               status: "PAID",
-              gatewayPaymentId: gatewayPaymentId || order.payment.gatewayPaymentId,
+              gatewayPaymentId:
+                gatewayPaymentId || order.payment.gatewayPaymentId,
               gatewayResponse: paymentEntity || undefined,
               verifiedAt: new Date(),
             },
@@ -139,7 +156,9 @@ export async function POST(request: Request) {
 
       // Generate invoice if not exists
       try {
-        const existingInvoice = await db.invoice.findUnique({ where: { orderId: order.id } });
+        const existingInvoice = await db.invoice.findUnique({
+          where: { orderId: order.id },
+        });
         if (!existingInvoice) {
           const invNumber = await generateInvoiceNumber();
           await db.invoice.create({
@@ -217,7 +236,7 @@ export async function POST(request: Request) {
     console.error("[RazorpayWebhook] Error:", error);
     return NextResponse.json(
       { success: false, message: error.message || "Webhook processing error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

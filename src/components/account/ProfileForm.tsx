@@ -151,7 +151,8 @@ export const ProfileForm: React.FC = () => {
 
       if (!verifyRes.ok || !verifyData.success) {
         setOtpError(
-          verifyData.message || "Invalid OTP code. Please check SMS and try again.",
+          verifyData.message ||
+            "Invalid OTP code. Please check SMS and try again.",
         );
         setOtpLoading(false);
         return;
@@ -211,15 +212,17 @@ export const ProfileForm: React.FC = () => {
           Personal &amp; Institutional Profile
         </h2>
         <p className="text-xs text-slate-500">
-          Manage your contact information, verified mobile number, institutional GSTIN
-          invoice credentials, and business tier.
+          Manage your contact information, verified mobile number, institutional
+          GSTIN invoice credentials, and business tier.
         </p>
       </div>
 
       {savedSuccess && (
         <div className="bg-emerald-50 text-emerald-700 text-xs font-bold p-3.5 rounded-xl border border-emerald-200 flex items-center gap-2 animate-in fade-in">
           <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-          <span>Profile and contact information successfully verified &amp; updated!</span>
+          <span>
+            Profile and contact information successfully verified &amp; updated!
+          </span>
         </div>
       )}
       {saveError && (
@@ -294,7 +297,8 @@ export const ProfileForm: React.FC = () => {
             </div>
             {isPhoneChanged && (
               <p className="text-[10px] text-amber-600 font-medium">
-                Changing your registered phone number requires SMS OTP verification upon saving.
+                Changing your registered phone number requires SMS OTP
+                verification upon saving.
               </p>
             )}
           </div>
@@ -315,7 +319,8 @@ export const ProfileForm: React.FC = () => {
             />
           </div>
           <p className="text-[10px] text-slate-400">
-            Email is tied to your primary identity. Contact support to request email changes.
+            Email is tied to your primary identity. Contact support to request
+            email changes.
           </p>
         </div>
 
@@ -368,7 +373,9 @@ export const ProfileForm: React.FC = () => {
           className="bg-[#00AEEF] hover:bg-[#0096D6] disabled:opacity-50 text-white px-6 py-3 rounded-xl font-extrabold text-xs uppercase tracking-wider transition-colors shadow-md flex items-center gap-2 cursor-pointer"
         >
           {saving && <Loader2 className="w-4 h-4 animate-spin" />}
-          {isPhoneChanged ? "Verify New Number & Save Changes" : "Save Profile Changes"}
+          {isPhoneChanged
+            ? "Verify New Number & Save Changes"
+            : "Save Profile Changes"}
         </button>
       </form>
 
@@ -401,7 +408,9 @@ export const ProfileForm: React.FC = () => {
 
             <p className="text-xs text-slate-600 leading-relaxed">
               We have dispatched a 6-digit OTP passcode to{" "}
-              <strong className="text-slate-900 font-mono">+91 {cleanCurrentPhone}</strong>{" "}
+              <strong className="text-slate-900 font-mono">
+                +91 {cleanCurrentPhone}
+              </strong>{" "}
               to verify this new phone number.
             </p>
 
@@ -441,7 +450,10 @@ export const ProfileForm: React.FC = () => {
               <div className="flex items-center justify-between text-[11px] pt-1">
                 {otpTimer > 0 ? (
                   <span className="text-slate-400 font-medium">
-                    Resend code in <strong className="text-slate-700 font-mono">{otpTimer}s</strong>
+                    Resend code in{" "}
+                    <strong className="text-slate-700 font-mono">
+                      {otpTimer}s
+                    </strong>
                   </span>
                 ) : (
                   <button
@@ -454,7 +466,9 @@ export const ProfileForm: React.FC = () => {
                   </button>
                 )}
 
-                <span className="text-slate-400 text-[10px]">6-Digit SMS Code</span>
+                <span className="text-slate-400 text-[10px]">
+                  6-Digit SMS Code
+                </span>
               </div>
 
               {/* Action Buttons */}

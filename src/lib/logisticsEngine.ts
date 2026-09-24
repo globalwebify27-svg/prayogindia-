@@ -34,7 +34,10 @@ export class LogisticsEngine {
   /**
    * Helper to format courier tracking URL based on carrier code and AWB
    */
-  public static getCarrierTrackingUrl(courierCode: string, awbNumber: string): string {
+  public static getCarrierTrackingUrl(
+    courierCode: string,
+    awbNumber: string,
+  ): string {
     switch (courierCode.toUpperCase()) {
       case "DELHIVERY":
         return `https://www.delhivery.com/track/package/${encodeURIComponent(awbNumber)}`;
@@ -61,10 +64,15 @@ export class LogisticsEngine {
   /**
    * Calculate estimated delivery date based on courier partner
    */
-  public static calculateEstimatedDelivery(courierCode: string, fromDate = new Date()): string {
+  public static calculateEstimatedDelivery(
+    courierCode: string,
+    fromDate = new Date(),
+  ): string {
     const partner = COURIER_PROVIDERS.find((c) => c.code === courierCode);
     const daysToAdd = partner ? partner.avgDeliveryDays + 1 : 3;
-    const targetDate = new Date(fromDate.getTime() + daysToAdd * 24 * 60 * 60 * 1000);
+    const targetDate = new Date(
+      fromDate.getTime() + daysToAdd * 24 * 60 * 60 * 1000,
+    );
     return targetDate.toISOString().split("T")[0]; // YYYY-MM-DD
   }
 
@@ -114,7 +122,13 @@ export class LogisticsEngine {
         shippingTag === "battery item" ||
         shippingTag === "hazardous" ||
         pAny.airFreightAllowed === false ||
-        tags.some((t) => t.includes("battery") || t.includes("lipo") || t.includes("lithium") || t.includes("hazardous")) ||
+        tags.some(
+          (t) =>
+            t.includes("battery") ||
+            t.includes("lipo") ||
+            t.includes("lithium") ||
+            t.includes("hazardous"),
+        ) ||
         name.includes("battery") ||
         name.includes("lipo") ||
         name.includes("lithium")
@@ -124,10 +138,15 @@ export class LogisticsEngine {
     const effectiveMode =
       params.mode === "Air Priority" && hasRestrictedBatteryOrHazardous
         ? "Surface Ground"
-        : (params.mode || "Surface Ground");
+        : params.mode || "Surface Ground";
 
-    const partner = COURIER_PROVIDERS.find((c) => c.code === courierCode) || COURIER_PROVIDERS[0];
-    const awb = customAwb?.trim() || order.shipment?.trackingNumber || this.generateAwb(partner.code);
+    const partner =
+      COURIER_PROVIDERS.find((c) => c.code === courierCode) ||
+      COURIER_PROVIDERS[0];
+    const awb =
+      customAwb?.trim() ||
+      order.shipment?.trackingNumber ||
+      this.generateAwb(partner.code);
     const trackingUrl = this.getCarrierTrackingUrl(partner.code, awb);
     const estimatedDelivery = this.calculateEstimatedDelivery(partner.code);
     const nowIso = new Date().toISOString();
@@ -179,7 +198,10 @@ export class LogisticsEngine {
     });
 
     // 3. Update Order status to SHIPPED if currently ORDER_PLACED or PROCESSING
-    if (order.status === OrderStatus.ORDER_PLACED || order.status === OrderStatus.PROCESSING) {
+    if (
+      order.status === OrderStatus.ORDER_PLACED ||
+      order.status === OrderStatus.PROCESSING
+    ) {
       await db.order.update({
         where: { id: order.id },
         data: { status: OrderStatus.SHIPPED },
@@ -197,7 +219,10 @@ export class LogisticsEngine {
         actor,
         storeId: null,
         previousValue: order.shipment
-          ? { courier: order.shipment.courierName, awb: order.shipment.trackingNumber }
+          ? {
+              courier: order.shipment.courierName,
+              awb: order.shipment.trackingNumber,
+            }
           : null,
         newValue: {
           courier: partner.name,
@@ -263,10 +288,14 @@ export class LogisticsEngine {
     });
 
     if (!shipment) {
-      throw new Error(`Shipment not found for identifier: ${shipmentIdOrOrderNumber}`);
+      throw new Error(
+        `Shipment not found for identifier: ${shipmentIdOrOrderNumber}`,
+      );
     }
 
-    const currentEvents: TrackingCheckpoint[] = Array.isArray(shipment.trackingEvents)
+    const currentEvents: TrackingCheckpoint[] = Array.isArray(
+      shipment.trackingEvents,
+    )
       ? (shipment.trackingEvents as any as TrackingCheckpoint[])
       : [];
 
@@ -284,14 +313,17 @@ export class LogisticsEngine {
     if (isShiprocketConfigured && shipment.courierCode === "SHIPROCKET") {
       // Live Shiprocket API Call
       try {
-        const authRes = await fetch("https://apiv2.shiprocket.in/v1/external/auth/login", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            email: process.env.SHIPROCKET_EMAIL,
-            password: process.env.SHIPROCKET_PASSWORD,
-          }),
-        });
+        const authRes = await fetch(
+          "https://apiv2.shiprocket.in/v1/external/auth/login",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              email: process.env.SHIPROCKET_EMAIL,
+              password: process.env.SHIPROCKET_PASSWORD,
+            }),
+          },
+        );
 
         if (authRes.ok) {
           const authData = await authRes.json();
@@ -307,14 +339,15 @@ export class LogisticsEngine {
           if (trackRes.ok) {
             const trackData = await trackRes.json();
             if (trackData.tracking_data?.shipment_track_activities) {
-              const liveActivities = trackData.tracking_data.shipment_track_activities.map(
-                (act: any) => ({
-                  timestamp: act.date || nowIso,
-                  location: act.location || "In Transit Hub",
-                  status: act.activity || "In Transit",
-                  message: act["sr-status-label"] || act.activity,
-                }),
-              );
+              const liveActivities =
+                trackData.tracking_data.shipment_track_activities.map(
+                  (act: any) => ({
+                    timestamp: act.date || nowIso,
+                    location: act.location || "In Transit Hub",
+                    status: act.activity || "In Transit",
+                    message: act["sr-status-label"] || act.activity,
+                  }),
+                );
 
               if (liveActivities.length > 0) {
                 const latest = liveActivities[liveActivities.length - 1];
@@ -329,7 +362,10 @@ export class LogisticsEngine {
                     status: newStatus,
                     trackingEvents: liveActivities,
                     lastTrackingUpdate: new Date(),
-                    deliveredAt: orderStatusUpdate === OrderStatus.DELIVERED ? new Date() : undefined,
+                    deliveredAt:
+                      orderStatusUpdate === OrderStatus.DELIVERED
+                        ? new Date()
+                        : undefined,
                   },
                 });
 
@@ -351,12 +387,16 @@ export class LogisticsEngine {
           }
         }
       } catch (apiErr) {
-        console.warn("[LogisticsEngine] Shiprocket API error, continuing with internal state:", apiErr);
+        console.warn(
+          "[LogisticsEngine] Shiprocket API error, continuing with internal state:",
+          apiErr,
+        );
       }
     }
 
     // Default Progressive Milestone Progression Engine (Reliable Fallback)
-    const hoursSinceShipped = (Date.now() - new Date(shipment.shippedAt).getTime()) / (1000 * 60 * 60);
+    const hoursSinceShipped =
+      (Date.now() - new Date(shipment.shippedAt).getTime()) / (1000 * 60 * 60);
 
     if (shipment.status === "Manifest Created") {
       newStatus = "In Transit";
@@ -364,7 +404,8 @@ export class LogisticsEngine {
         timestamp: nowIso,
         location: "Kolkata Hub Sorting Facility",
         status: "In Transit",
-        message: "Arrived at regional logistics sorting center. Connection vehicle departed.",
+        message:
+          "Arrived at regional logistics sorting center. Connection vehicle departed.",
       };
     } else if (shipment.status === "In Transit") {
       newStatus = "Out for Delivery";
@@ -381,11 +422,14 @@ export class LogisticsEngine {
         timestamp: nowIso,
         location: "Destination Delivery Station",
         status: "Delivered",
-        message: "Package successfully delivered to customer. Signed & verified.",
+        message:
+          "Package successfully delivered to customer. Signed & verified.",
       };
     }
 
-    const updatedEvents = newEventToAdd ? [...currentEvents, newEventToAdd] : currentEvents;
+    const updatedEvents = newEventToAdd
+      ? [...currentEvents, newEventToAdd]
+      : currentEvents;
 
     const updatedShipment = await db.shipment.update({
       where: { id: shipment.id },
@@ -415,7 +459,9 @@ export class LogisticsEngine {
           awb: shipment.trackingNumber,
         },
         customerEmail: shipment.order.user?.email,
-      }).catch((e) => console.warn("[LogisticsEngine] Delivery notify error:", e));
+      }).catch((e) =>
+        console.warn("[LogisticsEngine] Delivery notify error:", e),
+      );
     }
 
     return {
@@ -430,7 +476,10 @@ export class LogisticsEngine {
   /**
    * Ingest and process inbound courier webhook payload
    */
-  public static async handleCourierWebhook(payload: any, signature?: string | null) {
+  public static async handleCourierWebhook(
+    payload: any,
+    signature?: string | null,
+  ) {
     if (!payload || typeof payload !== "object") {
       throw new Error("Invalid webhook payload.");
     }
@@ -473,15 +522,23 @@ export class LogisticsEngine {
       "In Transit";
 
     const location = payload.location || payload.city || "Carrier Routing Hub";
-    const message = payload.scans?.[0]?.instructions || payload.message || `Carrier scan update: ${rawStatus}`;
-    const timestamp = payload.timestamp || payload.scanned_at || new Date().toISOString();
+    const message =
+      payload.scans?.[0]?.instructions ||
+      payload.message ||
+      `Carrier scan update: ${rawStatus}`;
+    const timestamp =
+      payload.timestamp || payload.scanned_at || new Date().toISOString();
 
     // Map carrier status string to normalized platform status
     let normalizedStatus = "In Transit";
     let orderStatusUpdate: OrderStatus | null = null;
     const lower = String(rawStatus).toLowerCase();
 
-    if (lower.includes("deliver") && !lower.includes("out for deliver") && !lower.includes("undeliver")) {
+    if (
+      lower.includes("deliver") &&
+      !lower.includes("out for deliver") &&
+      !lower.includes("undeliver")
+    ) {
       normalizedStatus = "Delivered";
       orderStatusUpdate = OrderStatus.DELIVERED;
     } else if (lower.includes("out for deliver")) {
@@ -494,7 +551,9 @@ export class LogisticsEngine {
       normalizedStatus = "In Transit";
     }
 
-    const currentEvents: TrackingCheckpoint[] = Array.isArray(shipment.trackingEvents)
+    const currentEvents: TrackingCheckpoint[] = Array.isArray(
+      shipment.trackingEvents,
+    )
       ? (shipment.trackingEvents as any as TrackingCheckpoint[])
       : [];
 

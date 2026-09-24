@@ -31,7 +31,13 @@ export interface PaymentItem {
   amount: number;
   currency: string;
   method: string;
-  status: "PENDING" | "PENDING_VERIFICATION" | "VERIFIED" | "PAID" | "REJECTED" | "FAILED";
+  status:
+    | "PENDING"
+    | "PENDING_VERIFICATION"
+    | "VERIFIED"
+    | "PAID"
+    | "REJECTED"
+    | "FAILED";
   utrNumber?: string | null;
   transactionDate?: string | null;
   submittedAt?: string | null;
@@ -90,7 +96,9 @@ export default function AdminPaymentVerificationPage() {
   });
 
   // Action Modals
-  const [selectedPayment, setSelectedPayment] = useState<PaymentItem | null>(null);
+  const [selectedPayment, setSelectedPayment] = useState<PaymentItem | null>(
+    null,
+  );
   const [isVerifyModalOpen, setIsVerifyModalOpen] = useState(false);
   const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
   const [adminRemarks, setAdminRemarks] = useState("");
@@ -106,8 +114,8 @@ export default function AdminPaymentVerificationPage() {
     try {
       const res = await fetch(
         `/api/admin/payments?status=${statusFilter}&method=${methodFilter}&search=${encodeURIComponent(
-          searchQuery
-        )}`
+          searchQuery,
+        )}`,
       );
       const data = await res.json();
       if (data.success && data.data?.items) {
@@ -146,11 +154,14 @@ export default function AdminPaymentVerificationPage() {
     setFeedbackMessage(null);
 
     try {
-      const res = await fetch(`/api/admin/payments/${selectedPayment.id}/verify`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ remarks: adminRemarks }),
-      });
+      const res = await fetch(
+        `/api/admin/payments/${selectedPayment.id}/verify`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ remarks: adminRemarks }),
+        },
+      );
       const data = await res.json();
 
       if (data.success) {
@@ -168,7 +179,10 @@ export default function AdminPaymentVerificationPage() {
         });
       }
     } catch (err: any) {
-      setFeedbackMessage({ type: "error", text: err.message || "Network error" });
+      setFeedbackMessage({
+        type: "error",
+        text: err.message || "Network error",
+      });
     } finally {
       setActionLoading(false);
     }
@@ -177,21 +191,26 @@ export default function AdminPaymentVerificationPage() {
   const handleRejectPayment = async () => {
     if (!selectedPayment) return;
     if (!rejectionReason.trim() || rejectionReason.trim().length < 5) {
-      alert("Please provide a specific rejection reason (minimum 5 characters).");
+      alert(
+        "Please provide a specific rejection reason (minimum 5 characters).",
+      );
       return;
     }
     setActionLoading(true);
     setFeedbackMessage(null);
 
     try {
-      const res = await fetch(`/api/admin/payments/${selectedPayment.id}/reject`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          rejectionReason: rejectionReason.trim(),
-          adminRemarks: adminRemarks.trim(),
-        }),
-      });
+      const res = await fetch(
+        `/api/admin/payments/${selectedPayment.id}/reject`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            rejectionReason: rejectionReason.trim(),
+            adminRemarks: adminRemarks.trim(),
+          }),
+        },
+      );
       const data = await res.json();
 
       if (data.success) {
@@ -210,7 +229,10 @@ export default function AdminPaymentVerificationPage() {
         });
       }
     } catch (err: any) {
-      setFeedbackMessage({ type: "error", text: err.message || "Network error" });
+      setFeedbackMessage({
+        type: "error",
+        text: err.message || "Network error",
+      });
     } finally {
       setActionLoading(false);
     }
@@ -298,7 +320,8 @@ export default function AdminPaymentVerificationPage() {
             NEFT / RTGS Bank Transfer Verifications
           </h1>
           <p className="text-xs text-slate-500 font-medium mt-0.5">
-            Audit and verify customer UTR submissions against the official Prayog India bank account statements before dispatching orders.
+            Audit and verify customer UTR submissions against the official
+            Prayog India bank account statements before dispatching orders.
           </p>
         </div>
 
@@ -306,7 +329,9 @@ export default function AdminPaymentVerificationPage() {
           onClick={fetchPayments}
           className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-bold transition-all shadow-2xs cursor-pointer self-start sm:self-auto"
         >
-          <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin text-[#005CA9]" : ""}`} />
+          <RefreshCw
+            className={`w-3.5 h-3.5 ${loading ? "animate-spin text-[#005CA9]" : ""}`}
+          />
           Refresh Feed
         </button>
       </div>
@@ -321,7 +346,10 @@ export default function AdminPaymentVerificationPage() {
           }`}
         >
           <span>{feedbackMessage.text}</span>
-          <button onClick={() => setFeedbackMessage(null)} className="text-xs underline cursor-pointer">
+          <button
+            onClick={() => setFeedbackMessage(null)}
+            className="text-xs underline cursor-pointer"
+          >
             Dismiss
           </button>
         </div>
@@ -339,7 +367,9 @@ export default function AdminPaymentVerificationPage() {
             </p>
             <p className="text-2xl font-black text-amber-600 mt-0.5">
               {summary.pendingVerificationCount}{" "}
-              <span className="text-xs font-semibold text-slate-500">Transfers</span>
+              <span className="text-xs font-semibold text-slate-500">
+                Transfers
+              </span>
             </p>
           </div>
         </div>
@@ -369,7 +399,9 @@ export default function AdminPaymentVerificationPage() {
             <p className="text-sm font-black text-slate-900 mt-0.5">
               SBI Current · 40892301982739
             </p>
-            <p className="text-[10px] text-slate-500 font-mono">IFSC: SBIN0000167 · Ranchi</p>
+            <p className="text-[10px] text-slate-500 font-mono">
+              IFSC: SBIN0000167 · Ranchi
+            </p>
           </div>
         </div>
       </div>
@@ -414,7 +446,10 @@ export default function AdminPaymentVerificationPage() {
             <option value="WIRE">All Bank Wires</option>
           </select>
 
-          <form onSubmit={handleSearchSubmit} className="relative flex-1 sm:w-64">
+          <form
+            onSubmit={handleSearchSubmit}
+            className="relative flex-1 sm:w-64"
+          >
             <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
             <input
               type="text"
@@ -437,7 +472,9 @@ export default function AdminPaymentVerificationPage() {
         ) : payments.length === 0 ? (
           <div className="py-16 text-center text-slate-400">
             <Landmark className="w-12 h-12 mx-auto text-slate-300 mb-2" />
-            <p className="text-sm font-bold text-slate-600">No payment records found</p>
+            <p className="text-sm font-bold text-slate-600">
+              No payment records found
+            </p>
             <p className="text-xs text-slate-400 mt-1">
               Try adjusting your search criteria or switching status tabs.
             </p>
@@ -458,9 +495,13 @@ export default function AdminPaymentVerificationPage() {
               <tbody className="divide-y divide-slate-100 text-xs font-medium text-slate-700">
                 {payments.map((pay) => {
                   const isPending =
-                    pay.status === "PENDING_VERIFICATION" || pay.status === "PENDING";
+                    pay.status === "PENDING_VERIFICATION" ||
+                    pay.status === "PENDING";
                   return (
-                    <tr key={pay.id} className="hover:bg-slate-50/80 transition-colors">
+                    <tr
+                      key={pay.id}
+                      className="hover:bg-slate-50/80 transition-colors"
+                    >
                       {/* Order & Date */}
                       <td className="py-3.5 px-4">
                         <div className="font-extrabold text-slate-900">
@@ -533,7 +574,8 @@ export default function AdminPaymentVerificationPage() {
                         </div>
                         {pay.order?.gstAmount ? (
                           <div className="text-[10px] text-slate-400 font-mono">
-                            Incl. ₹{pay.order.gstAmount.toLocaleString("en-IN")} GST
+                            Incl. ₹{pay.order.gstAmount.toLocaleString("en-IN")}{" "}
+                            GST
                           </div>
                         ) : null}
                       </td>
@@ -547,7 +589,10 @@ export default function AdminPaymentVerificationPage() {
                           </div>
                         )}
                         {pay.rejectionReason && (
-                          <div className="text-[10px] text-rose-600 font-bold max-w-xs truncate mt-0.5" title={pay.rejectionReason}>
+                          <div
+                            className="text-[10px] text-rose-600 font-bold max-w-xs truncate mt-0.5"
+                            title={pay.rejectionReason}
+                          >
                             Reason: {pay.rejectionReason}
                           </div>
                         )}
@@ -609,7 +654,9 @@ export default function AdminPaymentVerificationPage() {
             <div className="flex items-center justify-between border-b border-slate-200 pb-3">
               <div>
                 <h3 className="text-lg font-extrabold text-slate-900">
-                  Payment Verification Audit · #{selectedPayment.order?.orderNumber || selectedPayment.orderId}
+                  Payment Verification Audit · #
+                  {selectedPayment.order?.orderNumber ||
+                    selectedPayment.orderId}
                 </h3>
                 <p className="text-xs text-slate-500 font-medium">
                   Review customer wire details, UTR reference, and order items.
@@ -626,19 +673,33 @@ export default function AdminPaymentVerificationPage() {
             {/* Status & Method Summary */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-slate-50 p-3.5 rounded-xl border border-slate-200/80">
               <div>
-                <span className="text-[10px] font-bold text-slate-400 uppercase">Payment Method</span>
-                <p className="text-xs font-black text-slate-900 mt-0.5">{selectedPayment.method || "NEFT"}</p>
+                <span className="text-[10px] font-bold text-slate-400 uppercase">
+                  Payment Method
+                </span>
+                <p className="text-xs font-black text-slate-900 mt-0.5">
+                  {selectedPayment.method || "NEFT"}
+                </p>
               </div>
               <div>
-                <span className="text-[10px] font-bold text-slate-400 uppercase">Amount</span>
-                <p className="text-xs font-black text-[#005CA9] mt-0.5">₹{selectedPayment.amount.toLocaleString("en-IN")}</p>
+                <span className="text-[10px] font-bold text-slate-400 uppercase">
+                  Amount
+                </span>
+                <p className="text-xs font-black text-[#005CA9] mt-0.5">
+                  ₹{selectedPayment.amount.toLocaleString("en-IN")}
+                </p>
               </div>
               <div>
-                <span className="text-[10px] font-bold text-slate-400 uppercase">Current Status</span>
-                <div className="mt-0.5">{getStatusBadge(selectedPayment.status)}</div>
+                <span className="text-[10px] font-bold text-slate-400 uppercase">
+                  Current Status
+                </span>
+                <div className="mt-0.5">
+                  {getStatusBadge(selectedPayment.status)}
+                </div>
               </div>
               <div>
-                <span className="text-[10px] font-bold text-slate-400 uppercase">UTR Reference</span>
+                <span className="text-[10px] font-bold text-slate-400 uppercase">
+                  UTR Reference
+                </span>
                 <p className="text-xs font-mono font-bold text-slate-900 mt-0.5">
                   {selectedPayment.utrNumber || "N/A"}
                 </p>
@@ -647,56 +708,89 @@ export default function AdminPaymentVerificationPage() {
 
             {/* Customer Details */}
             <div className="space-y-2">
-              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400">Customer &amp; Institution</h4>
+              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                Customer &amp; Institution
+              </h4>
               <div className="bg-white border border-slate-200 p-3.5 rounded-xl space-y-1.5 text-xs">
                 <div className="flex justify-between">
                   <span className="text-slate-500">Customer Name:</span>
-                  <span className="font-bold text-slate-900">{selectedPayment.order?.user?.name}</span>
+                  <span className="font-bold text-slate-900">
+                    {selectedPayment.order?.user?.name}
+                  </span>
                 </div>
                 {selectedPayment.order?.user?.companyName && (
                   <div className="flex justify-between">
-                    <span className="text-slate-500">Institution / Company:</span>
-                    <span className="font-bold text-[#005CA9]">{selectedPayment.order.user.companyName}</span>
+                    <span className="text-slate-500">
+                      Institution / Company:
+                    </span>
+                    <span className="font-bold text-[#005CA9]">
+                      {selectedPayment.order.user.companyName}
+                    </span>
                   </div>
                 )}
                 {selectedPayment.order?.user?.gstin && (
                   <div className="flex justify-between">
                     <span className="text-slate-500">GSTIN:</span>
-                    <span className="font-mono font-bold">{selectedPayment.order.user.gstin}</span>
+                    <span className="font-mono font-bold">
+                      {selectedPayment.order.user.gstin}
+                    </span>
                   </div>
                 )}
                 <div className="flex justify-between">
                   <span className="text-slate-500">Contact:</span>
-                  <span>{selectedPayment.order?.user?.phone} · {selectedPayment.order?.user?.email}</span>
+                  <span>
+                    {selectedPayment.order?.user?.phone} ·{" "}
+                    {selectedPayment.order?.user?.email}
+                  </span>
                 </div>
                 {selectedPayment.customerRemarks && (
                   <div className="pt-2 border-t border-slate-100 text-slate-700 italic">
-                    <strong>Customer Remarks:</strong> {selectedPayment.customerRemarks}
+                    <strong>Customer Remarks:</strong>{" "}
+                    {selectedPayment.customerRemarks}
                   </div>
                 )}
               </div>
             </div>
 
             {/* Ordered Items Breakdown */}
-            {selectedPayment.order?.items && selectedPayment.order.items.length > 0 && (
-              <div className="space-y-2">
-                <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400">Ordered Items Snapshot</h4>
-                <div className="border border-slate-200 rounded-xl overflow-hidden divide-y divide-slate-100 text-xs">
-                  {selectedPayment.order.items.map((item, idx) => (
-                    <div key={idx} className="p-3 flex justify-between items-center">
-                      <div>
-                        <div className="font-bold text-slate-900">{item.productName}</div>
-                        {item.productSku && <div className="text-[10px] text-slate-400">SKU: {item.productSku}</div>}
+            {selectedPayment.order?.items &&
+              selectedPayment.order.items.length > 0 && (
+                <div className="space-y-2">
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                    Ordered Items Snapshot
+                  </h4>
+                  <div className="border border-slate-200 rounded-xl overflow-hidden divide-y divide-slate-100 text-xs">
+                    {selectedPayment.order.items.map((item, idx) => (
+                      <div
+                        key={idx}
+                        className="p-3 flex justify-between items-center"
+                      >
+                        <div>
+                          <div className="font-bold text-slate-900">
+                            {item.productName}
+                          </div>
+                          {item.productSku && (
+                            <div className="text-[10px] text-slate-400">
+                              SKU: {item.productSku}
+                            </div>
+                          )}
+                        </div>
+                        <div className="text-right">
+                          <div className="font-bold">
+                            Qty: {item.quantity} × ₹{item.price}
+                          </div>
+                          <div className="text-[11px] text-slate-500">
+                            ₹
+                            {(item.quantity * item.price).toLocaleString(
+                              "en-IN",
+                            )}
+                          </div>
+                        </div>
                       </div>
-                      <div className="text-right">
-                        <div className="font-bold">Qty: {item.quantity} × ₹{item.price}</div>
-                        <div className="text-[11px] text-slate-500">₹{(item.quantity * item.price).toLocaleString("en-IN")}</div>
-                      </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
 
             {/* Footer Actions */}
             <div className="flex items-center justify-end gap-2 border-t border-slate-200 pt-4">
@@ -707,7 +801,8 @@ export default function AdminPaymentVerificationPage() {
               >
                 Close
               </button>
-              {(selectedPayment.status === "PENDING_VERIFICATION" || selectedPayment.status === "PENDING") && (
+              {(selectedPayment.status === "PENDING_VERIFICATION" ||
+                selectedPayment.status === "PENDING") && (
                 <>
                   <button
                     type="button"
@@ -743,15 +838,24 @@ export default function AdminPaymentVerificationPage() {
                   Approve Bank Transfer
                 </h3>
                 <p className="text-xs text-slate-500 font-medium">
-                  Confirm that ₹{selectedPayment.amount.toLocaleString("en-IN")} has been credited.
+                  Confirm that ₹{selectedPayment.amount.toLocaleString("en-IN")}{" "}
+                  has been credited.
                 </p>
               </div>
             </div>
 
             <div className="bg-emerald-50/70 border border-emerald-200 p-3.5 rounded-xl space-y-1 text-xs text-emerald-900">
-              <p><strong>Order #:</strong> {selectedPayment.order?.orderNumber}</p>
-              <p><strong>UTR Reference:</strong> {selectedPayment.utrNumber || "N/A"}</p>
-              <p><strong>Total Amount:</strong> ₹{selectedPayment.amount.toLocaleString("en-IN")}</p>
+              <p>
+                <strong>Order #:</strong> {selectedPayment.order?.orderNumber}
+              </p>
+              <p>
+                <strong>UTR Reference:</strong>{" "}
+                {selectedPayment.utrNumber || "N/A"}
+              </p>
+              <p>
+                <strong>Total Amount:</strong> ₹
+                {selectedPayment.amount.toLocaleString("en-IN")}
+              </p>
             </div>
 
             <div>
@@ -782,7 +886,9 @@ export default function AdminPaymentVerificationPage() {
                 disabled={actionLoading}
                 className="px-5 py-2 text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl shadow-md cursor-pointer flex items-center gap-1.5"
               >
-                {actionLoading && <RefreshCw className="w-3.5 h-3.5 animate-spin" />}
+                {actionLoading && (
+                  <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                )}
                 Confirm Bank Credit &amp; Mark Paid
               </button>
             </div>
@@ -803,14 +909,20 @@ export default function AdminPaymentVerificationPage() {
                   Reject Payment Submission
                 </h3>
                 <p className="text-xs text-slate-500 font-medium">
-                  Customer will be notified with the reason to resubmit a valid UTR.
+                  Customer will be notified with the reason to resubmit a valid
+                  UTR.
                 </p>
               </div>
             </div>
 
             <div className="bg-rose-50/70 border border-rose-200 p-3.5 rounded-xl space-y-1 text-xs text-rose-900">
-              <p><strong>Order #:</strong> {selectedPayment.order?.orderNumber}</p>
-              <p><strong>Submitted UTR:</strong> {selectedPayment.utrNumber || "N/A"}</p>
+              <p>
+                <strong>Order #:</strong> {selectedPayment.order?.orderNumber}
+              </p>
+              <p>
+                <strong>Submitted UTR:</strong>{" "}
+                {selectedPayment.utrNumber || "N/A"}
+              </p>
             </div>
 
             <div>
@@ -854,7 +966,9 @@ export default function AdminPaymentVerificationPage() {
                 disabled={actionLoading}
                 className="px-5 py-2 text-xs font-bold bg-rose-600 hover:bg-rose-700 text-white rounded-xl shadow-md cursor-pointer flex items-center gap-1.5"
               >
-                {actionLoading && <RefreshCw className="w-3.5 h-3.5 animate-spin" />}
+                {actionLoading && (
+                  <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                )}
                 Reject &amp; Notify Customer
               </button>
             </div>

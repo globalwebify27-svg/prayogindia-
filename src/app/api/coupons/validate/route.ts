@@ -1,20 +1,9 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
 import { db } from "@/lib/db";
-import { AuthSessionUser } from "@/lib/authUtils";
+import { getAuthenticatedCustomer } from "@/lib/authUtils";
 import { getSecurityHeaders, checkRateLimit } from "@/lib/security";
 import { INITIAL_PROMO_COUPONS, evaluatePromoCoupon } from "@/data/promoData";
-
-async function getAuthenticatedUser(): Promise<AuthSessionUser | null> {
-  const cookieStore = await cookies();
-  const sessionCookie = cookieStore.get("prayog_customer_session");
-  if (!sessionCookie?.value) return null;
-  try {
-    return JSON.parse(sessionCookie.value);
-  } catch {
-    return null;
-  }
-}
+import { couponValidateSchema } from "@/lib/validations";
 
 /**
  * POST /api/coupons/validate
@@ -24,7 +13,7 @@ async function getAuthenticatedUser(): Promise<AuthSessionUser | null> {
  */
 export async function POST(request: Request) {
   const headers = getSecurityHeaders();
-  const user = await getAuthenticatedUser();
+  const user = await getAuthenticatedCustomer();
   if (!user) {
     return NextResponse.json(
       { success: false, message: "Please sign in to apply a coupon." },
@@ -43,23 +32,26 @@ export async function POST(request: Request) {
 
   try {
     const body = await request.json();
-    const { couponCode, cartTotal, customerType, cartItems } = body;
+    const parseResult = couponValidateSchema.safeParse({
+      code: body.couponCode || body.code,
+      subtotal: body.cartTotal ?? body.subtotal,
+      customerType: body.customerType,
+    });
 
-    if (!couponCode || typeof couponCode !== "string") {
+    if (!parseResult.success) {
       return NextResponse.json(
-        { success: false, message: "Coupon code is required." },
+        {
+          success: false,
+          message: parseResult.error.issues[0]?.message || "Invalid coupon request parameters.",
+        },
         { status: 400, headers },
       );
     }
 
-    const normalizedCode = couponCode.toUpperCase().trim();
-
-    if (typeof cartTotal !== "number" || cartTotal <= 0) {
-      return NextResponse.json(
-        { success: false, message: "Invalid cart total." },
-        { status: 400, headers },
-      );
-    }
+    const { code, subtotal, customerType } = parseResult.data;
+    const { cartItems } = body;
+    const normalizedCode = code.toUpperCase().trim();
+    const cartTotal = subtotal;
 
     // 1. Find the coupon in data store
     const coupon = INITIAL_PROMO_COUPONS.find(
@@ -68,7 +60,10 @@ export async function POST(request: Request) {
 
     if (!coupon) {
       return NextResponse.json(
-        { success: false, message: `Coupon "${normalizedCode}" is invalid or does not exist.` },
+        {
+          success: false,
+          message: `Coupon "${normalizedCode}" is invalid or does not exist.`,
+        },
         { status: 404, headers },
       );
     }
@@ -140,7 +135,10 @@ export async function POST(request: Request) {
     });
   } catch (error: any) {
     return NextResponse.json(
-      { success: false, message: error.message || "Failed to validate coupon." },
+      {
+        success: false,
+        message: error.message || "Failed to validate coupon.",
+      },
       { status: 500, headers },
     );
   }

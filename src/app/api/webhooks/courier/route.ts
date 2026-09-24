@@ -10,10 +10,15 @@ export async function POST(request: Request) {
   const headers = getSecurityHeaders();
 
   try {
-    const signature = request.headers.get("x-shiprocket-signature") || request.headers.get("x-courier-signature");
+    const signature =
+      request.headers.get("x-shiprocket-signature") ||
+      request.headers.get("x-courier-signature");
     const payload = await request.json();
 
-    const result = await LogisticsEngine.handleCourierWebhook(payload, signature);
+    const result = await LogisticsEngine.handleCourierWebhook(
+      payload,
+      signature,
+    );
 
     return NextResponse.json(
       {

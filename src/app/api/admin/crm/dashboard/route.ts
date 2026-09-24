@@ -8,8 +8,16 @@ export async function GET(request: Request) {
   const headers = getSecurityHeaders();
   const staff = await getAuthenticatedStaff();
 
-  if (!staff || (staff.role !== "SUPER_ADMIN" && staff.role !== "REGIONAL_MANAGER" && staff.role !== "STORE_MANAGER")) {
-    return NextResponse.json({ success: false, message: "Forbidden" }, { status: 403, headers });
+  if (
+    !staff ||
+    (staff.role !== "SUPER_ADMIN" &&
+      staff.role !== "REGIONAL_MANAGER" &&
+      staff.role !== "STORE_MANAGER")
+  ) {
+    return NextResponse.json(
+      { success: false, message: "Forbidden" },
+      { status: 403, headers },
+    );
   }
 
   if (process.env.DATABASE_URL) {
@@ -19,7 +27,10 @@ export async function GET(request: Request) {
       // Role-based store isolation
       if (staff.role === "STORE_MANAGER" && staff.storeId) {
         where.assignedStoreId = staff.storeId;
-      } else if (staff.role === "REGIONAL_MANAGER" && staff.allowedStoreCodes?.length) {
+      } else if (
+        staff.role === "REGIONAL_MANAGER" &&
+        staff.allowedStoreCodes?.length
+      ) {
         const regionalStores = await db.store.findMany({
           where: { code: { in: staff.allowedStoreCodes } },
           select: { id: true },
@@ -41,19 +52,28 @@ export async function GET(request: Request) {
       ] = await Promise.all([
         db.b2BCompany.count({ where }),
         db.b2BCompany.count({ where: { ...where, status: "ACTIVE_CUSTOMER" } }),
-        db.b2BCompany.count({ where: { ...where, status: { in: ["PROSPECT", "LEAD", "NEGOTIATION"] } } }),
+        db.b2BCompany.count({
+          where: {
+            ...where,
+            status: { in: ["PROSPECT", "LEAD", "NEGOTIATION"] },
+          },
+        }),
         db.b2BFollowUp.count({
           where: {
             status: "PENDING",
             dueDate: { gte: now },
-            company: where.assignedStoreId ? { assignedStoreId: where.assignedStoreId } : undefined,
+            company: where.assignedStoreId
+              ? { assignedStoreId: where.assignedStoreId }
+              : undefined,
           },
         }),
         db.b2BFollowUp.count({
           where: {
             status: "PENDING",
             dueDate: { lt: now },
-            company: where.assignedStoreId ? { assignedStoreId: where.assignedStoreId } : undefined,
+            company: where.assignedStoreId
+              ? { assignedStoreId: where.assignedStoreId }
+              : undefined,
           },
         }),
         db.quotation.count({
@@ -70,37 +90,49 @@ export async function GET(request: Request) {
         }),
       ]);
 
-      const monthlySales = monthlyB2BOrders.reduce((sum, o) => sum + o.totalAmount, 0);
+      const monthlySales = monthlyB2BOrders.reduce(
+        (sum, o) => sum + o.totalAmount,
+        0,
+      );
 
-      return NextResponse.json({
-        success: true,
-        data: {
-          totalCompanies,
-          activeCustomers,
-          prospects,
-          pendingFollowUps,
-          overdueFollowUps,
-          monthlyQuotes,
-          monthlyB2BOrders: monthlyB2BOrders.length,
-          monthlySales,
+      return NextResponse.json(
+        {
+          success: true,
+          data: {
+            totalCompanies,
+            activeCustomers,
+            prospects,
+            pendingFollowUps,
+            overdueFollowUps,
+            monthlyQuotes,
+            monthlyB2BOrders: monthlyB2BOrders.length,
+            monthlySales,
+          },
         },
-      }, { headers });
+        { headers },
+      );
     } catch (error: any) {
-      return NextResponse.json({ success: false, message: error.message }, { status: 500, headers });
+      return NextResponse.json(
+        { success: false, message: error.message },
+        { status: 500, headers },
+      );
     }
   }
 
-  return NextResponse.json({
-    success: true,
-    data: {
-      totalCompanies: 0,
-      activeCustomers: 0,
-      prospects: 0,
-      pendingFollowUps: 0,
-      overdueFollowUps: 0,
-      monthlyQuotes: 0,
-      monthlyB2BOrders: 0,
-      monthlySales: 0,
+  return NextResponse.json(
+    {
+      success: true,
+      data: {
+        totalCompanies: 0,
+        activeCustomers: 0,
+        prospects: 0,
+        pendingFollowUps: 0,
+        overdueFollowUps: 0,
+        monthlyQuotes: 0,
+        monthlyB2BOrders: 0,
+        monthlySales: 0,
+      },
     },
-  }, { headers });
+    { headers },
+  );
 }

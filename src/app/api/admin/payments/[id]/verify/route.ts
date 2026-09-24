@@ -43,21 +43,27 @@ async function generateInvoiceNumber(): Promise<string> {
  */
 export async function POST(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const headers = getSecurityHeaders();
   const staff = await getAdminOrStaff();
 
   if (!staff) {
     return NextResponse.json(
-      { success: false, message: "Forbidden: Only Super Admin, Regional Managers, and Store Managers can verify payments." },
-      { status: 403, headers }
+      {
+        success: false,
+        message:
+          "Forbidden: Only Super Admin, Regional Managers, and Store Managers can verify payments.",
+      },
+      { status: 403, headers },
     );
   }
 
   const { id } = await params;
   const body = await req.json().catch(() => ({}));
-  const adminRemarks = body.remarks?.trim() || "Bank transfer credit verified in Prayog India SBI Account.";
+  const adminRemarks =
+    body.remarks?.trim() ||
+    "Bank transfer credit verified in Prayog India SBI Account.";
 
   if (!process.env.DATABASE_URL) {
     return NextResponse.json(
@@ -66,7 +72,7 @@ export async function POST(
         message: "Payment verified successfully (Mock Mode).",
         data: { paymentId: id, status: "PAID", verifiedBy: staff.name },
       },
-      { headers }
+      { headers },
     );
   }
 
@@ -87,7 +93,7 @@ export async function POST(
     if (!payment) {
       return NextResponse.json(
         { success: false, message: "Payment record not found." },
-        { status: 404, headers }
+        { status: 404, headers },
       );
     }
 
@@ -97,7 +103,7 @@ export async function POST(
           success: false,
           message: `Payment is already verified and marked as PAID on ${payment.verifiedAt?.toLocaleDateString() || "earlier date"}.`,
         },
-        { status: 400, headers }
+        { status: 400, headers },
       );
     }
 
@@ -105,7 +111,7 @@ export async function POST(
     if (!order) {
       return NextResponse.json(
         { success: false, message: "Associated order record not found." },
-        { status: 404, headers }
+        { status: 404, headers },
       );
     }
 
@@ -195,7 +201,10 @@ export async function POST(
                 where: { id: storeInv.id },
                 data: {
                   quantity: qtyAfter,
-                  availableQuantity: Math.max(0, qtyAfter - storeInv.reservedQuantity),
+                  availableQuantity: Math.max(
+                    0,
+                    qtyAfter - storeInv.reservedQuantity,
+                  ),
                 },
               });
 
@@ -217,7 +226,11 @@ export async function POST(
         }
       }
 
-      return { payment: updatedPayment, order: updatedOrder, invoice: invoiceRecord };
+      return {
+        payment: updatedPayment,
+        order: updatedOrder,
+        invoice: invoiceRecord,
+      };
     });
 
     // 5. Reward Loyalty Points Credit
@@ -255,7 +268,12 @@ export async function POST(
         entityType: "Payment",
         entityId: payment.id,
         description: `Staff ${staff.name} (${staff.role}) approved ${payment.method} transfer UTR: ${payment.utrNumber} (₹${payment.amount}) for Order #${order.orderNumber}.`,
-        actor: { id: staff.id, name: staff.name, role: staff.role, email: staff.email },
+        actor: {
+          id: staff.id,
+          name: staff.name,
+          role: staff.role,
+          email: staff.email,
+        },
         previousValue: { status: payment.status },
         newValue: {
           status: "PAID",
@@ -275,13 +293,13 @@ export async function POST(
         message: `Payment for Order #${order.orderNumber} successfully verified and marked as PAID.`,
         data: verificationResult,
       },
-      { headers }
+      { headers },
     );
   } catch (error: any) {
     console.error("[Verify Payment Error]:", error);
     return NextResponse.json(
       { success: false, message: error.message || "Failed to verify payment." },
-      { status: 500, headers }
+      { status: 500, headers },
     );
   }
 }

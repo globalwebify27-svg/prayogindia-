@@ -203,7 +203,9 @@ export default function MediaLibraryPage() {
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   // Direct File Upload with Automatic Image & Video Compression
-  const handleDirectFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleDirectFileUpload = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
@@ -223,7 +225,9 @@ export default function MediaLibraryPage() {
           });
           formData.append("files", comp.file);
           if (comp.savingsPercentage > 0) {
-            setCompressionMessage(`Client compressed: -${comp.savingsPercentage}%. Uploading to Cloudinary CDN...`);
+            setCompressionMessage(
+              `Client compressed: -${comp.savingsPercentage}%. Uploading to Cloudinary CDN...`,
+            );
           }
         } else {
           formData.append("files", file);
@@ -264,7 +268,9 @@ export default function MediaLibraryPage() {
       }
     } catch (err) {
       console.error(err);
-      setCompressionMessage(err instanceof Error ? err.message : "Upload error");
+      setCompressionMessage(
+        err instanceof Error ? err.message : "Upload error",
+      );
     } finally {
       setIsUploading(false);
     }
@@ -952,10 +958,13 @@ export default function MediaLibraryPage() {
                     <UploadCloud className="w-5 h-5" />
                   </div>
                   <div className="font-bold text-slate-800 text-xs">
-                    {isUploading ? "Compressing & Uploading Media..." : "Choose File to Compress & Upload"}
+                    {isUploading
+                      ? "Compressing & Uploading Media..."
+                      : "Choose File to Compress & Upload"}
                   </div>
                   <p className="text-[10px] text-slate-400">
-                    Supports Images (Auto WebP compression), MP4/WebM Videos (Adaptive Bitrate), PDFs &amp; 3D Models
+                    Supports Images (Auto WebP compression), MP4/WebM Videos
+                    (Adaptive Bitrate), PDFs &amp; 3D Models
                   </p>
                 </label>
 

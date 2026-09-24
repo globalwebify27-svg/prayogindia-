@@ -1,40 +1,7 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
 import { db } from "@/lib/db";
-import { AuthSessionUser } from "@/lib/authUtils";
-
-// Simple In-Memory Rate Limiting Tracker to prevent spam abuse
-const rateLimitMap = new Map<string, { count: number; lastReset: number }>();
-const RATE_LIMIT_MAX = 5; // max 5 enquiries per minute per IP/Session
-const RATE_LIMIT_WINDOW = 60 * 1000;
-
-function checkRateLimit(identifier: string): boolean {
-  const now = Date.now();
-  const entry = rateLimitMap.get(identifier);
-
-  if (!entry || now - entry.lastReset > RATE_LIMIT_WINDOW) {
-    rateLimitMap.set(identifier, { count: 1, lastReset: now });
-    return true;
-  }
-
-  if (entry.count >= RATE_LIMIT_MAX) {
-    return false;
-  }
-
-  entry.count += 1;
-  return true;
-}
-
-async function getAuthenticatedUser(): Promise<AuthSessionUser | null> {
-  const cookieStore = await cookies();
-  const sessionCookie = cookieStore.get("prayog_customer_session");
-  if (!sessionCookie?.value) return null;
-  try {
-    return JSON.parse(sessionCookie.value);
-  } catch {
-    return null;
-  }
-}
+import { getAuthenticatedCustomer } from "@/lib/authUtils";
+import { checkRateLimit } from "@/lib/security";
 
 /**
  * POST /api/service-enquiries
@@ -42,14 +9,15 @@ async function getAuthenticatedUser(): Promise<AuthSessionUser | null> {
  */
 export async function POST(request: Request) {
   try {
-    const user = await getAuthenticatedUser();
+    const user = await getAuthenticatedCustomer();
     const body = await request.json().catch(() => ({}));
 
     const { serviceId, serviceName, name, email, phone, message } = body;
 
     // 1. Rate Limiting Check
     const ipIdentifier = user?.id || email || "anonymous-ip";
-    if (!checkRateLimit(ipIdentifier)) {
+    const rateLimit = checkRateLimit(`enquiry:${ipIdentifier}`, 5, 60000);
+    if (!rateLimit.allowed) {
       return NextResponse.json(
         {
           success: false,
@@ -176,7 +144,7 @@ export async function POST(request: Request) {
  * Retrieve authenticated customer's own service enquiries with Customer Isolation.
  */
 export async function GET() {
-  const user = await getAuthenticatedUser();
+  const user = await getAuthenticatedCustomer();
   if (!user) {
     return NextResponse.json(
       { success: false, message: "Unauthenticated" },

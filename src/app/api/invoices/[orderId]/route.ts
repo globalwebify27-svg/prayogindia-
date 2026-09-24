@@ -1,19 +1,7 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
 import { db } from "@/lib/db";
-import { AuthSessionUser } from "@/lib/authUtils";
+import { getAuthenticatedCustomer } from "@/lib/authUtils";
 import { getSecurityHeaders } from "@/lib/security";
-
-async function getAuthenticatedUser(): Promise<AuthSessionUser | null> {
-  const cookieStore = await cookies();
-  const sessionCookie = cookieStore.get("prayog_customer_session");
-  if (!sessionCookie?.value) return null;
-  try {
-    return JSON.parse(sessionCookie.value);
-  } catch {
-    return null;
-  }
-}
 
 /**
  * GET /api/invoices/[orderId]
@@ -26,7 +14,7 @@ export async function GET(
   { params }: { params: Promise<{ orderId: string }> },
 ) {
   const headers = getSecurityHeaders();
-  const user = await getAuthenticatedUser();
+  const user = await getAuthenticatedCustomer();
   if (!user) {
     return NextResponse.json(
       { success: false, message: "Unauthenticated" },
@@ -55,10 +43,7 @@ export async function GET(
     // Fetch invoice with customer isolation
     const invoice = await db.invoice.findFirst({
       where: {
-        OR: [
-          { orderId },
-          { order: { orderNumber: orderId } },
-        ],
+        OR: [{ orderId }, { order: { orderNumber: orderId } }],
         userId: user.id, // STRICT: only own invoice
       },
     });
@@ -73,7 +58,9 @@ export async function GET(
           userId: user.id,
         },
         include: {
-          items: { include: { product: { include: { images: true } }, variant: true } },
+          items: {
+            include: { product: { include: { images: true } }, variant: true },
+          },
           user: true,
           payment: true,
         },

@@ -1,22 +1,12 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
 import { db } from "@/lib/db";
-import { AuthSessionUser } from "@/lib/authUtils";
+import { getAuthenticatedCustomer } from "@/lib/authUtils";
 import { NotificationService } from "@/lib/notifications";
 import { getSecurityHeaders } from "@/lib/security";
 import { OrderStatus } from "@prisma/client";
 import { LoyaltyEngine } from "@/lib/loyaltyEngine";
 
-async function getAuthenticatedUser(): Promise<AuthSessionUser | null> {
-  const cookieStore = await cookies();
-  const sessionCookie = cookieStore.get("prayog_customer_session");
-  if (!sessionCookie?.value) return null;
-  try {
-    return JSON.parse(sessionCookie.value);
-  } catch {
-    return null;
-  }
-}
+const getAuthenticatedUser = getAuthenticatedCustomer;
 
 /** Statuses that are cancellable by the customer */
 const CANCELLABLE_STATUSES: OrderStatus[] = [
@@ -172,7 +162,12 @@ export async function POST(
 
     // 4c. Authoritative Loyalty Engine Reversal: revokes earned coins & restores redeemed coins
     try {
-      await LoyaltyEngine.reverseOrderPoints(order.id, "Customer cancellation", user, request);
+      await LoyaltyEngine.reverseOrderPoints(
+        order.id,
+        "Customer cancellation",
+        user,
+        request,
+      );
     } catch (loyaltyErr) {
       console.error("[OrderCancel] Loyalty reversal error:", loyaltyErr);
     }

@@ -118,14 +118,19 @@ export default function AdminDashboardPage() {
           </div>
           <div className="mt-2">
             <div className="text-xl font-black text-slate-900">
-              {stats.totalProducts !== undefined ? stats.totalProducts.toLocaleString("en-IN") : "24,832"}{" "}
+              {stats.totalProducts !== undefined
+                ? stats.totalProducts.toLocaleString("en-IN")
+                : "24,832"}{" "}
               <span className="text-xs font-semibold text-slate-500">
                 Products
               </span>
             </div>
             <div className="flex items-center justify-between mt-1 text-[11px]">
               <span className="text-emerald-600 font-bold flex items-center gap-0.5">
-                <TrendingUp className="w-3 h-3" /> {stats.activeProducts !== undefined ? `${stats.activeProducts} Active` : "8.4% vs last week"}
+                <TrendingUp className="w-3 h-3" />{" "}
+                {stats.activeProducts !== undefined
+                  ? `${stats.activeProducts} Active`
+                  : "8.4% vs last week"}
               </span>
               <svg
                 className="w-16 h-5 text-emerald-500"
@@ -152,7 +157,9 @@ export default function AdminDashboardPage() {
           </div>
           <div className="mt-2">
             <div className="text-xl font-black text-slate-900">
-              {stats.lowStockProducts !== undefined ? stats.lowStockProducts : 128}{" "}
+              {stats.lowStockProducts !== undefined
+                ? stats.lowStockProducts
+                : 128}{" "}
               <span className="text-xs font-semibold text-slate-500">
                 Items
               </span>
@@ -175,7 +182,9 @@ export default function AdminDashboardPage() {
           </div>
           <div className="mt-2">
             <div className="text-xl font-black text-slate-900">
-              {stats.openSupportTickets !== undefined ? stats.openSupportTickets : 24}
+              {stats.openSupportTickets !== undefined
+                ? stats.openSupportTickets
+                : 24}
             </div>
             <div className="mt-1 text-[11px] text-emerald-600 font-bold flex items-center gap-0.5">
               <TrendingUp className="w-3 h-3" /> Live Customer Tickets
@@ -198,7 +207,10 @@ export default function AdminDashboardPage() {
               {stats.totalOrders !== undefined ? stats.totalOrders : 56}
             </div>
             <div className="mt-1 text-[11px] text-emerald-600 font-bold flex items-center gap-0.5">
-              <CheckCircle2 className="w-3 h-3" /> {stats.totalCustomers !== undefined ? `${stats.totalCustomers} Customers` : "Active Operations"}
+              <CheckCircle2 className="w-3 h-3" />{" "}
+              {stats.totalCustomers !== undefined
+                ? `${stats.totalCustomers} Customers`
+                : "Active Operations"}
             </div>
           </div>
         </div>

@@ -172,10 +172,14 @@ export function saveSession(session: WalkInSession): void {
   inMemorySessions = all.slice(0, 100);
 }
 
-export async function fetchStoreSessionsFromServer(storeId: StoreId): Promise<WalkInSession[]> {
+export async function fetchStoreSessionsFromServer(
+  storeId: StoreId,
+): Promise<WalkInSession[]> {
   if (typeof window === "undefined") return [];
   try {
-    const res = await fetch(`/api/pos/sessions?storeId=${encodeURIComponent(storeId)}`);
+    const res = await fetch(
+      `/api/pos/sessions?storeId=${encodeURIComponent(storeId)}`,
+    );
     const data = await res.json();
     if (data?.success && Array.isArray(data.sessions)) {
       setAllSessions(data.sessions);
@@ -187,7 +191,10 @@ export async function fetchStoreSessionsFromServer(storeId: StoreId): Promise<Wa
   return inMemorySessions.filter((s) => s.storeId === storeId);
 }
 
-export async function syncSessionToServer(storeId: StoreId, session: WalkInSession): Promise<boolean> {
+export async function syncSessionToServer(
+  storeId: StoreId,
+  session: WalkInSession,
+): Promise<boolean> {
   saveSession(session);
   if (typeof window === "undefined") return true;
   try {

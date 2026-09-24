@@ -6,32 +6,56 @@ import { getSecurityHeaders } from "@/lib/security";
 // POST /api/admin/crm/companies/[id]/contacts — Add a new contact to a B2B company
 export async function POST(
   request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const headers = getSecurityHeaders();
   const staff = await getAuthenticatedStaff();
 
-  if (!staff || (staff.role !== "SUPER_ADMIN" && staff.role !== "REGIONAL_MANAGER" && staff.role !== "STORE_MANAGER")) {
-    return NextResponse.json({ success: false, message: "Forbidden" }, { status: 403, headers });
+  if (
+    !staff ||
+    (staff.role !== "SUPER_ADMIN" &&
+      staff.role !== "REGIONAL_MANAGER" &&
+      staff.role !== "STORE_MANAGER")
+  ) {
+    return NextResponse.json(
+      { success: false, message: "Forbidden" },
+      { status: 403, headers },
+    );
   }
 
   const { id: companyId } = await params;
 
   try {
     const body = await request.json();
-    const { name, designation, phone, email, contactType = "PURCHASE", isPrimary = false, notes } = body;
+    const {
+      name,
+      designation,
+      phone,
+      email,
+      contactType = "PURCHASE",
+      isPrimary = false,
+      notes,
+    } = body;
 
     if (!name || !phone) {
       return NextResponse.json(
-        { success: false, message: "Contact name and phone number are required." },
-        { status: 400, headers }
+        {
+          success: false,
+          message: "Contact name and phone number are required.",
+        },
+        { status: 400, headers },
       );
     }
 
     if (process.env.DATABASE_URL) {
-      const company = await db.b2BCompany.findUnique({ where: { id: companyId } });
+      const company = await db.b2BCompany.findUnique({
+        where: { id: companyId },
+      });
       if (!company) {
-        return NextResponse.json({ success: false, message: "Company not found" }, { status: 404, headers });
+        return NextResponse.json(
+          { success: false, message: "Company not found" },
+          { status: 404, headers },
+        );
       }
 
       // If marking as primary, demote other primary contacts
@@ -67,15 +91,24 @@ export async function POST(
         },
       });
 
-      return NextResponse.json({
-        success: true,
-        message: `Contact "${name}" added successfully.`,
-        data: contact,
-      }, { status: 201, headers });
+      return NextResponse.json(
+        {
+          success: true,
+          message: `Contact "${name}" added successfully.`,
+          data: contact,
+        },
+        { status: 201, headers },
+      );
     }
 
-    return NextResponse.json({ success: true, message: "Contact added (Mock Mode)" }, { headers });
+    return NextResponse.json(
+      { success: true, message: "Contact added (Mock Mode)" },
+      { headers },
+    );
   } catch (error: any) {
-    return NextResponse.json({ success: false, message: error.message }, { status: 500, headers });
+    return NextResponse.json(
+      { success: false, message: error.message },
+      { status: 500, headers },
+    );
   }
 }

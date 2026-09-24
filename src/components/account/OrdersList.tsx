@@ -64,14 +64,16 @@ export const OrdersList: React.FC = () => {
               status: formatStatus(o.status),
               itemsCount: o.items?.length || 1,
               shippingAddress: o.shippingAddress,
-              items: o.items?.map((item: any) => ({
-                id: item.productId,
-                name: item.productName,
-                sku: item.productSku,
-                quantity: item.quantity,
-                price: item.price,
-                image: item.product?.images?.[0]?.imageUrl || "/placeholder.png",
-              })) || [],
+              items:
+                o.items?.map((item: any) => ({
+                  id: item.productId,
+                  name: item.productName,
+                  sku: item.productSku,
+                  quantity: item.quantity,
+                  price: item.price,
+                  image:
+                    item.product?.images?.[0]?.imageUrl || "/placeholder.png",
+                })) || [],
             }));
             setOrders(mapped);
           }

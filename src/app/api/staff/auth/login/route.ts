@@ -9,6 +9,7 @@ import {
 } from "@/lib/staffAuth";
 import { checkRateLimit, getSecurityHeaders } from "@/lib/security";
 import { StaffRole } from "@prisma/client";
+import { signSessionToken } from "@/lib/jwt";
 
 export async function POST(request: Request) {
   const headers = getSecurityHeaders();
@@ -188,9 +189,18 @@ export async function POST(request: Request) {
           ? 60 * 60 * 10
           : 60 * 60 * 12;
 
+    const sessionJwt = await signSessionToken(
+      sessionPayload,
+      sessionPayload.role === "KIOSK_USER"
+        ? "24h"
+        : sessionPayload.role === "STORE_MANAGER"
+          ? "10h"
+          : "12h",
+    );
+
     response.cookies.set({
       name: AUTH_STAFF_COOKIE_NAME,
-      value: JSON.stringify(sessionPayload),
+      value: sessionJwt,
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
