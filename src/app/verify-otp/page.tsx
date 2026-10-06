@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { Metadata } from "next";
 import { OtpVerificationForm } from "@/components/auth/OtpVerificationForm";
 
@@ -9,7 +10,15 @@ export const metadata: Metadata = {
 export default function VerifyOtpPage() {
   return (
     <div className="py-8">
-      <OtpVerificationForm />
+      <Suspense
+        fallback={
+          <div className="max-w-md mx-auto py-20 text-center text-xs text-slate-400">
+            Loading verification portal...
+          </div>
+        }
+      >
+        <OtpVerificationForm />
+      </Suspense>
     </div>
   );
 }

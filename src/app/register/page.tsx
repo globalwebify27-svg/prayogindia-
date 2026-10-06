@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { Metadata } from "next";
 import { RegisterForm } from "@/components/auth/RegisterForm";
 
@@ -8,5 +9,15 @@ export const metadata: Metadata = {
 };
 
 export default function RegisterPage() {
-  return <RegisterForm />;
+  return (
+    <Suspense
+      fallback={
+        <div className="max-w-md mx-auto py-20 text-center text-xs text-slate-400">
+          Loading registration portal...
+        </div>
+      }
+    >
+      <RegisterForm />
+    </Suspense>
+  );
 }
