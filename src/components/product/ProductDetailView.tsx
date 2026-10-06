@@ -1,14 +1,12 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { CategoryBreadcrumb } from "@/components/categories/CategoryBreadcrumb";
 import { ProductGallery } from "@/components/product/ProductGallery";
 import { ProductInformation } from "@/components/product/ProductInformation";
-import { ProductDetailsAccordion } from "@/components/product/ProductDetailsAccordion";
-import { ProductDocuments } from "@/components/product/ProductDocuments";
-import { ProductReviewsSection } from "@/components/product/ProductReviewsSection";
+import { ProductTabsSection } from "@/components/product/ProductTabsSection";
 import { ProductRecommendations } from "@/components/product/ProductRecommendations";
 import { PRODUCTS, Product, ProductVariant } from "@/data/mockData";
 import { useStore } from "@/context/StoreContext";
@@ -16,42 +14,12 @@ import {
   ShoppingBag,
   ArrowLeft,
   PackageSearch,
-  BookOpen,
-  List,
-  Star,
-  Package,
-  Boxes,
-  Link2,
 } from "lucide-react";
 
 interface ProductDetailViewProps {
   slug: string;
   initialProduct?: Product | null;
 }
-
-// ── Section anchor tab types
-type SectionTab = "overview" | "specs" | "documents" | "reviews" | "related";
-
-const SECTION_TABS: { id: SectionTab; label: string; icon: React.ReactNode }[] =
-  [
-    {
-      id: "overview",
-      label: "Overview",
-      icon: <BookOpen className="w-3.5 h-3.5" />,
-    },
-    { id: "specs", label: "Specs", icon: <List className="w-3.5 h-3.5" /> },
-    {
-      id: "documents",
-      label: "Downloads",
-      icon: <Package className="w-3.5 h-3.5" />,
-    },
-    { id: "reviews", label: "Reviews", icon: <Star className="w-3.5 h-3.5" /> },
-    {
-      id: "related",
-      label: "Related",
-      icon: <Link2 className="w-3.5 h-3.5" />,
-    },
-  ];
 
 export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
   slug,
@@ -80,15 +48,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
     addToCart: storeAddToCart,
     toggleWishlist: storeToggleWishlist,
   } = useStore();
-  const [activeSection, setActiveSection] = useState<SectionTab>("overview");
   const [stickyBarVisible, setStickyBarVisible] = useState(false);
-
-  // Refs for each section scroll target
-  const overviewRef = useRef<HTMLDivElement>(null);
-  const specsRef = useRef<HTMLDivElement>(null);
-  const documentsRef = useRef<HTMLDivElement>(null);
-  const reviewsRef = useRef<HTMLDivElement>(null);
-  const relatedRef = useRef<HTMLDivElement>(null);
 
   // Sticky bar visibility on scroll
   useEffect(() => {
@@ -97,18 +57,35 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // ── Derived data
+  // ── Derived data (Ensure 4-5 images per product)
   const galleryImages = React.useMemo(() => {
     if (!product) return [];
-    if (product.images && product.images.length > 0) {
+    if (product.images && product.images.length >= 4) {
       return product.images;
     }
-    if (product.image) {
-      return [product.image];
-    }
-    return [
-      "https://images.unsplash.com/photo-1553406830-ef2513450d76?auto=format&fit=crop&w=800&q=80",
+    
+    const baseImages = product.images && product.images.length > 0
+      ? [...product.images]
+      : product.image
+        ? [product.image]
+        : ["/images/products/arduino-uno-r3.png"];
+
+    const hardwareExtras = [
+      "/images/products/arduino-uno-r3.png",
+      "/images/products/ultrasonic-sensor-hcsr04.png",
+      "/images/products/tt-gear-motor-wheel.png",
+      "/images/products/l298n-motor-driver.jpg",
+      "/images/products/4wd-robot-chassis-kit.jpg",
     ];
+
+    for (const extra of hardwareExtras) {
+      if (baseImages.length >= 5) break;
+      if (!baseImages.includes(extra)) {
+        baseImages.push(extra);
+      }
+    }
+
+    return baseImages;
   }, [product]);
 
   if (isInvalidSlug || !product) {
@@ -202,24 +179,6 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
       : []),
   ];
 
-  const scrollToSection = (section: SectionTab) => {
-    setActiveSection(section);
-    const refMap: Record<SectionTab, React.RefObject<HTMLDivElement | null>> = {
-      overview: overviewRef,
-      specs: specsRef,
-      documents: documentsRef,
-      reviews: reviewsRef,
-      related: relatedRef,
-    };
-    const ref = refMap[section];
-    if (ref.current) {
-      const offset = 100;
-      const top =
-        ref.current.getBoundingClientRect().top + window.scrollY - offset;
-      window.scrollTo({ top, behavior: "smooth" });
-    }
-  };
-
   const router = useRouter();
   const handleToggleWishlist = (prod: Product) => {
     storeToggleWishlist(prod);
@@ -237,7 +196,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
   const isProductWishlisted = wishlist.some((p) => p.id === product.id);
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-10 animate-in fade-in duration-300 pb-24 lg:pb-6">
+    <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-8 sm:space-y-10 animate-in fade-in duration-300 pb-32 sm:pb-24 lg:pb-6">
       {/* ── Breadcrumb ── */}
       <CategoryBreadcrumb
         items={[
@@ -258,31 +217,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
         ]}
       />
 
-      {/* ── Sticky Section Tab Bar ── */}
-      <div
-        className={`sticky top-16 z-30 bg-white/95 backdrop-blur-md border-b border-slate-200 transition-all duration-300 rounded-xl px-2 sm:px-4 ${
-          stickyBarVisible ? "shadow-md" : ""
-        }`}
-      >
-        <div className="flex items-center gap-1 overflow-x-auto scrollbar-none py-2">
-          {SECTION_TABS.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => scrollToSection(tab.id)}
-              className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-[11px] font-extrabold transition-all cursor-pointer whitespace-nowrap ${
-                activeSection === tab.id
-                  ? "bg-[#00AEEF] text-white shadow-sm shadow-[#00AEEF]/20"
-                  : "text-slate-600 hover:bg-slate-100"
-              }`}
-            >
-              {tab.icon}
-              {tab.label}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* ── 2-Column Top Section: Gallery + Info ── */}
+      {/* ── 2-Column Top Section: Gallery + Info (Matching Reference Layout) ── */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 xl:gap-12 items-start">
         {/* Left — Gallery (sticky on desktop) */}
         <div className="lg:col-span-6 lg:sticky lg:top-28">
@@ -308,62 +243,39 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
         </div>
       </div>
 
-      {/* ── Section: Overview (Description, Features, Applications, What's Included) ── */}
-      <div ref={overviewRef}>
-        <ProductDetailsAccordion
-          description={product.description}
-          features={product.features}
-          applications={product.applications}
-          whatsIncluded={product.whatsIncluded}
-          specs={product.specs}
-          specsRef={specsRef}
-        />
-      </div>
+      {/* ── Lower Section: Horizontal Tabs Container (Overview, Specs, Box, Compatibility, Reviews, FAQ) ── */}
+      <ProductTabsSection product={product} />
 
-      {/* ── Section: Downloads / Documents ── */}
-      <div ref={documentsRef}>
-        <ProductDocuments documents={product.documents} />
-      </div>
-
-      {/* ── Section: Customer Reviews ── */}
-      <div ref={reviewsRef}>
-        <ProductReviewsSection
-          rating={product.rating}
-          reviewsCount={product.reviews}
-          reviewItems={product.reviewItems}
-        />
-      </div>
-
-      {/* ── Section: All Recommendation Groups (tabbed) ── */}
-      <div ref={relatedRef}>
-        {recoGroups.length > 0 && (
+      {/* ── Section: Recommendations & Related Products ── */}
+      {recoGroups.length > 0 && (
+        <div className="pt-4">
           <ProductRecommendations groups={recoGroups} />
-        )}
-      </div>
+        </div>
+      )}
 
-      {/* ── Mobile Sticky Bottom Action Bar (Only shows when user scrolls past top buttons) ── */}
+      {/* ── Mobile Sticky Bottom Action Bar ── */}
       {stickyBarVisible && (
-        <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200 px-4 py-3 flex items-center gap-3 shadow-2xl animate-in slide-in-from-bottom-5 duration-200">
-          <div className="shrink-0">
+        <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200 px-3 sm:px-4 py-2.5 sm:py-3 flex items-center gap-2 sm:gap-3 shadow-[0_-4px_20px_rgba(0,0,0,0.08)] animate-in slide-in-from-bottom-5 duration-200">
+          <div className="shrink-0 min-w-[58px]">
             <span className="text-[10px] text-slate-400 font-bold block leading-none mb-0.5">
               Price
             </span>
-            <span className="text-sm font-black text-slate-900 leading-tight">
+            <span className="text-xs sm:text-sm font-black text-slate-900 leading-tight">
               ₹{currentPrice.toLocaleString("en-IN")}
             </span>
           </div>
 
           <button
             onClick={() => handleAddToCart(product, 1)}
-            className="flex-1 bg-[#00AEEF] hover:bg-[#0096D6] text-white py-2.5 rounded-xl font-extrabold text-[11px] uppercase tracking-wider flex items-center justify-center gap-1.5 shadow-md active:scale-95 transition-all cursor-pointer"
+            className="flex-1 bg-[#00AEEF] hover:bg-[#0096D6] text-white py-2.5 px-2 rounded-xl font-extrabold text-[10px] sm:text-[11px] uppercase tracking-wider flex items-center justify-center gap-1 shadow-xs active:scale-95 transition-all cursor-pointer whitespace-nowrap"
           >
-            <ShoppingBag className="w-3.5 h-3.5" />
+            <ShoppingBag className="w-3.5 h-3.5 shrink-0" />
             <span>Add to Cart</span>
           </button>
 
           <button
             onClick={() => handleBuyNow(product, 1)}
-            className="flex-1 bg-slate-900 hover:bg-slate-800 text-white py-2.5 rounded-xl font-extrabold text-[11px] uppercase tracking-wider flex items-center justify-center gap-1.5 shadow-md active:scale-95 transition-all cursor-pointer"
+            className="flex-1 bg-[#0A1128] hover:bg-slate-800 text-white py-2.5 px-2 rounded-xl font-extrabold text-[10px] sm:text-[11px] uppercase tracking-wider flex items-center justify-center gap-1 shadow-xs active:scale-95 transition-all cursor-pointer whitespace-nowrap"
           >
             <span>Buy Now</span>
           </button>

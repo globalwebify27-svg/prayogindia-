@@ -65,6 +65,7 @@ export const CheckoutView: React.FC = () => {
   const [otpVerifying, setOtpVerifying] = useState(false);
   const [otpMessage, setOtpMessage] = useState<string | null>(null);
   const [otpError, setOtpError] = useState<string | null>(null);
+  const [checkoutReceivedOtp, setCheckoutReceivedOtp] = useState<string | null>(null);
   const [validationError, setValidationError] = useState<string | null>(null);
 
   // Sync with logged in user state
@@ -110,6 +111,7 @@ export const CheckoutView: React.FC = () => {
       const data = await res.json();
       if (data.success) {
         setOtpMessage(data.message || `OTP sent to +91 ${customerMobile}`);
+        if (data.otp) setCheckoutReceivedOtp(data.otp);
         setShowOtpModal(true);
       } else {
         setOtpError(data.message || "Failed to send OTP.");
@@ -993,6 +995,26 @@ export const CheckoutView: React.FC = () => {
                   {otpMessage && (
                     <div className="bg-[#E0F7FC] text-[#00AEEF] text-xs font-bold p-3 rounded-xl border border-[#00AEEF]/20">
                       {otpMessage}
+                    </div>
+                  )}
+
+                  {checkoutReceivedOtp && (
+                    <div className="p-3 bg-emerald-50 border-2 border-emerald-300 rounded-xl flex items-center justify-between gap-2">
+                      <div>
+                        <span className="text-[9px] font-black uppercase text-emerald-800 block">
+                          Screen OTP Code:
+                        </span>
+                        <span className="text-base font-mono font-black text-emerald-950 tracking-wider">
+                          {checkoutReceivedOtp}
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setCheckoutOtp(checkoutReceivedOtp)}
+                        className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[11px] rounded-lg transition-all"
+                      >
+                        Auto-Fill
+                      </button>
                     </div>
                   )}
 

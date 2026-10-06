@@ -31,6 +31,8 @@ export const LoginForm: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
 
+  const targetRedirect = searchParams.get("redirect") || "/account";
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -73,7 +75,7 @@ export const LoginForm: React.FC = () => {
           customerType: "Registered Customer",
           rewardPoints: 1250,
         });
-        router.push("/account");
+        router.push(targetRedirect);
       }
     } catch (err: any) {
       setError("Authentication server error. Please try again.");
@@ -111,7 +113,7 @@ export const LoginForm: React.FC = () => {
           customerType: data.user.customerType || "Registered Customer",
           rewardPoints: data.user.rewardPoints || 500,
         });
-        router.push("/account");
+        router.push(targetRedirect);
       } else {
         setError(data.message || "Failed to authenticate with Google.");
       }
@@ -195,7 +197,7 @@ export const LoginForm: React.FC = () => {
           {/* Forgot Password Link */}
           <div className="flex justify-end pt-1">
             <Link
-              href="/forgot-password"
+              href={targetRedirect !== "/account" ? `/forgot-password?redirect=${encodeURIComponent(targetRedirect)}` : "/forgot-password"}
               className="text-xs font-semibold text-[#00AEEF] hover:text-[#0096D6] transition-colors"
             >
               Forgot Password?
@@ -218,7 +220,7 @@ export const LoginForm: React.FC = () => {
         <div className="mt-8 text-left text-xs font-medium text-slate-600">
           Don&apos;t have an account?{" "}
           <Link
-            href="/register"
+            href={targetRedirect !== "/account" ? `/register?redirect=${encodeURIComponent(targetRedirect)}` : "/register"}
             className="text-[#00AEEF] font-bold hover:text-[#0096D6] hover:underline transition-colors"
           >
             Register
@@ -255,7 +257,7 @@ export const LoginForm: React.FC = () => {
             </button>
 
             <Link
-              href="/verify-otp"
+              href={targetRedirect !== "/account" ? `/verify-otp?redirect=${encodeURIComponent(targetRedirect)}` : "/verify-otp"}
               className="w-full bg-[#E0F7FC] hover:bg-[#B3EBF9] text-[#00AEEF] border border-[#00AEEF]/20 py-2.5 px-3 rounded-xl font-semibold text-xs flex items-center justify-center gap-1.5 transition-all text-center"
             >
               <Smartphone className="w-4 h-4 text-[#00AEEF]" />

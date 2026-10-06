@@ -24,23 +24,28 @@ export async function POST(request: Request) {
       );
     }
 
-    if (action === "send") {
-      // Generate dynamic random 6-digit OTP code (100000 - 999999)
-      const generatedOtp = Math.floor(
-        100000 + Math.random() * 900000,
-      ).toString();
+    if (action === "send" || action === "get-otp") {
+      // Check if existing valid OTP exists, or generate new one
+      const existing = OTP_STORE.get(cleanPhone);
+      let generatedOtp =
+        action === "get-otp" && existing && existing.expiresAt > Date.now()
+          ? existing.code
+          : Math.floor(100000 + Math.random() * 900000).toString();
 
       OTP_STORE.set(cleanPhone, {
         code: generatedOtp,
         expiresAt: Date.now() + 10 * 60 * 1000, // 10 minutes validity
       });
 
-      // Dispatch SMS to customer phone
-      await sendSMS(cleanPhone, generatedOtp);
+      if (action === "send") {
+        // Dispatch SMS to customer phone
+        await sendSMS(cleanPhone, generatedOtp);
+      }
 
       return NextResponse.json({
         success: true,
-        message: `OTP sent successfully to +91 ${cleanPhone}. Please check your phone SMS messages.`,
+        message: `OTP sent successfully to +91 ${cleanPhone}.`,
+        otp: generatedOtp,
       });
     }
 

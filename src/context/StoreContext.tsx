@@ -71,6 +71,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({
   const [user, setUser] = useState<CustomerUser | null>(null);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [wishlist, setWishlist] = useState<Product[]>([]);
+  const [isHydrated, setIsHydrated] = useState(false);
   const [cartNotification, setCartNotification] = useState<{
     id: string;
     product: Product;
@@ -91,6 +92,46 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({
   const dismissToast = () => {
     setToast(null);
   };
+
+  // Hydrate cart and wishlist from localStorage on client mount
+  useEffect(() => {
+    try {
+      const savedCart = localStorage.getItem("prayog_cart");
+      if (savedCart) {
+        const parsed = JSON.parse(savedCart);
+        if (Array.isArray(parsed)) setCart(parsed);
+      }
+      const savedWishlist = localStorage.getItem("prayog_wishlist");
+      if (savedWishlist) {
+        const parsed = JSON.parse(savedWishlist);
+        if (Array.isArray(parsed)) setWishlist(parsed);
+      }
+    } catch (e) {
+      console.error("Error loading cart/wishlist from localStorage", e);
+    } finally {
+      setIsHydrated(true);
+    }
+  }, []);
+
+  // Persist cart changes to localStorage
+  useEffect(() => {
+    if (!isHydrated) return;
+    try {
+      localStorage.setItem("prayog_cart", JSON.stringify(cart));
+    } catch (e) {
+      console.error("Error saving cart to localStorage", e);
+    }
+  }, [cart, isHydrated]);
+
+  // Persist wishlist changes to localStorage
+  useEffect(() => {
+    if (!isHydrated) return;
+    try {
+      localStorage.setItem("prayog_wishlist", JSON.stringify(wishlist));
+    } catch (e) {
+      console.error("Error saving wishlist to localStorage", e);
+    }
+  }, [wishlist, isHydrated]);
 
   // Initialize session from server HTTP cookie
   useEffect(() => {

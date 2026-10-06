@@ -60,6 +60,11 @@ export function getOptimizedImageUrl(
     return publicIdOrUrl;
   }
 
+  // If local static asset in /public (starts with /)
+  if (publicIdOrUrl.startsWith("/")) {
+    return publicIdOrUrl;
+  }
+
   // Clean publicId
   const cleanId = publicIdOrUrl.replace(/^\/+/, "");
   return `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/${transformations}/${cleanId}`;

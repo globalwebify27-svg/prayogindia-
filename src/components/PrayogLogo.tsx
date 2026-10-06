@@ -52,23 +52,6 @@ export const PrayogLogo: React.FC<PrayogLogoProps> = ({
           loading="eager"
         />
       </div>
-
-      {showSubtitle && (
-        <div
-          className={`mt-1 px-2.5 py-0.5 rounded-full border shadow-2xs flex items-center gap-1.5 ${
-            dark
-              ? "bg-slate-900/90 border-slate-700/80 text-slate-300"
-              : "bg-white/95 border-slate-200 text-slate-600"
-          }`}
-        >
-          <span className="font-serif italic text-[9px] sm:text-[10px] font-medium text-slate-400">
-            The World of
-          </span>
-          <span className="font-sans font-black tracking-widest text-[8px] sm:text-[9px] text-[#00AEEF] uppercase">
-            ROBOTICS
-          </span>
-        </div>
-      )}
     </div>
   );
 };

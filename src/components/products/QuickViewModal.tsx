@@ -472,7 +472,6 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({
                 disabled={!isInStock}
                 className="flex items-center justify-center gap-1.5 bg-[#00AEEF] hover:bg-[#0096D6] text-white py-3 rounded-2xl text-xs font-extrabold shadow-md shadow-[#00AEEF]/20 transition-all active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
               >
-                <Zap className="w-3.5 h-3.5" />
                 Buy Now
               </button>
             </div>

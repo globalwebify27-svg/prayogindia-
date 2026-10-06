@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useStore } from "@/context/StoreContext";
 import {
   Eye,
@@ -16,7 +16,9 @@ import { signInWithGoogle } from "@/lib/firebase";
 
 export const RegisterForm: React.FC = () => {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { loginUser } = useStore();
+  const targetRedirect = searchParams.get("redirect") || "/account";
 
   // Step 1: Mobile Number, Step 2: OTP, Email, Password
   const [step, setStep] = useState<1 | 2>(1);
@@ -24,6 +26,7 @@ export const RegisterForm: React.FC = () => {
   // Form Fields
   const [phone, setPhone] = useState("");
   const [otp, setOtp] = useState("");
+  const [receivedOtp, setReceivedOtp] = useState<string | null>(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -73,7 +76,7 @@ export const RegisterForm: React.FC = () => {
           customerType: data.user.customerType || "Registered Customer",
           rewardPoints: data.user.rewardPoints || 500,
         });
-        router.push("/account");
+        router.push(targetRedirect);
       } else {
         setError(data.message || "Failed to register with Google.");
       }
@@ -118,6 +121,7 @@ export const RegisterForm: React.FC = () => {
       }
 
       setInfoMessage(`OTP sent to +91 ${cleanDigits}.`);
+      if (data.otp) setReceivedOtp(data.otp);
       setStep(2);
     } catch (err: any) {
       setError("Failed to send OTP. Please check your network connection.");
@@ -240,7 +244,7 @@ export const RegisterForm: React.FC = () => {
 
       setSuccess(true);
       setTimeout(() => {
-        router.push("/account");
+        router.push(targetRedirect);
       }, 1000);
     } catch (err: any) {
       setError("Registration failed. Please check your details and try again.");
@@ -298,7 +302,7 @@ export const RegisterForm: React.FC = () => {
             <div className="mt-8 text-left text-xs font-medium text-slate-600">
               Already have an account?{" "}
               <Link
-                href="/login"
+                href={targetRedirect !== "/account" ? `/login?redirect=${encodeURIComponent(targetRedirect)}` : "/login"}
                 className="text-[#00AEEF] font-bold hover:text-[#0096D6] hover:underline transition-colors"
               >
                 Login
@@ -393,6 +397,27 @@ export const RegisterForm: React.FC = () => {
                   Change
                 </button>
               </div>
+
+              {/* On-Screen OTP Banner */}
+              {receivedOtp && (
+                <div className="p-3 bg-emerald-50 border-2 border-emerald-300 rounded-xl flex items-center justify-between gap-2">
+                  <div>
+                    <span className="text-[9px] font-black uppercase text-emerald-800 block">
+                      Screen OTP Code:
+                    </span>
+                    <span className="text-base font-mono font-black text-emerald-950 tracking-wider">
+                      {receivedOtp}
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setOtp(receivedOtp)}
+                    className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[11px] rounded-lg transition-all cursor-pointer"
+                  >
+                    Auto-Fill
+                  </button>
+                </div>
+              )}
 
               {/* 2. OTP */}
               <div>
@@ -506,7 +531,7 @@ export const RegisterForm: React.FC = () => {
             <div className="mt-8 text-left text-xs font-medium text-slate-600">
               Already have an account?{" "}
               <Link
-                href="/login"
+                href={targetRedirect !== "/account" ? `/login?redirect=${encodeURIComponent(targetRedirect)}` : "/login"}
                 className="text-[#00AEEF] font-bold hover:text-[#0096D6] hover:underline transition-colors"
               >
                 Login

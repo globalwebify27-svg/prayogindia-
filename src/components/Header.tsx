@@ -556,7 +556,7 @@ export const Header: React.FC<HeaderProps> = ({
 
               {/* Search Input Box */}
               <div className="flex-1 relative flex items-center">
-                <div className="flex items-center overflow-hidden border rounded-full bg-[#EEF2F6] shadow-inner w-full border-[#00AEEF]/60 focus-within:border-[#00AEEF] focus-within:ring-2 focus-within:ring-[#00AEEF]/20 pl-4 pr-1 py-1 transition-all">
+                <div className="flex items-center overflow-hidden border-2 rounded-full bg-white shadow-xs w-full border-[#00AEEF] hover:border-[#0086D6] focus-within:border-[#007AE5] focus-within:ring-2 focus-within:ring-[#00AEEF]/20 pl-4 pr-1 py-1 transition-all">
                   <input
                     type="text"
                     value={searchQuery}
@@ -595,7 +595,7 @@ export const Header: React.FC<HeaderProps> = ({
                         setSearchExpanded(false);
                       }
                     }}
-                    className="bg-[#00AEEF] hover:bg-[#0096D6] text-white w-8 h-8 rounded-full flex items-center justify-center shrink-0 shadow-2xs active:scale-95 cursor-pointer"
+                    className="bg-[#00AEEF] hover:bg-[#0096D6] text-white w-8 h-8 rounded-full flex items-center justify-center shrink-0 shadow-xs active:scale-95 cursor-pointer"
                     aria-label="Search"
                   >
                     <Search className="w-4 h-4 stroke-[2.5]" />
@@ -1055,16 +1055,16 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
 
           {/* Mobile Search & Categories Row */}
-          <div className="sm:hidden mt-2.5 pb-0.5 flex items-center gap-2">
+          <div className="sm:hidden mt-2 pb-0.5 flex items-center gap-1.5">
             {/* Mobile All Categories Dropdown Button Beside Search */}
             <div ref={mobileCategoryMenuRef} className="relative shrink-0">
               <button
                 type="button"
                 onClick={() => setCategoryDropdownOpen(!categoryDropdownOpen)}
-                className="flex items-center gap-1.5 bg-[#00AEEF] hover:bg-[#0096D6] text-white px-3 py-2 rounded-full font-black text-xs shadow-xs cursor-pointer active:scale-95 transition-all"
+                className="flex items-center gap-1 bg-[#00AEEF] hover:bg-[#0096D6] text-white px-2.5 py-2 rounded-full font-extrabold text-[11px] shadow-xs cursor-pointer active:scale-95 transition-all whitespace-nowrap"
                 aria-label="All Categories"
               >
-                <LayoutGrid className="w-3.5 h-3.5" />
+                <LayoutGrid className="w-3.5 h-3.5 shrink-0" />
                 <span>Categories</span>
                 <ChevronDown
                   className={`w-3 h-3 transition-transform duration-200 ${categoryDropdownOpen ? "rotate-180" : ""}`}
@@ -1114,8 +1114,8 @@ export const Header: React.FC<HeaderProps> = ({
             </div>
 
             {/* Search Input Box */}
-            <div className="flex-1 relative flex items-center">
-              <div className="flex items-center overflow-hidden border rounded-full bg-[#EEF2F6] shadow-inner w-full border-[#00AEEF] pl-3.5 pr-1 py-1">
+            <div className="flex-1 min-w-0 relative flex items-center">
+              <div className="flex items-center overflow-hidden border rounded-full bg-[#EEF2F6] shadow-inner w-full border-[#00AEEF] pl-3 pr-1 py-1">
                 <input
                   type="text"
                   value={searchQuery}
@@ -1127,8 +1127,8 @@ export const Header: React.FC<HeaderProps> = ({
                       );
                     }
                   }}
-                  placeholder="Search Raspberry Pi, Arduino..."
-                  className="w-full bg-transparent border-none outline-none text-xs text-slate-800 placeholder-slate-400 font-medium pr-2"
+                  placeholder="Search components..."
+                  className="w-full min-w-0 bg-transparent border-none outline-none text-xs text-slate-800 placeholder-slate-400 font-medium pr-1.5"
                 />
                 <button
                   onClick={() => {
@@ -1137,7 +1137,7 @@ export const Header: React.FC<HeaderProps> = ({
                         `/search?q=${encodeURIComponent(searchQuery.trim())}`,
                       );
                   }}
-                  className="bg-[#00AEEF] text-white w-7.5 h-7.5 rounded-full flex items-center justify-center shrink-0 shadow-2xs"
+                  className="bg-[#00AEEF] text-white w-7 h-7 rounded-full flex items-center justify-center shrink-0 shadow-2xs cursor-pointer"
                 >
                   <Search className="w-3.5 h-3.5 stroke-[2.5]" />
                 </button>

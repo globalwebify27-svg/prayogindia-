@@ -219,12 +219,13 @@ export const PRODUCTS: Product[] = [
     reviews: 342,
     inStock: true,
     badge: "BESTSELLER",
-    image:
-      "https://images.unsplash.com/photo-1553406830-ef2513450d76?auto=format&fit=crop&w=800&q=80",
+    image: "/images/products/arduino-uno-r3.png",
     images: [
-      "https://images.unsplash.com/photo-1553406830-ef2513450d76?auto=format&fit=crop&w=800&q=80",
-      "https://images.unsplash.com/photo-1608564697071-ddf911d81370?auto=format&fit=crop&w=800&q=80",
-      "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=80",
+      "/images/products/arduino-uno-r3.png",
+      "/images/products/ultrasonic-sensor-hcsr04.png",
+      "/images/products/tt-gear-motor-wheel.png",
+      "/images/products/l298n-motor-driver.jpg",
+      "/images/products/4wd-robot-chassis-kit.jpg",
     ],
     videoUrl: "https://www.w3schools.com/html/mov_bbb.mp4",
     description:
@@ -804,9 +805,12 @@ export const PRODUCTS: Product[] = [
   // ==========================================
   {
     id: "prayog-stem-robot-kit",
+    slug: "prayog-stem-robot-kit",
     name: "PRAYOG Dilay-Bot 4WD Autonomous Robotics Learning Kit",
     sku: "PRG-KIT-100",
+    brand: "PRAYOG INDIA",
     category: "Robotics & DIY Kits",
+    subcategory: "Autonomous Robots",
     price: 4999,
     mrp: 6999,
     discount: "28% OFF",
@@ -814,15 +818,39 @@ export const PRODUCTS: Product[] = [
     reviews: 215,
     inStock: true,
     badge: "FLAGSHIP KIT",
-    image:
-      "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&w=600&q=80",
+    image: "/images/products/arduino-uno-r3.png",
+    images: [
+      "/images/products/arduino-uno-r3.png",
+      "/images/products/ultrasonic-sensor-hcsr04.png",
+      "/images/products/tt-gear-motor-wheel.png",
+      "/images/products/l298n-motor-driver.jpg",
+      "/images/products/4wd-robot-chassis-kit.jpg",
+    ],
     description:
       "Complete hands-on robotics kit including metal chassis, ultrasonic line follower, Bluetooth app control & code tutorials.",
+    features: [
+      "Includes ATmega328P based microcontroller board with rich I/O ports.",
+      "Dual HC-SR04 ultrasonic echo ranging sensors for autonomous obstacle avoidance.",
+      "4x High-torque TT DC gear motors with non-slip high traction rubber wheels.",
+      "L298N motor driver module with dual H-Bridge PWM speed regulation.",
+      "Bluetooth HC-05 integration for Android and iOS mobile app control.",
+    ],
+    whatsIncluded: [
+      "1 x Microcontroller Board with USB Cable",
+      "1 x HC-SR04 Ultrasonic Sensor Module",
+      "4 x TT Gear Motors with High-Traction Wheels",
+      "1 x 4WD Robotic Chassis with Acrylic Plates & Screws",
+      "1 x Dual H-Bridge Motor Driver Board",
+      "1 x 18650 Battery Holder & Jumper Wires Kit",
+    ],
     specs: {
-      Motors: "4x Metal Gear TT Motors",
-      Control: "Arduino Compatible",
-      Battery: "Rechargeable 18650",
-      App: "Android & iOS",
+      "Microcontroller": "Arduino Compatible ATmega328P",
+      "Chassis Type": "4WD Metal/Acrylic Hybrid",
+      "Motors": "4x 3-6V TT DC Gear Motors",
+      "Sensors": "HC-SR04 Ultrasonic Distance Sensor",
+      "Wheel Diameter": "65mm High-Traction Rubber",
+      "Connectivity": "Bluetooth HC-05 + Serial UART",
+      "Power Input": "7.4V - 11.1V Li-ion / 18650",
     },
   },
   {
@@ -1262,8 +1290,11 @@ export const PRODUCTS: Product[] = [
     rating: 4.6,
     reviews: 890,
     inStock: true,
-    image:
-      "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=600&q=80",
+    image: "/images/products/ultrasonic-sensor-hcsr04.png",
+    images: [
+      "/images/products/ultrasonic-sensor-hcsr04.png",
+      "/images/products/arduino-uno-r3.png",
+    ],
     description:
       "Calibrated digital signal output temperature and humidity sensor module.",
     specs: { Humidity: "20-90% RH", Temp: "0-50°C", Voltage: "3.3V-5V" },

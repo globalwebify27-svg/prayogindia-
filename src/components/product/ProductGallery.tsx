@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useCallback } from "react";
+import React, { useState, useRef } from "react";
 import Image from "next/image";
 import {
   getOptimizedImageUrl,
@@ -8,16 +8,10 @@ import {
 } from "@/lib/cloudinaryUrl";
 import {
   Play,
-  Maximize2,
-  X,
   ChevronLeft,
   ChevronRight,
   RotateCcw,
-  ZoomIn,
-  ZoomOut,
-  Download,
-  Share2,
-  ImageOff,
+  CheckCircle2,
 } from "lucide-react";
 
 interface ProductGalleryProps {
@@ -49,179 +43,89 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
 
   const [activeMode, setActiveMode] = useState<MediaMode>("image");
   const [selectedIdx, setSelectedIdx] = useState(0);
-  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
-  const [lightboxIdx, setLightboxIdx] = useState(0);
 
-  // Zoom / Pan state (lightbox only)
-  const [zoomLevel, setZoomLevel] = useState(1);
-  const [panOffset, setPanOffset] = useState({ x: 0, y: 0 });
-  const isDragging = useRef(false);
-  const dragStart = useRef({ x: 0, y: 0, panX: 0, panY: 0 });
-
-  // Hover zoom (main image)
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
-  const [isHoverZooming, setIsHoverZooming] = useState(false);
   const mainImageRef = useRef<HTMLDivElement>(null);
 
   const hasVideo = !!videoUrl;
   const has360 = media360.length > 0;
 
-  const openLightbox = (idx: number) => {
-    setLightboxIdx(idx);
-    setZoomLevel(1);
-    setPanOffset({ x: 0, y: 0 });
-    setIsLightboxOpen(true);
-  };
-
-  const closeLightbox = () => {
-    setIsLightboxOpen(false);
-    setZoomLevel(1);
-    setPanOffset({ x: 0, y: 0 });
-  };
-
-  const handleMouseMove = useCallback(
-    (e: React.MouseEvent<HTMLDivElement>) => {
-      if (!mainImageRef.current || activeMode !== "image") return;
-      const rect = mainImageRef.current.getBoundingClientRect();
-      const x = ((e.clientX - rect.left) / rect.width) * 100;
-      const y = ((e.clientY - rect.top) / rect.height) * 100;
-      setMousePos({ x, y });
-    },
-    [activeMode],
-  );
-
   const prevImage = () => {
     setSelectedIdx(
       (prev) => (prev - 1 + galleryImages.length) % galleryImages.length,
     );
+    setActiveMode("image");
   };
 
   const nextImage = () => {
     setSelectedIdx((prev) => (prev + 1) % galleryImages.length);
-  };
-
-  const prevLightbox = () => {
-    setLightboxIdx(
-      (prev) => (prev - 1 + galleryImages.length) % galleryImages.length,
-    );
-    setZoomLevel(1);
-    setPanOffset({ x: 0, y: 0 });
-  };
-
-  const nextLightbox = () => {
-    setLightboxIdx((prev) => (prev + 1) % galleryImages.length);
-    setZoomLevel(1);
-    setPanOffset({ x: 0, y: 0 });
-  };
-
-  const handleLightboxMouseDown = (e: React.MouseEvent) => {
-    if (zoomLevel <= 1) return;
-    isDragging.current = true;
-    dragStart.current = {
-      x: e.clientX,
-      y: e.clientY,
-      panX: panOffset.x,
-      panY: panOffset.y,
-    };
-  };
-
-  const handleLightboxMouseMove = (e: React.MouseEvent) => {
-    if (!isDragging.current) return;
-    setPanOffset({
-      x: dragStart.current.panX + (e.clientX - dragStart.current.x),
-      y: dragStart.current.panY + (e.clientY - dragStart.current.y),
-    });
-  };
-
-  const handleLightboxMouseUp = () => {
-    isDragging.current = false;
+    setActiveMode("image");
   };
 
   return (
     <div className="space-y-4">
-      {/* ── Media Mode Tabs ── */}
-      <div className="flex items-center gap-1.5 bg-slate-100/80 p-1 rounded-2xl border border-slate-200 w-fit">
-        <button
-          onClick={() => setActiveMode("image")}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[11px] font-extrabold transition-all cursor-pointer ${
-            activeMode === "image"
-              ? "bg-white text-slate-900 shadow-sm"
-              : "text-slate-500 hover:text-slate-800"
-          }`}
-        >
-          <ZoomIn className="w-3 h-3" /> Photos
-        </button>
-        {hasVideo && (
-          <button
-            onClick={() => setActiveMode("video")}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[11px] font-extrabold transition-all cursor-pointer ${
-              activeMode === "video"
-                ? "bg-white text-slate-900 shadow-sm"
-                : "text-slate-500 hover:text-slate-800"
-            }`}
-          >
-            <Play className="w-3 h-3" /> Video
-          </button>
-        )}
-        {has360 && (
-          <button
-            onClick={() => setActiveMode("360")}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[11px] font-extrabold transition-all cursor-pointer ${
-              activeMode === "360"
-                ? "bg-white text-slate-900 shadow-sm"
-                : "text-slate-500 hover:text-slate-800"
-            }`}
-          >
-            <RotateCcw className="w-3 h-3" /> 360°
-          </button>
-        )}
-      </div>
-
-      {/* ── Main Media Viewer ── */}
+      {/* ── Main Media Card ── */}
       <div
         ref={mainImageRef}
-        className="relative h-80 sm:h-96 md:h-[460px] w-full rounded-3xl overflow-hidden bg-slate-50 border border-slate-200 group"
+        className="relative h-80 sm:h-96 md:h-[440px] w-full rounded-2xl sm:rounded-3xl overflow-hidden bg-white border border-slate-200/90 shadow-2xs group flex items-center justify-center p-6"
       >
+        {/* Top Badges Overlay */}
+        <div className="absolute top-2.5 sm:top-4 left-2.5 sm:left-4 right-2.5 sm:right-4 flex items-center justify-between z-10 pointer-events-none">
+          <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap pointer-events-auto">
+            {/* Brand Logo Pill */}
+            <div className="bg-white/95 backdrop-blur-md px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full shadow-2xs border border-slate-200 flex items-center gap-1">
+              <span className="text-[10px] sm:text-[11px] font-black tracking-tight text-slate-900">
+                PRAY<span className="text-[#00AEEF]">O</span>G{" "}
+                <span className="text-[#FF7A00]">INDIA</span>
+              </span>
+            </div>
+
+            {/* Genuine Product Badge */}
+            <div className="bg-emerald-50/95 backdrop-blur-md text-emerald-700 border border-emerald-200 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full text-[10px] sm:text-[11px] font-bold shadow-2xs flex items-center gap-1">
+              <CheckCircle2 className="w-3 h-3 text-emerald-600 shrink-0" />
+              <span>Genuine Product</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Media Viewer Area */}
         {activeMode === "image" && (
           <>
-            {/* Main Image */}
-            <Image
-              src={galleryImages[selectedIdx]}
-              alt={`${productName} image ${selectedIdx + 1}`}
-              fill
-              priority
-              className="object-contain p-4"
-            />
+            <div className="relative w-full h-full">
+              <Image
+                src={galleryImages[selectedIdx]}
+                alt={`${productName} image ${selectedIdx + 1}`}
+                fill
+                priority
+                className="object-contain p-2 transition-transform duration-300"
+              />
+            </div>
 
-            {/* Prev/Next arrows (only when multiple images) */}
+            {/* Prev/Next arrows */}
             {galleryImages.length > 1 && (
               <>
                 <button
+                  type="button"
                   onClick={(e) => {
                     e.stopPropagation();
                     prevImage();
                   }}
-                  className="absolute left-2 top-1/2 -translate-y-1/2 w-9 h-9 bg-white/90 backdrop-blur-md rounded-full shadow-md flex items-center justify-center text-slate-600 hover:text-[#00AEEF] transition-all opacity-0 group-hover:opacity-100 cursor-pointer z-10"
+                  className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 bg-white/90 hover:bg-white text-slate-700 hover:text-[#00AEEF] rounded-full shadow-md border border-slate-200/80 flex items-center justify-center transition-all cursor-pointer z-10 opacity-80 group-hover:opacity-100"
+                  aria-label="Previous Image"
                 >
                   <ChevronLeft className="w-5 h-5" />
                 </button>
                 <button
+                  type="button"
                   onClick={(e) => {
                     e.stopPropagation();
                     nextImage();
                   }}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 w-9 h-9 bg-white/90 backdrop-blur-md rounded-full shadow-md flex items-center justify-center text-slate-600 hover:text-[#00AEEF] transition-all opacity-0 group-hover:opacity-100 cursor-pointer z-10"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 bg-white/90 hover:bg-white text-slate-700 hover:text-[#00AEEF] rounded-full shadow-md border border-slate-200/80 flex items-center justify-center transition-all cursor-pointer z-10 opacity-80 group-hover:opacity-100"
+                  aria-label="Next Image"
                 >
                   <ChevronRight className="w-5 h-5" />
                 </button>
               </>
-            )}
-
-            {/* Image counter */}
-            {galleryImages.length > 1 && (
-              <div className="absolute bottom-3 right-3 bg-slate-900/70 text-white text-[9px] font-bold px-2 py-1 rounded-lg backdrop-blur-sm">
-                {selectedIdx + 1} / {galleryImages.length}
-              </div>
             )}
           </>
         )}
@@ -231,45 +135,42 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
             src={optimizedVideoUrl}
             controls
             autoPlay
-            className="w-full h-full object-cover rounded-3xl"
+            className="w-full h-full object-cover rounded-2xl"
           />
         )}
 
         {activeMode === "360" && (
-          <div className="w-full h-full flex flex-col items-center justify-center gap-3 text-slate-400 select-none">
-            <RotateCcw className="w-14 h-14 animate-spin-slow text-slate-300" />
-            <div className="text-center">
-              <div className="text-sm font-bold text-slate-600">
-                360° Interactive View
-              </div>
-              <div className="text-xs text-slate-400">
-                Drag left/right to rotate the model
-              </div>
-            </div>
-            {media360.length > 0 && (
-              <img
-                src={media360[0]}
-                alt="360 view"
-                className="absolute inset-0 w-full h-full object-contain p-4"
+          <div className="w-full h-full flex flex-col items-center justify-center gap-3 text-slate-600 select-none bg-slate-50/50 rounded-2xl p-4">
+            <div className="relative w-full h-48 flex items-center justify-center">
+              <Image
+                src={media360[0] || galleryImages[selectedIdx] || galleryImages[0]}
+                alt="360 view model"
+                fill
+                className="object-contain animate-pulse"
               />
-            )}
+            </div>
+            <div className="flex items-center gap-2 bg-slate-900 text-white px-3.5 py-1.5 rounded-full text-xs font-bold shadow-sm">
+              <RotateCcw className="w-3.5 h-3.5 text-[#00AEEF] animate-spin-slow" />
+              <span>360° Interactive View Mode</span>
+            </div>
           </div>
         )}
       </div>
 
       {/* ── Thumbnail Strip ── */}
-      <div className="flex items-center gap-2.5 overflow-x-auto scrollbar-none pb-1 px-0.5">
+      <div className="flex items-center gap-2 overflow-x-auto scrollbar-none pb-1 px-0.5">
         {galleryImages.map((img, idx) => (
           <button
             key={idx}
+            type="button"
             onClick={() => {
               setSelectedIdx(idx);
               setActiveMode("image");
             }}
-            className={`relative w-[72px] h-[72px] shrink-0 rounded-2xl overflow-hidden border-2 transition-all bg-slate-50 cursor-pointer ${
+            className={`relative w-14 h-14 sm:w-[72px] sm:h-[72px] shrink-0 rounded-xl overflow-hidden transition-all bg-white cursor-pointer ${
               activeMode === "image" && selectedIdx === idx
-                ? "border-[#00AEEF] ring-2 ring-[#00AEEF]/20 shadow-md scale-105"
-                : "border-slate-200 opacity-60 hover:opacity-100 hover:border-slate-300"
+                ? "border-2 border-[#00AEEF] shadow-sm scale-102"
+                : "border border-slate-200 hover:border-slate-300 opacity-75 hover:opacity-100"
             }`}
           >
             <Image
@@ -281,176 +182,43 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
           </button>
         ))}
 
-        {hasVideo && (
+        {/* 360° View / Interactive Mode Thumbnail */}
+        {has360 ? (
           <button
-            onClick={() => setActiveMode("video")}
-            className={`relative w-[72px] h-[72px] shrink-0 rounded-2xl overflow-hidden border-2 transition-all flex flex-col items-center justify-center gap-1 cursor-pointer ${
-              activeMode === "video"
-                ? "bg-slate-900 border-[#00AEEF] ring-2 ring-[#00AEEF]/20 shadow-md scale-105"
-                : "bg-slate-800 border-slate-600 opacity-70 hover:opacity-100"
+            type="button"
+            onClick={() => setActiveMode("360")}
+            className={`relative w-14 h-14 sm:w-[72px] sm:h-[72px] shrink-0 rounded-xl overflow-hidden transition-all flex flex-col items-center justify-center gap-1 cursor-pointer ${
+              activeMode === "360"
+                ? "bg-slate-900 border-2 border-[#00AEEF] shadow-sm"
+                : "bg-slate-900 border border-slate-800 hover:border-slate-700"
             }`}
           >
-            <Play className="w-5 h-5 fill-[#FFC20E] text-[#FFC20E]" />
-            <span className="text-[8px] font-black uppercase text-white tracking-wider">
+            <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full border border-white/40 flex items-center justify-center">
+              <RotateCcw className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#00AEEF]" />
+            </div>
+            <span className="text-[8px] sm:text-[9px] font-bold text-white tracking-tight">
+              360° View
+            </span>
+          </button>
+        ) : hasVideo ? (
+          <button
+            type="button"
+            onClick={() => setActiveMode("video")}
+            className={`relative w-14 h-14 sm:w-[72px] sm:h-[72px] shrink-0 rounded-xl overflow-hidden transition-all flex flex-col items-center justify-center gap-1 cursor-pointer ${
+              activeMode === "video"
+                ? "bg-slate-900 border-2 border-[#00AEEF] shadow-sm"
+                : "bg-slate-900 border border-slate-800 hover:border-slate-700"
+            }`}
+          >
+            <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full border border-white/40 flex items-center justify-center">
+              <Play className="w-3 h-3 sm:w-3.5 sm:h-3.5 fill-white text-white translate-x-0.5" />
+            </div>
+            <span className="text-[8px] sm:text-[9px] font-bold text-white tracking-tight">
               Video
             </span>
           </button>
-        )}
-
-        {has360 && (
-          <button
-            onClick={() => setActiveMode("360")}
-            className={`relative w-[72px] h-[72px] shrink-0 rounded-2xl overflow-hidden border-2 transition-all flex flex-col items-center justify-center gap-1 cursor-pointer ${
-              activeMode === "360"
-                ? "bg-purple-900 border-purple-400 ring-2 ring-purple-400/20 shadow-md scale-105"
-                : "bg-purple-800 border-purple-700 opacity-70 hover:opacity-100"
-            }`}
-          >
-            <RotateCcw className="w-5 h-5 text-purple-200" />
-            <span className="text-[8px] font-black uppercase text-purple-100 tracking-wider">
-              360°
-            </span>
-          </button>
-        )}
+        ) : null}
       </div>
-
-      {/* ── Full Resolution Lightbox Modal ── */}
-      {isLightboxOpen && (
-        <div
-          className="fixed inset-0 z-[60] bg-slate-950/95 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-200"
-          onClick={closeLightbox}
-        >
-          <div
-            className="relative max-w-6xl w-full max-h-[95vh] flex flex-col items-center gap-4"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Header Controls */}
-            <div className="flex items-center justify-between w-full">
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => setZoomLevel((z) => Math.max(1, z - 0.5))}
-                  className="bg-white/10 hover:bg-white/20 text-white p-2 rounded-xl transition-colors cursor-pointer"
-                  title="Zoom Out"
-                >
-                  <ZoomOut className="w-4 h-4" />
-                </button>
-                <span className="text-white text-xs font-bold bg-white/10 px-3 py-1 rounded-lg">
-                  {Math.round(zoomLevel * 100)}%
-                </span>
-                <button
-                  onClick={() => setZoomLevel((z) => Math.min(4, z + 0.5))}
-                  className="bg-white/10 hover:bg-white/20 text-white p-2 rounded-xl transition-colors cursor-pointer"
-                  title="Zoom In"
-                >
-                  <ZoomIn className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={() => {
-                    setZoomLevel(1);
-                    setPanOffset({ x: 0, y: 0 });
-                  }}
-                  className="bg-white/10 hover:bg-white/20 text-white px-3 py-2 rounded-xl text-xs font-bold transition-colors cursor-pointer"
-                >
-                  Reset
-                </button>
-              </div>
-
-              <span className="text-slate-300 text-xs font-semibold">
-                {lightboxIdx + 1} / {galleryImages.length}
-              </span>
-
-              <button
-                onClick={closeLightbox}
-                className="bg-white/10 hover:bg-white/20 text-white p-2 rounded-xl transition-colors cursor-pointer"
-                title="Close"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            {/* Main Lightbox Image */}
-            <div
-              className="relative w-full overflow-hidden rounded-2xl"
-              style={{
-                height: "75vh",
-                cursor: zoomLevel > 1 ? "grab" : "zoom-in",
-              }}
-              onMouseDown={handleLightboxMouseDown}
-              onMouseMove={handleLightboxMouseMove}
-              onMouseUp={handleLightboxMouseUp}
-              onMouseLeave={handleLightboxMouseUp}
-              onDoubleClick={() => {
-                if (zoomLevel === 1) {
-                  setZoomLevel(2.5);
-                } else {
-                  setZoomLevel(1);
-                  setPanOffset({ x: 0, y: 0 });
-                }
-              }}
-            >
-              <img
-                src={galleryImages[lightboxIdx]}
-                alt={`${productName} fullres ${lightboxIdx + 1}`}
-                className="w-full h-full object-contain select-none"
-                style={{
-                  transform: `scale(${zoomLevel}) translate(${panOffset.x / zoomLevel}px, ${panOffset.y / zoomLevel}px)`,
-                  transition: isDragging.current
-                    ? "none"
-                    : "transform 0.2s ease",
-                }}
-                draggable={false}
-              />
-            </div>
-
-            {/* Lightbox Prev/Next */}
-            {galleryImages.length > 1 && (
-              <>
-                <button
-                  onClick={prevLightbox}
-                  className="absolute left-0 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/10 hover:bg-white/20 text-white rounded-full flex items-center justify-center transition-colors cursor-pointer"
-                >
-                  <ChevronLeft className="w-6 h-6" />
-                </button>
-                <button
-                  onClick={nextLightbox}
-                  className="absolute right-0 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/10 hover:bg-white/20 text-white rounded-full flex items-center justify-center transition-colors cursor-pointer"
-                >
-                  <ChevronRight className="w-6 h-6" />
-                </button>
-              </>
-            )}
-
-            {/* Lightbox Thumbnails Strip */}
-            <div className="flex gap-2 overflow-x-auto scrollbar-none pb-1">
-              {galleryImages.map((img, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => {
-                    setLightboxIdx(idx);
-                    setZoomLevel(1);
-                    setPanOffset({ x: 0, y: 0 });
-                  }}
-                  className={`w-14 h-14 shrink-0 rounded-xl overflow-hidden border-2 transition-all cursor-pointer ${
-                    lightboxIdx === idx
-                      ? "border-[#00AEEF] ring-2 ring-[#00AEEF]/30"
-                      : "border-white/20 opacity-60 hover:opacity-100"
-                  }`}
-                >
-                  <img
-                    src={img}
-                    alt=""
-                    className="w-full h-full object-contain"
-                  />
-                </button>
-              ))}
-            </div>
-
-            <p className="text-slate-400 text-[10px] font-semibold">
-              Double-click to zoom · Click and drag to pan · Scroll to zoom
-            </p>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

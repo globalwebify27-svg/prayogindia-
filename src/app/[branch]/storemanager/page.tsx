@@ -74,7 +74,7 @@ function BranchStoreManagerLoginForm() {
           {/* Left Column: Brand & Branch Identity */}
           <div className="md:col-span-5 flex flex-col items-center justify-center text-center space-y-4 py-6 md:py-12">
             <div className="scale-110 sm:scale-125 lg:scale-135 transition-transform">
-              <PrayogLogo size="lg" showSubtitle={true} dark={true} />
+              <PrayogLogo size="lg" dark={true} />
             </div>
 
             <div className="inline-flex items-center gap-2 bg-slate-900/90 border border-slate-700/80 px-4 py-1.5 rounded-full text-xs font-bold text-[#00AEEF] mt-4 shadow-md">
