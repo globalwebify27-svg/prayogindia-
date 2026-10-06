@@ -74,7 +74,7 @@ export const DealsAndOffersSection: React.FC<Props> = ({ onShopDeals }) => {
               <span>Limited Time</span>
             </div>
             <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight mt-1">
-              Deals &amp; Offers
+              Top Deals
             </h2>
           </div>
 
@@ -82,7 +82,7 @@ export const DealsAndOffersSection: React.FC<Props> = ({ onShopDeals }) => {
             onClick={handleClaim}
             className="text-xs sm:text-sm font-semibold text-[#00AEEF] hover:text-[#0096D6] flex items-center gap-1.5 group cursor-pointer transition-colors"
           >
-            <span>View All Deals</span>
+            <span>View All Top Deals</span>
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </button>
         </div>

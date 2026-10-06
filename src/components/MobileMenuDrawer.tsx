@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
@@ -31,6 +32,11 @@ import {
   Flame,
   Award,
   ExternalLink,
+  Truck,
+  CreditCard,
+  Package,
+  MapPin,
+  Gift,
 } from "lucide-react";
 import { PrayogLogo } from "./PrayogLogo";
 import {
@@ -107,7 +113,12 @@ export const MobileMenuDrawer: React.FC<MobileMenuDrawerProps> = ({
   onLogout,
 }) => {
   const router = useRouter();
+  const [mounted, setMounted] = useState(false);
   const [activeAccordion, setActiveAccordion] = useState<string | null>(null);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Lock body scroll when drawer is open
   useEffect(() => {
@@ -130,10 +141,12 @@ export const MobileMenuDrawer: React.FC<MobileMenuDrawerProps> = ({
     router.push(path);
   };
 
-  return (
+  if (!mounted) return null;
+
+  return createPortal(
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-50 lg:hidden overflow-hidden flex">
+        <div className="fixed inset-0 z-[100] lg:hidden overflow-hidden flex justify-end">
           {/* Backdrop Overlay */}
           <motion.div
             initial={{ opacity: 0 }}
@@ -147,11 +160,11 @@ export const MobileMenuDrawer: React.FC<MobileMenuDrawerProps> = ({
 
           {/* Drawer Sidebar */}
           <motion.aside
-            initial={{ x: "-100%" }}
+            initial={{ x: "100%" }}
             animate={{ x: 0 }}
-            exit={{ x: "-100%" }}
+            exit={{ x: "100%" }}
             transition={{ type: "spring", damping: 28, stiffness: 280 }}
-            className="relative w-[88vw] max-w-sm h-full bg-white text-slate-900 shadow-2xl flex flex-col z-10 overflow-hidden"
+            className="relative w-[88vw] max-w-sm h-full max-h-[100dvh] h-[100dvh] bg-white text-slate-900 shadow-2xl flex flex-col z-10 overflow-hidden border-l border-slate-100"
           >
             {/* Header / Brand & Close */}
             <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100 bg-white sticky top-0 z-20">
@@ -176,48 +189,96 @@ export const MobileMenuDrawer: React.FC<MobileMenuDrawerProps> = ({
               </button>
             </div>
 
-            {/* Quick User Banner */}
-            <div className="bg-slate-50 px-5 py-3.5 border-b border-slate-100">
+            {/* Quick User / Account Banner */}
+            <div className="bg-slate-50/90 px-4 py-3 border-b border-slate-100">
               {isLoggedIn && user ? (
-                <div className="flex items-center justify-between">
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-black uppercase tracking-widest text-[#00AEEF]">
+                      ACCOUNT
+                    </span>
+                    <Link
+                      href="/account"
+                      onClick={onClose}
+                      className="text-[11px] font-bold text-[#00AEEF] hover:underline"
+                    >
+                      Dashboard &rarr;
+                    </Link>
+                  </div>
                   <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-full bg-[#00AEEF] text-white flex items-center justify-center font-bold text-sm shadow-xs">
-                      {user.name ? user.name[0].toUpperCase() : "U"}
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-[#00AEEF] to-sky-400 text-white font-black text-sm flex items-center justify-center shadow-xs shrink-0 ring-2 ring-white">
+                      {user.avatarUrl ? (
+                        <img
+                          src={user.avatarUrl}
+                          alt={user.name}
+                          className="w-full h-full rounded-full object-cover"
+                        />
+                      ) : (
+                        <span>
+                          {user.name
+                            ? user.name
+                                .trim()
+                                .split(/\s+/)
+                                .map((n: string) => n[0])
+                                .slice(0, 2)
+                                .join("")
+                                .toUpperCase()
+                            : "OK"}
+                        </span>
+                      )}
                     </div>
-                    <div>
-                      <div className="text-xs font-black text-slate-900 line-clamp-1">
-                        {user.name || "Member"}
+                    <div className="min-w-0 flex-1">
+                      <div className="text-xs font-black text-slate-900 truncate leading-tight">
+                        {user.name || "Customer Account"}
                       </div>
-                      <div className="text-[10px] text-slate-500 font-medium">
-                        {user.email || user.phone || "Active Customer"}
+                      <div className="text-[11px] text-slate-500 font-medium truncate mt-0.5">
+                        {user.email || user.phone || "customer@prayog.in"}
                       </div>
                     </div>
                   </div>
-                  <Link
-                    href="/account"
-                    onClick={onClose}
-                    className="text-[11px] font-bold text-[#00AEEF] hover:underline"
-                  >
-                    View &rarr;
-                  </Link>
                 </div>
               ) : (
-                <div className="flex items-center gap-2">
+                <div className="space-y-2.5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-black uppercase tracking-wider text-[#00AEEF]">
+                      ACCOUNT ACCESS
+                    </span>
+                    <span className="text-[10px] font-bold text-slate-400">
+                      Prayog India
+                    </span>
+                  </div>
+
+                  {/* Sign In & Create Account side by side */}
+                  <div className="grid grid-cols-2 gap-2">
+                    <Link
+                      href="/login"
+                      onClick={onClose}
+                      className="h-10 bg-[#00AEEF] hover:bg-[#0098d4] text-white rounded-xl text-xs font-bold shadow-xs flex items-center justify-center gap-1.5 transition-all active:scale-98"
+                    >
+                      <LogIn className="w-3.5 h-3.5 shrink-0" />
+                      <span className="whitespace-nowrap">Sign In</span>
+                    </Link>
+                    <Link
+                      href="/register"
+                      onClick={onClose}
+                      className="h-10 bg-white border border-slate-200 text-slate-700 hover:bg-slate-100 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 active:scale-98 shadow-2xs"
+                    >
+                      <UserPlus className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+                      <span className="whitespace-nowrap">Create Account</span>
+                    </Link>
+                  </div>
+
+                  {/* Track Order Link */}
                   <Link
-                    href="/login"
+                    href="/track-order"
                     onClick={onClose}
-                    className="flex-1 text-center py-2 px-3 bg-[#00AEEF] hover:bg-[#0098d4] text-white rounded-xl text-xs font-black shadow-xs flex items-center justify-center gap-1.5 transition-all"
+                    className="w-full bg-white hover:bg-[#E0F7FC] border border-slate-200/90 rounded-xl py-2 px-3 flex items-center justify-between text-xs font-bold text-slate-700 shadow-2xs transition-all group"
                   >
-                    <LogIn className="w-3.5 h-3.5" />
-                    <span>Sign In</span>
-                  </Link>
-                  <Link
-                    href="/register"
-                    onClick={onClose}
-                    className="flex-1 text-center py-2 px-3 bg-white border border-slate-200 text-slate-700 hover:bg-slate-100 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5"
-                  >
-                    <UserPlus className="w-3.5 h-3.5 text-slate-500" />
-                    <span>Register</span>
+                    <div className="flex items-center gap-2">
+                      <Truck className="w-4 h-4 text-[#00AEEF]" />
+                      <span>Track Order &amp; Shipments</span>
+                    </div>
+                    <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-[#00AEEF] group-hover:translate-x-0.5 transition-all" />
                   </Link>
                 </div>
               )}
@@ -544,52 +605,121 @@ export const MobileMenuDrawer: React.FC<MobileMenuDrawerProps> = ({
                           initial={{ height: 0, opacity: 0 }}
                           animate={{ height: "auto", opacity: 1 }}
                           exit={{ height: 0, opacity: 0 }}
-                          className="pl-8 pr-3 py-1.5 space-y-2 text-xs font-semibold text-slate-600 bg-slate-50/60 rounded-xl mt-1"
+                          className="px-2 py-2 space-y-1 text-xs font-semibold text-slate-700 bg-slate-50/80 rounded-2xl mt-1 border border-slate-100"
                         >
+                          <Link
+                            href="/account/profile"
+                            onClick={onClose}
+                            className="flex items-center justify-between p-2 rounded-xl hover:bg-white hover:text-[#00AEEF] transition-all"
+                          >
+                            <div className="flex items-center gap-2.5">
+                              <User className="w-4 h-4 text-[#00AEEF]" />
+                              <span>My Account</span>
+                            </div>
+                            <ChevronRight className="w-3.5 h-3.5 text-slate-300" />
+                          </Link>
+
                           <Link
                             href="/account/orders"
                             onClick={onClose}
-                            className="block py-1.5 hover:text-[#00AEEF]"
+                            className="flex items-center justify-between p-2 rounded-xl hover:bg-white hover:text-[#00AEEF] transition-all"
                           >
-                            My Orders &amp; Invoices
+                            <div className="flex items-center gap-2.5">
+                              <Package className="w-4 h-4 text-emerald-600" />
+                              <span>My Orders</span>
+                            </div>
+                            <ChevronRight className="w-3.5 h-3.5 text-slate-300" />
                           </Link>
+
                           <Link
-                            href="/account/quotations"
+                            href="/wishlist"
                             onClick={onClose}
-                            className="block py-1.5 hover:text-[#00AEEF]"
+                            className="flex items-center justify-between p-2 rounded-xl hover:bg-white hover:text-rose-600 transition-all"
                           >
-                            B2B Quotations
+                            <div className="flex items-center gap-2.5">
+                              <Heart className="w-4 h-4 text-rose-500" />
+                              <span>Wishlist</span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              {wishlistCount > 0 && (
+                                <span className="text-[10px] bg-rose-100 text-rose-700 font-bold px-1.5 py-0.2 rounded-full">
+                                  {wishlistCount}
+                                </span>
+                              )}
+                              <ChevronRight className="w-3.5 h-3.5 text-slate-300" />
+                            </div>
                           </Link>
-                          <Link
-                            href="/account/rewards"
-                            onClick={onClose}
-                            className="block py-1.5 hover:text-[#00AEEF]"
-                          >
-                            Rewards &amp; Coins
-                          </Link>
-                          <Link
-                            href="/account/support"
-                            onClick={onClose}
-                            className="block py-1.5 hover:text-[#00AEEF]"
-                          >
-                            Support Tickets
-                          </Link>
+
                           <Link
                             href="/account/addresses"
                             onClick={onClose}
-                            className="block py-1.5 hover:text-[#00AEEF]"
+                            className="flex items-center justify-between p-2 rounded-xl hover:bg-white hover:text-[#00AEEF] transition-all"
                           >
-                            Delivery Addresses
+                            <div className="flex items-center gap-2.5">
+                              <MapPin className="w-4 h-4 text-purple-600" />
+                              <span>Saved Addresses</span>
+                            </div>
+                            <ChevronRight className="w-3.5 h-3.5 text-slate-300" />
                           </Link>
+
+                          <Link
+                            href="/account/payments"
+                            onClick={onClose}
+                            className="flex items-center justify-between p-2 rounded-xl hover:bg-white hover:text-[#00AEEF] transition-all"
+                          >
+                            <div className="flex items-center gap-2.5">
+                              <CreditCard className="w-4 h-4 text-indigo-600" />
+                              <span>Payment Methods</span>
+                            </div>
+                            <ChevronRight className="w-3.5 h-3.5 text-slate-300" />
+                          </Link>
+
+                          <Link
+                            href="/account/rewards"
+                            onClick={onClose}
+                            className="flex items-center justify-between p-2 rounded-xl hover:bg-white hover:text-amber-700 transition-all"
+                          >
+                            <div className="flex items-center gap-2.5">
+                              <Gift className="w-4 h-4 text-amber-500" />
+                              <span>Rewards / Credits</span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <span className="text-[10px] bg-amber-100 text-amber-900 font-bold px-1.5 py-0.2 rounded-md">
+                                {user?.rewardPoints || 0} pts
+                              </span>
+                              <ChevronRight className="w-3.5 h-3.5 text-slate-300" />
+                            </div>
+                          </Link>
+
+                          <div className="my-1 border-t border-slate-200/80" />
+
                           <button
+                            type="button"
+                            onClick={() => {
+                              onClose();
+                              onOpenB2BModal?.();
+                            }}
+                            className="w-full flex items-center justify-between p-2 rounded-xl hover:bg-white hover:text-[#1E56A0] transition-all text-left cursor-pointer"
+                          >
+                            <div className="flex items-center gap-2.5">
+                              <Building2 className="w-4 h-4 text-[#1E56A0]" />
+                              <span>B2B / Institutional Sales</span>
+                            </div>
+                            <ChevronRight className="w-3.5 h-3.5 text-slate-300" />
+                          </button>
+
+                          <div className="my-1 border-t border-slate-200/80" />
+
+                          <button
+                            type="button"
                             onClick={() => {
                               onLogout?.();
                               onClose();
                             }}
-                            className="w-full text-left py-1.5 text-rose-600 hover:text-rose-700 flex items-center gap-1.5 cursor-pointer font-bold"
+                            className="w-full text-left p-2 text-red-600 hover:bg-red-50 rounded-xl flex items-center gap-2.5 cursor-pointer font-bold transition-all"
                           >
-                            <LogOut className="w-3.5 h-3.5" />
-                            <span>Sign Out</span>
+                            <LogOut className="w-4 h-4 text-red-500" />
+                            <span>Logout</span>
                           </button>
                         </motion.div>
                       )}
@@ -625,6 +755,7 @@ export const MobileMenuDrawer: React.FC<MobileMenuDrawerProps> = ({
           </motion.aside>
         </div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 };

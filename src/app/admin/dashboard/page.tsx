@@ -60,6 +60,16 @@ export default function AdminDashboardPage() {
         </div>
 
         <div className="flex items-center gap-3">
+          {/* Link to Unified Hub */}
+          <Link
+            href="/admin/hub"
+            className="flex items-center gap-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 text-xs font-black px-4 py-2 rounded-xl shadow-md shadow-amber-500/20 transition-all cursor-pointer"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-slate-950" />
+            <span>Open All-in-1 Admin Hub</span>
+            <ArrowRight className="w-3.5 h-3.5 text-slate-950" />
+          </Link>
+
           {/* Date Picker Button */}
           <div className="flex items-center gap-2 bg-white border border-slate-200/90 rounded-xl px-3.5 py-2 text-xs font-bold text-slate-700 shadow-2xs">
             <span>May 28 – Jun 3, 2025</span>
@@ -72,6 +82,36 @@ export default function AdminDashboardPage() {
             <span>Customise</span>
           </button>
         </div>
+      </div>
+
+      {/* Unified Hub Announcement Banner */}
+      <div className="bg-gradient-to-r from-[#031B33] via-[#05284D] to-[#005CA9] rounded-2xl p-4 sm:p-5 text-white shadow-md border border-cyan-500/20 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div className="flex items-center gap-3.5">
+          <div className="w-12 h-12 rounded-2xl bg-amber-400/20 border border-amber-400/40 flex items-center justify-center text-amber-300 shrink-0">
+            <Sparkles className="w-6 h-6" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <h2 className="text-sm sm:text-base font-black tracking-tight text-white">
+                Unified Operations Control Room
+              </h2>
+              <span className="bg-amber-400 text-slate-950 text-[10px] font-black px-2 py-0.5 rounded-full uppercase">
+                All In One Place
+              </span>
+            </div>
+            <p className="text-xs text-cyan-100/80 mt-0.5">
+              Access User Details CRM, Live Orders & Invoices, Add New Products, Edit Catalog & Stock, Categories, and Support Tickets in a single tabbed dashboard.
+            </p>
+          </div>
+        </div>
+
+        <Link
+          href="/admin/hub"
+          className="shrink-0 inline-flex items-center gap-2 bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs px-4 py-2.5 rounded-xl shadow-md transition-all cursor-pointer"
+        >
+          <span>Launch Hub</span>
+          <ArrowRight className="w-4 h-4" />
+        </Link>
       </div>
 
       {/* Row 1: 5 KPI Stat Cards */}

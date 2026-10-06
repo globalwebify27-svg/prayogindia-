@@ -204,7 +204,7 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
           <div className="flex items-center gap-3">
             <div className="flex items-center text-amber-400 gap-1 text-xs font-black">
               <Star className="w-4 h-4 fill-current" />
-              <span>{product.rating}</span>
+              <span>{Number(product.rating || 4.8).toFixed(1)}</span>
             </div>
             <span className="text-slate-300">•</span>
             <span className="text-xs font-bold text-slate-500">

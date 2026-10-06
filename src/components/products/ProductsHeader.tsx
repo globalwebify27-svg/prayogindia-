@@ -1,15 +1,5 @@
 import React from "react";
 import Image from "next/image";
-import {
-  Bot,
-  Cpu,
-  Layers,
-  Boxes,
-  Radio,
-  Sparkles,
-  Zap,
-  CheckCircle2,
-} from "lucide-react";
 
 interface ProductsHeaderProps {
   title?: string;
@@ -20,13 +10,13 @@ interface ProductsHeaderProps {
 }
 
 const QUICK_CATEGORIES = [
-  { id: "all", name: "All Products", icon: Boxes },
-  { id: "Robot Kits", name: "Robot Kits", icon: Bot },
-  { id: "Motors", name: "Motors", icon: Zap },
-  { id: "Controllers", name: "Controllers", icon: Cpu },
-  { id: "Sensors", name: "Sensors", icon: Radio },
-  { id: "Development Boards", name: "Development Boards", icon: Layers },
-  { id: "Accessories", name: "Accessories", icon: Sparkles },
+  { id: "all", name: "All Products" },
+  { id: "Robot Kits", name: "Robot Kits" },
+  { id: "Motors", name: "Motors" },
+  { id: "Controllers", name: "Controllers" },
+  { id: "Sensors", name: "Sensors" },
+  { id: "Development Boards", name: "Development Boards" },
+  { id: "Accessories", name: "Accessories" },
 ];
 
 export const ProductsHeader: React.FC<ProductsHeaderProps> = ({
@@ -79,7 +69,6 @@ export const ProductsHeader: React.FC<ProductsHeaderProps> = ({
             style={{ scrollbarWidth: "none" }}
           >
             {QUICK_CATEGORIES.map((cat) => {
-              const Icon = cat.icon;
               const isSelected =
                 (!selectedCategory && cat.id === "all") ||
                 selectedCategory === cat.name;
@@ -90,15 +79,12 @@ export const ProductsHeader: React.FC<ProductsHeaderProps> = ({
                   onClick={() =>
                     onSelectCategory(cat.id === "all" ? null : cat.name)
                   }
-                  className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all duration-200 cursor-pointer ${
+                  className={`inline-flex items-center px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all duration-200 cursor-pointer ${
                     isSelected
                       ? "bg-[#00AEEF] text-white shadow-sm shadow-[#00AEEF]/30 scale-[1.02]"
                       : "bg-white text-slate-700 border border-slate-200/80 hover:bg-slate-50 hover:border-slate-300 shadow-2xs"
                   }`}
                 >
-                  <Icon
-                    className={`w-3.5 h-3.5 ${isSelected ? "text-white" : "text-slate-500"}`}
-                  />
                   <span>{cat.name}</span>
                 </button>
               );

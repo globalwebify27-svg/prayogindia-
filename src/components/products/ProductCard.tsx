@@ -7,16 +7,12 @@ import { getOptimizedImageUrl } from "@/lib/cloudinaryUrl";
 import {
   Star,
   Heart,
-  Eye,
   ShoppingBag,
-  Zap,
-  Package,
-  CheckCircle,
-  XCircle,
-  BadgePercent,
-  Info,
+  Check,
 } from "lucide-react";
 import { Product } from "@/data/mockData";
+import { useStore } from "@/context/StoreContext";
+import { haptic } from "@/utils/haptics";
 
 interface ProductCardProps {
   product: Product;
@@ -31,8 +27,10 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   onAddToCart,
   onToggleWishlist,
   onQuickView,
-  isWishlisted = false,
+  isWishlisted,
 }) => {
+  const store = useStore();
+  const [isAdded, setIsAdded] = useState(false);
   const [selectedVariantId, setSelectedVariantId] = useState<
     string | undefined
   >(product.variants?.[0]?.id);
@@ -42,66 +40,97 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   );
 
   const displayPrice = activeVariant?.price ?? product.price;
-  const displayMrp = activeVariant?.mrp ?? product.mrp;
+  const displayMrp = activeVariant?.mrp ?? product.mrp ?? Math.round(displayPrice * 1.3);
+  const discountAmount = displayMrp > displayPrice ? displayMrp - displayPrice : 0;
+  const discountPercent = discountAmount > 0 ? Math.round((discountAmount / displayMrp) * 100) : 0;
   const isInStock = activeVariant ? activeVariant.inStock : product.inStock;
+
+  const itemIsWishlisted =
+    typeof isWishlisted === "boolean"
+      ? isWishlisted
+      : (store?.isWishlisted?.(product.id) ?? false);
+
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    haptic?.medium?.();
+
+    if (onAddToCart) {
+      onAddToCart(product, selectedVariantId);
+    } else if (store?.addToCart) {
+      store.addToCart(product, activeVariant);
+    }
+    setIsAdded(true);
+    setTimeout(() => setIsAdded(false), 2000);
+  };
+
+  const handleToggleWishlist = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    haptic?.selection?.();
+
+    if (onToggleWishlist) {
+      onToggleWishlist(product);
+    } else if (store?.toggleWishlist) {
+      store.toggleWishlist(product);
+    }
+  };
 
   return (
     <div
       id={`product-card-${product.id}`}
-      className="group bg-white rounded-3xl border border-slate-200/90 p-4 sm:p-5 flex flex-col justify-between hover:border-[#00AEEF] hover:shadow-xl hover:shadow-sky-500/10 transition-all duration-300 relative overflow-hidden"
+      className="group bg-white rounded-xl border border-slate-200 p-2.5 sm:p-3 flex flex-col justify-between hover:border-[#00AEEF] hover:shadow-md hover:shadow-sky-500/10 transition-all duration-300 relative overflow-hidden font-sans"
     >
-      {/* ── Top: Category Name & Circular Wishlist Button ── */}
-      <div className="flex items-center justify-between gap-2 mb-2">
-        <span className="text-xs font-semibold text-slate-700 truncate">
-          {product.category || "Arduino & Microcontrollers"}
+      {/* ── Top: Category / Brand & Wishlist Button ── */}
+      <div className="flex items-center justify-between gap-1.5 mb-1.5">
+        <span className="text-[9.5px] font-bold text-[#00AEEF] uppercase tracking-wider truncate max-w-[130px]">
+          {product.brand || product.category || "Robotics"}
         </span>
-        {onToggleWishlist && (
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onToggleWishlist(product);
-            }}
-            className="w-8 h-8 rounded-full border border-slate-200/90 hover:border-slate-300 bg-white flex items-center justify-center text-slate-400 hover:text-red-500 transition-colors shrink-0 cursor-pointer shadow-2xs"
-            title="Add to Wishlist"
-            aria-label="Wishlist"
-          >
-            <Heart
-              className={`w-4 h-4 ${isWishlisted ? "fill-red-500 text-red-500" : ""}`}
-            />
-          </button>
-        )}
+
+        <button
+          onClick={handleToggleWishlist}
+          className="w-6 h-6 rounded-full border border-slate-200/90 hover:border-red-200 bg-white/95 flex items-center justify-center text-slate-400 hover:text-red-500 transition-colors shrink-0 cursor-pointer shadow-2xs active:scale-90"
+          title="Save to Wishlist"
+          aria-label="Wishlist"
+        >
+          <Heart
+            className={`w-3 h-3 transition-colors ${
+              itemIsWishlisted ? "fill-red-500 text-red-500 scale-110" : ""
+            }`}
+          />
+        </button>
       </div>
 
       {/* ── Product Image ── */}
       <Link href={`/products/${product.slug || product.id}`} className="block">
-        <div className="relative h-40 sm:h-44 w-full mb-3 flex items-center justify-center overflow-hidden rounded-2xl bg-white p-2 group-hover:scale-[1.02] transition-transform duration-300 cursor-pointer">
+        <div className="relative h-28 sm:h-30 w-full mb-2 flex items-center justify-center overflow-hidden rounded-lg bg-slate-50/70 p-1.5 group-hover:scale-[1.03] transition-transform duration-300 cursor-pointer">
           <Image
             src={getOptimizedImageUrl(product.image, {
-              width: 400,
+              width: 350,
               quality: "auto",
             })}
             alt={product.name}
             fill
-            className="object-contain p-2"
+            className="object-contain p-1"
           />
         </div>
       </Link>
 
       {/* ── Card Body ── */}
-      <div className="flex-1 flex flex-col justify-between space-y-2">
-        <div>
+      <div className="flex-1 flex flex-col justify-between space-y-1.5">
+        <div className="space-y-1">
           {/* Product Name */}
           <Link
             href={`/products/${product.slug || product.id}`}
             className="block"
           >
-            <h3 className="text-sm font-bold text-slate-900 line-clamp-1 hover:text-[#00AEEF] transition-colors cursor-pointer">
+            <h3 className="text-[11px] sm:text-xs font-bold text-slate-900 line-clamp-2 leading-tight hover:text-[#00AEEF] transition-colors cursor-pointer min-h-[28px]">
               {product.name}
             </h3>
           </Link>
 
           {/* SKU */}
-          <div className="text-xs font-semibold text-slate-400 mt-1">
+          <div className="text-[9px] font-semibold text-slate-400">
             SKU:{" "}
             <span className="font-mono text-slate-500">
               {activeVariant?.sku || product.sku}
@@ -109,12 +138,12 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           </div>
 
           {/* Rating Stars */}
-          <div className="flex items-center gap-1 mt-1 text-xs text-slate-500">
+          <div className="flex items-center gap-1 text-[10px] text-slate-500">
             <div className="flex items-center text-amber-400 gap-0.5">
               {[...Array(5)].map((_, i) => (
                 <Star
                   key={i}
-                  className={`w-3.5 h-3.5 ${
+                  className={`w-2.5 h-2.5 ${
                     i < Math.floor(product.rating || 5)
                       ? "fill-amber-400 text-amber-400"
                       : "fill-slate-200 text-slate-200"
@@ -122,36 +151,65 @@ export const ProductCard: React.FC<ProductCardProps> = ({
                 />
               ))}
             </div>
-            <span className="text-slate-500 font-medium ml-0.5">
+            <span className="font-bold text-slate-700 text-[10px]">
+              {product.rating?.toFixed(1) || "4.8"}
+            </span>
+            <span className="text-slate-400 text-[9px]">
               ({product.reviews || 87})
             </span>
           </div>
 
-          {/* Price with (Incl. GST) */}
-          <div className="flex items-baseline gap-1 mt-2.5">
-            <span className="text-base sm:text-lg font-bold text-slate-900">
-              ₹
-              {displayPrice.toLocaleString("en-IN", {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-              })}
-            </span>
-            <span className="text-[11px] text-slate-400 font-normal">
-              (Incl. GST)
-            </span>
+          {/* Price with Save Tag & Incl. GST */}
+          <div className="pt-1">
+            <div className="flex items-baseline gap-1.5">
+              <span className="text-sm sm:text-base font-black text-slate-900 tracking-tight">
+                ₹
+                {displayPrice.toLocaleString("en-IN", {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })}
+              </span>
+              {displayMrp > displayPrice && (
+                <span className="text-[10px] text-slate-400 line-through font-medium">
+                  ₹{displayMrp.toLocaleString("en-IN")}
+                </span>
+              )}
+            </div>
+
+            <div className="flex items-center justify-between text-[9px] mt-0.5">
+              {discountPercent > 0 && (
+                <span className="text-emerald-600 font-bold bg-emerald-50 px-1 py-0.5 rounded border border-emerald-200/80">
+                  Save ₹{discountAmount.toLocaleString("en-IN")} ({discountPercent}%)
+                </span>
+              )}
+              <span className="text-slate-400 text-[8.5px]">Incl. GST</span>
+            </div>
           </div>
         </div>
 
         {/* Action: Add to Cart Full Width */}
-        <div className="pt-2 mt-auto">
+        <div className="pt-1.5 mt-auto">
           {isInStock ? (
             <button
               id={`add-to-cart-${product.id}`}
-              onClick={() => onAddToCart?.(product, selectedVariantId)}
-              className="w-full border border-[#00AEEF] text-[#00AEEF] hover:bg-[#00AEEF] hover:text-white py-2.5 px-4 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition-all duration-200 active:scale-[0.98] cursor-pointer shadow-2xs group/btn"
+              onClick={handleAddToCart}
+              className={`w-full py-1.5 px-2.5 rounded-lg text-[10px] font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all duration-200 cursor-pointer shadow-2xs active:scale-[0.98] ${
+                isAdded
+                  ? "bg-emerald-600 text-white shadow-emerald-600/20"
+                  : "bg-slate-900 hover:bg-[#00AEEF] text-white"
+              }`}
             >
-              <span>Add to Cart</span>
-              <ShoppingBag className="w-4 h-4" />
+              {isAdded ? (
+                <>
+                  <Check className="w-3 h-3 text-white" />
+                  <span>Added!</span>
+                </>
+              ) : (
+                <>
+                  <ShoppingBag className="w-3 h-3 text-[#FFC20E]" />
+                  <span>Add to Cart</span>
+                </>
+              )}
             </button>
           ) : (
             <a
@@ -195,18 +253,9 @@ export const ProductCard: React.FC<ProductCardProps> = ({
               })()}
               target="_blank"
               rel="noopener noreferrer"
-              className="w-full bg-[#25D366] hover:bg-[#20bd5a] text-white py-2 px-3 rounded-xl text-[10px] font-black uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all shadow-xs active:scale-95 cursor-pointer"
+              className="w-full bg-[#25D366] hover:bg-[#20bd5a] text-white py-1.5 px-2 rounded-lg text-[9.5px] font-bold uppercase tracking-wider flex items-center justify-center gap-1 transition-all shadow-2xs active:scale-95 cursor-pointer text-center"
             >
-              <svg
-                viewBox="0 0 24 24"
-                fill="currentColor"
-                className="w-3.5 h-3.5 fill-white shrink-0"
-                role="img"
-                aria-label="WhatsApp"
-              >
-                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
-              </svg>
-              Inquire on WhatsApp
+              <span>Inquire on WhatsApp</span>
             </a>
           )}
         </div>

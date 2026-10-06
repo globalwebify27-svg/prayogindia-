@@ -7,6 +7,7 @@ import { ProductsHeader } from "@/components/products/ProductsHeader";
 import {
   ProductToolbar,
   SortOption,
+  GridColumns,
 } from "@/components/products/ProductToolbar";
 import {
   ProductFilters,
@@ -43,6 +44,7 @@ function ProductsContent() {
   const searchParams = useSearchParams();
 
   const initialCategory = searchParams.get("category") || null;
+  const initialBrand = searchParams.get("brand") || null;
   const initialSearch =
     searchParams.get("search") || searchParams.get("q") || "";
 
@@ -54,11 +56,18 @@ function ProductsContent() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(
     initialCategory,
   );
-  const [selectedBrand, setSelectedBrand] = useState<string | null>(null);
-  const [inStockOnly, setInStockOnly] = useState(false);
-  const [priceRange, setPriceRange] = useState<[number, number]>([0, 50000]);
+  const [selectedSubcategory, setSelectedSubcategory] = useState<string | null>(null);
+  const [selectedBrand, setSelectedBrand] = useState<string | null>(
+    initialBrand,
+  );
+  const [stockFilter, setStockFilter] = useState<"all" | "inStock" | "outOfStock">("all");
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, 60000]);
+  const [minDiscount, setMinDiscount] = useState<number | null>(null);
+  const [minRating, setMinRating] = useState<number | null>(null);
   const [techSpecs, setTechSpecs] = useState<TechnicalSpecFilters>({});
   const [sortBy, setSortBy] = useState<SortOption>("featured");
+  const [columns, setColumns] = useState<GridColumns>(4);
+  const [itemsPerPage, setItemsPerPage] = useState<number>(20);
 
   useEffect(() => {
     fetch("/api/products?limit=100")
@@ -104,16 +113,33 @@ function ProductsContent() {
 
           // Prepend newly added database products that aren't already in PRODUCTS
           const existingIds = new Set(PRODUCTS.map((p) => p.id));
-          const newDbOnly = apiProducts.filter((p) => !existingIds.has(p.id));
+          const existingSlugs = new Set(
+            PRODUCTS.map((p) => p.slug).filter(Boolean),
+          );
+          const newDbOnly = apiProducts.filter(
+            (p) =>
+              !existingIds.has(p.id) &&
+              (!p.slug || !existingSlugs.has(p.slug)),
+          );
           // Also update any matching product with live database data
           const updatedMock = PRODUCTS.map((p) => {
             const match = apiProducts.find(
-              (ap) => ap.id === p.id || ap.slug === p.slug,
+              (ap) =>
+                ap.id === p.id ||
+                (ap.slug && p.slug && ap.slug === p.slug),
             );
             return match || p;
           });
 
-          setProductList([...newDbOnly, ...updatedMock]);
+          const combined = [...newDbOnly, ...updatedMock];
+          const seenIds = new Set<string>();
+          const uniqueProducts = combined.filter((p) => {
+            if (!p.id || seenIds.has(p.id)) return false;
+            seenIds.add(p.id);
+            return true;
+          });
+
+          setProductList(uniqueProducts);
         }
       })
       .catch((err) => {
@@ -176,6 +202,17 @@ function ProductsContent() {
     storeToggleWishlist(product);
   };
 
+  // ── Stock counts ──
+  const { inStockCount, outOfStockCount } = useMemo(() => {
+    let inCount = 0;
+    let outCount = 0;
+    productList.forEach((p) => {
+      if (p.inStock) inCount++;
+      else outCount++;
+    });
+    return { inStockCount: inCount, outOfStockCount: outCount };
+  }, [productList]);
+
   // ── Filter & Sort Logic ──
   const filteredProducts = useMemo(() => {
     let result = searchProductsFuzzy(productList, searchQuery);
@@ -186,17 +223,39 @@ function ProductsContent() {
       );
     }
 
+    if (selectedSubcategory) {
+      result = result.filter((p) =>
+        (p.subcategory || p.name).toLowerCase().includes(selectedSubcategory.toLowerCase()),
+      );
+    }
+
     if (selectedBrand) {
       result = result.filter((p) =>
         (p.brand ?? p.name).toLowerCase().includes(selectedBrand.toLowerCase()),
       );
     }
 
-    if (inStockOnly) result = result.filter((p) => p.inStock);
+    if (stockFilter === "inStock") {
+      result = result.filter((p) => p.inStock);
+    } else if (stockFilter === "outOfStock") {
+      result = result.filter((p) => !p.inStock);
+    }
 
     result = result.filter(
       (p) => p.price >= priceRange[0] && p.price <= priceRange[1],
     );
+
+    if (minDiscount) {
+      result = result.filter((p) => {
+        const mrp = p.mrp || Math.round(p.price * 1.35);
+        const disc = ((mrp - p.price) / mrp) * 100;
+        return disc >= minDiscount;
+      });
+    }
+
+    if (minRating) {
+      result = result.filter((p) => (p.rating || 0) >= minRating);
+    }
 
     if (techSpecs.voltage) {
       const v = techSpecs.voltage.toLowerCase();
@@ -232,20 +291,8 @@ function ProductsContent() {
           p.description.toLowerCase().includes(m),
       );
     }
-    if (techSpecs.minRating) {
-      result = result.filter(
-        (p) => p.rating >= (techSpecs.minRating as number),
-      );
-    }
-    if (techSpecs.minDiscount) {
-      result = result.filter((p) => {
-        const pct =
-          p.mrp > p.price ? Math.round(((p.mrp - p.price) / p.mrp) * 100) : 0;
-        return pct >= (techSpecs.minDiscount as number);
-      });
-    }
 
-    // ── All 8 Sort Modes ──
+    // ── Sort Modes ──
     switch (sortBy) {
       case "price-asc":
         result = [...result].sort((a, b) => a.price - b.price);
@@ -254,32 +301,39 @@ function ProductsContent() {
         result = [...result].sort((a, b) => b.price - a.price);
         break;
       case "highest-rated":
-        result = [...result].sort((a, b) => b.rating - a.rating);
+        result = [...result].sort((a, b) => (b.rating || 0) - (a.rating || 0));
+        break;
+      case "title-asc":
+        result = [...result].sort((a, b) => a.name.localeCompare(b.name));
+        break;
+      case "title-desc":
+        result = [...result].sort((a, b) => b.name.localeCompare(a.name));
         break;
       case "newest":
         result = [...result].sort((a, b) => b.id.localeCompare(a.id));
         break;
       case "popularity":
-        result = [...result].sort((a, b) => b.reviews - a.reviews);
+        result = [...result].sort((a, b) => (b.reviews || 0) - (a.reviews || 0));
         break;
       case "best-selling":
         result = [...result].sort(
-          (a, b) => b.reviews * b.rating - a.reviews * a.rating,
+          (a, b) => (b.reviews || 0) * (b.rating || 0) - (a.reviews || 0) * (a.rating || 0),
         );
         break;
       case "discount":
         result = [...result].sort((a, b) => {
-          const discA = a.mrp > a.price ? (a.mrp - a.price) / a.mrp : 0;
-          const discB = b.mrp > b.price ? (b.mrp - b.price) / b.mrp : 0;
+          const mrpA = a.mrp || Math.round(a.price * 1.35);
+          const mrpB = b.mrp || Math.round(b.price * 1.35);
+          const discA = mrpA > a.price ? (mrpA - a.price) / mrpA : 0;
+          const discB = mrpB > b.price ? (mrpB - b.price) / mrpB : 0;
           return discB - discA;
         });
         break;
       case "featured":
       default:
-        // Featured: badges first, then by rating
         result = [...result].sort((a, b) => {
-          const aScore = (a.badge ? 10 : 0) + a.rating;
-          const bScore = (b.badge ? 10 : 0) + b.rating;
+          const aScore = (a.badge ? 10 : 0) + (a.rating || 0);
+          const bScore = (b.badge ? 10 : 0) + (b.rating || 0);
           return bScore - aScore;
         });
         break;
@@ -290,23 +344,36 @@ function ProductsContent() {
     productList,
     searchQuery,
     selectedCategory,
+    selectedSubcategory,
     selectedBrand,
-    inStockOnly,
+    stockFilter,
     priceRange,
+    minDiscount,
+    minRating,
     techSpecs,
     sortBy,
   ]);
 
   const clearAllFilters = () => {
     setSelectedCategory(null);
+    setSelectedSubcategory(null);
     setSelectedBrand(null);
-    setInStockOnly(false);
-    setPriceRange([0, 50000]);
+    setStockFilter("all");
+    setPriceRange([0, 60000]);
+    setMinDiscount(null);
+    setMinRating(null);
     setTechSpecs({});
     setSearchQuery("");
   };
 
   const showSearchSuggest = searchFocused && searchQuery.length === 0;
+
+  const getGridColsClass = () => {
+    if (columns === 1) return "";
+    if (columns === 2) return "grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6";
+    if (columns === 3) return "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-5";
+    return "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-3.5 sm:gap-4.5";
+  };
 
   return (
     <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-2.5 sm:py-4 space-y-3 sm:space-y-4 animate-in fade-in duration-300">
@@ -396,14 +463,17 @@ function ProductsContent() {
       <ActiveFilters
         category={selectedCategory}
         brand={selectedBrand}
-        inStockOnly={inStockOnly}
+        inStockOnly={stockFilter === "inStock"}
         minPrice={priceRange[0]}
         maxPrice={priceRange[1]}
         searchQuery={searchQuery}
-        onRemoveCategory={() => setSelectedCategory(null)}
+        onRemoveCategory={() => {
+          setSelectedCategory(null);
+          setSelectedSubcategory(null);
+        }}
         onRemoveBrand={() => setSelectedBrand(null)}
-        onRemoveStock={() => setInStockOnly(false)}
-        onResetPrice={() => setPriceRange([0, 50000])}
+        onRemoveStock={() => setStockFilter("all")}
+        onResetPrice={() => setPriceRange([0, 60000])}
         onClearSearch={() => setSearchQuery("")}
         onClearAll={clearAllFilters}
       />
@@ -414,23 +484,36 @@ function ProductsContent() {
         onSortChange={setSortBy}
         onOpenMobileFilters={() => setMobileFilterOpen(true)}
         totalFilteredCount={filteredProducts.length}
-        viewMode={viewMode}
-        onViewModeChange={setViewMode}
+        columns={columns}
+        onColumnsChange={setColumns}
+        itemsPerPage={itemsPerPage}
+        onItemsPerPageChange={(num) => {
+          setItemsPerPage(num);
+          setVisibleCount(num);
+        }}
       />
 
       {/* Main Content — Sidebar + Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
         {/* Left Filter Sidebar (Desktop) */}
-        <div className="hidden lg:block lg:col-span-3 sticky top-24 bg-white border border-slate-200 p-5 rounded-3xl shadow-2xs">
+        <div className="hidden lg:block lg:col-span-3 sticky top-24 bg-white border border-slate-200/90 p-5 rounded-2xl shadow-2xs">
           <ProductFilters
             selectedCategory={selectedCategory}
             onSelectCategory={setSelectedCategory}
+            selectedSubcategory={selectedSubcategory}
+            onSelectSubcategory={setSelectedSubcategory}
             selectedBrand={selectedBrand}
             onSelectBrand={setSelectedBrand}
-            inStockOnly={inStockOnly}
-            onToggleStockOnly={setInStockOnly}
+            stockFilter={stockFilter}
+            onStockFilterChange={setStockFilter}
+            inStockCount={inStockCount}
+            outOfStockCount={outOfStockCount}
             priceRange={priceRange}
             onPriceRangeChange={setPriceRange}
+            minDiscount={minDiscount}
+            onMinDiscountChange={setMinDiscount}
+            minRating={minRating}
+            onMinRatingChange={setMinRating}
             techSpecs={techSpecs}
             onTechSpecChange={handleTechSpecChange}
             onClearAll={clearAllFilters}
@@ -441,40 +524,8 @@ function ProductsContent() {
         <div className="lg:col-span-9 space-y-6">
           {filteredProducts.length === 0 ? (
             <ProductEmptyState onClearFilters={clearAllFilters} />
-          ) : viewMode === "grid" ? (
-            <>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5 lg:gap-6">
-                {filteredProducts.slice(0, visibleCount).map((product) => (
-                  <ProductCard
-                    key={product.id}
-                    product={product}
-                    onAddToCart={(p, variantId) => {
-                      const variant = p.variants?.find(
-                        (v) => v.id === variantId,
-                      );
-                      storeAddToCart(p, variant);
-                    }}
-                    onToggleWishlist={toggleWishlist}
-                    onQuickView={setQuickViewProduct}
-                    isWishlisted={wishlistIds.has(product.id)}
-                  />
-                ))}
-              </div>
-              {visibleCount < filteredProducts.length && (
-                <div className="text-center pt-2">
-                  <button
-                    id="load-more-products"
-                    onClick={() => setVisibleCount((prev) => prev + 12)}
-                    className="bg-slate-900 hover:bg-[#00AEEF] text-white font-extrabold px-8 py-3.5 rounded-full text-xs uppercase tracking-wider transition-all shadow-md active:scale-95 cursor-pointer"
-                  >
-                    Load More — {filteredProducts.length - visibleCount}{" "}
-                    products remaining
-                  </button>
-                </div>
-              )}
-            </>
-          ) : (
-            /* List View */
+          ) : columns === 1 ? (
+            /* 1 Column / List View */
             <div className="space-y-3">
               {filteredProducts.slice(0, visibleCount).map((product) => {
                 const discountPct =
@@ -491,25 +542,25 @@ function ProductsContent() {
                 return (
                   <div
                     key={product.id}
-                    className="bg-white rounded-2xl border border-slate-200 flex items-start gap-4 p-4 hover:border-[#00AEEF]/50 hover:shadow-md transition-all"
+                    className="bg-white rounded-2xl border border-slate-200 flex flex-col sm:flex-row items-start gap-4 p-4 hover:border-[#00AEEF]/50 hover:shadow-md transition-all"
                   >
                     {/* Image */}
-                    <div className="relative w-24 h-24 shrink-0 rounded-xl overflow-hidden bg-slate-50 border border-slate-100">
+                    <div className="relative w-full sm:w-28 h-28 shrink-0 rounded-xl overflow-hidden bg-slate-50 border border-slate-100 flex items-center justify-center">
                       <img
                         src={product.image}
                         alt={product.name}
-                        className="w-full h-full object-contain p-1"
+                        className="w-full h-full object-contain p-2"
                       />
                     </div>
 
                     {/* Info */}
-                    <div className="flex-1 min-w-0 space-y-1.5">
+                    <div className="flex-1 min-w-0 space-y-1.5 w-full">
                       <div className="flex items-start justify-between gap-2">
                         <div>
                           <span className="text-[9px] font-mono font-bold text-slate-400">
                             {product.sku}
                           </span>
-                          <h3 className="text-xs font-bold text-slate-900 line-clamp-2 leading-snug">
+                          <h3 className="text-xs sm:text-sm font-bold text-slate-900 line-clamp-2 leading-snug">
                             {product.name}
                           </h3>
                         </div>
@@ -538,9 +589,9 @@ function ProductsContent() {
                         ))}
                       </div>
 
-                      <div className="flex items-center justify-between pt-1">
+                      <div className="flex items-center justify-between pt-2 border-t border-slate-100 mt-2">
                         <div className="flex items-baseline gap-2">
-                          <span className="text-sm font-extrabold text-slate-900">
+                          <span className="text-sm sm:text-base font-extrabold text-slate-900">
                             ₹{product.price.toLocaleString("en-IN")}
                           </span>
                           {product.mrp > product.price && (
@@ -552,24 +603,23 @@ function ProductsContent() {
                         <div className="flex items-center gap-2">
                           <button
                             onClick={() => setQuickViewProduct(product)}
-                            className="text-[10px] font-bold text-[#00AEEF] hover:underline cursor-pointer"
+                            className="text-[11px] font-bold text-[#00AEEF] hover:underline cursor-pointer hidden sm:inline"
                           >
                             Quick View
                           </button>
                           <button
                             onClick={() => toggleWishlist(product)}
-                            className={`text-[10px] font-bold cursor-pointer ${
+                            className={`text-[11px] font-bold cursor-pointer ${
                               wishlistIds.has(product.id)
                                 ? "text-red-500"
                                 : "text-slate-500 hover:text-red-500"
                             }`}
                           >
-                            ♥{" "}
-                            {wishlistIds.has(product.id) ? "Saved" : "Wishlist"}
+                            ♥ {wishlistIds.has(product.id) ? "Saved" : "Wishlist"}
                           </button>
                           <button
                             onClick={() => storeAddToCart(product)}
-                            className="bg-[#00AEEF] hover:bg-[#0096D6] text-white text-[10px] font-extrabold px-3 py-1.5 rounded-xl cursor-pointer transition-colors active:scale-95"
+                            className="bg-slate-900 hover:bg-[#00AEEF] text-white text-xs font-bold px-3.5 py-2 rounded-xl cursor-pointer transition-colors active:scale-95"
                           >
                             Add to Cart
                           </button>
@@ -582,15 +632,46 @@ function ProductsContent() {
               {visibleCount < filteredProducts.length && (
                 <div className="text-center pt-2">
                   <button
-                    onClick={() => setVisibleCount((prev) => prev + 12)}
+                    onClick={() => setVisibleCount((prev) => prev + itemsPerPage)}
                     className="bg-slate-900 hover:bg-[#00AEEF] text-white font-extrabold px-8 py-3.5 rounded-full text-xs uppercase tracking-wider transition-all shadow-md active:scale-95 cursor-pointer"
                   >
-                    Load More — {filteredProducts.length - visibleCount}{" "}
-                    remaining
+                    Load More — {filteredProducts.length - visibleCount} remaining
                   </button>
                 </div>
               )}
             </div>
+          ) : (
+            /* Multi-Column Grid View (2, 3, or 4 columns) */
+            <>
+              <div className={getGridColsClass()}>
+                {filteredProducts.slice(0, visibleCount).map((product) => (
+                  <ProductCard
+                    key={product.id}
+                    product={product}
+                    onAddToCart={(p, variantId) => {
+                      const variant = p.variants?.find(
+                        (v) => v.id === variantId,
+                      );
+                      storeAddToCart(p, variant);
+                    }}
+                    onToggleWishlist={toggleWishlist}
+                    onQuickView={setQuickViewProduct}
+                    isWishlisted={wishlistIds.has(product.id)}
+                  />
+                ))}
+              </div>
+              {visibleCount < filteredProducts.length && (
+                <div className="text-center pt-2">
+                  <button
+                    id="load-more-products"
+                    onClick={() => setVisibleCount((prev) => prev + itemsPerPage)}
+                    className="bg-slate-900 hover:bg-[#00AEEF] text-white font-extrabold px-8 py-3.5 rounded-full text-xs uppercase tracking-wider transition-all shadow-md active:scale-95 cursor-pointer"
+                  >
+                    Load More — {filteredProducts.length - visibleCount} products remaining
+                  </button>
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>
@@ -618,6 +699,12 @@ function ProductsContent() {
               selectedCategory={selectedCategory}
               onSelectCategory={(cat) => {
                 setSelectedCategory(cat);
+                setSelectedSubcategory(null);
+                setMobileFilterOpen(false);
+              }}
+              selectedSubcategory={selectedSubcategory}
+              onSelectSubcategory={(sub) => {
+                setSelectedSubcategory(sub);
                 setMobileFilterOpen(false);
               }}
               selectedBrand={selectedBrand}
@@ -625,10 +712,28 @@ function ProductsContent() {
                 setSelectedBrand(b);
                 setMobileFilterOpen(false);
               }}
-              inStockOnly={inStockOnly}
-              onToggleStockOnly={setInStockOnly}
+              stockFilter={stockFilter}
+              onStockFilterChange={(s) => {
+                setStockFilter(s);
+                setMobileFilterOpen(false);
+              }}
+              inStockCount={inStockCount}
+              outOfStockCount={outOfStockCount}
               priceRange={priceRange}
-              onPriceRangeChange={setPriceRange}
+              onPriceRangeChange={(r) => {
+                setPriceRange(r);
+                setMobileFilterOpen(false);
+              }}
+              minDiscount={minDiscount}
+              onMinDiscountChange={(d) => {
+                setMinDiscount(d);
+                setMobileFilterOpen(false);
+              }}
+              minRating={minRating}
+              onMinRatingChange={(r) => {
+                setMinRating(r);
+                setMobileFilterOpen(false);
+              }}
               techSpecs={techSpecs}
               onTechSpecChange={handleTechSpecChange}
               onClearAll={() => {

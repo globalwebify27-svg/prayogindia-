@@ -81,16 +81,17 @@ const WishlistCard: React.FC<{
       {/* Remove button */}
       <button
         onClick={onRemove}
-        className="absolute top-2.5 right-2.5 z-10 w-7 h-7 rounded-full bg-white/90 text-slate-400 hover:text-red-500 hover:bg-red-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all shadow-sm cursor-pointer"
+        className="absolute top-2.5 right-2.5 z-10 w-7 h-7 rounded-full bg-white/95 text-slate-400 hover:text-rose-600 hover:bg-rose-50 border border-slate-200/90 hover:border-rose-200 flex items-center justify-center transition-all shadow-xs cursor-pointer group/remove"
         title="Remove from Wishlist"
+        aria-label="Remove from Wishlist"
       >
-        <X className="w-3.5 h-3.5" />
+        <X className="w-3.5 h-3.5 group-hover/remove:scale-110 transition-transform" />
       </button>
 
       {/* Discount badge */}
       {discount > 0 && (
-        <div className="absolute top-2.5 right-10 z-10">
-          <span className="bg-[#FF3B30] text-white text-[9px] font-black px-1.5 py-0.5 rounded-md opacity-0 group-hover:opacity-100 transition-opacity">
+        <div className="absolute top-2.5 right-11 z-10">
+          <span className="bg-[#FF3B30] text-white text-[9px] font-black px-1.5 py-0.5 rounded-md shadow-xs">
             {discount}% OFF
           </span>
         </div>
@@ -122,7 +123,7 @@ const WishlistCard: React.FC<{
           <div className="flex items-center gap-0.5 text-amber-400">
             <Star className="w-2.5 h-2.5 fill-current" />
             <span className="text-[10px] font-bold text-slate-700">
-              {product.rating}
+              {Number(product.rating || 4.8).toFixed(1)}
             </span>
           </div>
         </div>
@@ -162,11 +163,11 @@ const WishlistCard: React.FC<{
         </span>
 
         {/* Actions */}
-        <div className="pt-2 border-t border-slate-100 space-y-1.5">
+        <div className="pt-2 border-t border-slate-100 flex items-center gap-1.5">
           {product.inStock ? (
             <button
               onClick={onMoveToCart}
-              className={`w-full py-2 rounded-xl text-[10px] font-extrabold uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all active:scale-95 cursor-pointer ${
+              className={`flex-1 py-2 rounded-xl text-[10px] font-extrabold uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all active:scale-95 cursor-pointer ${
                 movedToCart
                   ? "bg-emerald-600 text-white"
                   : "bg-[#00AEEF] hover:bg-[#0096D6] text-white shadow-sm shadow-[#00AEEF]/20"
@@ -174,7 +175,7 @@ const WishlistCard: React.FC<{
             >
               {movedToCart ? (
                 <>
-                  <CheckCircle2 className="w-3.5 h-3.5" /> Added to Cart!
+                  <CheckCircle2 className="w-3.5 h-3.5" /> Added!
                 </>
               ) : (
                 <>
@@ -187,11 +188,20 @@ const WishlistCard: React.FC<{
               href={`https://wa.me/919876543210?text=${whatsappMsg}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-2 rounded-xl text-[10px] font-extrabold flex items-center justify-center gap-1.5 transition-all"
+              className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white py-2 rounded-xl text-[10px] font-extrabold flex items-center justify-center gap-1.5 transition-all"
             >
               <MessageSquare className="w-3.5 h-3.5" /> Notify Me
             </a>
           )}
+
+          <button
+            onClick={onRemove}
+            title="Remove from Wishlist"
+            aria-label="Remove from Wishlist"
+            className="p-2 rounded-xl border border-slate-200 hover:border-rose-300 text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-all cursor-pointer shrink-0"
+          >
+            <Trash2 className="w-3.5 h-3.5" />
+          </button>
         </div>
       </div>
     </div>

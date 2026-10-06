@@ -4,6 +4,7 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 import { Product, ProductVariant } from "@/data/mockData";
 import { CustomerType } from "@/data/customerTypes";
 import { haptic } from "@/utils/haptics";
+import { ToastData } from "@/components/SuccessToast";
 
 export interface CartItem {
   product: Product;
@@ -39,22 +40,8 @@ interface StoreContextType {
     quantity: number;
   } | null;
   dismissCartNotification: () => void;
-  toast: {
-    id: string;
-    type?: "success" | "error" | "info";
-    title: string;
-    message?: string;
-    actionLabel?: string;
-    actionHref?: string;
-  } | null;
-  showToast: (options: {
-    type?: "success" | "error" | "info";
-    title: string;
-    message?: string;
-    actionLabel?: string;
-    actionHref?: string;
-    duration?: number;
-  }) => void;
+  toast: ToastData | null;
+  showToast: (options: Omit<ToastData, "id">) => void;
   dismissToast: () => void;
   addToCart: (
     product: Product,
@@ -91,31 +78,13 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({
     quantity: number;
   } | null>(null);
 
-  const [toast, setToast] = useState<{
-    id: string;
-    type?: "success" | "error" | "info";
-    title: string;
-    message?: string;
-    actionLabel?: string;
-    actionHref?: string;
-  } | null>(null);
+  const [toast, setToast] = useState<ToastData | null>(null);
 
-  const showToast = (options: {
-    type?: "success" | "error" | "info";
-    title: string;
-    message?: string;
-    actionLabel?: string;
-    actionHref?: string;
-    duration?: number;
-  }) => {
+  const showToast = (options: Omit<ToastData, "id">) => {
     const toastId = `toast-${Date.now()}`;
     setToast({
       id: toastId,
-      type: options.type || "success",
-      title: options.title,
-      message: options.message,
-      actionLabel: options.actionLabel,
-      actionHref: options.actionHref,
+      ...options,
     });
   };
 
@@ -225,21 +194,29 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({
     setWishlist((prev) => {
       const exists = prev.some((p) => p.id === product.id);
       if (exists) {
+        const nextList = prev.filter((p) => p.id !== product.id);
         showToast({
           type: "info",
           title: "Removed from Wishlist",
           message: product.name,
+          product: product,
+          count: nextList.length,
+          iconType: "wishlist-remove",
         });
-        return prev.filter((p) => p.id !== product.id);
+        return nextList;
       }
+      const nextList = [...prev, product];
       showToast({
         type: "success",
-        title: "Added to Wishlist ❤️",
+        title: "Saved to Wishlist",
         message: product.name,
         actionLabel: "View Wishlist",
         actionHref: "/wishlist",
+        product: product,
+        count: nextList.length,
+        iconType: "wishlist-add",
       });
-      return [...prev, product];
+      return nextList;
     });
   };
 
@@ -250,7 +227,20 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({
   const moveToWishlist = (product: Product, variantId?: string) => {
     removeFromCart(product.id, variantId);
     if (!wishlist.some((p) => p.id === product.id)) {
-      setWishlist((prev) => [...prev, product]);
+      setWishlist((prev) => {
+        const nextList = [...prev, product];
+        showToast({
+          type: "success",
+          title: "Saved to Wishlist",
+          message: product.name,
+          actionLabel: "View Wishlist",
+          actionHref: "/wishlist",
+          product: product,
+          count: nextList.length,
+          iconType: "wishlist-add",
+        });
+        return nextList;
+      });
     }
   };
 

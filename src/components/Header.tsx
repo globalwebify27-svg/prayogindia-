@@ -21,7 +21,6 @@ import {
   Layers,
   Sparkles,
   Award,
-  Flame,
   Tag,
   BookOpen,
   Briefcase,
@@ -36,9 +35,19 @@ import {
   Plane,
   Activity,
   Wifi,
+  Building2,
+  CreditCard,
+  Package,
+  Truck,
+  Gift,
   CircuitBoard,
-  GraduationCap,
   Zap,
+  Flame,
+  MessageSquare,
+  GraduationCap,
+  Code2,
+  FileText,
+  ArrowRight,
 } from "lucide-react";
 import {
   RoboticsCategoryIcon,
@@ -292,7 +301,7 @@ export const Header: React.FC<HeaderProps> = ({
       setServicesDropdownOpen(false);
       setProductsDropdownOpen(false);
       setAccountDropdownOpen(false);
-      setIsScrolled(window.scrollY > 40);
+      setIsScrolled(window.scrollY > 10);
     };
     handleScroll();
     document.addEventListener("mousedown", handleOutside);
@@ -407,19 +416,9 @@ export const Header: React.FC<HeaderProps> = ({
   }, [liveAnnouncements.length]);
 
   return (
-    <header
-      className={`sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200/90 transition-all duration-200 ${
-        isScrolled ? "shadow-md" : "shadow-xs"
-      }`}
-    >
-      {/* Top Header Announcement Bar Slider (Section 5 Spec - Smoothly scrolls away) */}
-      <div
-        className={`bg-[#0A1128] text-white text-xs border-b border-slate-800 transition-all duration-300 ${
-          isScrolled
-            ? "max-h-0 py-0 opacity-0 border-none overflow-hidden"
-            : "py-2 px-4 opacity-100 max-h-14"
-        }`}
-      >
+    <>
+      {/* Top Header Announcement Bar Slider (Scrolls off naturally without jitter) */}
+      <div className="bg-[#0A1128] text-white text-xs border-b border-slate-800 py-2 px-4">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
           <div className="flex items-center gap-2 overflow-hidden w-full sm:w-auto justify-center sm:justify-start">
             {liveAnnouncements.length > 0 &&
@@ -485,12 +484,13 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
       </div>
 
-      {/* Main Header Container with Logo & Action Icons - PERMANENTLY STICKY */}
-      <div
-        className={`max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 transition-all duration-200 ${
-          isScrolled ? "py-2 sm:py-2.5" : "py-2.5 sm:py-3.5"
+      {/* Main Sticky Header */}
+      <header
+        className={`sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200/90 transition-shadow duration-200 ${
+          isScrolled ? "shadow-md" : "shadow-xs"
         }`}
       >
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-2.5 sm:py-3.5">
           <div className="flex items-center justify-between gap-2 sm:gap-4">
             {/* Brand Logo */}
             <Link href="/" className="shrink-0 flex items-center min-w-0">
@@ -703,115 +703,232 @@ export const Header: React.FC<HeaderProps> = ({
               <div ref={accountMenuRef} className="relative">
                 <button
                   onClick={() => setAccountDropdownOpen(!accountDropdownOpen)}
-                  className="p-1.5 sm:p-2 text-slate-700 hover:text-[#00AEEF] transition-colors flex items-center gap-1 cursor-pointer"
+                  className="p-1.5 sm:p-2 text-slate-700 hover:text-[#00AEEF] transition-colors flex items-center gap-1.5 cursor-pointer rounded-xl hover:bg-slate-50"
                   aria-label="Account Menu"
                 >
-                  <User className="w-5 h-5 sm:w-6 sm:h-6 stroke-[1.8]" />
+                  {isLoggedIn && user ? (
+                    <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gradient-to-tr from-[#00AEEF] to-sky-400 text-white font-black text-xs flex items-center justify-center shadow-2xs">
+                      {user.avatarUrl ? (
+                        <img
+                          src={user.avatarUrl}
+                          alt={user.name}
+                          className="w-full h-full rounded-full object-cover"
+                        />
+                      ) : (
+                        <span>
+                          {user.name
+                            ? user.name
+                                .trim()
+                                .split(/\s+/)
+                                .map((n: string) => n[0])
+                                .slice(0, 2)
+                                .join("")
+                                .toUpperCase()
+                            : "OK"}
+                        </span>
+                      )}
+                    </div>
+                  ) : (
+                    <User className="w-5 h-5 sm:w-6 sm:h-6 stroke-[1.8]" />
+                  )}
                   <ChevronDown className="w-3.5 h-3.5 text-slate-400 hidden sm:block" />
                 </button>
 
-                {/* Section 20 & 3 Account Dropdown */}
+                {/* Account Dropdown Menu */}
                 {accountDropdownOpen && (
-                  <div className="absolute right-0 top-full mt-2 w-64 bg-white rounded-2xl shadow-2xl border border-slate-200 p-3 z-50 animate-in fade-in slide-in-from-top-2 duration-150 text-xs font-semibold text-slate-700 space-y-1">
+                  <div className="absolute right-0 top-full mt-2 w-72 sm:w-80 bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl border border-slate-200/90 p-2.5 z-50 animate-in fade-in zoom-in-95 duration-150 text-xs font-semibold text-slate-700">
                     {isLoggedIn && user ? (
-                      <>
-                        {/* Hello, User Header */}
-                        <div className="px-3 py-2 border-b border-slate-100 bg-slate-50/60 rounded-xl mb-1">
-                          <span className="text-[10px] font-black uppercase tracking-wider text-[#00AEEF] block">
-                            Customer Account
+                      <div className="space-y-1">
+                        {/* Header: ACCOUNT & User Profile */}
+                        <div className="px-3 py-2.5 bg-gradient-to-br from-slate-50 to-sky-50/50 rounded-xl border border-slate-100">
+                          <span className="text-[10px] font-black uppercase tracking-widest text-[#00AEEF] block mb-1">
+                            ACCOUNT
                           </span>
-                          <div className="text-xs font-black text-slate-900 truncate">
-                            Hello, {user.name}
-                          </div>
-                          <div className="text-[10px] text-slate-400 font-medium truncate">
-                            {user.email}
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-[#00AEEF] to-sky-400 text-white font-black text-sm flex items-center justify-center shadow-xs shrink-0 ring-2 ring-white">
+                              {user.avatarUrl ? (
+                                <img
+                                  src={user.avatarUrl}
+                                  alt={user.name}
+                                  className="w-full h-full rounded-full object-cover"
+                                />
+                              ) : (
+                                <span>
+                                  {user.name
+                                    ? user.name
+                                        .trim()
+                                        .split(/\s+/)
+                                        .map((n: string) => n[0])
+                                        .slice(0, 2)
+                                        .join("")
+                                        .toUpperCase()
+                                    : "OK"}
+                                </span>
+                              )}
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <div className="text-xs font-black text-slate-900 truncate leading-tight">
+                                {user.name || "Om Kumar"}
+                              </div>
+                              <div className="text-[11px] text-slate-500 font-medium truncate mt-0.5">
+                                {user.email || "om@email.com"}
+                              </div>
+                            </div>
                           </div>
                         </div>
 
-                        {/* 1. My Profile */}
+                        {/* Divider */}
+                        <div className="my-1 border-t border-slate-100" />
+
+                        {/* 1. 👤 My Account */}
                         <Link
                           href="/account/profile"
                           onClick={() => setAccountDropdownOpen(false)}
-                          className="w-full text-left p-2 hover:bg-[#E0F7FC] hover:text-[#00AEEF] rounded-xl transition-colors flex items-center gap-2.5"
+                          className="w-full text-left px-2.5 py-2 hover:bg-[#E0F7FC] hover:text-[#00AEEF] rounded-xl transition-all flex items-center justify-between group"
                         >
-                          <User className="w-4 h-4 text-[#00AEEF]" />
-                          <span>My Profile</span>
+                          <div className="flex items-center gap-2.5">
+                            <User className="w-4 h-4 text-[#00AEEF]" />
+                            <span className="text-xs font-bold text-slate-700 group-hover:text-[#00AEEF]">
+                              My Account
+                            </span>
+                          </div>
+                          <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-[#00AEEF] group-hover:translate-x-0.5 transition-all" />
                         </Link>
 
-                        {/* 2. My Orders */}
+                        {/* 2. 📦 My Orders */}
                         <Link
                           href="/account/orders"
                           onClick={() => setAccountDropdownOpen(false)}
-                          className="w-full text-left p-2 hover:bg-[#E0F7FC] hover:text-[#00AEEF] rounded-xl transition-colors flex items-center gap-2.5"
+                          className="w-full text-left px-2.5 py-2 hover:bg-[#E0F7FC] hover:text-[#00AEEF] rounded-xl transition-all flex items-center justify-between group"
                         >
-                          <ShoppingBag className="w-4 h-4 text-emerald-600" />
-                          <span>My Orders</span>
+                          <div className="flex items-center gap-2.5">
+                            <Package className="w-4 h-4 text-emerald-600" />
+                            <span className="text-xs font-bold text-slate-700 group-hover:text-[#00AEEF]">
+                              My Orders
+                            </span>
+                          </div>
+                          <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-[#00AEEF] group-hover:translate-x-0.5 transition-all" />
                         </Link>
 
-                        {/* 3. Wishlist */}
+                        {/* 3. ♡ Wishlist */}
                         <Link
                           href="/wishlist"
                           onClick={() => setAccountDropdownOpen(false)}
-                          className="w-full text-left p-2 hover:bg-[#E0F7FC] hover:text-[#00AEEF] rounded-xl transition-colors flex items-center gap-2.5"
+                          className="w-full text-left px-2.5 py-2 hover:bg-rose-50 hover:text-rose-600 rounded-xl transition-all flex items-center justify-between group"
                         >
-                          <Heart className="w-4 h-4 text-red-500" />
-                          <span>Wishlist</span>
-                        </Link>
-
-                        {/* 4. Saved Address */}
-                        <Link
-                          href="/account/addresses"
-                          onClick={() => setAccountDropdownOpen(false)}
-                          className="w-full text-left p-2 hover:bg-[#E0F7FC] hover:text-[#00AEEF] rounded-xl transition-colors flex items-center gap-2.5"
-                        >
-                          <MapPin className="w-4 h-4 text-purple-600" />
-                          <span>Saved Address</span>
-                        </Link>
-
-                        {/* 5. Support Tickets */}
-                        <Link
-                          href="/account/support"
-                          onClick={() => setAccountDropdownOpen(false)}
-                          className="w-full text-left p-2 hover:bg-[#E0F7FC] hover:text-[#00AEEF] rounded-xl transition-colors flex items-center gap-2.5"
-                        >
-                          <Headphones className="w-4 h-4 text-sky-600" />
-                          <span>Support Tickets</span>
-                        </Link>
-
-                        {/* 6. Reward Points */}
-                        <Link
-                          href="/account/rewards"
-                          onClick={() => setAccountDropdownOpen(false)}
-                          className="w-full text-left p-2 hover:bg-[#E0F7FC] hover:text-[#00AEEF] rounded-xl transition-colors flex items-center gap-2.5"
-                        >
-                          <Award className="w-4 h-4 text-amber-500" />
-                          <div className="flex items-center justify-between flex-1">
-                            <span>Reward Points</span>
-                            <span className="text-[10px] bg-amber-100 text-amber-900 font-bold px-1.5 py-0.2 rounded">
-                              {user.rewardPoints} pts
+                          <div className="flex items-center gap-2.5">
+                            <Heart className="w-4 h-4 text-rose-500" />
+                            <span className="text-xs font-bold text-slate-700 group-hover:text-rose-600">
+                              Wishlist
                             </span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            {wishlistCount > 0 && (
+                              <span className="text-[10px] bg-rose-100 text-rose-700 font-bold px-1.5 py-0.2 rounded-full">
+                                {wishlistCount}
+                              </span>
+                            )}
+                            <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-rose-600 group-hover:translate-x-0.5 transition-all" />
                           </div>
                         </Link>
 
-                        {/* 7. Logout */}
-                        <div className="pt-2 border-t border-slate-100 mt-1">
-                          <button
-                            onClick={() => {
-                              logoutUser();
-                              setAccountDropdownOpen(false);
-                              router.push("/login");
-                            }}
-                            className="w-full text-left p-2 hover:bg-red-50 text-red-600 rounded-xl transition-colors flex items-center gap-2.5 cursor-pointer font-bold"
-                          >
-                            <LogOut className="w-4 h-4 text-red-500" />
-                            <span>Logout</span>
-                          </button>
-                        </div>
-                      </>
+                        {/* 4. 📍 Saved Addresses */}
+                        <Link
+                          href="/account/addresses"
+                          onClick={() => setAccountDropdownOpen(false)}
+                          className="w-full text-left px-2.5 py-2 hover:bg-[#E0F7FC] hover:text-[#00AEEF] rounded-xl transition-all flex items-center justify-between group"
+                        >
+                          <div className="flex items-center gap-2.5">
+                            <MapPin className="w-4 h-4 text-purple-600" />
+                            <span className="text-xs font-bold text-slate-700 group-hover:text-[#00AEEF]">
+                              Saved Addresses
+                            </span>
+                          </div>
+                          <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-[#00AEEF] group-hover:translate-x-0.5 transition-all" />
+                        </Link>
+
+                        {/* 5. 💳 Payment Methods */}
+                        <Link
+                          href="/account/payments"
+                          onClick={() => setAccountDropdownOpen(false)}
+                          className="w-full text-left px-2.5 py-2 hover:bg-[#E0F7FC] hover:text-[#00AEEF] rounded-xl transition-all flex items-center justify-between group"
+                        >
+                          <div className="flex items-center gap-2.5">
+                            <CreditCard className="w-4 h-4 text-indigo-600" />
+                            <span className="text-xs font-bold text-slate-700 group-hover:text-[#00AEEF]">
+                              Payment Methods
+                            </span>
+                          </div>
+                          <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-[#00AEEF] group-hover:translate-x-0.5 transition-all" />
+                        </Link>
+
+                        {/* 6. 🎁 Rewards / Credits */}
+                        <Link
+                          href="/account/rewards"
+                          onClick={() => setAccountDropdownOpen(false)}
+                          className="w-full text-left px-2.5 py-2 hover:bg-amber-50 hover:text-amber-700 rounded-xl transition-all flex items-center justify-between group"
+                        >
+                          <div className="flex items-center gap-2.5">
+                            <Gift className="w-4 h-4 text-amber-500" />
+                            <span className="text-xs font-bold text-slate-700 group-hover:text-amber-700">
+                              Rewards / Credits
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-[10px] bg-amber-100 text-amber-900 font-black px-1.5 py-0.2 rounded-md">
+                              {user.rewardPoints || 0} pts
+                            </span>
+                            <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-amber-700 group-hover:translate-x-0.5 transition-all" />
+                          </div>
+                        </Link>
+
+                        {/* Divider */}
+                        <div className="my-1 border-t border-slate-100" />
+
+                        {/* 🏢 B2B / Institutional Sales */}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setAccountDropdownOpen(false);
+                            if (onOpenB2BModal) {
+                              onOpenB2BModal();
+                            } else {
+                              router.push("/account/quotations");
+                            }
+                          }}
+                          className="w-full text-left px-2.5 py-2 hover:bg-indigo-50 hover:text-[#1E56A0] rounded-xl transition-all flex items-center justify-between group cursor-pointer"
+                        >
+                          <div className="flex items-center gap-2.5">
+                            <Building2 className="w-4 h-4 text-[#1E56A0]" />
+                            <span className="text-xs font-bold text-slate-700 group-hover:text-[#1E56A0]">
+                              B2B / Institutional Sales
+                            </span>
+                          </div>
+                          <ChevronRight className="w-4 h-4 text-[#00AEEF] group-hover:translate-x-0.5 transition-all" />
+                        </button>
+
+                        {/* Divider */}
+                        <div className="my-1 border-t border-slate-100" />
+
+                        {/* ↪ Logout */}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            logoutUser();
+                            setAccountDropdownOpen(false);
+                            router.push("/login");
+                          }}
+                          className="w-full text-left px-2.5 py-2 hover:bg-red-50 text-red-600 rounded-xl transition-all flex items-center gap-2.5 cursor-pointer font-bold group"
+                        >
+                          <LogOut className="w-4 h-4 text-red-500 group-hover:-translate-x-0.5 transition-transform" />
+                          <span className="text-xs font-bold">Logout</span>
+                        </button>
+                      </div>
                     ) : (
-                      <>
-                        <div className="px-3 py-2 border-b border-slate-100">
-                          <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 block">
+                      <div className="space-y-1">
+                        {/* Header: ACCOUNT ACCESS */}
+                        <div className="px-3 py-2 border-b border-slate-100 bg-slate-50/50 rounded-xl mb-1">
+                          <span className="text-[10px] font-black uppercase tracking-widest text-[#00AEEF] block">
                             Account Access
                           </span>
                           <span className="text-xs font-black text-slate-900">
@@ -819,34 +936,104 @@ export const Header: React.FC<HeaderProps> = ({
                           </span>
                         </div>
 
+                        {/* 1. Sign In */}
                         <Link
                           href="/login"
                           onClick={() => setAccountDropdownOpen(false)}
-                          className="w-full text-left p-2 hover:bg-[#E0F7FC] hover:text-[#00AEEF] rounded-xl transition-colors flex items-center gap-2.5"
+                          className="w-full text-left p-2.5 hover:bg-[#E0F7FC] hover:text-[#00AEEF] rounded-xl transition-all flex items-center justify-between group"
                         >
-                          <LogIn className="w-4 h-4 text-[#00AEEF]" />
-                          <div>
-                            <div className="font-bold">Sign In</div>
-                            <div className="text-[10px] text-slate-400 font-normal">
-                              Registered customer access
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-lg bg-[#E0F7FC] text-[#00AEEF] flex items-center justify-center group-hover:scale-105 transition-transform shrink-0">
+                              <LogIn className="w-4 h-4" />
+                            </div>
+                            <div>
+                              <div className="font-bold text-slate-800 group-hover:text-[#00AEEF] text-xs leading-snug">
+                                Sign In
+                              </div>
+                              <div className="text-[10px] text-slate-400 font-normal">
+                                Registered customer access
+                              </div>
                             </div>
                           </div>
+                          <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-[#00AEEF] group-hover:translate-x-0.5 transition-all" />
                         </Link>
 
+                        {/* 2. Create Account */}
                         <Link
                           href="/register"
                           onClick={() => setAccountDropdownOpen(false)}
-                          className="w-full text-left p-2 hover:bg-[#E0F7FC] hover:text-[#00AEEF] rounded-xl transition-colors flex items-center gap-2.5"
+                          className="w-full text-left p-2.5 hover:bg-emerald-50 hover:text-emerald-700 rounded-xl transition-all flex items-center justify-between group"
                         >
-                          <UserPlus className="w-4 h-4 text-emerald-600" />
-                          <div>
-                            <div className="font-bold">Register</div>
-                            <div className="text-[10px] text-slate-400 font-normal">
-                              Create new verified account
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center group-hover:scale-105 transition-transform shrink-0">
+                              <UserPlus className="w-4 h-4" />
+                            </div>
+                            <div>
+                              <div className="font-bold text-slate-800 group-hover:text-emerald-700 text-xs leading-snug">
+                                Create Account
+                              </div>
+                              <div className="text-[10px] text-slate-400 font-normal">
+                                Create new verified account
+                              </div>
                             </div>
                           </div>
+                          <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-emerald-600 group-hover:translate-x-0.5 transition-all" />
                         </Link>
-                      </>
+
+                        {/* 3. Track Order */}
+                        <Link
+                          href="/track-order"
+                          onClick={() => setAccountDropdownOpen(false)}
+                          className="w-full text-left p-2.5 hover:bg-amber-50 hover:text-amber-700 rounded-xl transition-all flex items-center justify-between group"
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center group-hover:scale-105 transition-transform shrink-0">
+                              <Truck className="w-4 h-4" />
+                            </div>
+                            <div>
+                              <div className="font-bold text-slate-800 group-hover:text-amber-700 text-xs leading-snug">
+                                Track Order
+                              </div>
+                              <div className="text-[10px] text-slate-400 font-normal">
+                                Check shipment &amp; AWB status
+                              </div>
+                            </div>
+                          </div>
+                          <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-amber-600 group-hover:translate-x-0.5 transition-all" />
+                        </Link>
+
+                        {/* Divider */}
+                        <div className="my-1.5 border-t border-slate-100" />
+
+                        {/* 4. B2B / Institutional Sales */}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setAccountDropdownOpen(false);
+                            if (onOpenB2BModal) {
+                              onOpenB2BModal();
+                            } else {
+                              router.push("/services");
+                            }
+                          }}
+                          className="w-full text-left p-2.5 hover:bg-indigo-50 hover:text-[#1E56A0] rounded-xl transition-all flex items-center justify-between group cursor-pointer"
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-lg bg-indigo-50 text-[#1E56A0] flex items-center justify-center group-hover:scale-105 transition-transform shrink-0">
+                              <Building2 className="w-4 h-4" />
+                            </div>
+                            <div>
+                              <div className="font-bold text-slate-800 group-hover:text-[#1E56A0] text-xs leading-snug">
+                                B2B / Institutional Sales
+                              </div>
+                              <div className="text-[10px] text-slate-400 font-normal">
+                                Bulk orders, STEM labs &amp; tenders
+                              </div>
+                            </div>
+                          </div>
+                          <ChevronRight className="w-4 h-4 text-[#00AEEF] group-hover:translate-x-0.5 transition-all" />
+                        </button>
+                      </div>
                     )}
                   </div>
                 )}
@@ -960,215 +1147,463 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
 
       {/* ======================================================== */}
-      {/* SECTION 3: Main Desktop Primary Navigation Bar */}
+      {/* SECTION 3: Main Desktop Primary Navigation Bar with Simple Clean Dropdowns */}
       {/* ======================================================== */}
-      <div
-        className="bg-white hidden lg:block relative border-t border-slate-100/90 transition-all duration-200"
-      >
-        <div className={`max-w-7xl mx-auto px-6 sm:px-8 flex items-center justify-between font-medium text-slate-700 transition-all duration-200 ${
-          isScrolled ? "h-10 text-xs" : "h-12 text-[13px]"
-        }`}>
-          <div className="flex items-center gap-6 xl:gap-8">
+      <div className="bg-white hidden lg:block relative border-t border-slate-100 shadow-xs z-30">
+        <div className="max-w-7xl mx-auto px-6 sm:px-8 flex items-center justify-between font-medium text-slate-700 h-11 text-[13px]">
+          <div className="flex items-center gap-1 xl:gap-2">
             {/* 1. Home */}
             <Link
               href="/"
-              className={`py-3 transition-colors duration-150 ${
+              className={`px-3 py-1.5 rounded-lg transition-all duration-150 ${
                 activeTab === "home"
-                  ? "text-[#00AEEF] font-bold"
-                  : "hover:text-[#00AEEF]"
+                  ? "text-[#00AEEF] font-bold bg-[#E0F7FC]/60"
+                  : "hover:text-[#00AEEF] hover:bg-slate-50"
               }`}
             >
               Home
             </Link>
 
-            {/* 2. All Products */}
-            <Link
-              href="/products"
-              className={`py-3 transition-colors duration-150 ${
-                pathname === "/products"
-                  ? "text-[#00AEEF] font-bold"
-                  : "hover:text-[#00AEEF]"
-              }`}
-            >
-              Products &amp; Hardware
-            </Link>
+            {/* 2. Products & Hardware */}
+            <div className="relative group py-2">
+              <Link
+                href="/products"
+                className={`flex items-center gap-1 px-3 py-1.5 rounded-lg transition-all duration-150 ${
+                  pathname?.startsWith("/products")
+                    ? "text-[#00AEEF] font-bold bg-[#E0F7FC]/60"
+                    : "hover:text-[#00AEEF] hover:bg-slate-50"
+                }`}
+              >
+                <span>Products &amp; Hardware</span>
+                <ChevronDown className="w-3.5 h-3.5 text-slate-400 group-hover:text-[#00AEEF] group-hover:rotate-180 transition-transform duration-200" />
+              </Link>
+
+              {/* Simple Clean Dropdown */}
+              <div className="absolute top-full left-0 pt-1.5 opacity-0 translate-y-1 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto transition-all duration-150 ease-out z-50">
+                <div className="w-64 bg-white rounded-xl shadow-xl border border-slate-200/90 p-1.5 space-y-0.5 text-xs font-semibold text-slate-700">
+                  <Link
+                    href="/categories/arduino-development-boards"
+                    className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-[#E0F7FC] hover:text-[#00AEEF] transition-colors group/sub"
+                  >
+                    <span>Arduino &amp; Dev Boards</span>
+                    <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover/sub:text-[#00AEEF] group-hover/sub:translate-x-0.5 transition-all shrink-0" />
+                  </Link>
+
+                  <Link
+                    href="/categories/raspberry-pi"
+                    className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-[#E0F7FC] hover:text-[#00AEEF] transition-colors group/sub"
+                  >
+                    <span>Raspberry Pi &amp; SBCs</span>
+                    <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover/sub:text-[#00AEEF] group-hover/sub:translate-x-0.5 transition-all shrink-0" />
+                  </Link>
+
+                  <Link
+                    href="/categories/robotics"
+                    className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-[#E0F7FC] hover:text-[#00AEEF] transition-colors group/sub"
+                  >
+                    <span>Robotics &amp; DIY Kits</span>
+                    <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover/sub:text-[#00AEEF] group-hover/sub:translate-x-0.5 transition-all shrink-0" />
+                  </Link>
+
+                  <Link
+                    href="/categories/sensors-modules"
+                    className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-[#E0F7FC] hover:text-[#00AEEF] transition-colors group/sub"
+                  >
+                    <span>Sensors &amp; Modules</span>
+                    <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover/sub:text-[#00AEEF] group-hover/sub:translate-x-0.5 transition-all shrink-0" />
+                  </Link>
+
+                  <Link
+                    href="/categories/motors-drivers"
+                    className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-[#E0F7FC] hover:text-[#00AEEF] transition-colors group/sub"
+                  >
+                    <span>Motors &amp; Motor Drivers</span>
+                    <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover/sub:text-[#00AEEF] group-hover/sub:translate-x-0.5 transition-all shrink-0" />
+                  </Link>
+
+                  <Link
+                    href="/categories/drone-technology"
+                    className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-[#E0F7FC] hover:text-[#00AEEF] transition-colors group/sub"
+                  >
+                    <span>Drones &amp; UAV Parts</span>
+                    <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover/sub:text-[#00AEEF] group-hover/sub:translate-x-0.5 transition-all shrink-0" />
+                  </Link>
+
+                  <Link
+                    href="/categories/batteries-power"
+                    className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-[#E0F7FC] hover:text-[#00AEEF] transition-colors group/sub"
+                  >
+                    <span>Batteries &amp; Power Hubs</span>
+                    <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover/sub:text-[#00AEEF] group-hover/sub:translate-x-0.5 transition-all shrink-0" />
+                  </Link>
+
+                  <Link
+                    href="/categories/electronic-components"
+                    className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-[#E0F7FC] hover:text-[#00AEEF] transition-colors group/sub"
+                  >
+                    <span>Electronic Components</span>
+                    <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover/sub:text-[#00AEEF] group-hover/sub:translate-x-0.5 transition-all shrink-0" />
+                  </Link>
+
+                  <div className="border-t border-slate-100 my-1" />
+
+                  <Link
+                    href="/products"
+                    className="flex items-center justify-between px-3 py-2 rounded-lg text-[#00AEEF] hover:bg-[#E0F7FC] font-bold transition-colors"
+                  >
+                    <span>View All Products →</span>
+                  </Link>
+                </div>
+              </div>
+            </div>
 
             {/* 3. Categories */}
-            <Link
-              href="/categories"
-              className={`py-3 transition-colors duration-150 ${
-                pathname?.startsWith("/categories")
-                  ? "text-[#00AEEF] font-bold"
-                  : "hover:text-[#00AEEF]"
-              }`}
-            >
-              Categories
-            </Link>
+            <div className="relative group py-2">
+              <Link
+                href="/categories"
+                className={`flex items-center gap-1 px-3 py-1.5 rounded-lg transition-all duration-150 ${
+                  pathname?.startsWith("/categories")
+                    ? "text-[#00AEEF] font-bold bg-[#E0F7FC]/60"
+                    : "hover:text-[#00AEEF] hover:bg-slate-50"
+                }`}
+              >
+                <span>Categories</span>
+                <ChevronDown className="w-3.5 h-3.5 text-slate-400 group-hover:text-[#00AEEF] group-hover:rotate-180 transition-transform duration-200" />
+              </Link>
+
+              {/* Simple Clean Dropdown */}
+              <div className="absolute top-full left-0 pt-1.5 opacity-0 translate-y-1 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto transition-all duration-150 ease-out z-50">
+                <div className="w-64 bg-white rounded-xl shadow-xl border border-slate-200/90 p-1.5 space-y-0.5 text-xs font-semibold text-slate-700">
+                  {HEADER_CATEGORIES.slice(0, 8).map((cat) => (
+                    <Link
+                      key={cat.slug}
+                      href={cat.href}
+                      className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-[#E0F7FC] hover:text-[#00AEEF] transition-colors group/sub"
+                    >
+                      <span className="truncate">{cat.name}</span>
+                      <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover/sub:text-[#00AEEF] group-hover/sub:translate-x-0.5 transition-all shrink-0" />
+                    </Link>
+                  ))}
+
+                  <div className="border-t border-slate-100 my-1" />
+
+                  <Link
+                    href="/categories"
+                    className="flex items-center justify-between px-3 py-2 rounded-lg text-[#00AEEF] hover:bg-[#E0F7FC] font-bold transition-colors"
+                  >
+                    <span>View All 20 Categories →</span>
+                  </Link>
+                </div>
+              </div>
+            </div>
 
             {/* 4. Brands */}
-            <Link
-              href="/brands"
-              className={`py-3 transition-colors duration-150 ${
-                pathname === "/brands"
-                  ? "text-[#00AEEF] font-bold"
-                  : "hover:text-[#00AEEF]"
-              }`}
-            >
-              Brands
-            </Link>
+            <div className="relative group py-2">
+              <Link
+                href="/brands"
+                className={`flex items-center gap-1 px-3 py-1.5 rounded-lg transition-all duration-150 ${
+                  pathname?.startsWith("/brands")
+                    ? "text-[#00AEEF] font-bold bg-[#E0F7FC]/60"
+                    : "hover:text-[#00AEEF] hover:bg-slate-50"
+                }`}
+              >
+                <span>Brands</span>
+                <ChevronDown className="w-3.5 h-3.5 text-slate-400 group-hover:text-[#00AEEF] group-hover:rotate-180 transition-transform duration-200" />
+              </Link>
 
-            {/* 5. Deals & Offers */}
-            <Link
-              href="/offers"
-              className={`py-3 transition-colors duration-150 flex items-center gap-1.5 ${
-                pathname?.startsWith("/offers")
-                  ? "text-[#FF3B30] font-bold"
-                  : "text-[#FF3B30] hover:text-red-700"
-              }`}
-            >
-              <Flame className="w-3.5 h-3.5" />
-              <span>Deals &amp; Offers</span>
-            </Link>
+              {/* Simple Clean Dropdown */}
+              <div className="absolute top-full left-0 pt-1.5 opacity-0 translate-y-1 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto transition-all duration-150 ease-out z-50">
+                <div className="w-56 bg-white rounded-xl shadow-xl border border-slate-200/90 p-1.5 space-y-0.5 text-xs font-semibold text-slate-700">
+                  {[
+                    "Arduino",
+                    "Raspberry Pi",
+                    "NVIDIA",
+                    "Holybro / Pixhawk",
+                    "Espressif Systems",
+                    "STMicroelectronics",
+                    "SparkFun",
+                    "Waveshare",
+                  ].map((brand) => (
+                    <Link
+                      key={brand}
+                      href={`/products?brand=${encodeURIComponent(brand)}`}
+                      className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-[#E0F7FC] hover:text-[#00AEEF] transition-colors group/sub"
+                    >
+                      <span className="truncate">{brand}</span>
+                      <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover/sub:text-[#00AEEF] group-hover/sub:translate-x-0.5 transition-all shrink-0" />
+                    </Link>
+                  ))}
 
-            {/* 6. Services Dropdown */}
-            <div
-              className="relative group py-3"
-              onMouseEnter={() => setServicesDropdownOpen(true)}
-              onMouseLeave={() => setServicesDropdownOpen(false)}
-            >
+                  <div className="border-t border-slate-100 my-1" />
+
+                  <Link
+                    href="/brands"
+                    className="flex items-center justify-between px-3 py-2 rounded-lg text-[#00AEEF] hover:bg-[#E0F7FC] font-bold transition-colors"
+                  >
+                    <span>View All Brands →</span>
+                  </Link>
+                </div>
+              </div>
+            </div>
+
+            {/* 5. Top Deals */}
+            <div className="relative group py-2">
+              <Link
+                href="/offers"
+                className={`flex items-center gap-1 px-3 py-1.5 rounded-lg transition-all duration-150 ${
+                  pathname?.startsWith("/offers")
+                    ? "text-[#FF3B30] font-bold bg-red-50"
+                    : "text-[#FF3B30] hover:text-red-700 hover:bg-red-50/50 font-semibold"
+                }`}
+              >
+                <span>Top Deals</span>
+                <ChevronDown className="w-3.5 h-3.5 text-[#FF3B30]/70 group-hover:text-[#FF3B30] group-hover:rotate-180 transition-transform duration-200" />
+              </Link>
+
+              {/* Simple Clean Dropdown */}
+              <div className="absolute top-full left-0 pt-1.5 opacity-0 translate-y-1 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto transition-all duration-150 ease-out z-50">
+                <div className="w-56 bg-white rounded-xl shadow-xl border border-red-100 p-1.5 space-y-0.5 text-xs font-semibold text-slate-700">
+                  <Link
+                    href="/offers"
+                    className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-red-50 hover:text-[#FF3B30] transition-colors group/sub"
+                  >
+                    <span>Lightning Deals (&lt; ₹999)</span>
+                    <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover/sub:text-[#FF3B30] group-hover/sub:translate-x-0.5 transition-all shrink-0" />
+                  </Link>
+                  <Link
+                    href="/offers"
+                    className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-red-50 hover:text-[#FF3B30] transition-colors group/sub"
+                  >
+                    <span>Robotics Kit Bundles</span>
+                    <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover/sub:text-[#FF3B30] group-hover/sub:translate-x-0.5 transition-all shrink-0" />
+                  </Link>
+                  <Link
+                    href="/offers"
+                    className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-red-50 hover:text-[#FF3B30] transition-colors group/sub"
+                  >
+                    <span>Drone Parts Offers</span>
+                    <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover/sub:text-[#FF3B30] group-hover/sub:translate-x-0.5 transition-all shrink-0" />
+                  </Link>
+                  <Link
+                    href="/offers"
+                    className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-red-50 hover:text-[#FF3B30] transition-colors group/sub"
+                  >
+                    <span>Clearance Sale</span>
+                    <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover/sub:text-[#FF3B30] group-hover/sub:translate-x-0.5 transition-all shrink-0" />
+                  </Link>
+
+                  <div className="border-t border-slate-100 my-1" />
+
+                  <Link
+                    href="/offers"
+                    className="flex items-center justify-between px-3 py-2 rounded-lg text-[#FF3B30] hover:bg-red-50 font-bold transition-colors"
+                  >
+                    <span>View All Deals →</span>
+                  </Link>
+                </div>
+              </div>
+            </div>
+
+            {/* 6. Lab Setups & Services */}
+            <div className="relative group py-2">
               <Link
                 href="/services"
-                className={`flex items-center gap-1 transition-colors duration-150 ${
-                  pathname?.startsWith("/services") || servicesDropdownOpen
-                    ? "text-[#00AEEF] font-bold"
-                    : "hover:text-[#00AEEF]"
+                className={`flex items-center gap-1 px-3 py-1.5 rounded-lg transition-all duration-150 ${
+                  pathname?.startsWith("/services")
+                    ? "text-[#00AEEF] font-bold bg-[#E0F7FC]/60"
+                    : "hover:text-[#00AEEF] hover:bg-slate-50"
                 }`}
               >
                 <span>Lab Setups &amp; Services</span>
-                <ChevronDown
-                  className={`w-3.5 h-3.5 text-slate-400 transition-transform duration-200 ${
-                    servicesDropdownOpen
-                      ? "rotate-180 text-[#00AEEF]"
-                      : "group-hover:text-[#00AEEF]"
-                  }`}
-                />
+                <ChevronDown className="w-3.5 h-3.5 text-slate-400 group-hover:text-[#00AEEF] group-hover:rotate-180 transition-transform duration-200" />
               </Link>
 
-              {servicesDropdownOpen && (
-                <div className="absolute top-full left-0 mt-0.5 w-64 bg-white rounded-2xl shadow-2xl border border-slate-200 p-3 z-50 animate-in fade-in slide-in-from-top-1 duration-150 text-xs font-medium text-slate-700 space-y-1">
-                  <div className="px-3 py-1.5 border-b border-slate-100 mb-1">
-                    <span className="text-[10px] font-bold uppercase text-[#00AEEF] tracking-wider block">
-                      Institutional Setups
-                    </span>
-                  </div>
-
+              {/* Simple Clean Dropdown */}
+              <div className="absolute top-full left-0 pt-1.5 opacity-0 translate-y-1 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto transition-all duration-150 ease-out z-50">
+                <div className="w-64 bg-white rounded-xl shadow-xl border border-slate-200/90 p-1.5 space-y-0.5 text-xs font-semibold text-slate-700">
                   <Link
                     href="/services/stem-lab-setup"
-                    onClick={() => setServicesDropdownOpen(false)}
-                    className="w-full text-left p-2 hover:bg-[#E0F7FC] hover:text-[#00AEEF] rounded-xl transition-colors flex items-center gap-2"
+                    className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-[#E0F7FC] hover:text-[#00AEEF] transition-colors group/sub"
                   >
                     <span>STEM &amp; ATL Lab Setup</span>
+                    <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover/sub:text-[#00AEEF] group-hover/sub:translate-x-0.5 transition-all shrink-0" />
                   </Link>
-
                   <Link
                     href="/services/robotics-lab-setup"
-                    onClick={() => setServicesDropdownOpen(false)}
-                    className="w-full text-left p-2 hover:bg-[#E0F7FC] hover:text-[#00AEEF] rounded-xl transition-colors flex items-center gap-2"
+                    className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-[#E0F7FC] hover:text-[#00AEEF] transition-colors group/sub"
                   >
-                    <span>Robotics &amp; AI Lab Setup</span>
+                    <span>Robotics &amp; AI Research Lab</span>
+                    <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover/sub:text-[#00AEEF] group-hover/sub:translate-x-0.5 transition-all shrink-0" />
                   </Link>
-
                   <Link
                     href="/services/drone-lab-setup"
-                    onClick={() => setServicesDropdownOpen(false)}
-                    className="w-full text-left p-2 hover:bg-[#E0F7FC] hover:text-[#00AEEF] rounded-xl transition-colors flex items-center gap-2"
+                    className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-[#E0F7FC] hover:text-[#00AEEF] transition-colors group/sub"
                   >
-                    <span>Drone &amp; Avionics Lab</span>
+                    <span>Drone &amp; Avionics Center</span>
+                    <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover/sub:text-[#00AEEF] group-hover/sub:translate-x-0.5 transition-all shrink-0" />
                   </Link>
-
                   <Link
                     href="/services/industrial-projects"
-                    onClick={() => setServicesDropdownOpen(false)}
-                    className="w-full text-left p-2 hover:bg-[#E0F7FC] hover:text-[#00AEEF] rounded-xl transition-colors flex items-center gap-2"
+                    className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-[#E0F7FC] hover:text-[#00AEEF] transition-colors group/sub"
                   >
-                    <span>Industrial R&amp;D Projects</span>
+                    <span>Industrial Prototyping &amp; R&amp;D</span>
+                    <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover/sub:text-[#00AEEF] group-hover/sub:translate-x-0.5 transition-all shrink-0" />
                   </Link>
 
-                  <Link
-                    href="/services/consultancy"
-                    onClick={() => setServicesDropdownOpen(false)}
-                    className="w-full text-left p-2 hover:bg-[#E0F7FC] hover:text-[#00AEEF] rounded-xl transition-colors flex items-center gap-2"
-                  >
-                    <span>Institutional Consultancy</span>
-                  </Link>
+                  <div className="border-t border-slate-100 my-1" />
 
-                  <div className="pt-2 border-t border-slate-100 mt-1">
-                    <Link
-                      href="/services"
-                      onClick={() => setServicesDropdownOpen(false)}
-                      className="w-full bg-[#00AEEF] text-white text-center py-2 rounded-xl font-bold block transition-colors hover:bg-[#0096D6]"
-                    >
-                      All Services Overview →
-                    </Link>
-                  </div>
+                  <button
+                    type="button"
+                    onClick={() => onOpenB2BModal?.()}
+                    className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-[#00AEEF] hover:bg-[#E0F7FC] font-bold transition-colors cursor-pointer text-left"
+                  >
+                    <span>B2B Institutional Sales →</span>
+                  </button>
                 </div>
-              )}
+              </div>
             </div>
 
             {/* 7. Learning Hub */}
-            <Link
-              href="/learning"
-              className={`py-3 transition-colors duration-150 ${
-                pathname === "/learning"
-                  ? "text-[#00AEEF] font-bold"
-                  : "hover:text-[#00AEEF]"
-              }`}
-            >
-              Learning Hub
-            </Link>
+            <div className="relative group py-2">
+              <Link
+                href="/learning"
+                className={`flex items-center gap-1 px-3 py-1.5 rounded-lg transition-all duration-150 ${
+                  pathname?.startsWith("/learning")
+                    ? "text-[#00AEEF] font-bold bg-[#E0F7FC]/60"
+                    : "hover:text-[#00AEEF] hover:bg-slate-50"
+                }`}
+              >
+                <span>Learning Hub</span>
+                <ChevronDown className="w-3.5 h-3.5 text-slate-400 group-hover:text-[#00AEEF] group-hover:rotate-180 transition-transform duration-200" />
+              </Link>
+
+              {/* Simple Clean Dropdown */}
+              <div className="absolute top-full left-0 pt-1.5 opacity-0 translate-y-1 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto transition-all duration-150 ease-out z-50">
+                <div className="w-56 bg-white rounded-xl shadow-xl border border-slate-200/90 p-1.5 space-y-0.5 text-xs font-semibold text-slate-700">
+                  <Link
+                    href="/learning"
+                    className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-[#E0F7FC] hover:text-[#00AEEF] transition-colors group/sub"
+                  >
+                    <span>Step-by-Step Tutorials</span>
+                    <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover/sub:text-[#00AEEF] group-hover/sub:translate-x-0.5 transition-all shrink-0" />
+                  </Link>
+                  <Link
+                    href="/learning"
+                    className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-[#E0F7FC] hover:text-[#00AEEF] transition-colors group/sub"
+                  >
+                    <span>Project Codes &amp; Sketches</span>
+                    <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover/sub:text-[#00AEEF] group-hover/sub:translate-x-0.5 transition-all shrink-0" />
+                  </Link>
+                  <Link
+                    href="/learning"
+                    className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-[#E0F7FC] hover:text-[#00AEEF] transition-colors group/sub"
+                  >
+                    <span>Robotics Masterclasses</span>
+                    <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover/sub:text-[#00AEEF] group-hover/sub:translate-x-0.5 transition-all shrink-0" />
+                  </Link>
+                </div>
+              </div>
+            </div>
 
             {/* 8. About */}
-            <Link
-              href="/about"
-              className={`py-3 transition-colors duration-150 ${
-                pathname === "/about"
-                  ? "text-[#00AEEF] font-bold"
-                  : "hover:text-[#00AEEF]"
-              }`}
-            >
-              About
-            </Link>
+            <div className="relative group py-2">
+              <Link
+                href="/about"
+                className={`flex items-center gap-1 px-3 py-1.5 rounded-lg transition-all duration-150 ${
+                  pathname?.startsWith("/about")
+                    ? "text-[#00AEEF] font-bold bg-[#E0F7FC]/60"
+                    : "hover:text-[#00AEEF] hover:bg-slate-50"
+                }`}
+              >
+                <span>About</span>
+                <ChevronDown className="w-3.5 h-3.5 text-slate-400 group-hover:text-[#00AEEF] group-hover:rotate-180 transition-transform duration-200" />
+              </Link>
+
+              {/* Simple Clean Dropdown */}
+              <div className="absolute top-full right-0 pt-1.5 opacity-0 translate-y-1 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto transition-all duration-150 ease-out z-50">
+                <div className="w-48 bg-white rounded-xl shadow-xl border border-slate-200/90 p-1.5 space-y-0.5 text-xs font-semibold text-slate-700">
+                  <Link
+                    href="/about"
+                    className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-[#E0F7FC] hover:text-[#00AEEF] transition-colors group/sub"
+                  >
+                    <span>About Our Mission</span>
+                    <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover/sub:text-[#00AEEF] group-hover/sub:translate-x-0.5 transition-all shrink-0" />
+                  </Link>
+                  <Link
+                    href="/careers"
+                    className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-[#E0F7FC] hover:text-[#00AEEF] transition-colors group/sub"
+                  >
+                    <span>Careers &amp; Culture</span>
+                    <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover/sub:text-[#00AEEF] group-hover/sub:translate-x-0.5 transition-all shrink-0" />
+                  </Link>
+                </div>
+              </div>
+            </div>
 
             {/* 9. Contact */}
-            <Link
-              href="/contact"
-              className={`py-3 transition-colors duration-150 ${
-                pathname === "/contact"
-                  ? "text-[#00AEEF] font-bold"
-                  : "hover:text-[#00AEEF]"
-              }`}
-            >
-              Contact
-            </Link>
+            <div className="relative group py-2">
+              <Link
+                href="/contact"
+                className={`flex items-center gap-1 px-3 py-1.5 rounded-lg transition-all duration-150 ${
+                  pathname?.startsWith("/contact")
+                    ? "text-[#00AEEF] font-bold bg-[#E0F7FC]/60"
+                    : "hover:text-[#00AEEF] hover:bg-slate-50"
+                }`}
+              >
+                <span>Contact</span>
+                <ChevronDown className="w-3.5 h-3.5 text-slate-400 group-hover:text-[#00AEEF] group-hover:rotate-180 transition-transform duration-200" />
+              </Link>
+
+              {/* Simple Clean Dropdown */}
+              <div className="absolute top-full right-0 pt-1.5 opacity-0 translate-y-1 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto transition-all duration-150 ease-out z-50">
+                <div className="w-56 bg-white rounded-xl shadow-xl border border-slate-200/90 p-1.5 space-y-0.5 text-xs font-semibold text-slate-700">
+                  <Link
+                    href="/contact"
+                    className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-[#E0F7FC] hover:text-[#00AEEF] transition-colors group/sub"
+                  >
+                    <span>Customer Support Desk</span>
+                    <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover/sub:text-[#00AEEF] group-hover/sub:translate-x-0.5 transition-all shrink-0" />
+                  </Link>
+                  <a
+                    href="https://wa.me/919876543210"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-emerald-50 hover:text-emerald-600 transition-colors group/sub"
+                  >
+                    <span>WhatsApp Support</span>
+                    <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover/sub:text-emerald-600 group-hover/sub:translate-x-0.5 transition-all shrink-0" />
+                  </a>
+                  <button
+                    type="button"
+                    onClick={() => onOpenB2BModal?.()}
+                    className="w-full flex items-center justify-between px-3 py-2 rounded-lg hover:bg-amber-50 hover:text-amber-700 transition-colors group/sub text-left cursor-pointer"
+                  >
+                    <span>B2B &amp; Bulk Orders</span>
+                    <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover/sub:text-amber-600 group-hover/sub:translate-x-0.5 transition-all shrink-0" />
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
-
-      {/* ======================================================== */}
-      {/* Section 3 Modern Mobile Responsive Navigation Drawer */}
-      {/* ======================================================== */}
-      <MobileMenuDrawer
-        isOpen={mobileMenuOpen}
-        onClose={() => setMobileMenuOpen(false)}
-        cartCount={cartCount}
-        wishlistCount={wishlistCount}
-        onOpenCart={onOpenCart}
-        onOpenWishlist={onOpenWishlist}
-        onOpenB2BModal={onOpenB2BModal}
-        user={user}
-        isLoggedIn={isLoggedIn}
-        onLogout={logoutUser}
-      />
     </header>
+
+    {/* ======================================================== */}
+    {/* Section 3 Modern Mobile Responsive Navigation Drawer */}
+    {/* ======================================================== */}
+    <MobileMenuDrawer
+      isOpen={mobileMenuOpen}
+      onClose={() => setMobileMenuOpen(false)}
+      cartCount={cartCount}
+      wishlistCount={wishlistCount}
+      onOpenCart={onOpenCart}
+      onOpenWishlist={onOpenWishlist}
+      onOpenB2BModal={onOpenB2BModal}
+      user={user}
+      isLoggedIn={isLoggedIn}
+      onLogout={logoutUser}
+    />
+    </>
   );
 };

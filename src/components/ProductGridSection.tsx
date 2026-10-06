@@ -10,23 +10,8 @@ import {
   Clock,
   Star,
   Heart,
-  Flame,
-  Sparkles,
-  Trophy,
-  Target,
-  Layers,
   ArrowRight,
-  Cpu,
-  Plane,
-  Bot,
-  Wifi,
-  Activity,
-  CircuitBoard,
-  GraduationCap,
-  Zap,
   CheckCircle2,
-  SlidersHorizontal,
-  PackageCheck,
   ShoppingBag,
 } from "lucide-react";
 import { PRODUCTS, Product } from "@/data/mockData";
@@ -37,7 +22,6 @@ type CuratedTab = "trending" | "new_arrivals" | "best_sellers" | "recommended";
 interface CategoryConfig {
   name: string;
   slug: string;
-  Icon: React.ElementType;
   accent: string;
   badgeBg: string;
   description: string;
@@ -47,7 +31,6 @@ const CATEGORY_CONFIGS: Record<string, CategoryConfig> = {
   "Arduino & Microcontrollers": {
     name: "Arduino & Microcontrollers",
     slug: "arduino-development-boards",
-    Icon: Cpu,
     accent: "text-amber-600",
     badgeBg: "bg-amber-50 text-amber-700 border-amber-200",
     description:
@@ -56,7 +39,6 @@ const CATEGORY_CONFIGS: Record<string, CategoryConfig> = {
   "Drones & UAV Parts": {
     name: "Drones & UAV Parts",
     slug: "drone-technology",
-    Icon: Plane,
     accent: "text-sky-600",
     badgeBg: "bg-sky-50 text-sky-700 border-sky-200",
     description:
@@ -65,7 +47,6 @@ const CATEGORY_CONFIGS: Record<string, CategoryConfig> = {
   "Robotics & DIY Kits": {
     name: "Robotics & DIY Kits",
     slug: "robotics",
-    Icon: Bot,
     accent: "text-blue-600",
     badgeBg: "bg-blue-50 text-blue-700 border-blue-200",
     description:
@@ -74,7 +55,6 @@ const CATEGORY_CONFIGS: Record<string, CategoryConfig> = {
   "IoT & Wireless Modules": {
     name: "IoT & Wireless Modules",
     slug: "iot",
-    Icon: Wifi,
     accent: "text-teal-600",
     badgeBg: "bg-teal-50 text-teal-700 border-teal-200",
     description:
@@ -83,7 +63,6 @@ const CATEGORY_CONFIGS: Record<string, CategoryConfig> = {
   "Sensors & Electronic Modules": {
     name: "Sensors & Electronic Modules",
     slug: "sensors-modules",
-    Icon: Activity,
     accent: "text-rose-600",
     badgeBg: "bg-rose-50 text-rose-700 border-rose-200",
     description:
@@ -92,7 +71,6 @@ const CATEGORY_CONFIGS: Record<string, CategoryConfig> = {
   "Single Board Computers & Dev Boards": {
     name: "Single Board Computers & Dev Boards",
     slug: "arduino-development-boards",
-    Icon: CircuitBoard,
     accent: "text-purple-600",
     badgeBg: "bg-purple-50 text-purple-700 border-purple-200",
     description:
@@ -101,7 +79,6 @@ const CATEGORY_CONFIGS: Record<string, CategoryConfig> = {
   "STEM & Educational Kits": {
     name: "STEM & Educational Kits",
     slug: "stem-kits",
-    Icon: GraduationCap,
     accent: "text-emerald-600",
     badgeBg: "bg-emerald-50 text-emerald-700 border-emerald-200",
     description:
@@ -110,7 +87,6 @@ const CATEGORY_CONFIGS: Record<string, CategoryConfig> = {
   "Motors, Steppers & Drivers": {
     name: "Motors, Steppers & Drivers",
     slug: "electronic-components",
-    Icon: Zap,
     accent: "text-orange-600",
     badgeBg: "bg-orange-50 text-orange-700 border-orange-200",
     description:
@@ -283,15 +259,32 @@ export const ProductGridSection: React.FC<ProductSectionProps> = ({
           });
 
           const existingIds = new Set(PRODUCTS.map((p) => p.id));
-          const newDbOnly = apiProducts.filter((p) => !existingIds.has(p.id));
+          const existingSlugs = new Set(
+            PRODUCTS.map((p) => p.slug).filter(Boolean),
+          );
+          const newDbOnly = apiProducts.filter(
+            (p) =>
+              !existingIds.has(p.id) &&
+              (!p.slug || !existingSlugs.has(p.slug)),
+          );
           const updatedMock = PRODUCTS.map((p) => {
             const match = apiProducts.find(
-              (ap) => ap.id === p.id || ap.slug === p.slug,
+              (ap) =>
+                ap.id === p.id ||
+                (ap.slug && p.slug && ap.slug === p.slug),
             );
             return match || p;
           });
 
-          setLiveProducts([...newDbOnly, ...updatedMock]);
+          const combined = [...newDbOnly, ...updatedMock];
+          const seenIds = new Set<string>();
+          const uniqueProducts = combined.filter((p) => {
+            if (!p.id || seenIds.has(p.id)) return false;
+            seenIds.add(p.id);
+            return true;
+          });
+
+          setLiveProducts(uniqueProducts);
         }
       })
       .catch((err) => {
@@ -568,25 +561,23 @@ export const ProductGridSection: React.FC<ProductSectionProps> = ({
               <div className="bg-white border border-slate-200 p-1 rounded-xl flex items-center shadow-2xs text-xs font-semibold">
                 <button
                   onClick={() => setViewMode("all_categories")}
-                  className={`px-2.5 sm:px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 cursor-pointer ${
+                  className={`px-2.5 sm:px-3 py-1.5 rounded-lg transition-all flex items-center cursor-pointer ${
                     viewMode === "all_categories"
                       ? "bg-slate-900 text-white shadow-xs"
                       : "text-slate-600 hover:text-slate-900"
                   }`}
                 >
-                  <Layers className="w-3.5 h-3.5" />
                   <span>All Categories</span>
                 </button>
 
                 <button
                   onClick={() => setViewMode("curated")}
-                  className={`px-2.5 sm:px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 cursor-pointer ${
+                  className={`px-2.5 sm:px-3 py-1.5 rounded-lg transition-all flex items-center cursor-pointer ${
                     viewMode === "curated"
                       ? "bg-[#00AEEF] text-white shadow-xs"
                       : "text-slate-600 hover:text-slate-900"
                   }`}
                 >
-                  <Sparkles className="w-3.5 h-3.5" />
                   <span>Highlights</span>
                 </button>
               </div>
@@ -610,13 +601,12 @@ export const ProductGridSection: React.FC<ProductSectionProps> = ({
             onTouchEnd={() => setIsJumpPaused(false)}
           >
             {/* Pinned "Jump To:" label badge */}
-            <div className="pl-2 pr-2.5 sm:pr-3 shrink-0 flex items-center gap-1.5 border-r border-slate-200 text-xs font-semibold text-slate-500 z-20 bg-white/90">
-              <SlidersHorizontal className="w-3.5 h-3.5 text-[#00AEEF]" />
+            <div className="pl-2.5 pr-2.5 sm:pr-3 shrink-0 flex items-center border-r border-slate-200 text-xs font-bold text-slate-500 z-20 bg-white/90">
               <span className="whitespace-nowrap">Jump To:</span>
             </div>
 
             {/* Left and Right Fade Mask Gradients */}
-            <div className="pointer-events-none absolute left-[85px] sm:left-[100px] top-0 bottom-0 w-6 bg-gradient-to-r from-white via-white/80 to-transparent z-10" />
+            <div className="pointer-events-none absolute left-[80px] sm:left-[90px] top-0 bottom-0 w-6 bg-gradient-to-r from-white via-white/80 to-transparent z-10" />
             <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-white via-white/80 to-transparent z-10" />
 
             {/* Auto-scrolling Track */}
@@ -624,21 +614,15 @@ export const ProductGridSection: React.FC<ProductSectionProps> = ({
               ref={jumpScrollRef}
               className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto scrollbar-none py-1 pl-2.5 pr-8 text-xs select-none"
             >
-              {[...categoryOrder, ...categoryOrder].map((catName, idx) => {
-                const config = CATEGORY_CONFIGS[catName];
-                const IconComponent = config ? config.Icon : PackageCheck;
-
-                return (
-                  <button
-                    key={`${catName}-${idx}`}
-                    onClick={() => scrollToCategoryShelf(catName)}
-                    className="shrink-0 bg-slate-50 hover:bg-[#E0F7FC] text-slate-700 hover:text-[#00AEEF] border border-slate-200/80 hover:border-[#00AEEF]/40 px-2.5 sm:px-3 py-1.5 rounded-lg font-medium flex items-center gap-1.5 transition-all cursor-pointer shadow-2xs group text-xs"
-                  >
-                    <IconComponent className="w-3.5 h-3.5 text-slate-500 group-hover:text-[#00AEEF]" />
-                    <span className="whitespace-nowrap">{catName}</span>
-                  </button>
-                );
-              })}
+              {[...categoryOrder, ...categoryOrder].map((catName, idx) => (
+                <button
+                  key={`${catName}-${idx}`}
+                  onClick={() => scrollToCategoryShelf(catName)}
+                  className="shrink-0 bg-slate-50 hover:bg-[#E0F7FC] text-slate-700 hover:text-[#00AEEF] border border-slate-200/80 hover:border-[#00AEEF]/40 px-3 py-1.5 rounded-lg font-medium flex items-center transition-all cursor-pointer shadow-2xs group text-xs"
+                >
+                  <span className="whitespace-nowrap">{catName}</span>
+                </button>
+              ))}
             </div>
           </div>
         </div>
@@ -660,8 +644,6 @@ export const ProductGridSection: React.FC<ProductSectionProps> = ({
                 );
               }
 
-              const config = CATEGORY_CONFIGS[category];
-              const IconComp = config?.Icon || PackageCheck;
               const elementId = `shelf-${category.toLowerCase().replace(/[^a-z0-9]/g, "-")}`;
 
               return (
@@ -673,9 +655,6 @@ export const ProductGridSection: React.FC<ProductSectionProps> = ({
                   {/* Category Header Row */}
                   <div className="flex items-center justify-between border-b border-slate-200/80 pb-2.5 sm:pb-3">
                     <div className="flex items-center gap-2 sm:gap-2.5">
-                      <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-[#00AEEF]/10 text-[#00AEEF] flex items-center justify-center border border-[#00AEEF]/20">
-                        <IconComp className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                      </div>
                       <h3 className="text-base sm:text-xl font-bold text-slate-900 tracking-tight">
                         {category}
                       </h3>
@@ -737,57 +716,45 @@ export const ProductGridSection: React.FC<ProductSectionProps> = ({
             <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none text-xs">
               <button
                 onClick={() => setActiveCuratedTab("trending")}
-                className={`px-4 py-2.5 rounded-2xl font-extrabold flex items-center gap-1.5 transition-all whitespace-nowrap cursor-pointer ${
+                className={`px-4 py-2.5 rounded-2xl font-extrabold flex items-center transition-all whitespace-nowrap cursor-pointer ${
                   activeCuratedTab === "trending"
                     ? "bg-gradient-to-r from-[#FF3B30] to-rose-600 text-white shadow-md shadow-red-500/20"
                     : "bg-white text-slate-700 hover:bg-slate-100 border border-slate-200"
                 }`}
               >
-                <Flame
-                  className={`w-4 h-4 ${activeCuratedTab === "trending" ? "text-amber-300" : "text-[#FF3B30]"}`}
-                />
                 <span>Trending Products</span>
               </button>
 
               <button
                 onClick={() => setActiveCuratedTab("new_arrivals")}
-                className={`px-4 py-2.5 rounded-2xl font-extrabold flex items-center gap-1.5 transition-all whitespace-nowrap cursor-pointer ${
+                className={`px-4 py-2.5 rounded-2xl font-extrabold flex items-center transition-all whitespace-nowrap cursor-pointer ${
                   activeCuratedTab === "new_arrivals"
                     ? "bg-gradient-to-r from-[#00AEEF] to-cyan-600 text-white shadow-md shadow-[#00AEEF]/20"
                     : "bg-white text-slate-700 hover:bg-slate-100 border border-slate-200"
                 }`}
               >
-                <Sparkles
-                  className={`w-4 h-4 ${activeCuratedTab === "new_arrivals" ? "text-amber-300" : "text-[#00AEEF]"}`}
-                />
                 <span>New Arrivals</span>
               </button>
 
               <button
                 onClick={() => setActiveCuratedTab("best_sellers")}
-                className={`px-4 py-2.5 rounded-2xl font-extrabold flex items-center gap-1.5 transition-all whitespace-nowrap cursor-pointer ${
+                className={`px-4 py-2.5 rounded-2xl font-extrabold flex items-center transition-all whitespace-nowrap cursor-pointer ${
                   activeCuratedTab === "best_sellers"
                     ? "bg-gradient-to-r from-amber-500 to-orange-600 text-white shadow-md shadow-amber-500/20"
                     : "bg-white text-slate-700 hover:bg-slate-100 border border-slate-200"
                 }`}
               >
-                <Trophy
-                  className={`w-4 h-4 ${activeCuratedTab === "best_sellers" ? "text-amber-200" : "text-amber-500"}`}
-                />
                 <span>Best Sellers</span>
               </button>
 
               <button
                 onClick={() => setActiveCuratedTab("recommended")}
-                className={`px-4 py-2.5 rounded-2xl font-extrabold flex items-center gap-1.5 transition-all whitespace-nowrap cursor-pointer ${
+                className={`px-4 py-2.5 rounded-2xl font-extrabold flex items-center transition-all whitespace-nowrap cursor-pointer ${
                   activeCuratedTab === "recommended"
                     ? "bg-gradient-to-r from-emerald-600 to-teal-700 text-white shadow-md shadow-emerald-500/20"
                     : "bg-white text-slate-700 hover:bg-slate-100 border border-slate-200"
                 }`}
               >
-                <Target
-                  className={`w-4 h-4 ${activeCuratedTab === "recommended" ? "text-emerald-200" : "text-emerald-600"}`}
-                />
                 <span>Recommended Hardware</span>
               </button>
             </div>

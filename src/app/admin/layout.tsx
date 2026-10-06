@@ -66,25 +66,23 @@ export default function AdminLayout({
   }
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] text-slate-900 flex flex-col font-sans">
-      <div className="flex flex-1 min-h-screen">
-        {/* Isolated Persistent Admin Sidebar */}
-        <AdminSidebar
-          mobileOpen={mobileSidebarOpen}
-          onCloseMobile={() => setMobileSidebarOpen(false)}
+    <div className="h-screen w-screen overflow-hidden bg-[#F8FAFC] text-slate-900 flex font-sans">
+      {/* Isolated Persistent Admin Sidebar (Locked in place, never scrolls with the page) */}
+      <AdminSidebar
+        mobileOpen={mobileSidebarOpen}
+        onCloseMobile={() => setMobileSidebarOpen(false)}
+      />
+
+      {/* Main Operational Container (Only this section scrolls) */}
+      <div className="flex-1 h-screen overflow-y-auto overflow-x-hidden flex flex-col min-w-0 bg-[#F8FAFC]">
+        <AdminHeader
+          adminUser={adminUser}
+          onToggleMobileSidebar={() => setMobileSidebarOpen(true)}
         />
 
-        {/* Main Operational Container */}
-        <div className="flex-1 flex flex-col min-w-0 overflow-x-hidden">
-          <AdminHeader
-            adminUser={adminUser}
-            onToggleMobileSidebar={() => setMobileSidebarOpen(true)}
-          />
-
-          <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-[1600px] w-full mx-auto">
-            {children}
-          </main>
-        </div>
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-[1600px] w-full mx-auto">
+          {children}
+        </main>
       </div>
     </div>
   );
