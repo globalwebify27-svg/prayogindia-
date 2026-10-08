@@ -122,12 +122,13 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           {/* Product Name */}
           <Link
             href={`/products/${product.slug || product.id}`}
-            className="block"
+            className="block group-hover:text-[#00AEEF] transition-colors"
           >
             <h3 className="text-[11px] sm:text-xs font-bold text-slate-900 line-clamp-2 leading-tight hover:text-[#00AEEF] transition-colors cursor-pointer min-h-[28px]">
               {product.name}
             </h3>
           </Link>
+
 
           {/* SKU */}
           <div className="text-[9px] font-semibold text-slate-400">

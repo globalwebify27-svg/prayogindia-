@@ -42,23 +42,12 @@ import {
   Boxes,
   Lock,
   ArrowRight,
+  UploadCloud,
+  Loader2,
+  Image as ImageIcon,
 } from "lucide-react";
 import { PRODUCTS, Product } from "@/data/mockData";
 import { MOCK_CUSTOMER_ORDERS, CustomerOrder } from "@/data/accountData";
-
-// Preset Hardware Images for easy 1-click product image selection
-const HARDWARE_PRESET_IMAGES = [
-  { name: "Arduino Uno R4", url: "/assets/images/categories/arduino.jpg" },
-  { name: "Sensors Bundle", url: "/assets/images/categories/sensors.jpg" },
-  { name: "FPV Camera Drone", url: "/assets/images/categories/vip_drone.png" },
-  { name: "IoT ESP32 Wi-Fi", url: "/assets/images/categories/iot_wireless.jpg" },
-  { name: "Robotics Chassis", url: "/assets/images/categories/robotics.jpg" },
-  { name: "LiPo 4S Battery", url: "/assets/images/categories/batteries.jpg" },
-  { name: "NEMA17 Stepper", url: "/assets/images/categories/stepper_motor.jpg" },
-  { name: "HD Camera Module", url: "/assets/images/categories/camera.jpg" },
-  { name: "3D Filament & Nozzle", url: "/assets/images/categories/3d_printing.jpg" },
-  { name: "Soldering & Lab Tools", url: "/assets/images/categories/tools.jpg" },
-];
 
 const CATEGORIES_LIST = [
   "Arduino & Microcontrollers",
@@ -250,7 +239,7 @@ export default function UnifiedAdminHubPage() {
   const [newProdPrice, setNewProdPrice] = useState<number>(1499);
   const [newProdMrp, setNewProdMrp] = useState<number>(2499);
   const [newProdStock, setNewProdStock] = useState<number>(50);
-  const [newProdImage, setNewProdImage] = useState("/assets/images/categories/arduino.jpg");
+  const [newProdImage, setNewProdImage] = useState("");
   const [newProdDesc, setNewProdDesc] = useState(
     "High-performance hardware component engineered for Indian makers, engineers, and educational labs.",
   );
@@ -259,6 +248,60 @@ export default function UnifiedAdminHubPage() {
   const [newProdFeature3, setNewProdFeature3] = useState("Supports Arduino IDE & MicroPython");
   const [newProdIsSensitive, setNewProdIsSensitive] = useState(false);
   const [newProdInStock, setNewProdInStock] = useState(true);
+
+  // Auto Image Compression & WebP/AVIF Upload State
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [uploadStats, setUploadStats] = useState<{
+    originalSize: number;
+    compressedSize: number;
+    savings: number;
+    format: string;
+  } | null>(null);
+  const [compressFormat, setCompressFormat] = useState<"webp" | "avif">("webp");
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingImage(true);
+    setUploadStats(null);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("format", compressFormat);
+      formData.append("folder", "products");
+
+      const res = await fetch("/api/admin/upload", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await res.json();
+      if (data.success && (data.data?.url || data.items?.[0]?.url)) {
+        const item = data.data?.url ? data.data : data.items[0];
+        setNewProdImage(item.url);
+        setUploadStats({
+          originalSize: item.originalBytes || file.size,
+          compressedSize: item.bytes,
+          savings:
+            item.savingsPercentage ||
+            Math.max(
+              0,
+              Math.round(((file.size - item.bytes) / file.size) * 100),
+            ),
+          format: item.format || compressFormat,
+        });
+        showToast(
+          `Image converted & compressed to ${compressFormat.toUpperCase()} (${Math.round((item.bytes || 0) / 1024)} KB)!`,
+        );
+      } else {
+        alert(data.message || "Upload failed. Please try again.");
+      }
+    } catch {
+      alert("Network error uploading image.");
+    } finally {
+      setUploadingImage(false);
+    }
+  };
 
   // Calculated Metrics
   const totalRevenue = useMemo(
@@ -922,46 +965,112 @@ export default function UnifiedAdminHubPage() {
                 </div>
               </div>
 
-              {/* Image & Preset Library */}
+              {/* Image Upload & Preset Library */}
               <div className="space-y-4 pt-4 border-t border-slate-100">
-                <h3 className="text-xs font-extrabold uppercase text-slate-400 tracking-wider">
-                  3. Media & Product Photo
-                </h3>
+                <div className="flex items-center justify-between">
+                  <h3 className="text-xs font-extrabold uppercase text-slate-400 tracking-wider">
+                    3. Media & Product Photo
+                  </h3>
+                  {/* Format Selector */}
+                  <div className="flex items-center gap-1.5 bg-slate-100 p-1 rounded-xl text-[11px] font-bold">
+                    <span className="text-slate-400 px-1.5 text-[10px] uppercase">Format:</span>
+                    <button
+                      type="button"
+                      onClick={() => setCompressFormat("webp")}
+                      className={`px-2.5 py-0.5 rounded-lg transition-all cursor-pointer ${
+                        compressFormat === "webp"
+                          ? "bg-white text-[#00AEEF] shadow-2xs"
+                          : "text-slate-600 hover:text-slate-900"
+                      }`}
+                    >
+                      WebP (Fast)
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setCompressFormat("avif")}
+                      className={`px-2.5 py-0.5 rounded-lg transition-all cursor-pointer ${
+                        compressFormat === "avif"
+                          ? "bg-white text-indigo-600 shadow-2xs"
+                          : "text-slate-600 hover:text-slate-900"
+                      }`}
+                    >
+                      AVIF (Ultra)
+                    </button>
+                  </div>
+                </div>
 
+                {/* Upload Drag & Drop Area */}
+                <div className="relative border-2 border-dashed border-slate-200 hover:border-[#00AEEF] bg-slate-50/60 hover:bg-sky-50/30 rounded-2xl p-4 sm:p-6 text-center transition-all group">
+                  <input
+                    type="file"
+                    accept="image/png, image/jpeg, image/jpg, image/webp, image/avif, image/gif, image/svg+xml"
+                    onChange={handleImageUpload}
+                    disabled={uploadingImage}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed z-10"
+                  />
+
+                  {uploadingImage ? (
+                    <div className="py-4 flex flex-col items-center justify-center gap-2">
+                      <Loader2 className="w-8 h-8 text-[#00AEEF] animate-spin" />
+                      <span className="text-xs font-bold text-slate-800">
+                        Compressing &amp; Converting to {compressFormat.toUpperCase()} with Sharp...
+                      </span>
+                      <span className="text-[11px] text-slate-400">
+                        Optimizing dimensions &amp; stripping metadata
+                      </span>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center justify-center gap-2">
+                      <div className="w-10 h-10 rounded-xl bg-white border border-slate-200 text-[#00AEEF] flex items-center justify-center shadow-2xs group-hover:scale-105 transition-transform">
+                        <UploadCloud className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <span className="text-xs font-bold text-slate-800">
+                          Click to upload or drag &amp; drop product photo
+                        </span>
+                        <p className="text-[11px] text-slate-400 mt-0.5">
+                          Upload PNG, JPG, or any image — automatically compressed to <strong>{compressFormat.toUpperCase()}</strong>
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Compression Result Pill */}
+                {uploadStats && (
+                  <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-2xl flex items-center justify-between text-xs">
+                    <div className="flex items-center gap-2 text-emerald-800 font-bold">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                      <span>Converted to {uploadStats.format.toUpperCase()}</span>
+                    </div>
+                    <div className="text-[11px] font-mono text-emerald-700">
+                      {Math.round(uploadStats.originalSize / 1024)} KB →{" "}
+                      <strong>{Math.round(uploadStats.compressedSize / 1024)} KB</strong>{" "}
+                      <span className="bg-emerald-200/70 text-emerald-900 font-bold px-1.5 py-0.5 rounded ml-1">
+                        -{uploadStats.savings}% saved
+                      </span>
+                    </div>
+                  </div>
+                )}
+
+                {/* Image Asset URL & Live Preview */}
                 <div>
                   <label className="block text-xs font-bold text-slate-700 mb-1.5">
                     Image Asset URL
                   </label>
-                  <input
-                    type="text"
-                    value={newProdImage}
-                    onChange={(e) => setNewProdImage(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-xs font-mono text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#005CA9]"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-[11px] font-bold text-slate-500 mb-2">
-                    Quick Pick from Prayog Pre-Loaded High-Res Library:
-                  </label>
-                  <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
-                    {HARDWARE_PRESET_IMAGES.map((preset) => (
-                      <button
-                        type="button"
-                        key={preset.name}
-                        onClick={() => setNewProdImage(preset.url)}
-                        className={`p-2 rounded-xl border text-[11px] font-bold text-left transition-all cursor-pointer flex flex-col items-center gap-1.5 ${
-                          newProdImage === preset.url
-                            ? "bg-sky-50 border-[#005CA9] text-[#005CA9] ring-2 ring-[#005CA9]/30"
-                            : "bg-slate-50 border-slate-200 hover:bg-slate-100 text-slate-700"
-                        }`}
-                      >
-                        <div className="w-10 h-10 rounded-lg overflow-hidden bg-white border border-slate-200 flex items-center justify-center">
-                          <img src={preset.url} alt={preset.name} className="w-full h-full object-contain" />
-                        </div>
-                        <span className="line-clamp-1 text-center text-[10px]">{preset.name}</span>
-                      </button>
-                    ))}
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={newProdImage}
+                      onChange={(e) => setNewProdImage(e.target.value)}
+                      placeholder="/uploads/... or https://..."
+                      className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-xs font-mono text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#005CA9]"
+                    />
+                    {newProdImage ? (
+                      <div className="w-10 h-10 rounded-xl bg-white border border-slate-200 overflow-hidden shrink-0 flex items-center justify-center p-0.5">
+                        <img src={newProdImage} alt="Preview" className="w-full h-full object-contain" />
+                      </div>
+                    ) : null}
                   </div>
                 </div>
               </div>
@@ -1064,11 +1173,18 @@ export default function UnifiedAdminHubPage() {
               {/* Card Container */}
               <div className="bg-white text-slate-900 rounded-2xl p-4 shadow-lg border border-slate-100 space-y-3">
                 <div className="w-full h-44 bg-slate-50 rounded-xl overflow-hidden flex items-center justify-center p-3 relative border border-slate-100">
-                  <img
-                    src={newProdImage || "/assets/images/categories/arduino.jpg"}
-                    alt="Preview"
-                    className="w-full h-full object-contain"
-                  />
+                  {newProdImage ? (
+                    <img
+                      src={newProdImage}
+                      alt="Preview"
+                      className="w-full h-full object-contain"
+                    />
+                  ) : (
+                    <div className="flex flex-col items-center justify-center text-slate-300 gap-1.5">
+                      <ImageIcon className="w-8 h-8 stroke-1" />
+                      <span className="text-[11px] font-medium text-slate-400">No image uploaded yet</span>
+                    </div>
+                  )}
                   {newProdMrp > newProdPrice && (
                     <span className="absolute top-2.5 left-2.5 bg-[#FFC20E] text-slate-900 text-[10px] font-black px-2 py-0.5 rounded-md shadow-xs">
                       {Math.round(((newProdMrp - newProdPrice) / newProdMrp) * 100)}% OFF
@@ -1357,11 +1473,14 @@ export default function UnifiedAdminHubPage() {
       {/* ========================================================================= */}
       {activeTab === "categories" && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {CATEGORIES_LIST.map((cat, idx) => {
+          {CATEGORIES_LIST.map((cat) => {
             const count = productsList.filter((p) =>
               p.category.toLowerCase().includes(cat.toLowerCase()),
             ).length;
-            const presetImg = HARDWARE_PRESET_IMAGES[idx % HARDWARE_PRESET_IMAGES.length]?.url;
+            const matchingProduct = productsList.find((p) =>
+              p.category.toLowerCase().includes(cat.toLowerCase()),
+            );
+            const catImg = matchingProduct?.image || "";
 
             return (
               <div
@@ -1370,11 +1489,15 @@ export default function UnifiedAdminHubPage() {
               >
                 <div className="flex items-center gap-4">
                   <div className="w-16 h-16 rounded-2xl bg-slate-50 border border-slate-200 p-2 overflow-hidden flex items-center justify-center shrink-0">
-                    <img src={presetImg} alt={cat} className="w-full h-full object-contain" />
+                    {catImg ? (
+                      <img src={catImg} alt={cat} className="w-full h-full object-contain" />
+                    ) : (
+                      <Layers className="w-7 h-7 text-[#005CA9]" />
+                    )}
                   </div>
                   <div>
                     <h3 className="font-extrabold text-slate-900 text-sm">{cat}</h3>
-                    <p className="text-xs text-slate-500 mt-0.5">{count || 12} Live Products</p>
+                    <p className="text-xs text-slate-500 mt-0.5">{count || 0} Live Products</p>
                   </div>
                 </div>
 

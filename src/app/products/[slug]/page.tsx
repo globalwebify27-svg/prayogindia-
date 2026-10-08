@@ -7,12 +7,22 @@ interface Props {
   params: Promise<{ slug: string }>;
 }
 
-async function getProduct(slug: string): Promise<Product | null> {
+async function getProduct(rawSlug: string): Promise<Product | null> {
+  const decodedSlug = decodeURIComponent(rawSlug).trim();
+  const slugLower = decodedSlug.toLowerCase();
+
   if (process.env.DATABASE_URL) {
     try {
       const dbProduct = await db.product.findFirst({
         where: {
-          OR: [{ slug }, { id: slug }, { sku: slug }],
+          OR: [
+            { slug: decodedSlug },
+            { id: decodedSlug },
+            { sku: decodedSlug },
+            { slug: slugLower },
+            { id: slugLower },
+            { sku: slugLower },
+          ],
         },
         include: {
           category: true,
@@ -22,11 +32,11 @@ async function getProduct(slug: string): Promise<Product | null> {
       });
 
       if (dbProduct) {
-        const imageUrls = dbProduct.images.map((img) => img.imageUrl);
+        const imageUrls = dbProduct.images.map((img) => img.imageUrl).filter(Boolean);
         const primaryImage =
           imageUrls.length > 0
             ? imageUrls[0]
-            : "https://images.unsplash.com/photo-1553406830-ef2513450d76?auto=format&fit=crop&w=800&q=80";
+            : (dbProduct as { imageUrl?: string }).imageUrl || "";
 
         const rawSpecs =
           dbProduct.specifications &&
@@ -77,12 +87,15 @@ async function getProduct(slug: string): Promise<Product | null> {
   return (
     PRODUCTS.find(
       (p) =>
-        (p.slug && p.slug === slug) ||
-        p.id === slug ||
-        p.name.toLowerCase().replace(/[^a-z0-9]+/g, "-") === slug,
+        (p.slug && p.slug.toLowerCase() === slugLower) ||
+        p.id.toLowerCase() === slugLower ||
+        (p.sku && p.sku.toLowerCase() === slugLower) ||
+        p.name.toLowerCase().replace(/[^a-z0-9]+/g, "-") === slugLower ||
+        p.name.toLowerCase() === slugLower,
     ) || null
   );
 }
+
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;

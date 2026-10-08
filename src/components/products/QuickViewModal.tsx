@@ -23,7 +23,7 @@ import {
 import { Product } from "@/data/mockData";
 
 interface QuickViewModalProps {
-  product: Product;
+  product: Product | null;
   onClose: () => void;
   onAddToCart?: (product: Product, variantId?: string) => void;
   onToggleWishlist?: (product: Product) => void;
@@ -33,6 +33,32 @@ interface QuickViewModalProps {
 type MediaTab = "images" | "video" | "360";
 
 export const QuickViewModal: React.FC<QuickViewModalProps> = ({
+  product,
+  onClose,
+  onAddToCart,
+  onToggleWishlist,
+  isWishlisted = false,
+}) => {
+  if (!product) return null;
+
+  return (
+    <QuickViewModalContent
+      product={product}
+      onClose={onClose}
+      onAddToCart={onAddToCart}
+      onToggleWishlist={onToggleWishlist}
+      isWishlisted={isWishlisted}
+    />
+  );
+};
+
+const QuickViewModalContent: React.FC<{
+  product: Product;
+  onClose: () => void;
+  onAddToCart?: (product: Product, variantId?: string) => void;
+  onToggleWishlist?: (product: Product) => void;
+  isWishlisted?: boolean;
+}> = ({
   product,
   onClose,
   onAddToCart,
@@ -63,24 +89,100 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({
       : null;
 
   const allImages = React.useMemo(() => {
-    if (product.images && product.images.length > 1) {
-      return product.images;
+    if (product.images && product.images.length > 0) {
+      return product.images.filter(Boolean);
     }
-    const baseImg =
-      product.image ||
-      (product.images && product.images[0]) ||
-      "https://images.unsplash.com/photo-1553406830-ef2513450d76?auto=format&fit=crop&w=800&q=80";
-    return [
-      baseImg,
-      "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=80",
-      "https://images.unsplash.com/photo-1608564697071-ddf911d81370?auto=format&fit=crop&w=800&q=80",
-      "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=800&q=80",
-    ];
+    if (product.image) {
+      return [product.image];
+    }
+    return [];
   }, [product]);
 
   const media360 = product.media360 ?? [];
   const hasVideo = !!product.videoUrl;
   const has360 = media360.length > 0;
+
+  const sliderRef = React.useRef<HTMLDivElement>(null);
+  const isDraggingRef = React.useRef(false);
+  const startXRef = React.useRef(0);
+  const scrollLeftRef = React.useRef(0);
+  const isInteractingRef = React.useRef(false);
+
+  const scrollToSlide = (idx: number) => {
+    if (!sliderRef.current) return;
+    const container = sliderRef.current;
+    const width = container.clientWidth;
+    container.scrollTo({
+      left: idx * width,
+      behavior: "smooth",
+    });
+    setActiveImageIdx(idx);
+    setActiveMediaTab("images");
+  };
+
+  const handlePrev = () => {
+    const newIdx = (activeImageIdx - 1 + allImages.length) % allImages.length;
+    scrollToSlide(newIdx);
+  };
+
+  const handleNext = () => {
+    const newIdx = (activeImageIdx + 1) % allImages.length;
+    scrollToSlide(newIdx);
+  };
+
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const container = e.currentTarget;
+    const width = container.clientWidth;
+    if (width > 0) {
+      const newIdx = Math.round(container.scrollLeft / width);
+      if (newIdx >= 0 && newIdx < allImages.length && newIdx !== activeImageIdx) {
+        setActiveImageIdx(newIdx);
+      }
+    }
+  };
+
+  const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!sliderRef.current || activeMediaTab !== "images") return;
+    if (e.button !== 0 && e.pointerType === "mouse") return;
+    isDraggingRef.current = true;
+    isInteractingRef.current = false;
+    startXRef.current = e.clientX;
+    scrollLeftRef.current = sliderRef.current.scrollLeft;
+    try {
+      e.currentTarget.setPointerCapture(e.pointerId);
+    } catch {}
+  };
+
+  const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!isDraggingRef.current || !sliderRef.current) return;
+    const deltaX = e.clientX - startXRef.current;
+    if (Math.abs(deltaX) > 4) {
+      isInteractingRef.current = true;
+    }
+    sliderRef.current.scrollLeft = scrollLeftRef.current - deltaX;
+  };
+
+  const handlePointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!isDraggingRef.current) return;
+    isDraggingRef.current = false;
+    try {
+      e.currentTarget.releasePointerCapture(e.pointerId);
+    } catch {}
+    if (isInteractingRef.current && sliderRef.current) {
+      const container = sliderRef.current;
+      const width = container.clientWidth;
+      const deltaX = e.clientX - startXRef.current;
+      let targetIdx = activeImageIdx;
+      if (deltaX < -40 && activeImageIdx < allImages.length - 1) {
+        targetIdx = activeImageIdx + 1;
+      } else if (deltaX > 40 && activeImageIdx > 0) {
+        targetIdx = activeImageIdx - 1;
+      } else {
+        targetIdx = Math.round(container.scrollLeft / width);
+      }
+      scrollToSlide(Math.max(0, Math.min(allImages.length - 1, targetIdx)));
+    }
+  };
 
   const handleAddToCart = () => {
     onAddToCart?.(product, selectedVariantId);
@@ -141,7 +243,10 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({
             {/* Media Tab Switcher */}
             <div className="flex items-center gap-1 bg-white border border-slate-200 rounded-xl p-1">
               <button
-                onClick={() => setActiveMediaTab("images")}
+                onClick={() => {
+                  setActiveMediaTab("images");
+                  scrollToSlide(0);
+                }}
                 className={`flex-1 flex items-center justify-center gap-1 py-1.5 rounded-lg text-[10px] font-extrabold transition-all cursor-pointer ${
                   activeMediaTab === "images"
                     ? "bg-slate-900 text-white"
@@ -175,39 +280,65 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({
             </div>
 
             {/* Media Viewer */}
-            <div className="relative h-64 rounded-2xl overflow-hidden bg-white border border-slate-200 flex items-center justify-center">
+            <div className="relative h-64 rounded-2xl overflow-hidden bg-white border border-slate-200 flex items-center justify-center group">
               {activeMediaTab === "images" && (
                 <>
-                  <Image
-                    src={allImages[activeImageIdx]}
-                    alt={product.name}
-                    fill
-                    className="object-contain p-4"
-                  />
-                  {/* Image nav arrows */}
-                  {allImages.length > 1 && (
+                  {allImages.length === 0 ? (
+                    <div className="w-full h-full flex flex-col items-center justify-center text-slate-300 gap-2">
+                      <ImageIcon className="w-10 h-10 stroke-1" />
+                      <span className="text-xs text-slate-400 font-medium">No photo uploaded</span>
+                    </div>
+                  ) : (
                     <>
-                      <button
-                        onClick={() =>
-                          setActiveImageIdx(
-                            (prev) =>
-                              (prev - 1 + allImages.length) % allImages.length,
-                          )
-                        }
-                        className="absolute left-2 top-1/2 -translate-y-1/2 w-7 h-7 bg-white/90 shadow rounded-full flex items-center justify-center text-slate-700 hover:text-[#00AEEF] cursor-pointer"
+                      {/* Swipeable & Draggable Image Carousel */}
+                      <div
+                        ref={sliderRef}
+                        onScroll={handleScroll}
+                        onPointerDown={handlePointerDown}
+                        onPointerMove={handlePointerMove}
+                        onPointerUp={handlePointerUp}
+                        onPointerCancel={handlePointerUp}
+                        className="flex w-full h-full overflow-x-auto snap-x snap-mandatory scrollbar-none cursor-grab active:cursor-grabbing select-none touch-pan-y overscroll-x-contain"
+                        style={{ WebkitOverflowScrolling: "touch" }}
                       >
-                        <ChevronLeft className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() =>
-                          setActiveImageIdx(
-                            (prev) => (prev + 1) % allImages.length,
-                          )
-                        }
-                        className="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 bg-white/90 shadow rounded-full flex items-center justify-center text-slate-700 hover:text-[#00AEEF] cursor-pointer"
-                      >
-                        <ChevronRight className="w-4 h-4" />
-                      </button>
+                        {allImages.map((img, idx) => (
+                          <div
+                            key={idx}
+                            className="min-w-full w-full h-full shrink-0 snap-center relative flex items-center justify-center p-4"
+                          >
+                            <div className="relative w-full h-full">
+                              <Image
+                                src={img}
+                                alt={`${product.name} image ${idx + 1}`}
+                                fill
+                                priority={idx === 0}
+                                draggable={false}
+                                className="object-contain p-2 pointer-events-none select-none transition-transform duration-200"
+                              />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* Image nav arrows */}
+                      {allImages.length > 1 && (
+                        <>
+                          <button
+                            type="button"
+                            onClick={handlePrev}
+                            className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/90 hover:bg-white shadow-md rounded-full flex items-center justify-center text-slate-700 hover:text-[#00AEEF] cursor-pointer transition-all z-10 active:scale-90"
+                          >
+                            <ChevronLeft className="w-4 h-4" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={handleNext}
+                            className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/90 hover:bg-white shadow-md rounded-full flex items-center justify-center text-slate-700 hover:text-[#00AEEF] cursor-pointer transition-all z-10 active:scale-90"
+                          >
+                            <ChevronRight className="w-4 h-4" />
+                          </button>
+                        </>
+                      )}
                     </>
                   )}
                 </>
@@ -243,11 +374,12 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({
                 {allImages.map((img, idx) => (
                   <button
                     key={idx}
-                    onClick={() => setActiveImageIdx(idx)}
-                    className={`w-12 h-12 shrink-0 rounded-xl overflow-hidden border-2 transition-colors cursor-pointer ${
+                    type="button"
+                    onClick={() => scrollToSlide(idx)}
+                    className={`w-12 h-12 shrink-0 rounded-xl overflow-hidden border-2 transition-all cursor-pointer ${
                       activeImageIdx === idx
-                        ? "border-[#00AEEF]"
-                        : "border-slate-200"
+                        ? "border-[#00AEEF] ring-2 ring-[#00AEEF]/20 scale-105"
+                        : "border-slate-200 hover:border-slate-300 opacity-70 hover:opacity-100"
                     }`}
                   >
                     <img
@@ -307,20 +439,36 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({
             </div>
 
             {/* Rating */}
-            <div className="flex items-center gap-2">
-              <div className="flex items-center gap-0.5">
-                {[1, 2, 3, 4, 5].map((s) => (
-                  <Star
-                    key={s}
-                    className={`w-3.5 h-3.5 ${s <= Math.round(product.rating) ? "fill-amber-400 text-amber-400" : "fill-slate-200 text-slate-200"}`}
-                  />
-                ))}
+            <div className="flex items-center gap-2 text-xs">
+              <div className="flex items-center gap-1">
+                {[1, 2, 3, 4, 5].map((star) => {
+                  const currentRating = Number(product.rating || 4.5);
+                  const fillPercentage = Math.max(
+                    0,
+                    Math.min(100, (currentRating - (star - 1)) * 100),
+                  );
+
+                  return (
+                    <div key={star} className="relative w-3.5 h-3.5 shrink-0">
+                      <Star className="w-3.5 h-3.5 text-slate-300 fill-transparent" />
+                      {fillPercentage > 0 && (
+                        <div
+                          className="absolute inset-0 overflow-hidden"
+                          style={{ width: `${fillPercentage}%` }}
+                        >
+                          <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
-              <span className="text-xs font-bold text-slate-700">
-                {Number(product.rating || 4.8).toFixed(1)}
+              <span className="font-semibold text-slate-700 text-xs">
+                {Number(product.rating || 4.5).toFixed(1)}
               </span>
-              <span className="text-xs text-slate-400">
-                ({product.reviews} reviews)
+              <span className="text-slate-300">•</span>
+              <span className="text-xs font-medium text-slate-500">
+                ({product.reviews || 389} reviews)
               </span>
             </div>
 

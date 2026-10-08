@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { useStore } from "@/context/StoreContext";
 import {
   FileText,
   Clock,
@@ -12,9 +13,14 @@ import {
   Building2,
   Calendar,
   RefreshCw,
+  Plus,
+  X,
+  Loader2,
+  Send,
 } from "lucide-react";
 
 export default function CustomerQuotationsPage() {
+  const { user } = useStore();
   const [quotations, setQuotations] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -24,6 +30,31 @@ export default function CustomerQuotationsPage() {
   const [actionModal, setActionModal] = useState<
     "ACCEPT" | "REJECT" | "REQUEST_CHANGES" | null
   >(null);
+
+  // New Quotation Request Modal State
+  const [showNewQuoteModal, setShowNewQuoteModal] = useState(false);
+  const [submittingQuote, setSubmittingQuote] = useState(false);
+  const [newCompanyName, setNewCompanyName] = useState(user?.companyName || "");
+  const [newCustomerName, setNewCustomerName] = useState(user?.name || "");
+  const [newCustomerEmail, setNewCustomerEmail] = useState(user?.email || "");
+  const [newCustomerPhone, setNewCustomerPhone] = useState(
+    user?.phone?.replace(/\D/g, "").slice(-10) || "",
+  );
+  const [newInstitutionType, setNewInstitutionType] = useState("ATL School");
+  const [newProductName, setNewProductName] = useState("");
+  const [newQuantity, setNewQuantity] = useState("10");
+  const [newTargetPrice, setNewTargetPrice] = useState("");
+  const [newNotes, setNewNotes] = useState("");
+
+  useEffect(() => {
+    if (user) {
+      if (user.name) setNewCustomerName(user.name);
+      if (user.email) setNewCustomerEmail(user.email);
+      if (user.phone)
+        setNewCustomerPhone(user.phone.replace(/\D/g, "").slice(-10));
+      if (user.companyName) setNewCompanyName(user.companyName);
+    }
+  }, [user]);
 
   const fetchQuotations = async () => {
     setLoading(true);
@@ -66,6 +97,50 @@ export default function CustomerQuotationsPage() {
       isMounted = false;
     };
   }, []);
+
+  const handleCreateQuotation = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newCompanyName.trim() || !newCustomerName.trim() || !newProductName.trim()) {
+      alert("Please fill in company name, contact name, and requirement.");
+      return;
+    }
+
+    setSubmittingQuote(true);
+    try {
+      const res = await fetch("/api/quotations/request", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          companyName: newCompanyName.trim(),
+          customerName: newCustomerName.trim(),
+          customerEmail: newCustomerEmail.trim() || user?.email || "customer@prayog.in",
+          customerPhone: newCustomerPhone.trim() || "9876543210",
+          institutionType: newInstitutionType,
+          notes: newNotes.trim() || undefined,
+          items: [
+            {
+              productName: newProductName.trim(),
+              quantity: Number(newQuantity) || 1,
+              unitPrice: newTargetPrice ? Number(newTargetPrice) : undefined,
+            },
+          ],
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setShowNewQuoteModal(false);
+        setNewProductName("");
+        setNewNotes("");
+        fetchQuotations();
+      } else {
+        alert(data.message || "Failed to submit quotation request.");
+      }
+    } catch {
+      alert("Error submitting quotation. Please try again.");
+    } finally {
+      setSubmittingQuote(false);
+    }
+  };
 
   const openQuoteDetail = async (id: string) => {
     try {
@@ -153,54 +228,69 @@ export default function CustomerQuotationsPage() {
   };
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-300">
+    <div className="space-y-6 animate-in fade-in duration-200">
       <div className="bg-white rounded-3xl border border-slate-200 p-6 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2 mb-1">
-            <span className="text-[10px] font-black uppercase tracking-widest text-[#00AEEF] bg-[#E0F7FC] px-3 py-0.5 rounded-full border border-[#00AEEF]/20">
-              Institutional &amp; Enterprise Procurement
-            </span>
-          </div>
-          <h1 className="text-2xl font-black text-slate-900 tracking-tight">
-            My B2B Quotations
+          <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
+            My Quotations
           </h1>
-          <p className="text-xs text-slate-500 mt-1">
-            Review formal institutional quotes, negotiate prices, review
-            validity, and accept proposals.
+          <p className="text-xs text-slate-500 mt-0.5">
+            Track and manage your bulk or institutional price quotes.
           </p>
         </div>
 
-        <button
-          onClick={fetchQuotations}
-          className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 cursor-pointer self-start sm:self-auto"
-        >
-          <RefreshCw className="w-3.5 h-3.5" /> Refresh
-        </button>
+        <div className="flex items-center gap-2 self-start sm:self-auto">
+          <button
+            onClick={fetchQuotations}
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 cursor-pointer transition-colors"
+          >
+            <RefreshCw className="w-3.5 h-3.5" /> Refresh
+          </button>
+          <button
+            onClick={() => setShowNewQuoteModal(true)}
+            className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold bg-[#00AEEF] hover:bg-[#0096D6] text-white cursor-pointer transition-all active:scale-95 shadow-2xs"
+          >
+            <Plus className="w-4 h-4" /> Request a Quotation
+          </button>
+        </div>
       </div>
 
       {error && (
-        <div className="bg-rose-50 border border-rose-200 text-rose-700 px-4 py-3 rounded-2xl text-xs font-semibold">
+        <div className="bg-rose-50 border border-rose-200 text-rose-700 px-4 py-3 rounded-2xl text-xs font-medium">
           {error}
         </div>
       )}
 
       {loading ? (
-        <div className="bg-white rounded-3xl border border-slate-200 p-12 text-center text-slate-400 text-xs font-bold">
-          Loading your quotation records...
+        <div className="bg-white rounded-3xl border border-slate-200 p-12 text-center text-slate-400 text-xs font-medium">
+          Loading quotations...
         </div>
       ) : quotations.length === 0 ? (
         <div className="bg-white rounded-3xl border border-slate-200 p-12 text-center space-y-3">
-          <div className="w-12 h-12 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mx-auto">
+          <div className="w-12 h-12 rounded-2xl bg-slate-50 border border-slate-100 text-slate-400 flex items-center justify-center mx-auto">
             <FileText className="w-6 h-6" />
           </div>
           <h3 className="text-sm font-bold text-slate-800">
-            No quotation requests found
+            No quotations found
           </h3>
-          <p className="text-xs text-slate-500 max-w-sm mx-auto">
-            You have not requested any institutional or enterprise quotations
-            yet. Use our Quotation Request button on any product or lab solution
-            page.
+          <p className="text-xs text-slate-500 max-w-xs mx-auto">
+            Your requested institutional quotes will appear here.
           </p>
+          <div className="pt-2 flex flex-wrap items-center justify-center gap-3">
+            <button
+              onClick={() => setShowNewQuoteModal(true)}
+              className="inline-flex items-center gap-1.5 bg-[#00AEEF] hover:bg-[#0096D6] text-white px-5 py-2.5 rounded-xl text-xs font-bold transition-all active:scale-95 cursor-pointer shadow-2xs"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Request a Quotation</span>
+            </button>
+            <Link
+              href="/products"
+              className="inline-flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer"
+            >
+              <span>Explore Products</span>
+            </Link>
+          </div>
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-4">
@@ -291,9 +381,9 @@ export default function CustomerQuotationsPage() {
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => openQuoteDetail(quote.id)}
-                    className="px-4 py-2 rounded-xl text-xs font-bold bg-[#0A1128] hover:bg-[#1E56A0] text-white flex items-center gap-1.5 cursor-pointer shadow-2xs"
+                    className="px-4 py-2 rounded-xl text-xs font-bold bg-slate-900 hover:bg-[#00AEEF] text-white flex items-center gap-1.5 cursor-pointer shadow-2xs transition-colors"
                   >
-                    <Eye className="w-3.5 h-3.5" /> View Detailed Proposal
+                    <Eye className="w-3.5 h-3.5" /> View Proposal
                   </button>
 
                   {quote.order && (
@@ -309,6 +399,220 @@ export default function CustomerQuotationsPage() {
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* New Quotation Request Modal */}
+      {showNewQuoteModal && (
+        <div className="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-3 sm:p-4">
+          <div
+            onClick={() => setShowNewQuoteModal(false)}
+            className="fixed inset-0 bg-slate-950/60 backdrop-blur-xs animate-in fade-in duration-200"
+          />
+
+          <div className="relative w-full max-w-xl bg-white rounded-3xl shadow-2xl border border-slate-100 overflow-hidden z-10 max-h-[92vh] flex flex-col animate-in zoom-in-95 duration-200">
+            {/* Header */}
+            <div className="px-6 sm:px-8 pt-6 pb-4 border-b border-slate-100 flex items-start justify-between">
+              <div>
+                <h3 className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight">
+                  Request a Quotation
+                </h3>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Submit your bulk or institutional hardware requirement.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowNewQuoteModal(false)}
+                className="p-1.5 text-slate-400 hover:text-slate-700 rounded-xl hover:bg-slate-100 transition-colors cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Form */}
+            <form onSubmit={handleCreateQuotation} className="flex flex-col flex-1 min-h-0">
+              <div className="flex-1 overflow-y-auto p-6 sm:p-8 space-y-4 text-xs">
+                {/* Institution Type Chips */}
+                <div>
+                  <label className="block font-bold text-slate-700 mb-2">
+                    Institution Type
+                  </label>
+                  <div className="flex flex-wrap gap-2">
+                    {[
+                      "ATL School",
+                      "University / College",
+                      "Corporate / R&D",
+                      "Research Lab",
+                      "Maker / Bulk",
+                    ].map((type) => {
+                      const isSelected = newInstitutionType === type;
+                      return (
+                        <button
+                          key={type}
+                          type="button"
+                          onClick={() => setNewInstitutionType(type)}
+                          className={`px-3.5 py-1.5 rounded-full font-bold text-xs transition-all cursor-pointer ${
+                            isSelected
+                              ? "bg-[#00AEEF] text-white shadow-2xs"
+                              : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                          }`}
+                        >
+                          {type}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Organization / Lab Name */}
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1.5">
+                    Organization / School / Lab Name <span className="text-rose-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. DPS Robotics Lab, IIT Bombay ATL Lab"
+                    value={newCompanyName}
+                    onChange={(e) => setNewCompanyName(e.target.value)}
+                    className="w-full px-3.5 py-2.5 bg-slate-50/70 hover:bg-slate-50 focus:bg-white border border-slate-200 focus:border-[#00AEEF] focus:ring-2 focus:ring-[#00AEEF]/15 rounded-xl font-medium text-slate-900 outline-none transition-all"
+                  />
+                </div>
+
+                {/* Contact Person & Phone */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                  <div>
+                    <label className="block font-bold text-slate-700 mb-1.5">
+                      Contact Person Name <span className="text-rose-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="Full Name"
+                      value={newCustomerName}
+                      onChange={(e) => setNewCustomerName(e.target.value)}
+                      className="w-full px-3.5 py-2.5 bg-slate-50/70 hover:bg-slate-50 focus:bg-white border border-slate-200 focus:border-[#00AEEF] focus:ring-2 focus:ring-[#00AEEF]/15 rounded-xl font-medium text-slate-900 outline-none transition-all"
+                    />
+                  </div>
+                  <div>
+                    <label className="block font-bold text-slate-700 mb-1.5">
+                      Mobile Number <span className="text-rose-500">*</span>
+                    </label>
+                    <div className="flex rounded-xl border border-slate-200 overflow-hidden focus-within:border-[#00AEEF] focus-within:ring-2 focus-within:ring-[#00AEEF]/15 transition-all">
+                      <span className="bg-slate-100 text-slate-500 font-bold px-3 py-2.5 border-r border-slate-200 flex items-center select-none text-xs">
+                        +91
+                      </span>
+                      <input
+                        type="tel"
+                        maxLength={10}
+                        required
+                        placeholder="9876543210"
+                        value={newCustomerPhone}
+                        onChange={(e) => setNewCustomerPhone(e.target.value.replace(/\D/g, ""))}
+                        className="w-full px-3.5 py-2.5 bg-slate-50/70 hover:bg-slate-50 focus:bg-white font-medium text-slate-900 outline-none transition-all"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Email Address */}
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1.5">
+                    Email Address <span className="text-rose-500">*</span>
+                  </label>
+                  <input
+                    type="email"
+                    required
+                    placeholder="contact@example.com"
+                    value={newCustomerEmail}
+                    onChange={(e) => setNewCustomerEmail(e.target.value)}
+                    className="w-full px-3.5 py-2.5 bg-slate-50/70 hover:bg-slate-50 focus:bg-white border border-slate-200 focus:border-[#00AEEF] focus:ring-2 focus:ring-[#00AEEF]/15 rounded-xl font-medium text-slate-900 outline-none transition-all"
+                  />
+                </div>
+
+                {/* Product / Requirement */}
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1.5">
+                    Product / Component Requirement <span className="text-rose-500">*</span>
+                  </label>
+                  <textarea
+                    rows={2}
+                    required
+                    placeholder="e.g. 50x Arduino Uno R3, 20x Raspberry Pi 5 8GB, 100x Ultrasonic Sensors..."
+                    value={newProductName}
+                    onChange={(e) => setNewProductName(e.target.value)}
+                    className="w-full p-3 bg-slate-50/70 hover:bg-slate-50 focus:bg-white border border-slate-200 focus:border-[#00AEEF] focus:ring-2 focus:ring-[#00AEEF]/15 rounded-xl font-medium text-slate-900 outline-none transition-all resize-none"
+                  />
+                </div>
+
+                {/* Quantity & Target Unit Price */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                  <div>
+                    <label className="block font-bold text-slate-700 mb-1.5">
+                      Quantity <span className="text-rose-500">*</span>
+                    </label>
+                    <input
+                      type="number"
+                      min="1"
+                      required
+                      placeholder="10"
+                      value={newQuantity}
+                      onChange={(e) => setNewQuantity(e.target.value)}
+                      className="w-full px-3.5 py-2.5 bg-slate-50/70 hover:bg-slate-50 focus:bg-white border border-slate-200 focus:border-[#00AEEF] focus:ring-2 focus:ring-[#00AEEF]/15 rounded-xl font-medium text-slate-900 outline-none transition-all"
+                    />
+                  </div>
+                  <div>
+                    <label className="block font-bold text-slate-700 mb-1.5">
+                      Target Unit Price (Optional ₹)
+                    </label>
+                    <input
+                      type="number"
+                      placeholder="e.g. 450"
+                      value={newTargetPrice}
+                      onChange={(e) => setNewTargetPrice(e.target.value)}
+                      className="w-full px-3.5 py-2.5 bg-slate-50/70 hover:bg-slate-50 focus:bg-white border border-slate-200 focus:border-[#00AEEF] focus:ring-2 focus:ring-[#00AEEF]/15 rounded-xl font-medium text-slate-900 outline-none transition-all"
+                    />
+                  </div>
+                </div>
+
+                {/* Notes */}
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1.5">
+                    Additional Notes / Specifications (Optional)
+                  </label>
+                  <textarea
+                    rows={2}
+                    placeholder="Specific delivery timelines, GST invoicing details, or brand preferences..."
+                    value={newNotes}
+                    onChange={(e) => setNewNotes(e.target.value)}
+                    className="w-full p-3 bg-slate-50/70 hover:bg-slate-50 focus:bg-white border border-slate-200 focus:border-[#00AEEF] focus:ring-2 focus:ring-[#00AEEF]/15 rounded-xl font-medium text-slate-900 outline-none transition-all resize-none"
+                  />
+                </div>
+              </div>
+
+              {/* Footer Actions */}
+              <div className="px-6 sm:px-8 py-4 border-t border-slate-100 flex items-center justify-end gap-3 bg-slate-50/50">
+                <button
+                  type="button"
+                  onClick={() => setShowNewQuoteModal(false)}
+                  className="px-4 py-2 font-bold text-xs text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={submittingQuote}
+                  className="bg-[#00AEEF] hover:bg-[#0096D6] text-white px-6 py-2.5 rounded-xl font-bold text-xs shadow-2xs active:scale-95 disabled:opacity-50 flex items-center gap-2 cursor-pointer transition-all"
+                >
+                  {submittingQuote && (
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  )}
+                  <span>Submit Request</span>
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       )}
 

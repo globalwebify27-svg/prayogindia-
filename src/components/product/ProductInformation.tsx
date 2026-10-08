@@ -159,24 +159,43 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
       {/* ── Rating & Share Row ── */}
       <div className="flex items-center justify-between pt-0.5">
         <div className="flex items-center gap-2 text-xs">
-          <div className="flex items-center text-amber-400 gap-0.5">
-            {[...Array(5)].map((_, i) => (
-              <Star
-                key={i}
-                className="w-4 h-4 fill-amber-400 text-amber-400"
-              />
-            ))}
+          {/* 5-Star Row with Half/Partial Fill Support */}
+          <div className="flex items-center gap-1">
+            {[1, 2, 3, 4, 5].map((star) => {
+              const currentRating = Number(product.rating || 4.5);
+              const fillPercentage = Math.max(
+                0,
+                Math.min(100, (currentRating - (star - 1)) * 100),
+              );
+
+              return (
+                <div key={star} className="relative w-4 h-4 shrink-0">
+                  {/* Empty star outline */}
+                  <Star className="w-4 h-4 text-slate-300 fill-transparent" />
+                  {/* Filled star with clip */}
+                  {fillPercentage > 0 && (
+                    <div
+                      className="absolute inset-0 overflow-hidden"
+                      style={{ width: `${fillPercentage}%` }}
+                    >
+                      <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
-          <span className="font-extrabold text-slate-900">
-            {Number(product.rating || 4.8).toFixed(1)}
+
+          <span className="font-semibold text-slate-700 text-xs">
+            {Number(product.rating || 4.5).toFixed(1)}
           </span>
-          <span className="text-slate-300 mx-1">•</span>
+
+          <span className="text-slate-300">•</span>
           <a
             href="#reviews-tab"
-            className="text-xs font-bold text-[#00AEEF] hover:underline flex items-center gap-1 cursor-pointer"
+            className="text-xs font-medium text-slate-500 hover:text-[#00AEEF] transition-colors cursor-pointer"
           >
-            <MessageSquare className="w-3.5 h-3.5" />
-            <span>{product.reviews || 389} Verified Customer Reviews</span>
+            ({product.reviews || 389} reviews)
           </a>
         </div>
 

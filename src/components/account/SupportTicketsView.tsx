@@ -96,12 +96,11 @@ export const SupportTicketsView: React.FC = () => {
     <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-2xs space-y-6 text-slate-900">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-xl font-extrabold text-slate-900 tracking-tight">
-            Technical Support & Helpdesk
+          <h2 className="text-xl font-bold text-slate-900 tracking-tight">
+            Support Tickets
           </h2>
-          <p className="text-xs text-slate-500">
-            Submit hardware setup inquiries, sensor troubleshooting tickets, or
-            order help desk requests.
+          <p className="text-xs text-slate-500 mt-0.5">
+            Get help with orders, components, and inquiries.
           </p>
         </div>
 
@@ -110,10 +109,10 @@ export const SupportTicketsView: React.FC = () => {
             setShowCreateForm(!showCreateForm);
             setSelectedTicket(null);
           }}
-          className="bg-[#00AEEF] hover:bg-[#0096D6] text-white px-4 py-2.5 rounded-xl text-xs font-extrabold flex items-center gap-1.5 transition-colors self-start sm:self-auto"
+          className="bg-[#00AEEF] hover:bg-[#0096D6] text-white px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer self-start sm:self-auto shadow-2xs active:scale-95"
         >
           <Plus className="w-4 h-4" />
-          <span>Submit Support Ticket</span>
+          <span>New Ticket</span>
         </button>
       </div>
 

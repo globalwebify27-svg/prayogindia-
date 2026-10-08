@@ -573,7 +573,7 @@ export const Header: React.FC<HeaderProps> = ({
                         setSearchExpanded(false);
                       }
                     }}
-                    placeholder="Search components (e.g. Arduino UNO R4, Pixhawk 6C, Jetson, LiDAR)..."
+                    placeholder="Search components..."
                     className="w-full bg-transparent border-none outline-none text-xs text-slate-800 placeholder-slate-400 font-medium pr-2"
                   />
 
@@ -731,161 +731,117 @@ export const Header: React.FC<HeaderProps> = ({
                   ) : (
                     <User className="w-5 h-5 sm:w-6 sm:h-6 stroke-[1.8]" />
                   )}
-                  <ChevronDown className="w-3.5 h-3.5 text-slate-400 hidden sm:block" />
                 </button>
 
                 {/* Account Dropdown Menu */}
                 {accountDropdownOpen && (
-                  <div className="absolute right-0 top-full mt-2 w-72 sm:w-80 bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl border border-slate-200/90 p-2.5 z-50 animate-in fade-in zoom-in-95 duration-150 text-xs font-semibold text-slate-700">
+                  <div className="absolute right-0 top-full mt-2 w-64 bg-white rounded-2xl shadow-xl border border-slate-200/90 p-1.5 z-50 animate-in fade-in zoom-in-95 duration-150 text-xs text-slate-700">
                     {isLoggedIn && user ? (
-                      <div className="space-y-1">
-                        {/* Header: ACCOUNT & User Profile */}
-                        <div className="px-3 py-2.5 bg-gradient-to-br from-slate-50 to-sky-50/50 rounded-xl border border-slate-100">
-                          <span className="text-[10px] font-black uppercase tracking-widest text-[#00AEEF] block mb-1">
-                            ACCOUNT
-                          </span>
-                          <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-[#00AEEF] to-sky-400 text-white font-black text-sm flex items-center justify-center shadow-xs shrink-0 ring-2 ring-white">
-                              {user.avatarUrl ? (
-                                <img
-                                  src={user.avatarUrl}
-                                  alt={user.name}
-                                  className="w-full h-full rounded-full object-cover"
-                                />
-                              ) : (
-                                <span>
-                                  {user.name
-                                    ? user.name
-                                        .trim()
-                                        .split(/\s+/)
-                                        .map((n: string) => n[0])
-                                        .slice(0, 2)
-                                        .join("")
-                                        .toUpperCase()
-                                    : "OK"}
-                                </span>
-                              )}
+                      <div className="space-y-0.5">
+                        {/* Clean User Profile Header */}
+                        <div className="px-3 py-2.5 flex items-center gap-3">
+                          <div className="w-9 h-9 rounded-full bg-[#00AEEF] text-white font-bold text-xs flex items-center justify-center shrink-0 shadow-2xs">
+                            {user.avatarUrl ? (
+                              <img
+                                src={user.avatarUrl}
+                                alt={user.name}
+                                className="w-full h-full rounded-full object-cover"
+                              />
+                            ) : (
+                              <span>
+                                {user.name
+                                  ? user.name
+                                      .trim()
+                                      .split(/\s+/)
+                                      .map((n: string) => n[0])
+                                      .slice(0, 2)
+                                      .join("")
+                                      .toUpperCase()
+                                  : "OK"}
+                              </span>
+                            )}
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <div className="text-xs font-bold text-slate-900 truncate">
+                              {user.name || "Om Kumar"}
                             </div>
-                            <div className="min-w-0 flex-1">
-                              <div className="text-xs font-black text-slate-900 truncate leading-tight">
-                                {user.name || "Om Kumar"}
-                              </div>
-                              <div className="text-[11px] text-slate-500 font-medium truncate mt-0.5">
-                                {user.email || "om@email.com"}
-                              </div>
+                            <div className="text-[11px] text-slate-400 truncate">
+                              {user.email || "user@prayogindia.com"}
                             </div>
                           </div>
                         </div>
 
-                        {/* Divider */}
-                        <div className="my-1 border-t border-slate-100" />
+                        <div className="border-t border-slate-100 my-1" />
 
-                        {/* 1. 👤 My Account */}
+                        {/* Menu Links */}
                         <Link
                           href="/account/profile"
                           onClick={() => setAccountDropdownOpen(false)}
-                          className="w-full text-left px-2.5 py-2 hover:bg-[#E0F7FC] hover:text-[#00AEEF] rounded-xl transition-all flex items-center justify-between group"
+                          className="w-full text-left px-3 py-2 hover:bg-slate-50 hover:text-[#00AEEF] rounded-xl transition-colors flex items-center gap-2.5 font-medium text-slate-700 group"
                         >
-                          <div className="flex items-center gap-2.5">
-                            <User className="w-4 h-4 text-[#00AEEF]" />
-                            <span className="text-xs font-bold text-slate-700 group-hover:text-[#00AEEF]">
-                              My Account
-                            </span>
-                          </div>
-                          <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-[#00AEEF] group-hover:translate-x-0.5 transition-all" />
+                          <User className="w-4 h-4 text-slate-400 group-hover:text-[#00AEEF]" />
+                          <span>My Account</span>
                         </Link>
 
-                        {/* 2. 📦 My Orders */}
                         <Link
                           href="/account/orders"
                           onClick={() => setAccountDropdownOpen(false)}
-                          className="w-full text-left px-2.5 py-2 hover:bg-[#E0F7FC] hover:text-[#00AEEF] rounded-xl transition-all flex items-center justify-between group"
+                          className="w-full text-left px-3 py-2 hover:bg-slate-50 hover:text-[#00AEEF] rounded-xl transition-colors flex items-center gap-2.5 font-medium text-slate-700 group"
                         >
-                          <div className="flex items-center gap-2.5">
-                            <Package className="w-4 h-4 text-emerald-600" />
-                            <span className="text-xs font-bold text-slate-700 group-hover:text-[#00AEEF]">
-                              My Orders
-                            </span>
-                          </div>
-                          <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-[#00AEEF] group-hover:translate-x-0.5 transition-all" />
+                          <Package className="w-4 h-4 text-slate-400 group-hover:text-[#00AEEF]" />
+                          <span>My Orders</span>
                         </Link>
 
-                        {/* 3. ♡ Wishlist */}
                         <Link
                           href="/wishlist"
                           onClick={() => setAccountDropdownOpen(false)}
-                          className="w-full text-left px-2.5 py-2 hover:bg-rose-50 hover:text-rose-600 rounded-xl transition-all flex items-center justify-between group"
+                          className="w-full text-left px-3 py-2 hover:bg-slate-50 hover:text-[#00AEEF] rounded-xl transition-colors flex items-center justify-between font-medium text-slate-700 group"
                         >
                           <div className="flex items-center gap-2.5">
-                            <Heart className="w-4 h-4 text-rose-500" />
-                            <span className="text-xs font-bold text-slate-700 group-hover:text-rose-600">
-                              Wishlist
+                            <Heart className="w-4 h-4 text-slate-400 group-hover:text-[#00AEEF]" />
+                            <span>Wishlist</span>
+                          </div>
+                          {wishlistCount > 0 && (
+                            <span className="text-[10px] bg-rose-50 text-rose-600 font-bold px-1.5 py-0.2 rounded-full">
+                              {wishlistCount}
                             </span>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            {wishlistCount > 0 && (
-                              <span className="text-[10px] bg-rose-100 text-rose-700 font-bold px-1.5 py-0.2 rounded-full">
-                                {wishlistCount}
-                              </span>
-                            )}
-                            <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-rose-600 group-hover:translate-x-0.5 transition-all" />
-                          </div>
+                          )}
                         </Link>
 
-                        {/* 4. 📍 Saved Addresses */}
                         <Link
                           href="/account/addresses"
                           onClick={() => setAccountDropdownOpen(false)}
-                          className="w-full text-left px-2.5 py-2 hover:bg-[#E0F7FC] hover:text-[#00AEEF] rounded-xl transition-all flex items-center justify-between group"
+                          className="w-full text-left px-3 py-2 hover:bg-slate-50 hover:text-[#00AEEF] rounded-xl transition-colors flex items-center gap-2.5 font-medium text-slate-700 group"
                         >
-                          <div className="flex items-center gap-2.5">
-                            <MapPin className="w-4 h-4 text-purple-600" />
-                            <span className="text-xs font-bold text-slate-700 group-hover:text-[#00AEEF]">
-                              Saved Addresses
-                            </span>
-                          </div>
-                          <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-[#00AEEF] group-hover:translate-x-0.5 transition-all" />
+                          <MapPin className="w-4 h-4 text-slate-400 group-hover:text-[#00AEEF]" />
+                          <span>Saved Addresses</span>
                         </Link>
 
-                        {/* 5. 💳 Payment Methods */}
                         <Link
                           href="/account/payments"
                           onClick={() => setAccountDropdownOpen(false)}
-                          className="w-full text-left px-2.5 py-2 hover:bg-[#E0F7FC] hover:text-[#00AEEF] rounded-xl transition-all flex items-center justify-between group"
+                          className="w-full text-left px-3 py-2 hover:bg-slate-50 hover:text-[#00AEEF] rounded-xl transition-colors flex items-center gap-2.5 font-medium text-slate-700 group"
                         >
-                          <div className="flex items-center gap-2.5">
-                            <CreditCard className="w-4 h-4 text-indigo-600" />
-                            <span className="text-xs font-bold text-slate-700 group-hover:text-[#00AEEF]">
-                              Payment Methods
-                            </span>
-                          </div>
-                          <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-[#00AEEF] group-hover:translate-x-0.5 transition-all" />
+                          <CreditCard className="w-4 h-4 text-slate-400 group-hover:text-[#00AEEF]" />
+                          <span>Payment Methods</span>
                         </Link>
 
-                        {/* 6. 🎁 Rewards / Credits */}
                         <Link
                           href="/account/rewards"
                           onClick={() => setAccountDropdownOpen(false)}
-                          className="w-full text-left px-2.5 py-2 hover:bg-amber-50 hover:text-amber-700 rounded-xl transition-all flex items-center justify-between group"
+                          className="w-full text-left px-3 py-2 hover:bg-slate-50 hover:text-[#00AEEF] rounded-xl transition-colors flex items-center justify-between font-medium text-slate-700 group"
                         >
                           <div className="flex items-center gap-2.5">
-                            <Gift className="w-4 h-4 text-amber-500" />
-                            <span className="text-xs font-bold text-slate-700 group-hover:text-amber-700">
-                              Rewards / Credits
-                            </span>
+                            <Gift className="w-4 h-4 text-slate-400 group-hover:text-[#00AEEF]" />
+                            <span>Rewards / Credits</span>
                           </div>
-                          <div className="flex items-center gap-1.5">
-                            <span className="text-[10px] bg-amber-100 text-amber-900 font-black px-1.5 py-0.2 rounded-md">
-                              {user.rewardPoints || 0} pts
-                            </span>
-                            <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-amber-700 group-hover:translate-x-0.5 transition-all" />
-                          </div>
+                          <span className="text-[10px] bg-amber-50 text-amber-700 font-bold px-1.5 py-0.2 rounded-md">
+                            {user.rewardPoints || 0} pts
+                          </span>
                         </Link>
 
-                        {/* Divider */}
-                        <div className="my-1 border-t border-slate-100" />
+                        <div className="border-t border-slate-100 my-1" />
 
-                        {/* 🏢 B2B / Institutional Sales */}
                         <button
                           type="button"
                           onClick={() => {
@@ -896,21 +852,14 @@ export const Header: React.FC<HeaderProps> = ({
                               router.push("/account/quotations");
                             }
                           }}
-                          className="w-full text-left px-2.5 py-2 hover:bg-indigo-50 hover:text-[#1E56A0] rounded-xl transition-all flex items-center justify-between group cursor-pointer"
+                          className="w-full text-left px-3 py-2 hover:bg-slate-50 hover:text-[#00AEEF] rounded-xl transition-colors flex items-center gap-2.5 font-medium text-slate-700 cursor-pointer group"
                         >
-                          <div className="flex items-center gap-2.5">
-                            <Building2 className="w-4 h-4 text-[#1E56A0]" />
-                            <span className="text-xs font-bold text-slate-700 group-hover:text-[#1E56A0]">
-                              B2B / Institutional Sales
-                            </span>
-                          </div>
-                          <ChevronRight className="w-4 h-4 text-[#00AEEF] group-hover:translate-x-0.5 transition-all" />
+                          <Building2 className="w-4 h-4 text-slate-400 group-hover:text-[#00AEEF]" />
+                          <span>B2B / Institutional Sales</span>
                         </button>
 
-                        {/* Divider */}
-                        <div className="my-1 border-t border-slate-100" />
+                        <div className="border-t border-slate-100 my-1" />
 
-                        {/* ↪ Logout */}
                         <button
                           type="button"
                           onClick={() => {
@@ -918,94 +867,43 @@ export const Header: React.FC<HeaderProps> = ({
                             setAccountDropdownOpen(false);
                             router.push("/login");
                           }}
-                          className="w-full text-left px-2.5 py-2 hover:bg-red-50 text-red-600 rounded-xl transition-all flex items-center gap-2.5 cursor-pointer font-bold group"
+                          className="w-full text-left px-3 py-2 hover:bg-red-50 text-red-600 rounded-xl transition-colors flex items-center gap-2.5 font-semibold cursor-pointer group"
                         >
-                          <LogOut className="w-4 h-4 text-red-500 group-hover:-translate-x-0.5 transition-transform" />
-                          <span className="text-xs font-bold">Logout</span>
+                          <LogOut className="w-4 h-4 text-red-500" />
+                          <span>Logout</span>
                         </button>
                       </div>
                     ) : (
-                      <div className="space-y-1">
-                        {/* Header: ACCOUNT ACCESS */}
-                        <div className="px-3 py-2 border-b border-slate-100 bg-slate-50/50 rounded-xl mb-1">
-                          <span className="text-[10px] font-black uppercase tracking-widest text-[#00AEEF] block">
-                            Account Access
-                          </span>
-                          <span className="text-xs font-black text-slate-900">
-                            Prayog India Portal
-                          </span>
-                        </div>
-
-                        {/* 1. Sign In */}
+                      <div className="space-y-0.5 p-1">
                         <Link
                           href="/login"
                           onClick={() => setAccountDropdownOpen(false)}
-                          className="w-full text-left p-2.5 hover:bg-[#E0F7FC] hover:text-[#00AEEF] rounded-xl transition-all flex items-center justify-between group"
+                          className="w-full text-left px-3 py-2.5 hover:bg-sky-50 hover:text-[#00AEEF] rounded-xl transition-colors flex items-center gap-2.5 font-bold text-slate-800"
                         >
-                          <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-lg bg-[#E0F7FC] text-[#00AEEF] flex items-center justify-center group-hover:scale-105 transition-transform shrink-0">
-                              <LogIn className="w-4 h-4" />
-                            </div>
-                            <div>
-                              <div className="font-bold text-slate-800 group-hover:text-[#00AEEF] text-xs leading-snug">
-                                Sign In
-                              </div>
-                              <div className="text-[10px] text-slate-400 font-normal">
-                                Registered customer access
-                              </div>
-                            </div>
-                          </div>
-                          <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-[#00AEEF] group-hover:translate-x-0.5 transition-all" />
+                          <LogIn className="w-4 h-4 text-[#00AEEF]" />
+                          <span>Sign In</span>
                         </Link>
 
-                        {/* 2. Create Account */}
                         <Link
                           href="/register"
                           onClick={() => setAccountDropdownOpen(false)}
-                          className="w-full text-left p-2.5 hover:bg-emerald-50 hover:text-emerald-700 rounded-xl transition-all flex items-center justify-between group"
+                          className="w-full text-left px-3 py-2.5 hover:bg-emerald-50 hover:text-emerald-700 rounded-xl transition-colors flex items-center gap-2.5 font-bold text-slate-800"
                         >
-                          <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center group-hover:scale-105 transition-transform shrink-0">
-                              <UserPlus className="w-4 h-4" />
-                            </div>
-                            <div>
-                              <div className="font-bold text-slate-800 group-hover:text-emerald-700 text-xs leading-snug">
-                                Create Account
-                              </div>
-                              <div className="text-[10px] text-slate-400 font-normal">
-                                Create new verified account
-                              </div>
-                            </div>
-                          </div>
-                          <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-emerald-600 group-hover:translate-x-0.5 transition-all" />
+                          <UserPlus className="w-4 h-4 text-emerald-600" />
+                          <span>Create Account</span>
                         </Link>
 
-                        {/* 3. Track Order */}
                         <Link
                           href="/track-order"
                           onClick={() => setAccountDropdownOpen(false)}
-                          className="w-full text-left p-2.5 hover:bg-amber-50 hover:text-amber-700 rounded-xl transition-all flex items-center justify-between group"
+                          className="w-full text-left px-3 py-2.5 hover:bg-slate-50 hover:text-[#00AEEF] rounded-xl transition-colors flex items-center gap-2.5 font-medium text-slate-700"
                         >
-                          <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center group-hover:scale-105 transition-transform shrink-0">
-                              <Truck className="w-4 h-4" />
-                            </div>
-                            <div>
-                              <div className="font-bold text-slate-800 group-hover:text-amber-700 text-xs leading-snug">
-                                Track Order
-                              </div>
-                              <div className="text-[10px] text-slate-400 font-normal">
-                                Check shipment &amp; AWB status
-                              </div>
-                            </div>
-                          </div>
-                          <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-amber-600 group-hover:translate-x-0.5 transition-all" />
+                          <Truck className="w-4 h-4 text-slate-400" />
+                          <span>Track Order</span>
                         </Link>
 
-                        {/* Divider */}
-                        <div className="my-1.5 border-t border-slate-100" />
+                        <div className="border-t border-slate-100 my-1" />
 
-                        {/* 4. B2B / Institutional Sales */}
                         <button
                           type="button"
                           onClick={() => {
@@ -1016,22 +914,10 @@ export const Header: React.FC<HeaderProps> = ({
                               router.push("/services");
                             }
                           }}
-                          className="w-full text-left p-2.5 hover:bg-indigo-50 hover:text-[#1E56A0] rounded-xl transition-all flex items-center justify-between group cursor-pointer"
+                          className="w-full text-left px-3 py-2.5 hover:bg-slate-50 hover:text-[#00AEEF] rounded-xl transition-colors flex items-center gap-2.5 font-medium text-slate-700 cursor-pointer"
                         >
-                          <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-lg bg-indigo-50 text-[#1E56A0] flex items-center justify-center group-hover:scale-105 transition-transform shrink-0">
-                              <Building2 className="w-4 h-4" />
-                            </div>
-                            <div>
-                              <div className="font-bold text-slate-800 group-hover:text-[#1E56A0] text-xs leading-snug">
-                                B2B / Institutional Sales
-                              </div>
-                              <div className="text-[10px] text-slate-400 font-normal">
-                                Bulk orders, STEM labs &amp; tenders
-                              </div>
-                            </div>
-                          </div>
-                          <ChevronRight className="w-4 h-4 text-[#00AEEF] group-hover:translate-x-0.5 transition-all" />
+                          <Building2 className="w-4 h-4 text-slate-400" />
+                          <span>B2B / Institutional Sales</span>
                         </button>
                       </div>
                     )}
@@ -1168,14 +1054,13 @@ export const Header: React.FC<HeaderProps> = ({
             <div className="relative group py-2">
               <Link
                 href="/products"
-                className={`flex items-center gap-1 px-3 py-1.5 rounded-lg transition-all duration-150 ${
+                className={`px-3 py-1.5 rounded-lg transition-all duration-150 inline-block ${
                   pathname?.startsWith("/products")
                     ? "text-[#00AEEF] font-bold bg-[#E0F7FC]/60"
                     : "hover:text-[#00AEEF] hover:bg-slate-50"
                 }`}
               >
                 <span>Products &amp; Hardware</span>
-                <ChevronDown className="w-3.5 h-3.5 text-slate-400 group-hover:text-[#00AEEF] group-hover:rotate-180 transition-transform duration-200" />
               </Link>
 
               {/* Simple Clean Dropdown */}
@@ -1261,14 +1146,13 @@ export const Header: React.FC<HeaderProps> = ({
             <div className="relative group py-2">
               <Link
                 href="/categories"
-                className={`flex items-center gap-1 px-3 py-1.5 rounded-lg transition-all duration-150 ${
+                className={`px-3 py-1.5 rounded-lg transition-all duration-150 inline-block ${
                   pathname?.startsWith("/categories")
                     ? "text-[#00AEEF] font-bold bg-[#E0F7FC]/60"
                     : "hover:text-[#00AEEF] hover:bg-slate-50"
                 }`}
               >
                 <span>Categories</span>
-                <ChevronDown className="w-3.5 h-3.5 text-slate-400 group-hover:text-[#00AEEF] group-hover:rotate-180 transition-transform duration-200" />
               </Link>
 
               {/* Simple Clean Dropdown */}
@@ -1301,14 +1185,13 @@ export const Header: React.FC<HeaderProps> = ({
             <div className="relative group py-2">
               <Link
                 href="/brands"
-                className={`flex items-center gap-1 px-3 py-1.5 rounded-lg transition-all duration-150 ${
+                className={`px-3 py-1.5 rounded-lg transition-all duration-150 inline-block ${
                   pathname?.startsWith("/brands")
                     ? "text-[#00AEEF] font-bold bg-[#E0F7FC]/60"
                     : "hover:text-[#00AEEF] hover:bg-slate-50"
                 }`}
               >
                 <span>Brands</span>
-                <ChevronDown className="w-3.5 h-3.5 text-slate-400 group-hover:text-[#00AEEF] group-hover:rotate-180 transition-transform duration-200" />
               </Link>
 
               {/* Simple Clean Dropdown */}
@@ -1350,14 +1233,13 @@ export const Header: React.FC<HeaderProps> = ({
             <div className="relative group py-2">
               <Link
                 href="/offers"
-                className={`flex items-center gap-1 px-3 py-1.5 rounded-lg transition-all duration-150 ${
+                className={`px-3 py-1.5 rounded-lg transition-all duration-150 inline-block ${
                   pathname?.startsWith("/offers")
                     ? "text-[#FF3B30] font-bold bg-red-50"
                     : "text-[#FF3B30] hover:text-red-700 hover:bg-red-50/50 font-semibold"
                 }`}
               >
                 <span>Top Deals</span>
-                <ChevronDown className="w-3.5 h-3.5 text-[#FF3B30]/70 group-hover:text-[#FF3B30] group-hover:rotate-180 transition-transform duration-200" />
               </Link>
 
               {/* Simple Clean Dropdown */}
@@ -1408,14 +1290,13 @@ export const Header: React.FC<HeaderProps> = ({
             <div className="relative group py-2">
               <Link
                 href="/services"
-                className={`flex items-center gap-1 px-3 py-1.5 rounded-lg transition-all duration-150 ${
+                className={`px-3 py-1.5 rounded-lg transition-all duration-150 inline-block ${
                   pathname?.startsWith("/services")
                     ? "text-[#00AEEF] font-bold bg-[#E0F7FC]/60"
                     : "hover:text-[#00AEEF] hover:bg-slate-50"
                 }`}
               >
                 <span>Lab Setups &amp; Services</span>
-                <ChevronDown className="w-3.5 h-3.5 text-slate-400 group-hover:text-[#00AEEF] group-hover:rotate-180 transition-transform duration-200" />
               </Link>
 
               {/* Simple Clean Dropdown */}
@@ -1467,14 +1348,13 @@ export const Header: React.FC<HeaderProps> = ({
             <div className="relative group py-2">
               <Link
                 href="/learning"
-                className={`flex items-center gap-1 px-3 py-1.5 rounded-lg transition-all duration-150 ${
+                className={`px-3 py-1.5 rounded-lg transition-all duration-150 inline-block ${
                   pathname?.startsWith("/learning")
                     ? "text-[#00AEEF] font-bold bg-[#E0F7FC]/60"
                     : "hover:text-[#00AEEF] hover:bg-slate-50"
                 }`}
               >
                 <span>Learning Hub</span>
-                <ChevronDown className="w-3.5 h-3.5 text-slate-400 group-hover:text-[#00AEEF] group-hover:rotate-180 transition-transform duration-200" />
               </Link>
 
               {/* Simple Clean Dropdown */}
@@ -1509,14 +1389,13 @@ export const Header: React.FC<HeaderProps> = ({
             <div className="relative group py-2">
               <Link
                 href="/about"
-                className={`flex items-center gap-1 px-3 py-1.5 rounded-lg transition-all duration-150 ${
+                className={`px-3 py-1.5 rounded-lg transition-all duration-150 inline-block ${
                   pathname?.startsWith("/about")
                     ? "text-[#00AEEF] font-bold bg-[#E0F7FC]/60"
                     : "hover:text-[#00AEEF] hover:bg-slate-50"
                 }`}
               >
                 <span>About</span>
-                <ChevronDown className="w-3.5 h-3.5 text-slate-400 group-hover:text-[#00AEEF] group-hover:rotate-180 transition-transform duration-200" />
               </Link>
 
               {/* Simple Clean Dropdown */}
@@ -1544,14 +1423,13 @@ export const Header: React.FC<HeaderProps> = ({
             <div className="relative group py-2">
               <Link
                 href="/contact"
-                className={`flex items-center gap-1 px-3 py-1.5 rounded-lg transition-all duration-150 ${
+                className={`px-3 py-1.5 rounded-lg transition-all duration-150 inline-block ${
                   pathname?.startsWith("/contact")
                     ? "text-[#00AEEF] font-bold bg-[#E0F7FC]/60"
                     : "hover:text-[#00AEEF] hover:bg-slate-50"
                 }`}
               >
                 <span>Contact</span>
-                <ChevronDown className="w-3.5 h-3.5 text-slate-400 group-hover:text-[#00AEEF] group-hover:rotate-180 transition-transform duration-200" />
               </Link>
 
               {/* Simple Clean Dropdown */}

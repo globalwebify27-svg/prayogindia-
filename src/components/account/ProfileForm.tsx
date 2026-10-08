@@ -208,12 +208,11 @@ export const ProfileForm: React.FC = () => {
   return (
     <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-2xs space-y-6 text-slate-900 relative">
       <div>
-        <h2 className="text-xl font-extrabold text-slate-900 tracking-tight">
-          Personal &amp; Institutional Profile
+        <h2 className="text-xl font-bold text-slate-900 tracking-tight">
+          My Profile
         </h2>
-        <p className="text-xs text-slate-500">
-          Manage your contact information, verified mobile number, institutional
-          GSTIN invoice credentials, and business tier.
+        <p className="text-xs text-slate-500 mt-0.5">
+          Manage your personal and business details.
         </p>
       </div>
 

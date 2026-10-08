@@ -173,10 +173,10 @@ export const ServiceEnquiryModal: React.FC<ServiceEnquiryModalProps> = ({
             </p>
 
             <a
-              href={`https://wa.me/919876543210?text=${whatsappMessage}`}
+              href={`https://wa.me/918709789641?text=${whatsappMessage}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center justify-center gap-2 w-full bg-emerald-500 hover:bg-emerald-600 text-white py-3 rounded-xl font-extrabold text-xs uppercase tracking-wider transition-all shadow-md"
+              className="inline-flex items-center justify-center gap-2 w-full bg-emerald-500 hover:bg-emerald-600 text-white py-3.5 rounded-2xl font-extrabold text-xs tracking-wide transition-all shadow-sm"
             >
               <MessageSquare className="w-4 h-4 fill-white" />
               <span>Chat Immediately on WhatsApp</span>

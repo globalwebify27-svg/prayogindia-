@@ -410,8 +410,10 @@ export const PRODUCTS: Product[] = [
   },
   {
     id: "ard-nano-33-ble",
+    slug: "ard-nano-33-ble",
     name: "Arduino Nano 33 BLE Sense (9-Axis IMU & Microphone)",
     sku: "PRG-ARD-008",
+
     category: "Arduino & Microcontrollers",
     price: 3199,
     mrp: 3899,

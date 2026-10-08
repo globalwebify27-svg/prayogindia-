@@ -23,6 +23,8 @@ import {
   Check,
   RefreshCw,
 } from "lucide-react";
+import { Skeleton } from "@/components/ui/Skeleton";
+
 
 import {
   getAllSessions,
@@ -223,20 +225,36 @@ export default function StoreOrdersPage() {
             </thead>
             <tbody className="divide-y divide-slate-100 text-slate-700">
               {loading ? (
-                <tr>
-                  <td
-                    colSpan={6}
-                    className="px-6 py-16 text-center text-slate-400"
-                  >
-                    <div className="flex flex-col items-center gap-2">
-                      <div className="w-6 h-6 border-2 border-[#00AEEF] border-t-transparent rounded-full animate-spin" />
-                      <span className="text-xs font-medium">
-                        Syncing live branch orders...
-                      </span>
-                    </div>
-                  </td>
-                </tr>
+                Array.from({ length: 6 }).map((_, idx) => (
+                  <tr key={idx} className="animate-pulse">
+                    <td className="px-6 py-4">
+                      <div className="space-y-1">
+                        <Skeleton className="h-4 w-32 rounded" />
+                        <Skeleton className="h-3 w-20 rounded" />
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="space-y-1">
+                        <Skeleton className="h-4 w-28 rounded" />
+                        <Skeleton className="h-3 w-16 rounded" />
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <Skeleton className="h-4 w-16 rounded" />
+                    </td>
+                    <td className="px-6 py-4">
+                      <Skeleton className="h-6 w-24 rounded-full" />
+                    </td>
+                    <td className="px-6 py-4">
+                      <Skeleton className="h-4 w-28 rounded" />
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      <Skeleton className="h-8 w-20 rounded-lg ml-auto" />
+                    </td>
+                  </tr>
+                ))
               ) : filteredOrders.length === 0 ? (
+
                 <tr>
                   <td
                     colSpan={6}

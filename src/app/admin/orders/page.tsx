@@ -76,15 +76,29 @@ export default function AdminOrdersPage() {
   };
 
   const filteredOrders = orders.filter((ord) => {
-    const q = searchQuery.toLowerCase();
+    const q = searchQuery.toLowerCase().trim();
     const matchesSearch =
+      !q ||
       ord.orderNumber?.toLowerCase().includes(q) ||
+      ord.quotation?.quoteNumber?.toLowerCase().includes(q) ||
+      ord.quotationId?.toLowerCase().includes(q) ||
+      ord.invoice?.invoiceNumber?.toLowerCase().includes(q) ||
       ord.user?.name?.toLowerCase().includes(q) ||
       ord.user?.email?.toLowerCase().includes(q) ||
+      ord.user?.phone?.toLowerCase().includes(q) ||
+      ord.user?.companyName?.toLowerCase().includes(q) ||
+      ord.shippingAddress?.toLowerCase().includes(q) ||
       ord.awbNumber?.toLowerCase().includes(q) ||
-      ord.courierProvider?.toLowerCase().includes(q);
+      ord.courierProvider?.toLowerCase().includes(q) ||
+      ord.items?.some(
+        (i: any) =>
+          (i.productName || i.name)?.toLowerCase().includes(q) ||
+          (i.productSku || i.sku)?.toLowerCase().includes(q),
+      );
     const matchesChannel =
-      channelFilter === "all" || ord.orderSource === channelFilter;
+      channelFilter === "all" ||
+      ord.orderSource === channelFilter ||
+      (channelFilter === "WEBSITE" && (!ord.orderSource || ord.orderSource === "WEBSITE"));
     return matchesSearch && matchesChannel;
   });
 
@@ -103,7 +117,7 @@ export default function AdminOrdersPage() {
           </h1>
           <p className="text-xs text-slate-500 font-medium mt-0.5">
             Real-time fulfillment desk for all orders originating from the{" "}
-            <strong>Prayog Website Store</strong>, <strong>Mobile App</strong>,
+            <strong>Prayog Website Store</strong>, <strong>B2B Quotations</strong>, <strong>Mobile App</strong>,
             and store branches.
           </p>
         </div>
@@ -116,7 +130,12 @@ export default function AdminOrdersPage() {
           {
             id: "WEBSITE",
             label: "🌐 Website Orders (Online)",
-            count: orders.filter((o) => o.orderSource === "WEBSITE").length,
+            count: orders.filter((o) => !o.orderSource || o.orderSource === "WEBSITE").length,
+          },
+          {
+            id: "B2B_QUOTATION",
+            label: "📑 B2B & Quotation Orders",
+            count: orders.filter((o) => o.orderSource === "B2B_QUOTATION" || o.quotationId).length,
           },
           {
             id: "MOBILE_APP",
@@ -141,6 +160,15 @@ export default function AdminOrdersPage() {
               }`}
             >
               <span>{tab.label}</span>
+              {tab.count !== undefined && (
+                <span
+                  className={`text-[10px] px-1.5 py-0.5 rounded-full font-extrabold ${
+                    active ? "bg-white/20 text-white" : "bg-slate-100 text-slate-600"
+                  }`}
+                >
+                  {tab.count}
+                </span>
+              )}
             </button>
           );
         })}
@@ -148,13 +176,13 @@ export default function AdminOrdersPage() {
 
       {/* 2. Search & Filter Bar */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white p-4 rounded-2xl border border-slate-200/90 shadow-2xs">
-        <div className="relative w-full sm:w-80">
+        <div className="relative w-full sm:w-96">
           <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search order #, customer, AWB..."
+            placeholder="Search order #, quote #, customer, company, AWB..."
             className="w-full bg-slate-50 border border-slate-200 pl-10 pr-4 py-2 rounded-xl text-xs font-bold text-slate-900 focus:bg-white focus:outline-none focus:border-[#00AEEF]"
           />
         </div>
@@ -220,9 +248,18 @@ export default function AdminOrdersPage() {
                       <div className="text-[10px] text-slate-500 font-bold uppercase mt-0.5">
                         Source:{" "}
                         <span className="text-[#00AEEF]">
-                          {ord.orderSource || "Website"}
+                          {ord.orderSource === "B2B_QUOTATION"
+                            ? "B2B Quotation"
+                            : ord.orderSource || "Website"}
                         </span>
                       </div>
+                      {ord.quotation && (
+                        <div className="mt-1">
+                          <span className="text-[10px] font-mono font-bold bg-sky-50 text-[#00AEEF] border border-sky-100 px-2 py-0.5 rounded-md">
+                            Quote #{ord.quotation.quoteNumber}
+                          </span>
+                        </div>
+                      )}
                     </td>
 
                     {/* Customer */}

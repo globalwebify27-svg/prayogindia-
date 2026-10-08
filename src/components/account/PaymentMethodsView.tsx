@@ -158,50 +158,41 @@ export const PaymentMethodsView: React.FC = () => {
   return (
     <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-2xs space-y-8 text-slate-900">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
         <div>
-          <div className="flex items-center gap-2">
-            <span className="text-[10px] font-black uppercase tracking-widest text-[#00AEEF] bg-[#E0F7FC] px-3 py-1 rounded-full">
-              Secure Wallet
-            </span>
-            <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-600">
-              <ShieldCheck className="w-3.5 h-3.5" /> RBI Compliant Tokenized
-            </span>
-          </div>
-          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight mt-2">
+          <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
             Payment Methods
           </h1>
-          <p className="text-xs text-slate-500 mt-1">
-            Manage your saved credit/debit cards, verified UPI IDs, and institutional credit line.
+          <p className="text-xs text-slate-500 mt-0.5">
+            Manage your saved cards and UPI IDs for quick checkout.
           </p>
         </div>
       </div>
 
       {/* Institutional Credit Line Card */}
-      <div className="bg-gradient-to-br from-[#0A1128] via-[#0d1b3e] to-[#1E56A0] rounded-3xl p-6 text-white relative overflow-hidden shadow-lg border border-slate-800">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-cyan-400/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="space-y-2">
-            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md px-3 py-1 rounded-full text-[11px] font-bold text-cyan-300">
-              <Building2 className="w-3.5 h-3.5 text-[#D4AF37]" /> Institutional Pre-Approved Credit
-            </div>
-            <div className="text-3xl sm:text-4xl font-black tracking-tight text-white">
-              ₹5,00,000 <span className="text-xs font-normal text-slate-300">Available Limit</span>
-            </div>
-            <p className="text-xs text-slate-300 max-w-md">
-              Zero-interest 30-day net credit term for recognized ATL schools, colleges, and university labs.
-            </p>
+      <div className="bg-gradient-to-r from-sky-50 via-white to-amber-50/50 rounded-2xl p-5 border border-slate-200/90 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-2xs">
+        <div className="space-y-1">
+          <div className="flex items-center gap-2">
+            <span className="text-[11px] font-bold text-sky-800 bg-sky-100 px-2.5 py-0.5 rounded-full flex items-center gap-1">
+              <Building2 className="w-3.5 h-3.5 text-sky-600" /> B2B Credit Limit
+            </span>
+            <span className="text-[11px] text-emerald-700 font-semibold flex items-center gap-1">
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> Active
+            </span>
           </div>
-          <div className="bg-white/10 backdrop-blur-md border border-white/15 p-4 rounded-2xl flex flex-col gap-2 min-w-[200px]">
-            <div className="text-[10px] uppercase font-bold text-slate-300 tracking-wider">
-              GSTIN Account
-            </div>
-            <div className="text-xs font-mono font-bold text-white">
-              {user?.gstin || "07AAAAA0000A1Z5"}
-            </div>
-            <div className="text-[11px] text-emerald-300 font-bold flex items-center gap-1.5 mt-1">
-              <CheckCircle2 className="w-3.5 h-3.5" /> Pre-Approved Active
-            </div>
+          <div className="text-2xl font-extrabold text-slate-900">
+            ₹5,00,000 <span className="text-xs font-normal text-slate-500">Available Credit</span>
+          </div>
+          <p className="text-xs text-slate-500">
+            30-day net credit term for recognized institutions &amp; labs.
+          </p>
+        </div>
+        <div className="bg-white border border-slate-200 p-3 rounded-xl flex flex-col gap-1 min-w-[170px] shrink-0 text-xs">
+          <div className="text-[10px] uppercase font-bold text-slate-400">
+            GSTIN Account
+          </div>
+          <div className="font-mono font-bold text-slate-800">
+            {user?.gstin || "07AAAAA0000A1Z5"}
           </div>
         </div>
       </div>

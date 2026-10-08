@@ -21,6 +21,8 @@ import {
   Layers,
   X,
   SlidersHorizontal,
+  Sparkles,
+  ShieldCheck,
 } from "lucide-react";
 import { useStore } from "@/context/StoreContext";
 
@@ -191,37 +193,48 @@ export const SubcategoryDetailView: React.FC<SubcategoryDetailProps> = ({
       />
 
       {/* 2. Subcategory Header */}
-      <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm flex flex-col md:flex-row items-center justify-between gap-6">
-        <div className="space-y-2 max-w-2xl">
-          <div className="flex items-center gap-2">
-            <Link
-              href={`/categories/${category.slug}`}
-              className="text-xs font-bold text-[#00AEEF] hover:underline flex items-center gap-1"
-            >
-              <ArrowLeft className="w-3.5 h-3.5" /> Back to {category.name}
-            </Link>
-            <span className="text-xs text-slate-300">•</span>
-            <span className="text-xs font-extrabold text-slate-400">
-              {subcategory.productCount} Items Available
-            </span>
+      <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-br from-white via-sky-50/20 to-slate-50 border border-slate-200/80 shadow-xs p-6 sm:p-8 lg:p-10">
+        {/* Subtle background ambient glow */}
+        <div className="absolute -top-20 -right-20 w-72 h-72 rounded-full bg-[#00AEEF]/8 blur-3xl pointer-events-none" />
+
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6 lg:gap-10">
+          <div className="space-y-3 max-w-2xl">
+            <div className="flex items-center gap-2 flex-wrap">
+              <Link
+                href={`/categories/${category.slug}`}
+                className="text-xs font-bold text-[#00AEEF] hover:underline flex items-center gap-1 bg-white px-2.5 py-1 rounded-full border border-slate-200/80 shadow-2xs"
+              >
+                <ArrowLeft className="w-3.5 h-3.5" /> Back to {category.name}
+              </Link>
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-[#00AEEF]/10 text-[#0086B8] border border-[#00AEEF]/20">
+                <Sparkles className="w-3.5 h-3.5 text-[#00AEEF]" />
+                {subcategory.productCount} Items Available
+              </span>
+            </div>
+
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 tracking-tight">
+              {subcategory.name}
+            </h1>
+
+            <p className="text-xs sm:text-sm text-slate-600 leading-relaxed max-w-xl">
+              {subcategory.description}
+            </p>
           </div>
 
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900">
-            {subcategory.name}
-          </h1>
-
-          <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-            {subcategory.description}
-          </p>
-        </div>
-
-        <div className="relative w-36 h-24 sm:w-40 sm:h-28 rounded-2xl overflow-hidden border border-slate-100 shrink-0">
-          <Image
-            src={subcategory.image}
-            alt={subcategory.name}
-            fill
-            className="object-cover"
-          />
+          {subcategory.image && (
+            <div className="relative shrink-0 self-center md:self-auto hidden sm:block">
+              <div className="relative w-48 h-32 sm:w-56 sm:h-36 rounded-2xl overflow-hidden bg-white border border-slate-200/80 shadow-md p-2 group">
+                <div className="relative w-full h-full rounded-xl overflow-hidden bg-slate-50">
+                  <Image
+                    src={subcategory.image}
+                    alt={subcategory.name}
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 

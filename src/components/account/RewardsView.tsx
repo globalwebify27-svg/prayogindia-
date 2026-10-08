@@ -9,19 +9,16 @@ import {
   PointsLedgerEntry,
 } from "@/data/rewardsData";
 import {
-  Award,
-  ArrowRight,
   Coins,
-  Clock,
+  ArrowRight,
   Zap,
-  ShieldCheck,
+  Calendar,
   CheckCircle2,
   HelpCircle,
-  Sparkles,
   ArrowUpRight,
   ArrowDownLeft,
-  Calendar,
-  Gift,
+  ShoppingBag,
+  Sparkles,
 } from "lucide-react";
 
 export const RewardsView: React.FC = () => {
@@ -67,7 +64,7 @@ export const RewardsView: React.FC = () => {
                   orderNumber: t.referenceId
                     ? `Ref: ${t.referenceId}`
                     : t.orderId
-                      ? `Order: ${t.orderId.slice(0, 8)}`
+                      ? `Order #${t.orderId.slice(0, 8)}`
                       : undefined,
                   userEmail: user?.email || "",
                 })),
@@ -108,31 +105,25 @@ export const RewardsView: React.FC = () => {
         );
 
   return (
-    <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-2xs space-y-6 text-slate-900 animate-in fade-in duration-300">
-      {/* 1. Header with Breadcrumb */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+    <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-xs space-y-6 text-slate-900 animate-in fade-in duration-200">
+      {/* 1. Header & Navigation */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
         <div>
-          <div className="flex items-center gap-2">
-            <span className="text-[10px] font-black uppercase tracking-widest text-[#00AEEF] bg-[#E0F7FC] px-3.5 py-1 rounded-full border border-[#00AEEF]/20">
-              Section 22 · Prayog Coins &amp; Loyalty Program
-            </span>
-          </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight mt-1">
+          <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
             Rewards &amp; Loyalty Points
           </h1>
-          <p className="text-xs text-slate-500">
-            Earn Prayog Coins on every STEM hardware purchase and redeem them at
-            checkout for instant cash discounts.
+          <p className="text-xs text-slate-500 mt-1">
+            Earn Prayog Coins on every STEM hardware purchase and redeem them at checkout for instant discounts.
           </p>
         </div>
 
-        {/* Tab Navigation */}
-        <div className="flex items-center bg-slate-100 p-1.5 rounded-2xl border border-slate-200 self-start sm:self-auto text-xs font-bold">
+        {/* Clean Pill Tabs */}
+        <div className="flex items-center bg-slate-100 p-1 rounded-xl self-start sm:self-auto text-xs font-semibold">
           <button
             onClick={() => setActiveTab("overview")}
-            className={`px-3 py-1.5 rounded-xl transition-all ${
+            className={`px-3.5 py-1.5 rounded-lg transition-all cursor-pointer ${
               activeTab === "overview"
-                ? "bg-white text-slate-900 shadow-xs"
+                ? "bg-white text-slate-900 shadow-2xs font-bold"
                 : "text-slate-500 hover:text-slate-900"
             }`}
           >
@@ -140,9 +131,9 @@ export const RewardsView: React.FC = () => {
           </button>
           <button
             onClick={() => setActiveTab("history")}
-            className={`px-3 py-1.5 rounded-xl transition-all ${
+            className={`px-3.5 py-1.5 rounded-lg transition-all cursor-pointer ${
               activeTab === "history"
-                ? "bg-white text-slate-900 shadow-xs"
+                ? "bg-white text-slate-900 shadow-2xs font-bold"
                 : "text-slate-500 hover:text-slate-900"
             }`}
           >
@@ -150,9 +141,9 @@ export const RewardsView: React.FC = () => {
           </button>
           <button
             onClick={() => setActiveTab("rules")}
-            className={`px-3 py-1.5 rounded-xl transition-all ${
+            className={`px-3.5 py-1.5 rounded-lg transition-all cursor-pointer ${
               activeTab === "rules"
-                ? "bg-white text-slate-900 shadow-xs"
+                ? "bg-white text-slate-900 shadow-2xs font-bold"
                 : "text-slate-500 hover:text-slate-900"
             }`}
           >
@@ -161,147 +152,138 @@ export const RewardsView: React.FC = () => {
         </div>
       </div>
 
-      {/* 2. Main Balance Hero Card */}
-      <div className="bg-gradient-to-br from-[#0F172A] via-slate-900 to-[#1E293B] text-white rounded-3xl p-6 sm:p-8 border border-slate-800 flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl relative overflow-hidden">
-        <div className="space-y-2 text-center md:text-left z-10">
-          <div className="flex items-center justify-center md:justify-start gap-2">
-            <span className="text-[10px] font-black uppercase tracking-widest text-[#FFC20E] bg-white/10 px-3 py-1 rounded-full border border-white/10">
-              AVAILABLE COINS BALANCE
+      {/* 2. Main Balance Card (Clean Light Aesthetic) */}
+      <div className="bg-gradient-to-r from-sky-50/80 via-white to-amber-50/60 rounded-2xl p-6 sm:p-7 border border-slate-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-5 shadow-2xs">
+        <div className="space-y-1.5">
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-bold text-slate-600 uppercase tracking-wider">
+              Available Balance
             </span>
-            <span className="text-[10px] bg-emerald-500/20 text-emerald-300 font-bold px-2.5 py-0.5 rounded-full border border-emerald-500/30">
-              Active Tier: {activeRule.name}
-            </span>
-          </div>
-
-          <div className="text-4xl sm:text-5xl font-black tracking-tight text-white flex items-baseline justify-center md:justify-start gap-2">
-            <span>{points.toLocaleString()}</span>
-            <span className="text-lg text-[#FFC20E] font-bold">
-              Prayog Coins
+            <span className="text-[11px] bg-sky-100 text-sky-800 font-medium px-2.5 py-0.5 rounded-full">
+              {activeRule.name}
             </span>
           </div>
 
-          <p className="text-xs text-slate-300 font-medium">
-            Worth{" "}
-            <strong className="text-white font-black text-sm">
-              ₹{cashValue.toLocaleString()}
-            </strong>{" "}
-            in instant discounts at Checkout (1 Coin = ₹
-            {activeRule.redemptionRateRupees}).
+          <div className="flex items-baseline gap-2">
+            <span className="text-3xl sm:text-4xl font-extrabold text-slate-900">
+              {points.toLocaleString()}
+            </span>
+            <span className="text-sm font-bold text-amber-600 flex items-center gap-1">
+              <Coins className="w-4 h-4 text-amber-500 fill-amber-500/20" /> Prayog Coins
+            </span>
+          </div>
+
+          <p className="text-xs text-slate-500">
+            Worth <strong className="text-slate-900 font-bold">₹{cashValue.toLocaleString()}</strong> in instant discounts at Checkout (1 Coin = ₹{activeRule.redemptionRateRupees}).
           </p>
         </div>
 
-        <div className="flex flex-col sm:flex-row items-center gap-3 z-10 w-full md:w-auto">
+        <div className="flex items-center gap-3 shrink-0">
           <Link
-            href="/cart"
-            className="w-full sm:w-auto bg-[#00AEEF] hover:bg-[#0096D6] text-white px-6 py-3.5 rounded-2xl text-xs font-black uppercase tracking-wider transition-all shadow-lg flex items-center justify-center gap-2 active:scale-95"
+            href="/checkout"
+            className="bg-[#00AEEF] hover:bg-[#0096D6] text-white px-5 py-2.5 rounded-xl text-xs font-bold shadow-2xs flex items-center justify-center gap-2 transition-all active:scale-95 cursor-pointer"
           >
             <span>Redeem at Checkout</span>
-            <ArrowRight className="w-4 h-4 text-[#FFC20E]" />
+            <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
+          <Link
+            href="/products"
+            className="bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 px-4 py-2.5 rounded-xl text-xs font-bold transition-all"
+          >
+            Shop &amp; Earn
           </Link>
         </div>
       </div>
 
-      {/* 3. Tab: Overview Metrics */}
+      {/* 3. Tab: Overview Metrics & FAQ */}
       {activeTab === "overview" && (
-        <div className="space-y-6">
+        <div className="space-y-6 animate-in fade-in duration-150">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {/* Metric 1 */}
-            <div className="bg-slate-50 border border-slate-200 rounded-3xl p-5 space-y-2">
-              <div className="w-10 h-10 rounded-2xl bg-white border border-slate-200 flex items-center justify-center text-[#00AEEF]">
-                <Zap className="w-5 h-5" />
+            <div className="bg-white border border-slate-200 rounded-2xl p-4.5 space-y-2 shadow-2xs">
+              <div className="w-9 h-9 rounded-xl bg-sky-50 text-[#00AEEF] flex items-center justify-center">
+                <Zap className="w-4.5 h-4.5" />
               </div>
               <div>
-                <span className="text-xl font-black text-slate-900">
+                <span className="text-lg font-bold text-slate-900">
                   {activeRule.pointsPer100Spent} Coin / ₹100
                 </span>
-                <h4 className="text-xs font-bold text-slate-500">
+                <h4 className="text-xs text-slate-500 font-medium">
                   Earning Rate on Hardware
                 </h4>
               </div>
             </div>
 
             {/* Metric 2 */}
-            <div className="bg-slate-50 border border-slate-200 rounded-3xl p-5 space-y-2">
-              <div className="w-10 h-10 rounded-2xl bg-white border border-slate-200 flex items-center justify-center text-emerald-600">
-                <Coins className="w-5 h-5" />
+            <div className="bg-white border border-slate-200 rounded-2xl p-4.5 space-y-2 shadow-2xs">
+              <div className="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                <Coins className="w-4.5 h-4.5" />
               </div>
               <div>
-                <span className="text-xl font-black text-slate-900">
+                <span className="text-lg font-bold text-slate-900">
                   Up to {activeRule.maxRedemptionPercentage}% Off
                 </span>
-                <h4 className="text-xs font-bold text-slate-500">
+                <h4 className="text-xs text-slate-500 font-medium">
                   Max Cart Discount Cap
                 </h4>
               </div>
             </div>
 
             {/* Metric 3 */}
-            <div className="bg-slate-50 border border-slate-200 rounded-3xl p-5 space-y-2">
-              <div className="w-10 h-10 rounded-2xl bg-white border border-slate-200 flex items-center justify-center text-purple-600">
-                <Calendar className="w-5 h-5" />
+            <div className="bg-white border border-slate-200 rounded-2xl p-4.5 space-y-2 shadow-2xs">
+              <div className="w-9 h-9 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center">
+                <Calendar className="w-4.5 h-4.5" />
               </div>
               <div>
-                <span className="text-xl font-black text-slate-900">
+                <span className="text-lg font-bold text-slate-900">
                   {activeRule.validityDays} Days
                 </span>
-                <h4 className="text-xs font-bold text-slate-500">
+                <h4 className="text-xs text-slate-500 font-medium">
                   Points Expiry Validity
                 </h4>
               </div>
             </div>
           </div>
 
-          {/* Quick FAQ info */}
-          <div className="bg-slate-50 border border-slate-200 rounded-3xl p-6 space-y-3 text-xs">
-            <h3 className="font-extrabold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
-              <HelpCircle className="w-4 h-4 text-[#00AEEF]" /> How to Redeem
-              Loyalty Points
+          {/* How to Redeem Box */}
+          <div className="bg-slate-50/70 border border-slate-200/80 rounded-2xl p-5 space-y-3 text-xs">
+            <h3 className="font-bold text-slate-900 flex items-center gap-1.5">
+              <HelpCircle className="w-4 h-4 text-[#00AEEF]" /> How to Redeem Loyalty Points
             </h3>
-            <ul className="space-y-2 text-slate-600">
-              <li className="flex items-start gap-2">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                <span>
-                  Add electronics, kits, or robotics sensors to your shopping
-                  cart.
-                </span>
-              </li>
-              <li className="flex items-start gap-2">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                <span>
-                  On the Checkout page, check{" "}
-                  <strong>&quot;Redeem Prayog Coins&quot;</strong> in the Order
-                  Summary sidebar.
-                </span>
-              </li>
-              <li className="flex items-start gap-2">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                <span>
-                  The discount is deducted immediately from your Grand Total
-                  Payable.
-                </span>
-              </li>
-            </ul>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-slate-600">
+              <div className="flex items-start gap-2 bg-white p-3 rounded-xl border border-slate-100">
+                <span className="w-5 h-5 rounded-full bg-sky-100 text-[#00AEEF] font-bold text-[11px] flex items-center justify-center shrink-0">1</span>
+                <span>Add STEM robotics kits or sensors to your shopping cart.</span>
+              </div>
+              <div className="flex items-start gap-2 bg-white p-3 rounded-xl border border-slate-100">
+                <span className="w-5 h-5 rounded-full bg-sky-100 text-[#00AEEF] font-bold text-[11px] flex items-center justify-center shrink-0">2</span>
+                <span>In Checkout, check <strong>&quot;Redeem Prayog Coins&quot;</strong> in the Order Summary.</span>
+              </div>
+              <div className="flex items-start gap-2 bg-white p-3 rounded-xl border border-slate-100">
+                <span className="w-5 h-5 rounded-full bg-sky-100 text-[#00AEEF] font-bold text-[11px] flex items-center justify-center shrink-0">3</span>
+                <span>The discount is instantly deducted from your total payable amount.</span>
+              </div>
+            </div>
           </div>
         </div>
       )}
 
       {/* 4. Tab: History Ledger */}
       {activeTab === "history" && (
-        <div className="space-y-4">
+        <div className="space-y-4 animate-in fade-in duration-150">
           <div className="flex items-center justify-between">
-            <h3 className="text-xs font-black uppercase text-slate-900 tracking-wider">
+            <h3 className="text-xs font-bold uppercase text-slate-600 tracking-wider">
               Points Ledger Activity Log
             </h3>
-            <span className="text-xs text-slate-400 font-bold">
+            <span className="text-xs text-slate-400 font-medium">
               {userLedger.length} transaction(s)
             </span>
           </div>
 
-          <div className="bg-slate-50 border border-slate-200 rounded-3xl p-4 space-y-3">
+          <div className="space-y-2.5">
             {userLedger.length === 0 ? (
-              <div className="text-center py-8 text-xs text-slate-400 font-bold">
-                No rewards activity recorded yet. Place orders to start earning
-                coins!
+              <div className="text-center py-10 bg-slate-50 rounded-2xl border border-slate-100 text-xs text-slate-400 font-medium">
+                No rewards activity recorded yet. Place orders to start earning coins!
               </div>
             ) : (
               userLedger.map((entry) => {
@@ -309,14 +291,14 @@ export const RewardsView: React.FC = () => {
                 return (
                   <div
                     key={entry.id}
-                    className="bg-white border border-slate-200/80 p-4 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs"
+                    className="bg-white border border-slate-200/90 p-4 rounded-xl flex items-center justify-between gap-3 shadow-2xs hover:border-slate-300 transition-colors"
                   >
-                    <div className="flex items-start gap-3">
+                    <div className="flex items-center gap-3">
                       <div
-                        className={`p-2.5 rounded-xl border shrink-0 ${
+                        className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ${
                           isPositive
-                            ? "bg-emerald-50 text-emerald-600 border-emerald-200"
-                            : "bg-red-50 text-red-600 border-red-200"
+                            ? "bg-emerald-50 text-emerald-600"
+                            : "bg-rose-50 text-rose-600"
                         }`}
                       >
                         {isPositive ? (
@@ -326,25 +308,24 @@ export const RewardsView: React.FC = () => {
                         )}
                       </div>
                       <div className="space-y-0.5 text-xs">
-                        <div className="font-extrabold text-slate-900 flex items-center gap-2">
+                        <div className="font-bold text-slate-900 flex items-center gap-2 flex-wrap">
                           <span>{entry.notes}</span>
                           {entry.orderNumber && (
-                            <span className="font-mono text-[10px] bg-slate-100 text-slate-700 px-2 py-0.5 rounded-md">
+                            <span className="font-mono text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded">
                               {entry.orderNumber}
                             </span>
                           )}
                         </div>
-                        <div className="text-[11px] text-slate-400 flex items-center gap-2">
-                          <span>Date: {entry.date}</span>
-                          {entry.expiryDate && (
-                            <span>• Expires: {entry.expiryDate}</span>
-                          )}
+                        <div className="text-[11px] text-slate-400">
+                          {entry.date}
                         </div>
                       </div>
                     </div>
 
                     <span
-                      className={`text-base font-black shrink-0 ${isPositive ? "text-emerald-600" : "text-red-600"}`}
+                      className={`text-sm font-bold shrink-0 ${
+                        isPositive ? "text-emerald-600" : "text-rose-600"
+                      }`}
                     >
                       {isPositive ? `+${entry.points}` : entry.points} PTS
                     </span>
@@ -358,72 +339,60 @@ export const RewardsView: React.FC = () => {
 
       {/* 5. Tab: Earning & Customer-Type Rules */}
       {activeTab === "rules" && (
-        <div className="space-y-4">
-          <h3 className="text-xs font-black uppercase text-slate-900 tracking-wider">
-            Customer-Type Eligibility &amp; Redemption Rules
+        <div className="space-y-4 animate-in fade-in duration-150">
+          <h3 className="text-xs font-bold uppercase text-slate-600 tracking-wider">
+            Customer Tier Eligibility &amp; Redemption Rules
           </h3>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {DEFAULT_REWARD_RULES.map((rule) => (
               <div
                 key={rule.id}
-                className="bg-slate-50 border border-slate-200 rounded-3xl p-5 space-y-3"
+                className="bg-white border border-slate-200 rounded-2xl p-5 space-y-3 shadow-2xs"
               >
-                <div className="flex items-center justify-between border-b border-slate-200 pb-2.5">
-                  <h4 className="text-xs font-black text-slate-900">
+                <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
+                  <h4 className="text-xs font-bold text-slate-900">
                     {rule.name}
                   </h4>
-                  <span className="text-[9px] bg-[#E0F7FC] text-[#00AEEF] px-2 py-0.5 rounded-full font-bold">
+                  <span className="text-[10px] bg-sky-50 text-[#00AEEF] px-2 py-0.5 rounded-full font-semibold">
                     {rule.customerType}
                   </span>
                 </div>
 
                 <div className="space-y-2 text-xs text-slate-600">
                   <div className="flex justify-between">
-                    <span className="text-slate-400 font-bold">
-                      Earning Rate:
-                    </span>
-                    <span className="font-black text-slate-900">
+                    <span className="text-slate-400">Earning Rate:</span>
+                    <span className="font-bold text-slate-900">
                       {rule.pointsPer100Spent} pts / ₹100
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-slate-400 font-bold">
-                      Redemption Value:
-                    </span>
-                    <span className="font-black text-emerald-600">
+                    <span className="text-slate-400">Redemption Value:</span>
+                    <span className="font-bold text-emerald-600">
                       1 pt = ₹{rule.redemptionRateRupees}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-slate-400 font-bold">
-                      Min to Redeem:
-                    </span>
-                    <span className="font-bold text-slate-900">
+                    <span className="text-slate-400">Min to Redeem:</span>
+                    <span className="font-medium text-slate-900">
                       {rule.minRedemptionPoints} pts
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-slate-400 font-bold">
-                      Max Cart Cap:
-                    </span>
-                    <span className="font-bold text-slate-900">
+                    <span className="text-slate-400">Max Cart Cap:</span>
+                    <span className="font-medium text-slate-900">
                       {rule.maxRedemptionPercentage}% of subtotal
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-slate-400 font-bold">
-                      Registration Bonus:
-                    </span>
-                    <span className="font-bold text-purple-700">
+                    <span className="text-slate-400">Registration Bonus:</span>
+                    <span className="font-bold text-purple-600">
                       {rule.registrationBonus} pts
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-slate-400 font-bold">
-                      Points Expiry:
-                    </span>
-                    <span className="font-bold text-slate-900">
+                    <span className="text-slate-400">Points Expiry:</span>
+                    <span className="font-medium text-slate-900">
                       {rule.validityDays} Days
                     </span>
                   </div>

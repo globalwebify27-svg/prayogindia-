@@ -38,6 +38,7 @@ import { RoboticOrderSuccess } from "@/components/walk-in/RoboticOrderSuccess";
 import { OrderTruckButton } from "@/components/walk-in/OrderTruckButton";
 import { CATEGORIES_DATA } from "@/data/categories";
 import { CATEGORIES_HIERARCHY } from "@/data/categoriesHierarchy";
+import { KioskGridSkeleton } from "@/components/ui/Skeleton";
 
 // ─────────────────────────────────────────────────────
 // Cart item in kiosk state
@@ -1174,17 +1175,9 @@ export default function StoreKioskPage() {
   );
 
   if (checkingAuth) {
-    return (
-      <div className="min-h-screen bg-[#0A0F1D] flex items-center justify-center text-white">
-        <div className="flex flex-col items-center gap-3">
-          <div className="w-8 h-8 border-3 border-[#00AEEF] border-t-transparent rounded-full animate-spin" />
-          <span className="text-xs font-bold text-slate-400">
-            Verifying Device Status...
-          </span>
-        </div>
-      </div>
-    );
+    return <KioskGridSkeleton count={8} />;
   }
+
 
   // ── 1. KIOSK LOCKED: Store Manager Setup & Login Form ──
   if (!isDeviceUnlocked) {

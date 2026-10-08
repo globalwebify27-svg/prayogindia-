@@ -25,18 +25,24 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
   slug,
   initialProduct,
 }) => {
+  const decodedSlug = decodeURIComponent(slug || "").trim();
+  const slugLower = decodedSlug.toLowerCase();
+
   // ── Product lookup: check passed DB initialProduct first
   const product =
     initialProduct ||
     PRODUCTS.find(
       (p) =>
-        (p.slug && p.slug === slug) ||
-        p.id === slug ||
-        p.name.toLowerCase().replace(/[^a-z0-9]+/g, "-") === slug,
+        (p.slug && p.slug.toLowerCase() === slugLower) ||
+        p.id.toLowerCase() === slugLower ||
+        (p.sku && p.sku.toLowerCase() === slugLower) ||
+        p.name.toLowerCase().replace(/[^a-z0-9]+/g, "-") === slugLower ||
+        p.name.toLowerCase() === slugLower,
     ) ||
     null;
 
   const isInvalidSlug = !product;
+
 
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(
     product?.variants && product.variants.length > 0
@@ -57,35 +63,16 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // ── Derived data (Ensure 4-5 images per product)
+  // ── Derived data (Only show images provided for this product)
   const galleryImages = React.useMemo(() => {
     if (!product) return [];
-    if (product.images && product.images.length >= 4) {
-      return product.images;
+    if (product.images && product.images.length > 0) {
+      return product.images.filter(Boolean);
     }
-    
-    const baseImages = product.images && product.images.length > 0
-      ? [...product.images]
-      : product.image
-        ? [product.image]
-        : ["/images/products/arduino-uno-r3.png"];
-
-    const hardwareExtras = [
-      "/images/products/arduino-uno-r3.png",
-      "/images/products/ultrasonic-sensor-hcsr04.png",
-      "/images/products/tt-gear-motor-wheel.png",
-      "/images/products/l298n-motor-driver.jpg",
-      "/images/products/4wd-robot-chassis-kit.jpg",
-    ];
-
-    for (const extra of hardwareExtras) {
-      if (baseImages.length >= 5) break;
-      if (!baseImages.includes(extra)) {
-        baseImages.push(extra);
-      }
+    if (product.image) {
+      return [product.image];
     }
-
-    return baseImages;
+    return [];
   }, [product]);
 
   if (isInvalidSlug || !product) {

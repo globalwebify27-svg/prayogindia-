@@ -32,10 +32,17 @@ export async function GET(request: Request) {
           where,
           include: {
             user: {
-              select: { id: true, name: true, email: true, phone: true },
+              select: { id: true, name: true, email: true, phone: true, companyName: true },
             },
             items: true,
             shipment: true,
+            quotation: {
+              select: { id: true, quoteNumber: true, companyName: true },
+            },
+            invoice: {
+              select: { id: true, invoiceNumber: true },
+            },
+            payment: true,
           },
           orderBy: { createdAt: "desc" },
           skip: (page - 1) * limit,
@@ -44,10 +51,31 @@ export async function GET(request: Request) {
         db.order.count({ where }),
       ]);
 
+      const enrichedItems = items.map((ord: any) => ({
+        ...ord,
+        orderSource:
+          ord.quotationId || ord.customerType === "B2B"
+            ? "B2B_QUOTATION"
+            : ord.customerType === "WALK_IN"
+              ? "WALK_IN"
+              : "WEBSITE",
+        channelName: ord.quotationId
+          ? "📑 Institutional B2B Quote"
+          : ord.customerType === "WALK_IN"
+            ? "🏬 Store Walk-in"
+            : "🌐 Prayog Website Store",
+        awbNumber: ord.shipment?.trackingNumber || null,
+        courierProvider: ord.shipment?.courierName || "Delhivery Surface",
+        weightGm: ord.shipment?.weightKg
+          ? Math.round(ord.shipment.weightKg * 1000)
+          : 500,
+        freightMode: "Surface Express",
+      }));
+
       return NextResponse.json({
         success: true,
         data: {
-          items,
+          items: enrichedItems,
           total,
           page,
           limit,

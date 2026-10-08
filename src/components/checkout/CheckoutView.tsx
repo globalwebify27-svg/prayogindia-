@@ -49,6 +49,42 @@ import {
 import { INITIAL_PROMO_COUPONS, evaluatePromoCoupon } from "@/data/promoData";
 import { calculateDeliveryRules } from "@/data/deliveryRules";
 
+const INDIAN_STATES = [
+  "Andhra Pradesh",
+  "Arunachal Pradesh",
+  "Assam",
+  "Bihar",
+  "Chhattisgarh",
+  "Goa",
+  "Gujarat",
+  "Haryana",
+  "Himachal Pradesh",
+  "Jharkhand",
+  "Karnataka",
+  "Kerala",
+  "Madhya Pradesh",
+  "Maharashtra",
+  "Manipur",
+  "Meghalaya",
+  "Mizoram",
+  "Nagaland",
+  "Odisha",
+  "Punjab",
+  "Rajasthan",
+  "Sikkim",
+  "Tamil Nadu",
+  "Telangana",
+  "Tripura",
+  "Uttar Pradesh",
+  "Uttarakhand",
+  "West Bengal",
+  "Delhi NCR",
+  "Chandigarh",
+  "Jammu and Kashmir",
+  "Ladakh",
+  "Puducherry",
+];
+
 export const CheckoutView: React.FC = () => {
   const { cart, user, isLoggedIn, clearCart, redeemRewardPoints } = useStore();
 
@@ -377,6 +413,9 @@ export const CheckoutView: React.FC = () => {
     setAddrFormIsDefault(addresses.length === 0);
     setPincodeValidationMsg(null);
     setShowAddressModal(true);
+    if (typeof window !== "undefined") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
   };
 
   const handleOpenEditAddress = (addr: Address) => {
@@ -391,6 +430,9 @@ export const CheckoutView: React.FC = () => {
     setAddrFormIsDefault(addr.isDefault);
     setPincodeValidationMsg(null);
     setShowAddressModal(true);
+    if (typeof window !== "undefined") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
   };
 
   const handleDeleteAddress = (id: string) => {
@@ -601,90 +643,69 @@ export const CheckoutView: React.FC = () => {
 
   // ── Order Confirmation Screen
   if (isOrderPlacedDemo) {
-    const ruleCode = getCustomerTypeCode(activeCustomerType);
-    const typeRule = CUSTOMER_TYPE_RULES[ruleCode];
-    const { coinsEarned } = calculateEarnedRewards(
-      subtotal,
-      activeCustomerType,
-    );
-
     return (
-      <div className="max-w-xl mx-auto py-16 px-4 text-center space-y-6 animate-in fade-in duration-300">
-        <div className="w-20 h-20 rounded-full bg-emerald-50 text-emerald-500 flex items-center justify-center mx-auto border-2 border-emerald-200 shadow-xl">
-          <CheckCircle2 className="w-10 h-10" />
+      <div className="max-w-lg mx-auto py-12 px-4 text-center space-y-6 animate-in fade-in duration-300">
+        <div className="w-16 h-16 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto border border-emerald-100 shadow-xs">
+          <CheckCircle2 className="w-8 h-8" />
         </div>
 
-        <div className="space-y-2">
-          <span className="bg-emerald-100 text-emerald-800 text-[10px] font-black uppercase px-3 py-1 rounded-full border border-emerald-200">
-            ORDER CONFIRMED &amp; DISPATCH READY
-          </span>
-          <h1 className="text-3xl font-black text-slate-900 tracking-tight">
-            Order Placed Successfully!
+        <div className="space-y-1.5">
+          <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
+            Thank you for your order!
           </h1>
-          <p className="text-xs text-slate-500">
-            Thank you for ordering with Prayog India. Your hardware order has
-            been registered for warehouse packaging and dispatch.
+          <p className="text-xs text-slate-500 max-w-sm mx-auto">
+            We’ve received your order and are preparing it for shipment.
           </p>
         </div>
 
-        <div className="bg-slate-50 border border-slate-200 rounded-3xl p-6 space-y-3 text-left">
-          <div className="flex justify-between items-center border-b border-slate-200 pb-3 text-xs">
-            <span className="text-slate-500 font-medium">
-              Order Reference #
-            </span>
-            <span className="font-mono font-black text-slate-900 text-sm">
-              {placedOrderNumber}
-            </span>
-          </div>
-          <div className="flex justify-between items-center border-b border-slate-200 pb-3 text-xs">
-            <span className="text-slate-500 font-medium">Customer Type</span>
-            <span
-              className={`text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full border ${typeRule.badgeBg} ${typeRule.badgeColor} ${typeRule.badgeBorder}`}
-            >
-              {activeCustomerType}
+        {/* Clean Summary Card */}
+        <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-2xs text-left space-y-4">
+          <div className="flex justify-between items-center pb-3 border-b border-slate-100">
+            <div>
+              <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
+                Order Number
+              </span>
+              <span className="font-mono font-extrabold text-slate-900 text-sm">
+                {placedOrderNumber}
+              </span>
+            </div>
+            <span className="bg-emerald-50 text-emerald-700 text-xs font-bold px-3 py-1 rounded-full border border-emerald-100">
+              Confirmed
             </span>
           </div>
-          <div className="flex justify-between items-center border-b border-slate-200 pb-3 text-xs">
-            <span className="text-slate-500 font-medium">
-              Tax Invoice Output
-            </span>
-            <span className="font-extrabold text-purple-700 text-xs">
-              {requireGSTInvoice
-                ? `GST B2B Tax Invoice (${gstinNumber})`
-                : typeRule.invoice.label}
-            </span>
-          </div>
-          <div className="flex justify-between items-center border-b border-slate-200 pb-3 text-xs">
-            <span className="text-slate-500 font-medium">Rewards Credited</span>
-            <span className="font-black text-emerald-700 text-xs">
-              +{coinsEarned} Prayog Coins Earned
-            </span>
-          </div>
-          <div className="flex justify-between items-center border-b border-slate-200 pb-3 text-xs">
-            <span className="text-slate-500 font-medium">Payment Mode</span>
-            <span className="font-bold text-slate-800 uppercase">
-              {paymentMethod.toUpperCase()} (Confirmed)
-            </span>
-          </div>
-          <div className="flex justify-between items-center text-xs">
-            <span className="text-slate-500 font-medium">Dispatch Method</span>
-            <span className="font-bold text-slate-800 uppercase">
-              {effectiveDeliveryMethod.replace("_", " ")}
-            </span>
+
+          <div className="space-y-2.5 text-xs">
+            <div className="flex justify-between items-center text-slate-600">
+              <span>Payment</span>
+              <span className="font-bold text-slate-800 uppercase">
+                {paymentMethod === "cod" ? "Cash on Delivery" : `${paymentMethod.toUpperCase()} (Paid)`}
+              </span>
+            </div>
+            <div className="flex justify-between items-center text-slate-600">
+              <span>Delivery</span>
+              <span className="font-medium text-slate-800">
+                {effectiveDeliveryMethod === "ranchi_24h"
+                  ? "Ranchi 24-Hour Express"
+                  : effectiveDeliveryMethod === "store_pickup"
+                    ? "In-Store Pickup"
+                    : "Standard Surface Express (2-4 Days)"}
+              </span>
+            </div>
           </div>
         </div>
 
+        {/* Action Buttons */}
         <div className="flex flex-col sm:flex-row justify-center gap-3 pt-2">
           <Link
-            href="/account"
-            className="bg-[#00AEEF] hover:bg-[#0096D6] text-white px-6 py-3 rounded-full text-xs font-black uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg"
+            href="/account/orders"
+            className="bg-[#00AEEF] hover:bg-[#0096D6] text-white px-6 py-2.5 rounded-xl text-xs font-bold transition-all shadow-2xs flex items-center justify-center gap-1.5 active:scale-95"
           >
-            <span>View in Account Dashboard</span>
-            <ArrowRight className="w-4 h-4 text-[#FFC20E]" />
+            <span>View My Orders</span>
+            <ArrowRight className="w-4 h-4" />
           </Link>
           <Link
             href="/products"
-            className="bg-white hover:bg-slate-50 text-slate-800 border border-slate-300 px-6 py-3 rounded-full text-xs font-bold flex items-center justify-center gap-1.5"
+            className="bg-slate-100 hover:bg-slate-200 text-slate-700 px-6 py-2.5 rounded-xl text-xs font-bold transition-colors flex items-center justify-center"
           >
             <span>Continue Shopping</span>
           </Link>
@@ -781,6 +802,349 @@ export const CheckoutView: React.FC = () => {
     );
   }
 
+  // ── Full-Page Address Add / Edit Screen (Amazon-style Layout)
+  if (showAddressModal) {
+    return (
+      <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 space-y-6 animate-in fade-in duration-200">
+        {/* Breadcrumb Navigation */}
+        <div className="text-xs text-slate-500 flex items-center gap-2 font-medium">
+          <button
+            type="button"
+            onClick={() => setShowAddressModal(false)}
+            className="text-slate-600 hover:text-[#00AEEF] cursor-pointer"
+          >
+            Your Account
+          </button>
+          <span>›</span>
+          <button
+            type="button"
+            onClick={() => setShowAddressModal(false)}
+            className="text-slate-600 hover:text-[#00AEEF] cursor-pointer"
+          >
+            Your Addresses
+          </button>
+          <span>›</span>
+          <span className="text-[#E65100] font-bold">
+            {editingAddressId ? "Edit Address" : "New Address"}
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          {/* Main Form Column (Span 8) */}
+          <div className="lg:col-span-8 space-y-6">
+            <div className="space-y-1">
+              <h1 className="text-2xl sm:text-3xl font-bold text-slate-900">
+                {editingAddressId ? "Edit address" : "Add a new address"}
+              </h1>
+              <button
+                type="button"
+                onClick={() =>
+                  alert(
+                    "Prayog collection hub delivery points: Bengaluru, Mumbai, Delhi-NCR, Hyderabad, Chennai, Pune.",
+                  )
+                }
+                className="text-xs text-[#00AEEF] hover:underline cursor-pointer flex items-center gap-1.5 mt-1 font-medium"
+              >
+                <span className="w-4 h-4 rounded-full bg-amber-500 text-white font-bold flex items-center justify-center text-[10px]">
+                  P
+                </span>
+                Or find a Prayog collection location near you
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveAddress} className="space-y-4 text-xs">
+              {/* Autofill Current Location Banner */}
+              <div className="bg-[#EBF8FA] border border-[#BCE9F5] rounded-xl p-3.5 flex items-center justify-between gap-3 max-w-2xl">
+                <span className="text-xs font-bold text-slate-800">
+                  Save time. Autofill your current location.
+                </span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (navigator.geolocation) {
+                      navigator.geolocation.getCurrentPosition(
+                        () => {
+                          setAddrFormCity((c) => c || "Bengaluru");
+                          setAddrFormState((s) => s || "Karnataka");
+                          setAddrFormPincode((p) => p || "560103");
+                        },
+                        () => {
+                          setAddrFormCity((c) => c || "Bengaluru");
+                          setAddrFormState((s) => s || "Karnataka");
+                          setAddrFormPincode((p) => p || "560103");
+                        },
+                      );
+                    }
+                  }}
+                  className="bg-white hover:bg-slate-50 border border-slate-300 font-bold text-xs px-4 py-1.5 rounded-full text-slate-800 shadow-2xs cursor-pointer transition-all active:scale-95 shrink-0"
+                >
+                  Autofill
+                </button>
+              </div>
+
+              {/* Country/Region */}
+              <div>
+                <label className="block font-bold text-slate-900 mb-1.5">
+                  Country/Region
+                </label>
+                <select
+                  disabled
+                  className="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 font-medium text-slate-800 focus:outline-none max-w-2xl cursor-not-allowed"
+                >
+                  <option value="India">India</option>
+                </select>
+              </div>
+
+              {/* Full Name */}
+              <div>
+                <label className="block font-bold text-slate-900 mb-1.5">
+                  Full name (First and Last name)
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={addrFormName}
+                  onChange={(e) => setAddrFormName(e.target.value)}
+                  className="w-full bg-white border border-slate-300 focus:border-[#00AEEF] focus:ring-1 focus:ring-[#00AEEF] p-2.5 rounded-lg font-medium text-slate-900 outline-none transition-all max-w-2xl"
+                />
+              </div>
+
+              {/* Mobile Number */}
+              <div>
+                <label className="block font-bold text-slate-900 mb-1.5">
+                  Mobile number
+                </label>
+                <input
+                  type="tel"
+                  required
+                  maxLength={10}
+                  value={addrFormPhone}
+                  onChange={(e) => setAddrFormPhone(e.target.value)}
+                  className="w-full bg-white border border-slate-300 focus:border-[#00AEEF] focus:ring-1 focus:ring-[#00AEEF] p-2.5 rounded-lg font-medium text-slate-900 outline-none transition-all max-w-2xl"
+                />
+                <p className="text-[11px] text-slate-500 mt-1">
+                  May be used to assist delivery
+                </p>
+              </div>
+
+              {/* Pincode */}
+              <div>
+                <label className="block font-bold text-slate-900 mb-1.5">
+                  Pincode
+                </label>
+                <input
+                  type="text"
+                  required
+                  maxLength={6}
+                  placeholder="6 digits [0-9] PIN code"
+                  value={addrFormPincode}
+                  onChange={(e) => setAddrFormPincode(e.target.value)}
+                  className="w-full bg-white border border-slate-300 focus:border-[#00AEEF] focus:ring-1 focus:ring-[#00AEEF] p-2.5 rounded-lg font-medium text-slate-900 outline-none transition-all max-w-2xl"
+                />
+                {pincodeValidationMsg && (
+                  <p className="text-red-500 text-[11px] mt-1 font-semibold">
+                    {pincodeValidationMsg}
+                  </p>
+                )}
+              </div>
+
+              {/* Flat, House no., Building */}
+              <div>
+                <label className="block font-bold text-slate-900 mb-1.5">
+                  Flat, House no., Building, Company, Apartment
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={addrFormStreet}
+                  onChange={(e) => setAddrFormStreet(e.target.value)}
+                  className="w-full bg-white border border-slate-300 focus:border-[#00AEEF] focus:ring-1 focus:ring-[#00AEEF] p-2.5 rounded-lg font-medium text-slate-900 outline-none transition-all max-w-2xl"
+                />
+              </div>
+
+              {/* Area, Street, Sector, Village */}
+              <div>
+                <label className="block font-bold text-slate-900 mb-1.5">
+                  Area, Street, Sector, Village
+                </label>
+                <input
+                  type="text"
+                  placeholder=""
+                  className="w-full bg-white border border-slate-300 focus:border-[#00AEEF] focus:ring-1 focus:ring-[#00AEEF] p-2.5 rounded-lg font-medium text-slate-900 outline-none transition-all max-w-2xl"
+                />
+              </div>
+
+              {/* Landmark */}
+              <div>
+                <label className="block font-bold text-slate-900 mb-1.5">
+                  Landmark
+                </label>
+                <input
+                  type="text"
+                  placeholder="E.g. near apollo hospital"
+                  className="w-full bg-white border border-slate-300 focus:border-[#00AEEF] focus:ring-1 focus:ring-[#00AEEF] p-2.5 rounded-lg font-medium text-slate-900 outline-none transition-all max-w-2xl"
+                />
+              </div>
+
+              {/* Town/City & State */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-2xl">
+                <div>
+                  <label className="block font-bold text-slate-900 mb-1.5">
+                    Town/City
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={addrFormCity}
+                    onChange={(e) => setAddrFormCity(e.target.value)}
+                    className="w-full bg-white border border-slate-300 focus:border-[#00AEEF] focus:ring-1 focus:ring-[#00AEEF] p-2.5 rounded-lg font-medium text-slate-900 outline-none transition-all"
+                  />
+                </div>
+                <div>
+                  <label className="block font-bold text-slate-900 mb-1.5">
+                    State
+                  </label>
+                  <select
+                    value={addrFormState}
+                    onChange={(e) => setAddrFormState(e.target.value)}
+                    className="w-full bg-white border border-slate-300 focus:border-[#00AEEF] focus:ring-1 focus:ring-[#00AEEF] p-2.5 rounded-lg font-medium text-slate-900 outline-none transition-all"
+                  >
+                    <option value="">Choose a state</option>
+                    {INDIAN_STATES.map((st) => (
+                      <option key={st} value={st}>
+                        {st}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              {/* Address Type Selection */}
+              <div className="max-w-2xl">
+                <label className="block font-bold text-slate-900 mb-1.5">
+                  Address Type
+                </label>
+                <div className="flex gap-2">
+                  {(["Home", "Office", "Lab / College"] as const).map((t) => (
+                    <button
+                      key={t}
+                      type="button"
+                      onClick={() => setAddrFormType(t)}
+                      className={`px-4 py-1.5 rounded-full font-bold text-xs transition-colors cursor-pointer ${
+                        addrFormType === t
+                          ? "bg-[#00AEEF] text-white"
+                          : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                      }`}
+                    >
+                      {t}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Default Address Checkbox */}
+              <label className="flex items-center gap-2 text-xs font-semibold text-slate-900 cursor-pointer pt-2">
+                <input
+                  type="checkbox"
+                  checked={addrFormIsDefault}
+                  onChange={(e) => setAddrFormIsDefault(e.target.checked)}
+                  className="w-4 h-4 rounded text-[#00AEEF] accent-[#00AEEF] cursor-pointer"
+                />
+                <span>Make this my default address</span>
+              </label>
+
+              {/* Action Buttons */}
+              <div className="flex items-center gap-4 pt-4 max-w-2xl">
+                <button
+                  type="submit"
+                  className="bg-[#00AEEF] hover:bg-[#0096D6] text-white px-8 py-3 rounded-xl font-bold text-xs shadow-sm active:scale-95 cursor-pointer transition-all"
+                >
+                  {editingAddressId ? "Save Address" : "Add address"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowAddressModal(false)}
+                  className="text-slate-600 hover:text-slate-900 font-bold px-4 py-3 cursor-pointer"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+
+          {/* Right Column: Amazon-style Sidebar (Span 4) */}
+          <div className="lg:col-span-4 space-y-4">
+            <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs space-y-4">
+              <div className="space-y-1">
+                <span className="text-xs text-slate-500 font-medium">
+                  Subtotal
+                </span>
+                <div className="text-2xl font-black text-rose-600">
+                  ₹{subtotal.toLocaleString("en-IN")}
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowAddressModal(false)}
+                  className="w-full bg-[#FFD814] hover:bg-[#F7CA00] text-slate-900 py-2.5 rounded-full font-bold text-xs shadow-2xs transition-colors cursor-pointer text-center"
+                >
+                  Return to Checkout
+                </button>
+                <Link
+                  href="/cart"
+                  className="w-full bg-slate-100 hover:bg-slate-200 text-slate-800 py-2.5 rounded-full font-bold text-xs transition-colors text-center"
+                >
+                  Go to Cart
+                </Link>
+              </div>
+
+              {/* Cart Items List */}
+              <div className="pt-3 border-t border-slate-100 space-y-3">
+                <h4 className="text-xs font-bold text-slate-800">
+                  Items in your cart ({cart.length})
+                </h4>
+                <div className="space-y-3 max-h-80 overflow-y-auto pr-1">
+                  {cart.map((item, idx) => {
+                    const prod = item.product;
+                    const prodImg = prod.images?.[0] || "/placeholder.png";
+                    const prodPrice = item.variant?.price || prod.price;
+                    return (
+                      <div
+                        key={item.variant?.id || prod.id || idx}
+                        className="flex gap-3 items-center"
+                      >
+                        <div className="w-12 h-12 rounded-lg bg-slate-50 border border-slate-100 p-1 shrink-0 flex items-center justify-center">
+                          <img
+                            src={prodImg}
+                            alt={prod.name}
+                            className="w-full h-full object-contain"
+                          />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-semibold text-slate-900 truncate">
+                            {prod.name}
+                          </p>
+                          <p className="text-[11px] font-bold text-slate-700">
+                            ₹{prodPrice.toLocaleString("en-IN")}{" "}
+                            <span className="text-slate-400 font-normal">
+                              × {item.quantity}
+                            </span>
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-8 animate-in fade-in duration-300">
       {/* Breadcrumb */}
@@ -789,38 +1153,19 @@ export const CheckoutView: React.FC = () => {
       />
 
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200/90 pb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200/90 pb-4">
         <div>
-          <div className="flex items-center gap-2 mb-1">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-[#00AEEF] bg-[#E0F7FC] px-3 py-0.5 rounded-full border border-[#00AEEF]/20 flex items-center gap-1">
-              <ShieldCheck className="w-3.5 h-3.5" />
-              <span>256-Bit SSL Encrypted Checkout</span>
-            </span>
-          </div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-            Express Checkout
+            Checkout
           </h1>
+          <p className="text-xs text-slate-500 mt-0.5">
+            Complete your order with express delivery across India.
+          </p>
         </div>
 
-        {/* Customer Pricing Tier Switcher */}
-        <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 p-1.5 rounded-2xl">
-          <span className="text-[11px] font-bold text-slate-500 pl-2">
-            Segment:
-          </span>
-          <select
-            value={activeCustomerType}
-            onChange={(e) =>
-              handleCustomerTypeChange(e.target.value as CustomerType)
-            }
-            className="text-xs font-black text-slate-900 bg-white border border-slate-200 rounded-xl px-3 py-1.5 focus:outline-none focus:border-[#00AEEF] cursor-pointer"
-          >
-            <option value="B2C Customer">B2C Customer (Retail)</option>
-            <option value="B2B Customer">B2B Customer (Wholesale 15%)</option>
-            <option value="Registered Customer">
-              Registered Customer (Loyalty 5%)
-            </option>
-            <option value="Guest Customer">Guest Customer (Express)</option>
-          </select>
+        <div className="flex items-center gap-1.5 text-xs font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200/80 px-3 py-1.5 rounded-full w-fit">
+          <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
+          <span>256-Bit SSL Encrypted &amp; Verified</span>
         </div>
       </div>
 
@@ -1530,173 +1875,6 @@ export const CheckoutView: React.FC = () => {
           />
         </div>
       </div>
-
-      {/* ── Address Add / Edit Modal ── */}
-      {showAddressModal && (
-        <div className="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto animate-in fade-in">
-          <div className="bg-white rounded-3xl border border-slate-200 w-full max-w-lg shadow-2xl overflow-hidden my-8">
-            <div className="bg-slate-900 text-white px-6 py-4 flex items-center justify-between">
-              <div>
-                <span className="text-[9px] font-black uppercase text-[#00AEEF] tracking-wider">
-                  ADDRESS BOOK
-                </span>
-                <h3 className="text-base font-black">
-                  {editingAddressId
-                    ? "Edit Delivery Address"
-                    : "Add New Delivery Address"}
-                </h3>
-              </div>
-              <button
-                onClick={() => setShowAddressModal(false)}
-                className="p-1.5 text-slate-400 hover:text-white rounded-xl cursor-pointer"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <form
-              onSubmit={handleSaveAddress}
-              className="p-6 space-y-4 text-xs"
-            >
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block font-bold text-slate-700 mb-1">
-                    Full Name *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={addrFormName}
-                    onChange={(e) => setAddrFormName(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl font-bold text-slate-900"
-                  />
-                </div>
-                <div>
-                  <label className="block font-bold text-slate-700 mb-1">
-                    Phone Number *
-                  </label>
-                  <input
-                    type="tel"
-                    required
-                    value={addrFormPhone}
-                    onChange={(e) => setAddrFormPhone(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl font-bold text-slate-900"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block font-bold text-slate-700 mb-1">
-                  Street Address, Lab / Room # *
-                </label>
-                <textarea
-                  required
-                  rows={2}
-                  value={addrFormStreet}
-                  onChange={(e) => setAddrFormStreet(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl font-medium text-slate-900"
-                />
-              </div>
-
-              <div className="grid grid-cols-3 gap-3">
-                <div>
-                  <label className="block font-bold text-slate-700 mb-1">
-                    City *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={addrFormCity}
-                    onChange={(e) => setAddrFormCity(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl font-bold text-slate-900"
-                  />
-                </div>
-                <div>
-                  <label className="block font-bold text-slate-700 mb-1">
-                    State *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={addrFormState}
-                    onChange={(e) => setAddrFormState(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl font-bold text-slate-900"
-                  />
-                </div>
-                <div>
-                  <label className="block font-bold text-slate-700 mb-1">
-                    PIN Code * (6 digits)
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    maxLength={6}
-                    value={addrFormPincode}
-                    onChange={(e) => setAddrFormPincode(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl font-mono font-bold text-slate-900"
-                  />
-                </div>
-              </div>
-
-              {pincodeValidationMsg && (
-                <p className="text-red-500 text-[11px] font-bold">
-                  {pincodeValidationMsg}
-                </p>
-              )}
-
-              <div className="flex items-center justify-between pt-2">
-                <div>
-                  <label className="block font-bold text-slate-700 mb-1">
-                    Address Type
-                  </label>
-                  <div className="flex gap-2">
-                    {(["Home", "Office", "Lab / College"] as const).map((t) => (
-                      <button
-                        key={t}
-                        type="button"
-                        onClick={() => setAddrFormType(t)}
-                        className={`px-3 py-1.5 rounded-xl font-bold text-[11px] border cursor-pointer ${
-                          addrFormType === t
-                            ? "bg-[#00AEEF] text-white border-[#00AEEF]"
-                            : "bg-slate-50 text-slate-600 border-slate-200"
-                        }`}
-                      >
-                        {t}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <label className="flex items-center gap-1.5 text-xs font-bold text-slate-700 cursor-pointer pt-4">
-                  <input
-                    type="checkbox"
-                    checked={addrFormIsDefault}
-                    onChange={(e) => setAddrFormIsDefault(e.target.checked)}
-                    className="w-4 h-4 rounded text-[#00AEEF] accent-[#00AEEF]"
-                  />
-                  <span>Make default address</span>
-                </label>
-              </div>
-
-              <div className="pt-4 border-t border-slate-100 flex justify-end gap-2">
-                <button
-                  type="button"
-                  onClick={() => setShowAddressModal(false)}
-                  className="px-4 py-2.5 rounded-xl font-bold text-slate-600 hover:bg-slate-100 cursor-pointer"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="bg-[#00AEEF] hover:bg-[#0096D6] text-white px-6 py-2.5 rounded-xl font-black uppercase tracking-wider shadow-md cursor-pointer"
-                >
-                  Save Address
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

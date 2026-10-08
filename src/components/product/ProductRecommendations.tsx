@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import {
   Star,
   ShoppingCart,
@@ -10,8 +11,10 @@ import {
   Heart,
   ChevronRight,
   Package,
+  Check,
 } from "lucide-react";
 import { Product } from "@/data/mockData";
+import { useStore } from "@/context/StoreContext";
 
 interface RecommendationGroup {
   id: string;
@@ -27,11 +30,36 @@ interface ProductRecommendationsProps {
 
 // Mini product card for recommendations
 const RecoCard: React.FC<{ product: Product }> = ({ product }) => {
-  const [wishlisted, setWishlisted] = useState(false);
+  const store = useStore();
+  const router = useRouter();
+  const [isAdded, setIsAdded] = useState(false);
+
+  const isWishlisted = store?.isWishlisted?.(product.id) ?? false;
   const discountPct =
     product.mrp > product.price
       ? Math.round(((product.mrp - product.price) / product.mrp) * 100)
       : null;
+
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    store?.addToCart(product, undefined, 1);
+    setIsAdded(true);
+    setTimeout(() => setIsAdded(false), 1500);
+  };
+
+  const handleBuyNow = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    store?.addToCart(product, undefined, 1);
+    router.push("/checkout");
+  };
+
+  const handleToggleWishlist = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    store?.toggleWishlist(product);
+  };
 
   return (
     <div className="group bg-white border border-slate-200 rounded-2xl overflow-hidden hover:border-[#00AEEF]/50 hover:shadow-lg transition-all duration-300 flex flex-col">
@@ -52,14 +80,16 @@ const RecoCard: React.FC<{ product: Product }> = ({ product }) => {
           </span>
         )}
         <button
-          onClick={() => setWishlisted((w) => !w)}
-          className={`absolute top-2 right-2 w-6 h-6 rounded-full flex items-center justify-center shadow transition-colors cursor-pointer ${
-            wishlisted
+          type="button"
+          onClick={handleToggleWishlist}
+          className={`absolute top-2 right-2 w-6 h-6 rounded-full flex items-center justify-center shadow transition-colors cursor-pointer z-10 ${
+            isWishlisted
               ? "bg-red-500 text-white"
               : "bg-white/90 text-slate-400 hover:text-red-500"
           }`}
+          aria-label="Wishlist"
         >
-          <Heart className={`w-3 h-3 ${wishlisted ? "fill-current" : ""}`} />
+          <Heart className={`w-3 h-3 ${isWishlisted ? "fill-current" : ""}`} />
         </button>
       </Link>
 
@@ -98,10 +128,30 @@ const RecoCard: React.FC<{ product: Product }> = ({ product }) => {
 
           {product.inStock ? (
             <div className="flex gap-1 mt-2">
-              <button className="flex-1 border border-[#00AEEF] text-[#00AEEF] text-[9px] font-extrabold py-1.5 rounded-lg hover:bg-[#E0F7FC] transition-colors active:scale-95 flex items-center justify-center gap-1 cursor-pointer">
-                <ShoppingCart className="w-2.5 h-2.5" /> ADD
+              <button
+                type="button"
+                onClick={handleAddToCart}
+                className={`flex-1 border text-[9px] font-extrabold py-1.5 rounded-lg transition-all active:scale-95 flex items-center justify-center gap-1 cursor-pointer ${
+                  isAdded
+                    ? "bg-emerald-600 text-white border-emerald-600"
+                    : "border-[#00AEEF] text-[#00AEEF] hover:bg-[#E0F7FC]"
+                }`}
+              >
+                {isAdded ? (
+                  <>
+                    <Check className="w-2.5 h-2.5 stroke-[3]" /> ADDED
+                  </>
+                ) : (
+                  <>
+                    <ShoppingCart className="w-2.5 h-2.5" /> ADD
+                  </>
+                )}
               </button>
-              <button className="flex-1 bg-[#00AEEF] text-white text-[9px] font-extrabold py-1.5 rounded-lg hover:bg-[#0096D6] transition-colors active:scale-95 flex items-center justify-center gap-1 cursor-pointer">
+              <button
+                type="button"
+                onClick={handleBuyNow}
+                className="flex-1 bg-[#00AEEF] text-white text-[9px] font-extrabold py-1.5 rounded-lg hover:bg-[#0096D6] transition-colors active:scale-95 flex items-center justify-center gap-1 cursor-pointer"
+              >
                 <Zap className="w-2.5 h-2.5" /> BUY
               </button>
             </div>
@@ -120,9 +170,18 @@ const RecoCard: React.FC<{ product: Product }> = ({ product }) => {
 const FrequentlyBoughtTogetherSection: React.FC<{ products: Product[] }> = ({
   products,
 }) => {
+  const store = useStore();
   const [bundleAdded, setBundleAdded] = useState(false);
   const bundleTotal = products.reduce((acc, p) => acc + p.price, 0);
   const bundleMrp = products.reduce((acc, p) => acc + p.mrp, 0);
+
+  const handleAddBundle = () => {
+    products.forEach((p) => {
+      store?.addToCart(p, undefined, 1);
+    });
+    setBundleAdded(true);
+    setTimeout(() => setBundleAdded(false), 2500);
+  };
 
   return (
     <div className="bg-slate-50 border border-slate-200 rounded-3xl p-6 space-y-5">
@@ -183,7 +242,8 @@ const FrequentlyBoughtTogetherSection: React.FC<{ products: Product[] }> = ({
           </div>
         </div>
         <button
-          onClick={() => setBundleAdded(true)}
+          type="button"
+          onClick={handleAddBundle}
           className={`text-xs font-black px-5 py-2.5 rounded-xl transition-all active:scale-95 cursor-pointer ${
             bundleAdded
               ? "bg-emerald-600 text-white"

@@ -108,6 +108,9 @@ export async function POST(
       const orderNumber = generateOrderNumber();
       const invoiceNumber = await generateInvoiceNumber();
 
+      // Find fallback product in case custom quotation item does not specify an existing product ID
+      const fallbackProduct = await db.product.findFirst();
+
       // Transaction: Create Order, OrderItems, Invoice, update Quotation to CONVERTED
       const result = await db.$transaction(async (tx) => {
         const order = await tx.order.create({
@@ -126,14 +129,14 @@ export async function POST(
             shippingAddress:
               quotation.shippingAddress ||
               quotation.billingAddress ||
-              `${quotation.companyName}, ${quotation.store.city}`,
+              `${quotation.companyName}, ${quotation.store?.city || "Ranchi"}`,
             quotationId: quotation.id,
             items: {
               create: quotation.items.map((item) => ({
-                productId: item.productId || "prg-generic-hardware",
+                productId: item.productId || fallbackProduct?.id || "fallback-product",
                 variantId: item.variantId || null,
                 productName: item.productName,
-                productSku: item.productSku,
+                productSku: item.productSku || "PRG-CUSTOM",
                 price: item.unitPrice,
                 quantity: item.quantity,
               })),
@@ -157,12 +160,20 @@ export async function POST(
             companyName: quotation.companyName,
             billingAddress: quotation.billingAddress || order.shippingAddress,
             shippingAddress: order.shippingAddress,
-            items: JSON.stringify(quotation.items),
+            items: quotation.items.map((item) => ({
+              productId: item.productId || fallbackProduct?.id || "custom-item",
+              productName: item.productName,
+              productSku: item.productSku || "PRG-CUSTOM",
+              quantity: item.quantity,
+              unitPrice: item.unitPrice,
+              total: item.total || (item.unitPrice * item.quantity),
+            })),
             subtotal: quotation.subtotal,
             discountAmount: quotation.discountAmount,
             gstAmount: quotation.taxAmount,
             shippingCost: quotation.shippingCharge,
             totalAmount: quotation.grandTotal,
+            paymentMethod: "bank_transfer",
           },
         });
 
@@ -198,8 +209,9 @@ export async function POST(
         { status: 201, headers },
       );
     } catch (error: any) {
+      console.error("[ConvertQuotationToOrder] Error:", error);
       return NextResponse.json(
-        { success: false, message: error.message },
+        { success: false, message: error.message || "Failed to convert quotation to order." },
         { status: 500, headers },
       );
     }

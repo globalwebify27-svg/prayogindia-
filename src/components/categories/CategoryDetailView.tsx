@@ -22,6 +22,8 @@ import {
   X,
   Search,
   SlidersHorizontal,
+  Sparkles,
+  ShieldCheck,
 } from "lucide-react";
 import { useStore } from "@/context/StoreContext";
 
@@ -207,27 +209,59 @@ export const CategoryDetailView: React.FC<CategoryDetailProps> = ({
         ]}
       />
 
-      {/* 2. Category Header & Description */}
-      <div className="bg-gradient-to-r from-[#0A1128] via-[#0F172A] to-[#1E56A0] text-white rounded-3xl p-6 sm:p-10 border border-[#D4AF37]/30 shadow-xl relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-6">
-        <div className="space-y-2.5 z-10 max-w-2xl">
-          <span className="bg-[#FFC20E] text-slate-950 text-[10px] font-black uppercase px-3 py-1 rounded-full">
-            {category.productCount.toLocaleString()}+ Hardware Items
-          </span>
-          <h1 className="text-2xl sm:text-4xl font-black text-white">
-            {category.name}
-          </h1>
-          <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-            {category.fullDescription}
-          </p>
-        </div>
+      {/* 2. Category Header Hero Banner */}
+      <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-br from-white via-sky-50/20 to-slate-50 border border-slate-200/80 shadow-xs p-6 sm:p-8 lg:p-10">
+        {/* Subtle high-tech ambient background grid */}
+        <div
+          className="absolute inset-0 opacity-[0.03] pointer-events-none"
+          style={{
+            backgroundImage: `radial-gradient(#00AEEF 1.5px, transparent 1.5px)`,
+            backgroundSize: "20px 20px",
+          }}
+        />
+        {/* Soft radial ambient glow */}
+        <div className="absolute -top-24 -right-24 w-80 h-80 rounded-full bg-[#00AEEF]/8 blur-3xl pointer-events-none" />
 
-        <div className="relative w-40 h-28 sm:w-48 sm:h-36 rounded-2xl overflow-hidden border border-white/20 shrink-0 z-10 hidden sm:block">
-          <Image
-            src={category.image}
-            alt={category.name}
-            fill
-            className="object-cover"
-          />
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6 lg:gap-10">
+          <div className="space-y-3.5 max-w-2xl">
+            {/* Badges Row */}
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-[#00AEEF]/10 text-[#0086B8] border border-[#00AEEF]/20">
+                <Sparkles className="w-3.5 h-3.5 text-[#00AEEF]" />
+                {category.productCount.toLocaleString()}+ Hardware Items
+              </span>
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200/60">
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                100% Genuine Certified
+              </span>
+            </div>
+
+            {/* Category Title */}
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 tracking-tight">
+              {category.name}
+            </h1>
+
+            {/* Description */}
+            <p className="text-xs sm:text-sm text-slate-600 leading-relaxed max-w-xl">
+              {category.fullDescription || category.shortDescription}
+            </p>
+          </div>
+
+          {/* Right Image Showcase Card */}
+          {category.image && (
+            <div className="relative shrink-0 self-center md:self-auto hidden sm:block">
+              <div className="relative w-48 h-32 sm:w-56 sm:h-36 lg:w-64 lg:h-40 rounded-2xl overflow-hidden bg-white border border-slate-200/80 shadow-md p-2 group">
+                <div className="relative w-full h-full rounded-xl overflow-hidden bg-slate-50">
+                  <Image
+                    src={category.image}
+                    alt={category.name}
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
