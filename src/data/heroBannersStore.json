@@ -1,0 +1,48 @@
+[
+  {
+    "id": "banner-1791885637209",
+    "badge": "🇮🇳 India's #1 Robotics & Electronics Platform",
+    "titlePrefix": "Build. Learn.",
+    "titleHighlight": "Innovate.",
+    "description": "Premium quality robotics kits, microcontrollers, sensors and electronic components for students, makers and professionals.",
+    "primaryButtonText": "Explore Products",
+    "primaryButtonLink": "/products",
+    "secondaryButtonText": "Explore Services",
+    "secondaryButtonLink": "/services",
+    "image": "https://res.cloudinary.com/fyueflvh/image/upload/v1791885633/banners/banners/diy_robot_rover_on_a_modern_tech_desk_1791885631689.webp",
+    "alt": "Build. Learn. Innovate.",
+    "noteLines": [
+      "From",
+      "Concept",
+      "to Creation"
+    ],
+    "displayOrder": 2,
+    "isActive": true,
+    "theme": "blue-gradient",
+    "createdAt": "2026-10-13T10:00:37.300Z",
+    "updatedAt": "2026-10-13T10:00:37.300Z"
+  },
+  {
+    "id": "banner-1791886998567",
+    "badge": "🇮🇳 India's #1 Robotics & Electronics Platform",
+    "titlePrefix": "Build. Learn.",
+    "titleHighlight": "Innovate.",
+    "description": "Premium quality robotics kits, microcontrollers, sensors and electronic components for students, makers and professionals.",
+    "primaryButtonText": "Explore Products",
+    "primaryButtonLink": "/products",
+    "secondaryButtonText": "Explore Services",
+    "secondaryButtonLink": "/services",
+    "image": "/images/robot_banner_stem.jpg",
+    "alt": "Build. Learn. Innovate.",
+    "noteLines": [
+      "From",
+      "Concept",
+      "to Creation"
+    ],
+    "displayOrder": 2,
+    "isActive": true,
+    "theme": "blue-gradient",
+    "createdAt": "2026-10-13T10:23:18.608Z",
+    "updatedAt": "2026-10-13T10:23:18.608Z"
+  }
+]

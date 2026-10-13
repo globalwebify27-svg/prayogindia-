@@ -240,6 +240,25 @@ export default function AdminCMSPage() {
 
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
+      {/* CMS Module Tabs */}
+      <div className="flex items-center gap-2 border-b border-slate-200 pb-3">
+        <Link
+          href="/admin/banners"
+          className="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 hover:text-[#0062E0] hover:bg-slate-100 transition-colors flex items-center gap-2"
+        >
+          <span>Hero Showcase Banners</span>
+          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-[#0062E0]">
+            Home Hero
+          </span>
+        </Link>
+        <div className="px-4 py-2 rounded-xl text-xs font-bold bg-[#0062E0] text-white flex items-center gap-2 shadow-xs">
+          <span>Website Announcement Bar</span>
+          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-white/20 text-white">
+            Top Bar
+          </span>
+        </div>
+      </div>
+
       {/* Top Banner Header */}
       <div className="bg-[#0F172A] text-white p-6 sm:p-8 rounded-3xl border border-slate-800 shadow-xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>

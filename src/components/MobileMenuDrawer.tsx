@@ -66,37 +66,31 @@ const QUICK_CATEGORIES = [
     name: "Arduino",
     href: "/categories/arduino-development-boards",
     icon: ArduinoCategoryIcon,
-    color: "bg-cyan-50 text-cyan-700 border-cyan-200",
   },
   {
     name: "Robotics",
     href: "/categories/robotics",
     icon: RoboticsCategoryIcon,
-    color: "bg-blue-50 text-blue-700 border-blue-200",
   },
   {
     name: "Sensors",
     href: "/categories/sensors-modules",
     icon: SensorsCategoryIcon,
-    color: "bg-amber-50 text-amber-700 border-amber-200",
   },
   {
     name: "Drones",
     href: "/categories/drone-technology",
     icon: DroneCategoryIcon,
-    color: "bg-purple-50 text-purple-700 border-purple-200",
   },
   {
     name: "STEM Kits",
     href: "/categories/stem-kits",
     icon: StemCategoryIcon,
-    color: "bg-emerald-50 text-emerald-700 border-emerald-200",
   },
   {
     name: "IoT Wireless",
     href: "/categories/iot-wireless",
     icon: IoTCategoryIcon,
-    color: "bg-indigo-50 text-indigo-700 border-indigo-200",
   },
 ];
 
@@ -146,28 +140,28 @@ export const MobileMenuDrawer: React.FC<MobileMenuDrawerProps> = ({
   return createPortal(
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-[100] lg:hidden overflow-hidden flex justify-end">
+        <div className="fixed inset-0 z-[100] lg:hidden overflow-hidden flex justify-start">
           {/* Backdrop Overlay */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.25 }}
+            transition={{ duration: 0.22 }}
             onClick={onClose}
             className="fixed inset-0 bg-slate-950/60 backdrop-blur-xs"
             aria-hidden="true"
           />
 
-          {/* Drawer Sidebar */}
+          {/* Drawer Sidebar (Slides from LEFT) */}
           <motion.aside
-            initial={{ x: "100%" }}
+            initial={{ x: "-100%" }}
             animate={{ x: 0 }}
-            exit={{ x: "100%" }}
+            exit={{ x: "-100%" }}
             transition={{ type: "spring", damping: 28, stiffness: 280 }}
-            className="relative w-[88vw] max-w-sm h-full max-h-[100dvh] h-[100dvh] bg-white text-slate-900 shadow-2xl flex flex-col z-10 overflow-hidden border-l border-slate-100"
+            className="relative w-[85vw] max-w-sm h-full max-h-[100dvh] h-[100dvh] bg-white text-slate-900 shadow-2xl flex flex-col z-10 overflow-hidden border-r border-slate-200/80"
           >
             {/* Header / Brand & Close */}
-            <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100 bg-white sticky top-0 z-20">
+            <div className="flex items-center justify-between px-4 py-3.5 border-b border-slate-100 bg-white sticky top-0 z-20">
               <Link
                 href="/"
                 onClick={onClose}
@@ -181,32 +175,33 @@ export const MobileMenuDrawer: React.FC<MobileMenuDrawerProps> = ({
               </Link>
 
               <button
+                type="button"
                 onClick={onClose}
-                className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
+                className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 transition-colors flex items-center justify-center cursor-pointer active:scale-95"
                 aria-label="Close Mobile Navigation"
               >
-                <X className="w-5 h-5" />
+                <X className="w-4 h-4 stroke-[2.2]" />
               </button>
             </div>
 
             {/* Quick User / Account Banner */}
-            <div className="bg-slate-50/90 px-4 py-3 border-b border-slate-100">
+            <div className="p-3.5 border-b border-slate-100 bg-white">
               {isLoggedIn && user ? (
-                <div className="space-y-2">
+                <div className="bg-gradient-to-br from-blue-50/70 to-slate-50 border border-blue-100/80 rounded-2xl p-3 space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-black uppercase tracking-widest text-[#00AEEF]">
+                    <span className="text-[10px] font-black uppercase tracking-wider text-[#2563EB]">
                       ACCOUNT
                     </span>
                     <Link
                       href="/account"
                       onClick={onClose}
-                      className="text-[11px] font-bold text-[#00AEEF] hover:underline"
+                      className="text-[11px] font-bold text-[#2563EB] hover:underline"
                     >
                       Dashboard &rarr;
                     </Link>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-[#00AEEF] to-sky-400 text-white font-black text-sm flex items-center justify-center shadow-xs shrink-0 ring-2 ring-white">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-9 h-9 rounded-full bg-[#2563EB] text-white font-black text-xs flex items-center justify-center shadow-xs shrink-0 ring-2 ring-white">
                       {user.avatarUrl ? (
                         <img
                           src={user.avatarUrl}
@@ -228,19 +223,19 @@ export const MobileMenuDrawer: React.FC<MobileMenuDrawerProps> = ({
                       )}
                     </div>
                     <div className="min-w-0 flex-1">
-                      <div className="text-xs font-black text-slate-900 truncate leading-tight">
+                      <div className="text-xs font-bold text-slate-900 truncate leading-tight">
                         {user.name || "Customer Account"}
                       </div>
-                      <div className="text-[11px] text-slate-500 font-medium truncate mt-0.5">
+                      <div className="text-[10px] text-slate-500 font-medium truncate mt-0.5">
                         {user.email || user.phone || "customer@prayog.in"}
                       </div>
                     </div>
                   </div>
                 </div>
               ) : (
-                <div className="space-y-2.5">
+                <div className="bg-slate-50 border border-slate-100 rounded-2xl p-3 space-y-2.5">
                   <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-black uppercase tracking-wider text-[#00AEEF]">
+                    <span className="text-[10px] font-black uppercase tracking-wider text-[#2563EB]">
                       ACCOUNT ACCESS
                     </span>
                     <span className="text-[10px] font-bold text-slate-400">
@@ -253,7 +248,7 @@ export const MobileMenuDrawer: React.FC<MobileMenuDrawerProps> = ({
                     <Link
                       href="/login"
                       onClick={onClose}
-                      className="h-10 bg-[#00AEEF] hover:bg-[#0098d4] text-white rounded-xl text-xs font-bold shadow-xs flex items-center justify-center gap-1.5 transition-all active:scale-98"
+                      className="h-9 bg-[#2563EB] hover:bg-[#1D4ED8] text-white rounded-xl text-xs font-bold shadow-xs flex items-center justify-center gap-1.5 transition-all active:scale-98"
                     >
                       <LogIn className="w-3.5 h-3.5 shrink-0" />
                       <span className="whitespace-nowrap">Sign In</span>
@@ -261,10 +256,10 @@ export const MobileMenuDrawer: React.FC<MobileMenuDrawerProps> = ({
                     <Link
                       href="/register"
                       onClick={onClose}
-                      className="h-10 bg-white border border-slate-200 text-slate-700 hover:bg-slate-100 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 active:scale-98 shadow-2xs"
+                      className="h-9 bg-white border border-slate-200 text-slate-700 hover:bg-slate-100 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 active:scale-98 shadow-2xs"
                     >
                       <UserPlus className="w-3.5 h-3.5 text-slate-500 shrink-0" />
-                      <span className="whitespace-nowrap">Create Account</span>
+                      <span className="whitespace-nowrap">Register</span>
                     </Link>
                   </div>
 
@@ -272,13 +267,13 @@ export const MobileMenuDrawer: React.FC<MobileMenuDrawerProps> = ({
                   <Link
                     href="/track-order"
                     onClick={onClose}
-                    className="w-full bg-white hover:bg-[#E0F7FC] border border-slate-200/90 rounded-xl py-2 px-3 flex items-center justify-between text-xs font-bold text-slate-700 shadow-2xs transition-all group"
+                    className="w-full bg-white hover:bg-[#EFF6FF] border border-slate-200/80 rounded-xl py-2 px-3 flex items-center justify-between text-xs font-bold text-slate-700 shadow-2xs transition-all group"
                   >
                     <div className="flex items-center gap-2">
-                      <Truck className="w-4 h-4 text-[#00AEEF]" />
+                      <Truck className="w-4 h-4 text-[#2563EB]" />
                       <span>Track Order &amp; Shipments</span>
                     </div>
-                    <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-[#00AEEF] group-hover:translate-x-0.5 transition-all" />
+                    <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-[#2563EB] group-hover:translate-x-0.5 transition-all" />
                   </Link>
                 </div>
               )}
@@ -293,12 +288,12 @@ export const MobileMenuDrawer: React.FC<MobileMenuDrawerProps> = ({
                     onClose();
                     onOpenCart?.();
                   }}
-                  className="flex flex-col items-center justify-center p-2.5 rounded-2xl bg-slate-50 hover:bg-[#E0F7FC] border border-slate-100 text-slate-700 hover:text-[#00AEEF] transition-all cursor-pointer group"
+                  className="flex flex-col items-center justify-center p-2.5 rounded-2xl bg-slate-50 hover:bg-[#EFF6FF] border border-slate-200/60 text-slate-700 hover:text-[#2563EB] transition-all cursor-pointer group"
                 >
                   <div className="relative mb-1">
-                    <ShoppingBag className="w-5 h-5 text-slate-600 group-hover:text-[#00AEEF] transition-colors" />
+                    <ShoppingBag className="w-5 h-5 text-slate-600 group-hover:text-[#2563EB] transition-colors" />
                     {cartCount > 0 && (
-                      <span className="absolute -top-1.5 -right-2 bg-[#FF3B30] text-white text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center shadow-xs">
+                      <span className="absolute -top-1.5 -right-2 bg-[#2563EB] text-white text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center shadow-xs">
                         {cartCount}
                       </span>
                     )}
@@ -311,7 +306,7 @@ export const MobileMenuDrawer: React.FC<MobileMenuDrawerProps> = ({
                     onClose();
                     onOpenWishlist?.();
                   }}
-                  className="flex flex-col items-center justify-center p-2.5 rounded-2xl bg-slate-50 hover:bg-rose-50 border border-slate-100 text-slate-700 hover:text-rose-600 transition-all cursor-pointer group"
+                  className="flex flex-col items-center justify-center p-2.5 rounded-2xl bg-slate-50 hover:bg-rose-50 border border-slate-200/60 text-slate-700 hover:text-rose-600 transition-all cursor-pointer group"
                 >
                   <div className="relative mb-1">
                     <Heart className="w-5 h-5 text-slate-600 group-hover:text-rose-600 transition-colors" />
@@ -329,16 +324,14 @@ export const MobileMenuDrawer: React.FC<MobileMenuDrawerProps> = ({
                     onClose();
                     onOpenB2BModal?.();
                   }}
-                  className="flex flex-col items-center justify-center p-2.5 rounded-2xl bg-[#0A1128] hover:bg-[#1E56A0] text-white transition-all cursor-pointer shadow-xs group"
+                  className="flex flex-col items-center justify-center p-2.5 rounded-2xl bg-slate-50 hover:bg-amber-50 border border-slate-200/60 text-slate-700 hover:text-amber-700 transition-all cursor-pointer group"
                 >
-                  <Building2 className="w-5 h-5 text-[#D4AF37] mb-1 group-hover:scale-110 transition-transform" />
-                  <span className="text-[10px] font-bold text-slate-100">
-                    B2B Quote
-                  </span>
+                  <Building2 className="w-5 h-5 text-slate-600 group-hover:text-amber-600 mb-1 transition-colors" />
+                  <span className="text-[10px] font-bold">B2B Quote</span>
                 </button>
               </div>
 
-              {/* Popular Categories Horizontal Chips */}
+              {/* Popular Categories Clean Chips */}
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-[11px] font-black uppercase tracking-wider text-slate-400">
@@ -347,7 +340,7 @@ export const MobileMenuDrawer: React.FC<MobileMenuDrawerProps> = ({
                   <Link
                     href="/categories"
                     onClick={onClose}
-                    className="text-[11px] font-bold text-[#00AEEF] hover:underline"
+                    className="text-[11px] font-bold text-[#2563EB] hover:underline"
                   >
                     All Categories &rarr;
                   </Link>
@@ -360,9 +353,11 @@ export const MobileMenuDrawer: React.FC<MobileMenuDrawerProps> = ({
                         key={cat.name}
                         href={cat.href}
                         onClick={onClose}
-                        className={`flex items-center gap-2 p-2 rounded-xl border text-xs font-bold transition-all hover:shadow-xs ${cat.color}`}
+                        className="flex items-center gap-2 p-2 rounded-xl bg-slate-50 hover:bg-[#EFF6FF] active:bg-[#EFF6FF] border border-slate-200/60 hover:border-[#2563EB]/40 text-xs font-bold text-slate-800 hover:text-[#2563EB] transition-all group"
                       >
-                        <Icon className="w-4 h-4 shrink-0" />
+                        <span className="w-6 h-6 rounded-lg bg-white border border-slate-200/60 flex items-center justify-center shrink-0 text-[#2563EB] group-hover:bg-[#2563EB] group-hover:text-white transition-colors shadow-2xs">
+                          <Icon className="w-3.5 h-3.5" />
+                        </span>
                         <span className="truncate">{cat.name}</span>
                       </Link>
                     );
@@ -389,13 +384,13 @@ export const MobileMenuDrawer: React.FC<MobileMenuDrawerProps> = ({
                     className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-slate-50 transition-colors text-left cursor-pointer"
                   >
                     <div className="flex items-center gap-2.5">
-                      <Cpu className="w-4 h-4 text-[#00AEEF]" />
+                      <Cpu className="w-4 h-4 text-[#2563EB]" />
                       <span>Shop &amp; Hardware</span>
                     </div>
                     <ChevronDown
                       className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${
                         activeAccordion === "shop"
-                          ? "rotate-180 text-[#00AEEF]"
+                          ? "rotate-180 text-[#2563EB]"
                           : ""
                       }`}
                     />
@@ -412,7 +407,7 @@ export const MobileMenuDrawer: React.FC<MobileMenuDrawerProps> = ({
                         <Link
                           href="/products"
                           onClick={onClose}
-                          className="flex items-center justify-between py-1.5 hover:text-[#00AEEF]"
+                          className="flex items-center justify-between py-1.5 hover:text-[#2563EB]"
                         >
                           <span>All Products</span>
                           <span className="text-[10px] text-slate-400 font-mono">
@@ -422,14 +417,14 @@ export const MobileMenuDrawer: React.FC<MobileMenuDrawerProps> = ({
                         <Link
                           href="/categories"
                           onClick={onClose}
-                          className="block py-1.5 hover:text-[#00AEEF]"
+                          className="block py-1.5 hover:text-[#2563EB]"
                         >
                           Browse Categories
                         </Link>
                         <Link
                           href="/brands"
                           onClick={onClose}
-                          className="block py-1.5 hover:text-[#00AEEF]"
+                          className="block py-1.5 hover:text-[#2563EB]"
                         >
                           Official Brands
                         </Link>
@@ -458,13 +453,13 @@ export const MobileMenuDrawer: React.FC<MobileMenuDrawerProps> = ({
                     className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-slate-50 transition-colors text-left cursor-pointer"
                   >
                     <div className="flex items-center gap-2.5">
-                      <Wrench className="w-4 h-4 text-[#00AEEF]" />
+                      <Wrench className="w-4 h-4 text-[#2563EB]" />
                       <span>Lab Setups &amp; Services</span>
                     </div>
                     <ChevronDown
                       className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${
                         activeAccordion === "services"
-                          ? "rotate-180 text-[#00AEEF]"
+                          ? "rotate-180 text-[#2563EB]"
                           : ""
                       }`}
                     />
@@ -481,42 +476,42 @@ export const MobileMenuDrawer: React.FC<MobileMenuDrawerProps> = ({
                         <Link
                           href="/services/stem-lab-setup"
                           onClick={onClose}
-                          className="block py-1.5 hover:text-[#00AEEF]"
+                          className="block py-1.5 hover:text-[#2563EB]"
                         >
                           STEM &amp; Atal Tinkering Labs
                         </Link>
                         <Link
                           href="/services/robotics-lab-setup"
                           onClick={onClose}
-                          className="block py-1.5 hover:text-[#00AEEF]"
+                          className="block py-1.5 hover:text-[#2563EB]"
                         >
                           Robotics &amp; AI Lab Setup
                         </Link>
                         <Link
                           href="/services/drone-lab-setup"
                           onClick={onClose}
-                          className="block py-1.5 hover:text-[#00AEEF]"
+                          className="block py-1.5 hover:text-[#2563EB]"
                         >
                           Drone &amp; Avionics Lab Setup
                         </Link>
                         <Link
                           href="/services/industrial-projects"
                           onClick={onClose}
-                          className="block py-1.5 hover:text-[#00AEEF]"
+                          className="block py-1.5 hover:text-[#2563EB]"
                         >
                           Industrial Projects &amp; R&amp;D
                         </Link>
                         <Link
                           href="/services/consultancy"
                           onClick={onClose}
-                          className="block py-1.5 hover:text-[#00AEEF]"
+                          className="block py-1.5 hover:text-[#2563EB]"
                         >
                           Institutional Consultancy
                         </Link>
                         <Link
                           href="/services"
                           onClick={onClose}
-                          className="block py-1.5 text-[#00AEEF] font-bold"
+                          className="block py-1.5 text-[#2563EB] font-bold"
                         >
                           View All Services &rarr;
                         </Link>
@@ -587,13 +582,13 @@ export const MobileMenuDrawer: React.FC<MobileMenuDrawerProps> = ({
                       className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-slate-50 transition-colors text-left cursor-pointer"
                     >
                       <div className="flex items-center gap-2.5">
-                        <User className="w-4 h-4 text-[#00AEEF]" />
+                        <User className="w-4 h-4 text-[#2563EB]" />
                         <span>My Account &amp; Orders</span>
                       </div>
                       <ChevronDown
                         className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${
                           activeAccordion === "account"
-                            ? "rotate-180 text-[#00AEEF]"
+                            ? "rotate-180 text-[#2563EB]"
                             : ""
                         }`}
                       />
@@ -610,10 +605,10 @@ export const MobileMenuDrawer: React.FC<MobileMenuDrawerProps> = ({
                           <Link
                             href="/account/profile"
                             onClick={onClose}
-                            className="flex items-center justify-between p-2 rounded-xl hover:bg-white hover:text-[#00AEEF] transition-all"
+                            className="flex items-center justify-between p-2 rounded-xl hover:bg-white hover:text-[#2563EB] transition-all"
                           >
                             <div className="flex items-center gap-2.5">
-                              <User className="w-4 h-4 text-[#00AEEF]" />
+                              <User className="w-4 h-4 text-[#2563EB]" />
                               <span>My Account</span>
                             </div>
                             <ChevronRight className="w-3.5 h-3.5 text-slate-300" />
@@ -622,7 +617,7 @@ export const MobileMenuDrawer: React.FC<MobileMenuDrawerProps> = ({
                           <Link
                             href="/account/orders"
                             onClick={onClose}
-                            className="flex items-center justify-between p-2 rounded-xl hover:bg-white hover:text-[#00AEEF] transition-all"
+                            className="flex items-center justify-between p-2 rounded-xl hover:bg-white hover:text-[#2563EB] transition-all"
                           >
                             <div className="flex items-center gap-2.5">
                               <Package className="w-4 h-4 text-emerald-600" />
@@ -653,7 +648,7 @@ export const MobileMenuDrawer: React.FC<MobileMenuDrawerProps> = ({
                           <Link
                             href="/account/addresses"
                             onClick={onClose}
-                            className="flex items-center justify-between p-2 rounded-xl hover:bg-white hover:text-[#00AEEF] transition-all"
+                            className="flex items-center justify-between p-2 rounded-xl hover:bg-white hover:text-[#2563EB] transition-all"
                           >
                             <div className="flex items-center gap-2.5">
                               <MapPin className="w-4 h-4 text-purple-600" />
@@ -665,7 +660,7 @@ export const MobileMenuDrawer: React.FC<MobileMenuDrawerProps> = ({
                           <Link
                             href="/account/payments"
                             onClick={onClose}
-                            className="flex items-center justify-between p-2 rounded-xl hover:bg-white hover:text-[#00AEEF] transition-all"
+                            className="flex items-center justify-between p-2 rounded-xl hover:bg-white hover:text-[#2563EB] transition-all"
                           >
                             <div className="flex items-center gap-2.5">
                               <CreditCard className="w-4 h-4 text-indigo-600" />
@@ -735,7 +730,7 @@ export const MobileMenuDrawer: React.FC<MobileMenuDrawerProps> = ({
                 <span className="font-semibold">Need Assistance?</span>
                 <a
                   href="tel:+919153988390"
-                  className="font-bold text-[#00AEEF] flex items-center gap-1 hover:underline"
+                  className="font-bold text-[#2563EB] flex items-center gap-1 hover:underline"
                 >
                   <PhoneCall className="w-3.5 h-3.5" />
                   +91 91539 88390

@@ -93,11 +93,11 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
           {/* Cart Header */}
           <div className="p-4 sm:p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/80">
             <div className="flex items-center gap-2">
-              <ShoppingBag className="w-5 h-5 text-[#00AEEF]" />
+              <ShoppingBag className="w-5 h-5 text-[#2563EB]" />
               <h2 className="text-base sm:text-lg font-black text-slate-900">
                 Your Cart
               </h2>
-              <span className="bg-[#00AEEF] text-white text-xs font-black px-2.5 py-0.5 rounded-full">
+              <span className="bg-[#2563EB] text-white text-xs font-black px-2.5 py-0.5 rounded-full">
                 {totalItemCount} {totalItemCount === 1 ? "item" : "items"}
               </span>
             </div>
@@ -131,7 +131,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                 <Link
                   href="/products"
                   onClick={onClose}
-                  className="inline-block mt-2 bg-[#00AEEF] text-white text-xs font-extrabold px-5 py-2.5 rounded-full"
+                  className="inline-block mt-2 bg-[#2563EB] text-white text-xs font-extrabold px-5 py-2.5 rounded-full"
                 >
                   Browse Hardware Catalogue
                 </Link>
@@ -164,7 +164,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                       <div className="flex items-center gap-2 text-[10px] text-slate-400 font-mono">
                         <span>{sku}</span>
                         {item.variant && (
-                          <span className="text-[#00AEEF] font-bold">
+                          <span className="text-[#2563EB] font-bold">
                             ({item.variant.name})
                           </span>
                         )}
@@ -229,11 +229,11 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                   placeholder="Coupon code"
                   value={coupon}
                   onChange={(e) => setCoupon(e.target.value)}
-                  className="flex-1 bg-white border border-slate-200 rounded-xl px-3 py-1.5 text-xs uppercase font-mono font-bold focus:outline-none focus:border-[#00AEEF]"
+                  className="flex-1 bg-white border border-slate-200 rounded-xl px-3 py-1.5 text-xs uppercase font-mono font-bold focus:outline-none focus:border-[#2563EB]"
                 />
                 <button
                   onClick={applyCoupon}
-                  className="bg-slate-900 text-white text-xs font-black px-3 py-1.5 rounded-xl hover:bg-[#00AEEF] transition-colors cursor-pointer"
+                  className="bg-slate-900 text-white text-xs font-black px-3 py-1.5 rounded-xl hover:bg-[#2563EB] transition-colors cursor-pointer"
                 >
                   Apply
                 </button>
@@ -266,7 +266,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                 </div>
                 <div className="flex justify-between text-sm font-black text-slate-900 pt-2 border-t border-slate-200">
                   <span>Total</span>
-                  <span className="text-[#00AEEF]">
+                  <span className="text-[#2563EB]">
                     ₹{total.toLocaleString("en-IN")}
                   </span>
                 </div>
@@ -290,7 +290,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                     haptic.medium();
                     onClose();
                   }}
-                  className="bg-[#00AEEF] hover:bg-[#0096D6] text-white py-3 rounded-xl font-black text-xs uppercase tracking-wider text-center transition-all shadow-md shadow-[#00AEEF]/25 block flex items-center justify-center gap-1"
+                  className="bg-[#2563EB] hover:bg-[#1D4ED8] text-white py-3 rounded-xl font-black text-xs uppercase tracking-wider text-center transition-all shadow-md shadow-[#2563EB]/25 block flex items-center justify-center gap-1"
                 >
                   <span>Checkout</span>
                   <ArrowRight className="w-3.5 h-3.5" />

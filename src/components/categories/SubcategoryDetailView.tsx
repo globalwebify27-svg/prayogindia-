@@ -195,19 +195,19 @@ export const SubcategoryDetailView: React.FC<SubcategoryDetailProps> = ({
       {/* 2. Subcategory Header */}
       <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-br from-white via-sky-50/20 to-slate-50 border border-slate-200/80 shadow-xs p-6 sm:p-8 lg:p-10">
         {/* Subtle background ambient glow */}
-        <div className="absolute -top-20 -right-20 w-72 h-72 rounded-full bg-[#00AEEF]/8 blur-3xl pointer-events-none" />
+        <div className="absolute -top-20 -right-20 w-72 h-72 rounded-full bg-[#2563EB]/8 blur-3xl pointer-events-none" />
 
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6 lg:gap-10">
           <div className="space-y-3 max-w-2xl">
             <div className="flex items-center gap-2 flex-wrap">
               <Link
                 href={`/categories/${category.slug}`}
-                className="text-xs font-bold text-[#00AEEF] hover:underline flex items-center gap-1 bg-white px-2.5 py-1 rounded-full border border-slate-200/80 shadow-2xs"
+                className="text-xs font-bold text-[#2563EB] hover:underline flex items-center gap-1 bg-white px-2.5 py-1 rounded-full border border-slate-200/80 shadow-2xs"
               >
                 <ArrowLeft className="w-3.5 h-3.5" /> Back to {category.name}
               </Link>
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-[#00AEEF]/10 text-[#0086B8] border border-[#00AEEF]/20">
-                <Sparkles className="w-3.5 h-3.5 text-[#00AEEF]" />
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-[#2563EB]/10 text-[#1D4ED8] border border-[#2563EB]/20">
+                <Sparkles className="w-3.5 h-3.5 text-[#2563EB]" />
                 {subcategory.productCount} Items Available
               </span>
             </div>
@@ -304,7 +304,7 @@ export const SubcategoryDetailView: React.FC<SubcategoryDetailProps> = ({
               {filteredProducts.slice(0, visibleCount).map((product) => (
                 <div
                   key={product.id}
-                  className="bg-white rounded-2xl border border-slate-200 flex flex-col sm:flex-row items-start gap-4 p-4 hover:border-[#00AEEF]/50 hover:shadow-md transition-all"
+                  className="bg-white rounded-2xl border border-slate-200 flex flex-col sm:flex-row items-start gap-4 p-4 hover:border-[#2563EB]/50 hover:shadow-md transition-all"
                 >
                   <div className="relative w-full sm:w-28 h-28 shrink-0 rounded-xl overflow-hidden bg-slate-50 border border-slate-100 flex items-center justify-center">
                     <img
@@ -337,7 +337,7 @@ export const SubcategoryDetailView: React.FC<SubcategoryDetailProps> = ({
                       </div>
                       <button
                         onClick={() => store?.addToCart?.(product)}
-                        className="bg-slate-900 hover:bg-[#00AEEF] text-white text-xs font-bold px-3.5 py-2 rounded-xl cursor-pointer transition-colors active:scale-95"
+                        className="bg-slate-900 hover:bg-[#2563EB] text-white text-xs font-bold px-3.5 py-2 rounded-xl cursor-pointer transition-colors active:scale-95"
                       >
                         Add to Cart
                       </button>
@@ -358,7 +358,7 @@ export const SubcategoryDetailView: React.FC<SubcategoryDetailProps> = ({
             <div className="text-center pt-2">
               <button
                 onClick={() => setVisibleCount((prev) => prev + itemsPerPage)}
-                className="bg-slate-900 hover:bg-[#00AEEF] text-white font-extrabold px-8 py-3.5 rounded-full text-xs uppercase tracking-wider transition-all shadow-md active:scale-95 cursor-pointer"
+                className="bg-slate-900 hover:bg-[#2563EB] text-white font-extrabold px-8 py-3.5 rounded-full text-xs uppercase tracking-wider transition-all shadow-md active:scale-95 cursor-pointer"
               >
                 Load More Products —{" "}
                 {filteredProducts.length - visibleCount} remaining
@@ -371,7 +371,7 @@ export const SubcategoryDetailView: React.FC<SubcategoryDetailProps> = ({
       {/* 5. Related Subcategories */}
       <div className="space-y-3 pt-6 border-t border-slate-200">
         <h3 className="text-base font-black text-slate-900 flex items-center gap-2">
-          <Layers className="w-4 h-4 text-[#00AEEF]" />
+          <Layers className="w-4 h-4 text-[#2563EB]" />
           <span>Other Subcategories in {category.name}</span>
         </h3>
 
@@ -382,17 +382,17 @@ export const SubcategoryDetailView: React.FC<SubcategoryDetailProps> = ({
               <Link
                 key={other.id}
                 href={`/categories/${category.slug}/${other.slug}`}
-                className="group bg-slate-50 hover:bg-[#E0F7FC] border border-slate-200 p-3.5 rounded-xl flex items-center justify-between transition-colors"
+                className="group bg-slate-50 hover:bg-[#EFF6FF] border border-slate-200 p-3.5 rounded-xl flex items-center justify-between transition-colors"
               >
                 <div>
-                  <h4 className="text-xs font-extrabold text-slate-900 group-hover:text-[#00AEEF]">
+                  <h4 className="text-xs font-extrabold text-slate-900 group-hover:text-[#2563EB]">
                     {other.name}
                   </h4>
                   <span className="text-[10px] text-slate-400 font-semibold">
                     {other.productCount} Items
                   </span>
                 </div>
-                <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-[#00AEEF] group-hover:translate-x-0.5 transition-transform" />
+                <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-[#2563EB] group-hover:translate-x-0.5 transition-transform" />
               </Link>
             ))}
         </div>

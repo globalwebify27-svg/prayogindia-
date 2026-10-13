@@ -10,6 +10,9 @@ import {
   ShoppingBag,
   Check,
   Layers,
+  Maximize2,
+  ArrowLeftRight,
+  ChevronLeft,
 } from "lucide-react";
 import { Product } from "@/data/mockData";
 import { useStore } from "@/context/StoreContext";
@@ -32,6 +35,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({
 }) => {
   const store = useStore();
   const [isAdded, setIsAdded] = useState(false);
+  const [isCompared, setIsCompared] = useState(false);
+  const [activeImageIdx, setActiveImageIdx] = useState<0 | 1>(0);
   const [selectedVariantId, setSelectedVariantId] = useState<
     string | undefined
   >(product.variants?.[0]?.id);
@@ -50,6 +55,12 @@ export const ProductCard: React.FC<ProductCardProps> = ({
     typeof isWishlisted === "boolean"
       ? isWishlisted
       : (store?.isWishlisted?.(product.id) ?? false);
+
+  const primaryImage = product.image;
+  const secondaryImage =
+    (product as any).secondaryImage ||
+    (product.images && product.images.length > 1 ? product.images[1] : null);
+  const hasSecondary = !!secondaryImage && secondaryImage !== primaryImage;
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -77,55 +88,161 @@ export const ProductCard: React.FC<ProductCardProps> = ({
     }
   };
 
-  const hasMultipleImages = (product.images && product.images.length > 1) || true;
+  const handleQuickView = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    haptic?.light?.();
+
+    if (onQuickView) {
+      onQuickView(product);
+    }
+  };
+
+  const handleCompare = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    haptic?.light?.();
+
+    setIsCompared(true);
+    store?.showToast?.({
+      title: "Comparison Added",
+      message: `${product.name} added to comparison list.`,
+      type: "success",
+    });
+    setTimeout(() => setIsCompared(false), 2500);
+  };
+
+  const handleToggleImage = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    haptic?.selection?.();
+    setActiveImageIdx((prev) => (prev === 0 ? 1 : 0));
+  };
 
   return (
     <div
       id={`product-card-${product.id}`}
-      className="group bg-white rounded-2xl border border-slate-200/90 p-2 sm:p-3 flex flex-col justify-between hover:border-[#00AEEF] hover:shadow-md hover:shadow-sky-500/10 transition-all duration-300 relative overflow-hidden font-sans"
+      className="group bg-white rounded-2xl border border-slate-200/90 p-2 sm:p-3 flex flex-col justify-between hover:border-[#2563EB] hover:shadow-lg transition-all duration-300 relative overflow-hidden font-sans"
     >
-      {/* ── Top: Product Image with Floating Multi-Image Icon & Wishlist Button ── */}
+      {/* ── Top: Product Image with Smooth Hover Swap & Floating Action Icons ── */}
       <div className="relative aspect-square w-full mb-2 flex items-center justify-center overflow-hidden rounded-xl bg-slate-50/70 p-1.5">
+        {/* Discount Badge in Top-Left (if discount > 5%) */}
+        {discountPercent > 5 && (
+          <div className="absolute top-2 left-2 z-20 bg-[#FF3B30] text-white text-[10px] font-extrabold px-1.5 py-0.5 rounded-lg shadow-xs pointer-events-none">
+            {discountPercent}%
+          </div>
+        )}
+
+        {/* ── Right-Side Floating Action Icons (Smooth Slide-In on Card Hover) ── */}
+        <div className="absolute top-2 right-2 z-30 flex flex-col gap-1.5 opacity-0 translate-x-2 pointer-events-none group-hover:opacity-100 group-hover:translate-x-0 group-hover:pointer-events-auto transition-all duration-300 ease-out">
+          {/* 1. Quick View / Zoom */}
+          <button
+            type="button"
+            onClick={handleQuickView}
+            className="w-7 h-7 rounded-full bg-white/95 backdrop-blur-xs border border-slate-200/90 shadow-sm flex items-center justify-center text-slate-700 hover:text-[#2563EB] hover:border-blue-300 hover:bg-blue-50/80 active:scale-90 transition-all cursor-pointer"
+            title="Quick View"
+            aria-label="Quick View"
+          >
+            <Maximize2 className="w-3.5 h-3.5 stroke-[2.2]" />
+          </button>
+
+          {/* 2. Compare / Swap */}
+          <button
+            type="button"
+            onClick={handleCompare}
+            className={`w-7 h-7 rounded-full bg-white/95 backdrop-blur-xs border shadow-sm flex items-center justify-center active:scale-90 transition-all cursor-pointer ${
+              isCompared
+                ? "border-emerald-400 text-emerald-600 bg-emerald-50"
+                : "border-slate-200/90 text-slate-700 hover:text-[#2563EB] hover:border-blue-300 hover:bg-blue-50/80"
+            }`}
+            title="Compare Product"
+            aria-label="Compare Product"
+          >
+            <ArrowLeftRight className="w-3.5 h-3.5 stroke-[2.2]" />
+          </button>
+
+          {/* 3. Wishlist Heart */}
+          <button
+            type="button"
+            onClick={handleToggleWishlist}
+            className={`w-7 h-7 rounded-full bg-white/95 backdrop-blur-xs border shadow-sm flex items-center justify-center active:scale-90 transition-all cursor-pointer ${
+              itemIsWishlisted
+                ? "border-red-300 text-red-500 bg-red-50"
+                : "border-slate-200/90 text-slate-700 hover:text-red-500 hover:border-red-200 hover:bg-red-50/50"
+            }`}
+            title={itemIsWishlisted ? "Remove from Wishlist" : "Add to Wishlist"}
+            aria-label="Wishlist"
+          >
+            <Heart
+              className={`w-3.5 h-3.5 transition-colors ${
+                itemIsWishlisted ? "fill-red-500 text-red-500" : "stroke-[2.2]"
+              }`}
+            />
+          </button>
+        </div>
+
+        {/* ── Left Navigation Arrow (< Chevron, appears on hover to toggle angle) ── */}
+        {hasSecondary && (
+          <button
+            type="button"
+            onClick={handleToggleImage}
+            className="absolute left-1.5 top-1/2 -translate-y-1/2 z-30 w-6 h-6 rounded-full bg-white/95 backdrop-blur-xs border border-slate-200/90 shadow-sm flex items-center justify-center text-slate-700 hover:text-[#2563EB] hover:border-blue-300 opacity-0 -translate-x-2 pointer-events-none group-hover:opacity-100 group-hover:translate-x-0 group-hover:pointer-events-auto active:scale-90 transition-all duration-300 cursor-pointer"
+            title="Switch angle"
+            aria-label="Switch product view"
+          >
+            <ChevronLeft className="w-3.5 h-3.5 stroke-[2.5]" />
+          </button>
+        )}
+
+        {/* ── Product Images (Smooth Cross-Fade on Hover or Angle Click) ── */}
         <Link
           href={`/products/${product.slug || product.id}`}
           className="relative w-full h-full block cursor-pointer"
         >
-          <Image
-            src={getOptimizedImageUrl(product.image, {
-              width: 350,
-              quality: "auto",
-            })}
-            alt={product.name}
-            fill
-            sizes="(max-width: 640px) 180px, 280px"
-            className="object-contain p-1 group-hover:scale-105 transition-transform duration-300"
-          />
-        </Link>
-
-        {/* Floating Multi-image / Gallery Badge (Bottom-Left) */}
-        {hasMultipleImages && (
+          {/* Primary View */}
           <div
-            className="absolute bottom-2 left-2 w-6 h-6 rounded-full bg-white/95 border border-slate-200/80 shadow-2xs flex items-center justify-center pointer-events-none z-10"
-            title="Multiple views available"
-          >
-            <Layers className="w-3 h-3 text-slate-700 stroke-[2.2]" />
-          </div>
-        )}
-
-        {/* Wishlist Button (Top-Right) */}
-        <button
-          type="button"
-          onClick={handleToggleWishlist}
-          className="absolute top-2 right-2 w-6 h-6 sm:w-7 sm:h-7 rounded-full border border-slate-200/90 hover:border-red-200 bg-white/95 flex items-center justify-center text-slate-400 hover:text-red-500 transition-colors shrink-0 cursor-pointer shadow-2xs active:scale-90 z-10"
-          title="Save to Wishlist"
-          aria-label="Wishlist"
-        >
-          <Heart
-            className={`w-3 h-3 sm:w-3.5 sm:h-3.5 transition-colors ${
-              itemIsWishlisted ? "fill-red-500 text-red-500 scale-110" : ""
+            className={`absolute inset-0 transition-opacity duration-500 ease-in-out ${
+              hasSecondary && activeImageIdx === 0
+                ? "opacity-100 group-hover:opacity-0"
+                : activeImageIdx === 0
+                ? "opacity-100"
+                : "opacity-0"
             }`}
-          />
-        </button>
+          >
+            <Image
+              src={getOptimizedImageUrl(primaryImage, {
+                width: 350,
+                quality: "auto",
+              })}
+              alt={product.name}
+              fill
+              sizes="(max-width: 640px) 180px, 280px"
+              className="object-contain p-1 group-hover:scale-105 transition-transform duration-500 ease-out"
+            />
+          </div>
+
+          {/* Secondary View (smoothly cross-fades in on hover) */}
+          {hasSecondary && (
+            <div
+              className={`absolute inset-0 transition-opacity duration-500 ease-in-out ${
+                activeImageIdx === 1
+                  ? "opacity-100"
+                  : "opacity-0 group-hover:opacity-100"
+              }`}
+            >
+              <Image
+                src={getOptimizedImageUrl(secondaryImage, {
+                  width: 350,
+                  quality: "auto",
+                })}
+                alt={`${product.name} alternate view`}
+                fill
+                sizes="(max-width: 640px) 180px, 280px"
+                className="object-contain p-1 group-hover:scale-105 transition-transform duration-500 ease-out"
+              />
+            </div>
+          )}
+        </Link>
       </div>
 
       {/* ── Card Body (Amazon / Myntra Style Grid Card Layout) ── */}
@@ -140,7 +257,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           </div>
 
           {/* Product Name Subtitle (Medium weight, line-clamp) */}
-          <h3 className="text-xs sm:text-sm font-medium text-slate-700 line-clamp-1 truncate group-hover:text-[#00AEEF] transition-colors leading-tight">
+          <h3 className="text-xs sm:text-sm font-medium text-slate-700 line-clamp-1 truncate group-hover:text-[#2563EB] transition-colors leading-tight">
             {product.name}
           </h3>
 
@@ -200,7 +317,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             className={`w-full py-1.5 px-2 rounded-xl text-[10px] sm:text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all duration-200 cursor-pointer shadow-2xs active:scale-[0.98] ${
               isAdded
                 ? "bg-emerald-600 text-white shadow-emerald-600/20"
-                : "bg-slate-900 hover:bg-[#00AEEF] text-white"
+                : "bg-slate-900 hover:bg-[#2563EB] text-white"
             }`}
           >
             {isAdded ? (
@@ -210,7 +327,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
               </>
             ) : (
               <>
-                <ShoppingBag className="w-3 h-3 text-[#00AEEF]" />
+                <ShoppingBag className="w-3 h-3 text-[#2563EB] group-hover/btn:text-white" />
                 <span>Add to Cart</span>
               </>
             )}

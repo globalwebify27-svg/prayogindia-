@@ -113,7 +113,7 @@ export const CategoriesOverviewView: React.FC = () => {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search categories..."
-              className="w-full bg-slate-50 border border-slate-200 rounded-full pl-9.5 pr-8 py-2 text-xs text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:border-[#00AEEF] focus:ring-2 focus:ring-[#00AEEF]/15 transition-all font-medium"
+              className="w-full bg-slate-50 border border-slate-200 rounded-full pl-9.5 pr-8 py-2 text-xs text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/15 transition-all font-medium"
             />
             {searchQuery && (
               <button
@@ -136,7 +136,7 @@ export const CategoriesOverviewView: React.FC = () => {
                 onClick={() => setActiveTag(tag.key)}
                 className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all shrink-0 cursor-pointer ${
                   activeTag === tag.key
-                    ? "bg-[#00AEEF] text-white shadow-xs"
+                    ? "bg-[#2563EB] text-white shadow-xs"
                     : "bg-slate-100 hover:bg-slate-200/80 text-slate-600"
                 }`}
               >
@@ -183,7 +183,7 @@ export const CategoriesOverviewView: React.FC = () => {
               setSearchQuery("");
               setActiveTag("all");
             }}
-            className="text-xs font-black text-[#00AEEF] hover:underline cursor-pointer"
+            className="text-xs font-black text-[#2563EB] hover:underline cursor-pointer"
           >
             Clear all filters
           </button>
@@ -203,7 +203,7 @@ export const CategoriesOverviewView: React.FC = () => {
       <PopularCategories />
 
       {/* 7. Explore CTA */}
-      <div className="bg-gradient-to-r from-[#00AEEF] to-[#1E56A0] text-white rounded-3xl p-8 text-center space-y-4 shadow-xl">
+      <div className="bg-gradient-to-r from-[#2563EB] to-[#1E56A0] text-white rounded-3xl p-8 text-center space-y-4 shadow-xl">
         <h3 className="text-2xl font-black">
           Need Bulk Institutional Hardware Procurement?
         </h3>

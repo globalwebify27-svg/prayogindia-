@@ -28,7 +28,7 @@ const FEATURES: FeatureCard[] = [
   },
   {
     id: "2",
-    icon: <Truck className="w-6 h-6 text-[#00AEEF]" />,
+    icon: <Truck className="w-6 h-6 text-[#2563EB]" />,
     title: "Fast Dispatch Across India",
     description:
       "Express courier shipping with real-time tracking for schools, colleges, and DIY makers.",
@@ -42,7 +42,7 @@ const FEATURES: FeatureCard[] = [
   },
   {
     id: "4",
-    icon: <GraduationCap className="w-6 h-6 text-[#00AEEF]" />,
+    icon: <GraduationCap className="w-6 h-6 text-[#2563EB]" />,
     title: "STEM & Institutional Experts",
     description:
       "Over 500+ school and university STEM labs designed and commissioned across India.",
@@ -56,7 +56,7 @@ const FEATURES: FeatureCard[] = [
   },
   {
     id: "6",
-    icon: <Users className="w-6 h-6 text-[#00AEEF]" />,
+    icon: <Users className="w-6 h-6 text-[#2563EB]" />,
     title: "Vibrant Learning Community",
     description:
       "Free access to build tutorials, open-source code repositories, and flight tuning workshops.",
@@ -69,7 +69,7 @@ export const WhyChoosePrayog: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
         {/* Section Header */}
         <div className="text-center max-w-2xl mx-auto space-y-2">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-[#00AEEF]">
+          <span className="text-[11px] font-bold uppercase tracking-wider text-[#2563EB]">
             The Prayog Advantage
           </span>
           <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
@@ -90,12 +90,12 @@ export const WhyChoosePrayog: React.FC = () => {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3, delay: idx * 0.05 }}
               viewport={{ once: true }}
-              className="bg-white border border-slate-200/90 rounded-3xl p-6 hover:shadow-xl hover:border-[#00AEEF]/40 transition-all duration-300 space-y-3 group"
+              className="bg-white border border-slate-200/90 rounded-3xl p-6 hover:shadow-xl hover:border-[#2563EB]/40 transition-all duration-300 space-y-3 group"
             >
               <div className="w-12 h-12 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-center group-hover:scale-110 transition-transform">
                 {feat.icon}
               </div>
-              <h3 className="text-base font-bold text-slate-900 group-hover:text-[#00AEEF] transition-colors">
+              <h3 className="text-base font-bold text-slate-900 group-hover:text-[#2563EB] transition-colors">
                 {feat.title}
               </h3>
               <p className="text-xs text-slate-500 leading-relaxed font-normal">

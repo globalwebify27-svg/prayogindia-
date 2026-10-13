@@ -41,7 +41,7 @@ export const CategoriesHeader: React.FC<CategoriesHeaderProps> = ({
 
       {/* 3. Left Content Overlay */}
       <div className="relative z-10 p-4 sm:p-5 lg:px-7 lg:py-4 max-w-2xl space-y-2.5">
-        <span className="text-[9px] font-black uppercase tracking-widest text-[#00AEEF] bg-white/90 backdrop-blur-md px-2.5 py-0.5 rounded-full inline-block shadow-2xs border border-sky-100/80">
+        <span className="text-[9px] font-black uppercase tracking-widest text-[#2563EB] bg-white/90 backdrop-blur-md px-2.5 py-0.5 rounded-full inline-block shadow-2xs border border-sky-100/80">
           PRAYOG INDIA MARKETPLACE
         </span>
 
@@ -64,7 +64,7 @@ export const CategoriesHeader: React.FC<CategoriesHeaderProps> = ({
                 if (el) el.scrollIntoView({ behavior: "smooth" });
               }
             }}
-            className="inline-flex items-center gap-1.5 bg-[#00AEEF] hover:bg-[#0096D6] text-white font-bold px-4 py-2 rounded-full text-[11px] shadow-md shadow-sky-500/20 active:scale-95 transition-all cursor-pointer"
+            className="inline-flex items-center gap-1.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-bold px-4 py-2 rounded-full text-[11px] shadow-md shadow-sky-500/20 active:scale-95 transition-all cursor-pointer"
           >
             <LayoutGrid className="w-3 h-3" />
             <span>Browse All Categories</span>
@@ -73,7 +73,7 @@ export const CategoriesHeader: React.FC<CategoriesHeaderProps> = ({
 
           <Link
             href="/offers"
-            className="inline-flex items-center gap-1 text-[11px] font-bold text-[#00AEEF] hover:text-[#0086B8] hover:underline transition-colors"
+            className="inline-flex items-center gap-1 text-[11px] font-bold text-[#2563EB] hover:text-[#1D4ED8] hover:underline transition-colors"
           >
             <span>Explore Best Sellers</span>
             <ArrowRight className="w-3 h-3" />
@@ -84,7 +84,7 @@ export const CategoriesHeader: React.FC<CategoriesHeaderProps> = ({
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1.5">
           {/* 1. Trusted Products */}
           <div className="flex items-center gap-1.5 p-1.5 px-2 rounded-lg bg-white/90 backdrop-blur-md border border-slate-100 shadow-2xs">
-            <div className="w-6 h-6 rounded-md bg-sky-50 text-[#00AEEF] flex items-center justify-center shrink-0">
+            <div className="w-6 h-6 rounded-md bg-sky-50 text-[#2563EB] flex items-center justify-center shrink-0">
               <ShieldCheck className="w-3.5 h-3.5 stroke-[2.2]" />
             </div>
             <div className="leading-tight">
@@ -99,7 +99,7 @@ export const CategoriesHeader: React.FC<CategoriesHeaderProps> = ({
 
           {/* 2. Genuine Brands */}
           <div className="flex items-center gap-1.5 p-1.5 px-2 rounded-lg bg-white/90 backdrop-blur-md border border-slate-100 shadow-2xs">
-            <div className="w-6 h-6 rounded-md bg-sky-50 text-[#00AEEF] flex items-center justify-center shrink-0">
+            <div className="w-6 h-6 rounded-md bg-sky-50 text-[#2563EB] flex items-center justify-center shrink-0">
               <Award className="w-3.5 h-3.5 stroke-[2.2]" />
             </div>
             <div className="leading-tight">

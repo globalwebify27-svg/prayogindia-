@@ -102,11 +102,11 @@ export const RoboticsCollectionShowcase: React.FC<Props> = ({
                 <div className="relative z-10 h-full flex flex-col justify-between items-start p-5 sm:p-7 pointer-events-none">
                   {/* Top-Left Heading & Reveal Subtitle */}
                   <div className="space-y-2 max-w-full">
-                    <span className="text-[10px] font-semibold uppercase tracking-wider text-[#00AEEF] bg-black/50 backdrop-blur-md px-2.5 py-1 rounded-full border border-white/15 inline-flex items-center gap-1.5 shadow-sm whitespace-nowrap">
+                    <span className="text-[10px] font-semibold uppercase tracking-wider text-[#2563EB] bg-black/50 backdrop-blur-md px-2.5 py-1 rounded-full border border-white/15 inline-flex items-center gap-1.5 shadow-sm whitespace-nowrap">
                       <Icon className="w-3 h-3 shrink-0" />
                       {card.category}
                     </span>
-                    <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-white leading-tight tracking-tight group-hover:text-[#00AEEF] transition-colors duration-300">
+                    <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-white leading-tight tracking-tight group-hover:text-[#2563EB] transition-colors duration-300">
                       {card.title}
                     </h3>
                     {/* Expandable description on hover */}
@@ -118,7 +118,7 @@ export const RoboticsCollectionShowcase: React.FC<Props> = ({
                   {/* Bottom-Left Semi-Transparent Button */}
                   <div className="inline-flex items-center gap-3 pl-4 pr-1.5 py-1.5 rounded-full bg-white/15 group-hover:bg-white/25 backdrop-blur-md border border-white/30 text-xs font-bold text-white transition-all duration-300 shadow-md whitespace-nowrap">
                     <span>Learn More</span>
-                    <span className="w-7 h-7 rounded-full bg-white text-slate-950 flex items-center justify-center group-hover:bg-[#00AEEF] group-hover:text-white group-hover:translate-x-0.5 transition-all duration-300 shadow-xs shrink-0">
+                    <span className="w-7 h-7 rounded-full bg-white text-slate-950 flex items-center justify-center group-hover:bg-[#2563EB] group-hover:text-white group-hover:translate-x-0.5 transition-all duration-300 shadow-xs shrink-0">
                       <ArrowRight className="w-3.5 h-3.5 stroke-[2.5]" />
                     </span>
                   </div>

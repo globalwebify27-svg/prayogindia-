@@ -9,20 +9,28 @@ import {
   Star,
   ShoppingCart,
   Check,
+  Maximize2,
+  ArrowLeftRight,
+  Heart,
 } from "lucide-react";
 import { Product } from "@/data/mockData";
 import { useStore } from "@/context/StoreContext";
 import { haptic } from "@/utils/haptics";
 
+export interface PopularProduct extends Product {
+  secondaryImage?: string;
+}
+
 interface Props {
   onSelectCategory?: (category: string) => void;
   onAddToCart?: (product: Product) => void;
   onToggleWishlist?: (product: Product) => void;
+  onQuickView?: (product: Product) => void;
   wishlistIds?: string[];
 }
 
-// 16 Distinct, Premium Hardware Products with 100% Unique Images
-const POPULAR_PRODUCTS_DATA: Product[] = [
+// 16 Distinct, Premium Hardware Products with 100% Unique Images & Secondary Hover Angles
+const POPULAR_PRODUCTS_DATA: PopularProduct[] = [
   {
     id: "ard-uno-r3",
     slug: "arduino-uno-r3",
@@ -37,6 +45,7 @@ const POPULAR_PRODUCTS_DATA: Product[] = [
     reviews: 342,
     inStock: true,
     image: "/images/categories/arduino.jpg",
+    secondaryImage: "/images/products/arduino-uno-r3.png",
     description: "The gold standard prototyping board for robotics, IoT and mechatronics.",
     specs: { MCU: "ATmega328P", Voltage: "5V", Clock: "16 MHz" },
   },
@@ -54,6 +63,7 @@ const POPULAR_PRODUCTS_DATA: Product[] = [
     reviews: 184,
     inStock: true,
     image: "/images/robot_banner_stem.jpg",
+    secondaryImage: "/images/products/4wd-robot-chassis-kit.jpg",
     description: "Complete 4-wheel drive educational robotics kit with ultrasonic obstacle avoidance.",
     specs: { Chassis: "Dual-layer Acrylic", Wheels: "4x 65mm Rubber", Drive: "4x TT Gear Motors" },
   },
@@ -71,6 +81,7 @@ const POPULAR_PRODUCTS_DATA: Product[] = [
     reviews: 420,
     inStock: true,
     image: "/images/products/ultrasonic-sensor-hcsr04.png",
+    secondaryImage: "/images/categories/sensors.jpg",
     description: "High-accuracy dual ultrasonic distance sensor for obstacle detection and ranging.",
     specs: { Range: "2cm - 400cm", Angle: "15 degrees", Voltage: "5V DC" },
   },
@@ -88,6 +99,7 @@ const POPULAR_PRODUCTS_DATA: Product[] = [
     reviews: 95,
     inStock: true,
     image: "/images/categories/vip_drone.jpg",
+    secondaryImage: "/images/drone_cutout.jpg",
     description: "Industrial flight controller with dual redundant IMUs and PX4/ArduPilot support.",
     specs: { Processor: "STM32H753 480MHz", Sensors: "Dual IMU", Barometer: "MS5611" },
   },
@@ -105,6 +117,7 @@ const POPULAR_PRODUCTS_DATA: Product[] = [
     reviews: 310,
     inStock: true,
     image: "/images/categories/iot_wireless.jpg",
+    secondaryImage: "/images/categories/components.jpg",
     description: "Ultra-low power dual-core 240MHz SoC with integrated Wi-Fi and Bluetooth LE.",
     specs: { CPU: "Xtensa 32-bit LX6 240MHz", RAM: "520KB SRAM", Wireless: "802.11 b/g/n + BLE" },
   },
@@ -122,6 +135,7 @@ const POPULAR_PRODUCTS_DATA: Product[] = [
     reviews: 215,
     inStock: true,
     image: "/images/categories/raspberry_pi.jpg",
+    secondaryImage: "/images/pi_hero.jpg",
     description: "Next-gen 2.4GHz quad-core 64-bit Arm Cortex-A76 with dual 4K HDMI and PCIe 2.0.",
     specs: { CPU: "Broadcom BCM2712 2.4GHz", RAM: "8GB LPDDR4X", Display: "Dual 4K micro-HDMI" },
   },
@@ -139,6 +153,7 @@ const POPULAR_PRODUCTS_DATA: Product[] = [
     reviews: 260,
     inStock: true,
     image: "/images/products/l298n-motor-driver.jpg",
+    secondaryImage: "/images/categories/motors_robotics.jpg",
     description: "High-power motor driver capable of driving 2 DC motors or 1 bipolar stepper motor.",
     specs: { Chip: "L298N", "Peak Current": "2A per bridge", "Supply Voltage": "5V - 35V" },
   },
@@ -156,6 +171,7 @@ const POPULAR_PRODUCTS_DATA: Product[] = [
     reviews: 78,
     inStock: true,
     image: "/images/categories/robotics.jpg",
+    secondaryImage: "/images/robotics_arm_banner_v2.jpg",
     description: "All-aluminum 6 degrees of freedom robotic arm with high-torque MG996R metal gear servos.",
     specs: { DOF: "6 Degrees of Freedom", Servos: "6x Metal Gear MG996R", Material: "Anodized Aluminum" },
   },
@@ -173,6 +189,7 @@ const POPULAR_PRODUCTS_DATA: Product[] = [
     reviews: 112,
     inStock: true,
     image: "/images/drone_banner_lab.jpg",
+    secondaryImage: "/images/categories/drones.jpg",
     description: "All-in-one Bluetooth configurable flight controller and 50A BLHeli_S 4-in-1 ESC.",
     specs: { MCU: "STM32F405", ESC: "50A 4-in-1 6S Dshot600", Wireless: "Bluetooth BLE" },
   },
@@ -190,6 +207,7 @@ const POPULAR_PRODUCTS_DATA: Product[] = [
     reviews: 510,
     inStock: true,
     image: "/images/products/tt-gear-motor-wheel.png",
+    secondaryImage: "/images/categories/motors_robotics.jpg",
     description: "Reliable 1:48 reduction DC gearbox motor with high-grip rubber robotics tire.",
     specs: { Ratio: "1:48", Voltage: "3V - 6V DC", Speed: "200 RPM @ 6V" },
   },
@@ -207,6 +225,7 @@ const POPULAR_PRODUCTS_DATA: Product[] = [
     reviews: 189,
     inStock: true,
     image: "/images/categories/camera.jpg",
+    secondaryImage: "/images/categories/iot_wireless.jpg",
     description: "Compact wireless video streaming and facial recognition edge AI module with microSD slot.",
     specs: { Camera: "OV2640 2MP", Flash: "High-power White LED", Card: "TF Card up to 4GB" },
   },
@@ -224,6 +243,7 @@ const POPULAR_PRODUCTS_DATA: Product[] = [
     reviews: 84,
     inStock: true,
     image: "/images/products/4wd-robot-chassis-kit.jpg",
+    secondaryImage: "/images/robot_cutout.jpg",
     description: "Heavy-duty chassis with 4 omni-directional mecanum rollers for 360-degree lateral movement.",
     specs: { Wheels: "4x 80mm Mecanum Rollers", Material: "Laser-cut Acrylic", Motors: "4x TT Motors" },
   },
@@ -241,6 +261,7 @@ const POPULAR_PRODUCTS_DATA: Product[] = [
     reviews: 140,
     inStock: true,
     image: "/images/categories/stepper_motor.jpg",
+    secondaryImage: "/images/categories/3d_printing.jpg",
     description: "Precision 42mm stepper motor with 45N.cm holding torque for 3D printers and CNC machines.",
     specs: { "Step Angle": "1.8 deg", "Holding Torque": "45 N.cm", Current: "1.5A/phase" },
   },
@@ -258,6 +279,7 @@ const POPULAR_PRODUCTS_DATA: Product[] = [
     reviews: 290,
     inStock: true,
     image: "/images/categories/stem_kits.jpg",
+    secondaryImage: "/images/stem_robot_banner.jpg",
     description: "Over 45+ components including breadboard, sensors, LEDs, buzzer, and illustrated guidebook.",
     specs: { Components: "45+ Pieces", Compatibility: "Arduino & Micro:bit", Curriculum: "20 Lessons" },
   },
@@ -275,6 +297,7 @@ const POPULAR_PRODUCTS_DATA: Product[] = [
     reviews: 175,
     inStock: true,
     image: "/images/categories/tools.jpg",
+    secondaryImage: "/images/categories/components.jpg",
     description: "60W adjustable temperature soldering iron with digital multimeter, solder wire, and stand.",
     specs: { Power: "60W 110V/220V", Multimeter: "Auto-ranging Digital", Tips: "5x Interchangeable" },
   },
@@ -292,6 +315,7 @@ const POPULAR_PRODUCTS_DATA: Product[] = [
     reviews: 64,
     inStock: true,
     image: "/images/categories/3d_printing.jpg",
+    secondaryImage: "/images/categories/tools.jpg",
     description: "All-metal direct drive dual gear extruder assembly with titanium heatbreak for 3D printers.",
     specs: { Filament: "1.75mm PLA/PETG/ABS", MaxTemp: "300°C", Gear: "Dual Hardened Steel" },
   },
@@ -332,18 +356,24 @@ const POPULAR_TABS = [
 ];
 
 interface PopularProductCardProps {
-  product: Product;
+  product: PopularProduct;
   onAddToCart?: (product: Product) => void;
   onToggleWishlist?: (product: Product) => void;
+  onQuickView?: (product: Product) => void;
   isWishlisted?: boolean;
 }
 
 const PopularProductCard: React.FC<PopularProductCardProps> = ({
   product,
   onAddToCart,
+  onToggleWishlist,
+  onQuickView,
+  isWishlisted,
 }) => {
   const store = useStore();
   const [isAdded, setIsAdded] = useState(false);
+  const [isCompared, setIsCompared] = useState(false);
+  const [activeImageIdx, setActiveImageIdx] = useState<0 | 1>(0);
 
   const displayPrice = product.price;
   const displayMrp =
@@ -356,7 +386,18 @@ const PopularProductCard: React.FC<PopularProductCardProps> = ({
     Math.round((discountAmount / displayMrp) * 100),
   );
 
-  const isPng = product.image.endsWith(".png");
+  const primaryImage = product.image;
+  const secondaryImage =
+    product.secondaryImage || product.images?.[1] || primaryImage;
+  const hasSecondary = secondaryImage !== primaryImage;
+
+  const primaryIsPng = primaryImage.endsWith(".png");
+  const secondaryIsPng = secondaryImage.endsWith(".png");
+
+  const itemIsWishlisted =
+    typeof isWishlisted === "boolean"
+      ? isWishlisted
+      : (store?.isWishlisted?.(product.id) ?? false);
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -372,32 +413,164 @@ const PopularProductCard: React.FC<PopularProductCardProps> = ({
     setTimeout(() => setIsAdded(false), 2000);
   };
 
+  const handleToggleWishlist = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    haptic?.selection?.();
+
+    if (onToggleWishlist) {
+      onToggleWishlist(product);
+    } else if (store?.toggleWishlist) {
+      store.toggleWishlist(product);
+    }
+  };
+
+  const handleQuickView = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    haptic?.light?.();
+
+    if (onQuickView) {
+      onQuickView(product);
+    }
+  };
+
+  const handleCompare = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    haptic?.light?.();
+
+    setIsCompared(true);
+    store?.showToast?.({
+      title: "Comparison Added",
+      message: `${product.name} added to comparison list.`,
+      type: "success",
+    });
+    setTimeout(() => setIsCompared(false), 2500);
+  };
+
+  const handleToggleImage = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    haptic?.selection?.();
+    setActiveImageIdx((prev) => (prev === 0 ? 1 : 0));
+  };
+
   return (
     <div
       id={`popular-product-${product.id}`}
-      className="w-[200px] xs:w-[215px] sm:w-[230px] md:w-[245px] shrink-0 snap-start bg-white rounded-2xl border border-slate-200/90 overflow-hidden hover:shadow-lg transition-all duration-200 flex flex-col justify-between group font-sans"
+      className="w-[200px] xs:w-[215px] sm:w-[230px] md:w-[245px] shrink-0 snap-start bg-white rounded-2xl border border-slate-200/90 overflow-hidden hover:shadow-xl hover:border-slate-300 transition-all duration-300 flex flex-col justify-between group font-sans relative"
     >
-      {/* ── Top: Full-Bleed Product Image Container (Zero Padding) ── */}
+      {/* ── Top: Full-Bleed Product Image Container with Smooth Cross-Fade on Hover ── */}
       <div className="relative w-full aspect-[4/4.5] bg-slate-50 overflow-hidden">
-        {/* Rounded Squircle Discount Badge in Top-Left */}
-        <div className="absolute top-2.5 left-2.5 z-10 bg-[#FF3B30] text-white text-[11px] font-extrabold px-2 py-0.5 rounded-xl shadow-xs">
+        {/* Discount Badge in Top-Left (Matches screenshot red rounded badge) */}
+        <div className="absolute top-2.5 left-2.5 z-20 bg-[#FF3B30] text-white text-[11px] font-extrabold px-2 py-0.5 rounded-xl shadow-xs pointer-events-none">
           {discountPercent}%
         </div>
 
-        {/* Full Bleed Image with smooth hover scale */}
+        {/* ── Right Action Icons Stack (Slide + Fade in smoothly on hover) ── */}
+        <div className="absolute top-2.5 right-2.5 z-30 flex flex-col gap-1.5 opacity-0 translate-x-2.5 pointer-events-none group-hover:opacity-100 group-hover:translate-x-0 group-hover:pointer-events-auto transition-all duration-300 ease-out">
+          {/* 1. Quick View / Zoom */}
+          <button
+            type="button"
+            onClick={handleQuickView}
+            className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white/95 backdrop-blur-xs border border-slate-200/90 shadow-sm flex items-center justify-center text-slate-700 hover:text-[#2563EB] hover:border-blue-300 hover:bg-blue-50/80 active:scale-90 transition-all cursor-pointer"
+            title="Quick View"
+            aria-label="Quick View"
+          >
+            <Maximize2 className="w-3.5 h-3.5 stroke-[2.2]" />
+          </button>
+
+          {/* 2. Compare / Swap */}
+          <button
+            type="button"
+            onClick={handleCompare}
+            className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white/95 backdrop-blur-xs border shadow-sm flex items-center justify-center active:scale-90 transition-all cursor-pointer ${
+              isCompared
+                ? "border-emerald-400 text-emerald-600 bg-emerald-50"
+                : "border-slate-200/90 text-slate-700 hover:text-[#2563EB] hover:border-blue-300 hover:bg-blue-50/80"
+            }`}
+            title="Compare Product"
+            aria-label="Compare Product"
+          >
+            <ArrowLeftRight className="w-3.5 h-3.5 stroke-[2.2]" />
+          </button>
+
+          {/* 3. Wishlist Heart */}
+          <button
+            type="button"
+            onClick={handleToggleWishlist}
+            className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white/95 backdrop-blur-xs border shadow-sm flex items-center justify-center active:scale-90 transition-all cursor-pointer ${
+              itemIsWishlisted
+                ? "border-red-300 text-red-500 bg-red-50"
+                : "border-slate-200/90 text-slate-700 hover:text-red-500 hover:border-red-200 hover:bg-red-50/50"
+            }`}
+            title={itemIsWishlisted ? "Remove from Wishlist" : "Add to Wishlist"}
+            aria-label="Wishlist"
+          >
+            <Heart
+              className={`w-3.5 h-3.5 transition-colors ${
+                itemIsWishlisted ? "fill-red-500 text-red-500" : "stroke-[2.2]"
+              }`}
+            />
+          </button>
+        </div>
+
+        {/* ── Left Navigation Arrow (< Chevron, appears on hover like screenshot) ── */}
+        {hasSecondary && (
+          <button
+            type="button"
+            onClick={handleToggleImage}
+            className="absolute left-2 top-1/2 -translate-y-1/2 z-30 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white/95 backdrop-blur-xs border border-slate-200/90 shadow-sm flex items-center justify-center text-slate-700 hover:text-[#2563EB] hover:border-blue-300 opacity-0 -translate-x-2 pointer-events-none group-hover:opacity-100 group-hover:translate-x-0 group-hover:pointer-events-auto active:scale-90 transition-all duration-300 cursor-pointer"
+            title="Switch angle"
+            aria-label="Switch product view"
+          >
+            <ChevronLeft className="w-4 h-4 stroke-[2.5]" />
+          </button>
+        )}
+
+        {/* ── Product Images (Smooth Cross-Fade on Hover or Angle Click) ── */}
         <Link
           href={`/products/${product.slug || product.id}`}
           className="relative w-full h-full block cursor-pointer"
         >
-          <Image
-            src={product.image}
-            alt={product.name}
-            fill
-            sizes="(max-width: 640px) 210px, 260px"
-            className={`${
-              isPng ? "object-contain p-2.5" : "object-cover object-center"
-            } group-hover:scale-105 transition-transform duration-300`}
-          />
+          {/* Primary View */}
+          <div
+            className={`absolute inset-0 transition-opacity duration-500 ease-in-out ${
+              activeImageIdx === 0
+                ? "opacity-100 group-hover:opacity-0"
+                : "opacity-0"
+            }`}
+          >
+            <Image
+              src={primaryImage}
+              alt={product.name}
+              fill
+              sizes="(max-width: 640px) 210px, 260px"
+              className={`${
+                primaryIsPng ? "object-contain p-2.5" : "object-cover object-center"
+              } transition-transform duration-500 ease-out group-hover:scale-105`}
+            />
+          </div>
+
+          {/* Secondary View (smoothly cross-fades in on hover) */}
+          <div
+            className={`absolute inset-0 transition-opacity duration-500 ease-in-out ${
+              activeImageIdx === 1
+                ? "opacity-100"
+                : "opacity-0 group-hover:opacity-100"
+            }`}
+          >
+            <Image
+              src={secondaryImage}
+              alt={`${product.name} alternate angle`}
+              fill
+              sizes="(max-width: 640px) 210px, 260px"
+              className={`${
+                secondaryIsPng ? "object-contain p-2.5" : "object-cover object-center"
+              } transition-transform duration-500 ease-out group-hover:scale-105`}
+            />
+          </div>
         </Link>
       </div>
 
@@ -413,7 +586,7 @@ const PopularProductCard: React.FC<PopularProductCardProps> = ({
           </div>
 
           {/* Product Title (Bold Dark Slate/Black) */}
-          <h3 className="text-xs sm:text-[14px] font-bold text-slate-900 line-clamp-2 group-hover:text-[#00AEEF] transition-colors leading-snug">
+          <h3 className="text-xs sm:text-[14px] font-bold text-slate-900 line-clamp-2 group-hover:text-[#2563EB] transition-colors leading-snug">
             {product.name}
           </h3>
 
@@ -444,7 +617,7 @@ const PopularProductCard: React.FC<PopularProductCardProps> = ({
           className={`w-full py-2 sm:py-2.5 px-3 rounded-xl border text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all duration-150 active:scale-95 cursor-pointer shadow-2xs ${
             isAdded
               ? "bg-emerald-600 border-emerald-600 text-white"
-              : "border-[#FF3B30] text-[#FF3B30] hover:bg-[#FF3B30] hover:text-white"
+              : "border-[#2563EB] text-[#2563EB] hover:bg-[#2563EB] hover:text-white"
           }`}
         >
           {isAdded ? (
@@ -467,6 +640,7 @@ const PopularProductCard: React.FC<PopularProductCardProps> = ({
 export const FeaturedCategories: React.FC<Props> = ({
   onAddToCart,
   onToggleWishlist,
+  onQuickView,
   wishlistIds = [],
 }) => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -557,7 +731,7 @@ export const FeaturedCategories: React.FC<Props> = ({
                 }}
                 className={`text-xs sm:text-[13px] font-bold uppercase tracking-wider transition-all pb-1.5 whitespace-nowrap cursor-pointer ${
                   activeTab === tab.id
-                    ? "text-[#EF4444] border-b-2 border-[#EF4444]"
+                    ? "text-[#2563EB] border-b-2 border-[#2563EB]"
                     : "text-slate-500 hover:text-slate-800 border-b-2 border-transparent"
                 }`}
               >
@@ -576,7 +750,7 @@ export const FeaturedCategories: React.FC<Props> = ({
               type="button"
               onClick={() => handleManualScroll("left")}
               aria-label="Previous Products"
-              className="absolute -left-3 sm:-left-4 top-1/2 -translate-y-1/2 z-20 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white border border-slate-200 shadow-md flex items-center justify-center text-slate-700 hover:bg-[#EF4444] hover:text-white hover:border-[#EF4444] transition-all cursor-pointer active:scale-90"
+              className="absolute -left-3 sm:-left-4 top-1/2 -translate-y-1/2 z-20 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white border border-slate-200 shadow-md flex items-center justify-center text-slate-700 hover:bg-[#2563EB] hover:text-white hover:border-[#2563EB] transition-all cursor-pointer active:scale-90"
             >
               <ChevronLeft className="w-5 h-5" />
             </button>
@@ -588,7 +762,7 @@ export const FeaturedCategories: React.FC<Props> = ({
               type="button"
               onClick={() => handleManualScroll("right")}
               aria-label="Next Products"
-              className="absolute -right-3 sm:-right-4 top-1/2 -translate-y-1/2 z-20 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white border border-slate-200 shadow-md flex items-center justify-center text-slate-700 hover:bg-[#EF4444] hover:text-white hover:border-[#EF4444] transition-all cursor-pointer active:scale-90"
+              className="absolute -right-3 sm:-right-4 top-1/2 -translate-y-1/2 z-20 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white border border-slate-200 shadow-md flex items-center justify-center text-slate-700 hover:bg-[#2563EB] hover:text-white hover:border-[#2563EB] transition-all cursor-pointer active:scale-90"
             >
               <ChevronRight className="w-5 h-5" />
             </button>
@@ -613,6 +787,7 @@ export const FeaturedCategories: React.FC<Props> = ({
                   product={product}
                   onAddToCart={onAddToCart}
                   onToggleWishlist={onToggleWishlist}
+                  onQuickView={onQuickView}
                   isWishlisted={isWishlisted}
                 />
               );

@@ -80,7 +80,7 @@ export const DealsAndOffersSection: React.FC<Props> = ({ onShopDeals }) => {
 
           <button
             onClick={handleClaim}
-            className="text-xs sm:text-sm font-semibold text-[#00AEEF] hover:text-[#0096D6] flex items-center gap-1.5 group cursor-pointer transition-colors"
+            className="text-xs sm:text-sm font-semibold text-[#2563EB] hover:text-[#1D4ED8] flex items-center gap-1.5 group cursor-pointer transition-colors"
           >
             <span>View All Top Deals</span>
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
@@ -164,7 +164,7 @@ export const DealsAndOffersSection: React.FC<Props> = ({ onShopDeals }) => {
           {/* Deal Card 2: Welcome Offer */}
           <motion.div
             whileHover={{ y: -4 }}
-            className="rounded-3xl bg-white border border-sky-100 hover:border-[#00AEEF]/50 shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col justify-between group"
+            className="rounded-3xl bg-white border border-sky-100 hover:border-[#2563EB]/50 shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col justify-between group"
           >
             {/* Card Header Media */}
             <div className="relative h-44 sm:h-48 overflow-hidden bg-slate-950">
@@ -178,7 +178,7 @@ export const DealsAndOffersSection: React.FC<Props> = ({ onShopDeals }) => {
 
               {/* Badges Overlay */}
               <div className="absolute top-3 left-3 right-3 flex items-center justify-between gap-2 z-10">
-                <span className="bg-[#00AEEF] text-white text-[11px] font-semibold uppercase px-2.5 py-1 rounded-full flex items-center gap-1 shadow-md">
+                <span className="bg-[#2563EB] text-white text-[11px] font-semibold uppercase px-2.5 py-1 rounded-full flex items-center gap-1 shadow-md">
                   <Gift className="w-3 h-3" /> FIRST ORDER 10% OFF
                 </span>
                 <span className="bg-black/60 backdrop-blur-md text-white/90 text-[11px] font-medium px-2 py-0.5 rounded-lg border border-white/15">
@@ -209,7 +209,7 @@ export const DealsAndOffersSection: React.FC<Props> = ({ onShopDeals }) => {
                 <button
                   type="button"
                   onClick={() => handleCopyCode("NEWMAKER10")}
-                  className="inline-flex items-center gap-1.5 bg-slate-50 hover:bg-sky-50 text-slate-700 hover:text-[#00AEEF] px-2.5 py-1 rounded-lg border border-slate-200 hover:border-sky-200 text-xs font-mono font-semibold transition-all cursor-pointer"
+                  className="inline-flex items-center gap-1.5 bg-slate-50 hover:bg-sky-50 text-slate-700 hover:text-[#2563EB] px-2.5 py-1 rounded-lg border border-slate-200 hover:border-sky-200 text-xs font-mono font-semibold transition-all cursor-pointer"
                 >
                   <span>NEWMAKER10</span>
                   {copiedCode === "NEWMAKER10" ? (
@@ -223,7 +223,7 @@ export const DealsAndOffersSection: React.FC<Props> = ({ onShopDeals }) => {
               {/* Action CTA */}
               <button
                 onClick={handleClaim}
-                className="w-full bg-[#00AEEF] hover:bg-[#0096D6] text-white font-semibold py-2.5 rounded-xl text-xs uppercase tracking-wider transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-md shadow-[#00AEEF]/20"
+                className="w-full bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-semibold py-2.5 rounded-xl text-xs uppercase tracking-wider transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-md shadow-[#2563EB]/20"
               >
                 <span>Claim Discount</span>
                 <ArrowRight className="w-3.5 h-3.5 text-white" />

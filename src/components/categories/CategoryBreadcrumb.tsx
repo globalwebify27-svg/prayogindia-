@@ -23,7 +23,7 @@ export const CategoryBreadcrumb: React.FC<CategoryBreadcrumbProps> = ({
         <li className="flex items-center gap-1.5">
           <Link
             href="/"
-            className="hover:text-[#00AEEF] transition-colors flex items-center gap-1 focus:outline-none focus:ring-2 focus:ring-[#00AEEF]/50 rounded-sm"
+            className="hover:text-[#2563EB] transition-colors flex items-center gap-1 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/50 rounded-sm"
           >
             <Home className="w-3.5 h-3.5" />
             <span>Home</span>
@@ -39,7 +39,7 @@ export const CategoryBreadcrumb: React.FC<CategoryBreadcrumbProps> = ({
               {item.href && !isLast ? (
                 <Link
                   href={item.href}
-                  className="hover:text-[#00AEEF] transition-colors focus:outline-none focus:ring-2 focus:ring-[#00AEEF]/50 rounded-sm"
+                  className="hover:text-[#2563EB] transition-colors focus:outline-none focus:ring-2 focus:ring-[#2563EB]/50 rounded-sm"
                 >
                   {item.label}
                 </Link>

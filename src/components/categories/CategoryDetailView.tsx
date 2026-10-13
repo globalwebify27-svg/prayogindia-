@@ -250,7 +250,7 @@ export const CategoryDetailView: React.FC<CategoryDetailProps> = ({
           onClick={() => setMobileFilterOpen(true)}
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-bold text-slate-700 bg-slate-50 active:scale-95 shrink-0 shadow-2xs"
         >
-          <SlidersHorizontal className="w-3.5 h-3.5 text-[#00AEEF]" />
+          <SlidersHorizontal className="w-3.5 h-3.5 text-[#2563EB]" />
           <span>Filters</span>
         </button>
       </div>
@@ -260,17 +260,17 @@ export const CategoryDetailView: React.FC<CategoryDetailProps> = ({
         <div
           className="absolute inset-0 opacity-[0.03] pointer-events-none"
           style={{
-            backgroundImage: `radial-gradient(#00AEEF 1.5px, transparent 1.5px)`,
+            backgroundImage: `radial-gradient(#2563EB 1.5px, transparent 1.5px)`,
             backgroundSize: "20px 20px",
           }}
         />
-        <div className="absolute -top-24 -right-24 w-80 h-80 rounded-full bg-[#00AEEF]/8 blur-3xl pointer-events-none" />
+        <div className="absolute -top-24 -right-24 w-80 h-80 rounded-full bg-[#2563EB]/8 blur-3xl pointer-events-none" />
 
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6 lg:gap-10">
           <div className="space-y-3.5 max-w-2xl">
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-[#00AEEF]/10 text-[#0086B8] border border-[#00AEEF]/20">
-                <Sparkles className="w-3.5 h-3.5 text-[#00AEEF]" />
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-[#2563EB]/10 text-[#1D4ED8] border border-[#2563EB]/20">
+                <Sparkles className="w-3.5 h-3.5 text-[#2563EB]" />
                 {category.productCount.toLocaleString()}+ Hardware Items
               </span>
               <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200/60">
@@ -330,7 +330,7 @@ export const CategoryDetailView: React.FC<CategoryDetailProps> = ({
                 }
                 className={`px-3 py-1.5 rounded-full text-xs font-bold shrink-0 transition-all ${
                   isSelected
-                    ? "bg-[#00AEEF] text-white shadow-xs"
+                    ? "bg-[#2563EB] text-white shadow-xs"
                     : "bg-white text-slate-700 border border-slate-200"
                 }`}
               >
@@ -346,7 +346,7 @@ export const CategoryDetailView: React.FC<CategoryDetailProps> = ({
         <div className="hidden sm:block space-y-3">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-black text-slate-900 flex items-center gap-2">
-              <Layers className="w-4 h-4 text-[#00AEEF]" />
+              <Layers className="w-4 h-4 text-[#2563EB]" />
               <span>Subcategories in {category.name}</span>
             </h2>
             <span className="text-xs font-bold text-slate-400">
@@ -366,8 +366,8 @@ export const CategoryDetailView: React.FC<CategoryDetailProps> = ({
                   }
                   className={`group bg-white rounded-xl border p-3 flex items-center gap-3 transition-all text-left cursor-pointer ${
                     isSelected
-                      ? "border-[#00AEEF] ring-2 ring-[#00AEEF]/20 shadow-sm"
-                      : "border-slate-200 hover:border-[#00AEEF] hover:shadow-xs"
+                      ? "border-[#2563EB] ring-2 ring-[#2563EB]/20 shadow-sm"
+                      : "border-slate-200 hover:border-[#2563EB] hover:shadow-xs"
                   }`}
                 >
                   <div className="relative w-11 h-11 rounded-lg overflow-hidden shrink-0 bg-slate-50 border border-slate-100">
@@ -382,7 +382,7 @@ export const CategoryDetailView: React.FC<CategoryDetailProps> = ({
                   <div className="flex-1 min-w-0">
                     <h3
                       className={`text-xs font-extrabold truncate ${
-                        isSelected ? "text-[#00AEEF]" : "text-slate-900"
+                        isSelected ? "text-[#2563EB]" : "text-slate-900"
                       }`}
                     >
                       {sub.name}
@@ -472,7 +472,7 @@ export const CategoryDetailView: React.FC<CategoryDetailProps> = ({
               <button
                 type="button"
                 onClick={() => setVisibleCount((prev) => prev + itemsPerPage)}
-                className="bg-slate-900 hover:bg-[#00AEEF] text-white font-extrabold px-8 py-3 rounded-full text-xs uppercase tracking-wider transition-all shadow-md active:scale-95 cursor-pointer"
+                className="bg-slate-900 hover:bg-[#2563EB] text-white font-extrabold px-8 py-3 rounded-full text-xs uppercase tracking-wider transition-all shadow-md active:scale-95 cursor-pointer"
               >
                 Load More Products —{" "}
                 {filteredProducts.length - visibleCount} remaining

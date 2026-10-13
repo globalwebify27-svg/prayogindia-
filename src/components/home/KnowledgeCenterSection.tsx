@@ -48,7 +48,7 @@ export const KnowledgeCenterSection: React.FC = () => {
         {/* Section Header */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
           <div>
-            <span className="text-[11px] font-bold uppercase tracking-wider text-[#00AEEF] flex items-center gap-1.5">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-[#2563EB] flex items-center gap-1.5">
               <BookOpen className="w-3.5 h-3.5" /> Prayog Knowledge Center &amp;
               DIY Guides
             </span>
@@ -63,7 +63,7 @@ export const KnowledgeCenterSection: React.FC = () => {
 
           <Link
             href="/learning"
-            className="text-xs sm:text-sm font-semibold text-[#00AEEF] hover:underline flex items-center gap-1 group self-start sm:self-auto cursor-pointer"
+            className="text-xs sm:text-sm font-semibold text-[#2563EB] hover:underline flex items-center gap-1 group self-start sm:self-auto cursor-pointer"
           >
             <span>Explore All 50+ Guides</span>
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
@@ -76,7 +76,7 @@ export const KnowledgeCenterSection: React.FC = () => {
             <Link
               key={post.id}
               href={`/learning`}
-              className="bg-white rounded-3xl border border-slate-200 overflow-hidden hover:border-[#00AEEF] hover:shadow-xl transition-all duration-300 flex flex-col justify-between group"
+              className="bg-white rounded-3xl border border-slate-200 overflow-hidden hover:border-[#2563EB] hover:shadow-xl transition-all duration-300 flex flex-col justify-between group"
             >
               <div>
                 {/* Thumbnail */}
@@ -99,7 +99,7 @@ export const KnowledgeCenterSection: React.FC = () => {
                     <span>{post.readTime}</span>
                   </div>
 
-                  <h3 className="text-sm font-bold text-slate-900 group-hover:text-[#00AEEF] transition-colors leading-snug">
+                  <h3 className="text-sm font-bold text-slate-900 group-hover:text-[#2563EB] transition-colors leading-snug">
                     {post.title}
                   </h3>
 
@@ -110,7 +110,7 @@ export const KnowledgeCenterSection: React.FC = () => {
               </div>
 
               {/* Read Action */}
-              <div className="p-5 pt-0 flex items-center gap-1 text-xs font-semibold text-[#00AEEF]">
+              <div className="p-5 pt-0 flex items-center gap-1 text-xs font-semibold text-[#2563EB]">
                 <span>Read Full Guide</span>
                 <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
               </div>

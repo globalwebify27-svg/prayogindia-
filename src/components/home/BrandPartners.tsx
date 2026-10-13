@@ -219,10 +219,10 @@ const BRANDS = [
   },
   {
     name: "Pixhawk UAV",
-    brandColor: "#00AEEF",
-    hoverColorClass: "group-hover:text-[#00AEEF]",
-    hoverBorderClass: "hover:border-[#00AEEF]/50",
-    hoverBgClass: "hover:bg-[#00AEEF]/5",
+    brandColor: "#2563EB",
+    hoverColorClass: "group-hover:text-[#2563EB]",
+    hoverBorderClass: "hover:border-[#2563EB]/50",
+    hoverBgClass: "hover:bg-[#2563EB]/5",
     icon: PixhawkLogo,
   },
   {
@@ -283,10 +283,10 @@ const BRANDS = [
   },
   {
     name: "DJI Enterprise",
-    brandColor: "#00AEEF",
-    hoverColorClass: "group-hover:text-[#00AEEF]",
-    hoverBorderClass: "hover:border-[#00AEEF]/50",
-    hoverBgClass: "hover:bg-[#00AEEF]/5",
+    brandColor: "#2563EB",
+    hoverColorClass: "group-hover:text-[#2563EB]",
+    hoverBorderClass: "hover:border-[#2563EB]/50",
+    hoverBgClass: "hover:bg-[#2563EB]/5",
     icon: DjiLogo,
   },
   {

@@ -102,7 +102,7 @@ const QUICK_FILTERS = [
     label: "All Categories",
     query: "all",
     icon: LayoutGrid,
-    accent: "text-[#00AEEF] bg-sky-50",
+    accent: "text-[#2563EB] bg-blue-50",
   },
   {
     label: "Microcontrollers & SBCs",
@@ -187,7 +187,7 @@ export const ShopByCategory: React.FC<Props> = ({ onSelectCategory }) => {
   const INFINITE_CATEGORIES = [...CATEGORIES, ...CATEGORIES];
 
   return (
-    <section className="py-6 sm:py-8 lg:py-10 bg-white border-b border-slate-100">
+    <section className="pt-3 sm:pt-5 pb-6 sm:pb-8 bg-white border-b border-slate-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-3.5 sm:space-y-5">
         {/* Section Header with Controls */}
         <div className="flex items-center justify-between">
@@ -200,7 +200,7 @@ export const ShopByCategory: React.FC<Props> = ({ onSelectCategory }) => {
           <div className="flex items-center gap-3">
             <Link
               href="/categories"
-              className="text-xs sm:text-sm font-semibold text-[#00AEEF] hover:underline flex items-center gap-1 group cursor-pointer"
+              className="text-xs sm:text-sm font-semibold text-[#2563EB] hover:underline flex items-center gap-1 group cursor-pointer"
             >
               <span>View All</span>{" "}
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
@@ -208,34 +208,34 @@ export const ShopByCategory: React.FC<Props> = ({ onSelectCategory }) => {
           </div>
         </div>
 
-        {/* Mobile View: Horizontal Scrollable Category Circles (Fast e-commerce discovery) */}
-        <div
-          className="flex sm:hidden overflow-x-auto gap-3.5 pb-2 pt-1 scrollbar-none no-scrollbar touch-pan-x"
-          style={{ scrollbarWidth: "none" }}
-        >
-          {CATEGORIES.map((cat) => {
-            const Icon = cat.IconComponent;
-            return (
-              <button
-                key={cat.id}
-                type="button"
-                onClick={() => onSelectCategory?.(cat.name)}
-                className="flex flex-col items-center gap-1.5 shrink-0 group cursor-pointer focus:outline-none w-[72px]"
-              >
-                <div className="relative w-14 h-14 rounded-2xl overflow-hidden bg-slate-50 border border-slate-200/90 group-hover:border-[#00AEEF] p-1 shadow-2xs group-hover:scale-105 transition-transform duration-200">
-                  <Image
-                    src={cat.image}
-                    alt={cat.name}
-                    fill
-                    className="object-cover rounded-xl"
-                  />
-                </div>
-                <span className="text-[11px] font-bold text-slate-700 text-center leading-tight line-clamp-2 group-hover:text-[#00AEEF] transition-colors">
-                  {cat.name}
-                </span>
-              </button>
-            );
-          })}
+        {/* Mobile View: 4-Column Category Cards Grid (Matches Mobile Reference Layout) */}
+        <div className="grid grid-cols-4 gap-2 sm:hidden pt-0.5">
+          {CATEGORIES.slice(0, 4).map((cat) => (
+            <button
+              key={cat.id}
+              type="button"
+              onClick={() => onSelectCategory?.(cat.name)}
+              className="bg-white border border-slate-200/80 hover:border-[#2563EB]/50 rounded-xl p-2 sm:p-2.5 flex flex-col items-center justify-between text-center shadow-2xs active:scale-95 transition-all focus:outline-none"
+            >
+              <div className="relative w-11 h-11 mb-1.5 rounded-lg overflow-hidden bg-slate-50 flex items-center justify-center">
+                <Image
+                  src={cat.image}
+                  alt={cat.name}
+                  fill
+                  className="object-cover"
+                />
+              </div>
+              <span className="text-[11px] font-bold text-slate-800 text-center leading-tight line-clamp-1">
+                {cat.id === "robotics"
+                  ? "Robotics"
+                  : cat.id === "sensors"
+                  ? "Sensors"
+                  : cat.id === "drones"
+                  ? "Drones"
+                  : cat.name}
+              </span>
+            </button>
+          ))}
         </div>
 
         {/* Desktop View: 4-Column Category Grid */}
@@ -244,7 +244,7 @@ export const ShopByCategory: React.FC<Props> = ({ onSelectCategory }) => {
             <div
               key={cat.id}
               onClick={() => onSelectCategory?.(cat.name)}
-              className="bg-white hover:bg-[#E0F7FC]/30 border border-slate-200/90 hover:border-[#00AEEF]/50 rounded-2xl p-4 cursor-pointer transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 group flex flex-col items-center text-center"
+              className="bg-white hover:bg-[#EFF6FF]/60 border border-slate-200/90 hover:border-[#2563EB]/40 rounded-2xl p-4 cursor-pointer transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 group flex flex-col items-center text-center"
             >
               {/* Category Image */}
               <div className="relative h-32 lg:h-36 w-full mb-3 rounded-xl overflow-hidden bg-slate-50 border border-slate-100 shadow-2xs">
@@ -257,7 +257,7 @@ export const ShopByCategory: React.FC<Props> = ({ onSelectCategory }) => {
               </div>
 
               {/* Category Name */}
-              <h3 className="text-sm font-bold text-slate-800 group-hover:text-[#00AEEF] transition-colors leading-tight">
+              <h3 className="text-sm font-bold text-slate-800 group-hover:text-[#2563EB] transition-colors leading-tight">
                 {cat.name}
               </h3>
             </div>

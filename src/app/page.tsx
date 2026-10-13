@@ -167,6 +167,7 @@ export default function Home() {
               onSelectCategory={handleCategoryNavigation}
               onAddToCart={handleAddToCart}
               onToggleWishlist={handleToggleWishlist}
+              onQuickView={(prod) => setSelectedQuickView(prod)}
               wishlistIds={wishlistIds}
             />
 
@@ -223,6 +224,10 @@ export default function Home() {
               onSelectCategory={(catName) =>
                 handleTabChange("products", catName)
               }
+              onAddToCart={handleAddToCart}
+              onToggleWishlist={handleToggleWishlist}
+              onQuickView={(prod) => setSelectedQuickView(prod)}
+              wishlistIds={wishlistIds}
             />
             <ProductGridSection
               onAddToCart={handleAddToCart}

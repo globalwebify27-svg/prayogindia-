@@ -13,7 +13,7 @@ export const CategoryCollections: React.FC = () => {
       {/* Header: Clean & Modern without dark container */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
         <div>
-          <span className="inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-[#00AEEF] bg-[#E0F7FC] border border-[#00AEEF]/20 px-3 py-1 rounded-full">
+          <span className="inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-[#2563EB] bg-[#EFF6FF] border border-[#2563EB]/20 px-3 py-1 rounded-full">
             <Sparkles className="w-3 h-3" /> Product Ecosystems
           </span>
           <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight mt-2">
@@ -38,7 +38,7 @@ export const CategoryCollections: React.FC = () => {
           >
             <Link
               href={`/categories/${eco.categorySlug}`}
-              className="group relative h-64 sm:h-72 rounded-2xl overflow-hidden block border border-slate-200/90 hover:border-[#00AEEF] bg-slate-900 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 p-5 flex flex-col justify-end"
+              className="group relative h-64 sm:h-72 rounded-2xl overflow-hidden block border border-slate-200/90 hover:border-[#2563EB] bg-slate-900 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 p-5 flex flex-col justify-end"
             >
               {/* Image with smooth zoom */}
               <Image
@@ -57,12 +57,12 @@ export const CategoryCollections: React.FC = () => {
                   <span className="bg-white/15 backdrop-blur-md text-[#FFC20E] text-[9px] font-black uppercase px-2.5 py-0.5 rounded-md border border-white/20 tracking-wider">
                     {eco.tag}
                   </span>
-                  <div className="w-7 h-7 rounded-full bg-white/15 backdrop-blur-md border border-white/20 flex items-center justify-center text-white group-hover:bg-[#00AEEF] group-hover:border-[#00AEEF] transition-all">
+                  <div className="w-7 h-7 rounded-full bg-white/15 backdrop-blur-md border border-white/20 flex items-center justify-center text-white group-hover:bg-[#2563EB] group-hover:border-[#2563EB] transition-all">
                     <ArrowUpRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
                   </div>
                 </div>
 
-                <h3 className="text-base sm:text-lg font-black text-white leading-snug group-hover:text-[#00AEEF] transition-colors line-clamp-2">
+                <h3 className="text-base sm:text-lg font-black text-white leading-snug group-hover:text-[#2563EB] transition-colors line-clamp-2">
                   {eco.title}
                 </h3>
 

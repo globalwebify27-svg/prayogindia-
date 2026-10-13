@@ -28,11 +28,11 @@ export const FooterSection: React.FC = () => {
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
             {/* Left: Classic Brand & Newsletter Headline */}
             <div className="flex items-start sm:items-center gap-4">
-              <div className="w-12 h-12 rounded-2xl bg-[#E0F7FC] text-[#00AEEF] flex items-center justify-center shrink-0 border border-[#00AEEF]/20 shadow-xs">
+              <div className="w-12 h-12 rounded-2xl bg-[#EFF6FF] text-[#2563EB] flex items-center justify-center shrink-0 border border-[#2563EB]/20 shadow-xs">
                 <Mail className="w-6 h-6" />
               </div>
               <div>
-                <div className="inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wider text-[#00AEEF] bg-[#00AEEF]/10 px-2.5 py-0.5 rounded-full mb-1">
+                <div className="inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wider text-[#2563EB] bg-[#2563EB]/10 px-2.5 py-0.5 rounded-full mb-1">
                   Prayog India Community
                 </div>
                 <h3 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight leading-snug">
@@ -65,12 +65,12 @@ export const FooterSection: React.FC = () => {
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder="Enter your email address"
                         required
-                        className="w-full bg-white text-slate-900 placeholder:text-slate-400 px-4 py-2.5 text-sm rounded-xl border border-slate-300 focus:outline-none focus:border-[#00AEEF] focus:ring-1 focus:ring-[#00AEEF] shadow-xs transition-all font-medium"
+                        className="w-full bg-white text-slate-900 placeholder:text-slate-400 px-4 py-2.5 text-sm rounded-xl border border-slate-300 focus:outline-none focus:border-[#2563EB] focus:ring-1 focus:ring-[#2563EB] shadow-xs transition-all font-medium"
                       />
                     </div>
                     <button
                       type="submit"
-                      className="bg-[#00AEEF] hover:bg-[#0096D6] active:scale-[0.98] text-white font-bold text-sm px-6 py-2.5 rounded-xl transition-all shadow-md shadow-[#00AEEF]/20 flex items-center justify-center gap-2 shrink-0 cursor-pointer"
+                      className="bg-[#2563EB] hover:bg-[#1D4ED8] active:scale-[0.98] text-white font-bold text-sm px-6 py-2.5 rounded-xl transition-all shadow-md shadow-[#2563EB]/20 flex items-center justify-center gap-2 shrink-0 cursor-pointer"
                     >
                       <span>Subscribe</span>
                       <Send className="w-3.5 h-3.5" />
@@ -107,7 +107,7 @@ export const FooterSection: React.FC = () => {
                   <span>Ranchi Main Hub, Jharkhand &amp; Delhi NCR</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Phone className="w-3.5 h-3.5 text-[#00AEEF] shrink-0" />
+                  <Phone className="w-3.5 h-3.5 text-[#2563EB] shrink-0" />
                   <a
                     href="tel:+919153988390"
                     className="hover:text-white transition-colors"
@@ -191,7 +191,7 @@ export const FooterSection: React.FC = () => {
                 <li>
                   <Link
                     href="/brands"
-                    className="hover:text-white transition-colors text-[#00AEEF] font-bold"
+                    className="hover:text-white transition-colors text-[#2563EB] font-bold"
                   >
                     Official Brand Partners &rarr;
                   </Link>
@@ -248,7 +248,7 @@ export const FooterSection: React.FC = () => {
                 <li>
                   <Link
                     href="/services"
-                    className="hover:text-white transition-colors text-[#00AEEF] font-bold"
+                    className="hover:text-white transition-colors text-[#2563EB] font-bold"
                   >
                     View All Services &rarr;
                   </Link>

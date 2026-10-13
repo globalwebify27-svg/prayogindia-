@@ -23,7 +23,7 @@ export const CategorySearch: React.FC<CategorySearchProps> = ({
           value={searchQuery}
           onChange={(e) => onSearchChange(e.target.value)}
           placeholder="Search categories..."
-          className="w-full bg-slate-50 text-slate-900 text-xs sm:text-sm pl-10 pr-10 py-3 rounded-2xl border border-slate-200 focus:outline-none focus:border-[#00AEEF] focus:bg-white focus:ring-4 focus:ring-[#00AEEF]/10 transition-all shadow-2xs"
+          className="w-full bg-slate-50 text-slate-900 text-xs sm:text-sm pl-10 pr-10 py-3 rounded-2xl border border-slate-200 focus:outline-none focus:border-[#2563EB] focus:bg-white focus:ring-4 focus:ring-[#2563EB]/10 transition-all shadow-2xs"
           aria-label="Search categories"
         />
         {searchQuery && (

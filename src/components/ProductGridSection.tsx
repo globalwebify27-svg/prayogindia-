@@ -418,7 +418,7 @@ export const ProductGridSection: React.FC<ProductSectionProps> = ({
       id="featured-products"
       className="py-5 sm:py-10 bg-slate-50/70 border-b border-slate-200/80 scroll-mt-20"
     >
-      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 space-y-4 sm:space-y-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4 sm:space-y-6">
         {/* Main Section Header */}
         <div className="space-y-2.5 sm:space-y-4">
           <div className="flex items-center justify-between gap-2">
@@ -449,7 +449,7 @@ export const ProductGridSection: React.FC<ProductSectionProps> = ({
                   onClick={() => setViewMode("curated")}
                   className={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg transition-all flex items-center cursor-pointer ${
                     viewMode === "curated"
-                      ? "bg-[#00AEEF] text-white shadow-xs"
+                      ? "bg-[#2563EB] text-white shadow-xs"
                       : "text-slate-600 hover:text-slate-900"
                   }`}
                 >
@@ -459,7 +459,7 @@ export const ProductGridSection: React.FC<ProductSectionProps> = ({
 
               <button
                 onClick={() => onSeeAll?.("all")}
-                className="text-xs sm:text-sm font-bold text-[#00AEEF] hover:text-[#0086B8] hover:underline flex items-center gap-0.5 sm:gap-1 px-1.5 sm:px-3 py-1 cursor-pointer shrink-0"
+                className="text-xs sm:text-sm font-bold text-[#2563EB] hover:text-[#1D4ED8] hover:underline flex items-center gap-0.5 sm:gap-1 px-1.5 sm:px-3 py-1 cursor-pointer shrink-0"
               >
                 <span>View All</span>
                 <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
@@ -494,7 +494,7 @@ export const ProductGridSection: React.FC<ProductSectionProps> = ({
                 <button
                   key={`${catName}-${idx}`}
                   onClick={() => scrollToCategoryShelf(catName)}
-                  className="shrink-0 bg-slate-50 hover:bg-[#E0F7FC] text-slate-700 hover:text-[#00AEEF] border border-slate-200/80 hover:border-[#00AEEF]/40 px-3 py-1.5 rounded-lg font-medium flex items-center transition-all cursor-pointer shadow-2xs group text-xs"
+                  className="shrink-0 bg-slate-50 hover:bg-[#EFF6FF] text-slate-700 hover:text-[#2563EB] border border-slate-200/80 hover:border-[#2563EB]/40 px-3 py-1.5 rounded-lg font-medium flex items-center transition-all cursor-pointer shadow-2xs group text-xs"
                 >
                   <span className="whitespace-nowrap">{catName}</span>
                 </button>
@@ -539,7 +539,7 @@ export const ProductGridSection: React.FC<ProductSectionProps> = ({
                     {/* See All Category Link */}
                     <button
                       onClick={() => onSeeAll?.(category)}
-                      className="text-xs sm:text-sm font-semibold text-[#00AEEF] hover:text-[#0086B8] hover:underline transition-colors flex items-center gap-1 group/seeall cursor-pointer shrink-0"
+                      className="text-xs sm:text-sm font-semibold text-[#2563EB] hover:text-[#1D4ED8] hover:underline transition-colors flex items-center gap-1 group/seeall cursor-pointer shrink-0"
                     >
                       <span>View all</span>
                       <ChevronRight className="w-4 h-4 group-hover/seeall:translate-x-1 transition-transform" />
@@ -551,7 +551,7 @@ export const ProductGridSection: React.FC<ProductSectionProps> = ({
                     {/* Left Scroll Button */}
                     <button
                       onClick={() => scrollCategory(category, "left")}
-                      className="absolute -left-4 top-1/2 -translate-y-1/2 z-20 w-11 h-11 bg-white/95 border border-slate-200 rounded-full shadow-xl flex items-center justify-center text-slate-700 hover:bg-[#00AEEF] hover:text-white hover:border-[#00AEEF] transition-all opacity-0 group-hover/section:opacity-100 hidden sm:flex cursor-pointer"
+                      className="absolute -left-4 top-1/2 -translate-y-1/2 z-20 w-11 h-11 bg-white/95 border border-slate-200 rounded-full shadow-xl flex items-center justify-center text-slate-700 hover:bg-[#2563EB] hover:text-white hover:border-[#2563EB] transition-all opacity-0 group-hover/section:opacity-100 hidden sm:flex cursor-pointer"
                       aria-label={`Scroll ${category} Left`}
                     >
                       <ChevronLeft className="w-5 h-5 stroke-[2.5]" />
@@ -560,7 +560,7 @@ export const ProductGridSection: React.FC<ProductSectionProps> = ({
                     {/* Right Scroll Button */}
                     <button
                       onClick={() => scrollCategory(category, "right")}
-                      className="absolute -right-4 top-1/2 -translate-y-1/2 z-20 w-11 h-11 bg-white/95 border border-slate-200 rounded-full shadow-xl flex items-center justify-center text-slate-700 hover:bg-[#00AEEF] hover:text-white hover:border-[#00AEEF] transition-all opacity-0 group-hover/section:opacity-100 hidden sm:flex cursor-pointer"
+                      className="absolute -right-4 top-1/2 -translate-y-1/2 z-20 w-11 h-11 bg-white/95 border border-slate-200 rounded-full shadow-xl flex items-center justify-center text-slate-700 hover:bg-[#2563EB] hover:text-white hover:border-[#2563EB] transition-all opacity-0 group-hover/section:opacity-100 hidden sm:flex cursor-pointer"
                       aria-label={`Scroll ${category} Right`}
                     >
                       <ChevronRight className="w-5 h-5 stroke-[2.5]" />
@@ -617,7 +617,7 @@ export const ProductGridSection: React.FC<ProductSectionProps> = ({
                 onClick={() => setActiveCuratedTab("new_arrivals")}
                 className={`px-4 py-2.5 rounded-2xl font-extrabold flex items-center transition-all whitespace-nowrap cursor-pointer ${
                   activeCuratedTab === "new_arrivals"
-                    ? "bg-gradient-to-r from-[#00AEEF] to-cyan-600 text-white shadow-md shadow-[#00AEEF]/20"
+                    ? "bg-gradient-to-r from-[#2563EB] to-blue-700 text-white shadow-md shadow-blue-500/20"
                     : "bg-white text-slate-700 hover:bg-slate-100 border border-slate-200"
                 }`}
               >
@@ -651,7 +651,7 @@ export const ProductGridSection: React.FC<ProductSectionProps> = ({
             <div className="relative group/curated">
               <button
                 onClick={() => scrollCurated("left")}
-                className="absolute -left-4 top-1/2 -translate-y-1/2 z-20 w-11 h-11 bg-white/95 border border-slate-200 rounded-full shadow-xl flex items-center justify-center text-slate-700 hover:bg-[#00AEEF] hover:text-white hover:border-[#00AEEF] transition-all opacity-0 group-hover/curated:opacity-100 hidden sm:flex cursor-pointer"
+                className="absolute -left-4 top-1/2 -translate-y-1/2 z-20 w-11 h-11 bg-white/95 border border-slate-200 rounded-full shadow-xl flex items-center justify-center text-slate-700 hover:bg-[#2563EB] hover:text-white hover:border-[#2563EB] transition-all opacity-0 group-hover/curated:opacity-100 hidden sm:flex cursor-pointer"
                 aria-label="Previous"
               >
                 <ChevronLeft className="w-5 h-5 stroke-[2.5]" />
@@ -659,7 +659,7 @@ export const ProductGridSection: React.FC<ProductSectionProps> = ({
 
               <button
                 onClick={() => scrollCurated("right")}
-                className="absolute -right-4 top-1/2 -translate-y-1/2 z-20 w-11 h-11 bg-white/95 border border-slate-200 rounded-full shadow-xl flex items-center justify-center text-slate-700 hover:bg-[#00AEEF] hover:text-white hover:border-[#00AEEF] transition-all opacity-0 group-hover/curated:opacity-100 hidden sm:flex cursor-pointer"
+                className="absolute -right-4 top-1/2 -translate-y-1/2 z-20 w-11 h-11 bg-white/95 border border-slate-200 rounded-full shadow-xl flex items-center justify-center text-slate-700 hover:bg-[#2563EB] hover:text-white hover:border-[#2563EB] transition-all opacity-0 group-hover/curated:opacity-100 hidden sm:flex cursor-pointer"
                 aria-label="Next"
               >
                 <ChevronRight className="w-5 h-5 stroke-[2.5]" />

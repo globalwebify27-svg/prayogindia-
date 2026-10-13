@@ -41,12 +41,12 @@ const CARDS: OfferCardData[] = [
     id: "1",
     tag: "BUDGET HARDWARE DEALS",
     badge: "Flat 50% Off",
-    badgeBg: "bg-[#00AEEF] text-white",
+    badgeBg: "bg-[#2563EB] text-white",
     title: "Under ₹699 Store",
     subtitle: "Sensors, Modules & Breadboards",
     bgGradient: "from-[#0B2545] via-[#134074] to-[#0B1D3A]",
-    borderColor: "border-[#00AEEF]/40 hover:border-[#00AEEF]",
-    accentColor: "#00AEEF",
+    borderColor: "border-[#2563EB]/40 hover:border-[#2563EB]",
+    accentColor: "#2563EB",
     type: "single",
     mainImage:
       "https://images.unsplash.com/photo-1553406830-ef2513450d76?auto=format&fit=crop&w=600&q=80",
@@ -147,7 +147,7 @@ export const TrendingOfferBanners: React.FC<Props> = ({ onShopDeals }) => {
         {/* Clean Light-Themed Section Header - Responsive Mobile Stack */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
           <div className="space-y-1">
-            <span className="text-[11px] font-black uppercase tracking-widest text-[#00AEEF] block">
+            <span className="text-[11px] font-black uppercase tracking-widest text-[#2563EB] block">
               EXCLUSIVE MAKER OFFERS
             </span>
             <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
@@ -162,14 +162,14 @@ export const TrendingOfferBanners: React.FC<Props> = ({ onShopDeals }) => {
             <div className="flex items-center gap-2">
               <button
                 onClick={() => scrollManual("left")}
-                className="w-9 h-9 rounded-full border border-slate-200 bg-white hover:bg-[#00AEEF] text-slate-600 hover:text-white flex items-center justify-center transition-colors shadow-xs cursor-pointer active:scale-95"
+                className="w-9 h-9 rounded-full border border-slate-200 bg-white hover:bg-[#2563EB] text-slate-600 hover:text-white flex items-center justify-center transition-colors shadow-xs cursor-pointer active:scale-95"
                 aria-label="Previous"
               >
                 <ChevronLeft className="w-4 h-4" />
               </button>
               <button
                 onClick={() => scrollManual("right")}
-                className="w-9 h-9 rounded-full border border-slate-200 bg-white hover:bg-[#00AEEF] text-slate-600 hover:text-white flex items-center justify-center transition-colors shadow-xs cursor-pointer active:scale-95"
+                className="w-9 h-9 rounded-full border border-slate-200 bg-white hover:bg-[#2563EB] text-slate-600 hover:text-white flex items-center justify-center transition-colors shadow-xs cursor-pointer active:scale-95"
                 aria-label="Next"
               >
                 <ChevronRight className="w-4 h-4" />
@@ -212,7 +212,7 @@ export const TrendingOfferBanners: React.FC<Props> = ({ onShopDeals }) => {
                 </div>
 
                 <div>
-                  <h3 className="text-xl font-black text-white leading-tight group-hover:text-[#00AEEF] transition-colors">
+                  <h3 className="text-xl font-black text-white leading-tight group-hover:text-[#2563EB] transition-colors">
                     {card.title}
                   </h3>
                   <p className="text-xs text-slate-300/80 font-medium mt-1">
@@ -239,7 +239,7 @@ export const TrendingOfferBanners: React.FC<Props> = ({ onShopDeals }) => {
                   {card.statLabel && (
                     <div className="bg-white/10 backdrop-blur-md border border-white/10 rounded-2xl p-2.5 flex justify-between items-center text-white text-xs font-bold">
                       <div className="flex items-center gap-2">
-                        <div className="w-6 h-6 rounded-lg bg-[#00AEEF] flex items-center justify-center font-black text-[10px]">
+                        <div className="w-6 h-6 rounded-lg bg-[#2563EB] flex items-center justify-center font-black text-[10px]">
                           ₹
                         </div>
                         <div>
@@ -301,7 +301,7 @@ export const TrendingOfferBanners: React.FC<Props> = ({ onShopDeals }) => {
               <div className="bg-white/95 text-slate-900 p-3 rounded-2xl flex items-center justify-between shadow-md z-10 transition-transform group-hover:translate-y-[-2px]">
                 <div className="flex items-center gap-2.5">
                   <div className="w-7 h-7 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center shrink-0">
-                    <Award className="w-4 h-4 text-[#00AEEF]" />
+                    <Award className="w-4 h-4 text-[#2563EB]" />
                   </div>
                   <div>
                     <span className="text-[11px] font-extrabold block leading-tight text-slate-900">

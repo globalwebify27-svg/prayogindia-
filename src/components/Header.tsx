@@ -269,7 +269,27 @@ export const Header: React.FC<HeaderProps> = ({
   const searchContainerRef = useRef<HTMLDivElement>(null);
   const categoryMenuRef = useRef<HTMLDivElement>(null);
   const mobileCategoryMenuRef = useRef<HTMLDivElement>(null);
+  const mobileCategoryDropdownRef = useRef<HTMLDivElement>(null);
   const accountMenuRef = useRef<HTMLDivElement>(null);
+
+  const categoryCloseTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  const handleCategoryMouseEnter = () => {
+    if (categoryCloseTimerRef.current) {
+      clearTimeout(categoryCloseTimerRef.current);
+      categoryCloseTimerRef.current = null;
+    }
+    setCategoryDropdownOpen(true);
+  };
+
+  const handleCategoryMouseLeave = () => {
+    if (categoryCloseTimerRef.current) {
+      clearTimeout(categoryCloseTimerRef.current);
+    }
+    categoryCloseTimerRef.current = setTimeout(() => {
+      setCategoryDropdownOpen(false);
+    }, 120);
+  };
 
   useEffect(() => {
     const handleOutside = (event: MouseEvent | TouchEvent) => {
@@ -291,7 +311,11 @@ export const Header: React.FC<HeaderProps> = ({
       const isInsideMobile =
         mobileCategoryMenuRef.current &&
         mobileCategoryMenuRef.current.contains(event.target as Node);
-      if (!isInsideDesktop && !isInsideMobile) {
+      const isInsideMobileDropdown =
+        mobileCategoryDropdownRef.current &&
+        mobileCategoryDropdownRef.current.contains(event.target as Node);
+      if (!isInsideDesktop && !isInsideMobile && !isInsideMobileDropdown) {
+        if (categoryCloseTimerRef.current) clearTimeout(categoryCloseTimerRef.current);
         setCategoryDropdownOpen(false);
       }
     };
@@ -441,7 +465,7 @@ export const Header: React.FC<HeaderProps> = ({
                             ? "bg-emerald-500 text-white"
                             : isMedium
                               ? "bg-amber-400 text-slate-950 font-black"
-                              : "bg-[#00AEEF] text-white"
+                              : "bg-[#2563EB] text-white"
                       }`}
                     >
                       {activeItem.badgeTag}
@@ -476,7 +500,7 @@ export const Header: React.FC<HeaderProps> = ({
             <span>•</span>
             <button
               onClick={onOpenB2BModal}
-              className="text-[#00AEEF] hover:text-[#0096D6] font-bold cursor-pointer"
+              className="text-[#2563EB] hover:text-[#1D4ED8] font-bold cursor-pointer"
             >
               B2B Institutional Sales
             </button>
@@ -490,8 +514,42 @@ export const Header: React.FC<HeaderProps> = ({
           isScrolled ? "shadow-md" : "shadow-xs"
         }`}
       >
-        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-2.5 sm:py-3.5">
-          <div className="flex items-center justify-between gap-2 sm:gap-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 sm:py-3.5">
+          {/* Mobile Top Header (Target Layout): [ Hamburger ☰ ] [ Centered Logo ] [ Cart 🛒 ] */}
+          <div className="flex sm:hidden items-center justify-between py-0.5">
+            {/* Left: Hamburger Menu Button */}
+            <button
+              type="button"
+              onClick={() => setMobileMenuOpen(true)}
+              className="p-1.5 -ml-1 text-slate-800 hover:text-slate-950 hover:bg-slate-100 rounded-xl cursor-pointer transition-colors active:scale-95"
+              aria-label="Open Navigation Menu"
+            >
+              <Menu className="w-6 h-6 stroke-[2]" />
+            </button>
+
+            {/* Center: Brand Logo */}
+            <Link href="/" className="shrink-0 flex items-center justify-center">
+              <PrayogLogo size="md" />
+            </Link>
+
+            {/* Right: Cart Button */}
+            <button
+              type="button"
+              onClick={onOpenCart}
+              className="relative p-1.5 -mr-1 text-slate-800 hover:text-[#2563EB] transition-colors flex items-center justify-center cursor-pointer active:scale-95"
+              aria-label="Shopping Cart"
+            >
+              <ShoppingBag className="w-6 h-6 stroke-[1.8]" />
+              {cartCount > 0 && (
+                <span className="absolute top-0 right-0 w-4.5 h-4.5 bg-[#2563EB] text-white font-bold text-[10px] rounded-full flex items-center justify-center shadow-xs">
+                  {cartCount}
+                </span>
+              )}
+            </button>
+          </div>
+
+          {/* Desktop Header Row (hidden sm:flex) */}
+          <div className="hidden sm:flex items-center justify-between gap-2 sm:gap-4">
             {/* Brand Logo */}
             <Link href="/" className="shrink-0 flex items-center min-w-0">
               <PrayogLogo size="md" />
@@ -506,13 +564,13 @@ export const Header: React.FC<HeaderProps> = ({
               <div
                 ref={categoryMenuRef}
                 className="relative shrink-0"
-                onMouseEnter={() => setCategoryDropdownOpen(true)}
-                onMouseLeave={() => setCategoryDropdownOpen(false)}
+                onMouseEnter={handleCategoryMouseEnter}
+                onMouseLeave={handleCategoryMouseLeave}
               >
                 <button
                   type="button"
                   onClick={() => setCategoryDropdownOpen(!categoryDropdownOpen)}
-                  className="flex items-center gap-1.5 px-3.5 py-2 bg-[#00AEEF] hover:bg-[#0096D6] text-white rounded-full font-black text-xs shadow-xs cursor-pointer transition-all active:scale-95"
+                  className="flex items-center gap-1.5 px-3.5 py-2 bg-[#2563EB] hover:bg-[#1D4ED8] text-white rounded-full font-black text-xs shadow-xs cursor-pointer transition-all active:scale-95"
                 >
                   <LayoutGrid className="w-3.5 h-3.5" />
                   <span>All Categories</span>
@@ -529,7 +587,7 @@ export const Header: React.FC<HeaderProps> = ({
                       <Link
                         href="/categories"
                         onClick={() => setCategoryDropdownOpen(false)}
-                        className="text-[#00AEEF] hover:underline font-bold"
+                        className="text-[#2563EB] hover:underline font-bold"
                       >
                         View All →
                       </Link>
@@ -539,15 +597,15 @@ export const Header: React.FC<HeaderProps> = ({
                         key={cat.slug}
                         href={cat.href}
                         onClick={() => setCategoryDropdownOpen(false)}
-                        className="flex items-center justify-between p-2 rounded-xl hover:bg-[#E0F7FC] hover:text-[#00AEEF] transition-colors group"
+                        className="flex items-center justify-between p-2 rounded-xl hover:bg-[#EFF6FF] hover:text-[#2563EB] transition-colors group"
                       >
                         <span className="flex items-center gap-2.5 min-w-0">
-                          <span className="w-7 h-7 rounded-lg bg-slate-50 group-hover:bg-white flex items-center justify-center shrink-0 border border-slate-100 text-[#00AEEF]">
+                          <span className="w-7 h-7 rounded-lg bg-slate-50 group-hover:bg-white flex items-center justify-center shrink-0 border border-slate-100 text-[#2563EB]">
                             <cat.icon className="w-4 h-4" />
                           </span>
                           <span className="truncate">{cat.name}</span>
                         </span>
-                        <ChevronRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-[#00AEEF] group-hover:translate-x-0.5 transition-all shrink-0" />
+                        <ChevronRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-[#2563EB] group-hover:translate-x-0.5 transition-all shrink-0" />
                       </Link>
                     ))}
                   </div>
@@ -556,7 +614,7 @@ export const Header: React.FC<HeaderProps> = ({
 
               {/* Search Input Box */}
               <div className="flex-1 relative flex items-center">
-                <div className="flex items-center overflow-hidden border-2 rounded-full bg-white shadow-xs w-full border-[#00AEEF] hover:border-[#0086D6] focus-within:border-[#007AE5] focus-within:ring-2 focus-within:ring-[#00AEEF]/20 pl-4 pr-1 py-1 transition-all">
+                <div className="flex items-center overflow-hidden border-2 rounded-full bg-white shadow-xs w-full border-[#2563EB] hover:border-[#1D4ED8] focus-within:border-[#1D4ED8] focus-within:ring-2 focus-within:ring-[#2563EB]/20 pl-4 pr-1 py-1 transition-all">
                   <input
                     type="text"
                     value={searchQuery}
@@ -595,7 +653,7 @@ export const Header: React.FC<HeaderProps> = ({
                         setSearchExpanded(false);
                       }
                     }}
-                    className="bg-[#00AEEF] hover:bg-[#0096D6] text-white w-8 h-8 rounded-full flex items-center justify-center shrink-0 shadow-xs active:scale-95 cursor-pointer"
+                    className="bg-[#2563EB] hover:bg-[#1D4ED8] text-white w-8 h-8 rounded-full flex items-center justify-center shrink-0 shadow-xs active:scale-95 cursor-pointer"
                     aria-label="Search"
                   >
                     <Search className="w-4 h-4 stroke-[2.5]" />
@@ -633,7 +691,7 @@ export const Header: React.FC<HeaderProps> = ({
                                 router.push(`/products/${product.id}`);
                                 setSearchExpanded(false);
                               }}
-                              className="p-2 hover:bg-[#E0F7FC] rounded-xl flex items-center justify-between cursor-pointer transition-colors"
+                              className="p-2 hover:bg-[#EFF6FF] rounded-xl flex items-center justify-between cursor-pointer transition-colors"
                             >
                               <div>
                                 <h4 className="text-xs font-bold text-slate-900 line-clamp-1">
@@ -659,7 +717,7 @@ export const Header: React.FC<HeaderProps> = ({
                             );
                             setSearchExpanded(false);
                           }}
-                          className="text-xs font-bold text-[#00AEEF] hover:underline cursor-pointer"
+                          className="text-xs font-bold text-[#2563EB] hover:underline cursor-pointer"
                         >
                           View all search results →
                         </button>
@@ -674,7 +732,7 @@ export const Header: React.FC<HeaderProps> = ({
               {/* Wishlist */}
               <Link
                 href="/wishlist"
-                className="relative p-1.5 sm:p-2 text-slate-700 hover:text-[#00AEEF] transition-colors"
+                className="relative p-1.5 sm:p-2 text-slate-700 hover:text-[#2563EB] transition-colors"
                 aria-label="Wishlist"
               >
                 <Heart className="w-5 h-5 sm:w-6 sm:h-6 stroke-[1.8]" />
@@ -688,12 +746,12 @@ export const Header: React.FC<HeaderProps> = ({
               {/* Cart Drawer */}
               <button
                 onClick={onOpenCart}
-                className="relative p-1.5 sm:p-2 text-slate-700 hover:text-[#00AEEF] transition-colors flex items-center cursor-pointer"
+                className="relative p-1.5 sm:p-2 text-slate-700 hover:text-[#2563EB] transition-colors flex items-center cursor-pointer"
                 aria-label="Cart"
               >
                 <ShoppingBag className="w-5 h-5 sm:w-6 sm:h-6 stroke-[1.8]" />
                 {cartCount > 0 && (
-                  <span className="absolute -top-1 -right-1 w-4.5 h-4.5 sm:w-5 sm:h-5 bg-[#00AEEF] text-white font-bold text-[10px] sm:text-xs rounded-full flex items-center justify-center shadow-xs">
+                  <span className="absolute -top-1 -right-1 w-4.5 h-4.5 sm:w-5 sm:h-5 bg-[#2563EB] text-white font-bold text-[10px] sm:text-xs rounded-full flex items-center justify-center shadow-xs">
                     {cartCount}
                   </span>
                 )}
@@ -703,11 +761,11 @@ export const Header: React.FC<HeaderProps> = ({
               <div ref={accountMenuRef} className="relative">
                 <button
                   onClick={() => setAccountDropdownOpen(!accountDropdownOpen)}
-                  className="p-1.5 sm:p-2 text-slate-700 hover:text-[#00AEEF] transition-colors flex items-center gap-1.5 cursor-pointer rounded-xl hover:bg-slate-50"
+                  className="p-1.5 sm:p-2 text-slate-700 hover:text-[#2563EB] transition-colors flex items-center gap-1.5 cursor-pointer rounded-xl hover:bg-slate-50"
                   aria-label="Account Menu"
                 >
                   {isLoggedIn && user ? (
-                    <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gradient-to-tr from-[#00AEEF] to-sky-400 text-white font-black text-xs flex items-center justify-center shadow-2xs">
+                    <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gradient-to-tr from-[#2563EB] to-blue-500 text-white font-black text-xs flex items-center justify-center shadow-2xs">
                       {user.avatarUrl ? (
                         <img
                           src={user.avatarUrl}
@@ -740,7 +798,7 @@ export const Header: React.FC<HeaderProps> = ({
                       <div className="space-y-0.5">
                         {/* Clean User Profile Header */}
                         <div className="px-3 py-2.5 flex items-center gap-3">
-                          <div className="w-9 h-9 rounded-full bg-[#00AEEF] text-white font-bold text-xs flex items-center justify-center shrink-0 shadow-2xs">
+                          <div className="w-9 h-9 rounded-full bg-[#2563EB] text-white font-bold text-xs flex items-center justify-center shrink-0 shadow-2xs">
                             {user.avatarUrl ? (
                               <img
                                 src={user.avatarUrl}
@@ -777,28 +835,28 @@ export const Header: React.FC<HeaderProps> = ({
                         <Link
                           href="/account/profile"
                           onClick={() => setAccountDropdownOpen(false)}
-                          className="w-full text-left px-3 py-2 hover:bg-slate-50 hover:text-[#00AEEF] rounded-xl transition-colors flex items-center gap-2.5 font-medium text-slate-700 group"
+                          className="w-full text-left px-3 py-2 hover:bg-slate-50 hover:text-[#2563EB] rounded-xl transition-colors flex items-center gap-2.5 font-medium text-slate-700 group"
                         >
-                          <User className="w-4 h-4 text-slate-400 group-hover:text-[#00AEEF]" />
+                          <User className="w-4 h-4 text-slate-400 group-hover:text-[#2563EB]" />
                           <span>My Account</span>
                         </Link>
 
                         <Link
                           href="/account/orders"
                           onClick={() => setAccountDropdownOpen(false)}
-                          className="w-full text-left px-3 py-2 hover:bg-slate-50 hover:text-[#00AEEF] rounded-xl transition-colors flex items-center gap-2.5 font-medium text-slate-700 group"
+                          className="w-full text-left px-3 py-2 hover:bg-slate-50 hover:text-[#2563EB] rounded-xl transition-colors flex items-center gap-2.5 font-medium text-slate-700 group"
                         >
-                          <Package className="w-4 h-4 text-slate-400 group-hover:text-[#00AEEF]" />
+                          <Package className="w-4 h-4 text-slate-400 group-hover:text-[#2563EB]" />
                           <span>My Orders</span>
                         </Link>
 
                         <Link
                           href="/wishlist"
                           onClick={() => setAccountDropdownOpen(false)}
-                          className="w-full text-left px-3 py-2 hover:bg-slate-50 hover:text-[#00AEEF] rounded-xl transition-colors flex items-center justify-between font-medium text-slate-700 group"
+                          className="w-full text-left px-3 py-2 hover:bg-slate-50 hover:text-[#2563EB] rounded-xl transition-colors flex items-center justify-between font-medium text-slate-700 group"
                         >
                           <div className="flex items-center gap-2.5">
-                            <Heart className="w-4 h-4 text-slate-400 group-hover:text-[#00AEEF]" />
+                            <Heart className="w-4 h-4 text-slate-400 group-hover:text-[#2563EB]" />
                             <span>Wishlist</span>
                           </div>
                           {wishlistCount > 0 && (
@@ -811,28 +869,28 @@ export const Header: React.FC<HeaderProps> = ({
                         <Link
                           href="/account/addresses"
                           onClick={() => setAccountDropdownOpen(false)}
-                          className="w-full text-left px-3 py-2 hover:bg-slate-50 hover:text-[#00AEEF] rounded-xl transition-colors flex items-center gap-2.5 font-medium text-slate-700 group"
+                          className="w-full text-left px-3 py-2 hover:bg-slate-50 hover:text-[#2563EB] rounded-xl transition-colors flex items-center gap-2.5 font-medium text-slate-700 group"
                         >
-                          <MapPin className="w-4 h-4 text-slate-400 group-hover:text-[#00AEEF]" />
+                          <MapPin className="w-4 h-4 text-slate-400 group-hover:text-[#2563EB]" />
                           <span>Saved Addresses</span>
                         </Link>
 
                         <Link
                           href="/account/payments"
                           onClick={() => setAccountDropdownOpen(false)}
-                          className="w-full text-left px-3 py-2 hover:bg-slate-50 hover:text-[#00AEEF] rounded-xl transition-colors flex items-center gap-2.5 font-medium text-slate-700 group"
+                          className="w-full text-left px-3 py-2 hover:bg-slate-50 hover:text-[#2563EB] rounded-xl transition-colors flex items-center gap-2.5 font-medium text-slate-700 group"
                         >
-                          <CreditCard className="w-4 h-4 text-slate-400 group-hover:text-[#00AEEF]" />
+                          <CreditCard className="w-4 h-4 text-slate-400 group-hover:text-[#2563EB]" />
                           <span>Payment Methods</span>
                         </Link>
 
                         <Link
                           href="/account/rewards"
                           onClick={() => setAccountDropdownOpen(false)}
-                          className="w-full text-left px-3 py-2 hover:bg-slate-50 hover:text-[#00AEEF] rounded-xl transition-colors flex items-center justify-between font-medium text-slate-700 group"
+                          className="w-full text-left px-3 py-2 hover:bg-slate-50 hover:text-[#2563EB] rounded-xl transition-colors flex items-center justify-between font-medium text-slate-700 group"
                         >
                           <div className="flex items-center gap-2.5">
-                            <Gift className="w-4 h-4 text-slate-400 group-hover:text-[#00AEEF]" />
+                            <Gift className="w-4 h-4 text-slate-400 group-hover:text-[#2563EB]" />
                             <span>Rewards / Credits</span>
                           </div>
                           <span className="text-[10px] bg-amber-50 text-amber-700 font-bold px-1.5 py-0.2 rounded-md">
@@ -852,9 +910,9 @@ export const Header: React.FC<HeaderProps> = ({
                               router.push("/account/quotations");
                             }
                           }}
-                          className="w-full text-left px-3 py-2 hover:bg-slate-50 hover:text-[#00AEEF] rounded-xl transition-colors flex items-center gap-2.5 font-medium text-slate-700 cursor-pointer group"
+                          className="w-full text-left px-3 py-2 hover:bg-slate-50 hover:text-[#2563EB] rounded-xl transition-colors flex items-center gap-2.5 font-medium text-slate-700 cursor-pointer group"
                         >
-                          <Building2 className="w-4 h-4 text-slate-400 group-hover:text-[#00AEEF]" />
+                          <Building2 className="w-4 h-4 text-slate-400 group-hover:text-[#2563EB]" />
                           <span>B2B / Institutional Sales</span>
                         </button>
 
@@ -878,9 +936,9 @@ export const Header: React.FC<HeaderProps> = ({
                         <Link
                           href="/login"
                           onClick={() => setAccountDropdownOpen(false)}
-                          className="w-full text-left px-3 py-2.5 hover:bg-sky-50 hover:text-[#00AEEF] rounded-xl transition-colors flex items-center gap-2.5 font-bold text-slate-800"
+                          className="w-full text-left px-3 py-2.5 hover:bg-sky-50 hover:text-[#2563EB] rounded-xl transition-colors flex items-center gap-2.5 font-bold text-slate-800"
                         >
-                          <LogIn className="w-4 h-4 text-[#00AEEF]" />
+                          <LogIn className="w-4 h-4 text-[#2563EB]" />
                           <span>Sign In</span>
                         </Link>
 
@@ -896,7 +954,7 @@ export const Header: React.FC<HeaderProps> = ({
                         <Link
                           href="/track-order"
                           onClick={() => setAccountDropdownOpen(false)}
-                          className="w-full text-left px-3 py-2.5 hover:bg-slate-50 hover:text-[#00AEEF] rounded-xl transition-colors flex items-center gap-2.5 font-medium text-slate-700"
+                          className="w-full text-left px-3 py-2.5 hover:bg-slate-50 hover:text-[#2563EB] rounded-xl transition-colors flex items-center gap-2.5 font-medium text-slate-700"
                         >
                           <Truck className="w-4 h-4 text-slate-400" />
                           <span>Track Order</span>
@@ -914,7 +972,7 @@ export const Header: React.FC<HeaderProps> = ({
                               router.push("/services");
                             }
                           }}
-                          className="w-full text-left px-3 py-2.5 hover:bg-slate-50 hover:text-[#00AEEF] rounded-xl transition-colors flex items-center gap-2.5 font-medium text-slate-700 cursor-pointer"
+                          className="w-full text-left px-3 py-2.5 hover:bg-slate-50 hover:text-[#2563EB] rounded-xl transition-colors flex items-center gap-2.5 font-medium text-slate-700 cursor-pointer"
                         >
                           <Building2 className="w-4 h-4 text-slate-400" />
                           <span>B2B / Institutional Sales</span>
@@ -925,10 +983,10 @@ export const Header: React.FC<HeaderProps> = ({
                 )}
               </div>
 
-              {/* Mobile Hamburger Toggle */}
+              {/* Tablet-only Hamburger Toggle */}
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="lg:hidden p-2 text-slate-700 hover:bg-slate-100 rounded-lg cursor-pointer"
+                className="hidden md:flex lg:hidden p-2 text-slate-700 hover:bg-slate-100 rounded-lg cursor-pointer"
                 aria-label="Toggle Mobile Menu"
               >
                 {mobileMenuOpen ? (
@@ -941,67 +999,36 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
 
           {/* Mobile Search & Categories Row */}
-          <div className="sm:hidden mt-2 pb-0.5 flex items-center gap-1.5">
-            {/* Mobile All Categories Dropdown Button Beside Search */}
-            <div ref={mobileCategoryMenuRef} className="relative shrink-0">
+          <div className="sm:hidden mt-2 pb-0.5 relative flex items-center gap-1.5">
+            {/* Mobile All Categories Trigger Button Beside Search */}
+            <div
+              ref={mobileCategoryMenuRef}
+              className="shrink-0"
+              onMouseEnter={handleCategoryMouseEnter}
+              onMouseLeave={handleCategoryMouseLeave}
+            >
               <button
                 type="button"
-                onClick={() => setCategoryDropdownOpen(!categoryDropdownOpen)}
-                className="flex items-center gap-1 bg-[#00AEEF] hover:bg-[#0096D6] text-white px-2.5 py-2 rounded-full font-extrabold text-[11px] shadow-xs cursor-pointer active:scale-95 transition-all whitespace-nowrap"
+                onClick={() => {
+                  if (categoryCloseTimerRef.current) clearTimeout(categoryCloseTimerRef.current);
+                  setCategoryDropdownOpen(!categoryDropdownOpen);
+                }}
+                className="flex items-center gap-1.5 bg-[#2563EB] hover:bg-[#1D4ED8] active:scale-95 text-white px-3 py-2 rounded-full font-bold text-[11px] shadow-xs cursor-pointer transition-all whitespace-nowrap"
                 aria-label="All Categories"
               >
                 <LayoutGrid className="w-3.5 h-3.5 shrink-0" />
                 <span>Categories</span>
                 <ChevronDown
-                  className={`w-3 h-3 transition-transform duration-200 ${categoryDropdownOpen ? "rotate-180" : ""}`}
+                  className={`w-3 h-3 transition-transform duration-200 ${
+                    categoryDropdownOpen ? "rotate-180" : ""
+                  }`}
                 />
               </button>
-
-              {/* Mobile Dropdown Flyout with Backdrop */}
-              {categoryDropdownOpen && (
-                <>
-                  {/* Mobile Full Screen Touch Dismiss Backdrop */}
-                  <div
-                    className="fixed inset-0 z-40 bg-black/10 backdrop-blur-[1px]"
-                    onClick={() => setCategoryDropdownOpen(false)}
-                    onTouchStart={() => setCategoryDropdownOpen(false)}
-                  />
-
-                  <div className="absolute top-full left-0 mt-2 w-[calc(100vw-24px)] max-w-xs sm:w-72 bg-white rounded-2xl shadow-2xl border border-slate-200 p-2 z-50 animate-in fade-in slide-in-from-top-1 text-xs font-semibold text-slate-800 space-y-1 max-h-[380px] overflow-y-auto">
-                    <div className="px-2.5 py-1.5 text-[10px] font-black uppercase text-slate-400 tracking-wider flex items-center justify-between border-b border-slate-100 sticky top-0 bg-white/95 backdrop-blur-xs z-10">
-                      <span>All 20 Categories</span>
-                      <Link
-                        href="/categories"
-                        onClick={() => setCategoryDropdownOpen(false)}
-                        className="text-[#00AEEF] hover:underline font-bold"
-                      >
-                        View All →
-                      </Link>
-                    </div>
-                    {HEADER_CATEGORIES.map((cat) => (
-                      <Link
-                        key={cat.slug}
-                        href={cat.href}
-                        onClick={() => setCategoryDropdownOpen(false)}
-                        className="flex items-center justify-between p-2 rounded-xl hover:bg-[#E0F7FC] hover:text-[#00AEEF] transition-colors"
-                      >
-                        <span className="flex items-center gap-2 min-w-0">
-                          <span className="w-6 h-6 rounded-lg bg-slate-50 flex items-center justify-center shrink-0 border border-slate-100 text-[#00AEEF]">
-                            <cat.icon className="w-3.5 h-3.5" />
-                          </span>
-                          <span className="truncate">{cat.name}</span>
-                        </span>
-                        <ChevronRight className="w-3 h-3 text-slate-400 shrink-0" />
-                      </Link>
-                    ))}
-                  </div>
-                </>
-              )}
             </div>
 
             {/* Search Input Box */}
             <div className="flex-1 min-w-0 relative flex items-center">
-              <div className="flex items-center overflow-hidden border rounded-full bg-[#EEF2F6] shadow-inner w-full border-[#00AEEF] pl-3 pr-1 py-1">
+              <div className="flex items-center overflow-hidden border rounded-full bg-[#EEF2F6] shadow-inner w-full border-[#2563EB] pl-3 pr-1 py-1">
                 <input
                   type="text"
                   value={searchQuery}
@@ -1023,12 +1050,70 @@ export const Header: React.FC<HeaderProps> = ({
                         `/search?q=${encodeURIComponent(searchQuery.trim())}`,
                       );
                   }}
-                  className="bg-[#00AEEF] text-white w-7 h-7 rounded-full flex items-center justify-center shrink-0 shadow-2xs cursor-pointer"
+                  className="bg-[#2563EB] text-white w-7 h-7 rounded-full flex items-center justify-center shrink-0 shadow-2xs cursor-pointer"
                 >
                   <Search className="w-3.5 h-3.5 stroke-[2.5]" />
                 </button>
               </div>
             </div>
+
+            {/* Smooth, Simple & Easy Mobile Category Dropdown Menu */}
+            {categoryDropdownOpen && (
+              <>
+                {/* Touch-dismiss backdrop */}
+                <div
+                  className="fixed inset-0 z-40 bg-black/10"
+                  onClick={() => {
+                    if (categoryCloseTimerRef.current) clearTimeout(categoryCloseTimerRef.current);
+                    setCategoryDropdownOpen(false);
+                  }}
+                  onTouchStart={() => {
+                    if (categoryCloseTimerRef.current) clearTimeout(categoryCloseTimerRef.current);
+                    setCategoryDropdownOpen(false);
+                  }}
+                />
+
+                <div
+                  ref={mobileCategoryDropdownRef}
+                  onMouseEnter={handleCategoryMouseEnter}
+                  onMouseLeave={handleCategoryMouseLeave}
+                  className="absolute top-full left-0 right-0 mt-2 z-50 bg-white rounded-2xl shadow-2xl border border-slate-200/90 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150"
+                >
+                  {/* Clean Simple Header */}
+                  <div className="px-3.5 py-2.5 bg-slate-50 border-b border-slate-100 flex items-center justify-between text-xs font-bold">
+                    <span className="text-slate-800">All Categories (20)</span>
+                    <Link
+                      href="/categories"
+                      onClick={() => setCategoryDropdownOpen(false)}
+                      className="text-[#2563EB] hover:underline flex items-center gap-0.5 text-[11px]"
+                    >
+                      <span>View All</span>
+                      <ChevronRight className="w-3.5 h-3.5" />
+                    </Link>
+                  </div>
+
+                  {/* Clean Scrollable List */}
+                  <div className="p-1 max-h-[300px] overflow-y-auto space-y-0.5 overscroll-contain">
+                    {HEADER_CATEGORIES.map((cat) => (
+                      <Link
+                        key={cat.slug}
+                        href={cat.href}
+                        onClick={() => setCategoryDropdownOpen(false)}
+                        className="flex items-center justify-between px-3 py-2 rounded-xl hover:bg-[#EFF6FF] active:bg-[#EFF6FF] text-slate-700 hover:text-[#2563EB] transition-colors text-xs font-medium group"
+                      >
+                        <span className="flex items-center gap-2.5 truncate">
+                          <span className="w-6 h-6 rounded-lg bg-blue-50 text-[#2563EB] flex items-center justify-center shrink-0">
+                            <cat.icon className="w-3.5 h-3.5" />
+                          </span>
+                          <span className="truncate">{cat.name}</span>
+                        </span>
+                        <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-[#2563EB] group-hover:translate-x-0.5 transition-all shrink-0" />
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              </>
+            )}
           </div>
         </div>
 
@@ -1036,15 +1121,15 @@ export const Header: React.FC<HeaderProps> = ({
       {/* SECTION 3: Main Desktop Primary Navigation Bar with Simple Clean Dropdowns */}
       {/* ======================================================== */}
       <div className="bg-white hidden lg:block relative border-t border-slate-100 shadow-xs z-30">
-        <div className="max-w-7xl mx-auto px-6 sm:px-8 flex items-center justify-between font-medium text-slate-700 h-11 text-[13px]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between font-medium text-slate-700 h-11 text-[13px]">
           <div className="flex items-center gap-1 xl:gap-2">
             {/* 1. Home */}
             <Link
               href="/"
               className={`px-3 py-1.5 rounded-lg transition-all duration-150 ${
                 activeTab === "home"
-                  ? "text-[#00AEEF] font-bold bg-[#E0F7FC]/60"
-                  : "hover:text-[#00AEEF] hover:bg-slate-50"
+                  ? "text-[#2563EB] font-bold bg-[#EFF6FF]/60"
+                  : "hover:text-[#2563EB] hover:bg-slate-50"
               }`}
             >
               Home
@@ -1056,8 +1141,8 @@ export const Header: React.FC<HeaderProps> = ({
                 href="/products"
                 className={`px-3 py-1.5 rounded-lg transition-all duration-150 inline-block ${
                   pathname?.startsWith("/products")
-                    ? "text-[#00AEEF] font-bold bg-[#E0F7FC]/60"
-                    : "hover:text-[#00AEEF] hover:bg-slate-50"
+                    ? "text-[#2563EB] font-bold bg-[#EFF6FF]/60"
+                    : "hover:text-[#2563EB] hover:bg-slate-50"
                 }`}
               >
                 <span>Products &amp; Hardware</span>
@@ -1068,73 +1153,73 @@ export const Header: React.FC<HeaderProps> = ({
                 <div className="w-64 bg-white rounded-xl shadow-xl border border-slate-200/90 p-1.5 space-y-0.5 text-xs font-semibold text-slate-700">
                   <Link
                     href="/categories/arduino-development-boards"
-                    className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-[#E0F7FC] hover:text-[#00AEEF] transition-colors group/sub"
+                    className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-[#EFF6FF] hover:text-[#2563EB] transition-colors group/sub"
                   >
                     <span>Arduino &amp; Dev Boards</span>
-                    <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover/sub:text-[#00AEEF] group-hover/sub:translate-x-0.5 transition-all shrink-0" />
+                    <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover/sub:text-[#2563EB] group-hover/sub:translate-x-0.5 transition-all shrink-0" />
                   </Link>
 
                   <Link
                     href="/categories/raspberry-pi"
-                    className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-[#E0F7FC] hover:text-[#00AEEF] transition-colors group/sub"
+                    className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-[#EFF6FF] hover:text-[#2563EB] transition-colors group/sub"
                   >
                     <span>Raspberry Pi &amp; SBCs</span>
-                    <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover/sub:text-[#00AEEF] group-hover/sub:translate-x-0.5 transition-all shrink-0" />
+                    <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover/sub:text-[#2563EB] group-hover/sub:translate-x-0.5 transition-all shrink-0" />
                   </Link>
 
                   <Link
                     href="/categories/robotics"
-                    className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-[#E0F7FC] hover:text-[#00AEEF] transition-colors group/sub"
+                    className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-[#EFF6FF] hover:text-[#2563EB] transition-colors group/sub"
                   >
                     <span>Robotics &amp; DIY Kits</span>
-                    <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover/sub:text-[#00AEEF] group-hover/sub:translate-x-0.5 transition-all shrink-0" />
+                    <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover/sub:text-[#2563EB] group-hover/sub:translate-x-0.5 transition-all shrink-0" />
                   </Link>
 
                   <Link
                     href="/categories/sensors-modules"
-                    className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-[#E0F7FC] hover:text-[#00AEEF] transition-colors group/sub"
+                    className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-[#EFF6FF] hover:text-[#2563EB] transition-colors group/sub"
                   >
                     <span>Sensors &amp; Modules</span>
-                    <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover/sub:text-[#00AEEF] group-hover/sub:translate-x-0.5 transition-all shrink-0" />
+                    <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover/sub:text-[#2563EB] group-hover/sub:translate-x-0.5 transition-all shrink-0" />
                   </Link>
 
                   <Link
                     href="/categories/motors-drivers"
-                    className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-[#E0F7FC] hover:text-[#00AEEF] transition-colors group/sub"
+                    className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-[#EFF6FF] hover:text-[#2563EB] transition-colors group/sub"
                   >
                     <span>Motors &amp; Motor Drivers</span>
-                    <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover/sub:text-[#00AEEF] group-hover/sub:translate-x-0.5 transition-all shrink-0" />
+                    <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover/sub:text-[#2563EB] group-hover/sub:translate-x-0.5 transition-all shrink-0" />
                   </Link>
 
                   <Link
                     href="/categories/drone-technology"
-                    className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-[#E0F7FC] hover:text-[#00AEEF] transition-colors group/sub"
+                    className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-[#EFF6FF] hover:text-[#2563EB] transition-colors group/sub"
                   >
                     <span>Drones &amp; UAV Parts</span>
-                    <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover/sub:text-[#00AEEF] group-hover/sub:translate-x-0.5 transition-all shrink-0" />
+                    <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover/sub:text-[#2563EB] group-hover/sub:translate-x-0.5 transition-all shrink-0" />
                   </Link>
 
                   <Link
                     href="/categories/batteries-power"
-                    className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-[#E0F7FC] hover:text-[#00AEEF] transition-colors group/sub"
+                    className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-[#EFF6FF] hover:text-[#2563EB] transition-colors group/sub"
                   >
                     <span>Batteries &amp; Power Hubs</span>
-                    <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover/sub:text-[#00AEEF] group-hover/sub:translate-x-0.5 transition-all shrink-0" />
+                    <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover/sub:text-[#2563EB] group-hover/sub:translate-x-0.5 transition-all shrink-0" />
                   </Link>
 
                   <Link
                     href="/categories/electronic-components"
-                    className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-[#E0F7FC] hover:text-[#00AEEF] transition-colors group/sub"
+                    className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-[#EFF6FF] hover:text-[#2563EB] transition-colors group/sub"
                   >
                     <span>Electronic Components</span>
-                    <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover/sub:text-[#00AEEF] group-hover/sub:translate-x-0.5 transition-all shrink-0" />
+                    <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover/sub:text-[#2563EB] group-hover/sub:translate-x-0.5 transition-all shrink-0" />
                   </Link>
 
                   <div className="border-t border-slate-100 my-1" />
 
                   <Link
                     href="/products"
-                    className="flex items-center justify-between px-3 py-2 rounded-lg text-[#00AEEF] hover:bg-[#E0F7FC] font-bold transition-colors"
+                    className="flex items-center justify-between px-3 py-2 rounded-lg text-[#2563EB] hover:bg-[#EFF6FF] font-bold transition-colors"
                   >
                     <span>View All Products →</span>
                   </Link>
@@ -1148,8 +1233,8 @@ export const Header: React.FC<HeaderProps> = ({
                 href="/categories"
                 className={`px-3 py-1.5 rounded-lg transition-all duration-150 inline-block ${
                   pathname?.startsWith("/categories")
-                    ? "text-[#00AEEF] font-bold bg-[#E0F7FC]/60"
-                    : "hover:text-[#00AEEF] hover:bg-slate-50"
+                    ? "text-[#2563EB] font-bold bg-[#EFF6FF]/60"
+                    : "hover:text-[#2563EB] hover:bg-slate-50"
                 }`}
               >
                 <span>Categories</span>
@@ -1162,10 +1247,10 @@ export const Header: React.FC<HeaderProps> = ({
                     <Link
                       key={cat.slug}
                       href={cat.href}
-                      className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-[#E0F7FC] hover:text-[#00AEEF] transition-colors group/sub"
+                      className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-[#EFF6FF] hover:text-[#2563EB] transition-colors group/sub"
                     >
                       <span className="truncate">{cat.name}</span>
-                      <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover/sub:text-[#00AEEF] group-hover/sub:translate-x-0.5 transition-all shrink-0" />
+                      <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover/sub:text-[#2563EB] group-hover/sub:translate-x-0.5 transition-all shrink-0" />
                     </Link>
                   ))}
 
@@ -1173,7 +1258,7 @@ export const Header: React.FC<HeaderProps> = ({
 
                   <Link
                     href="/categories"
-                    className="flex items-center justify-between px-3 py-2 rounded-lg text-[#00AEEF] hover:bg-[#E0F7FC] font-bold transition-colors"
+                    className="flex items-center justify-between px-3 py-2 rounded-lg text-[#2563EB] hover:bg-[#EFF6FF] font-bold transition-colors"
                   >
                     <span>View All 20 Categories →</span>
                   </Link>
@@ -1187,8 +1272,8 @@ export const Header: React.FC<HeaderProps> = ({
                 href="/brands"
                 className={`px-3 py-1.5 rounded-lg transition-all duration-150 inline-block ${
                   pathname?.startsWith("/brands")
-                    ? "text-[#00AEEF] font-bold bg-[#E0F7FC]/60"
-                    : "hover:text-[#00AEEF] hover:bg-slate-50"
+                    ? "text-[#2563EB] font-bold bg-[#EFF6FF]/60"
+                    : "hover:text-[#2563EB] hover:bg-slate-50"
                 }`}
               >
                 <span>Brands</span>
@@ -1210,10 +1295,10 @@ export const Header: React.FC<HeaderProps> = ({
                     <Link
                       key={brand}
                       href={`/products?brand=${encodeURIComponent(brand)}`}
-                      className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-[#E0F7FC] hover:text-[#00AEEF] transition-colors group/sub"
+                      className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-[#EFF6FF] hover:text-[#2563EB] transition-colors group/sub"
                     >
                       <span className="truncate">{brand}</span>
-                      <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover/sub:text-[#00AEEF] group-hover/sub:translate-x-0.5 transition-all shrink-0" />
+                      <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover/sub:text-[#2563EB] group-hover/sub:translate-x-0.5 transition-all shrink-0" />
                     </Link>
                   ))}
 
@@ -1221,7 +1306,7 @@ export const Header: React.FC<HeaderProps> = ({
 
                   <Link
                     href="/brands"
-                    className="flex items-center justify-between px-3 py-2 rounded-lg text-[#00AEEF] hover:bg-[#E0F7FC] font-bold transition-colors"
+                    className="flex items-center justify-between px-3 py-2 rounded-lg text-[#2563EB] hover:bg-[#EFF6FF] font-bold transition-colors"
                   >
                     <span>View All Brands →</span>
                   </Link>
@@ -1292,8 +1377,8 @@ export const Header: React.FC<HeaderProps> = ({
                 href="/services"
                 className={`px-3 py-1.5 rounded-lg transition-all duration-150 inline-block ${
                   pathname?.startsWith("/services")
-                    ? "text-[#00AEEF] font-bold bg-[#E0F7FC]/60"
-                    : "hover:text-[#00AEEF] hover:bg-slate-50"
+                    ? "text-[#2563EB] font-bold bg-[#EFF6FF]/60"
+                    : "hover:text-[#2563EB] hover:bg-slate-50"
                 }`}
               >
                 <span>Lab Setups &amp; Services</span>
@@ -1304,31 +1389,31 @@ export const Header: React.FC<HeaderProps> = ({
                 <div className="w-64 bg-white rounded-xl shadow-xl border border-slate-200/90 p-1.5 space-y-0.5 text-xs font-semibold text-slate-700">
                   <Link
                     href="/services/stem-lab-setup"
-                    className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-[#E0F7FC] hover:text-[#00AEEF] transition-colors group/sub"
+                    className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-[#EFF6FF] hover:text-[#2563EB] transition-colors group/sub"
                   >
                     <span>STEM &amp; ATL Lab Setup</span>
-                    <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover/sub:text-[#00AEEF] group-hover/sub:translate-x-0.5 transition-all shrink-0" />
+                    <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover/sub:text-[#2563EB] group-hover/sub:translate-x-0.5 transition-all shrink-0" />
                   </Link>
                   <Link
                     href="/services/robotics-lab-setup"
-                    className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-[#E0F7FC] hover:text-[#00AEEF] transition-colors group/sub"
+                    className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-[#EFF6FF] hover:text-[#2563EB] transition-colors group/sub"
                   >
                     <span>Robotics &amp; AI Research Lab</span>
-                    <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover/sub:text-[#00AEEF] group-hover/sub:translate-x-0.5 transition-all shrink-0" />
+                    <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover/sub:text-[#2563EB] group-hover/sub:translate-x-0.5 transition-all shrink-0" />
                   </Link>
                   <Link
                     href="/services/drone-lab-setup"
-                    className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-[#E0F7FC] hover:text-[#00AEEF] transition-colors group/sub"
+                    className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-[#EFF6FF] hover:text-[#2563EB] transition-colors group/sub"
                   >
                     <span>Drone &amp; Avionics Center</span>
-                    <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover/sub:text-[#00AEEF] group-hover/sub:translate-x-0.5 transition-all shrink-0" />
+                    <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover/sub:text-[#2563EB] group-hover/sub:translate-x-0.5 transition-all shrink-0" />
                   </Link>
                   <Link
                     href="/services/industrial-projects"
-                    className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-[#E0F7FC] hover:text-[#00AEEF] transition-colors group/sub"
+                    className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-[#EFF6FF] hover:text-[#2563EB] transition-colors group/sub"
                   >
                     <span>Industrial Prototyping &amp; R&amp;D</span>
-                    <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover/sub:text-[#00AEEF] group-hover/sub:translate-x-0.5 transition-all shrink-0" />
+                    <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover/sub:text-[#2563EB] group-hover/sub:translate-x-0.5 transition-all shrink-0" />
                   </Link>
 
                   <div className="border-t border-slate-100 my-1" />
@@ -1336,7 +1421,7 @@ export const Header: React.FC<HeaderProps> = ({
                   <button
                     type="button"
                     onClick={() => onOpenB2BModal?.()}
-                    className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-[#00AEEF] hover:bg-[#E0F7FC] font-bold transition-colors cursor-pointer text-left"
+                    className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-[#2563EB] hover:bg-[#EFF6FF] font-bold transition-colors cursor-pointer text-left"
                   >
                     <span>B2B Institutional Sales →</span>
                   </button>
@@ -1350,8 +1435,8 @@ export const Header: React.FC<HeaderProps> = ({
                 href="/learning"
                 className={`px-3 py-1.5 rounded-lg transition-all duration-150 inline-block ${
                   pathname?.startsWith("/learning")
-                    ? "text-[#00AEEF] font-bold bg-[#E0F7FC]/60"
-                    : "hover:text-[#00AEEF] hover:bg-slate-50"
+                    ? "text-[#2563EB] font-bold bg-[#EFF6FF]/60"
+                    : "hover:text-[#2563EB] hover:bg-slate-50"
                 }`}
               >
                 <span>Learning Hub</span>
@@ -1362,24 +1447,24 @@ export const Header: React.FC<HeaderProps> = ({
                 <div className="w-56 bg-white rounded-xl shadow-xl border border-slate-200/90 p-1.5 space-y-0.5 text-xs font-semibold text-slate-700">
                   <Link
                     href="/learning"
-                    className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-[#E0F7FC] hover:text-[#00AEEF] transition-colors group/sub"
+                    className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-[#EFF6FF] hover:text-[#2563EB] transition-colors group/sub"
                   >
                     <span>Step-by-Step Tutorials</span>
-                    <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover/sub:text-[#00AEEF] group-hover/sub:translate-x-0.5 transition-all shrink-0" />
+                    <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover/sub:text-[#2563EB] group-hover/sub:translate-x-0.5 transition-all shrink-0" />
                   </Link>
                   <Link
                     href="/learning"
-                    className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-[#E0F7FC] hover:text-[#00AEEF] transition-colors group/sub"
+                    className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-[#EFF6FF] hover:text-[#2563EB] transition-colors group/sub"
                   >
                     <span>Project Codes &amp; Sketches</span>
-                    <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover/sub:text-[#00AEEF] group-hover/sub:translate-x-0.5 transition-all shrink-0" />
+                    <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover/sub:text-[#2563EB] group-hover/sub:translate-x-0.5 transition-all shrink-0" />
                   </Link>
                   <Link
                     href="/learning"
-                    className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-[#E0F7FC] hover:text-[#00AEEF] transition-colors group/sub"
+                    className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-[#EFF6FF] hover:text-[#2563EB] transition-colors group/sub"
                   >
                     <span>Robotics Masterclasses</span>
-                    <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover/sub:text-[#00AEEF] group-hover/sub:translate-x-0.5 transition-all shrink-0" />
+                    <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover/sub:text-[#2563EB] group-hover/sub:translate-x-0.5 transition-all shrink-0" />
                   </Link>
                 </div>
               </div>
@@ -1391,8 +1476,8 @@ export const Header: React.FC<HeaderProps> = ({
                 href="/about"
                 className={`px-3 py-1.5 rounded-lg transition-all duration-150 inline-block ${
                   pathname?.startsWith("/about")
-                    ? "text-[#00AEEF] font-bold bg-[#E0F7FC]/60"
-                    : "hover:text-[#00AEEF] hover:bg-slate-50"
+                    ? "text-[#2563EB] font-bold bg-[#EFF6FF]/60"
+                    : "hover:text-[#2563EB] hover:bg-slate-50"
                 }`}
               >
                 <span>About</span>
@@ -1403,17 +1488,17 @@ export const Header: React.FC<HeaderProps> = ({
                 <div className="w-48 bg-white rounded-xl shadow-xl border border-slate-200/90 p-1.5 space-y-0.5 text-xs font-semibold text-slate-700">
                   <Link
                     href="/about"
-                    className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-[#E0F7FC] hover:text-[#00AEEF] transition-colors group/sub"
+                    className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-[#EFF6FF] hover:text-[#2563EB] transition-colors group/sub"
                   >
                     <span>About Our Mission</span>
-                    <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover/sub:text-[#00AEEF] group-hover/sub:translate-x-0.5 transition-all shrink-0" />
+                    <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover/sub:text-[#2563EB] group-hover/sub:translate-x-0.5 transition-all shrink-0" />
                   </Link>
                   <Link
                     href="/careers"
-                    className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-[#E0F7FC] hover:text-[#00AEEF] transition-colors group/sub"
+                    className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-[#EFF6FF] hover:text-[#2563EB] transition-colors group/sub"
                   >
                     <span>Careers &amp; Culture</span>
-                    <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover/sub:text-[#00AEEF] group-hover/sub:translate-x-0.5 transition-all shrink-0" />
+                    <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover/sub:text-[#2563EB] group-hover/sub:translate-x-0.5 transition-all shrink-0" />
                   </Link>
                 </div>
               </div>
@@ -1425,8 +1510,8 @@ export const Header: React.FC<HeaderProps> = ({
                 href="/contact"
                 className={`px-3 py-1.5 rounded-lg transition-all duration-150 inline-block ${
                   pathname?.startsWith("/contact")
-                    ? "text-[#00AEEF] font-bold bg-[#E0F7FC]/60"
-                    : "hover:text-[#00AEEF] hover:bg-slate-50"
+                    ? "text-[#2563EB] font-bold bg-[#EFF6FF]/60"
+                    : "hover:text-[#2563EB] hover:bg-slate-50"
                 }`}
               >
                 <span>Contact</span>
@@ -1437,10 +1522,10 @@ export const Header: React.FC<HeaderProps> = ({
                 <div className="w-56 bg-white rounded-xl shadow-xl border border-slate-200/90 p-1.5 space-y-0.5 text-xs font-semibold text-slate-700">
                   <Link
                     href="/contact"
-                    className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-[#E0F7FC] hover:text-[#00AEEF] transition-colors group/sub"
+                    className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-[#EFF6FF] hover:text-[#2563EB] transition-colors group/sub"
                   >
                     <span>Customer Support Desk</span>
-                    <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover/sub:text-[#00AEEF] group-hover/sub:translate-x-0.5 transition-all shrink-0" />
+                    <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover/sub:text-[#2563EB] group-hover/sub:translate-x-0.5 transition-all shrink-0" />
                   </Link>
                   <a
                     href="https://wa.me/919876543210"

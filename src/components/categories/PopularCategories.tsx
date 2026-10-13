@@ -30,7 +30,7 @@ export const PopularCategories: React.FC = () => {
             <Link
               key={cat.id}
               href={`/categories/${cat.slug}`}
-              className="group shrink-0 bg-slate-50 hover:bg-[#E0F7FC]/50 border border-slate-200/80 hover:border-[#00AEEF]/40 rounded-2xl px-4 py-3 flex items-center gap-3 transition-all duration-200 cursor-pointer shadow-2xs focus:outline-none focus:ring-2 focus:ring-[#00AEEF]"
+              className="group shrink-0 bg-slate-50 hover:bg-[#EFF6FF]/50 border border-slate-200/80 hover:border-[#2563EB]/40 rounded-2xl px-4 py-3 flex items-center gap-3 transition-all duration-200 cursor-pointer shadow-2xs focus:outline-none focus:ring-2 focus:ring-[#2563EB]"
             >
               <div className="relative w-8 h-8 rounded-lg overflow-hidden shrink-0 bg-white border border-slate-200">
                 <Image
@@ -41,11 +41,11 @@ export const PopularCategories: React.FC = () => {
                 />
               </div>
 
-              <span className="text-xs font-extrabold text-slate-900 group-hover:text-[#00AEEF] whitespace-nowrap">
+              <span className="text-xs font-extrabold text-slate-900 group-hover:text-[#2563EB] whitespace-nowrap">
                 {cat.name}
               </span>
 
-              <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-[#00AEEF] group-hover:translate-x-0.5 transition-transform" />
+              <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-[#2563EB] group-hover:translate-x-0.5 transition-transform" />
             </Link>
           ))}
         </div>

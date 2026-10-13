@@ -39,6 +39,7 @@ import {
   Landmark,
   Sparkles,
   LayoutGrid,
+  Image as ImageIcon,
 } from "lucide-react";
 import { PrayogLogo } from "@/components/PrayogLogo";
 
@@ -129,6 +130,12 @@ const NAV_GROUPS = [
   {
     group: "CRM & MARKETING",
     items: [
+      {
+        label: "Hero Banners",
+        href: "/admin/banners",
+        icon: ImageIcon,
+        badge: "Live",
+      },
       { label: "Customer CRM", href: "/admin/customers", icon: Users },
       {
         label: "B2B Relationships",

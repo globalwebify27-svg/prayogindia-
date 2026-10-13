@@ -58,12 +58,12 @@ export const NewsletterSection: React.FC = () => {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="Enter your email address..."
-                    className="w-full bg-slate-950 text-white text-xs pl-11 pr-4 py-3.5 rounded-xl border border-slate-700 focus:outline-none focus:border-[#00AEEF] transition-colors"
+                    className="w-full bg-slate-950 text-white text-xs pl-11 pr-4 py-3.5 rounded-xl border border-slate-700 focus:outline-none focus:border-[#2563EB] transition-colors"
                   />
                 </div>
                 <button
                   type="submit"
-                  className="w-full sm:w-auto shrink-0 bg-[#00AEEF] hover:bg-[#0096D6] text-white font-extrabold px-6 py-3.5 rounded-xl text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-lg shadow-[#00AEEF]/25"
+                  className="w-full sm:w-auto shrink-0 bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-extrabold px-6 py-3.5 rounded-xl text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-lg shadow-[#2563EB]/25"
                 >
                   <span>Subscribe</span>
                   <ArrowRight className="w-4 h-4 text-[#FFC20E]" />
