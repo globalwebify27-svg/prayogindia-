@@ -15,6 +15,8 @@ import {
   ShoppingBag,
 } from "lucide-react";
 import { PRODUCTS, Product } from "@/data/mockData";
+import { ProductCard } from "@/components/products/ProductCard";
+
 
 type ViewMode = "all_categories" | "curated";
 type CuratedTab = "trending" | "new_arrivals" | "best_sellers" | "recommended";
@@ -411,157 +413,30 @@ export const ProductGridSection: React.FC<ProductSectionProps> = ({
     }
   };
 
-  // Reusable Product Card Component
-  const renderProductCard = (product: Product) => {
-    const isWishlisted = wishlistIds.includes(product.id);
-
-    return (
-      <div
-        key={product.id}
-        id={`product-${product.id}`}
-        className="w-[195px] sm:w-[250px] md:w-64 shrink-0 snap-start bg-white rounded-2xl sm:rounded-3xl border border-slate-200/90 p-3 sm:p-4 flex flex-col justify-between hover:border-[#00AEEF] hover:shadow-lg transition-all duration-300 relative group"
-      >
-        {/* Top: Category Name & Circular Wishlist Button */}
-        <div className="flex items-center justify-between gap-2 mb-1.5">
-          <span className="text-[10px] sm:text-xs font-semibold text-slate-500 truncate">
-            {product.category || "Arduino & Microcontrollers"}
-          </span>
-          {onToggleWishlist && (
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onToggleWishlist(product);
-              }}
-              className="w-7 h-7 rounded-full border border-slate-200 hover:border-slate-300 bg-white flex items-center justify-center text-slate-400 hover:text-red-500 transition-colors shrink-0 cursor-pointer shadow-2xs"
-              title="Add to Wishlist"
-              aria-label="Wishlist"
-            >
-              <Heart
-                className={`w-3.5 h-3.5 ${isWishlisted ? "fill-red-500 text-red-500" : ""}`}
-              />
-            </button>
-          )}
-        </div>
-
-        {/* Product Image */}
-        <Link
-          href={`/products/${product.slug || product.id}`}
-          className="block"
-        >
-          <div className="relative h-28 sm:h-36 w-full mb-2 flex items-center justify-center overflow-hidden rounded-xl bg-white p-1 group-hover:scale-[1.02] transition-transform duration-300 cursor-pointer">
-            <Image
-              src={product.image}
-              alt={product.name}
-              fill
-              sizes="(max-width: 640px) 210px, 256px"
-              className="object-contain p-1"
-            />
-          </div>
-        </Link>
-
-        {/* Content */}
-        <div className="flex-1 flex flex-col justify-between space-y-1.5">
-          <div>
-            {/* Title */}
-            <Link
-              href={`/products/${product.slug || product.id}`}
-              className="block"
-            >
-              <h4 className="text-xs sm:text-sm font-bold text-slate-900 line-clamp-1 hover:text-[#00AEEF] transition-colors cursor-pointer">
-                {product.name}
-              </h4>
-            </Link>
-
-            {/* SKU */}
-            <div className="text-[10px] font-medium text-slate-400 mt-0.5 truncate">
-              SKU:{" "}
-              <span className="font-mono text-slate-500">{product.sku}</span>
-            </div>
-
-            {/* Rating Stars */}
-            <div className="flex items-center gap-1 mt-0.5 text-xs text-slate-500">
-              <div className="flex items-center text-amber-400 gap-0.5">
-                {[...Array(5)].map((_, i) => (
-                  <Star
-                    key={i}
-                    className={`w-3 h-3 ${
-                      i < Math.floor(product.rating || 5)
-                        ? "fill-amber-400 text-amber-400"
-                        : "fill-slate-200 text-slate-200"
-                    }`}
-                  />
-                ))}
-              </div>
-              <span className="text-[10px] text-slate-400 font-medium ml-0.5">
-                ({product.reviews || 87})
-              </span>
-            </div>
-
-            {/* Price with (Incl. GST) */}
-            <div className="flex items-baseline gap-1 mt-1.5">
-              <span className="text-sm sm:text-base font-bold text-slate-900">
-                ₹
-                {product.price.toLocaleString("en-IN", {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2,
-                })}
-              </span>
-              <span className="text-[9px] text-slate-400 font-medium">
-                (Incl. GST)
-              </span>
-            </div>
-          </div>
-
-          {/* Action: Add to Cart Full Width */}
-          <div className="pt-2 mt-auto">
-            {product.inStock ? (
-              <button
-                onClick={() => onAddToCart(product)}
-                className="w-full border border-[#00AEEF] text-[#00AEEF] hover:bg-[#00AEEF] hover:text-white py-2 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all duration-200 active:scale-[0.98] cursor-pointer shadow-2xs group/btn"
-              >
-                <span>Add to Cart</span>
-                <ShoppingBag className="w-3.5 h-3.5" />
-              </button>
-            ) : (
-              <a
-                href={`https://wa.me/919876543210?text=${encodeURIComponent(`Hi Prayog India, I am interested in ${product.name} (SKU: ${product.sku}). Please let me know the availability and latest price.`)}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full bg-emerald-500 hover:bg-emerald-600 text-white py-2 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all duration-200 active:scale-[0.98] cursor-pointer shadow-2xs"
-              >
-                <span>Ask Availability</span>
-              </a>
-            )}
-          </div>
-        </div>
-      </div>
-    );
-  };
-
   return (
     <section
       id="featured-products"
-      className="py-6 sm:py-10 lg:py-12 bg-slate-50/70 border-b border-slate-200/80 scroll-mt-20"
+      className="py-5 sm:py-10 bg-slate-50/70 border-b border-slate-200/80 scroll-mt-20"
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-5 sm:space-y-8">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 space-y-4 sm:space-y-6">
         {/* Main Section Header */}
-        <div className="space-y-3 sm:space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 sm:gap-4">
+        <div className="space-y-2.5 sm:space-y-4">
+          <div className="flex items-center justify-between gap-2">
             <div>
-              <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-slate-900 tracking-tight">
+              <h2 className="text-base sm:text-2xl font-black text-slate-900 tracking-tight">
                 Explore Products
               </h2>
-              <p className="text-xs sm:text-sm text-slate-500 font-normal mt-0.5 sm:mt-1">
+              <p className="hidden sm:block text-xs sm:text-sm text-slate-500 font-normal mt-0.5">
                 Quality robotics, development boards, and electronic components.
               </p>
             </div>
 
             {/* View Mode Switcher + Explore Store */}
-            <div className="flex items-center gap-2 self-start sm:self-auto flex-wrap">
-              <div className="bg-white border border-slate-200 p-1 rounded-xl flex items-center shadow-2xs text-xs font-semibold">
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              <div className="bg-white border border-slate-200 p-0.5 sm:p-1 rounded-xl flex items-center shadow-2xs text-[11px] sm:text-xs font-semibold">
                 <button
                   onClick={() => setViewMode("all_categories")}
-                  className={`px-2.5 sm:px-3 py-1.5 rounded-lg transition-all flex items-center cursor-pointer ${
+                  className={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg transition-all flex items-center cursor-pointer ${
                     viewMode === "all_categories"
                       ? "bg-slate-900 text-white shadow-xs"
                       : "text-slate-600 hover:text-slate-900"
@@ -572,7 +447,7 @@ export const ProductGridSection: React.FC<ProductSectionProps> = ({
 
                 <button
                   onClick={() => setViewMode("curated")}
-                  className={`px-2.5 sm:px-3 py-1.5 rounded-lg transition-all flex items-center cursor-pointer ${
+                  className={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg transition-all flex items-center cursor-pointer ${
                     viewMode === "curated"
                       ? "bg-[#00AEEF] text-white shadow-xs"
                       : "text-slate-600 hover:text-slate-900"
@@ -584,22 +459,23 @@ export const ProductGridSection: React.FC<ProductSectionProps> = ({
 
               <button
                 onClick={() => onSeeAll?.("all")}
-                className="text-xs sm:text-sm font-semibold text-[#00AEEF] hover:text-[#0086B8] hover:underline flex items-center gap-1 group/seeall px-2 sm:px-3 py-1.5 cursor-pointer"
+                className="text-xs sm:text-sm font-bold text-[#00AEEF] hover:text-[#0086B8] hover:underline flex items-center gap-0.5 sm:gap-1 px-1.5 sm:px-3 py-1 cursor-pointer shrink-0"
               >
                 <span>View All</span>
-                <ArrowRight className="w-4 h-4 group-hover/seeall:translate-x-1 transition-transform" />
+                <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               </button>
             </div>
           </div>
 
-          {/* Quick Jump Category Bar with smooth continuous auto-scroll */}
+          {/* Quick Jump Category Bar (Desktop only to keep mobile laser-focused on products) */}
           <div
-            className="bg-white/90 backdrop-blur-md rounded-2xl border border-slate-200/90 p-1.5 sm:p-2 shadow-2xs relative flex items-center overflow-hidden"
+            className="hidden sm:flex bg-white/90 backdrop-blur-md rounded-2xl border border-slate-200/90 p-1.5 sm:p-2 shadow-2xs relative items-center overflow-hidden"
             onMouseEnter={() => setIsJumpPaused(true)}
             onMouseLeave={() => setIsJumpPaused(false)}
             onTouchStart={() => setIsJumpPaused(true)}
             onTouchEnd={() => setIsJumpPaused(false)}
           >
+
             {/* Pinned "Jump To:" label badge */}
             <div className="pl-2.5 pr-2.5 sm:pr-3 shrink-0 flex items-center border-r border-slate-200 text-xs font-bold text-slate-500 z-20 bg-white/90">
               <span className="whitespace-nowrap">Jump To:</span>
@@ -695,13 +571,25 @@ export const ProductGridSection: React.FC<ProductSectionProps> = ({
                       ref={(el) => {
                         categoryScrollContainers.current[category] = el;
                       }}
-                      className="flex items-stretch gap-3.5 sm:gap-5 lg:gap-6 overflow-x-auto scrollbar-none snap-x snap-mandatory pb-3 pt-1 px-1 scroll-smooth"
+                      className="flex items-stretch gap-2.5 sm:gap-4 overflow-x-auto scrollbar-none snap-x snap-mandatory pb-2 pt-1 px-0.5 scroll-smooth touch-pan-x"
                       style={{ scrollbarWidth: "none" }}
                     >
-                      {categoryProducts.map((product) =>
-                        renderProductCard(product),
-                      )}
+                      {categoryProducts.map((product) => (
+                        <div
+                          key={product.id}
+                          className="w-[170px] xs:w-[190px] sm:w-[220px] md:w-[240px] shrink-0 snap-start"
+                        >
+                          <ProductCard
+                            product={product}
+                            onAddToCart={onAddToCart}
+                            onToggleWishlist={onToggleWishlist}
+                            onQuickView={onQuickView}
+                            isWishlisted={wishlistIds.includes(product.id)}
+                          />
+                        </div>
+                      ))}
                     </div>
+
                   </div>
                 </div>
               );
@@ -779,12 +667,23 @@ export const ProductGridSection: React.FC<ProductSectionProps> = ({
 
               <div
                 ref={curatedScrollRef}
-                className="flex items-stretch gap-4 sm:gap-5 lg:gap-6 overflow-x-auto scrollbar-none pb-4 pt-1 px-1 scroll-smooth"
+                className="flex items-stretch gap-2.5 sm:gap-4 overflow-x-auto scrollbar-none snap-x snap-mandatory pb-2 pt-1 px-0.5 scroll-smooth touch-pan-x"
                 style={{ scrollbarWidth: "none" }}
               >
-                {getActiveCuratedList().map((product) =>
-                  renderProductCard(product),
-                )}
+                {getActiveCuratedList().map((product) => (
+                  <div
+                    key={product.id}
+                    className="w-[170px] xs:w-[190px] sm:w-[220px] md:w-[240px] shrink-0 snap-start"
+                  >
+                    <ProductCard
+                      product={product}
+                      onAddToCart={onAddToCart}
+                      onToggleWishlist={onToggleWishlist}
+                      onQuickView={onQuickView}
+                      isWishlisted={wishlistIds.includes(product.id)}
+                    />
+                  </div>
+                ))}
               </div>
             </div>
           </div>

@@ -369,11 +369,12 @@ function ProductsContent() {
   const showSearchSuggest = searchFocused && searchQuery.length === 0;
 
   const getGridColsClass = () => {
-    if (columns === 1) return "";
-    if (columns === 2) return "grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6";
-    if (columns === 3) return "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-5";
-    return "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-3.5 sm:gap-4.5";
+    if (columns === 1) return "grid grid-cols-1 gap-3 sm:gap-4";
+    if (columns === 2) return "grid grid-cols-2 gap-2.5 sm:gap-4";
+    if (columns === 3) return "grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-2.5 sm:gap-4";
+    return "grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-2.5 sm:gap-4";
   };
+
 
   return (
     <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-2.5 sm:py-4 space-y-3 sm:space-y-4 animate-in fade-in duration-300">

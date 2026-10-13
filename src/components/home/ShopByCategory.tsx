@@ -208,16 +208,46 @@ export const ShopByCategory: React.FC<Props> = ({ onSelectCategory }) => {
           </div>
         </div>
 
-        {/* Categories Grid - 2 Rows (4 columns on desktop / tablet, 2 on mobile) */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-5 pt-1">
+        {/* Mobile View: Horizontal Scrollable Category Circles (Fast e-commerce discovery) */}
+        <div
+          className="flex sm:hidden overflow-x-auto gap-3.5 pb-2 pt-1 scrollbar-none no-scrollbar touch-pan-x"
+          style={{ scrollbarWidth: "none" }}
+        >
+          {CATEGORIES.map((cat) => {
+            const Icon = cat.IconComponent;
+            return (
+              <button
+                key={cat.id}
+                type="button"
+                onClick={() => onSelectCategory?.(cat.name)}
+                className="flex flex-col items-center gap-1.5 shrink-0 group cursor-pointer focus:outline-none w-[72px]"
+              >
+                <div className="relative w-14 h-14 rounded-2xl overflow-hidden bg-slate-50 border border-slate-200/90 group-hover:border-[#00AEEF] p-1 shadow-2xs group-hover:scale-105 transition-transform duration-200">
+                  <Image
+                    src={cat.image}
+                    alt={cat.name}
+                    fill
+                    className="object-cover rounded-xl"
+                  />
+                </div>
+                <span className="text-[11px] font-bold text-slate-700 text-center leading-tight line-clamp-2 group-hover:text-[#00AEEF] transition-colors">
+                  {cat.name}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Desktop View: 4-Column Category Grid */}
+        <div className="hidden sm:grid sm:grid-cols-4 gap-4 lg:gap-5 pt-1">
           {CATEGORIES.map((cat) => (
             <div
               key={cat.id}
               onClick={() => onSelectCategory?.(cat.name)}
-              className="bg-white hover:bg-[#E0F7FC]/30 border border-slate-200/90 hover:border-[#00AEEF]/50 rounded-2xl p-2.5 sm:p-4 cursor-pointer transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 group flex flex-col items-center text-center"
+              className="bg-white hover:bg-[#E0F7FC]/30 border border-slate-200/90 hover:border-[#00AEEF]/50 rounded-2xl p-4 cursor-pointer transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 group flex flex-col items-center text-center"
             >
               {/* Category Image */}
-              <div className="relative h-24 sm:h-36 w-full mb-2 sm:mb-3 rounded-xl overflow-hidden bg-slate-50 border border-slate-100 shadow-2xs">
+              <div className="relative h-32 lg:h-36 w-full mb-3 rounded-xl overflow-hidden bg-slate-50 border border-slate-100 shadow-2xs">
                 <Image
                   src={cat.image}
                   alt={cat.name}
@@ -227,7 +257,7 @@ export const ShopByCategory: React.FC<Props> = ({ onSelectCategory }) => {
               </div>
 
               {/* Category Name */}
-              <h3 className="text-xs sm:text-sm font-semibold text-slate-800 group-hover:text-[#00AEEF] transition-colors leading-tight">
+              <h3 className="text-sm font-bold text-slate-800 group-hover:text-[#00AEEF] transition-colors leading-tight">
                 {cat.name}
               </h3>
             </div>
