@@ -64,8 +64,8 @@ export const DealsAndOffersSection: React.FC<Props> = ({ onShopDeals }) => {
   };
 
   return (
-    <section className="pt-8 pb-4 sm:pt-10 sm:pb-6 bg-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6 sm:space-y-8">
+    <section className="pt-4 sm:pt-10 pb-3 sm:pb-6 bg-white">
+      <div className="w-full px-3.5 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 space-y-4 sm:space-y-8">
         {/* Section Header */}
         <div className="flex items-center justify-between">
           <div>
@@ -73,9 +73,12 @@ export const DealsAndOffersSection: React.FC<Props> = ({ onShopDeals }) => {
               <Sparkles className="w-3.5 h-3.5 text-[#FF3B30]" />
               <span>Limited Time</span>
             </div>
-            <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight mt-1">
-              Top Deals
-            </h2>
+            <div className="flex items-center gap-3">
+              <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight mt-1">
+                Top Deals
+              </h2>
+              <div className="hidden sm:block w-10 h-1 bg-[#FFC20E] rounded-full mt-1" />
+            </div>
           </div>
 
           <button
@@ -153,7 +156,7 @@ export const DealsAndOffersSection: React.FC<Props> = ({ onShopDeals }) => {
               {/* Action CTA */}
               <button
                 onClick={handleClaim}
-                className="w-full bg-slate-900 hover:bg-[#FF3B30] text-white font-semibold py-2.5 rounded-xl text-xs uppercase tracking-wider transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-xs"
+                className="w-full bg-[#0A233F] hover:bg-[#FFC20E] hover:text-slate-950 text-white font-bold py-2.5 rounded-xl text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs active:scale-95"
               >
                 <span>Claim Deal</span>
                 <ArrowRight className="w-3.5 h-3.5" />
@@ -223,10 +226,10 @@ export const DealsAndOffersSection: React.FC<Props> = ({ onShopDeals }) => {
               {/* Action CTA */}
               <button
                 onClick={handleClaim}
-                className="w-full bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-semibold py-2.5 rounded-xl text-xs uppercase tracking-wider transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-md shadow-[#2563EB]/20"
+                className="w-full bg-[#FFC20E] hover:bg-[#E5AC0D] text-slate-950 font-bold py-2.5 rounded-xl text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md shadow-amber-400/20 active:scale-95"
               >
                 <span>Claim Discount</span>
-                <ArrowRight className="w-3.5 h-3.5 text-white" />
+                <ArrowRight className="w-3.5 h-3.5 text-slate-950 stroke-[2.5]" />
               </button>
             </div>
           </motion.div>
@@ -282,7 +285,7 @@ export const DealsAndOffersSection: React.FC<Props> = ({ onShopDeals }) => {
               {/* Action CTA */}
               <button
                 onClick={handleClaim}
-                className="w-full bg-slate-900 hover:bg-emerald-600 text-white font-semibold py-2.5 rounded-xl text-xs uppercase tracking-wider transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-xs"
+                className="w-full bg-[#0A233F] hover:bg-[#FFC20E] hover:text-slate-950 text-white font-bold py-2.5 rounded-xl text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs active:scale-95"
               >
                 <span>Shop Eligible Products</span>
                 <ArrowRight className="w-3.5 h-3.5" />

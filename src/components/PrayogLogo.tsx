@@ -16,10 +16,9 @@ export const PrayogLogo: React.FC<PrayogLogoProps> = ({
   showSubtitle = false,
   dark = false,
 }) => {
-  // Height & dimensions tailored for clean proportions
   const sizeClasses = {
     sm: "h-8 sm:h-9 w-auto",
-    md: "h-9 sm:h-11 lg:h-12 w-auto",
+    md: "h-8 sm:h-9 lg:h-9 xl:h-10 2xl:h-11 w-auto",
     lg: "h-12 sm:h-16 lg:h-18 w-auto",
     xl: "h-16 sm:h-20 lg:h-24 w-auto",
   };

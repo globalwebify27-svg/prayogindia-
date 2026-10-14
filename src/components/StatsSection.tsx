@@ -37,7 +37,7 @@ export const StatsSection: React.FC = () => {
 
   return (
     <section className="py-8 sm:py-12 bg-slate-50/70 border-t border-slate-200/80">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12">
         <div className="bg-white rounded-2xl sm:rounded-3xl shadow-sm border border-slate-200/90 p-5 sm:p-7 lg:p-8 grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
           {stats.map((stat, idx) => (
             <div

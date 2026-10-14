@@ -418,7 +418,7 @@ export const ProductGridSection: React.FC<ProductSectionProps> = ({
       id="featured-products"
       className="py-5 sm:py-10 bg-slate-50/70 border-b border-slate-200/80 scroll-mt-20"
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4 sm:space-y-6">
+      <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 space-y-4 sm:space-y-6">
         {/* Main Section Header */}
         <div className="space-y-2.5 sm:space-y-4">
           <div className="flex items-center justify-between gap-2">
@@ -551,7 +551,7 @@ export const ProductGridSection: React.FC<ProductSectionProps> = ({
                     {/* Left Scroll Button */}
                     <button
                       onClick={() => scrollCategory(category, "left")}
-                      className="absolute -left-4 top-1/2 -translate-y-1/2 z-20 w-11 h-11 bg-white/95 border border-slate-200 rounded-full shadow-xl flex items-center justify-center text-slate-700 hover:bg-[#2563EB] hover:text-white hover:border-[#2563EB] transition-all opacity-0 group-hover/section:opacity-100 hidden sm:flex cursor-pointer"
+                      className="absolute -left-4 top-1/2 -translate-y-1/2 z-20 w-11 h-11 bg-white/95 border border-slate-200 rounded-full shadow-xl flex items-center justify-center text-slate-700 hover:bg-[#FFC20E] hover:text-slate-950 hover:border-[#FFC20E] transition-all opacity-0 group-hover/section:opacity-100 hidden sm:flex cursor-pointer"
                       aria-label={`Scroll ${category} Left`}
                     >
                       <ChevronLeft className="w-5 h-5 stroke-[2.5]" />
@@ -560,7 +560,7 @@ export const ProductGridSection: React.FC<ProductSectionProps> = ({
                     {/* Right Scroll Button */}
                     <button
                       onClick={() => scrollCategory(category, "right")}
-                      className="absolute -right-4 top-1/2 -translate-y-1/2 z-20 w-11 h-11 bg-white/95 border border-slate-200 rounded-full shadow-xl flex items-center justify-center text-slate-700 hover:bg-[#2563EB] hover:text-white hover:border-[#2563EB] transition-all opacity-0 group-hover/section:opacity-100 hidden sm:flex cursor-pointer"
+                      className="absolute -right-4 top-1/2 -translate-y-1/2 z-20 w-11 h-11 bg-white/95 border border-slate-200 rounded-full shadow-xl flex items-center justify-center text-slate-700 hover:bg-[#FFC20E] hover:text-slate-950 hover:border-[#FFC20E] transition-all opacity-0 group-hover/section:opacity-100 hidden sm:flex cursor-pointer"
                       aria-label={`Scroll ${category} Right`}
                     >
                       <ChevronRight className="w-5 h-5 stroke-[2.5]" />

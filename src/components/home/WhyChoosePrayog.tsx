@@ -65,8 +65,8 @@ const FEATURES: FeatureCard[] = [
 
 export const WhyChoosePrayog: React.FC = () => {
   return (
-    <section className="py-14 bg-slate-50 border-y border-slate-200/80">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
+    <section className="py-7 sm:py-14 bg-slate-50 border-y border-slate-200/80">
+      <div className="w-full px-3.5 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 space-y-6 sm:space-y-10">
         {/* Section Header */}
         <div className="text-center max-w-2xl mx-auto space-y-2">
           <span className="text-[11px] font-bold uppercase tracking-wider text-[#2563EB]">

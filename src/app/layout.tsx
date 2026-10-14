@@ -44,9 +44,9 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${jetbrainsMono.variable} ${caveat.variable} h-full antialiased`}
+      className={`${inter.variable} ${jetbrainsMono.variable} ${caveat.variable} antialiased overflow-x-clip w-full max-w-full`}
     >
-      <body className="min-h-full flex flex-col font-sans">
+      <body className="min-h-screen flex flex-col font-sans overflow-x-clip w-full max-w-full">
         <StoreProvider>
           <AppShell>{children}</AppShell>
         </StoreProvider>

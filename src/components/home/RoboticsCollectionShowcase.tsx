@@ -60,10 +60,10 @@ export const RoboticsCollectionShowcase: React.FC<Props> = ({
   onExploreCollection,
 }) => {
   return (
-    <section className="pt-2 pb-10 sm:pt-4 sm:pb-12 bg-white overflow-hidden">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section className="pt-2 pb-6 sm:pb-12 bg-white overflow-hidden">
+      <div className="w-full px-3.5 sm:px-6 lg:px-8 xl:px-10 2xl:px-12">
         {/* Section Header */}
-        <div className="text-center max-w-2xl mx-auto space-y-1.5 mb-6 sm:mb-8">
+        <div className="text-center max-w-2xl mx-auto space-y-1.5 mb-4 sm:mb-8">
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-900 tracking-tight">
             Robotics &amp; UAV Ecosystem
           </h2>
@@ -118,7 +118,7 @@ export const RoboticsCollectionShowcase: React.FC<Props> = ({
                   {/* Bottom-Left Semi-Transparent Button */}
                   <div className="inline-flex items-center gap-3 pl-4 pr-1.5 py-1.5 rounded-full bg-white/15 group-hover:bg-white/25 backdrop-blur-md border border-white/30 text-xs font-bold text-white transition-all duration-300 shadow-md whitespace-nowrap">
                     <span>Learn More</span>
-                    <span className="w-7 h-7 rounded-full bg-white text-slate-950 flex items-center justify-center group-hover:bg-[#2563EB] group-hover:text-white group-hover:translate-x-0.5 transition-all duration-300 shadow-xs shrink-0">
+                    <span className="w-7 h-7 rounded-full bg-white text-slate-950 flex items-center justify-center group-hover:bg-[#FFC20E] group-hover:text-slate-950 group-hover:translate-x-0.5 transition-all duration-300 shadow-xs shrink-0">
                       <ArrowRight className="w-3.5 h-3.5 stroke-[2.5]" />
                     </span>
                   </div>

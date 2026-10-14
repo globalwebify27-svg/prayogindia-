@@ -20,7 +20,7 @@ import { QuickViewModal } from "@/components/products/QuickViewModal";
 import { PRODUCTS, Product } from "@/data/mockData";
 import { useStore } from "@/context/StoreContext";
 import { searchProductsFuzzy } from "@/lib/fuzzySearch";
-import { X, Search, Clock, TrendingUp, Sparkles, Tag } from "lucide-react";
+import { X, Search, Clock, TrendingUp, Sparkles, Tag, ShoppingCart } from "lucide-react";
 
 const POPULAR_SEARCHES = [
   "Arduino UNO R4",
@@ -620,9 +620,10 @@ function ProductsContent() {
                           </button>
                           <button
                             onClick={() => storeAddToCart(product)}
-                            className="bg-slate-900 hover:bg-[#00AEEF] text-white text-xs font-bold px-3.5 py-2 rounded-xl cursor-pointer transition-colors active:scale-95"
+                            className="border border-[#2563EB] text-[#2563EB] hover:bg-[#2563EB] hover:text-white text-xs font-bold uppercase tracking-wider px-3.5 py-2 rounded-xl cursor-pointer transition-all duration-150 active:scale-95 flex items-center gap-1.5 shadow-2xs"
                           >
-                            Add to Cart
+                            <ShoppingCart className="w-3.5 h-3.5" />
+                            <span>ADD TO CART</span>
                           </button>
                         </div>
                       </div>

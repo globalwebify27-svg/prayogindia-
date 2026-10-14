@@ -7,7 +7,7 @@ import { getOptimizedImageUrl } from "@/lib/cloudinaryUrl";
 import {
   Star,
   Heart,
-  ShoppingBag,
+  ShoppingCart,
   Zap,
   Flame,
   Check,
@@ -229,21 +229,21 @@ export const TopDealsProductCard: React.FC<TopDealsProductCardProps> = ({
               id={`add-deal-${product.id}`}
               type="button"
               onClick={handleAddToCart}
-              className={`w-full py-1.5 px-2 rounded-lg text-[10px] font-bold uppercase tracking-wider flex items-center justify-center gap-1 transition-all duration-200 cursor-pointer shadow-2xs active:scale-[0.98] ${
+              className={`w-full py-2 sm:py-2.5 px-3 rounded-xl border text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all duration-150 active:scale-95 cursor-pointer shadow-2xs ${
                 isAdded
-                  ? "bg-emerald-600 text-white shadow-emerald-600/20"
-                  : "bg-slate-900 hover:bg-[#00AEEF] text-white"
+                  ? "bg-emerald-600 border-emerald-600 text-white"
+                  : "border-[#2563EB] text-[#2563EB] hover:bg-[#2563EB] hover:text-white"
               }`}
             >
               {isAdded ? (
                 <>
-                  <Check className="w-3 h-3 text-white" />
-                  <span>Added!</span>
+                  <Check className="w-3.5 h-3.5" />
+                  <span>ADDED!</span>
                 </>
               ) : (
                 <>
-                  <ShoppingBag className="w-3 h-3 text-[#FFC20E]" />
-                  <span>Add Deal to Cart</span>
+                  <ShoppingCart className="w-3.5 h-3.5" />
+                  <span>ADD TO CART</span>
                 </>
               )}
             </button>

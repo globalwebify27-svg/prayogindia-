@@ -1,6 +1,13 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+  useRef,
+} from "react";
 import { Product, ProductVariant } from "@/data/mockData";
 import { CustomerType } from "@/data/customerTypes";
 import { haptic } from "@/utils/haptics";
@@ -80,18 +87,30 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({
   } | null>(null);
 
   const [toast, setToast] = useState<ToastData | null>(null);
+  const toastTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  const showToast = (options: Omit<ToastData, "id">) => {
+  const dismissToast = useCallback(() => {
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+    setToast(null);
+  }, []);
+
+  const showToast = useCallback((options: Omit<ToastData, "id">) => {
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
     const toastId = `toast-${Date.now()}`;
     setToast({
       id: toastId,
       ...options,
     });
-  };
 
-  const dismissToast = () => {
-    setToast(null);
-  };
+    const isWishlist =
+      options.iconType?.startsWith("wishlist") ||
+      options.title?.toLowerCase().includes("wishlist");
+    const autoDismissMs = options.duration || (isWishlist ? 2000 : 3500);
+
+    toastTimerRef.current = setTimeout(() => {
+      setToast((cur) => (cur?.id === toastId ? null : cur));
+    }, autoDismissMs);
+  }, []);
 
   // Hydrate cart and wishlist from localStorage on client mount
   useEffect(() => {
@@ -232,22 +251,23 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const toggleWishlist = (product: Product) => {
     haptic.success();
+    let toastData: Omit<ToastData, "id"> | null = null;
     setWishlist((prev) => {
       const exists = prev.some((p) => p.id === product.id);
       if (exists) {
         const nextList = prev.filter((p) => p.id !== product.id);
-        showToast({
+        toastData = {
           type: "info",
           title: "Removed from Wishlist",
           message: product.name,
           product: product,
           count: nextList.length,
           iconType: "wishlist-remove",
-        });
+        };
         return nextList;
       }
       const nextList = [...prev, product];
-      showToast({
+      toastData = {
         type: "success",
         title: "Saved to Wishlist",
         message: product.name,
@@ -256,9 +276,13 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({
         product: product,
         count: nextList.length,
         iconType: "wishlist-add",
-      });
+      };
       return nextList;
     });
+
+    if (toastData) {
+      showToast(toastData);
+    }
   };
 
   const moveToCart = (product: Product) => {
@@ -267,21 +291,25 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const moveToWishlist = (product: Product, variantId?: string) => {
     removeFromCart(product.id, variantId);
-    if (!wishlist.some((p) => p.id === product.id)) {
-      setWishlist((prev) => {
-        const nextList = [...prev, product];
-        showToast({
-          type: "success",
-          title: "Saved to Wishlist",
-          message: product.name,
-          actionLabel: "View Wishlist",
-          actionHref: "/wishlist",
-          product: product,
-          count: nextList.length,
-          iconType: "wishlist-add",
-        });
-        return nextList;
-      });
+    let toastData: Omit<ToastData, "id"> | null = null;
+    setWishlist((prev) => {
+      if (prev.some((p) => p.id === product.id)) return prev;
+      const nextList = [...prev, product];
+      toastData = {
+        type: "success",
+        title: "Saved to Wishlist",
+        message: product.name,
+        actionLabel: "View Wishlist",
+        actionHref: "/wishlist",
+        product: product,
+        count: nextList.length,
+        iconType: "wishlist-add",
+      };
+      return nextList;
+    });
+
+    if (toastData) {
+      showToast(toastData);
     }
   };
 

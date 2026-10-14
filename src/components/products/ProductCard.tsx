@@ -7,12 +7,11 @@ import { getOptimizedImageUrl } from "@/lib/cloudinaryUrl";
 import {
   Star,
   Heart,
-  ShoppingBag,
+  ShoppingCart,
   Check,
   Layers,
   Maximize2,
   ArrowLeftRight,
-  ChevronLeft,
 } from "lucide-react";
 import { Product } from "@/data/mockData";
 import { useStore } from "@/context/StoreContext";
@@ -36,7 +35,6 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   const store = useStore();
   const [isAdded, setIsAdded] = useState(false);
   const [isCompared, setIsCompared] = useState(false);
-  const [activeImageIdx, setActiveImageIdx] = useState<0 | 1>(0);
   const [selectedVariantId, setSelectedVariantId] = useState<
     string | undefined
   >(product.variants?.[0]?.id);
@@ -112,13 +110,6 @@ export const ProductCard: React.FC<ProductCardProps> = ({
     setTimeout(() => setIsCompared(false), 2500);
   };
 
-  const handleToggleImage = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    haptic?.selection?.();
-    setActiveImageIdx((prev) => (prev === 0 ? 1 : 0));
-  };
-
   return (
     <div
       id={`product-card-${product.id}`}
@@ -161,40 +152,36 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             <ArrowLeftRight className="w-3.5 h-3.5 stroke-[2.2]" />
           </button>
 
-          {/* 3. Wishlist Heart */}
-          <button
-            type="button"
-            onClick={handleToggleWishlist}
-            className={`w-7 h-7 rounded-full bg-white/95 backdrop-blur-xs border shadow-sm flex items-center justify-center active:scale-90 transition-all cursor-pointer ${
-              itemIsWishlisted
-                ? "border-red-300 text-red-500 bg-red-50"
-                : "border-slate-200/90 text-slate-700 hover:text-red-500 hover:border-red-200 hover:bg-red-50/50"
-            }`}
-            title={itemIsWishlisted ? "Remove from Wishlist" : "Add to Wishlist"}
-            aria-label="Wishlist"
-          >
-            <Heart
-              className={`w-3.5 h-3.5 transition-colors ${
-                itemIsWishlisted ? "fill-red-500 text-red-500" : "stroke-[2.2]"
+          {/* 3. Wishlist Heart with Reference Tooltip */}
+          <div className="relative group/wish">
+            <button
+              type="button"
+              onClick={handleToggleWishlist}
+              className={`w-7 h-7 rounded-full bg-white/95 backdrop-blur-xs border shadow-sm flex items-center justify-center active:scale-90 transition-all cursor-pointer ${
+                itemIsWishlisted
+                  ? "border-red-300 text-red-500 bg-red-50"
+                  : "border-slate-200/90 text-slate-700 hover:text-red-500 hover:border-red-200 hover:bg-red-50/50"
               }`}
-            />
-          </button>
+              aria-label={itemIsWishlisted ? "Remove from wishlist" : "Add to wishlist"}
+            >
+              <Heart
+                className={`w-3.5 h-3.5 transition-colors ${
+                  itemIsWishlisted ? "fill-red-500 text-red-500" : "stroke-[2.2]"
+                }`}
+              />
+            </button>
+
+            {/* Tooltip matching Reference Screenshot (Image 3) */}
+            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover/wish:flex flex-col items-center pointer-events-none z-50">
+              <span className="bg-[#18181B] text-white text-[11px] font-medium px-3 py-1.5 rounded-lg shadow-xl whitespace-nowrap">
+                {itemIsWishlisted ? "Remove from wishlist" : "Add to wishlist"}
+              </span>
+              <div className="w-0 h-0 border-x-4 border-x-transparent border-t-4 border-t-[#18181B]" />
+            </div>
+          </div>
         </div>
 
-        {/* ── Left Navigation Arrow (< Chevron, appears on hover to toggle angle) ── */}
-        {hasSecondary && (
-          <button
-            type="button"
-            onClick={handleToggleImage}
-            className="absolute left-1.5 top-1/2 -translate-y-1/2 z-30 w-6 h-6 rounded-full bg-white/95 backdrop-blur-xs border border-slate-200/90 shadow-sm flex items-center justify-center text-slate-700 hover:text-[#2563EB] hover:border-blue-300 opacity-0 -translate-x-2 pointer-events-none group-hover:opacity-100 group-hover:translate-x-0 group-hover:pointer-events-auto active:scale-90 transition-all duration-300 cursor-pointer"
-            title="Switch angle"
-            aria-label="Switch product view"
-          >
-            <ChevronLeft className="w-3.5 h-3.5 stroke-[2.5]" />
-          </button>
-        )}
-
-        {/* ── Product Images (Smooth Cross-Fade on Hover or Angle Click) ── */}
+        {/* ── Product Images (Smooth Cross-Fade on Hover) ── */}
         <Link
           href={`/products/${product.slug || product.id}`}
           className="relative w-full h-full block cursor-pointer"
@@ -202,11 +189,9 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           {/* Primary View */}
           <div
             className={`absolute inset-0 transition-opacity duration-500 ease-in-out ${
-              hasSecondary && activeImageIdx === 0
+              hasSecondary
                 ? "opacity-100 group-hover:opacity-0"
-                : activeImageIdx === 0
-                ? "opacity-100"
-                : "opacity-0"
+                : "opacity-100"
             }`}
           >
             <Image
@@ -223,13 +208,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
 
           {/* Secondary View (smoothly cross-fades in on hover) */}
           {hasSecondary && (
-            <div
-              className={`absolute inset-0 transition-opacity duration-500 ease-in-out ${
-                activeImageIdx === 1
-                  ? "opacity-100"
-                  : "opacity-0 group-hover:opacity-100"
-              }`}
-            >
+            <div className="absolute inset-0 transition-opacity duration-500 ease-in-out opacity-0 group-hover:opacity-100">
               <Image
                 src={getOptimizedImageUrl(secondaryImage, {
                   width: 350,
@@ -314,30 +293,30 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           <button
             id={`add-to-cart-${product.id}`}
             onClick={handleAddToCart}
-            className={`w-full py-1.5 px-2 rounded-xl text-[10px] sm:text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all duration-200 cursor-pointer shadow-2xs active:scale-[0.98] ${
+            className={`w-full py-2 sm:py-2.5 px-3 rounded-xl border text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all duration-150 active:scale-95 cursor-pointer shadow-2xs ${
               isAdded
-                ? "bg-emerald-600 text-white shadow-emerald-600/20"
-                : "bg-slate-900 hover:bg-[#2563EB] text-white"
+                ? "bg-emerald-600 border-emerald-600 text-white"
+                : "border-[#2563EB] text-[#2563EB] hover:bg-[#2563EB] hover:text-white"
             }`}
           >
             {isAdded ? (
               <>
-                <Check className="w-3 h-3 text-white stroke-[3]" />
-                <span>Added!</span>
+                <Check className="w-3.5 h-3.5" />
+                <span>ADDED!</span>
               </>
             ) : (
               <>
-                <ShoppingBag className="w-3 h-3 text-[#2563EB] group-hover/btn:text-white" />
-                <span>Add to Cart</span>
+                <ShoppingCart className="w-3.5 h-3.5" />
+                <span>ADD TO CART</span>
               </>
             )}
           </button>
         ) : (
           <button
             disabled
-            className="w-full py-1.5 px-2 rounded-xl text-[10px] sm:text-xs font-bold uppercase tracking-wider bg-slate-100 text-slate-400 cursor-not-allowed text-center"
+            className="w-full py-2 sm:py-2.5 px-3 rounded-xl border border-slate-200 text-xs font-bold uppercase tracking-wider bg-slate-100 text-slate-400 cursor-not-allowed text-center"
           >
-            Out of Stock
+            OUT OF STOCK
           </button>
         )}
       </div>

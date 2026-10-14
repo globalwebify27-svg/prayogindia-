@@ -70,10 +70,10 @@ export const FooterSection: React.FC = () => {
                     </div>
                     <button
                       type="submit"
-                      className="bg-[#2563EB] hover:bg-[#1D4ED8] active:scale-[0.98] text-white font-bold text-sm px-6 py-2.5 rounded-xl transition-all shadow-md shadow-[#2563EB]/20 flex items-center justify-center gap-2 shrink-0 cursor-pointer"
+                      className="bg-[#FFC20E] hover:bg-[#E5AC0D] active:scale-[0.98] text-slate-950 font-bold text-sm px-6 py-2.5 rounded-xl transition-all shadow-md shadow-amber-400/20 flex items-center justify-center gap-2 shrink-0 cursor-pointer"
                     >
                       <span>Subscribe</span>
-                      <Send className="w-3.5 h-3.5" />
+                      <Send className="w-3.5 h-3.5 stroke-[2.5]" />
                     </button>
                   </div>
                   <p className="text-[11px] text-slate-400 font-medium">

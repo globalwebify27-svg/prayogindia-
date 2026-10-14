@@ -313,7 +313,7 @@ const CIRCULAR_BRANDS = [...BRANDS, ...BRANDS];
 export const BrandPartners: React.FC = () => {
   return (
     <section className="py-8 sm:py-10 bg-transparent border-y border-slate-200/60 overflow-hidden">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6 text-center">
+      <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 space-y-6 text-center">
         {/* Section Header */}
         <div className="flex flex-col items-center gap-1.5">
           <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 select-none">

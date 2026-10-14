@@ -32,11 +32,31 @@ async function getProduct(rawSlug: string): Promise<Product | null> {
       });
 
       if (dbProduct) {
-        const imageUrls = dbProduct.images.map((img) => img.imageUrl).filter(Boolean);
+        const mockFallback = PRODUCTS.find(
+          (p) =>
+            (p.slug && p.slug.toLowerCase() === slugLower) ||
+            p.id.toLowerCase() === slugLower ||
+            (p.sku && p.sku.toLowerCase() === slugLower) ||
+            (dbProduct.sku && p.sku && p.sku.toLowerCase() === dbProduct.sku.toLowerCase()) ||
+            p.name.toLowerCase() === dbProduct.name.toLowerCase()
+        );
+
+        const rawImages = dbProduct.images.map((img) => img.imageUrl).filter(Boolean);
+        const imageUrls =
+          rawImages.length > 0
+            ? rawImages
+            : (dbProduct as { imageUrl?: string }).imageUrl
+            ? [(dbProduct as { imageUrl?: string }).imageUrl!]
+            : mockFallback?.images && mockFallback.images.length > 0
+            ? mockFallback.images
+            : mockFallback?.image
+            ? [mockFallback.image]
+            : ["/images/products/4wd-robot-chassis-kit.jpg"];
+
         const primaryImage =
-          imageUrls.length > 0
-            ? imageUrls[0]
-            : (dbProduct as { imageUrl?: string }).imageUrl || "";
+          imageUrls[0] ||
+          mockFallback?.image ||
+          "/images/products/4wd-robot-chassis-kit.jpg";
 
         const rawSpecs =
           dbProduct.specifications &&
@@ -45,7 +65,7 @@ async function getProduct(rawSlug: string): Promise<Product | null> {
             : {};
 
         const seoData = (rawSpecs._seo as Record<string, unknown>) || {};
-        const cleanSpecs: Record<string, string> = {};
+        const cleanSpecs: Record<string, string> = { ...(mockFallback?.specs || {}) };
         for (const [k, v] of Object.entries(rawSpecs)) {
           if (k !== "_seo" && typeof v === "string") {
             cleanSpecs[k] = v;
@@ -57,19 +77,28 @@ async function getProduct(rawSlug: string): Promise<Product | null> {
           slug: dbProduct.slug,
           name: dbProduct.name,
           sku: dbProduct.sku,
-          brand: dbProduct.brand,
-          category: dbProduct.category?.name || "Robotics & Hardware",
+          brand: dbProduct.brand || mockFallback?.brand || "Prayog India",
+          category: dbProduct.category?.name || mockFallback?.category || "Robotics & Hardware",
           price: dbProduct.price,
-          mrp: dbProduct.mrp || Math.round(dbProduct.price * 1.3),
+          mrp: dbProduct.mrp || mockFallback?.mrp || Math.round(dbProduct.price * 1.3),
           discount: `${Math.round((((dbProduct.mrp || dbProduct.price * 1.3) - dbProduct.price) / (dbProduct.mrp || dbProduct.price * 1.3)) * 100)}% OFF`,
           rating: dbProduct.rating,
           reviews: dbProduct.reviewCount,
           inStock: dbProduct.inStock,
           image: primaryImage,
-          images: imageUrls.length > 0 ? imageUrls : [primaryImage],
-          description: dbProduct.description,
-          features: dbProduct.features || [],
+          images: imageUrls,
+          description:
+            dbProduct.description ||
+            mockFallback?.description ||
+            "High-precision engineering component engineered for robotics and electronics prototyping.",
+          features:
+            dbProduct.features && dbProduct.features.length > 0
+              ? dbProduct.features
+              : mockFallback?.features || [],
           specs: cleanSpecs,
+          whatsIncluded: mockFallback?.whatsIncluded || [],
+          applications: mockFallback?.applications || [],
+          documents: mockFallback?.documents || [],
           metaTitle: (seoData.metaTitle as string) || undefined,
           metaDescription: (seoData.metaDescription as string) || undefined,
           metaKeywords: Array.isArray(seoData.metaKeywords) ? (seoData.metaKeywords as string[]) : undefined,

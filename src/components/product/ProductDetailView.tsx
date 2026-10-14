@@ -28,21 +28,46 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
   const decodedSlug = decodeURIComponent(slug || "").trim();
   const slugLower = decodedSlug.toLowerCase();
 
-  // ── Product lookup: check passed DB initialProduct first
-  const product =
-    initialProduct ||
-    PRODUCTS.find(
-      (p) =>
-        (p.slug && p.slug.toLowerCase() === slugLower) ||
-        p.id.toLowerCase() === slugLower ||
-        (p.sku && p.sku.toLowerCase() === slugLower) ||
-        p.name.toLowerCase().replace(/[^a-z0-9]+/g, "-") === slugLower ||
-        p.name.toLowerCase() === slugLower,
-    ) ||
-    null;
+  // ── Product lookup: check passed DB initialProduct first, enrich with mock catalog
+  const matchingMock = PRODUCTS.find(
+    (p) =>
+      (p.slug && p.slug.toLowerCase() === slugLower) ||
+      p.id.toLowerCase() === slugLower ||
+      (p.sku && p.sku.toLowerCase() === slugLower) ||
+      (initialProduct?.sku && p.sku && p.sku.toLowerCase() === initialProduct.sku.toLowerCase()) ||
+      (initialProduct?.name && p.name.toLowerCase() === initialProduct.name.toLowerCase()) ||
+      p.name.toLowerCase().replace(/[^a-z0-9]+/g, "-") === slugLower ||
+      p.name.toLowerCase() === slugLower,
+  );
+
+  const product = initialProduct
+    ? {
+        ...matchingMock,
+        ...initialProduct,
+        image:
+          initialProduct.image && initialProduct.image.trim() !== ""
+            ? initialProduct.image
+            : matchingMock?.image || "/images/products/4wd-robot-chassis-kit.jpg",
+        images:
+          initialProduct.images && initialProduct.images.filter(Boolean).length > 0
+            ? initialProduct.images.filter(Boolean)
+            : matchingMock?.images && matchingMock.images.length > 0
+            ? matchingMock.images
+            : matchingMock?.image
+            ? [matchingMock.image]
+            : ["/images/products/4wd-robot-chassis-kit.jpg"],
+        features:
+          initialProduct.features && initialProduct.features.length > 0
+            ? initialProduct.features
+            : matchingMock?.features || [],
+        specs: {
+          ...(matchingMock?.specs || {}),
+          ...(initialProduct.specs || {}),
+        },
+      }
+    : matchingMock || null;
 
   const isInvalidSlug = !product;
-
 
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(
     product?.variants && product.variants.length > 0
@@ -66,14 +91,21 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
   // ── Derived data (Only show images provided for this product)
   const galleryImages = React.useMemo(() => {
     if (!product) return [];
-    if (product.images && product.images.length > 0) {
-      return product.images.filter(Boolean);
+    const validImgs = (product.images || []).filter(Boolean);
+    if (validImgs.length > 0) {
+      return validImgs;
     }
-    if (product.image) {
+    if (product.image && product.image.trim() !== "") {
       return [product.image];
     }
-    return [];
-  }, [product]);
+    if (matchingMock?.images && matchingMock.images.length > 0) {
+      return matchingMock.images;
+    }
+    if (matchingMock?.image) {
+      return [matchingMock.image];
+    }
+    return ["/images/products/4wd-robot-chassis-kit.jpg"];
+  }, [product, matchingMock]);
 
   if (isInvalidSlug || !product) {
     return (

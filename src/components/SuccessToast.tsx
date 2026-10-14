@@ -4,6 +4,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   CheckCircle2,
+  Check,
   X,
   AlertCircle,
   Info,
@@ -38,19 +39,8 @@ export const SuccessToast: React.FC<SuccessToastProps> = ({
   onClose,
 }) => {
   const [isPaused, setIsPaused] = useState(false);
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
-
-  useEffect(() => {
-    if (!toast || isPaused) return;
-
-    timerRef.current = setTimeout(() => {
-      onClose();
-    }, toast.duration || 3800);
-
-    return () => {
-      if (timerRef.current) clearTimeout(timerRef.current);
-    };
-  }, [toast, isPaused, onClose]);
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
 
   const isWishlistAdd =
     toast?.iconType === "wishlist-add" ||
@@ -62,20 +52,71 @@ export const SuccessToast: React.FC<SuccessToastProps> = ({
     (toast?.title?.toLowerCase().includes("wishlist") &&
       toast?.type === "info");
 
+  useEffect(() => {
+    if (!toast || isPaused) return;
+
+    const timeoutDuration =
+      isWishlistAdd || isWishlistRemove ? 2000 : (toast.duration || 3500);
+
+    const timer = setTimeout(() => {
+      onCloseRef.current();
+    }, timeoutDuration);
+
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [toast?.id, isPaused, isWishlistAdd, isWishlistRemove]);
+
   return (
-    <AnimatePresence>
+    <AnimatePresence mode="wait">
       {toast && (
-        <aside
-          aria-live="polite"
-          className="fixed top-16 sm:top-24 right-3 sm:right-6 z-50 max-w-[calc(100vw-24px)] sm:max-w-[325px] w-full pointer-events-auto"
-          onMouseEnter={() => setIsPaused(true)}
-          onMouseLeave={() => setIsPaused(false)}
-        >
-          <motion.div
-            initial={{ opacity: 0, y: -16, scale: 0.94 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -12, scale: 0.94 }}
-            transition={{ type: "spring", damping: 26, stiffness: 380 }}
+        isWishlistAdd || isWishlistRemove ? (
+          <aside
+            key={toast.id}
+            aria-live="polite"
+            className="fixed top-24 left-1/2 -translate-x-1/2 z-50 pointer-events-auto select-none"
+            onClick={onClose}
+          >
+            <motion.div
+              initial={{ opacity: 0, y: -20, scale: 0.94 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -10, scale: 0.94 }}
+              transition={{ duration: 0.2 }}
+              className="bg-white rounded-2xl shadow-[0_12px_38px_-6px_rgba(0,0,0,0.16),0_4px_16px_rgba(0,0,0,0.06)] border border-slate-100 px-6 py-4 flex items-center gap-3.5 whitespace-nowrap cursor-pointer hover:shadow-md transition-shadow"
+            >
+              <div
+                className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 ${
+                  isWishlistAdd
+                    ? "bg-[#10B981] text-white"
+                    : "bg-slate-700 text-white"
+                }`}
+              >
+                {isWishlistAdd ? (
+                  <Check className="w-3.5 h-3.5 stroke-[3] text-white" />
+                ) : (
+                  <X className="w-3.5 h-3.5 stroke-[3] text-white" />
+                )}
+              </div>
+              <span className="text-[14px] sm:text-[15px] font-semibold text-slate-800 tracking-tight">
+                {isWishlistAdd
+                  ? "Product added to wishlist!"
+                  : "Product removed from wishlist!"}
+              </span>
+            </motion.div>
+          </aside>
+        ) : (
+          <aside
+            key={toast.id}
+            aria-live="polite"
+            className="fixed top-16 sm:top-24 right-3 sm:right-6 z-50 max-w-[calc(100vw-24px)] sm:max-w-[325px] w-full pointer-events-auto"
+            onMouseEnter={() => setIsPaused(true)}
+            onMouseLeave={() => setIsPaused(false)}
+          >
+            <motion.div
+              initial={{ opacity: 0, y: -16, scale: 0.94 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -12, scale: 0.94 }}
+              transition={{ type: "spring", damping: 26, stiffness: 380 }}
             className={`relative overflow-hidden rounded-xl p-2.5 shadow-[0_12px_28px_-6px_rgba(15,23,42,0.12),0_4px_12px_rgba(0,0,0,0.04)] border backdrop-blur-md bg-white/95 text-slate-900 transition-all ${
               toast.type === "error"
                 ? "border-rose-200"
@@ -245,6 +286,7 @@ export const SuccessToast: React.FC<SuccessToastProps> = ({
             </div>
           </motion.div>
         </aside>
+        )
       )}
     </AnimatePresence>
   );

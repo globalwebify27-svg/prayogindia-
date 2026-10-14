@@ -50,7 +50,7 @@ export const AppShell: React.FC<{ children: React.ReactNode }> = ({
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-white text-slate-900 font-sans selection:bg-[#1E56A0] selection:text-white w-full">
+    <div className="min-h-screen flex flex-col bg-white text-slate-900 font-sans selection:bg-[#1E56A0] selection:text-white w-full max-w-full overflow-x-clip">
       <Header
         cartCount={cartCount}
         wishlistCount={wishlistCount}

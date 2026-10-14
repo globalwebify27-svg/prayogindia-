@@ -187,14 +187,15 @@ export const ShopByCategory: React.FC<Props> = ({ onSelectCategory }) => {
   const INFINITE_CATEGORIES = [...CATEGORIES, ...CATEGORIES];
 
   return (
-    <section className="pt-3 sm:pt-5 pb-6 sm:pb-8 bg-white border-b border-slate-100">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-3.5 sm:space-y-5">
+    <section className="pt-2 sm:pt-5 pb-3 sm:pb-8 bg-white border-b border-slate-100">
+      <div className="w-full px-3.5 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 space-y-2.5 sm:space-y-5">
         {/* Section Header with Controls */}
         <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-slate-900 tracking-tight">
+          <div className="flex items-center gap-3">
+            <h2 className="text-lg sm:text-2xl lg:text-3xl font-bold text-slate-900 tracking-tight">
               Shop by Category
             </h2>
+            <div className="w-12 h-1 bg-[#FFC20E] rounded-full" />
           </div>
 
           <div className="flex items-center gap-3">
@@ -215,9 +216,9 @@ export const ShopByCategory: React.FC<Props> = ({ onSelectCategory }) => {
               key={cat.id}
               type="button"
               onClick={() => onSelectCategory?.(cat.name)}
-              className="bg-white border border-slate-200/80 hover:border-[#2563EB]/50 rounded-xl p-2 sm:p-2.5 flex flex-col items-center justify-between text-center shadow-2xs active:scale-95 transition-all focus:outline-none"
+              className="bg-white border border-slate-200/80 hover:border-[#2563EB]/50 rounded-xl p-1.5 sm:p-2.5 flex flex-col items-center justify-between text-center shadow-2xs active:scale-95 transition-all focus:outline-none"
             >
-              <div className="relative w-11 h-11 mb-1.5 rounded-lg overflow-hidden bg-slate-50 flex items-center justify-center">
+              <div className="relative w-10 h-10 mb-1 rounded-lg overflow-hidden bg-slate-50 flex items-center justify-center">
                 <Image
                   src={cat.image}
                   alt={cat.name}
@@ -225,7 +226,7 @@ export const ShopByCategory: React.FC<Props> = ({ onSelectCategory }) => {
                   className="object-cover"
                 />
               </div>
-              <span className="text-[11px] font-bold text-slate-800 text-center leading-tight line-clamp-1">
+              <span className="text-[10px] font-black uppercase tracking-wider text-slate-950 text-center leading-tight line-clamp-1">
                 {cat.id === "robotics"
                   ? "Robotics"
                   : cat.id === "sensors"
@@ -240,28 +241,43 @@ export const ShopByCategory: React.FC<Props> = ({ onSelectCategory }) => {
 
         {/* Desktop View: 4-Column Category Grid */}
         <div className="hidden sm:grid sm:grid-cols-4 gap-4 lg:gap-5 pt-1">
-          {CATEGORIES.map((cat) => (
-            <div
-              key={cat.id}
-              onClick={() => onSelectCategory?.(cat.name)}
-              className="bg-white hover:bg-[#EFF6FF]/60 border border-slate-200/90 hover:border-[#2563EB]/40 rounded-2xl p-4 cursor-pointer transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 group flex flex-col items-center text-center"
-            >
-              {/* Category Image */}
-              <div className="relative h-32 lg:h-36 w-full mb-3 rounded-xl overflow-hidden bg-slate-50 border border-slate-100 shadow-2xs">
-                <Image
-                  src={cat.image}
-                  alt={cat.name}
-                  fill
-                  className="object-cover rounded-xl group-hover:scale-105 transition-transform duration-500"
-                />
-              </div>
+          {CATEGORIES.map((cat) => {
+            const Icon = cat.IconComponent;
+            return (
+              <div
+                key={cat.id}
+                onClick={() => onSelectCategory?.(cat.name)}
+                className="bg-white border border-slate-200/90 hover:border-slate-300 rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 group flex flex-col"
+              >
+                {/* Category Image */}
+                <div className="relative h-32 lg:h-36 w-full overflow-hidden bg-slate-50">
+                  <Image
+                    src={cat.image}
+                    alt={cat.name}
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                </div>
 
-              {/* Category Name */}
-              <h3 className="text-sm font-bold text-slate-800 group-hover:text-[#2563EB] transition-colors leading-tight">
-                {cat.name}
-              </h3>
-            </div>
-          ))}
+                {/* Bottom Bar: Icon + Category Name + Yellow Arrow Button */}
+                <div className="p-3.5 flex items-center justify-between gap-2.5 bg-white border-t border-slate-100">
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <div className="w-7 h-7 rounded-lg bg-blue-50 text-[#0A233F] flex items-center justify-center shrink-0">
+                      <Icon className="w-4 h-4 text-slate-800" />
+                    </div>
+                    <h3 className="text-xs sm:text-[13px] font-black text-slate-950 uppercase tracking-wider group-hover:text-[#2563EB] transition-colors leading-tight truncate">
+                      {cat.name}
+                    </h3>
+                  </div>
+
+                  {/* Arrow Button (Neutral without color) */}
+                  <div className="w-7 h-7 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center shrink-0 group-hover:bg-slate-200 group-hover:text-slate-800 transition-all">
+                    <ArrowRight className="w-3.5 h-3.5 stroke-[2.2]" />
+                  </div>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
     </section>

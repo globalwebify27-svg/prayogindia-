@@ -808,8 +808,8 @@ export const PRODUCTS: Product[] = [
   {
     id: "prayog-stem-robot-kit",
     slug: "prayog-stem-robot-kit",
-    name: "PRAYOG Dilay-Bot 4WD Autonomous Robotics Learning Kit",
-    sku: "PRG-KIT-100",
+    name: "Dilay-Bot 4WD Smart Autonomous Robotics Car Kit",
+    sku: "PRG-ROB-001",
     brand: "PRAYOG INDIA",
     category: "Robotics & DIY Kits",
     subcategory: "Autonomous Robots",
@@ -820,13 +820,13 @@ export const PRODUCTS: Product[] = [
     reviews: 215,
     inStock: true,
     badge: "FLAGSHIP KIT",
-    image: "/images/products/arduino-uno-r3.png",
+    image: "/images/products/4wd-robot-chassis-kit.jpg",
     images: [
-      "/images/products/arduino-uno-r3.png",
-      "/images/products/ultrasonic-sensor-hcsr04.png",
+      "/images/products/4wd-robot-chassis-kit.jpg",
+      "/images/robot_banner_stem.jpg",
       "/images/products/tt-gear-motor-wheel.png",
       "/images/products/l298n-motor-driver.jpg",
-      "/images/products/4wd-robot-chassis-kit.jpg",
+      "/images/products/ultrasonic-sensor-hcsr04.png",
     ],
     description:
       "Complete hands-on robotics kit including metal chassis, ultrasonic line follower, Bluetooth app control & code tutorials.",
