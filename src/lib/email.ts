@@ -90,7 +90,7 @@ export function renderEmailTemplate(
         subject: `Order Confirmation #${data.orderNumber} - Prayog India`,
         html: `
           <div style="font-family: Arial, sans-serif; padding: 20px; color: #333;">
-            <h2 style="color: #00AEEF;">Thank you for your order!</h2>
+            <h2 style="color: #2563EB;">Thank you for your order!</h2>
             <p>Your order <strong>#${data.orderNumber}</strong> has been received and logged in our system.</p>
             <p><strong>Grand Total:</strong> ₹${data.totalAmount?.toLocaleString()}</p>
             <p><strong>Shipping Address:</strong> ${data.shippingAddress}</p>
@@ -106,9 +106,9 @@ export function renderEmailTemplate(
         subject: `New Reply on Support Ticket #${data.ticketNumber} - Prayog India`,
         html: `
           <div style="font-family: Arial, sans-serif; padding: 20px; color: #333;">
-            <h3 style="color: #00AEEF;">Support Ticket Update</h3>
+            <h3 style="color: #2563EB;">Support Ticket Update</h3>
             <p>There is a new reply on your ticket <strong>#${data.ticketNumber}</strong> ("${data.subject}"):</p>
-            <blockquote style="background: #f9f9f9; border-left: 4px solid #00AEEF; padding: 10px; font-style: italic;">
+            <blockquote style="background: #f9f9f9; border-left: 4px solid #2563EB; padding: 10px; font-style: italic;">
               ${data.messageSnippet}
             </blockquote>
             <p>Log in to your Prayog India customer account to view the full thread.</p>
@@ -122,7 +122,7 @@ export function renderEmailTemplate(
         subject: `Service Enquiry Received - Prayog India`,
         html: `
           <div style="font-family: Arial, sans-serif; padding: 20px; color: #333;">
-            <h3 style="color: #00AEEF;">Institutional Service Enquiry Received</h3>
+            <h3 style="color: #2563EB;">Institutional Service Enquiry Received</h3>
             <p>Dear ${data.name},</p>
             <p>We have received your enquiry for <strong>"${data.serviceName}"</strong>.</p>
             <p>Our mechatronics & lab setup engineering team will contact you shortly.</p>

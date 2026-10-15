@@ -163,7 +163,7 @@ export const LoginForm: React.FC = () => {
               value={identifier}
               onChange={(e) => setIdentifier(e.target.value)}
               placeholder="Email or Mobile No"
-              className="w-full bg-white text-slate-900 pl-12 pr-4 py-3.5 text-sm rounded-xl border border-slate-200 hover:border-slate-300 focus:outline-none focus:border-[#00AEEF] focus:ring-1 focus:ring-[#00AEEF] transition-all placeholder:text-slate-400 font-medium"
+              className="w-full bg-white text-slate-900 pl-12 pr-4 py-3.5 text-sm rounded-xl border border-slate-200 hover:border-slate-300 focus:outline-none focus:border-[#2563EB] focus:ring-1 focus:ring-[#2563EB] transition-all placeholder:text-slate-400 font-medium"
             />
           </div>
 
@@ -178,7 +178,7 @@ export const LoginForm: React.FC = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Password"
-              className="w-full bg-white text-slate-900 pl-12 pr-12 py-3.5 text-sm rounded-xl border border-slate-200 hover:border-slate-300 focus:outline-none focus:border-[#00AEEF] focus:ring-1 focus:ring-[#00AEEF] transition-all placeholder:text-slate-400 font-medium"
+              className="w-full bg-white text-slate-900 pl-12 pr-12 py-3.5 text-sm rounded-xl border border-slate-200 hover:border-slate-300 focus:outline-none focus:border-[#2563EB] focus:ring-1 focus:ring-[#2563EB] transition-all placeholder:text-slate-400 font-medium"
             />
             <button
               type="button"
@@ -198,7 +198,7 @@ export const LoginForm: React.FC = () => {
           <div className="flex justify-end pt-1">
             <Link
               href={targetRedirect !== "/account" ? `/forgot-password?redirect=${encodeURIComponent(targetRedirect)}` : "/forgot-password"}
-              className="text-xs font-semibold text-[#00AEEF] hover:text-[#0096D6] transition-colors"
+              className="text-xs font-semibold text-[#2563EB] hover:text-[#1D4ED8] transition-colors"
             >
               Forgot Password?
             </Link>
@@ -209,7 +209,7 @@ export const LoginForm: React.FC = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full sm:w-36 bg-[#00AEEF] hover:bg-[#0096D6] active:scale-[0.98] disabled:opacity-40 text-white py-3.5 rounded-xl font-bold text-sm transition-all shadow-md shadow-[#00AEEF]/20 flex items-center justify-center cursor-pointer"
+              className="w-full sm:w-36 bg-[#2563EB] hover:bg-[#1D4ED8] active:scale-[0.98] disabled:opacity-40 text-white py-3.5 rounded-xl font-bold text-sm transition-all shadow-md shadow-[#2563EB]/20 flex items-center justify-center cursor-pointer"
             >
               {loading ? "Logging in..." : "Login"}
             </button>
@@ -221,7 +221,7 @@ export const LoginForm: React.FC = () => {
           Don&apos;t have an account?{" "}
           <Link
             href={targetRedirect !== "/account" ? `/register?redirect=${encodeURIComponent(targetRedirect)}` : "/register"}
-            className="text-[#00AEEF] font-bold hover:text-[#0096D6] hover:underline transition-colors"
+            className="text-[#2563EB] font-bold hover:text-[#1D4ED8] hover:underline transition-colors"
           >
             Register
           </Link>
@@ -258,9 +258,9 @@ export const LoginForm: React.FC = () => {
 
             <Link
               href={targetRedirect !== "/account" ? `/verify-otp?redirect=${encodeURIComponent(targetRedirect)}` : "/verify-otp"}
-              className="w-full bg-[#E0F7FC] hover:bg-[#B3EBF9] text-[#00AEEF] border border-[#00AEEF]/20 py-2.5 px-3 rounded-xl font-semibold text-xs flex items-center justify-center gap-1.5 transition-all text-center"
+              className="w-full bg-blue-50 hover:bg-blue-100 text-[#2563EB] border border-blue-200/60 py-2.5 px-3 rounded-xl font-semibold text-xs flex items-center justify-center gap-1.5 transition-all text-center"
             >
-              <Smartphone className="w-4 h-4 text-[#00AEEF]" />
+              <Smartphone className="w-4 h-4 text-[#2563EB]" />
               <span>Login with OTP</span>
             </Link>
           </div>

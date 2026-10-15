@@ -64,8 +64,8 @@ export const ContactView: React.FC = () => {
           <div className="lg:col-span-5 bg-slate-50 border-b lg:border-b-0 lg:border-r border-slate-200/90 p-6 sm:p-8 flex flex-col justify-between space-y-6">
             <div className="space-y-5">
               <div>
-                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-[#E0F7FC] text-[#00AEEF]">
-                  <Sparkles className="w-3 h-3 text-[#00AEEF]" />
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-blue-50 text-[#2563EB] border border-blue-200/60">
+                  <Sparkles className="w-3 h-3 text-[#2563EB]" />
                   Prayog India Helpdesk
                 </span>
                 <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight mt-2">
@@ -80,7 +80,7 @@ export const ContactView: React.FC = () => {
               <div className="space-y-3.5 text-xs pt-1">
                 <div className="flex items-start gap-3">
                   <div className="w-8 h-8 rounded-xl bg-white border border-slate-200 flex items-center justify-center shrink-0 shadow-2xs">
-                    <MapPin className="w-4 h-4 text-[#00AEEF]" />
+                    <MapPin className="w-4 h-4 text-[#2563EB]" />
                   </div>
                   <div>
                     <span className="text-[10px] uppercase font-bold text-slate-400 block">
@@ -94,7 +94,7 @@ export const ContactView: React.FC = () => {
 
                 <div className="flex items-start gap-3">
                   <div className="w-8 h-8 rounded-xl bg-white border border-slate-200 flex items-center justify-center shrink-0 shadow-2xs">
-                    <Phone className="w-4 h-4 text-[#00AEEF]" />
+                    <Phone className="w-4 h-4 text-[#2563EB]" />
                   </div>
                   <div>
                     <span className="text-[10px] uppercase font-bold text-slate-400 block">
@@ -102,7 +102,7 @@ export const ContactView: React.FC = () => {
                     </span>
                     <a
                       href={`tel:${COMPANY_INFO.phone}`}
-                      className="text-slate-900 font-bold hover:text-[#00AEEF] transition-colors"
+                      className="text-slate-900 font-bold hover:text-[#2563EB] transition-colors"
                     >
                       {COMPANY_INFO.phone}
                     </a>
@@ -111,7 +111,7 @@ export const ContactView: React.FC = () => {
 
                 <div className="flex items-start gap-3">
                   <div className="w-8 h-8 rounded-xl bg-white border border-slate-200 flex items-center justify-center shrink-0 shadow-2xs">
-                    <Mail className="w-4 h-4 text-[#00AEEF]" />
+                    <Mail className="w-4 h-4 text-[#2563EB]" />
                   </div>
                   <div>
                     <span className="text-[10px] uppercase font-bold text-slate-400 block">
@@ -119,7 +119,7 @@ export const ContactView: React.FC = () => {
                     </span>
                     <a
                       href={`mailto:${COMPANY_INFO.email}`}
-                      className="text-slate-900 font-bold hover:text-[#00AEEF] transition-colors"
+                      className="text-slate-900 font-bold hover:text-[#2563EB] transition-colors"
                     >
                       {COMPANY_INFO.email}
                     </a>
@@ -142,12 +142,12 @@ export const ContactView: React.FC = () => {
 
               <div className="flex items-center justify-between text-[11px] text-slate-500 px-1">
                 <span className="flex items-center gap-1.5 font-medium">
-                  <Headphones className="w-3.5 h-3.5 text-[#00AEEF]" />
+                  <Headphones className="w-3.5 h-3.5 text-[#2563EB]" />
                   <span>Existing Customer?</span>
                 </span>
                 <Link
                   href="/account/support"
-                  className="text-[#00AEEF] font-bold hover:underline flex items-center gap-0.5"
+                  className="text-[#2563EB] font-bold hover:underline flex items-center gap-0.5"
                 >
                   <span>Support Tickets</span>
                   <ArrowRight className="w-3 h-3" />
@@ -175,7 +175,7 @@ export const ContactView: React.FC = () => {
                     onClick={() => setSubject(topic)}
                     className={`px-3 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                       subject === topic
-                        ? "bg-[#00AEEF] text-white shadow-xs"
+                        ? "bg-[#2563EB] text-white shadow-xs"
                         : "bg-slate-100 text-slate-600 hover:bg-slate-200/80"
                     }`}
                   >
@@ -198,7 +198,7 @@ export const ContactView: React.FC = () => {
                       placeholder="e.g. Aman Sharma"
                       value={name}
                       onChange={(e) => setName(e.target.value)}
-                      className="w-full bg-slate-50 text-slate-900 px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#00AEEF] font-medium"
+                      className="w-full bg-slate-50 text-slate-900 px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-[#2563EB] font-medium"
                     />
                   </div>
 
@@ -212,7 +212,7 @@ export const ContactView: React.FC = () => {
                       placeholder="+91 87097 89641"
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
-                      className="w-full bg-slate-50 text-slate-900 px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#00AEEF] font-medium"
+                      className="w-full bg-slate-50 text-slate-900 px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-[#2563EB] font-medium"
                     />
                   </div>
                 </div>
@@ -228,7 +228,7 @@ export const ContactView: React.FC = () => {
                       placeholder="name@institution.com"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="w-full bg-slate-50 text-slate-900 px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#00AEEF] font-medium"
+                      className="w-full bg-slate-50 text-slate-900 px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-[#2563EB] font-medium"
                     />
                   </div>
 
@@ -242,7 +242,7 @@ export const ContactView: React.FC = () => {
                       placeholder="Selected topic"
                       value={subject}
                       onChange={(e) => setSubject(e.target.value)}
-                      className="w-full bg-slate-50 text-slate-900 px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#00AEEF] font-medium"
+                      className="w-full bg-slate-50 text-slate-900 px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-[#2563EB] font-medium"
                     />
                   </div>
                 </div>
@@ -257,13 +257,13 @@ export const ContactView: React.FC = () => {
                     placeholder="Describe your requirement, component inquiry, or lab setup details..."
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
-                    className="w-full bg-slate-50 text-slate-900 px-3.5 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#00AEEF] font-medium"
+                    className="w-full bg-slate-50 text-slate-900 px-3.5 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-[#2563EB] font-medium"
                   />
                 </div>
 
                 <button
                   type="submit"
-                  className="w-full bg-[#00AEEF] hover:bg-[#0096D6] text-white py-3 rounded-xl font-extrabold text-xs tracking-wide transition-all shadow-md shadow-[#00AEEF]/20 flex items-center justify-center gap-2 cursor-pointer active:scale-98"
+                  className="w-full bg-[#2563EB] hover:bg-[#1D4ED8] text-white py-3 rounded-xl font-extrabold text-xs tracking-wide transition-all shadow-md shadow-blue-500/20 flex items-center justify-center gap-2 cursor-pointer active:scale-98"
                 >
                   <Send className="w-3.5 h-3.5" />
                   <span>Send Message</span>
@@ -283,7 +283,7 @@ export const ContactView: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setSubmitted(false)}
-                  className="text-xs font-bold text-[#00AEEF] hover:underline pt-2"
+                  className="text-xs font-bold text-[#2563EB] hover:underline pt-2"
                 >
                   Send another message
                 </button>
@@ -295,8 +295,8 @@ export const ContactView: React.FC = () => {
         {/* ── 3 Trust Highlights ── */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div className="p-3.5 bg-white rounded-2xl border border-slate-200/80 flex items-center gap-3">
-            <div className="w-8 h-8 rounded-xl bg-sky-50 border border-sky-100 flex items-center justify-center shrink-0">
-              <Zap className="w-4 h-4 text-[#00AEEF]" />
+            <div className="w-8 h-8 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center shrink-0">
+              <Zap className="w-4 h-4 text-[#2563EB]" />
             </div>
             <div>
               <div className="text-xs font-bold text-slate-900">Quick Response</div>

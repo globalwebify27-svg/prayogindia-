@@ -209,9 +209,9 @@ export const OrdersList: React.FC = () => {
                 <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-100">
                   <Link
                     href={`/account/orders/${ord.id}`}
-                    className="bg-slate-50 hover:bg-[#E0F7FC] text-slate-700 hover:text-[#00AEEF] text-xs font-bold px-3.5 py-1.5 rounded-xl flex items-center gap-1.5 transition-colors border border-slate-200/80"
+                    className="bg-slate-50 hover:bg-blue-50 text-slate-700 hover:text-[#2563EB] text-xs font-bold px-3.5 py-1.5 rounded-xl flex items-center gap-1.5 transition-colors border border-slate-200/80"
                   >
-                    <Eye className="w-3.5 h-3.5 text-[#00AEEF]" />
+                    <Eye className="w-3.5 h-3.5 text-[#2563EB]" />
                     <span>View Details</span>
                   </Link>
 
@@ -223,7 +223,7 @@ export const OrdersList: React.FC = () => {
                         "_blank",
                       )
                     }
-                    className="text-xs font-semibold text-slate-500 hover:text-[#00AEEF] flex items-center gap-1 cursor-pointer transition-colors"
+                    className="text-xs font-semibold text-slate-500 hover:text-[#2563EB] flex items-center gap-1 cursor-pointer transition-colors"
                   >
                     <FileText className="w-3.5 h-3.5" />
                     <span>Download Invoice (PDF)</span>

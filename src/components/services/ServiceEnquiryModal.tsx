@@ -57,7 +57,7 @@ export const ServiceEnquiryModal: React.FC<ServiceEnquiryModalProps> = ({
       <div className="relative max-w-lg w-full bg-white rounded-3xl p-6 sm:p-8 shadow-2xl border border-slate-100 z-10 space-y-6 text-slate-900">
         <div className="flex items-center justify-between border-b border-slate-100 pb-4">
           <div>
-            <span className="text-[10px] font-black uppercase tracking-wider text-[#00AEEF] bg-[#E0F7FC] px-2.5 py-0.5 rounded-full inline-block">
+            <span className="text-[10px] font-black uppercase tracking-wider text-[#2563EB] bg-blue-50 px-2.5 py-0.5 rounded-full inline-block border border-blue-200/60">
               Institutional Enquiry
             </span>
             <h3 className="text-xl font-extrabold text-slate-900 tracking-tight mt-1">
@@ -153,7 +153,7 @@ export const ServiceEnquiryModal: React.FC<ServiceEnquiryModalProps> = ({
 
             <button
               type="submit"
-              className="w-full bg-[#00AEEF] hover:bg-[#0096D6] text-white py-3.5 rounded-xl font-extrabold text-xs uppercase tracking-wider transition-all shadow-md shadow-[#00AEEF]/25 flex items-center justify-center gap-2"
+              className="w-full bg-[#2563EB] hover:bg-[#1D4ED8] text-white py-3.5 rounded-xl font-extrabold text-xs uppercase tracking-wider transition-all shadow-md shadow-blue-500/25 flex items-center justify-center gap-2"
             >
               <Send className="w-4 h-4" />
               <span>Submit Service Enquiry</span>

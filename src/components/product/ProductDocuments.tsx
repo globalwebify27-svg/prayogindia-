@@ -31,14 +31,14 @@ export const ProductDocuments: React.FC<ProductDocumentsProps> = ({
             href={doc.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="group bg-slate-50 hover:bg-[#E0F7FC] border border-slate-200 hover:border-[#00AEEF]/40 p-4 rounded-2xl flex items-center justify-between transition-colors shadow-2xs"
+            className="group bg-slate-50 hover:bg-blue-50/60 border border-slate-200 hover:border-[#2563EB]/40 p-4 rounded-2xl flex items-center justify-between transition-colors shadow-2xs"
           >
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-[#00AEEF] group-hover:scale-105 transition-transform">
+              <div className="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-[#2563EB] group-hover:scale-105 transition-transform">
                 <FileText className="w-5 h-5" />
               </div>
               <div>
-                <h4 className="text-xs font-bold text-slate-900 group-hover:text-[#00AEEF] transition-colors leading-snug">
+                <h4 className="text-xs font-bold text-slate-900 group-hover:text-[#2563EB] transition-colors leading-snug">
                   {doc.title}
                 </h4>
                 <span className="text-[10px] text-slate-400 font-extrabold uppercase">
@@ -47,7 +47,7 @@ export const ProductDocuments: React.FC<ProductDocumentsProps> = ({
               </div>
             </div>
 
-            <Download className="w-4 h-4 text-slate-400 group-hover:text-[#00AEEF] shrink-0" />
+            <Download className="w-4 h-4 text-slate-400 group-hover:text-[#2563EB] shrink-0" />
           </a>
         ))}
       </div>

@@ -20,7 +20,7 @@ export const CareersView: React.FC = () => {
 
       {/* 2. Header */}
       <div className="py-6 border-b border-slate-100 space-y-2">
-        <span className="text-[10px] font-black uppercase tracking-widest text-[#00AEEF] bg-[#E0F7FC] px-3 py-1 rounded-full inline-block">
+        <span className="text-[10px] font-black uppercase tracking-widest text-[#2563EB] bg-blue-50 px-3 py-1 rounded-full inline-block border border-blue-200/60">
           Join Our Engineering Team
         </span>
         <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight mt-1">
@@ -53,11 +53,11 @@ export const CareersView: React.FC = () => {
             {JOB_OPENINGS.map((job) => (
               <div
                 key={job.id}
-                className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 space-y-4 shadow-2xs hover:border-[#00AEEF]/50 transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-6"
+                className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 space-y-4 shadow-2xs hover:border-[#2563EB]/50 transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-6"
               >
                 <div className="space-y-2 max-w-2xl">
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="bg-[#E0F7FC] text-[#00AEEF] text-[10px] font-black uppercase px-3 py-0.5 rounded-full border border-[#00AEEF]/20">
+                    <span className="bg-blue-50 text-[#2563EB] text-[10px] font-black uppercase px-3 py-0.5 rounded-full border border-blue-200/60">
                       {job.department}
                     </span>
                     <span className="text-[10px] text-slate-400 font-bold flex items-center gap-1">
@@ -79,7 +79,7 @@ export const CareersView: React.FC = () => {
 
                 <Link
                   href={`/careers/${job.slug}`}
-                  className="bg-slate-900 hover:bg-[#00AEEF] text-white px-6 py-3 rounded-2xl text-xs font-black uppercase tracking-wider transition-colors shrink-0 flex items-center justify-center gap-1.5 self-start sm:self-auto"
+                  className="bg-slate-900 hover:bg-[#2563EB] text-white px-6 py-3 rounded-2xl text-xs font-black uppercase tracking-wider transition-colors shrink-0 flex items-center justify-center gap-1.5 self-start sm:self-auto"
                 >
                   <span>View & Apply</span>
                   <ArrowRight className="w-4 h-4 text-[#FFC20E]" />

@@ -25,7 +25,7 @@ export const AccountDashboardView: React.FC = () => {
   if (!isLoggedIn) {
     return (
       <div className="max-w-md mx-auto py-20 text-center space-y-4">
-        <div className="w-16 h-16 rounded-2xl bg-[#E0F7FC] text-[#00AEEF] flex items-center justify-center mx-auto border border-[#00AEEF]/20">
+        <div className="w-16 h-16 rounded-2xl bg-blue-50 text-[#2563EB] flex items-center justify-center mx-auto border border-blue-200/60">
           <User className="w-8 h-8" />
         </div>
         <h1 className="text-2xl font-black text-slate-900">Sign In Required</h1>
@@ -36,13 +36,13 @@ export const AccountDashboardView: React.FC = () => {
         <div className="flex justify-center gap-3">
           <Link
             href="/login"
-            className="bg-[#00AEEF] text-white px-6 py-2.5 rounded-full text-xs font-black uppercase"
+            className="bg-[#2563EB] hover:bg-[#1D4ED8] text-white px-6 py-2.5 rounded-full text-xs font-black uppercase transition-colors"
           >
             Sign In
           </Link>
           <Link
             href="/register"
-            className="bg-slate-100 text-slate-800 px-6 py-2.5 rounded-full text-xs font-black uppercase"
+            className="bg-slate-100 hover:bg-slate-200 text-slate-800 px-6 py-2.5 rounded-full text-xs font-black uppercase transition-colors"
           >
             Create Account
           </Link>
@@ -56,7 +56,7 @@ export const AccountDashboardView: React.FC = () => {
       {/* Welcome Banner Header */}
       <div className="bg-slate-50 border border-slate-200/80 rounded-3xl p-6 sm:p-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="space-y-1">
-          <span className="text-[10px] font-black uppercase tracking-widest text-[#00AEEF] bg-[#E0F7FC] px-3 py-1 rounded-full inline-block">
+          <span className="text-[10px] font-black uppercase tracking-widest text-[#2563EB] bg-blue-50 px-3 py-1 rounded-full inline-block border border-blue-200/60">
             Customer Dashboard
           </span>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
@@ -79,9 +79,9 @@ export const AccountDashboardView: React.FC = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <Link
           href="/account/orders"
-          className="p-5 rounded-2xl bg-slate-50 border border-slate-200 hover:border-[#00AEEF] transition-all space-y-2 group"
+          className="p-5 rounded-2xl bg-slate-50 border border-slate-200 hover:border-[#2563EB] transition-all space-y-2 group"
         >
-          <div className="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-[#00AEEF] group-hover:scale-105 transition-transform">
+          <div className="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-[#2563EB] group-hover:scale-105 transition-transform">
             <ShoppingBag className="w-5 h-5" />
           </div>
           <div>
@@ -96,7 +96,7 @@ export const AccountDashboardView: React.FC = () => {
 
         <Link
           href="/wishlist"
-          className="p-5 rounded-2xl bg-slate-50 border border-slate-200 hover:border-[#00AEEF] transition-all space-y-2 group"
+          className="p-5 rounded-2xl bg-slate-50 border border-slate-200 hover:border-[#2563EB] transition-all space-y-2 group"
         >
           <div className="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-[#FF3B30] group-hover:scale-105 transition-transform">
             <Heart className="w-5 h-5" />
@@ -111,7 +111,7 @@ export const AccountDashboardView: React.FC = () => {
 
         <Link
           href="/account/rewards"
-          className="p-5 rounded-2xl bg-slate-50 border border-slate-200 hover:border-[#00AEEF] transition-all space-y-2 group"
+          className="p-5 rounded-2xl bg-slate-50 border border-slate-200 hover:border-[#2563EB] transition-all space-y-2 group"
         >
           <div className="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-[#FFC20E] group-hover:scale-105 transition-transform">
             <Award className="w-5 h-5" />
@@ -128,9 +128,9 @@ export const AccountDashboardView: React.FC = () => {
 
         <Link
           href="/account/addresses"
-          className="p-5 rounded-2xl bg-slate-50 border border-slate-200 hover:border-[#00AEEF] transition-all space-y-2 group"
+          className="p-5 rounded-2xl bg-slate-50 border border-slate-200 hover:border-[#2563EB] transition-all space-y-2 group"
         >
-          <div className="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-[#00AEEF] group-hover:scale-105 transition-transform">
+          <div className="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-[#2563EB] group-hover:scale-105 transition-transform">
             <MapPin className="w-5 h-5" />
           </div>
           <div>
@@ -152,7 +152,7 @@ export const AccountDashboardView: React.FC = () => {
           </h3>
           <Link
             href="/account/orders"
-            className="text-xs font-bold text-[#00AEEF] hover:underline flex items-center gap-1"
+            className="text-xs font-bold text-[#2563EB] hover:underline flex items-center gap-1"
           >
             <span>View All</span>
             <ArrowRight className="w-3.5 h-3.5" />
@@ -173,7 +173,7 @@ export const AccountDashboardView: React.FC = () => {
                   {ord.date} • {ord.items[0].name}
                 </span>
               </div>
-              <span className="bg-[#E0F7FC] text-[#00AEEF] font-bold px-3 py-1 rounded-full">
+              <span className="bg-blue-50 text-[#2563EB] font-bold px-3 py-1 rounded-full border border-blue-200/60">
                 {ord.status}
               </span>
             </div>

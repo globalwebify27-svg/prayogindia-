@@ -201,12 +201,12 @@ export const PaymentMethodsView: React.FC = () => {
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <CreditCard className="w-5 h-5 text-[#00AEEF]" />
+            <CreditCard className="w-5 h-5 text-[#2563EB]" />
             <h2 className="text-lg font-black text-slate-900">Saved Credit &amp; Debit Cards</h2>
           </div>
           <button
             onClick={() => setShowAddCardModal(true)}
-            className="flex items-center gap-1.5 bg-[#00AEEF] hover:bg-[#0098d4] text-white px-3.5 py-1.5 rounded-full text-xs font-bold transition-all shadow-xs"
+            className="flex items-center gap-1.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white px-3.5 py-1.5 rounded-full text-xs font-bold transition-all shadow-xs"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>Add Card</span>
@@ -219,7 +219,7 @@ export const PaymentMethodsView: React.FC = () => {
               key={card.id}
               className={`p-5 rounded-2xl border transition-all relative flex flex-col justify-between h-44 ${
                 card.isDefault
-                  ? "border-[#00AEEF] bg-[#E0F7FC]/30 shadow-xs ring-1 ring-[#00AEEF]/30"
+                  ? "border-[#2563EB] bg-blue-50/50 shadow-xs ring-1 ring-[#2563EB]/30"
                   : "border-slate-200 bg-slate-50/60 hover:bg-slate-50"
               }`}
             >
@@ -229,7 +229,7 @@ export const PaymentMethodsView: React.FC = () => {
                     {card.brand}
                   </span>
                   {card.isDefault && (
-                    <span className="ml-2 text-[10px] font-black uppercase text-[#00AEEF] bg-white px-2 py-0.5 rounded-full border border-[#00AEEF]/30">
+                    <span className="ml-2 text-[10px] font-black uppercase text-[#2563EB] bg-white px-2 py-0.5 rounded-full border border-[#2563EB]/30">
                       Default
                     </span>
                   )}
@@ -259,7 +259,7 @@ export const PaymentMethodsView: React.FC = () => {
                 {!card.isDefault ? (
                   <button
                     onClick={() => handleSetDefaultCard(card.id)}
-                    className="text-[#00AEEF] hover:underline font-bold text-[11px]"
+                    className="text-[#2563EB] hover:underline font-bold text-[11px]"
                   >
                     Set as Default
                   </button>
@@ -339,7 +339,7 @@ export const PaymentMethodsView: React.FC = () => {
           <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 space-y-4 animate-in fade-in zoom-in-95">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <h3 className="font-black text-slate-900 text-base flex items-center gap-2">
-                <CreditCard className="w-4 h-4 text-[#00AEEF]" /> Add New Card
+                <CreditCard className="w-4 h-4 text-[#2563EB]" /> Add New Card
               </h3>
               <button
                 onClick={() => setShowAddCardModal(false)}
@@ -358,7 +358,7 @@ export const PaymentMethodsView: React.FC = () => {
                   value={newCardName}
                   onChange={(e) => setNewCardName(e.target.value)}
                   placeholder="e.g. Om Kumar"
-                  className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs font-semibold focus:outline-none focus:border-[#00AEEF]"
+                  className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs font-semibold focus:outline-none focus:border-[#2563EB]"
                   required
                 />
               </div>
@@ -372,7 +372,7 @@ export const PaymentMethodsView: React.FC = () => {
                   value={newCardNumber}
                   onChange={(e) => setNewCardNumber(e.target.value)}
                   placeholder="4242 •••• •••• 4242"
-                  className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs font-mono font-semibold focus:outline-none focus:border-[#00AEEF]"
+                  className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs font-mono font-semibold focus:outline-none focus:border-[#2563EB]"
                   required
                 />
               </div>
@@ -387,7 +387,7 @@ export const PaymentMethodsView: React.FC = () => {
                     value={newCardExpiry}
                     onChange={(e) => setNewCardExpiry(e.target.value)}
                     placeholder="12/28"
-                    className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs font-mono font-semibold focus:outline-none focus:border-[#00AEEF]"
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs font-mono font-semibold focus:outline-none focus:border-[#2563EB]"
                     required
                   />
                 </div>
@@ -401,7 +401,7 @@ export const PaymentMethodsView: React.FC = () => {
                     value={newCardCvv}
                     onChange={(e) => setNewCardCvv(e.target.value)}
                     placeholder="•••"
-                    className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs font-mono font-semibold focus:outline-none focus:border-[#00AEEF]"
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs font-mono font-semibold focus:outline-none focus:border-[#2563EB]"
                     required
                   />
                 </div>
@@ -417,7 +417,7 @@ export const PaymentMethodsView: React.FC = () => {
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-xl text-xs font-black bg-[#00AEEF] hover:bg-[#0098d4] text-white shadow-xs"
+                  className="px-5 py-2 rounded-xl text-xs font-black bg-[#2563EB] hover:bg-[#1D4ED8] text-white shadow-xs"
                 >
                   Save &amp; Tokenize Card
                 </button>

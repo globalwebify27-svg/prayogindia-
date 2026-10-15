@@ -188,7 +188,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
           <Link href="/admin">
             <PrayogLogo size="sm" dark={true} />
           </Link>
-          <span className="text-[9px] text-[#00AEEF] font-bold uppercase tracking-wider block leading-tight pl-0.5">
+          <span className="text-[9px] text-[#2563EB] font-bold uppercase tracking-wider block leading-tight pl-0.5">
             Admin Operations
           </span>
         </div>
@@ -229,7 +229,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
             onClick={onCloseMobile}
             className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all duration-150 ${
               pathname === "/admin/dashboard" || pathname === "/admin"
-                ? "bg-[#1E88E5] text-white shadow-md shadow-[#1E88E5]/30 font-extrabold"
+                ? "bg-[#2563EB] text-white shadow-md shadow-blue-500/30 font-extrabold"
                 : "text-slate-400 hover:bg-slate-800/70 hover:text-slate-100"
             }`}
           >
@@ -258,7 +258,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
                   onClick={onCloseMobile}
                   className={`flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-all duration-150 ${
                     isActive
-                      ? "bg-[#1E88E5] text-white shadow-md font-bold"
+                      ? "bg-[#2563EB] text-white shadow-md font-bold"
                       : "text-slate-400 hover:bg-slate-800/60 hover:text-slate-100"
                   }`}
                 >
@@ -270,7 +270,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
                   </div>
 
                   {item.badge && (
-                    <span className="bg-[#00AEEF] text-white text-[9px] font-extrabold px-1.5 py-0.2 rounded-md uppercase">
+                    <span className="bg-[#2563EB] text-white text-[9px] font-extrabold px-1.5 py-0.2 rounded-md uppercase">
                       {item.badge}
                     </span>
                   )}
@@ -289,7 +289,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
       <div className="p-4 border-t border-slate-800/80 shrink-0">
         <div className="flex items-center gap-3 p-3 rounded-2xl bg-slate-900/80 border border-slate-800">
           <div className="w-8 h-8 rounded-xl bg-slate-800 flex items-center justify-center text-slate-300">
-            <Headphones className="w-4 h-4 text-[#00AEEF]" />
+            <Headphones className="w-4 h-4 text-[#2563EB]" />
           </div>
           <div>
             <span className="text-xs font-bold text-white block">

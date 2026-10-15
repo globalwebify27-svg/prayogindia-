@@ -20,7 +20,7 @@ export const FeaturedOfferCard: React.FC<OfferCardProps> = ({ offer }) => {
             {offer.badge}
           </span>
           <span className="text-[11px] font-bold text-slate-400 flex items-center gap-1">
-            <Calendar className="w-3.5 h-3.5 text-[#00AEEF]" />{" "}
+            <Calendar className="w-3.5 h-3.5 text-[#2563EB]" />{" "}
             {offer.startDate} - {offer.endDate}
           </span>
         </div>
@@ -47,7 +47,7 @@ export const FeaturedOfferCard: React.FC<OfferCardProps> = ({ offer }) => {
         <div className="pt-2">
           <Link
             href={`/offers/${offer.slug}`}
-            className="inline-flex items-center gap-2 bg-[#00AEEF] hover:bg-[#0096D6] text-white px-6 py-3 rounded-2xl text-xs font-black uppercase tracking-wider transition-all shadow-md active:scale-95"
+            className="inline-flex items-center gap-2 bg-[#2563EB] hover:bg-[#1D4ED8] text-white px-6 py-3 rounded-2xl text-xs font-black uppercase tracking-wider transition-all shadow-md shadow-blue-500/20 active:scale-95"
           >
             <span>Explore Offer & Products</span>
             <ArrowRight className="w-4 h-4 text-[#FFC20E]" />

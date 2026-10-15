@@ -49,7 +49,7 @@ export const ActiveFilters: React.FC<ActiveFiltersProps> = ({
       </span>
 
       {searchQuery && (
-        <span className="bg-[#E0F7FC] text-[#00AEEF] text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1.5 border border-[#00AEEF]/20">
+        <span className="bg-blue-50 text-[#2563EB] text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1.5 border border-blue-200">
           <span>Search: &quot;{searchQuery}&quot;</span>
           <button onClick={onClearSearch} className="hover:text-slate-900">
             <X className="w-3.5 h-3.5" />

@@ -282,7 +282,7 @@ export const RegisterForm: React.FC = () => {
                   value={phone}
                   onChange={(e) => setPhone(e.target.value.replace(/\D/g, ""))}
                   placeholder="Mobile Number"
-                  className="w-full bg-white text-slate-900 pl-14 pr-4 py-3.5 text-sm rounded-xl border border-slate-200 hover:border-slate-300 focus:outline-none focus:border-[#00AEEF] focus:ring-1 focus:ring-[#00AEEF] transition-all placeholder:text-slate-400 font-medium"
+                  className="w-full bg-white text-slate-900 pl-14 pr-4 py-3.5 text-sm rounded-xl border border-slate-200 hover:border-slate-300 focus:outline-none focus:border-[#2563EB] focus:ring-1 focus:ring-[#2563EB] transition-all placeholder:text-slate-400 font-medium"
                 />
               </div>
 
@@ -291,7 +291,7 @@ export const RegisterForm: React.FC = () => {
                 <button
                   type="submit"
                   disabled={loading || phone.length < 10}
-                  className="w-full sm:w-36 bg-[#00AEEF] hover:bg-[#0096D6] active:scale-[0.98] disabled:opacity-40 text-white py-3.5 rounded-xl font-bold text-sm transition-all shadow-md shadow-[#00AEEF]/20 flex items-center justify-center cursor-pointer"
+                  className="w-full sm:w-36 bg-[#2563EB] hover:bg-[#1D4ED8] active:scale-[0.98] disabled:opacity-40 text-white py-3.5 rounded-xl font-bold text-sm transition-all shadow-md shadow-[#2563EB]/20 flex items-center justify-center cursor-pointer"
                 >
                   {loading ? "Sending..." : "Send OTP"}
                 </button>
@@ -303,7 +303,7 @@ export const RegisterForm: React.FC = () => {
               Already have an account?{" "}
               <Link
                 href={targetRedirect !== "/account" ? `/login?redirect=${encodeURIComponent(targetRedirect)}` : "/login"}
-                className="text-[#00AEEF] font-bold hover:text-[#0096D6] hover:underline transition-colors"
+                className="text-[#2563EB] font-bold hover:text-[#1D4ED8] hover:underline transition-colors"
               >
                 Login
               </Link>
@@ -392,7 +392,7 @@ export const RegisterForm: React.FC = () => {
                     setError(null);
                     setInfoMessage(null);
                   }}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-semibold text-[#00AEEF] hover:underline cursor-pointer"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-semibold text-[#2563EB] hover:underline cursor-pointer"
                 >
                   Change
                 </button>
@@ -428,7 +428,7 @@ export const RegisterForm: React.FC = () => {
                   value={otp}
                   onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
                   placeholder="OTP"
-                  className="w-full bg-white text-slate-900 px-4 py-3.5 text-sm rounded-xl border border-slate-200 hover:border-slate-300 focus:outline-none focus:border-[#00AEEF] focus:ring-1 focus:ring-[#00AEEF] transition-all placeholder:text-slate-400 font-medium"
+                  className="w-full bg-white text-slate-900 px-4 py-3.5 text-sm rounded-xl border border-slate-200 hover:border-slate-300 focus:outline-none focus:border-[#2563EB] focus:ring-1 focus:ring-[#2563EB] transition-all placeholder:text-slate-400 font-medium"
                 />
               </div>
 
@@ -440,7 +440,7 @@ export const RegisterForm: React.FC = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="Email"
-                  className="w-full bg-white text-slate-900 px-4 py-3.5 text-sm rounded-xl border border-slate-200 hover:border-slate-300 focus:outline-none focus:border-[#00AEEF] focus:ring-1 focus:ring-[#00AEEF] transition-all placeholder:text-slate-400 font-medium"
+                  className="w-full bg-white text-slate-900 px-4 py-3.5 text-sm rounded-xl border border-slate-200 hover:border-slate-300 focus:outline-none focus:border-[#2563EB] focus:ring-1 focus:ring-[#2563EB] transition-all placeholder:text-slate-400 font-medium"
                 />
               </div>
 
@@ -452,7 +452,7 @@ export const RegisterForm: React.FC = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Password"
-                  className="w-full bg-white text-slate-900 pl-4 pr-12 py-3.5 text-sm rounded-xl border border-slate-200 hover:border-slate-300 focus:outline-none focus:border-[#00AEEF] focus:ring-1 focus:ring-[#00AEEF] transition-all placeholder:text-slate-400 font-medium"
+                  className="w-full bg-white text-slate-900 pl-4 pr-12 py-3.5 text-sm rounded-xl border border-slate-200 hover:border-slate-300 focus:outline-none focus:border-[#2563EB] focus:ring-1 focus:ring-[#2563EB] transition-all placeholder:text-slate-400 font-medium"
                 />
                 <button
                   type="button"
@@ -475,10 +475,10 @@ export const RegisterForm: React.FC = () => {
                     type="checkbox"
                     checked={isB2B}
                     onChange={(e) => setIsB2B(e.target.checked)}
-                    className="w-4 h-4 rounded text-[#00AEEF] accent-[#00AEEF]"
+                    className="w-4 h-4 rounded text-[#2563EB] accent-[#2563EB]"
                   />
                   <span className="flex items-center gap-1.5">
-                    <Building2 className="w-3.5 h-3.5 text-[#00AEEF]" />
+                    <Building2 className="w-3.5 h-3.5 text-[#2563EB]" />
                     Register as Business / Institution (GST Invoicing)
                   </span>
                 </label>
@@ -490,7 +490,7 @@ export const RegisterForm: React.FC = () => {
                       value={companyName}
                       onChange={(e) => setCompanyName(e.target.value)}
                       placeholder="Company / Institution Name"
-                      className="w-full bg-white text-slate-900 px-3.5 py-2.5 text-xs rounded-lg border border-slate-200 focus:outline-none focus:border-[#00AEEF] font-medium"
+                      className="w-full bg-white text-slate-900 px-3.5 py-2.5 text-xs rounded-lg border border-slate-200 focus:outline-none focus:border-[#2563EB] font-medium"
                     />
                     <input
                       type="text"
@@ -500,7 +500,7 @@ export const RegisterForm: React.FC = () => {
                         setGstNumber(e.target.value.toUpperCase())
                       }
                       placeholder="GSTIN (Optional / 15-digits)"
-                      className="w-full bg-white text-slate-900 px-3.5 py-2.5 text-xs rounded-lg border border-slate-200 focus:outline-none focus:border-[#00AEEF] font-medium uppercase"
+                      className="w-full bg-white text-slate-900 px-3.5 py-2.5 text-xs rounded-lg border border-slate-200 focus:outline-none focus:border-[#2563EB] font-medium uppercase"
                     />
                   </div>
                 )}
@@ -511,7 +511,7 @@ export const RegisterForm: React.FC = () => {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full sm:w-36 bg-[#00AEEF] hover:bg-[#0096D6] active:scale-[0.98] disabled:opacity-40 text-white py-3.5 rounded-xl font-bold text-sm transition-all shadow-md shadow-[#00AEEF]/20 flex items-center justify-center cursor-pointer"
+                  className="w-full sm:w-36 bg-[#2563EB] hover:bg-[#1D4ED8] active:scale-[0.98] disabled:opacity-40 text-white py-3.5 rounded-xl font-bold text-sm transition-all shadow-md shadow-[#2563EB]/20 flex items-center justify-center cursor-pointer"
                 >
                   {loading ? "Registering..." : "Register"}
                 </button>
@@ -532,7 +532,7 @@ export const RegisterForm: React.FC = () => {
               Already have an account?{" "}
               <Link
                 href={targetRedirect !== "/account" ? `/login?redirect=${encodeURIComponent(targetRedirect)}` : "/login"}
-                className="text-[#00AEEF] font-bold hover:text-[#0096D6] hover:underline transition-colors"
+                className="text-[#2563EB] font-bold hover:text-[#1D4ED8] hover:underline transition-colors"
               >
                 Login
               </Link>

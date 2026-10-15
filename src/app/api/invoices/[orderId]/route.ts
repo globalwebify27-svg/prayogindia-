@@ -133,9 +133,9 @@ export async function GET(
   <title>Tax Invoice - ${invoiceData.invoiceNumber}</title>
   <style>
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 40px; color: #1e293b; line-height: 1.4; font-size: 13px; }
-    .header { display: flex; justify-content: space-between; border-bottom: 2px solid #00AEEF; padding-bottom: 20px; }
-    .logo-title { font-size: 24px; font-weight: 900; color: #00AEEF; }
-    .badge { display: inline-block; background: #e0f2fe; color: #0369a1; padding: 3px 8px; border-radius: 6px; font-size: 10px; font-weight: 700; text-transform: uppercase; margin-top: 5px; }
+    .header { display: flex; justify-content: space-between; border-bottom: 2px solid #2563EB; padding-bottom: 20px; }
+    .logo-title { font-size: 24px; font-weight: 900; color: #2563EB; }
+    .badge { display: inline-block; background: #eff6ff; color: #2563EB; padding: 3px 8px; border-radius: 6px; font-size: 10px; font-weight: 700; text-transform: uppercase; margin-top: 5px; }
     .meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 25px 0; }
     .meta-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px; }
     .meta-box h4 { margin: 0 0 8px 0; font-size: 11px; text-transform: uppercase; color: #64748b; letter-spacing: 0.5px; }
@@ -151,7 +151,7 @@ export async function GET(
 </head>
 <body>
   <div class="no-print" style="margin-bottom: 20px;">
-    <button onclick="window.print()" style="background: #00AEEF; color: white; border: none; padding: 8px 16px; border-radius: 6px; font-weight: bold; cursor: pointer;">Print / Save as PDF</button>
+    <button onclick="window.print()" style="background: #2563EB; color: white; border: none; padding: 8px 16px; border-radius: 6px; font-weight: bold; cursor: pointer;">Print / Save as PDF</button>
   </div>
   <div class="header">
     <div>

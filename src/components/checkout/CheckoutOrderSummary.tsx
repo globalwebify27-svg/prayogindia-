@@ -108,7 +108,7 @@ export const CheckoutOrderSummary: React.FC<CheckoutSummaryProps> = ({
             type="checkbox"
             checked={useRewardPoints}
             onChange={(e) => onToggleRewardPoints(e.target.checked)}
-            className="rounded border-amber-300 accent-[#00AEEF] w-4 h-4 cursor-pointer"
+            className="rounded border-amber-300 accent-[#2563EB] w-4 h-4 cursor-pointer"
           />
         </div>
       )}
@@ -135,7 +135,7 @@ export const CheckoutOrderSummary: React.FC<CheckoutSummaryProps> = ({
         </div>
 
         {couponDiscount > 0 && (
-          <div className="flex justify-between text-[#00AEEF] font-bold">
+          <div className="flex justify-between text-[#2563EB] font-bold">
             <span>Coupon Discount ({couponCode})</span>
             <span>-₹{couponDiscount.toLocaleString("en-IN")}</span>
           </div>
@@ -164,7 +164,7 @@ export const CheckoutOrderSummary: React.FC<CheckoutSummaryProps> = ({
 
         <div className="flex justify-between text-base font-black text-slate-900 pt-3 border-t border-slate-100">
           <span>Grand Total Payable</span>
-          <span className="text-[#00AEEF]">₹{grandTotal.toLocaleString("en-IN")}</span>
+          <span className="text-[#2563EB]">₹{grandTotal.toLocaleString("en-IN")}</span>
         </div>
       </div>
 

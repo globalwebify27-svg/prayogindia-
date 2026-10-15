@@ -79,7 +79,7 @@ export const OfferDetailView: React.FC<OfferDetailProps> = ({ slug }) => {
                 {offer.discountBadge || offer.badge}
               </span>
               <span className="bg-slate-900/90 backdrop-blur-md text-slate-300 text-xs font-bold px-3 py-1 rounded-full border border-slate-700 flex items-center gap-1.5">
-                <Calendar className="w-3.5 h-3.5 text-[#00AEEF]" />
+                <Calendar className="w-3.5 h-3.5 text-[#2563EB]" />
                 Valid: {offer.startDate} – {offer.endDate}
               </span>
               <span className="bg-emerald-950/80 text-emerald-400 text-xs font-bold px-3 py-1 rounded-full border border-emerald-800/50 flex items-center gap-1">
@@ -115,7 +115,7 @@ export const OfferDetailView: React.FC<OfferDetailProps> = ({ slug }) => {
                   className={`ml-auto px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all cursor-pointer flex items-center gap-1.5 shadow-md active:scale-95 ${
                     copiedCode === offer.couponCode
                       ? "bg-emerald-600 text-white"
-                      : "bg-[#00AEEF] hover:bg-[#0096D6] text-white"
+                      : "bg-[#2563EB] hover:bg-[#1D4ED8] text-white"
                   }`}
                 >
                   {copiedCode === offer.couponCode ? (
@@ -142,7 +142,7 @@ export const OfferDetailView: React.FC<OfferDetailProps> = ({ slug }) => {
               Customer Eligibility
             </span>
             <span className="font-bold text-slate-900 flex items-center gap-1.5">
-              <ShieldCheck className="w-4 h-4 text-[#00AEEF]" />
+              <ShieldCheck className="w-4 h-4 text-[#2563EB]" />
               {offer.customerEligibility || "All Customers (B2C & B2B)"}
             </span>
           </div>
@@ -160,7 +160,7 @@ export const OfferDetailView: React.FC<OfferDetailProps> = ({ slug }) => {
           <div className="flex items-center justify-end">
             <Link
               href="/offers"
-              className="text-xs font-bold text-[#00AEEF] hover:text-[#0096D6] hover:underline flex items-center gap-1.5"
+              className="text-xs font-bold text-[#2563EB] hover:text-[#1D4ED8] hover:underline flex items-center gap-1.5"
             >
               <ArrowLeft className="w-4 h-4" /> Back to All Deals &amp; Vouchers
             </Link>
@@ -171,13 +171,13 @@ export const OfferDetailView: React.FC<OfferDetailProps> = ({ slug }) => {
         {offer.terms && offer.terms.length > 0 && (
           <div className="bg-slate-100/70 border border-slate-200 rounded-2xl p-5 space-y-2">
             <div className="flex items-center gap-1.5 text-xs font-bold text-slate-800">
-              <FileText className="w-4 h-4 text-[#00AEEF]" />
+              <FileText className="w-4 h-4 text-[#2563EB]" />
               <span>Promotion Terms &amp; Conditions:</span>
             </div>
             <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-slate-600">
               {offer.terms.map((term, i) => (
                 <li key={i} className="flex items-start gap-2">
-                  <span className="text-[#00AEEF] font-bold">•</span>
+                  <span className="text-[#2563EB] font-bold">•</span>
                   <span>{term}</span>
                 </li>
               ))}
@@ -189,7 +189,7 @@ export const OfferDetailView: React.FC<OfferDetailProps> = ({ slug }) => {
         <div className="space-y-4 pt-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="w-2.5 h-6 bg-[#00AEEF] rounded-full" />
+              <div className="w-2.5 h-6 bg-[#2563EB] rounded-full" />
               <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
                 Eligible Products in this Offer ({eligibleProducts.length})
               </h2>

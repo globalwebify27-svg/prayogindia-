@@ -61,7 +61,7 @@ export const DealsFAQSection: React.FC = () => {
               key={idx}
               className={`rounded-2xl border transition-all duration-200 overflow-hidden ${
                 isOpen
-                  ? "bg-slate-50 border-[#00AEEF]/40 shadow-sm"
+                  ? "bg-slate-50 border-[#2563EB]/40 shadow-sm"
                   : "bg-white border-slate-200 hover:border-slate-300"
               }`}
             >
@@ -74,7 +74,7 @@ export const DealsFAQSection: React.FC = () => {
                 </span>
                 <ChevronDown
                   className={`w-4 h-4 text-slate-400 shrink-0 transition-transform duration-200 ${
-                    isOpen ? "rotate-180 text-[#00AEEF]" : ""
+                    isOpen ? "rotate-180 text-[#2563EB]" : ""
                   }`}
                 />
               </button>

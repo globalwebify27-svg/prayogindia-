@@ -51,7 +51,7 @@ export default function StoreInventoryPage() {
       <div className="bg-white border border-slate-200/90 p-5 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-2xs">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <span className="bg-[#00AEEF] text-white text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+            <span className="bg-[#2563EB] text-white text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider">
               {storeCode} Branch Stock
             </span>
             {isCentralInventory ? (
@@ -97,7 +97,7 @@ export default function StoreInventoryPage() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search local SKUs, product titles, or components..."
-            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 pl-10 text-xs text-slate-900 placeholder-slate-400 focus:bg-white focus:outline-none focus:border-[#00AEEF] transition-all"
+            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 pl-10 text-xs text-slate-900 placeholder-slate-400 focus:bg-white focus:outline-none focus:border-[#2563EB] transition-all"
           />
         </div>
         {search && (

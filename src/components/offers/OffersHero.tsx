@@ -57,9 +57,9 @@ export const OffersHero: React.FC<OffersHeroProps> = ({
   return (
     <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-950 via-[#0a1120] to-[#041a2e] border border-slate-800 text-white shadow-2xl">
       {/* Background Decorative Mesh & Glow Gradients */}
-      <div className="absolute top-0 right-0 -mt-16 -mr-16 w-96 h-96 bg-[#00AEEF]/15 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-0 right-0 -mt-16 -mr-16 w-96 h-96 bg-[#2563EB]/15 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-0 left-1/4 -mb-20 w-80 h-80 bg-[#FFC20E]/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute inset-0 bg-[radial-gradient(#00AEEF_1px,transparent_1px)] [background-size:24px_24px] opacity-[0.07] pointer-events-none" />
+      <div className="absolute inset-0 bg-[radial-gradient(#2563EB_1px,transparent_1px)] [background-size:24px_24px] opacity-[0.07] pointer-events-none" />
 
       {/* Main Content Container */}
       <div className="relative z-10 px-6 sm:px-10 lg:px-12 pt-8 pb-10 sm:py-12 space-y-8">
@@ -72,13 +72,13 @@ export const OffersHero: React.FC<OffersHeroProps> = ({
               Festival Deals Live
             </span>
             <span className="hidden sm:inline-flex items-center gap-1 bg-white/10 backdrop-blur-md text-slate-300 text-[11px] font-semibold px-3 py-1 rounded-full border border-white/10">
-              <Sparkles className="w-3 h-3 text-[#00AEEF]" /> Official Prayog Promotions
+              <Sparkles className="w-3 h-3 text-[#2563EB]" /> Official Prayog Promotions
             </span>
           </div>
 
           {/* Live Flash Timer Badge */}
           <div className="flex items-center gap-2 bg-slate-900/90 backdrop-blur-md border border-slate-700/80 px-4 py-1.5 rounded-2xl shadow-md">
-            <Clock className="w-4 h-4 text-[#00AEEF]" />
+            <Clock className="w-4 h-4 text-[#2563EB]" />
             <span className="text-[11px] text-slate-300 font-semibold">Flash Sale Ends:</span>
             <div className="flex items-center gap-1 font-mono text-xs font-black text-[#FFC20E]">
               <span className="bg-slate-800 px-2 py-0.5 rounded-md border border-slate-700">
@@ -100,7 +100,7 @@ export const OffersHero: React.FC<OffersHeroProps> = ({
         <div className="max-w-3xl space-y-3">
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-white leading-tight">
             Deals, Vouchers &amp;{" "}
-            <span className="bg-gradient-to-r from-[#00AEEF] via-[#38BDF8] to-[#FFC20E] bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-[#2563EB] via-[#38BDF8] to-[#FFC20E] bg-clip-text text-transparent">
               Exclusive Maker Discounts
             </span>
           </h1>
@@ -114,7 +114,7 @@ export const OffersHero: React.FC<OffersHeroProps> = ({
         <div className="flex flex-wrap items-center gap-3 pt-1">
           <button
             onClick={() => scrollToSection("coupon-vault")}
-            className="inline-flex items-center gap-2 bg-[#00AEEF] hover:bg-[#0096D6] text-white px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all shadow-lg shadow-[#00AEEF]/25 hover:scale-[1.02] active:scale-95 cursor-pointer"
+            className="inline-flex items-center gap-2 bg-[#2563EB] hover:bg-[#1D4ED8] text-white px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all shadow-lg shadow-[#2563EB]/25 hover:scale-[1.02] active:scale-95 cursor-pointer"
           >
             <Ticket className="w-4 h-4 text-[#FFC20E]" />
             <span>Claim Checkout Vouchers</span>
@@ -124,7 +124,7 @@ export const OffersHero: React.FC<OffersHeroProps> = ({
             onClick={() => scrollToSection("combo-bundles")}
             className="inline-flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all hover:scale-[1.02] active:scale-95 cursor-pointer"
           >
-            <Package className="w-4 h-4 text-[#00AEEF]" />
+            <Package className="w-4 h-4 text-[#2563EB]" />
             <span>Combo Bundles (Save &gt; ₹1,000)</span>
           </button>
 
@@ -141,8 +141,8 @@ export const OffersHero: React.FC<OffersHeroProps> = ({
         {/* Value Trust Points Strip */}
         <div className="pt-6 border-t border-slate-800/80 grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs text-slate-300">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-[#00AEEF]/10 border border-[#00AEEF]/20 flex items-center justify-center shrink-0">
-              <Zap className="w-4 h-4 text-[#00AEEF]" />
+            <div className="w-8 h-8 rounded-xl bg-[#2563EB]/10 border border-[#2563EB]/20 flex items-center justify-center shrink-0">
+              <Zap className="w-4 h-4 text-[#2563EB]" />
             </div>
             <div>
               <div className="font-bold text-white text-xs">Instant Discounts</div>

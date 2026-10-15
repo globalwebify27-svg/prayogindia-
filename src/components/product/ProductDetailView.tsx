@@ -122,7 +122,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
         </p>
         <Link
           href="/products"
-          className="inline-flex items-center gap-2 bg-[#00AEEF] text-white px-6 py-3 rounded-full text-xs font-black uppercase tracking-wider"
+          className="inline-flex items-center gap-2 bg-[#2563EB] hover:bg-blue-700 text-white px-6 py-3 rounded-full text-xs font-black uppercase tracking-wider transition-colors shadow-md shadow-blue-500/20"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Back to Products</span>
@@ -286,7 +286,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
 
           <button
             onClick={() => handleAddToCart(product, 1)}
-            className="flex-1 bg-[#00AEEF] hover:bg-[#0096D6] text-white py-2.5 px-2 rounded-xl font-extrabold text-[10px] sm:text-[11px] uppercase tracking-wider flex items-center justify-center gap-1 shadow-xs active:scale-95 transition-all cursor-pointer whitespace-nowrap"
+            className="flex-1 border-2 border-[#2563EB] text-[#2563EB] hover:bg-[#2563EB] hover:text-white py-2.5 px-2 rounded-xl font-extrabold text-[10px] sm:text-[11px] uppercase tracking-wider flex items-center justify-center gap-1 shadow-xs active:scale-95 transition-all cursor-pointer whitespace-nowrap"
           >
             <ShoppingBag className="w-3.5 h-3.5 shrink-0" />
             <span>Add to Cart</span>
@@ -294,7 +294,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
 
           <button
             onClick={() => handleBuyNow(product, 1)}
-            className="flex-1 bg-[#0A1128] hover:bg-slate-800 text-white py-2.5 px-2 rounded-xl font-extrabold text-[10px] sm:text-[11px] uppercase tracking-wider flex items-center justify-center gap-1 shadow-xs active:scale-95 transition-all cursor-pointer whitespace-nowrap"
+            className="flex-1 bg-[#2563EB] hover:bg-blue-700 text-white py-2.5 px-2 rounded-xl font-extrabold text-[10px] sm:text-[11px] uppercase tracking-wider flex items-center justify-center gap-1 shadow-md shadow-blue-500/20 active:scale-95 transition-all cursor-pointer whitespace-nowrap"
           >
             <span>Buy Now</span>
           </button>

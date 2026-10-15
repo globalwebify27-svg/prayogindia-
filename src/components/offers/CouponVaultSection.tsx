@@ -46,7 +46,7 @@ export const CouponVaultSection: React.FC = () => {
             <div className="w-2.5 h-6 bg-[#FFC20E] rounded-full" />
             <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2">
               <span>Checkout Voucher Vault</span>
-              <Ticket className="w-5 h-5 text-[#00AEEF]" />
+              <Ticket className="w-5 h-5 text-[#2563EB]" />
             </h2>
           </div>
           <p className="text-xs sm:text-sm text-slate-500 mt-1">
@@ -62,7 +62,7 @@ export const CouponVaultSection: React.FC = () => {
               onClick={() => setSelectedCategory(cat)}
               className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
                 selectedCategory === cat
-                  ? "bg-[#00AEEF] text-white shadow-sm"
+                  ? "bg-[#2563EB] text-white shadow-sm"
                   : "bg-slate-100 text-slate-600 hover:bg-slate-200"
               }`}
             >
@@ -79,7 +79,7 @@ export const CouponVaultSection: React.FC = () => {
           return (
             <div
               key={coupon.code}
-              className="relative bg-white rounded-3xl border border-slate-200 shadow-sm hover:shadow-lg hover:border-[#00AEEF]/60 transition-all duration-300 overflow-hidden flex flex-col justify-between group"
+              className="relative bg-white rounded-3xl border border-slate-200 shadow-sm hover:shadow-lg hover:border-[#2563EB]/60 transition-all duration-300 overflow-hidden flex flex-col justify-between group"
             >
               {/* Perforated Side Cutouts (Visual Ticket Notch Effect) */}
               <div className="absolute top-1/2 -left-3 -translate-y-1/2 w-6 h-6 rounded-full bg-slate-50 border-r border-slate-200 z-10" />
@@ -88,7 +88,7 @@ export const CouponVaultSection: React.FC = () => {
               {/* Top Section */}
               <div className="p-5 pb-4 space-y-3">
                 <div className="flex items-center justify-between gap-2">
-                  <span className="text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full bg-gradient-to-r from-sky-50 to-cyan-100 text-[#00AEEF] border border-cyan-200 flex items-center gap-1">
+                  <span className="text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full bg-gradient-to-r from-blue-50 to-indigo-100 text-[#2563EB] border border-blue-200 flex items-center gap-1">
                     <Sparkles className="w-3 h-3" />
                     {coupon.category}
                   </span>
@@ -105,7 +105,7 @@ export const CouponVaultSection: React.FC = () => {
                 </div>
 
                 <div className="space-y-1">
-                  <div className="text-xl font-black text-slate-900 tracking-tight group-hover:text-[#00AEEF] transition-colors">
+                  <div className="text-xl font-black text-slate-900 tracking-tight group-hover:text-[#2563EB] transition-colors">
                     {coupon.discountText}
                   </div>
                   <h3 className="text-xs font-bold text-slate-800">
@@ -138,7 +138,7 @@ export const CouponVaultSection: React.FC = () => {
 
                 <div className="flex items-center gap-2">
                   {/* Coupon Code Block */}
-                  <div className="flex-1 bg-white border-2 border-dashed border-slate-300 rounded-xl px-3 py-2 flex items-center justify-between group-hover:border-[#00AEEF]/50 transition-colors">
+                  <div className="flex-1 bg-white border-2 border-dashed border-slate-300 rounded-xl px-3 py-2 flex items-center justify-between group-hover:border-[#2563EB]/50 transition-colors">
                     <span className="font-mono text-xs font-extrabold text-slate-900 tracking-wider">
                       {coupon.code}
                     </span>
@@ -151,7 +151,7 @@ export const CouponVaultSection: React.FC = () => {
                     className={`px-4 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all cursor-pointer flex items-center gap-1.5 shadow-xs shrink-0 ${
                       isCopied
                         ? "bg-emerald-600 text-white shadow-emerald-500/20"
-                        : "bg-[#00AEEF] hover:bg-[#0096D6] text-white active:scale-95"
+                        : "bg-[#2563EB] hover:bg-[#1D4ED8] text-white active:scale-95"
                     }`}
                   >
                     {isCopied ? (
@@ -176,7 +176,7 @@ export const CouponVaultSection: React.FC = () => {
       {/* Redemption Helper Bar */}
       <div className="bg-gradient-to-r from-sky-50 via-slate-50 to-amber-50 border border-sky-100 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-xs">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-white border border-sky-200 flex items-center justify-center text-[#00AEEF] shrink-0 shadow-2xs">
+          <div className="w-10 h-10 rounded-2xl bg-white border border-blue-200 flex items-center justify-center text-[#2563EB] shrink-0 shadow-2xs">
             <ShoppingBag className="w-5 h-5" />
           </div>
           <div>
@@ -192,7 +192,7 @@ export const CouponVaultSection: React.FC = () => {
             const el = document.getElementById("deal-products");
             el?.scrollIntoView({ behavior: "smooth" });
           }}
-          className="text-xs font-bold text-[#00AEEF] hover:text-[#0096D6] hover:underline flex items-center gap-1 self-start sm:self-auto shrink-0 cursor-pointer"
+          className="text-xs font-bold text-[#2563EB] hover:text-[#1D4ED8] hover:underline flex items-center gap-1 self-start sm:self-auto shrink-0 cursor-pointer"
         >
           <span>Shop Eligible Products Below</span> →
         </button>

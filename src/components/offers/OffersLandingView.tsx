@@ -361,7 +361,7 @@ export const OffersLandingView: React.FC = () => {
                 </p>
                 <button
                   onClick={clearAllFilters}
-                  className="text-xs font-bold text-[#00AEEF] bg-[#E0F7FC] hover:bg-[#c9f1fa] px-4 py-2 rounded-xl transition-colors cursor-pointer"
+                  className="text-xs font-bold text-[#2563EB] bg-blue-50 hover:bg-blue-100 px-4 py-2 rounded-xl transition-colors cursor-pointer"
                 >
                   Reset All Filters
                 </button>
@@ -382,7 +382,7 @@ export const OffersLandingView: React.FC = () => {
                       onClick={() =>
                         setVisibleCount((prev) => prev + itemsPerPage)
                       }
-                      className="bg-slate-900 hover:bg-[#00AEEF] text-white font-extrabold px-8 py-3.5 rounded-full text-xs uppercase tracking-wider transition-all shadow-md active:scale-95 cursor-pointer"
+                      className="bg-slate-900 hover:bg-[#2563EB] text-white font-extrabold px-8 py-3.5 rounded-full text-xs uppercase tracking-wider transition-all shadow-md active:scale-95 cursor-pointer"
                     >
                       Load More Deals —{" "}
                       {dealProducts.length - visibleCount} remaining
@@ -409,7 +409,7 @@ export const OffersLandingView: React.FC = () => {
                       onClick={() =>
                         setVisibleCount((prev) => prev + itemsPerPage)
                       }
-                      className="bg-slate-900 hover:bg-[#00AEEF] text-white font-extrabold px-8 py-3.5 rounded-full text-xs uppercase tracking-wider transition-all shadow-md active:scale-95 cursor-pointer"
+                      className="bg-slate-900 hover:bg-[#2563EB] text-white font-extrabold px-8 py-3.5 rounded-full text-xs uppercase tracking-wider transition-all shadow-md active:scale-95 cursor-pointer"
                     >
                       Load More Deals —{" "}
                       {dealProducts.length - visibleCount} products remaining
@@ -424,7 +424,7 @@ export const OffersLandingView: React.FC = () => {
         {/* 7. Active Checkout Promo Vouchers Strip */}
         <div className="bg-white border border-slate-200/90 rounded-2xl p-4 sm:p-5 space-y-3 shadow-xs">
           <div className="flex items-center gap-2">
-            <Ticket className="w-4 h-4 text-[#00AEEF]" />
+            <Ticket className="w-4 h-4 text-[#2563EB]" />
             <h3 className="text-xs font-black text-slate-900 uppercase tracking-wider">
               Active Checkout Promo Vouchers
             </h3>
@@ -448,7 +448,7 @@ export const OffersLandingView: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => handleCopyCoupon(coupon.code)}
-                  className="bg-white hover:bg-sky-50 text-slate-800 hover:text-[#00AEEF] border border-slate-200 px-2.5 py-1.5 rounded-lg text-xs font-mono font-bold flex items-center gap-1.5 transition-all cursor-pointer active:scale-95 shrink-0"
+                  className="bg-white hover:bg-blue-50 text-slate-800 hover:text-[#2563EB] border border-slate-200 px-2.5 py-1.5 rounded-lg text-xs font-mono font-bold flex items-center gap-1.5 transition-all cursor-pointer active:scale-95 shrink-0"
                 >
                   <span>{coupon.code}</span>
                   {copiedCoupon === coupon.code ? (
@@ -465,7 +465,7 @@ export const OffersLandingView: React.FC = () => {
         {/* 8. Trust Strip */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs text-slate-600 bg-white border border-slate-200 rounded-2xl p-4">
           <div className="flex items-center gap-2">
-            <Truck className="w-4 h-4 text-[#00AEEF] shrink-0" />
+            <Truck className="w-4 h-4 text-[#2563EB] shrink-0" />
             <span>Free Shipping &gt; ₹999</span>
           </div>
           <div className="flex items-center gap-2">

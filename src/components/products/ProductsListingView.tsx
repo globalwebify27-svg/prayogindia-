@@ -405,7 +405,7 @@ function ProductsContent() {
           onBlur={() => setTimeout(() => setSearchFocused(false), 150)}
           onKeyDown={handleSearchKeyDown}
           placeholder="Instant search — name, SKU, brand, or specs (e.g. rasberry, arduno, pixhok)..."
-          className="w-full bg-white text-xs sm:text-sm pl-11 pr-10 py-3.5 rounded-2xl border border-slate-200 focus:outline-none focus:border-[#00AEEF] focus:bg-white transition-all shadow-sm"
+          className="w-full bg-white text-xs sm:text-sm pl-11 pr-10 py-3.5 rounded-2xl border border-slate-200 focus:outline-none focus:border-[#2563EB] focus:bg-white transition-all shadow-sm"
           autoComplete="off"
         />
         {searchQuery && (
@@ -449,7 +449,7 @@ function ProductsContent() {
                   <button
                     key={q}
                     onMouseDown={() => handlePopularSearch(q)}
-                    className="bg-[#E0F7FC] hover:bg-[#B3EBF9] text-[#00AEEF] text-[11px] font-bold px-2.5 py-1 rounded-lg transition-colors cursor-pointer"
+                    className="bg-blue-50 hover:bg-blue-100 text-[#2563EB] text-[11px] font-bold px-2.5 py-1 rounded-lg transition-colors cursor-pointer"
                   >
                     {q}
                   </button>
@@ -543,7 +543,7 @@ function ProductsContent() {
                 return (
                   <div
                     key={product.id}
-                    className="bg-white rounded-2xl border border-slate-200 flex flex-col sm:flex-row items-start gap-4 p-4 hover:border-[#00AEEF]/50 hover:shadow-md transition-all"
+                    className="bg-white rounded-2xl border border-slate-200 flex flex-col sm:flex-row items-start gap-4 p-4 hover:border-[#2563EB]/40 hover:shadow-md transition-all"
                   >
                     {/* Image */}
                     <div className="relative w-full sm:w-28 h-28 shrink-0 rounded-xl overflow-hidden bg-slate-50 border border-slate-100 flex items-center justify-center">
@@ -572,7 +572,7 @@ function ProductsContent() {
                             </span>
                           )}
                           {product.badge && (
-                            <span className="bg-slate-900 text-[#00AEEF] text-[9px] font-black px-1.5 py-0.5 rounded">
+                            <span className="bg-slate-900 text-[#FFC20E] text-[9px] font-black px-1.5 py-0.5 rounded">
                               {product.badge}
                             </span>
                           )}
@@ -604,7 +604,7 @@ function ProductsContent() {
                         <div className="flex items-center gap-2">
                           <button
                             onClick={() => setQuickViewProduct(product)}
-                            className="text-[11px] font-bold text-[#00AEEF] hover:underline cursor-pointer hidden sm:inline"
+                            className="text-[11px] font-bold text-[#2563EB] hover:underline cursor-pointer hidden sm:inline"
                           >
                             Quick View
                           </button>
@@ -635,7 +635,7 @@ function ProductsContent() {
                 <div className="text-center pt-2">
                   <button
                     onClick={() => setVisibleCount((prev) => prev + itemsPerPage)}
-                    className="bg-slate-900 hover:bg-[#00AEEF] text-white font-extrabold px-8 py-3.5 rounded-full text-xs uppercase tracking-wider transition-all shadow-md active:scale-95 cursor-pointer"
+                    className="bg-slate-900 hover:bg-[#2563EB] text-white font-extrabold px-8 py-3.5 rounded-full text-xs uppercase tracking-wider transition-all shadow-md active:scale-95 cursor-pointer"
                   >
                     Load More — {filteredProducts.length - visibleCount} remaining
                   </button>
@@ -667,7 +667,7 @@ function ProductsContent() {
                   <button
                     id="load-more-products"
                     onClick={() => setVisibleCount((prev) => prev + itemsPerPage)}
-                    className="bg-slate-900 hover:bg-[#00AEEF] text-white font-extrabold px-8 py-3.5 rounded-full text-xs uppercase tracking-wider transition-all shadow-md active:scale-95 cursor-pointer"
+                    className="bg-slate-900 hover:bg-[#2563EB] text-white font-extrabold px-8 py-3.5 rounded-full text-xs uppercase tracking-wider transition-all shadow-md active:scale-95 cursor-pointer"
                   >
                     Load More — {filteredProducts.length - visibleCount} products remaining
                   </button>

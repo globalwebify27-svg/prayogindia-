@@ -77,7 +77,7 @@ export const SupportTicketDetailView: React.FC<SupportTicketDetailProps> = ({
         <div>
           <Link
             href="/account/support"
-            className="text-xs font-bold text-[#00AEEF] hover:underline flex items-center gap-1 mb-1"
+            className="text-xs font-bold text-[#2563EB] hover:underline flex items-center gap-1 mb-1"
           >
             <ArrowLeft className="w-3.5 h-3.5" /> Back to Support Tickets
           </Link>
@@ -119,7 +119,7 @@ export const SupportTicketDetailView: React.FC<SupportTicketDetailProps> = ({
               key={idx}
               className={`p-4 rounded-2xl text-xs space-y-1.5 max-w-xl ${
                 msg.sender === "Customer"
-                  ? "bg-[#00AEEF] text-white ml-auto"
+                  ? "bg-[#2563EB] text-white ml-auto"
                   : "bg-white text-slate-800 border border-slate-200"
               }`}
             >
@@ -145,11 +145,11 @@ export const SupportTicketDetailView: React.FC<SupportTicketDetailProps> = ({
             placeholder="Type your message reply..."
             value={replyText}
             onChange={(e) => setReplyText(e.target.value)}
-            className="flex-1 bg-slate-50 border border-slate-200 p-3 rounded-xl text-xs focus:outline-none font-medium"
+            className="flex-1 bg-slate-50 border border-slate-200 p-3 rounded-xl text-xs focus:outline-none focus:border-[#2563EB] font-medium"
           />
           <button
             type="submit"
-            className="bg-slate-900 hover:bg-[#00AEEF] text-white px-5 rounded-xl text-xs font-extrabold flex items-center gap-1.5 transition-colors shrink-0"
+            className="bg-slate-900 hover:bg-[#2563EB] text-white px-5 rounded-xl text-xs font-extrabold flex items-center gap-1.5 transition-colors shrink-0"
           >
             <Send className="w-4 h-4" />
             <span>Send Reply</span>

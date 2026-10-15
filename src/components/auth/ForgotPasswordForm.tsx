@@ -111,7 +111,7 @@ export const ForgotPasswordForm: React.FC = () => {
       {step === "REQUEST" && (
         <>
           <div className="space-y-1 text-center">
-            <span className="text-[10px] font-black uppercase tracking-widest text-[#00AEEF] bg-[#E0F7FC] px-3 py-1 rounded-full inline-block">
+            <span className="text-[10px] font-black uppercase tracking-widest text-[#2563EB] bg-blue-50 border border-blue-200/60 px-3 py-1 rounded-full inline-block">
               Account Recovery
             </span>
             <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">
@@ -142,7 +142,7 @@ export const ForgotPasswordForm: React.FC = () => {
                   value={identifier}
                   onChange={(e) => setIdentifier(e.target.value)}
                   placeholder="e.g. name@domain.com or +91 9876543210"
-                  className="w-full bg-slate-50 text-slate-900 pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-[#00AEEF] font-semibold"
+                  className="w-full bg-slate-50 text-slate-900 pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-[#2563EB] font-semibold"
                 />
               </div>
             </div>
@@ -150,7 +150,7 @@ export const ForgotPasswordForm: React.FC = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-[#00AEEF] hover:bg-[#0096D6] disabled:opacity-50 text-white py-3.5 rounded-xl font-extrabold text-xs uppercase tracking-wider transition-all shadow-md shadow-[#00AEEF]/25 flex items-center justify-center gap-2 cursor-pointer active:scale-95"
+              className="w-full bg-[#2563EB] hover:bg-[#1D4ED8] disabled:opacity-50 text-white py-3.5 rounded-xl font-extrabold text-xs uppercase tracking-wider transition-all shadow-md shadow-[#2563EB]/25 flex items-center justify-center gap-2 cursor-pointer active:scale-95"
             >
               {loading ? (
                 <>
@@ -171,7 +171,7 @@ export const ForgotPasswordForm: React.FC = () => {
       {step === "VERIFY" && (
         <>
           <div className="space-y-1 text-center">
-            <span className="text-[10px] font-black uppercase tracking-widest text-[#00AEEF] bg-[#E0F7FC] px-3 py-1 rounded-full inline-block">
+            <span className="text-[10px] font-black uppercase tracking-widest text-[#2563EB] bg-blue-50 border border-blue-200/60 px-3 py-1 rounded-full inline-block">
               Verify & Set Password
             </span>
             <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">
@@ -210,7 +210,7 @@ export const ForgotPasswordForm: React.FC = () => {
                   value={code}
                   onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
                   placeholder="e.g. 849201"
-                  className="w-full bg-slate-50 text-slate-900 pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-[#00AEEF] font-mono font-bold tracking-widest text-center"
+                  className="w-full bg-slate-50 text-slate-900 pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-[#2563EB] font-mono font-bold tracking-widest text-center"
                 />
               </div>
             </div>
@@ -227,7 +227,7 @@ export const ForgotPasswordForm: React.FC = () => {
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                   placeholder="Minimum 6 characters"
-                  className="w-full bg-slate-50 text-slate-900 pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-[#00AEEF] font-semibold"
+                  className="w-full bg-slate-50 text-slate-900 pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-[#2563EB] font-semibold"
                 />
               </div>
             </div>
@@ -244,7 +244,7 @@ export const ForgotPasswordForm: React.FC = () => {
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   placeholder="Re-type new password"
-                  className="w-full bg-slate-50 text-slate-900 pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-[#00AEEF] font-semibold"
+                  className="w-full bg-slate-50 text-slate-900 pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-[#2563EB] font-semibold"
                 />
               </div>
             </div>
@@ -252,7 +252,7 @@ export const ForgotPasswordForm: React.FC = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-[#00AEEF] hover:bg-[#0096D6] disabled:opacity-50 text-white py-3.5 rounded-xl font-extrabold text-xs uppercase tracking-wider transition-all shadow-md shadow-[#00AEEF]/25 flex items-center justify-center gap-2 cursor-pointer active:scale-95"
+              className="w-full bg-[#2563EB] hover:bg-[#1D4ED8] disabled:opacity-50 text-white py-3.5 rounded-xl font-extrabold text-xs uppercase tracking-wider transition-all shadow-md shadow-[#2563EB]/25 flex items-center justify-center gap-2 cursor-pointer active:scale-95"
             >
               {loading ? (
                 <>
@@ -295,7 +295,7 @@ export const ForgotPasswordForm: React.FC = () => {
           </p>
           <Link
             href="/login"
-            className="inline-flex items-center justify-center gap-2 w-full bg-[#00AEEF] hover:bg-[#0096D6] text-white py-3.5 rounded-xl font-extrabold text-xs uppercase tracking-wider transition-all shadow-md shadow-[#00AEEF]/25"
+            className="inline-flex items-center justify-center gap-2 w-full bg-[#2563EB] hover:bg-[#1D4ED8] text-white py-3.5 rounded-xl font-extrabold text-xs uppercase tracking-wider transition-all shadow-md shadow-[#2563EB]/25"
           >
             <span>Sign In Now</span>
             <ArrowRight className="w-4 h-4 text-[#FFC20E]" />
@@ -307,7 +307,7 @@ export const ForgotPasswordForm: React.FC = () => {
         <div className="text-center pt-2 border-t border-slate-100">
           <Link
             href="/login"
-            className="inline-flex items-center gap-1 text-xs font-bold text-slate-600 hover:text-[#00AEEF]"
+            className="inline-flex items-center gap-1 text-xs font-bold text-slate-600 hover:text-[#2563EB]"
           >
             <ArrowLeft className="w-4 h-4" /> Back to Sign In
           </Link>

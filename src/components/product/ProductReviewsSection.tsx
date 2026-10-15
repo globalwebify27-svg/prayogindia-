@@ -122,7 +122,7 @@ export const ProductReviewsSection: React.FC<ProductReviewsProps> = ({
         </div>
         <button
           onClick={() => setShowWriteForm(true)}
-          className="flex items-center gap-2 bg-slate-900 hover:bg-[#00AEEF] text-white text-xs font-extrabold px-4 py-2.5 rounded-2xl transition-all active:scale-95 shadow-md cursor-pointer whitespace-nowrap"
+          className="flex items-center gap-2 bg-slate-900 hover:bg-[#2563EB] text-white text-xs font-extrabold px-4 py-2.5 rounded-2xl transition-all active:scale-95 shadow-md cursor-pointer whitespace-nowrap"
         >
           <PenSquare className="w-4 h-4" />
           Write a Review
@@ -191,7 +191,7 @@ export const ProductReviewsSection: React.FC<ProductReviewsProps> = ({
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="text-xs font-bold text-slate-800 bg-white border border-slate-200 rounded-xl px-3 py-2 focus:outline-none focus:border-[#00AEEF] cursor-pointer"
+              className="text-xs font-bold text-slate-800 bg-white border border-slate-200 rounded-xl px-3 py-2 focus:outline-none focus:border-[#2563EB] cursor-pointer"
             >
               {REVIEW_SORT_OPTIONS.map((opt) => (
                 <option key={opt} value={opt}>
@@ -216,7 +216,7 @@ export const ProductReviewsSection: React.FC<ProductReviewsProps> = ({
             </p>
             <button
               onClick={() => setShowWriteForm(true)}
-              className="mt-4 bg-[#00AEEF] text-white text-xs font-black px-4 py-2 rounded-xl cursor-pointer"
+              className="mt-4 bg-[#2563EB] text-white text-xs font-black px-4 py-2 rounded-xl cursor-pointer"
             >
               Write a Review
             </button>
@@ -232,7 +232,7 @@ export const ProductReviewsSection: React.FC<ProductReviewsProps> = ({
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex items-center gap-2.5">
                     {/* Avatar */}
-                    <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#00AEEF] to-[#0096D6] flex items-center justify-center text-white text-xs font-black shrink-0">
+                    <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#2563EB] to-[#1D4ED8] flex items-center justify-center text-white text-xs font-black shrink-0">
                       {rev.author.charAt(0).toUpperCase()}
                     </div>
                     <div>
@@ -271,7 +271,7 @@ export const ProductReviewsSection: React.FC<ProductReviewsProps> = ({
                 </div>
 
                 {/* Review Comment */}
-                <p className="text-xs text-slate-700 leading-relaxed italic border-l-2 border-[#00AEEF]/30 pl-3">
+                <p className="text-xs text-slate-700 leading-relaxed italic border-l-2 border-[#2563EB]/30 pl-3">
                   &ldquo;{rev.comment}&rdquo;
                 </p>
 
@@ -308,7 +308,7 @@ export const ProductReviewsSection: React.FC<ProductReviewsProps> = ({
             {localReviews.length > 3 && (
               <button
                 onClick={() => setShowAll(!showAll)}
-                className="w-full text-center text-xs font-extrabold text-[#00AEEF] hover:text-[#0096D6] py-3 border border-[#00AEEF]/30 rounded-2xl hover:bg-[#E0F7FC] transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                className="w-full text-center text-xs font-extrabold text-[#2563EB] hover:text-[#1D4ED8] py-3 border border-[#2563EB]/30 rounded-2xl hover:bg-blue-50 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
               >
                 <ChevronDown
                   className={`w-4 h-4 transition-transform ${showAll ? "rotate-180" : ""}`}
@@ -328,7 +328,7 @@ export const ProductReviewsSection: React.FC<ProductReviewsProps> = ({
           <div className="bg-white rounded-3xl border border-slate-200 w-full max-w-lg shadow-2xl overflow-hidden my-8">
             <div className="bg-slate-900 text-white px-6 py-5 flex items-center justify-between">
               <div>
-                <span className="text-[9px] font-black uppercase tracking-widest text-[#00AEEF]">
+                <span className="text-[9px] font-black uppercase tracking-widest text-[#2563EB]">
                   CUSTOMER REVIEW
                 </span>
                 <h3 className="text-lg font-black">Write Your Review</h3>
@@ -401,7 +401,7 @@ export const ProductReviewsSection: React.FC<ProductReviewsProps> = ({
                       value={formName}
                       onChange={(e) => setFormName(e.target.value)}
                       placeholder="Your full name"
-                      className="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl font-semibold text-slate-900 focus:outline-none focus:border-[#00AEEF]"
+                      className="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl font-semibold text-slate-900 focus:outline-none focus:border-[#2563EB]"
                     />
                   </div>
                   <div>
@@ -413,7 +413,7 @@ export const ProductReviewsSection: React.FC<ProductReviewsProps> = ({
                       value={formRole}
                       onChange={(e) => setFormRole(e.target.value)}
                       placeholder="e.g. Robotics Hobbyist"
-                      className="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl font-semibold text-slate-900 focus:outline-none focus:border-[#00AEEF]"
+                      className="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl font-semibold text-slate-900 focus:outline-none focus:border-[#2563EB]"
                     />
                   </div>
                 </div>
@@ -428,7 +428,7 @@ export const ProductReviewsSection: React.FC<ProductReviewsProps> = ({
                     onChange={(e) => setFormComment(e.target.value)}
                     rows={4}
                     placeholder="Share your experience with this product — what project did you use it for? How was the quality and performance?"
-                    className="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl font-medium text-slate-900 focus:outline-none focus:border-[#00AEEF] leading-relaxed resize-none"
+                    className="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl font-medium text-slate-900 focus:outline-none focus:border-[#2563EB] leading-relaxed resize-none"
                   />
                   <span className="text-[10px] text-slate-400 font-medium">
                     {formComment.length} / 500 characters
@@ -445,7 +445,7 @@ export const ProductReviewsSection: React.FC<ProductReviewsProps> = ({
                   </button>
                   <button
                     type="submit"
-                    className="bg-[#00AEEF] hover:bg-[#0096D6] text-white px-6 py-2.5 rounded-xl font-black uppercase tracking-wider shadow-md shadow-[#00AEEF]/20 active:scale-95 cursor-pointer"
+                    className="bg-[#2563EB] hover:bg-[#1D4ED8] text-white px-6 py-2.5 rounded-xl font-black uppercase tracking-wider shadow-md shadow-[#2563EB]/20 active:scale-95 cursor-pointer"
                   >
                     Publish Review
                   </button>

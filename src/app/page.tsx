@@ -243,7 +243,7 @@ export default function Home() {
         {activeTab === "products" && (
           <div className="py-10 animate-in fade-in duration-300">
             <div className="max-w-7xl mx-auto px-6 mb-6">
-              <div className="bg-[#00AEEF] text-white p-8 rounded-3xl shadow-xl flex flex-col md:flex-row justify-between items-center gap-6">
+              <div className="bg-gradient-to-r from-blue-700 via-blue-600 to-[#2563EB] text-white p-8 rounded-3xl shadow-xl flex flex-col md:flex-row justify-between items-center gap-6">
                 <div>
                   <span className="bg-[#FFC20E] text-slate-950 text-[10px] font-black uppercase px-3 py-1 rounded-full">
                     Official Prayog Store
@@ -315,7 +315,7 @@ export default function Home() {
           activeTab === "arduino-iot" ||
           activeTab === "stem-kits") && (
           <div className="py-10 max-w-7xl mx-auto px-6 space-y-8 animate-in fade-in duration-300">
-            <div className="bg-[#00AEEF] text-white p-8 rounded-3xl shadow-xl space-y-2">
+            <div className="bg-gradient-to-r from-blue-700 via-blue-600 to-[#2563EB] text-white p-8 rounded-3xl shadow-xl space-y-2">
               <span className="bg-[#FFC20E] text-slate-950 text-xs font-black px-3.5 py-1 rounded-full uppercase">
                 Hardware Category View
               </span>

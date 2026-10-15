@@ -76,7 +76,7 @@ export default function StoreDashboardPage() {
       <div className="bg-white border border-slate-200/90 p-6 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-2xs">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <span className="bg-[#00AEEF] text-white text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+            <span className="bg-[#2563EB] text-white text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider">
               {storeData?.code || "Assigned Branch"}
             </span>
             <span className="text-slate-500 text-xs font-semibold">
@@ -111,7 +111,7 @@ export default function StoreDashboardPage() {
             <span className="text-xs font-bold uppercase tracking-wider">
               Store Total Units
             </span>
-            <Boxes className="w-5 h-5 text-[#00AEEF]" />
+            <Boxes className="w-5 h-5 text-[#2563EB]" />
           </div>
           <div className="text-2xl font-black text-slate-900">
             {inventoryStats?.totalUnits ?? "—"}
@@ -141,7 +141,7 @@ export default function StoreDashboardPage() {
             <span className="text-xs font-bold uppercase tracking-wider">
               Recent Orders
             </span>
-            <ShoppingBag className="w-5 h-5 text-[#00AEEF]" />
+            <ShoppingBag className="w-5 h-5 text-[#2563EB]" />
           </div>
           <div className="text-2xl font-black text-slate-900">
             {orders.length}
@@ -171,12 +171,12 @@ export default function StoreDashboardPage() {
         <div className="lg:col-span-2 bg-white border border-slate-200/90 rounded-2xl p-6 space-y-4 shadow-2xs">
           <div className="flex items-center justify-between">
             <h2 className="text-base font-black text-slate-900 flex items-center gap-2">
-              <ShoppingBag className="w-4 h-4 text-[#00AEEF]" /> Recent Branch
+              <ShoppingBag className="w-4 h-4 text-[#2563EB]" /> Recent Branch
               Orders
             </h2>
             <Link
               href="/store/orders"
-              className="text-xs font-bold text-[#00AEEF] hover:underline flex items-center gap-1"
+              className="text-xs font-bold text-[#2563EB] hover:underline flex items-center gap-1"
             >
               <span>View All</span>
               <ArrowRight className="w-3.5 h-3.5" />
@@ -213,18 +213,18 @@ export default function StoreDashboardPage() {
         {/* Quick Branch Operations */}
         <div className="bg-white border border-slate-200/90 rounded-2xl p-6 space-y-4 shadow-2xs">
           <h2 className="text-base font-black text-slate-900 flex items-center gap-2">
-            <Store className="w-4 h-4 text-[#00AEEF]" /> Quick Operations
+            <Store className="w-4 h-4 text-[#2563EB]" /> Quick Operations
           </h2>
 
           <div className="space-y-2.5">
             <Link
               href="/store-pos"
               target="_blank"
-              className="block bg-slate-50 border border-slate-200 p-4 rounded-xl hover:border-[#00AEEF] transition-all group shadow-2xs"
+              className="block bg-slate-50 border border-slate-200 p-4 rounded-xl hover:border-[#2563EB] transition-all group shadow-2xs"
             >
-              <div className="flex items-center justify-between text-xs font-black text-slate-900 group-hover:text-[#00AEEF]">
+              <div className="flex items-center justify-between text-xs font-black text-slate-900 group-hover:text-[#2563EB]">
                 <span className="flex items-center gap-2">
-                  <Tablet className="w-4 h-4 text-[#00AEEF]" /> Open Store POS
+                  <Tablet className="w-4 h-4 text-[#2563EB]" /> Open Store POS
                   Terminal
                 </span>
                 <ArrowRight className="w-4 h-4" />
@@ -238,7 +238,7 @@ export default function StoreDashboardPage() {
               href="/store/inventory"
               className="block bg-slate-50 border border-slate-200 p-4 rounded-xl hover:border-slate-300 transition-all group shadow-2xs"
             >
-              <div className="flex items-center justify-between text-xs font-bold text-slate-900 group-hover:text-[#00AEEF]">
+              <div className="flex items-center justify-between text-xs font-bold text-slate-900 group-hover:text-[#2563EB]">
                 <span className="flex items-center gap-2">
                   <Boxes className="w-4 h-4 text-[#FFC20E]" /> Audit Local Stock
                 </span>
@@ -252,7 +252,7 @@ export default function StoreDashboardPage() {
 
           <div className="bg-blue-50 border border-blue-200/80 p-3.5 rounded-xl text-[11px] text-blue-800 space-y-1">
             <div className="font-bold text-blue-900 flex items-center gap-1">
-              <ShieldCheck className="w-3.5 h-3.5 text-[#00AEEF]" /> Store
+              <ShieldCheck className="w-3.5 h-3.5 text-[#2563EB]" /> Store
               Manager Scope
             </div>
             <p className="text-blue-700">

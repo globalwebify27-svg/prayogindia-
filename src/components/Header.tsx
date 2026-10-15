@@ -555,12 +555,12 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
       </div>
 
-      {/* Main Sticky Header */}
-      <header
-        style={{ position: "sticky", top: 0 }}
-        className={`sticky top-0 z-50 bg-white border-b border-slate-200/90 transition-shadow duration-200 ${
-          isScrolled ? "shadow-lg" : "shadow-xs"
-        }`}
+      {/* ======================================================== */}
+      {/* TIER 1: Main Brand & Navigation Tier (White Bar) */}
+      {/* Scrolls away on desktop so only the action bar sticks */}
+      {/* ======================================================== */}
+      <div
+        className="w-full bg-white border-b border-slate-200/90 relative z-30 sticky top-0 lg:static lg:relative"
       >
         <div className="w-full px-3.5 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 py-1.5 sm:py-3">
           {/* Mobile Top Header: [ Circular Hamburger ☰ ] [ Centered Logo ] [ Circular Cart with Badge 🛒 ] */}
@@ -1426,11 +1426,20 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
 
         </div>
+      </div>
 
       {/* ======================================================== */}
-      {/* SECTION 1.5: Mobile Search Tier (Sky Blue Banner: Profile + Search Bar) */}
+      {/* TIER 2: Sticky Action Header (Sky Blue Banner with Category Tab, Search & Cart) */}
+      {/* Only this bar sticks to the top head when scrolling down */}
       {/* ======================================================== */}
-      <div className="bg-[#D4E4F7] border-t border-slate-200/60 block sm:hidden relative z-20 w-full px-3.5 py-1.5">
+      <header
+        style={{ position: "sticky", top: 0 }}
+        className={`sticky top-0 z-40 bg-[#D4E4F7] border-b border-slate-300/80 transition-shadow duration-200 ${
+          isScrolled ? "shadow-md shadow-slate-900/10" : "border-t border-slate-200/60"
+        } w-full`}
+      >
+        {/* SECTION 1.5: Mobile Search Tier (Sky Blue Banner: Profile + Search Bar) */}
+        <div className="bg-[#D4E4F7] block sm:hidden relative z-20 w-full px-3.5 py-1.5">
         <div className="flex items-center gap-2 w-full">
           {/* Circular Navy Profile Button */}
           <Link
@@ -1482,7 +1491,7 @@ export const Header: React.FC<HeaderProps> = ({
       {/* ======================================================== */}
       {/* SECTION 2: Desktop Bottom Tier (Sky Blue Banner with Category Tab, Search & Cart) */}
       {/* ======================================================== */}
-      <div className="bg-[#D4E4F7] border-t border-slate-200/50 hidden lg:block relative z-30 w-full">
+      <div className="hidden lg:block relative z-30 w-full">
         <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 py-2 flex items-center justify-between gap-4">
           {/* 1. Left: BROWSE CATEGORIES Tab Button */}
           <div

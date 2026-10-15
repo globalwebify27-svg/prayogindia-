@@ -62,8 +62,8 @@ const WishlistCard: React.FC<{
     <div
       className={`group bg-white rounded-2xl border transition-all duration-300 flex flex-col relative overflow-hidden ${
         isSelected
-          ? "border-[#00AEEF] ring-2 ring-[#00AEEF]/20 shadow-md"
-          : "border-slate-200 hover:border-[#00AEEF]/50 hover:shadow-lg"
+          ? "border-[#2563EB] ring-2 ring-[#2563EB]/20 shadow-md"
+          : "border-slate-200 hover:border-[#2563EB]/50 hover:shadow-lg"
       }`}
     >
       {/* Selection checkbox */}
@@ -71,8 +71,8 @@ const WishlistCard: React.FC<{
         onClick={onToggleSelect}
         className="absolute top-2.5 left-2.5 z-10 w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all cursor-pointer"
         style={{
-          backgroundColor: isSelected ? "#00AEEF" : "rgba(255,255,255,0.9)",
-          borderColor: isSelected ? "#00AEEF" : "#CBD5E1",
+          backgroundColor: isSelected ? "#2563EB" : "rgba(255,255,255,0.9)",
+          borderColor: isSelected ? "#2563EB" : "#CBD5E1",
         }}
       >
         {isSelected && <Check className="w-3 h-3 text-white" />}
@@ -107,7 +107,7 @@ const WishlistCard: React.FC<{
             className="object-contain p-3 group-hover:scale-105 transition-transform duration-300"
           />
           {product.badge && (
-            <span className="absolute bottom-2 left-2 bg-slate-900 text-[#00AEEF] text-[8px] font-black px-2 py-0.5 rounded-md uppercase">
+            <span className="absolute bottom-2 left-2 bg-slate-900 text-blue-400 text-[8px] font-black px-2 py-0.5 rounded-md uppercase">
               {product.badge}
             </span>
           )}
@@ -129,7 +129,7 @@ const WishlistCard: React.FC<{
         </div>
 
         <Link href={`/products/${product.slug || product.id}`}>
-          <h3 className="text-xs font-bold text-slate-900 line-clamp-2 leading-snug hover:text-[#00AEEF] transition-colors">
+          <h3 className="text-xs font-bold text-slate-900 line-clamp-2 leading-snug hover:text-[#2563EB] transition-colors">
             {product.name}
           </h3>
         </Link>
@@ -169,8 +169,8 @@ const WishlistCard: React.FC<{
               onClick={onMoveToCart}
               className={`flex-1 py-2 rounded-xl text-[10px] font-extrabold uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all active:scale-95 cursor-pointer ${
                 movedToCart
-                  ? "bg-emerald-600 text-white"
-                  : "bg-[#00AEEF] hover:bg-[#0096D6] text-white shadow-sm shadow-[#00AEEF]/20"
+                  ? "bg-emerald-600 text-white border border-emerald-600"
+                  : "border border-[#2563EB] text-[#2563EB] hover:bg-[#2563EB] hover:text-white"
               }`}
             >
               {movedToCart ? (
@@ -179,7 +179,7 @@ const WishlistCard: React.FC<{
                 </>
               ) : (
                 <>
-                  <ShoppingCart className="w-3.5 h-3.5" /> Move to Cart
+                  <ShoppingCart className="w-3.5 h-3.5" /> Add to Cart
                 </>
               )}
             </button>
@@ -230,8 +230,8 @@ const WishlistRow: React.FC<{
     <div
       className={`bg-white border rounded-2xl flex items-center gap-4 p-3.5 transition-all hover:shadow-md ${
         isSelected
-          ? "border-[#00AEEF] ring-2 ring-[#00AEEF]/20"
-          : "border-slate-200 hover:border-[#00AEEF]/40"
+          ? "border-[#2563EB] ring-2 ring-[#2563EB]/20"
+          : "border-slate-200 hover:border-[#2563EB]/40"
       }`}
     >
       {/* Checkbox */}
@@ -239,8 +239,8 @@ const WishlistRow: React.FC<{
         onClick={onToggleSelect}
         className="w-5 h-5 rounded-md border-2 flex items-center justify-center shrink-0 cursor-pointer transition-all"
         style={{
-          backgroundColor: isSelected ? "#00AEEF" : "white",
-          borderColor: isSelected ? "#00AEEF" : "#CBD5E1",
+          backgroundColor: isSelected ? "#2563EB" : "white",
+          borderColor: isSelected ? "#2563EB" : "#CBD5E1",
         }}
       >
         {isSelected && <Check className="w-3 h-3 text-white" />}
@@ -264,7 +264,7 @@ const WishlistRow: React.FC<{
           {product.sku}
         </span>
         <Link href={`/products/${product.slug || product.id}`}>
-          <h3 className="text-xs font-bold text-slate-900 line-clamp-1 hover:text-[#00AEEF] transition-colors">
+          <h3 className="text-xs font-bold text-slate-900 line-clamp-1 hover:text-[#2563EB] transition-colors">
             {product.name}
           </h3>
         </Link>
@@ -299,10 +299,10 @@ const WishlistRow: React.FC<{
         {product.inStock ? (
           <button
             onClick={onMoveToCart}
-            className={`text-[10px] font-extrabold px-3 py-2 rounded-xl flex items-center gap-1 transition-all cursor-pointer ${
+            className={`text-[10px] font-extrabold uppercase tracking-wider px-3 py-2 rounded-xl flex items-center gap-1 transition-all cursor-pointer ${
               movedToCart
-                ? "bg-emerald-600 text-white"
-                : "bg-[#00AEEF] hover:bg-[#0096D6] text-white"
+                ? "bg-emerald-600 text-white border border-emerald-600"
+                : "border border-[#2563EB] text-[#2563EB] hover:bg-[#2563EB] hover:text-white"
             }`}
           >
             {movedToCart ? (
@@ -311,7 +311,7 @@ const WishlistRow: React.FC<{
               </>
             ) : (
               <>
-                <ShoppingCart className="w-3 h-3" /> Move to Cart
+                <ShoppingCart className="w-3 h-3" /> Add to Cart
               </>
             )}
           </button>
@@ -463,7 +463,7 @@ export const WishlistView: React.FC = () => {
           </div>
           <Link
             href="/products"
-            className="inline-flex items-center gap-2 bg-[#00AEEF] hover:bg-[#0096D6] text-white font-extrabold px-6 py-3 rounded-full text-xs uppercase tracking-wider transition-all shadow-md shadow-[#00AEEF]/20 active:scale-95"
+            className="inline-flex items-center gap-2 bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-extrabold px-6 py-3 rounded-full text-xs uppercase tracking-wider transition-all shadow-md shadow-blue-500/20 active:scale-95"
           >
             Explore Products Catalogue <ArrowRight className="w-4 h-4" />
           </Link>
@@ -481,7 +481,7 @@ export const WishlistView: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <span className="text-[10px] font-black uppercase tracking-widest text-[#00AEEF] bg-[#E0F7FC] px-3 py-1 rounded-full inline-block border border-[#00AEEF]/20">
+            <span className="text-[10px] font-black uppercase tracking-widest text-[#2563EB] bg-blue-50 px-3 py-1 rounded-full inline-block border border-blue-200/60">
               Saved Items
             </span>
           </div>
@@ -498,7 +498,7 @@ export const WishlistView: React.FC = () => {
         <div className="flex flex-col items-end gap-2 shrink-0">
           <button
             onClick={handleShare}
-            className="flex items-center gap-1.5 bg-slate-900 hover:bg-[#00AEEF] text-white text-[11px] font-extrabold px-4 py-2.5 rounded-xl transition-all active:scale-95 cursor-pointer shadow-sm"
+            className="flex items-center gap-1.5 bg-slate-900 hover:bg-[#2563EB] text-white text-[11px] font-extrabold px-4 py-2.5 rounded-xl transition-all active:scale-95 cursor-pointer shadow-sm"
           >
             <Share2 className="w-3.5 h-3.5" /> Share Wishlist
           </button>
@@ -523,8 +523,8 @@ export const WishlistView: React.FC = () => {
           {
             label: "Total Value",
             value: `₹${totalValue.toLocaleString("en-IN")}`,
-            icon: <ShoppingCart className="w-4 h-4 text-[#00AEEF]" />,
-            color: "text-[#00AEEF]",
+            icon: <ShoppingCart className="w-4 h-4 text-[#2563EB]" />,
+            color: "text-[#2563EB]",
           },
           {
             label: "Total Savings",
@@ -554,17 +554,17 @@ export const WishlistView: React.FC = () => {
 
       {/* ── Share Panel ── */}
       {showSharePanel && (
-        <div className="bg-[#E0F7FC] border border-[#00AEEF]/30 rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center gap-3 animate-in fade-in">
-          <Info className="w-4 h-4 text-[#00AEEF] shrink-0" />
+        <div className="bg-blue-50/70 border border-blue-200/60 rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center gap-3 animate-in fade-in">
+          <Info className="w-4 h-4 text-[#2563EB] shrink-0" />
           <div className="flex-1 min-w-0">
-            <p className="text-xs font-bold text-[#00AEEF] mb-1">
+            <p className="text-xs font-bold text-[#2563EB] mb-1">
               Share this link with friends or colleagues:
             </p>
-            <div className="flex items-center gap-2 bg-white border border-[#00AEEF]/30 rounded-xl px-3 py-2 text-[10px] font-mono text-slate-600 break-all">
+            <div className="flex items-center gap-2 bg-white border border-blue-200/60 rounded-xl px-3 py-2 text-[10px] font-mono text-slate-600 break-all">
               <span className="flex-1 truncate">{shareUrl}</span>
               <button
                 onClick={copyShareUrl}
-                className="shrink-0 text-[#00AEEF] hover:text-[#0096D6] cursor-pointer"
+                className="shrink-0 text-[#2563EB] hover:text-[#1D4ED8] cursor-pointer"
               >
                 {shareCopied ? (
                   <Check className="w-3.5 h-3.5" />
@@ -594,8 +594,8 @@ export const WishlistView: React.FC = () => {
             <div
               className="w-4 h-4 rounded border-2 flex items-center justify-center"
               style={{
-                backgroundColor: allSelected ? "#00AEEF" : "white",
-                borderColor: allSelected ? "#00AEEF" : "#CBD5E1",
+                backgroundColor: allSelected ? "#2563EB" : "white",
+                borderColor: allSelected ? "#2563EB" : "#CBD5E1",
               }}
             >
               {allSelected && <Check className="w-2.5 h-2.5 text-white" />}
@@ -614,7 +614,7 @@ export const WishlistView: React.FC = () => {
                 className={`flex items-center gap-1 text-[10px] font-extrabold px-3 py-1.5 rounded-xl transition-all cursor-pointer ${
                   bulkMovedFeedback
                     ? "bg-emerald-600 text-white"
-                    : "bg-[#00AEEF] hover:bg-[#0096D6] text-white"
+                    : "bg-[#2563EB] hover:bg-[#1D4ED8] text-white"
                 }`}
               >
                 {bulkMovedFeedback ? (
@@ -646,7 +646,7 @@ export const WishlistView: React.FC = () => {
             onChange={(e) =>
               setFilterStock(e.target.value as "all" | "inStock" | "outOfStock")
             }
-            className="text-[11px] font-bold text-slate-700 bg-white border border-slate-200 rounded-xl px-3 py-2 focus:outline-none focus:border-[#00AEEF] cursor-pointer"
+            className="text-[11px] font-bold text-slate-700 bg-white border border-slate-200 rounded-xl px-3 py-2 focus:outline-none focus:border-[#2563EB] cursor-pointer"
           >
             <option value="all">All Items</option>
             <option value="inStock">In Stock Only</option>
@@ -657,7 +657,7 @@ export const WishlistView: React.FC = () => {
           <select
             value={sortMode}
             onChange={(e) => setSortMode(e.target.value as SortMode)}
-            className="text-[11px] font-bold text-slate-700 bg-white border border-slate-200 rounded-xl px-3 py-2 focus:outline-none focus:border-[#00AEEF] cursor-pointer"
+            className="text-[11px] font-bold text-slate-700 bg-white border border-slate-200 rounded-xl px-3 py-2 focus:outline-none focus:border-[#2563EB] cursor-pointer"
           >
             <option value="default">Sort: Default</option>
             <option value="price-asc">Price: Low → High</option>
@@ -670,13 +670,13 @@ export const WishlistView: React.FC = () => {
           <div className="flex items-center bg-white border border-slate-200 rounded-xl p-0.5 gap-0.5">
             <button
               onClick={() => setViewMode("grid")}
-              className={`p-1.5 rounded-lg cursor-pointer transition-colors ${viewMode === "grid" ? "bg-[#00AEEF] text-white" : "text-slate-400 hover:text-slate-700"}`}
+              className={`p-1.5 rounded-lg cursor-pointer transition-colors ${viewMode === "grid" ? "bg-[#2563EB] text-white" : "text-slate-400 hover:text-slate-700"}`}
             >
               <Grid3X3 className="w-3.5 h-3.5" />
             </button>
             <button
               onClick={() => setViewMode("list")}
-              className={`p-1.5 rounded-lg cursor-pointer transition-colors ${viewMode === "list" ? "bg-[#00AEEF] text-white" : "text-slate-400 hover:text-slate-700"}`}
+              className={`p-1.5 rounded-lg cursor-pointer transition-colors ${viewMode === "list" ? "bg-[#2563EB] text-white" : "text-slate-400 hover:text-slate-700"}`}
             >
               <List className="w-3.5 h-3.5" />
             </button>
@@ -692,7 +692,7 @@ export const WishlistView: React.FC = () => {
           </p>
           <button
             onClick={() => setFilterStock("all")}
-            className="text-[#00AEEF] text-xs font-bold mt-2 hover:underline cursor-pointer"
+            className="text-[#2563EB] text-xs font-bold mt-2 hover:underline cursor-pointer"
           >
             Clear Filter
           </button>
@@ -731,7 +731,7 @@ export const WishlistView: React.FC = () => {
       <div className="bg-gradient-to-r from-slate-900 to-[#0F172A] text-white rounded-3xl p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border border-slate-700">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
-            <Zap className="w-4 h-4 text-[#00AEEF]" />
+            <Zap className="w-4 h-4 text-[#2563EB]" />
             <span className="text-xs font-extrabold text-white uppercase tracking-wider">
               Move All In-Stock Items to Cart
             </span>
@@ -747,7 +747,7 @@ export const WishlistView: React.FC = () => {
             setBulkMovedFeedback(true);
             setTimeout(() => setBulkMovedFeedback(false), 2500);
           }}
-          className="flex items-center gap-2 bg-[#00AEEF] hover:bg-[#0096D6] text-white font-extrabold text-xs uppercase tracking-wider px-6 py-3 rounded-2xl transition-all active:scale-95 cursor-pointer shadow-md shadow-[#00AEEF]/30 whitespace-nowrap"
+          className="flex items-center gap-2 bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-extrabold text-xs uppercase tracking-wider px-6 py-3 rounded-2xl transition-all active:scale-95 cursor-pointer shadow-md shadow-blue-500/30 whitespace-nowrap"
         >
           {bulkMovedFeedback ? (
             <>
@@ -763,8 +763,8 @@ export const WishlistView: React.FC = () => {
       </div>
 
       {/* ── Wishlist Insights Info Banner ── */}
-      <div className="bg-[#E0F7FC]/50 border border-[#00AEEF]/20 rounded-2xl px-5 py-4 flex items-start gap-3">
-        <Bell className="w-4 h-4 text-[#00AEEF] shrink-0 mt-0.5" />
+      <div className="bg-blue-50/70 border border-blue-200/60 rounded-2xl px-5 py-4 flex items-start gap-3">
+        <Bell className="w-4 h-4 text-[#2563EB] shrink-0 mt-0.5" />
         <div className="text-xs text-slate-600 space-y-1">
           <p className="font-extrabold text-slate-800">
             Price Drop Alerts & Wishlist Insights
@@ -777,7 +777,7 @@ export const WishlistView: React.FC = () => {
           </p>
           <Link
             href="/account"
-            className="text-[#00AEEF] font-extrabold hover:underline inline-flex items-center gap-1 mt-1"
+            className="text-[#2563EB] font-extrabold hover:underline inline-flex items-center gap-1 mt-1"
           >
             Sign in to sync wishlist <ArrowRight className="w-3 h-3" />
           </Link>

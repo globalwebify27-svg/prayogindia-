@@ -46,11 +46,11 @@ export const HeroSpotlightDeal: React.FC<HeroSpotlightDealProps> = ({
     <div id="deals-spotlight" className="space-y-4">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
         <div className="flex items-center gap-2">
-          <div className="w-2.5 h-6 bg-[#00AEEF] rounded-full" />
+          <div className="w-2.5 h-6 bg-[#2563EB] rounded-full" />
           <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
             Spotlight Mega Deals
           </h2>
-          <span className="text-xs bg-[#E0F7FC] text-[#00AEEF] font-bold px-2.5 py-0.5 rounded-full">
+          <span className="text-xs bg-blue-50 text-[#2563EB] font-bold px-2.5 py-0.5 rounded-full border border-blue-200/60">
             Top Picks
           </span>
         </div>
@@ -88,7 +88,7 @@ export const HeroSpotlightDeal: React.FC<HeroSpotlightDealProps> = ({
                 </span>
 
                 <span className="bg-slate-800/90 text-slate-300 text-xs font-bold px-3 py-1 rounded-full border border-slate-700 flex items-center gap-1.5">
-                  <Calendar className="w-3.5 h-3.5 text-[#00AEEF]" />
+                  <Calendar className="w-3.5 h-3.5 text-[#2563EB]" />
                   Valid: {activeOffer.startDate} – {activeOffer.endDate}
                 </span>
 
@@ -127,7 +127,7 @@ export const HeroSpotlightDeal: React.FC<HeroSpotlightDealProps> = ({
                   </div>
                   <div className="w-full h-2.5 bg-slate-800 rounded-full overflow-hidden">
                     <div
-                      className="h-full bg-gradient-to-r from-[#00AEEF] to-[#FFC20E] rounded-full transition-all duration-1000 ease-out"
+                      className="h-full bg-gradient-to-r from-[#2563EB] to-[#FFC20E] rounded-full transition-all duration-1000 ease-out"
                       style={{ width: `${activeOffer.claimedPercentage}%` }}
                     />
                   </div>
@@ -144,7 +144,7 @@ export const HeroSpotlightDeal: React.FC<HeroSpotlightDealProps> = ({
                   <button
                     type="button"
                     onClick={() => handleCopyCode(activeOffer.couponCode!)}
-                    className="inline-flex items-center gap-2 bg-gradient-to-r from-[#00AEEF]/20 to-sky-400/10 hover:bg-[#00AEEF]/30 text-[#00AEEF] border border-[#00AEEF]/40 px-3.5 py-1.5 rounded-xl text-xs font-mono font-bold transition-all cursor-pointer group/btn active:scale-95"
+                    className="inline-flex items-center gap-2 bg-gradient-to-r from-[#2563EB]/20 to-blue-400/10 hover:bg-[#2563EB]/30 text-[#2563EB] border border-[#2563EB]/40 px-3.5 py-1.5 rounded-xl text-xs font-mono font-bold transition-all cursor-pointer group/btn active:scale-95"
                   >
                     <span>{activeOffer.couponCode}</span>
                     {copiedCode === activeOffer.couponCode ? (
@@ -152,7 +152,7 @@ export const HeroSpotlightDeal: React.FC<HeroSpotlightDealProps> = ({
                         <Check className="w-3.5 h-3.5" /> Copied!
                       </span>
                     ) : (
-                      <Copy className="w-3.5 h-3.5 text-slate-400 group-hover/btn:text-[#00AEEF]" />
+                      <Copy className="w-3.5 h-3.5 text-slate-400 group-hover/btn:text-[#2563EB]" />
                     )}
                   </button>
                   <span className="text-[11px] text-slate-400">
@@ -166,7 +166,7 @@ export const HeroSpotlightDeal: React.FC<HeroSpotlightDealProps> = ({
             <div className="pt-2 flex flex-wrap items-center gap-3">
               <Link
                 href={`/offers/${activeOffer.slug}`}
-                className="inline-flex items-center gap-2 bg-[#00AEEF] hover:bg-[#0096D6] text-white px-6 py-3 rounded-2xl text-xs font-black uppercase tracking-wider transition-all shadow-xl shadow-[#00AEEF]/30 hover:scale-[1.02] active:scale-95 cursor-pointer"
+                className="inline-flex items-center gap-2 bg-[#2563EB] hover:bg-[#1D4ED8] text-white px-6 py-3 rounded-2xl text-xs font-black uppercase tracking-wider transition-all shadow-xl shadow-[#2563EB]/30 hover:scale-[1.02] active:scale-95 cursor-pointer"
               >
                 <span>Explore Deal Hardware ({activeOffer.productIds.length} Items)</span>
                 <ArrowRight className="w-4 h-4 text-[#FFC20E]" />
@@ -179,7 +179,7 @@ export const HeroSpotlightDeal: React.FC<HeroSpotlightDealProps> = ({
                 }}
                 className="inline-flex items-center gap-1.5 bg-slate-800/90 hover:bg-slate-700 text-slate-200 border border-slate-700 px-5 py-3 rounded-2xl text-xs font-bold uppercase tracking-wider transition-all cursor-pointer"
               >
-                <Layers className="w-3.5 h-3.5 text-[#00AEEF]" />
+                <Layers className="w-3.5 h-3.5 text-[#2563EB]" />
                 <span>View Products Below</span>
               </button>
             </div>

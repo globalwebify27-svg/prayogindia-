@@ -213,7 +213,7 @@ export const CartView: React.FC = () => {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 pb-6">
         <div>
           <div className="flex items-center gap-2">
-            <span className="text-[10px] font-black uppercase tracking-widest text-[#00AEEF] bg-[#E0F7FC] px-3 py-1 rounded-full border border-[#00AEEF]/20">
+            <span className="text-[10px] font-black uppercase tracking-widest text-[#2563EB] bg-blue-50 px-3 py-1 rounded-full border border-blue-200/60">
               Section 16 · Unified Shopping Cart
             </span>
             {isLoggedIn ? (
@@ -239,7 +239,7 @@ export const CartView: React.FC = () => {
           <select
             value={currentCustomerType}
             onChange={(e) => setCustomerType(e.target.value as CustomerType)}
-            className="text-xs font-black text-slate-900 bg-white border border-slate-200 rounded-xl px-3 py-1.5 focus:outline-none focus:border-[#00AEEF] cursor-pointer"
+            className="text-xs font-black text-slate-900 bg-white border border-slate-200 rounded-xl px-3 py-1.5 focus:outline-none focus:border-[#2563EB] cursor-pointer"
           >
             <option value="B2C Customer">B2C Customer (Standard)</option>
             <option value="B2B Customer">B2B Customer (15% Wholesale)</option>
@@ -254,7 +254,7 @@ export const CartView: React.FC = () => {
       {/* 3. Empty State */}
       {cart.length === 0 ? (
         <div className="py-24 text-center bg-gradient-to-br from-slate-50 to-white rounded-3xl border border-slate-200 space-y-4 max-w-lg mx-auto my-8">
-          <div className="w-20 h-20 rounded-3xl bg-[#E0F7FC] text-[#00AEEF] flex items-center justify-center mx-auto border border-[#00AEEF]/20 shadow-sm">
+          <div className="w-20 h-20 rounded-3xl bg-blue-50 text-[#2563EB] flex items-center justify-center mx-auto border border-blue-200/60 shadow-sm">
             <ShoppingBag className="w-10 h-10" />
           </div>
           <div className="space-y-1">
@@ -268,7 +268,7 @@ export const CartView: React.FC = () => {
           </div>
           <Link
             href="/products"
-            className="inline-flex items-center gap-2 bg-[#00AEEF] hover:bg-[#0096D6] text-white font-extrabold px-7 py-3.5 rounded-full text-xs uppercase tracking-wider transition-all shadow-md shadow-[#00AEEF]/25 active:scale-95"
+            className="inline-flex items-center gap-2 bg-[#2563EB] hover:bg-blue-700 text-white font-extrabold px-7 py-3.5 rounded-full text-xs uppercase tracking-wider transition-all shadow-md shadow-blue-500/20 active:scale-95"
           >
             <span>Explore Hardware Catalogue</span>
             <ArrowRight className="w-4 h-4" />
@@ -384,7 +384,7 @@ export const CartView: React.FC = () => {
                     className={`bg-white rounded-3xl border p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all shadow-2xs ${
                       !isInStock
                         ? "border-red-200 bg-red-50/20"
-                        : "border-slate-200 hover:border-[#00AEEF]/40"
+                        : "border-slate-200 hover:border-[#2563EB]/40"
                     }`}
                   >
                     <div className="flex items-center gap-4 min-w-0 flex-1">
@@ -418,7 +418,7 @@ export const CartView: React.FC = () => {
                         <Link
                           href={`/products/${item.product.slug || item.product.id}`}
                         >
-                          <h3 className="text-xs sm:text-sm font-bold text-slate-900 truncate hover:text-[#00AEEF] transition-colors">
+                          <h3 className="text-xs sm:text-sm font-bold text-slate-900 truncate hover:text-[#2563EB] transition-colors">
                             {item.product.name}
                           </h3>
                         </Link>
@@ -507,7 +507,7 @@ export const CartView: React.FC = () => {
             {/* Delivery Method Selection */}
             <div className="bg-white border border-slate-200 rounded-3xl p-6 space-y-4 shadow-2xs">
               <h4 className="text-xs font-black uppercase text-slate-900 flex items-center gap-1.5">
-                <Truck className="w-4 h-4 text-[#00AEEF]" /> Select Dispatch
+                <Truck className="w-4 h-4 text-[#2563EB]" /> Select Dispatch
                 &amp; Delivery Mode
               </h4>
 
@@ -524,7 +524,7 @@ export const CartView: React.FC = () => {
                   }}
                   className={`p-3.5 rounded-2xl border text-left transition-all ${
                     effectiveDeliveryMethod === "express"
-                      ? "border-[#00AEEF] bg-[#E0F7FC]/40 ring-2 ring-[#00AEEF]/20 cursor-pointer"
+                      ? "border-[#2563EB] bg-blue-50/40 ring-2 ring-blue-500/20 cursor-pointer"
                       : hasBatteryOrHazardous
                         ? "border-red-200 bg-red-50/40 opacity-90 cursor-pointer hover:border-red-300"
                         : "border-slate-200 hover:border-slate-300 cursor-pointer"
@@ -587,7 +587,7 @@ export const CartView: React.FC = () => {
                   onClick={() => setDeliveryMethod("store_pickup")}
                   className={`p-3.5 rounded-2xl border text-left transition-all cursor-pointer ${
                     effectiveDeliveryMethod === "store_pickup"
-                      ? "border-[#00AEEF] bg-[#E0F7FC]/40 ring-2 ring-[#00AEEF]/20"
+                      ? "border-[#2563EB] bg-blue-50/40 ring-2 ring-blue-500/20"
                       : "border-slate-200 hover:border-slate-300"
                   }`}
                 >
@@ -610,7 +610,7 @@ export const CartView: React.FC = () => {
             {/* Pincode Checker */}
             <div className="bg-slate-50 border border-slate-200 rounded-3xl p-5 space-y-3">
               <h4 className="text-xs font-black uppercase text-slate-900 flex items-center gap-1.5">
-                <MapPin className="w-4 h-4 text-[#00AEEF]" /> Check Delivery
+                <MapPin className="w-4 h-4 text-[#2563EB]" /> Check Delivery
                 Timelines by PIN Code
               </h4>
               <div className="flex gap-2 max-w-md">
@@ -620,17 +620,17 @@ export const CartView: React.FC = () => {
                   placeholder="Enter 6-digit Indian PIN Code (e.g. 560100)"
                   value={pincode}
                   onChange={(e) => setPincode(e.target.value)}
-                  className="flex-1 bg-white text-xs px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-[#00AEEF]"
+                  className="flex-1 bg-white text-xs px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-[#2563EB]"
                 />
                 <button
                   onClick={handleCheckPincode}
-                  className="bg-slate-900 text-white text-xs font-extrabold px-4 py-2.5 rounded-xl hover:bg-[#00AEEF] transition-colors cursor-pointer"
+                  className="bg-slate-900 text-white text-xs font-extrabold px-4 py-2.5 rounded-xl hover:bg-[#2563EB] transition-colors cursor-pointer"
                 >
                   Check
                 </button>
               </div>
               {pincodeStatus && (
-                <p className="text-xs font-bold text-[#00AEEF] flex items-center gap-1">
+                <p className="text-xs font-bold text-[#2563EB] flex items-center gap-1">
                   <CheckCircle2 className="w-4 h-4 text-emerald-500" />{" "}
                   {pincodeStatus}
                 </p>
@@ -659,11 +659,11 @@ export const CartView: React.FC = () => {
                     placeholder="e.g. PRAYOG10"
                     value={couponCode}
                     onChange={(e) => setCouponCode(e.target.value)}
-                    className="flex-1 bg-slate-950 text-white text-xs px-3 py-2 rounded-xl border border-slate-700 focus:outline-none focus:border-[#00AEEF] uppercase font-mono font-bold"
+                    className="flex-1 bg-slate-950 text-white text-xs px-3 py-2 rounded-xl border border-slate-700 focus:outline-none focus:border-[#2563EB] uppercase font-mono font-bold"
                   />
                   <button
                     onClick={handleApplyCoupon}
-                    className="bg-[#00AEEF] hover:bg-[#0096D6] text-white text-xs font-black px-4 rounded-xl transition-colors cursor-pointer"
+                    className="bg-[#2563EB] hover:bg-blue-700 text-white text-xs font-black px-4 rounded-xl transition-colors cursor-pointer shadow-sm"
                   >
                     Apply
                   </button>
@@ -803,7 +803,7 @@ export const CartView: React.FC = () => {
                   className={`w-full py-4 rounded-2xl text-xs font-black uppercase tracking-wider transition-all shadow-xl flex items-center justify-center gap-2 ${
                     outOfStockItems.length > 0
                       ? "bg-slate-700 text-slate-400 cursor-not-allowed pointer-events-none"
-                      : "bg-[#00AEEF] hover:bg-[#0096D6] text-white shadow-[#00AEEF]/25 active:scale-95"
+                      : "bg-[#2563EB] hover:bg-blue-700 text-white shadow-blue-500/25 active:scale-95"
                   }`}
                 >
                   <span>Proceed to Secure Checkout</span>
@@ -894,7 +894,7 @@ export const CartView: React.FC = () => {
                   setDeliveryMethod("surface");
                   setShowRestrictionModal(false);
                 }}
-                className="w-full bg-[#00AEEF] hover:bg-[#0096D6] text-white py-3.5 rounded-2xl font-black uppercase tracking-wider shadow-md active:scale-95 cursor-pointer"
+                className="w-full bg-[#2563EB] hover:bg-blue-700 text-white py-3.5 rounded-2xl font-black uppercase tracking-wider shadow-md shadow-blue-500/20 active:scale-95 cursor-pointer"
               >
                 Proceed with Surface Freight
               </button>

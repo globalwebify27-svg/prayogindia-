@@ -35,7 +35,7 @@ export const AboutSection: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto space-y-3">
-          <span className="bg-[#E0F7FC] text-[#00AEEF] text-xs font-black px-3.5 py-1 rounded-full uppercase tracking-wider">
+          <span className="bg-blue-50 text-[#2563EB] border border-blue-200/60 text-xs font-black px-3.5 py-1 rounded-full uppercase tracking-wider">
             About Prayog India Labs
           </span>
           <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 leading-tight">
@@ -52,7 +52,7 @@ export const AboutSection: React.FC = () => {
         {/* Vision & Mission Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm space-y-4">
-            <div className="w-12 h-12 rounded-2xl bg-[#00AEEF] text-white flex items-center justify-center shadow-md">
+            <div className="w-12 h-12 rounded-2xl bg-[#2563EB] text-white flex items-center justify-center shadow-md">
               <Compass className="w-6 h-6" />
             </div>
             <h3 className="text-xl font-extrabold text-slate-900">
@@ -88,7 +88,7 @@ export const AboutSection: React.FC = () => {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             <div className="space-y-2 p-4 bg-slate-50 rounded-2xl border border-slate-100">
-              <ShieldCheck className="w-8 h-8 text-[#00AEEF]" />
+              <ShieldCheck className="w-8 h-8 text-[#2563EB]" />
               <h4 className="text-sm font-bold text-slate-900">
                 100% Genuine Certified
               </h4>
@@ -110,7 +110,7 @@ export const AboutSection: React.FC = () => {
             </div>
 
             <div className="space-y-2 p-4 bg-slate-50 rounded-2xl border border-slate-100">
-              <Users className="w-8 h-8 text-[#00AEEF]" />
+              <Users className="w-8 h-8 text-[#2563EB]" />
               <h4 className="text-sm font-bold text-slate-900">
                 Dedicated Technical Support
               </h4>
@@ -230,7 +230,7 @@ export const ServicesSection: React.FC<FullSectionsProps> = ({
     <section id="services" className="py-16 bg-white border-t border-slate-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
         <div className="text-center max-w-3xl mx-auto space-y-3">
-          <span className="bg-[#E0F7FC] text-[#00AEEF] text-xs font-black px-3.5 py-1 rounded-full uppercase tracking-wider">
+          <span className="bg-blue-50 text-[#2563EB] border border-blue-200/60 text-xs font-black px-3.5 py-1 rounded-full uppercase tracking-wider">
             Services & Turnkey Solutions
           </span>
           <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 leading-tight">
@@ -258,7 +258,7 @@ export const ServicesSection: React.FC<FullSectionsProps> = ({
                       alt={srv.title}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
-                    <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-md p-2.5 rounded-2xl border border-slate-200 text-[#00AEEF] shadow-md">
+                    <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-md p-2.5 rounded-2xl border border-slate-200 text-[#2563EB] shadow-md">
                       <IconComp className="w-5 h-5" />
                     </div>
                   </div>
@@ -281,7 +281,7 @@ export const ServicesSection: React.FC<FullSectionsProps> = ({
                             key={i}
                             className="text-xs text-slate-600 flex items-center gap-2"
                           >
-                            <CheckCircle2 className="w-3.5 h-3.5 text-[#00AEEF]" />
+                            <CheckCircle2 className="w-3.5 h-3.5 text-[#2563EB]" />
                             {feat}
                           </li>
                         ))}
@@ -293,7 +293,7 @@ export const ServicesSection: React.FC<FullSectionsProps> = ({
                 <div className="p-6 pt-0 flex gap-3">
                   <button
                     onClick={onOpenB2BModal}
-                    className="flex-1 bg-[#00AEEF] hover:bg-[#0096D6] text-white py-2.5 rounded-xl text-xs font-bold transition-colors flex items-center justify-center gap-1.5 shadow-xs"
+                    className="flex-1 bg-[#2563EB] hover:bg-[#1D4ED8] text-white py-2.5 rounded-xl text-xs font-bold transition-colors flex items-center justify-center gap-1.5 shadow-xs"
                   >
                     Enquire Now <ArrowUpRight className="w-4 h-4" />
                   </button>
@@ -326,7 +326,7 @@ export const ContactSection: React.FC = () => {
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
         <div className="text-center max-w-3xl mx-auto space-y-3">
-          <span className="bg-[#E0F7FC] text-[#00AEEF] text-xs font-black px-3.5 py-1 rounded-full uppercase tracking-wider">
+          <span className="bg-blue-50 text-[#2563EB] border border-blue-200/60 text-xs font-black px-3.5 py-1 rounded-full uppercase tracking-wider">
             Contact & Support
           </span>
           <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 leading-tight">
@@ -347,7 +347,7 @@ export const ContactSection: React.FC = () => {
 
             <div className="space-y-4 text-xs">
               <div className="flex items-start gap-4 p-3 bg-slate-50 rounded-2xl border border-slate-100">
-                <MapPin className="w-5 h-5 text-[#00AEEF] shrink-0 mt-0.5" />
+                <MapPin className="w-5 h-5 text-[#2563EB] shrink-0 mt-0.5" />
                 <div>
                   <h4 className="font-bold text-slate-900">
                     Head Office & Lab Facility
@@ -360,7 +360,7 @@ export const ContactSection: React.FC = () => {
               </div>
 
               <div className="flex items-start gap-4 p-3 bg-slate-50 rounded-2xl border border-slate-100">
-                <Mail className="w-5 h-5 text-[#00AEEF] shrink-0 mt-0.5" />
+                <Mail className="w-5 h-5 text-[#2563EB] shrink-0 mt-0.5" />
                 <div>
                   <h4 className="font-bold text-slate-900">Email Support</h4>
                   <p className="text-slate-500">
@@ -370,7 +370,7 @@ export const ContactSection: React.FC = () => {
               </div>
 
               <div className="flex items-start gap-4 p-3 bg-slate-50 rounded-2xl border border-slate-100">
-                <Phone className="w-5 h-5 text-[#00AEEF] shrink-0 mt-0.5" />
+                <Phone className="w-5 h-5 text-[#2563EB] shrink-0 mt-0.5" />
                 <div>
                   <h4 className="font-bold text-slate-900">Phone & Helpline</h4>
                   <p className="text-slate-500">
@@ -482,7 +482,7 @@ export const ContactSection: React.FC = () => {
 
                 <button
                   type="submit"
-                  className="w-full bg-[#00AEEF] hover:bg-[#0096D6] text-white py-3.5 rounded-xl text-xs font-extrabold flex items-center justify-center gap-2 shadow-sm transition-colors"
+                  className="w-full bg-[#2563EB] hover:bg-[#1D4ED8] text-white py-3.5 rounded-xl text-xs font-extrabold flex items-center justify-center gap-2 shadow-md shadow-blue-500/20 transition-colors"
                 >
                   <Send className="w-4 h-4" /> Send Message
                 </button>
@@ -547,14 +547,14 @@ export const CareersSection: React.FC = () => {
           {jobs.map((j) => (
             <div
               key={j.id}
-              className="bg-slate-50 p-6 rounded-3xl border border-slate-200 flex flex-col sm:flex-row justify-between sm:items-center gap-4 hover:border-[#00AEEF] transition-all"
+              className="bg-slate-50 p-6 rounded-3xl border border-slate-200 flex flex-col sm:flex-row justify-between sm:items-center gap-4 hover:border-[#2563EB] transition-all"
             >
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
                   <span className="bg-slate-200 text-slate-800 text-[10px] font-bold px-2.5 py-0.5 rounded-md uppercase">
                     {j.dept}
                   </span>
-                  <span className="bg-[#E0F7FC] text-[#00AEEF] text-[10px] font-bold px-2.5 py-0.5 rounded-md">
+                  <span className="bg-blue-50 text-[#2563EB] border border-blue-200/60 text-[10px] font-bold px-2.5 py-0.5 rounded-md">
                     {j.type}
                   </span>
                 </div>
@@ -569,7 +569,7 @@ export const CareersSection: React.FC = () => {
 
               <button
                 onClick={() => setAppliedJob(j.title)}
-                className="bg-[#00AEEF] hover:bg-[#0096D6] text-white px-5 py-2.5 rounded-xl text-xs font-bold shrink-0 transition-colors shadow-xs"
+                className="bg-[#2563EB] hover:bg-[#1D4ED8] text-white px-5 py-2.5 rounded-xl text-xs font-bold shrink-0 transition-colors shadow-xs"
               >
                 Apply Now
               </button>
@@ -665,7 +665,7 @@ export const CareersSection: React.FC = () => {
                     <label className="font-bold text-slate-700 block mb-1">
                       Upload Resume (PDF)
                     </label>
-                    <div className="border-2 border-dashed border-slate-200 rounded-xl p-4 text-center cursor-pointer hover:border-[#00AEEF]">
+                    <div className="border-2 border-dashed border-slate-200 rounded-xl p-4 text-center cursor-pointer hover:border-[#2563EB]">
                       <Upload className="w-5 h-5 text-slate-400 mx-auto mb-1" />
                       <span className="text-[11px] text-slate-500 block">
                         Click to select PDF or Drag file here
@@ -675,7 +675,7 @@ export const CareersSection: React.FC = () => {
 
                   <button
                     type="submit"
-                    className="w-full bg-[#00AEEF] hover:bg-[#0096D6] text-white py-3 rounded-xl font-bold shadow-sm"
+                    className="w-full bg-[#2563EB] hover:bg-[#1D4ED8] text-white py-3 rounded-xl font-bold shadow-md shadow-blue-500/20"
                   >
                     Submit Application
                   </button>

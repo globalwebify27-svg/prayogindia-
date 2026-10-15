@@ -66,7 +66,7 @@ export const CartToast: React.FC<CartToastProps> = ({
             </h4>
             <div className="flex items-center gap-2 text-[10px] text-slate-300 mt-0.5 font-medium">
               <span className="font-mono text-slate-400">Qty: {quantity}</span>
-              <span className="font-black text-[#00AEEF]">
+              <span className="font-black text-blue-400">
                 ₹{displayPrice.toLocaleString("en-IN")}
               </span>
             </div>
@@ -80,7 +80,7 @@ export const CartToast: React.FC<CartToastProps> = ({
               onClose();
               onOpenCart();
             }}
-            className="w-full bg-[#00AEEF] hover:bg-[#0096D6] text-slate-950 hover:text-white py-2 px-3 rounded-lg text-[10px] font-black uppercase tracking-wider flex items-center justify-center gap-1.5 shadow-md shadow-[#00AEEF]/20 active:scale-95 transition-all cursor-pointer"
+            className="w-full bg-[#2563EB] hover:bg-[#1D4ED8] text-white py-2 px-3 rounded-lg text-[10px] font-black uppercase tracking-wider flex items-center justify-center gap-1.5 shadow-md shadow-blue-500/20 active:scale-95 transition-all cursor-pointer"
           >
             <ShoppingBag className="w-3 h-3" />
             <span>View Cart &amp; Checkout</span>

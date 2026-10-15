@@ -31,7 +31,7 @@ export const CheckoutHeaderProps: React.FC<CheckoutHeaderProps> = ({
     <div className="border-b border-slate-100 pb-6 space-y-4">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
         <div>
-          <span className="text-[10px] font-black uppercase tracking-widest text-[#00AEEF] bg-[#E0F7FC] px-3 py-1 rounded-full inline-block">
+          <span className="text-[10px] font-black uppercase tracking-widest text-[#2563EB] bg-blue-50 border border-blue-200/60 px-3 py-1 rounded-full inline-block">
             Secure Checkout
           </span>
           <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight mt-1">
@@ -51,12 +51,12 @@ export const CheckoutHeaderProps: React.FC<CheckoutHeaderProps> = ({
               onClick={() => onStepClick(step.id)}
               className={`p-3 rounded-2xl border text-left flex items-center gap-2.5 transition-all ${
                 isActive
-                  ? "bg-[#E0F7FC] border-[#00AEEF] text-[#00AEEF] shadow-xs"
+                  ? "bg-blue-50 border-[#2563EB] text-[#2563EB] shadow-xs"
                   : "bg-slate-50 border-slate-200 text-slate-500 hover:bg-slate-100"
               }`}
             >
               <Icon
-                className={`w-4 h-4 shrink-0 ${isActive ? "text-[#00AEEF]" : "text-slate-400"}`}
+                className={`w-4 h-4 shrink-0 ${isActive ? "text-[#2563EB]" : "text-slate-400"}`}
               />
               <span className="text-xs font-bold truncate">{step.label}</span>
             </button>

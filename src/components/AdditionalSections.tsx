@@ -219,14 +219,14 @@ export const B2BSection: React.FC<AdditionalSectionsProps> = ({
           <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center">
             {/* Left Column (Span 7): Core Messaging & Actions */}
             <div className="lg:col-span-7 space-y-4">
-              <span className="inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-[#00AEEF] bg-[#E0F7FC] border border-[#00AEEF]/20 px-3.5 py-1 rounded-full shadow-2xs">
-                <Building2 className="w-3.5 h-3.5 text-[#00AEEF]" />{" "}
+              <span className="inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-[#2563EB] bg-blue-50 border border-blue-200/60 px-3.5 py-1 rounded-full shadow-2xs">
+                <Building2 className="w-3.5 h-3.5 text-[#2563EB]" />{" "}
                 Institutional &amp; B2B Desk
               </span>
 
               <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 tracking-tight leading-tight">
                 Technology Solutions for{" "}
-                <span className="text-[#00AEEF]">Institutions &amp; Labs</span>
+                <span className="text-[#2563EB]">Institutions &amp; Labs</span>
               </h2>
 
               <p className="text-slate-600 text-xs sm:text-sm leading-relaxed max-w-xl font-medium">
@@ -240,7 +240,7 @@ export const B2BSection: React.FC<AdditionalSectionsProps> = ({
               <div className="flex flex-wrap items-center gap-3 pt-2">
                 <button
                   onClick={onOpenB2BModal}
-                  className="bg-[#00AEEF] hover:bg-[#0096D6] text-white font-bold px-6 py-3.5 rounded-xl text-xs sm:text-sm shadow-md shadow-[#00AEEF]/20 transition-all active:scale-95 flex items-center gap-2 cursor-pointer"
+                  className="bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-bold px-6 py-3.5 rounded-xl text-xs sm:text-sm shadow-md shadow-blue-500/20 transition-all active:scale-95 flex items-center gap-2 cursor-pointer"
                 >
                   <span>Request Institutional Quote</span>
                   <ArrowRight className="w-4 h-4" />
@@ -249,7 +249,7 @@ export const B2BSection: React.FC<AdditionalSectionsProps> = ({
                   onClick={onOpenB2BModal}
                   className="bg-white hover:bg-slate-50 text-slate-800 font-bold px-5 py-3.5 rounded-xl text-xs sm:text-sm border border-slate-200 transition-all flex items-center gap-2 cursor-pointer shadow-2xs"
                 >
-                  <Headphones className="w-4 h-4 text-[#00AEEF]" />
+                  <Headphones className="w-4 h-4 text-[#2563EB]" />
                   <span>Talk to an Expert</span>
                 </button>
               </div>
@@ -257,19 +257,19 @@ export const B2BSection: React.FC<AdditionalSectionsProps> = ({
               {/* Verified Client Sectors */}
               <div className="pt-4 border-t border-slate-200/80 grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-[11px] font-bold text-slate-600">
                 <div className="flex items-center gap-1.5">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-[#00AEEF] shrink-0" />
+                  <CheckCircle2 className="w-3.5 h-3.5 text-[#2563EB] shrink-0" />
                   <span>Schools &amp; Colleges</span>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-[#00AEEF] shrink-0" />
+                  <CheckCircle2 className="w-3.5 h-3.5 text-[#2563EB] shrink-0" />
                   <span>STEM &amp; ATL Labs</span>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-[#00AEEF] shrink-0" />
+                  <CheckCircle2 className="w-3.5 h-3.5 text-[#2563EB] shrink-0" />
                   <span>Corporate R&amp;D</span>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-[#00AEEF] shrink-0" />
+                  <CheckCircle2 className="w-3.5 h-3.5 text-[#2563EB] shrink-0" />
                   <span>GeM &amp; Tenders</span>
                 </div>
               </div>
@@ -278,8 +278,8 @@ export const B2BSection: React.FC<AdditionalSectionsProps> = ({
             {/* Right Column (Span 5): Sleek Feature & Benefit Cards */}
             <div className="lg:col-span-5 space-y-3">
               {/* Feature Card 1: Bulk Discounts & Invoicing */}
-              <div className="bg-white/90 backdrop-blur-xs p-4 rounded-2xl border border-slate-200/80 shadow-xs flex items-start gap-3.5 hover:border-[#00AEEF]/50 transition-all">
-                <div className="w-10 h-10 rounded-xl bg-sky-50 text-[#00AEEF] flex items-center justify-center shrink-0 border border-sky-100">
+              <div className="bg-white/90 backdrop-blur-xs p-4 rounded-2xl border border-slate-200/80 shadow-xs flex items-start gap-3.5 hover:border-[#2563EB]/50 transition-all">
+                <div className="w-10 h-10 rounded-xl bg-blue-50 text-[#2563EB] flex items-center justify-center shrink-0 border border-blue-100">
                   <FileText className="w-5 h-5" />
                 </div>
                 <div>
@@ -294,7 +294,7 @@ export const B2BSection: React.FC<AdditionalSectionsProps> = ({
               </div>
 
               {/* Feature Card 2: Turnkey Lab Packages */}
-              <div className="bg-white/90 backdrop-blur-xs p-4 rounded-2xl border border-slate-200/80 shadow-xs flex items-start gap-3.5 hover:border-[#00AEEF]/50 transition-all">
+              <div className="bg-white/90 backdrop-blur-xs p-4 rounded-2xl border border-slate-200/80 shadow-xs flex items-start gap-3.5 hover:border-[#2563EB]/50 transition-all">
                 <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0 border border-amber-100">
                   <Cpu className="w-5 h-5" />
                 </div>
@@ -310,7 +310,7 @@ export const B2BSection: React.FC<AdditionalSectionsProps> = ({
               </div>
 
               {/* Feature Card 3: Priority Regional Dispatch */}
-              <div className="bg-white/90 backdrop-blur-xs p-4 rounded-2xl border border-slate-200/80 shadow-xs flex items-start gap-3.5 hover:border-[#00AEEF]/50 transition-all">
+              <div className="bg-white/90 backdrop-blur-xs p-4 rounded-2xl border border-slate-200/80 shadow-xs flex items-start gap-3.5 hover:border-[#2563EB]/50 transition-all">
                 <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 border border-emerald-100">
                   <Truck className="w-5 h-5" />
                 </div>
@@ -448,7 +448,7 @@ export const TestimonialsSection: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto space-y-2.5">
-          <div className="inline-flex items-center gap-1.5 bg-[#E0F7FC] text-[#00AEEF] text-[11px] font-black tracking-widest uppercase px-3.5 py-1 rounded-full border border-[#00AEEF]/20">
+          <div className="inline-flex items-center gap-1.5 bg-blue-50 text-[#2563EB] text-[11px] font-black tracking-widest uppercase px-3.5 py-1 rounded-full border border-blue-200/60">
             <CheckCircle2 className="w-3.5 h-3.5" /> VERIFIED CUSTOMER REVIEWS
             &amp; BUILDS
           </div>
@@ -467,7 +467,7 @@ export const TestimonialsSection: React.FC = () => {
             {circularReviews.map((t, idx) => (
               <div
                 key={`${t.id}-${idx}`}
-                className="w-[300px] sm:w-[350px] shrink-0 bg-white p-5 rounded-3xl border border-slate-200/90 shadow-sm hover:shadow-xl hover:border-[#00AEEF]/50 transition-all duration-300 flex flex-col justify-between space-y-3.5 group select-none cursor-pointer"
+                className="w-[300px] sm:w-[350px] shrink-0 bg-white p-5 rounded-3xl border border-slate-200/90 shadow-sm hover:shadow-xl hover:border-[#2563EB]/50 transition-all duration-300 flex flex-col justify-between space-y-3.5 group select-none cursor-pointer"
               >
                 <div className="space-y-3">
                   {/* Rating & Verified Badge */}

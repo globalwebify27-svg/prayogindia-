@@ -175,7 +175,7 @@ export const SuccessToast: React.FC<SuccessToastProps> = ({
                     {toast.product.name}
                   </p>
 
-                  <div className="text-[11px] font-black text-[#00AEEF] mt-0.5 leading-none">
+                  <div className="text-[11px] font-black text-[#2563EB] mt-0.5 leading-none">
                     ₹{toast.product.price.toLocaleString("en-IN")}
                   </div>
                 </div>
@@ -186,7 +186,7 @@ export const SuccessToast: React.FC<SuccessToastProps> = ({
                     <Link
                       href={toast.actionHref}
                       onClick={onClose}
-                      className="px-2.5 py-1 rounded-lg bg-[#00AEEF] hover:bg-[#0096D6] text-white text-[10px] font-bold shadow-xs active:scale-95 transition-all inline-flex items-center gap-0.5 cursor-pointer"
+                      className="px-2.5 py-1 rounded-lg bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-[10px] font-bold shadow-xs active:scale-95 transition-all inline-flex items-center gap-0.5 cursor-pointer"
                     >
                       <span>View</span>
                       <ArrowRight className="w-2.5 h-2.5" />
@@ -197,7 +197,7 @@ export const SuccessToast: React.FC<SuccessToastProps> = ({
                         toast.onAction?.();
                         onClose();
                       }}
-                      className="px-2.5 py-1 rounded-lg bg-[#00AEEF] hover:bg-[#0096D6] text-white text-[10px] font-bold shadow-xs active:scale-95 transition-all inline-flex items-center gap-0.5 cursor-pointer"
+                      className="px-2.5 py-1 rounded-lg bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-[10px] font-bold shadow-xs active:scale-95 transition-all inline-flex items-center gap-0.5 cursor-pointer"
                     >
                       <span>{toast.actionLabel || "View"}</span>
                       <ArrowRight className="w-2.5 h-2.5" />
@@ -251,7 +251,7 @@ export const SuccessToast: React.FC<SuccessToastProps> = ({
                     <Link
                       href={toast.actionHref}
                       onClick={onClose}
-                      className="px-2 py-0.5 rounded-md bg-[#00AEEF] text-white text-[10px] font-bold hover:bg-[#0096D6]"
+                      className="px-2 py-0.5 rounded-md bg-[#2563EB] text-white text-[10px] font-bold hover:bg-[#1D4ED8]"
                     >
                       {toast.actionLabel || "View"}
                     </Link>
@@ -280,7 +280,7 @@ export const SuccessToast: React.FC<SuccessToastProps> = ({
                     ? "bg-rose-500"
                     : isWishlistRemove
                       ? "bg-slate-400"
-                      : "bg-gradient-to-r from-rose-500 via-[#00AEEF] to-[#1E56A0]"
+                      : "bg-gradient-to-r from-rose-500 via-[#2563EB] to-[#1E56A0]"
                 }`}
               />
             </div>

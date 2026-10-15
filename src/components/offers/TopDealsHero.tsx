@@ -107,7 +107,7 @@ export const TopDealsHero: React.FC<TopDealsHeroProps> = ({
           <button
             type="button"
             onClick={() => handleCopy("PRAYOG10")}
-            className="inline-flex items-center gap-1.5 bg-sky-50 hover:bg-sky-100 text-[#00AEEF] border border-[#00AEEF]/30 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer active:scale-95"
+            className="inline-flex items-center gap-1.5 bg-blue-50 hover:bg-blue-100 text-[#2563EB] border border-blue-200 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer active:scale-95"
           >
             <Tag className="w-3.5 h-3.5" />
             <span>Code: <strong>PRAYOG10</strong></span>
@@ -139,7 +139,7 @@ export const TopDealsHero: React.FC<TopDealsHeroProps> = ({
                 <span
                   className={`text-[10px] px-1.5 py-0.2 rounded-md font-bold ${
                     isActive
-                      ? "bg-[#00AEEF] text-white"
+                      ? "bg-[#2563EB] text-white"
                       : "bg-slate-100 text-slate-500"
                   }`}
                 >

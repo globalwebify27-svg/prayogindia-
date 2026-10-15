@@ -212,7 +212,7 @@ export default function CustomerQuotationsPage() {
       case "SENT":
       case "VIEWED":
         return (
-          <span className="bg-[#E0F7FC] text-[#00AEEF] px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1">
+          <span className="bg-blue-50 text-[#2563EB] px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1 border border-blue-200/60">
             <Clock className="w-3.5 h-3.5" /> Quote Ready
           </span>
         );
@@ -248,7 +248,7 @@ export default function CustomerQuotationsPage() {
           </button>
           <button
             onClick={() => setShowNewQuoteModal(true)}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold bg-[#00AEEF] hover:bg-[#0096D6] text-white cursor-pointer transition-all active:scale-95 shadow-2xs"
+            className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold bg-[#2563EB] hover:bg-[#1D4ED8] text-white cursor-pointer transition-all active:scale-95 shadow-2xs"
           >
             <Plus className="w-4 h-4" /> Request a Quotation
           </button>
@@ -279,7 +279,7 @@ export default function CustomerQuotationsPage() {
           <div className="pt-2 flex flex-wrap items-center justify-center gap-3">
             <button
               onClick={() => setShowNewQuoteModal(true)}
-              className="inline-flex items-center gap-1.5 bg-[#00AEEF] hover:bg-[#0096D6] text-white px-5 py-2.5 rounded-xl text-xs font-bold transition-all active:scale-95 cursor-pointer shadow-2xs"
+              className="inline-flex items-center gap-1.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white px-5 py-2.5 rounded-xl text-xs font-bold transition-all active:scale-95 cursor-pointer shadow-2xs"
             >
               <Plus className="w-4 h-4" />
               <span>Request a Quotation</span>
@@ -297,7 +297,7 @@ export default function CustomerQuotationsPage() {
           {quotations.map((quote) => (
             <div
               key={quote.id}
-              className="bg-white rounded-3xl border border-slate-200 p-6 shadow-2xs hover:border-[#00AEEF]/40 transition-all space-y-4"
+              className="bg-white rounded-3xl border border-slate-200 p-6 shadow-2xs hover:border-[#2563EB]/40 transition-all space-y-4"
             >
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
                 <div className="space-y-1">
@@ -381,7 +381,7 @@ export default function CustomerQuotationsPage() {
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => openQuoteDetail(quote.id)}
-                    className="px-4 py-2 rounded-xl text-xs font-bold bg-slate-900 hover:bg-[#00AEEF] text-white flex items-center gap-1.5 cursor-pointer shadow-2xs transition-colors"
+                    className="px-4 py-2 rounded-xl text-xs font-bold bg-slate-900 hover:bg-[#2563EB] text-white flex items-center gap-1.5 cursor-pointer shadow-2xs transition-colors"
                   >
                     <Eye className="w-3.5 h-3.5" /> View Proposal
                   </button>
@@ -454,7 +454,7 @@ export default function CustomerQuotationsPage() {
                           onClick={() => setNewInstitutionType(type)}
                           className={`px-3.5 py-1.5 rounded-full font-bold text-xs transition-all cursor-pointer ${
                             isSelected
-                              ? "bg-[#00AEEF] text-white shadow-2xs"
+                              ? "bg-[#2563EB] text-white shadow-2xs"
                               : "bg-slate-100 text-slate-700 hover:bg-slate-200"
                           }`}
                         >
@@ -476,7 +476,7 @@ export default function CustomerQuotationsPage() {
                     placeholder="e.g. DPS Robotics Lab, IIT Bombay ATL Lab"
                     value={newCompanyName}
                     onChange={(e) => setNewCompanyName(e.target.value)}
-                    className="w-full px-3.5 py-2.5 bg-slate-50/70 hover:bg-slate-50 focus:bg-white border border-slate-200 focus:border-[#00AEEF] focus:ring-2 focus:ring-[#00AEEF]/15 rounded-xl font-medium text-slate-900 outline-none transition-all"
+                    className="w-full px-3.5 py-2.5 bg-slate-50/70 hover:bg-slate-50 focus:bg-white border border-slate-200 focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/15 rounded-xl font-medium text-slate-900 outline-none transition-all"
                   />
                 </div>
 
@@ -492,14 +492,14 @@ export default function CustomerQuotationsPage() {
                       placeholder="Full Name"
                       value={newCustomerName}
                       onChange={(e) => setNewCustomerName(e.target.value)}
-                      className="w-full px-3.5 py-2.5 bg-slate-50/70 hover:bg-slate-50 focus:bg-white border border-slate-200 focus:border-[#00AEEF] focus:ring-2 focus:ring-[#00AEEF]/15 rounded-xl font-medium text-slate-900 outline-none transition-all"
+                      className="w-full px-3.5 py-2.5 bg-slate-50/70 hover:bg-slate-50 focus:bg-white border border-slate-200 focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/15 rounded-xl font-medium text-slate-900 outline-none transition-all"
                     />
                   </div>
                   <div>
                     <label className="block font-bold text-slate-700 mb-1.5">
                       Mobile Number <span className="text-rose-500">*</span>
                     </label>
-                    <div className="flex rounded-xl border border-slate-200 overflow-hidden focus-within:border-[#00AEEF] focus-within:ring-2 focus-within:ring-[#00AEEF]/15 transition-all">
+                    <div className="flex rounded-xl border border-slate-200 overflow-hidden focus-within:border-[#2563EB] focus-within:ring-2 focus-within:ring-[#2563EB]/15 transition-all">
                       <span className="bg-slate-100 text-slate-500 font-bold px-3 py-2.5 border-r border-slate-200 flex items-center select-none text-xs">
                         +91
                       </span>
@@ -527,7 +527,7 @@ export default function CustomerQuotationsPage() {
                     placeholder="contact@example.com"
                     value={newCustomerEmail}
                     onChange={(e) => setNewCustomerEmail(e.target.value)}
-                    className="w-full px-3.5 py-2.5 bg-slate-50/70 hover:bg-slate-50 focus:bg-white border border-slate-200 focus:border-[#00AEEF] focus:ring-2 focus:ring-[#00AEEF]/15 rounded-xl font-medium text-slate-900 outline-none transition-all"
+                    className="w-full px-3.5 py-2.5 bg-slate-50/70 hover:bg-slate-50 focus:bg-white border border-slate-200 focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/15 rounded-xl font-medium text-slate-900 outline-none transition-all"
                   />
                 </div>
 
@@ -542,7 +542,7 @@ export default function CustomerQuotationsPage() {
                     placeholder="e.g. 50x Arduino Uno R3, 20x Raspberry Pi 5 8GB, 100x Ultrasonic Sensors..."
                     value={newProductName}
                     onChange={(e) => setNewProductName(e.target.value)}
-                    className="w-full p-3 bg-slate-50/70 hover:bg-slate-50 focus:bg-white border border-slate-200 focus:border-[#00AEEF] focus:ring-2 focus:ring-[#00AEEF]/15 rounded-xl font-medium text-slate-900 outline-none transition-all resize-none"
+                    className="w-full p-3 bg-slate-50/70 hover:bg-slate-50 focus:bg-white border border-slate-200 focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/15 rounded-xl font-medium text-slate-900 outline-none transition-all resize-none"
                   />
                 </div>
 
@@ -559,7 +559,7 @@ export default function CustomerQuotationsPage() {
                       placeholder="10"
                       value={newQuantity}
                       onChange={(e) => setNewQuantity(e.target.value)}
-                      className="w-full px-3.5 py-2.5 bg-slate-50/70 hover:bg-slate-50 focus:bg-white border border-slate-200 focus:border-[#00AEEF] focus:ring-2 focus:ring-[#00AEEF]/15 rounded-xl font-medium text-slate-900 outline-none transition-all"
+                      className="w-full px-3.5 py-2.5 bg-slate-50/70 hover:bg-slate-50 focus:bg-white border border-slate-200 focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/15 rounded-xl font-medium text-slate-900 outline-none transition-all"
                     />
                   </div>
                   <div>
@@ -571,7 +571,7 @@ export default function CustomerQuotationsPage() {
                       placeholder="e.g. 450"
                       value={newTargetPrice}
                       onChange={(e) => setNewTargetPrice(e.target.value)}
-                      className="w-full px-3.5 py-2.5 bg-slate-50/70 hover:bg-slate-50 focus:bg-white border border-slate-200 focus:border-[#00AEEF] focus:ring-2 focus:ring-[#00AEEF]/15 rounded-xl font-medium text-slate-900 outline-none transition-all"
+                      className="w-full px-3.5 py-2.5 bg-slate-50/70 hover:bg-slate-50 focus:bg-white border border-slate-200 focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/15 rounded-xl font-medium text-slate-900 outline-none transition-all"
                     />
                   </div>
                 </div>
@@ -586,7 +586,7 @@ export default function CustomerQuotationsPage() {
                     placeholder="Specific delivery timelines, GST invoicing details, or brand preferences..."
                     value={newNotes}
                     onChange={(e) => setNewNotes(e.target.value)}
-                    className="w-full p-3 bg-slate-50/70 hover:bg-slate-50 focus:bg-white border border-slate-200 focus:border-[#00AEEF] focus:ring-2 focus:ring-[#00AEEF]/15 rounded-xl font-medium text-slate-900 outline-none transition-all resize-none"
+                    className="w-full p-3 bg-slate-50/70 hover:bg-slate-50 focus:bg-white border border-slate-200 focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/15 rounded-xl font-medium text-slate-900 outline-none transition-all resize-none"
                   />
                 </div>
               </div>
@@ -603,7 +603,7 @@ export default function CustomerQuotationsPage() {
                 <button
                   type="submit"
                   disabled={submittingQuote}
-                  className="bg-[#00AEEF] hover:bg-[#0096D6] text-white px-6 py-2.5 rounded-xl font-bold text-xs shadow-2xs active:scale-95 disabled:opacity-50 flex items-center gap-2 cursor-pointer transition-all"
+                  className="bg-[#2563EB] hover:bg-[#1D4ED8] text-white px-6 py-2.5 rounded-xl font-bold text-xs shadow-2xs active:scale-95 disabled:opacity-50 flex items-center gap-2 cursor-pointer transition-all"
                 >
                   {submittingQuote && (
                     <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -717,7 +717,7 @@ export default function CustomerQuotationsPage() {
                 )}
                 <div className="flex justify-between border-t border-slate-200 pt-2 text-sm font-black text-slate-900">
                   <span>Grand Total:</span>
-                  <span className="text-[#00AEEF]">
+                  <span className="text-[#2563EB]">
                     ₹{selectedQuote.grandTotal?.toLocaleString("en-IN")}
                   </span>
                 </div>

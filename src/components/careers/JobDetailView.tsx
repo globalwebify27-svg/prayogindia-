@@ -57,7 +57,7 @@ export const JobDetailView: React.FC<JobDetailProps> = ({ slug }) => {
         </h1>
 
         <p className="text-xs sm:text-sm text-slate-300 flex items-center gap-1">
-          <MapPin className="w-4 h-4 text-[#00AEEF]" /> {job.location}
+          <MapPin className="w-4 h-4 text-[#2563EB]" /> {job.location}
         </p>
       </div>
 
@@ -84,7 +84,7 @@ export const JobDetailView: React.FC<JobDetailProps> = ({ slug }) => {
                   key={idx}
                   className="bg-slate-50 p-3.5 rounded-2xl border border-slate-200 text-xs font-semibold text-slate-700 flex items-start gap-2.5"
                 >
-                  <CheckCircle2 className="w-4 h-4 text-[#00AEEF] shrink-0 mt-0.5" />
+                  <CheckCircle2 className="w-4 h-4 text-[#2563EB] shrink-0 mt-0.5" />
                   <span>{resp}</span>
                 </li>
               ))}
@@ -180,7 +180,7 @@ export const JobDetailView: React.FC<JobDetailProps> = ({ slug }) => {
 
               <button
                 type="submit"
-                className="w-full bg-[#00AEEF] hover:bg-[#0096D6] text-white py-3.5 rounded-xl font-extrabold text-xs uppercase tracking-wider transition-all shadow-md flex items-center justify-center gap-2"
+                className="w-full bg-[#2563EB] hover:bg-[#1D4ED8] text-white py-3.5 rounded-xl font-extrabold text-xs uppercase tracking-wider transition-all shadow-md shadow-blue-500/20 flex items-center justify-center gap-2"
               >
                 <Send className="w-4 h-4" />
                 <span>Submit Job Application</span>

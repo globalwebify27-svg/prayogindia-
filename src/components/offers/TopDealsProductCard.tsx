@@ -77,7 +77,7 @@ export const TopDealsProductCard: React.FC<TopDealsProductCardProps> = ({
       className={`group relative bg-white rounded-xl border transition-all duration-300 flex flex-col justify-between overflow-hidden ${
         featured
           ? "border-amber-400/70 shadow-md shadow-amber-500/5 ring-1 ring-amber-400/30"
-          : "border-slate-200 hover:border-[#00AEEF] hover:shadow-md hover:shadow-sky-500/10"
+          : "border-slate-200 hover:border-[#2563EB] hover:shadow-md hover:shadow-blue-500/10"
       }`}
     >
       {/* ── Top Header Ribbon: Discount Pill & Wishlist ── */}
@@ -135,7 +135,7 @@ export const TopDealsProductCard: React.FC<TopDealsProductCardProps> = ({
         <div className="space-y-1">
           {/* Category & Brand Subtitle */}
           <div className="flex items-center justify-between text-[9px] font-bold text-slate-400">
-            <span className="uppercase tracking-wider truncate text-[#00AEEF] max-w-[110px]">
+            <span className="uppercase tracking-wider truncate text-[#2563EB] max-w-[110px]">
               {product.brand || product.category}
             </span>
             <span className="font-mono text-slate-400 text-[8.5px]">
@@ -148,7 +148,7 @@ export const TopDealsProductCard: React.FC<TopDealsProductCardProps> = ({
             href={`/products/${product.slug || product.id}`}
             className="block"
           >
-            <h3 className="text-[11px] sm:text-xs font-bold text-slate-900 line-clamp-2 leading-tight group-hover:text-[#00AEEF] transition-colors cursor-pointer min-h-[28px]">
+            <h3 className="text-[11px] sm:text-xs font-bold text-slate-900 line-clamp-2 leading-tight group-hover:text-[#2563EB] transition-colors cursor-pointer min-h-[28px]">
               {product.name}
             </h3>
           </Link>

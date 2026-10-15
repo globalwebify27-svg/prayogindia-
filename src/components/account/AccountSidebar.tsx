@@ -52,12 +52,12 @@ export const AccountSidebar: React.FC = () => {
               href={item.href}
               className={`flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-bold transition-colors ${
                 isActive
-                  ? "bg-[#E0F7FC] text-[#00AEEF]"
+                  ? "bg-blue-50 text-[#2563EB]"
                   : "text-slate-700 hover:bg-slate-50"
               }`}
             >
               <Icon
-                className={`w-4 h-4 ${isActive ? "text-[#00AEEF]" : "text-slate-400"}`}
+                className={`w-4 h-4 ${isActive ? "text-[#2563EB]" : "text-slate-400"}`}
               />
               <span>{item.label}</span>
             </Link>

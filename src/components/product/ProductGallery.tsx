@@ -209,7 +209,7 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
                         e.stopPropagation();
                         prevImage();
                       }}
-                      className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 bg-white/90 hover:bg-white text-slate-700 hover:text-[#00AEEF] rounded-full shadow-md border border-slate-200/80 flex items-center justify-center transition-all cursor-pointer z-10 opacity-80 group-hover:opacity-100"
+                      className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 bg-white/90 hover:bg-white text-slate-700 hover:text-[#2563EB] rounded-full shadow-md border border-slate-200/80 flex items-center justify-center transition-all cursor-pointer z-10 opacity-80 group-hover:opacity-100"
                       aria-label="Previous Image"
                     >
                       <ChevronLeft className="w-5 h-5" />
@@ -220,7 +220,7 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
                         e.stopPropagation();
                         nextImage();
                       }}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 bg-white/90 hover:bg-white text-slate-700 hover:text-[#00AEEF] rounded-full shadow-md border border-slate-200/80 flex items-center justify-center transition-all cursor-pointer z-10 opacity-80 group-hover:opacity-100"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 bg-white/90 hover:bg-white text-slate-700 hover:text-[#2563EB] rounded-full shadow-md border border-slate-200/80 flex items-center justify-center transition-all cursor-pointer z-10 opacity-80 group-hover:opacity-100"
                       aria-label="Next Image"
                     >
                       <ChevronRight className="w-5 h-5" />
@@ -254,7 +254,7 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
               ) : null}
             </div>
             <div className="flex items-center gap-2 bg-slate-900 text-white px-3.5 py-1.5 rounded-full text-xs font-bold shadow-sm">
-              <RotateCcw className="w-3.5 h-3.5 text-[#00AEEF] animate-spin-slow" />
+              <RotateCcw className="w-3.5 h-3.5 text-[#2563EB] animate-spin-slow" />
               <span>360° Interactive View Mode</span>
             </div>
           </div>
@@ -273,7 +273,7 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
             }}
             className={`relative w-14 h-14 sm:w-[72px] sm:h-[72px] shrink-0 rounded-xl overflow-hidden transition-all bg-white cursor-pointer ${
               activeMode === "image" && selectedIdx === idx
-                ? "border-2 border-[#00AEEF] shadow-sm scale-102"
+                ? "border-2 border-[#2563EB] ring-2 ring-blue-500/20 shadow-sm scale-102"
                 : "border border-slate-200 hover:border-slate-300 opacity-75 hover:opacity-100"
             }`}
           >
@@ -293,12 +293,12 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
             onClick={() => setActiveMode("360")}
             className={`relative w-14 h-14 sm:w-[72px] sm:h-[72px] shrink-0 rounded-xl overflow-hidden transition-all flex flex-col items-center justify-center gap-1 cursor-pointer ${
               activeMode === "360"
-                ? "bg-slate-900 border-2 border-[#00AEEF] shadow-sm"
+                ? "bg-slate-900 border-2 border-[#2563EB] shadow-sm"
                 : "bg-slate-900 border border-slate-800 hover:border-slate-700"
             }`}
           >
             <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full border border-white/40 flex items-center justify-center">
-              <RotateCcw className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#00AEEF]" />
+              <RotateCcw className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#2563EB]" />
             </div>
             <span className="text-[8px] sm:text-[9px] font-bold text-white tracking-tight">
               360° View
@@ -310,7 +310,7 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
             onClick={() => setActiveMode("video")}
             className={`relative w-14 h-14 sm:w-[72px] sm:h-[72px] shrink-0 rounded-xl overflow-hidden transition-all flex flex-col items-center justify-center gap-1 cursor-pointer ${
               activeMode === "video"
-                ? "bg-slate-900 border-2 border-[#00AEEF] shadow-sm"
+                ? "bg-slate-900 border-2 border-[#2563EB] shadow-sm"
                 : "bg-slate-900 border border-slate-800 hover:border-slate-700"
             }`}
           >

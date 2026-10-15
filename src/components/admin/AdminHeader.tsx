@@ -98,7 +98,7 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({
       case "LOW_STOCK":
         return <Boxes className="w-4 h-4 text-amber-500 shrink-0" />;
       case "PENDING_TRANSFER":
-        return <ArrowRightLeft className="w-4 h-4 text-[#00AEEF] shrink-0" />;
+        return <ArrowRightLeft className="w-4 h-4 text-[#2563EB] shrink-0" />;
       case "B2B_QUOTATION":
         return <FileText className="w-4 h-4 text-emerald-500 shrink-0" />;
       case "SUPPORT_TICKET":
@@ -137,7 +137,7 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({
           <input
             type="text"
             placeholder="Search anything..."
-            className="w-full bg-slate-50 hover:bg-slate-100/80 focus:bg-white border border-slate-200 rounded-xl px-3.5 py-2 pl-9 pr-10 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-[#00AEEF] focus:ring-2 focus:ring-[#00AEEF]/10 transition-all shadow-2xs"
+            className="w-full bg-slate-50 hover:bg-slate-100/80 focus:bg-white border border-slate-200 rounded-xl px-3.5 py-2 pl-9 pr-10 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/10 transition-all shadow-2xs"
           />
           <kbd className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-mono text-slate-400 bg-white border border-slate-200 px-1.5 py-0.5 rounded shadow-2xs pointer-events-none">
             ⌘K
@@ -153,7 +153,7 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({
             onClick={() => setShowNotifications((prev) => !prev)}
             className={`relative p-2 rounded-xl transition-all cursor-pointer ${
               showNotifications
-                ? "bg-[#E0F7FC] text-[#00AEEF]"
+                ? "bg-blue-50 text-[#2563EB]"
                 : "text-slate-500 hover:text-slate-800 hover:bg-slate-100"
             }`}
             title="Operational Alerts"
@@ -177,7 +177,7 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({
                     Live Alerts
                   </span>
                   {unreadCount > 0 && (
-                    <span className="text-[10px] font-extrabold bg-[#00AEEF] text-white px-2 py-0.5 rounded-full">
+                    <span className="text-[10px] font-extrabold bg-[#2563EB] text-white px-2 py-0.5 rounded-full">
                       {unreadCount} New
                     </span>
                   )}
@@ -187,7 +187,7 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({
                   {unreadCount > 0 && (
                     <button
                       onClick={handleMarkAllRead}
-                      className="text-[11px] font-bold text-[#00AEEF] hover:underline cursor-pointer"
+                      className="text-[11px] font-bold text-[#2563EB] hover:underline cursor-pointer"
                     >
                       Mark read
                     </button>
@@ -255,7 +255,7 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({
                 <Link
                   href="/admin/dashboard"
                   onClick={() => setShowNotifications(false)}
-                  className="text-[11px] font-bold text-slate-600 hover:text-[#00AEEF] transition-colors"
+                  className="text-[11px] font-bold text-slate-600 hover:text-[#2563EB] transition-colors"
                 >
                   View Operations Dashboard →
                 </Link>
@@ -271,8 +271,8 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({
 
         {/* User Profile Pill */}
         <div className="flex items-center gap-2.5 pl-3 border-l border-slate-200">
-          <div className="w-8 h-8 rounded-full bg-blue-100 text-[#00AEEF] border border-blue-200 flex items-center justify-center text-xs font-black shrink-0">
-            <User className="w-4 h-4 text-[#00AEEF]" />
+          <div className="w-8 h-8 rounded-full bg-blue-100 text-[#2563EB] border border-blue-200 flex items-center justify-center text-xs font-black shrink-0">
+            <User className="w-4 h-4 text-[#2563EB]" />
           </div>
           <div className="hidden sm:block text-left">
             <span className="text-xs font-bold text-slate-900 block leading-tight">

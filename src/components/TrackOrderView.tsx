@@ -91,7 +91,7 @@ export const TrackOrderView: React.FC = () => {
     <div className="max-w-4xl mx-auto py-10 px-4 sm:px-6 space-y-8 text-slate-900">
       {/* Header Banner */}
       <div className="text-center space-y-3">
-        <div className="inline-flex items-center gap-2 bg-[#E0F7FC] text-[#00AEEF] px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-wider">
+        <div className="inline-flex items-center gap-2 bg-blue-50 text-[#2563EB] px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-wider border border-blue-200/60">
           <Truck className="w-4 h-4" /> Live Courier Logistics Tracker
         </div>
         <h1 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">
@@ -112,14 +112,14 @@ export const TrackOrderView: React.FC = () => {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Enter Order ID / AWB Number / Mobile No..."
-              className="w-full pl-11 pr-4 py-3.5 rounded-2xl border border-slate-200 text-sm font-semibold focus:outline-none focus:border-[#00AEEF] focus:ring-2 focus:ring-[#00AEEF]/10 transition-all text-slate-900 placeholder:text-slate-400"
+              className="w-full pl-11 pr-4 py-3.5 rounded-2xl border border-slate-200 text-sm font-semibold focus:outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/10 transition-all text-slate-900 placeholder:text-slate-400"
               required
             />
           </div>
           <button
             type="submit"
             disabled={loading}
-            className="bg-[#00AEEF] hover:bg-[#0098d4] text-white px-8 py-3.5 rounded-2xl text-xs font-black uppercase tracking-wider transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer active:scale-98 disabled:opacity-50"
+            className="bg-[#2563EB] hover:bg-[#1D4ED8] text-white px-8 py-3.5 rounded-2xl text-xs font-black uppercase tracking-wider transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer active:scale-98 disabled:opacity-50"
           >
             {loading ? (
               <span>Tracking...</span>
@@ -142,7 +142,7 @@ export const TrackOrderView: React.FC = () => {
               onClick={() => {
                 setQuery(sample);
               }}
-              className="bg-slate-100 hover:bg-[#E0F7FC] hover:text-[#00AEEF] px-2.5 py-1 rounded-lg font-mono font-bold text-slate-700 transition-colors"
+              className="bg-slate-100 hover:bg-blue-50 hover:text-[#2563EB] px-2.5 py-1 rounded-lg font-mono font-bold text-slate-700 transition-colors"
             >
               {sample}
             </button>
@@ -156,7 +156,7 @@ export const TrackOrderView: React.FC = () => {
           {/* Top Status Strip */}
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-6">
             <div className="space-y-1">
-              <span className="text-[10px] font-black uppercase tracking-widest text-[#00AEEF] bg-[#E0F7FC] px-3 py-1 rounded-full">
+              <span className="text-[10px] font-black uppercase tracking-widest text-[#2563EB] bg-blue-50 px-3 py-1 rounded-full border border-blue-200/60">
                 Shipment In Transit
               </span>
               <div className="text-xl sm:text-2xl font-black text-slate-900 mt-1">
@@ -195,7 +195,7 @@ export const TrackOrderView: React.FC = () => {
                   <div
                     className={`absolute -left-6 top-1 w-5 h-5 rounded-full flex items-center justify-center border-2 ${
                       cp.current
-                        ? "bg-[#00AEEF] border-white ring-4 ring-[#00AEEF]/20 text-white animate-pulse"
+                        ? "bg-[#2563EB] border-white ring-4 ring-[#2563EB]/20 text-white animate-pulse"
                         : cp.done
                         ? "bg-emerald-500 border-white text-white"
                         : "bg-slate-200 border-white text-slate-400"
@@ -213,7 +213,7 @@ export const TrackOrderView: React.FC = () => {
                       <h4
                         className={`text-xs font-bold ${
                           cp.current
-                            ? "text-[#00AEEF] font-black"
+                            ? "text-[#2563EB] font-black"
                             : cp.done
                             ? "text-slate-900"
                             : "text-slate-400"
@@ -240,7 +240,7 @@ export const TrackOrderView: React.FC = () => {
       {/* Logged in Quick Link Banner */}
       <div className="bg-slate-50 rounded-2xl border border-slate-200 p-5 flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="flex items-center gap-3 text-left">
-          <div className="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-[#00AEEF] shrink-0">
+          <div className="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-[#2563EB] shrink-0">
             <Package className="w-5 h-5" />
           </div>
           <div>

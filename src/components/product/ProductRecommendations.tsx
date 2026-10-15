@@ -62,7 +62,7 @@ const RecoCard: React.FC<{ product: Product }> = ({ product }) => {
   };
 
   return (
-    <div className="group bg-white border border-slate-200 rounded-2xl overflow-hidden hover:border-[#00AEEF]/50 hover:shadow-lg transition-all duration-300 flex flex-col">
+    <div className="group bg-white border border-slate-200 rounded-2xl overflow-hidden hover:border-[#2563EB]/40 hover:shadow-lg transition-all duration-300 flex flex-col">
       {/* Image */}
       <Link
         href={`/products/${product.slug || product.id}`}
@@ -99,7 +99,7 @@ const RecoCard: React.FC<{ product: Product }> = ({ product }) => {
           {product.sku}
         </span>
         <Link href={`/products/${product.slug || product.id}`}>
-          <h4 className="text-[11px] font-bold text-slate-900 line-clamp-2 leading-snug group-hover:text-[#00AEEF] transition-colors">
+          <h4 className="text-[11px] font-bold text-slate-900 line-clamp-2 leading-snug group-hover:text-[#2563EB] transition-colors">
             {product.name}
           </h4>
         </Link>
@@ -134,7 +134,7 @@ const RecoCard: React.FC<{ product: Product }> = ({ product }) => {
                 className={`flex-1 border text-[9px] font-extrabold py-1.5 rounded-lg transition-all active:scale-95 flex items-center justify-center gap-1 cursor-pointer ${
                   isAdded
                     ? "bg-emerald-600 text-white border-emerald-600"
-                    : "border-[#00AEEF] text-[#00AEEF] hover:bg-[#E0F7FC]"
+                    : "border-[#2563EB] text-[#2563EB] hover:bg-[#2563EB] hover:text-white"
                 }`}
               >
                 {isAdded ? (
@@ -150,7 +150,7 @@ const RecoCard: React.FC<{ product: Product }> = ({ product }) => {
               <button
                 type="button"
                 onClick={handleBuyNow}
-                className="flex-1 bg-[#00AEEF] text-white text-[9px] font-extrabold py-1.5 rounded-lg hover:bg-[#0096D6] transition-colors active:scale-95 flex items-center justify-center gap-1 cursor-pointer"
+                className="flex-1 bg-[#2563EB] text-white text-[9px] font-extrabold py-1.5 rounded-lg hover:bg-blue-700 transition-colors active:scale-95 flex items-center justify-center gap-1 cursor-pointer"
               >
                 <Zap className="w-2.5 h-2.5" /> BUY
               </button>
@@ -210,7 +210,7 @@ const FrequentlyBoughtTogetherSection: React.FC<{ products: Product[] }> = ({
               <span className="text-[9px] font-bold text-slate-700 text-center max-w-[80px] line-clamp-2 leading-tight">
                 {prod.name.split("(")[0].trim()}
               </span>
-              <span className="text-[10px] font-extrabold text-[#00AEEF]">
+              <span className="text-[10px] font-extrabold text-[#2563EB]">
                 ₹{prod.price.toLocaleString("en-IN")}
               </span>
             </div>
@@ -247,7 +247,7 @@ const FrequentlyBoughtTogetherSection: React.FC<{ products: Product[] }> = ({
           className={`text-xs font-black px-5 py-2.5 rounded-xl transition-all active:scale-95 cursor-pointer ${
             bundleAdded
               ? "bg-emerald-600 text-white"
-              : "bg-slate-900 hover:bg-[#00AEEF] text-white shadow-md"
+              : "bg-[#2563EB] hover:bg-blue-700 text-white shadow-md shadow-blue-500/20"
           }`}
         >
           {bundleAdded ? "✓ Bundle Added!" : "Add Bundle to Cart"}
@@ -286,7 +286,7 @@ export const ProductRecommendations: React.FC<ProductRecommendationsProps> = ({
             >
               {group.label}
               <span
-                className={`ml-1.5 text-[9px] font-black ${activeTab === group.id ? "text-[#00AEEF]" : "text-slate-400"}`}
+                className={`ml-1.5 text-[9px] font-black ${activeTab === group.id ? "text-[#2563EB]" : "text-slate-400"}`}
               >
                 ({group.products.length})
               </span>
@@ -296,7 +296,7 @@ export const ProductRecommendations: React.FC<ProductRecommendationsProps> = ({
 
         <Link
           href="/products"
-          className="text-xs font-extrabold text-[#00AEEF] hover:underline flex items-center gap-1 whitespace-nowrap"
+          className="text-xs font-extrabold text-[#2563EB] hover:underline flex items-center gap-1 whitespace-nowrap"
         >
           Browse All <ChevronRight className="w-3.5 h-3.5" />
         </Link>

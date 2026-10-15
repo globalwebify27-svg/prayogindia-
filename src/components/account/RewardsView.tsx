@@ -181,7 +181,7 @@ export const RewardsView: React.FC = () => {
         <div className="flex items-center gap-3 shrink-0">
           <Link
             href="/checkout"
-            className="bg-[#00AEEF] hover:bg-[#0096D6] text-white px-5 py-2.5 rounded-xl text-xs font-bold shadow-2xs flex items-center justify-center gap-2 transition-all active:scale-95 cursor-pointer"
+            className="bg-[#2563EB] hover:bg-[#1D4ED8] text-white px-5 py-2.5 rounded-xl text-xs font-bold shadow-2xs flex items-center justify-center gap-2 transition-all active:scale-95 cursor-pointer"
           >
             <span>Redeem at Checkout</span>
             <ArrowRight className="w-3.5 h-3.5" />
@@ -201,7 +201,7 @@ export const RewardsView: React.FC = () => {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {/* Metric 1 */}
             <div className="bg-white border border-slate-200 rounded-2xl p-4.5 space-y-2 shadow-2xs">
-              <div className="w-9 h-9 rounded-xl bg-sky-50 text-[#00AEEF] flex items-center justify-center">
+              <div className="w-9 h-9 rounded-xl bg-blue-50 text-[#2563EB] flex items-center justify-center">
                 <Zap className="w-4.5 h-4.5" />
               </div>
               <div>
@@ -248,19 +248,19 @@ export const RewardsView: React.FC = () => {
           {/* How to Redeem Box */}
           <div className="bg-slate-50/70 border border-slate-200/80 rounded-2xl p-5 space-y-3 text-xs">
             <h3 className="font-bold text-slate-900 flex items-center gap-1.5">
-              <HelpCircle className="w-4 h-4 text-[#00AEEF]" /> How to Redeem Loyalty Points
+              <HelpCircle className="w-4 h-4 text-[#2563EB]" /> How to Redeem Loyalty Points
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-slate-600">
               <div className="flex items-start gap-2 bg-white p-3 rounded-xl border border-slate-100">
-                <span className="w-5 h-5 rounded-full bg-sky-100 text-[#00AEEF] font-bold text-[11px] flex items-center justify-center shrink-0">1</span>
+                <span className="w-5 h-5 rounded-full bg-blue-50 text-[#2563EB] font-bold text-[11px] flex items-center justify-center shrink-0">1</span>
                 <span>Add STEM robotics kits or sensors to your shopping cart.</span>
               </div>
               <div className="flex items-start gap-2 bg-white p-3 rounded-xl border border-slate-100">
-                <span className="w-5 h-5 rounded-full bg-sky-100 text-[#00AEEF] font-bold text-[11px] flex items-center justify-center shrink-0">2</span>
+                <span className="w-5 h-5 rounded-full bg-blue-50 text-[#2563EB] font-bold text-[11px] flex items-center justify-center shrink-0">2</span>
                 <span>In Checkout, check <strong>&quot;Redeem Prayog Coins&quot;</strong> in the Order Summary.</span>
               </div>
               <div className="flex items-start gap-2 bg-white p-3 rounded-xl border border-slate-100">
-                <span className="w-5 h-5 rounded-full bg-sky-100 text-[#00AEEF] font-bold text-[11px] flex items-center justify-center shrink-0">3</span>
+                <span className="w-5 h-5 rounded-full bg-blue-50 text-[#2563EB] font-bold text-[11px] flex items-center justify-center shrink-0">3</span>
                 <span>The discount is instantly deducted from your total payable amount.</span>
               </div>
             </div>
@@ -354,7 +354,7 @@ export const RewardsView: React.FC = () => {
                   <h4 className="text-xs font-bold text-slate-900">
                     {rule.name}
                   </h4>
-                  <span className="text-[10px] bg-sky-50 text-[#00AEEF] px-2 py-0.5 rounded-full font-semibold">
+                  <span className="text-[10px] bg-blue-50 text-[#2563EB] px-2 py-0.5 rounded-full font-semibold border border-blue-200/60">
                     {rule.customerType}
                   </span>
                 </div>

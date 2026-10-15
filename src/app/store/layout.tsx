@@ -70,7 +70,7 @@ export default function StoreManagerLayout({
     return (
       <div className="min-h-screen bg-slate-900 flex items-center justify-center text-white">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-10 h-10 border-4 border-[#00AEEF] border-t-transparent rounded-full animate-spin" />
+          <div className="w-10 h-10 border-4 border-[#2563EB] border-t-transparent rounded-full animate-spin" />
           <span className="text-xs font-bold tracking-wider text-slate-300">
             Loading Store Manager Portal...
           </span>
@@ -120,9 +120,9 @@ export default function StoreManagerLayout({
           <PrayogLogo size="sm" showSubtitle={false} />
 
           <div className="hidden sm:flex items-center gap-2 bg-slate-100 border border-slate-200 px-3 py-1 rounded-full text-xs font-bold text-slate-700">
-            <MapPin className="w-3.5 h-3.5 text-[#00AEEF]" />
+            <MapPin className="w-3.5 h-3.5 text-[#2563EB]" />
             <span>{storeName}</span>
-            <span className="bg-[#00AEEF] text-white px-2 py-0.5 rounded-md font-bold text-[10px]">
+            <span className="bg-[#2563EB] text-white px-2 py-0.5 rounded-md font-bold text-[10px]">
               {storeCode}
             </span>
           </div>
@@ -176,7 +176,7 @@ export default function StoreManagerLayout({
                   Branch Portal
                 </div>
                 <div className="text-xs font-black text-slate-900 flex items-center gap-1.5 mt-0.5">
-                  <Store className="w-3.5 h-3.5 text-[#00AEEF]" /> {storeCode}{" "}
+                  <Store className="w-3.5 h-3.5 text-[#2563EB]" /> {storeCode}{" "}
                   Store
                 </div>
               </div>
@@ -203,7 +203,7 @@ export default function StoreManagerLayout({
                     onClick={() => setMobileNavOpen(false)}
                     className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all ${
                       active
-                        ? "bg-[#00AEEF] text-white shadow-md shadow-[#00AEEF]/20"
+                        ? "bg-[#2563EB] text-white shadow-md shadow-blue-500/20"
                         : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
                     }`}
                   >

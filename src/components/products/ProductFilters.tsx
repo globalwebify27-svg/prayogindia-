@@ -225,7 +225,7 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
         <h3 className="text-sm font-black uppercase tracking-wider text-slate-900 flex items-center gap-2">
           <span>FILTERS</span>
           {hasAnyActiveFilter && (
-            <span className="bg-[#00AEEF] text-white text-[10px] font-black px-1.5 py-0.5 rounded-full">
+            <span className="bg-[#2563EB] text-white text-[10px] font-black px-1.5 py-0.5 rounded-full">
               Active
             </span>
           )}
@@ -235,7 +235,7 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
           <button
             type="button"
             onClick={onClearAll}
-            className="text-xs font-bold text-[#00AEEF] hover:text-[#0096D6] hover:underline flex items-center gap-1 cursor-pointer transition-colors"
+            className="text-xs font-bold text-[#2563EB] hover:text-[#1D4ED8] hover:underline flex items-center gap-1 cursor-pointer transition-colors"
           >
             <RotateCcw className="w-3 h-3" />
             <span>Clear All</span>
@@ -267,7 +267,7 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
                   type="checkbox"
                   checked={isInStockChecked}
                   onChange={() => handleStockClick("inStock")}
-                  className="w-4 h-4 rounded border-slate-300 text-[#00AEEF] focus:ring-[#00AEEF] cursor-pointer"
+                  className="w-4 h-4 rounded border-slate-300 text-[#2563EB] focus:ring-[#2563EB] cursor-pointer"
                 />
                 <span className="text-xs font-semibold text-slate-700 group-hover:text-slate-900 transition-colors">
                   In Stock
@@ -287,7 +287,7 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
                   type="checkbox"
                   checked={isOutOfStockChecked}
                   onChange={() => handleStockClick("outOfStock")}
-                  className="w-4 h-4 rounded border-slate-300 text-[#00AEEF] focus:ring-[#00AEEF] cursor-pointer"
+                  className="w-4 h-4 rounded border-slate-300 text-[#2563EB] focus:ring-[#2563EB] cursor-pointer"
                 />
                 <span className="text-xs font-semibold text-slate-700 group-hover:text-slate-900 transition-colors">
                   Out Of Stock
@@ -423,7 +423,7 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
                     }}
                     className={`w-full text-left py-1.5 px-2.5 rounded-lg text-xs font-semibold transition-all flex items-center justify-between group cursor-pointer ${
                       isSelected
-                        ? "bg-[#E0F7FC] text-[#00AEEF] font-bold"
+                        ? "bg-blue-50 text-[#2563EB] font-bold"
                         : "text-slate-700 hover:bg-slate-50 hover:text-slate-900"
                     }`}
                   >
@@ -433,7 +433,7 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
                       {cat.count !== undefined && (
                         <span
                           className={`text-[10px] font-medium ${
-                            isSelected ? "text-[#00AEEF]" : "text-slate-400"
+                            isSelected ? "text-[#2563EB]" : "text-slate-400"
                           }`}
                         >
                           ({cat.count})
@@ -474,7 +474,7 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
                             }}
                             className={`w-full text-left py-1 px-2 rounded-md text-[11px] transition-colors flex items-center justify-between cursor-pointer ${
                               isSubSelected
-                                ? "bg-[#00AEEF] text-white font-bold"
+                                ? "bg-[#2563EB] text-white font-bold"
                                 : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
                             }`}
                           >
@@ -545,7 +545,7 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
                       onChange={() =>
                         onSelectBrand(selectedBrand === b.name ? null : b.name)
                       }
-                      className="w-3.5 h-3.5 rounded border-slate-300 text-[#00AEEF] focus:ring-[#00AEEF] cursor-pointer"
+                      className="w-3.5 h-3.5 rounded border-slate-300 text-[#2563EB] focus:ring-[#2563EB] cursor-pointer"
                     />
                     <span className="text-xs font-semibold text-slate-700 group-hover:text-slate-900">
                       {b.name}

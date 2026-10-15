@@ -107,8 +107,8 @@ export const ServiceDetailView: React.FC<ServiceDetailProps> = ({ slug }) => {
             <div className="lg:col-span-7 p-6 sm:p-8 flex flex-col justify-between space-y-5">
               <div className="space-y-3">
                 <div className="flex items-center gap-2">
-                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#E0F7FC] text-[#00AEEF]">
-                    <Sparkles className="w-3 h-3 text-[#00AEEF]" />
+                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-[#2563EB] border border-blue-200/60">
+                    <Sparkles className="w-3 h-3 text-[#2563EB]" />
                     Turnkey Service
                   </span>
                   <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700">
@@ -151,7 +151,7 @@ export const ServiceDetailView: React.FC<ServiceDetailProps> = ({ slug }) => {
                 <button
                   type="button"
                   onClick={() => setEnquiryOpen(true)}
-                  className="bg-[#00AEEF] hover:bg-[#0096D6] text-white px-5 py-2.5 rounded-xl font-bold text-xs transition-all shadow-xs flex items-center gap-1.5 cursor-pointer active:scale-95"
+                  className="bg-[#2563EB] hover:bg-[#1D4ED8] text-white px-5 py-2.5 rounded-xl font-bold text-xs transition-all shadow-xs flex items-center gap-1.5 cursor-pointer active:scale-95"
                 >
                   <Send className="w-3.5 h-3.5" />
                   <span>Request Quotation</span>
@@ -200,7 +200,7 @@ export const ServiceDetailView: React.FC<ServiceDetailProps> = ({ slug }) => {
                   >
                     <div className="w-6 h-6 rounded-lg bg-white border border-slate-200 flex items-center justify-center shrink-0">
                       {idx === 0 ? (
-                        <Cpu className="w-3.5 h-3.5 text-[#00AEEF]" />
+                        <Cpu className="w-3.5 h-3.5 text-[#2563EB]" />
                       ) : idx === 1 ? (
                         <Layers className="w-3.5 h-3.5 text-[#005CA9]" />
                       ) : idx === 2 ? (
@@ -227,7 +227,7 @@ export const ServiceDetailView: React.FC<ServiceDetailProps> = ({ slug }) => {
 
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-center">
                 <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
-                  <div className="text-[10px] font-black text-[#00AEEF]">01</div>
+                  <div className="text-[10px] font-black text-[#2563EB]">01</div>
                   <div className="text-xs font-bold text-slate-900">Space Audit</div>
                 </div>
                 <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
@@ -256,7 +256,7 @@ export const ServiceDetailView: React.FC<ServiceDetailProps> = ({ slug }) => {
                     key={idx}
                     className="inline-flex items-center gap-1.5 bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-lg text-xs font-bold text-slate-700"
                   >
-                    <CheckCircle2 className="w-3.5 h-3.5 text-[#00AEEF]" />
+                    <CheckCircle2 className="w-3.5 h-3.5 text-[#2563EB]" />
                     <span>{app}</span>
                   </span>
                 ))}
@@ -322,7 +322,7 @@ export const ServiceDetailView: React.FC<ServiceDetailProps> = ({ slug }) => {
                       placeholder="School / College / Company"
                       value={formOrg}
                       onChange={(e) => setFormOrg(e.target.value)}
-                      className="w-full bg-slate-50 text-slate-900 px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-1 focus:ring-[#00AEEF] font-medium"
+                      className="w-full bg-slate-50 text-slate-900 px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-1 focus:ring-[#2563EB] font-medium"
                     />
                   </div>
 
@@ -337,7 +337,7 @@ export const ServiceDetailView: React.FC<ServiceDetailProps> = ({ slug }) => {
                         placeholder="Name"
                         value={formName}
                         onChange={(e) => setFormName(e.target.value)}
-                        className="w-full bg-slate-50 text-slate-900 px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-1 focus:ring-[#00AEEF] font-medium"
+                        className="w-full bg-slate-50 text-slate-900 px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-1 focus:ring-[#2563EB] font-medium"
                       />
                     </div>
 
@@ -351,7 +351,7 @@ export const ServiceDetailView: React.FC<ServiceDetailProps> = ({ slug }) => {
                         placeholder="+91..."
                         value={formPhone}
                         onChange={(e) => setFormPhone(e.target.value)}
-                        className="w-full bg-slate-50 text-slate-900 px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-1 focus:ring-[#00AEEF] font-medium"
+                        className="w-full bg-slate-50 text-slate-900 px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-1 focus:ring-[#2563EB] font-medium"
                       />
                     </div>
                   </div>
@@ -366,7 +366,7 @@ export const ServiceDetailView: React.FC<ServiceDetailProps> = ({ slug }) => {
                       placeholder="email@institution.com"
                       value={formEmail}
                       onChange={(e) => setFormEmail(e.target.value)}
-                      className="w-full bg-slate-50 text-slate-900 px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-1 focus:ring-[#00AEEF] font-medium"
+                      className="w-full bg-slate-50 text-slate-900 px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-1 focus:ring-[#2563EB] font-medium"
                     />
                   </div>
 
@@ -379,14 +379,14 @@ export const ServiceDetailView: React.FC<ServiceDetailProps> = ({ slug }) => {
                       placeholder="Budget or batch size..."
                       value={formNotes}
                       onChange={(e) => setFormNotes(e.target.value)}
-                      className="w-full bg-slate-50 text-slate-900 px-3 py-1.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-1 focus:ring-[#00AEEF] font-medium"
+                      className="w-full bg-slate-50 text-slate-900 px-3 py-1.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-1 focus:ring-[#2563EB] font-medium"
                     />
                   </div>
 
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="w-full bg-[#00AEEF] hover:bg-[#0096D6] disabled:opacity-50 text-white py-3 rounded-xl font-bold text-xs transition-all shadow-xs flex items-center justify-center gap-1.5 cursor-pointer active:scale-95"
+                    className="w-full bg-[#2563EB] hover:bg-[#1D4ED8] disabled:opacity-50 text-white py-3 rounded-xl font-bold text-xs transition-all shadow-xs flex items-center justify-center gap-1.5 cursor-pointer active:scale-95"
                   >
                     <Send className="w-3.5 h-3.5" />
                     <span>{isSubmitting ? "Submitting..." : "Submit Quotation Request"}</span>
@@ -408,7 +408,7 @@ export const ServiceDetailView: React.FC<ServiceDetailProps> = ({ slug }) => {
                   <button
                     type="button"
                     onClick={() => setFormSuccess(false)}
-                    className="text-xs font-bold text-[#00AEEF] hover:underline"
+                    className="text-xs font-bold text-[#2563EB] hover:underline"
                   >
                     Submit another
                   </button>
@@ -418,11 +418,11 @@ export const ServiceDetailView: React.FC<ServiceDetailProps> = ({ slug }) => {
               {/* Direct Contacts */}
               <div className="border-t border-slate-100 pt-3 space-y-1.5 text-[11px]">
                 <div className="flex items-center gap-1.5 text-slate-700 font-bold">
-                  <Phone className="w-3 h-3 text-[#00AEEF]" />
+                  <Phone className="w-3 h-3 text-[#2563EB]" />
                   <span>+91 87097 89641</span>
                 </div>
                 <div className="flex items-center gap-1.5 text-slate-500 font-medium">
-                  <Mail className="w-3 h-3 text-[#00AEEF]" />
+                  <Mail className="w-3 h-3 text-[#2563EB]" />
                   <span>institutional@prayogindia.in</span>
                 </div>
               </div>

@@ -109,7 +109,7 @@ export const SupportTicketsView: React.FC = () => {
             setShowCreateForm(!showCreateForm);
             setSelectedTicket(null);
           }}
-          className="bg-[#00AEEF] hover:bg-[#0096D6] text-white px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer self-start sm:self-auto shadow-2xs active:scale-95"
+          className="bg-[#2563EB] hover:bg-[#1D4ED8] text-white px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer self-start sm:self-auto shadow-2xs active:scale-95"
         >
           <Plus className="w-4 h-4" />
           <span>New Ticket</span>
@@ -171,7 +171,7 @@ export const SupportTicketsView: React.FC = () => {
           <div className="flex items-center gap-3">
             <button
               type="submit"
-              className="bg-slate-900 text-white px-5 py-2 rounded-xl font-bold text-xs hover:bg-[#00AEEF]"
+              className="bg-slate-900 text-white px-5 py-2 rounded-xl font-bold text-xs hover:bg-[#2563EB] transition-colors"
             >
               Submit Ticket
             </button>
@@ -200,7 +200,7 @@ export const SupportTicketsView: React.FC = () => {
             </div>
             <button
               onClick={() => setSelectedTicket(null)}
-              className="text-xs font-bold text-[#00AEEF] hover:underline"
+              className="text-xs font-bold text-[#2563EB] hover:underline"
             >
               ← Back to All Tickets
             </button>
@@ -213,7 +213,7 @@ export const SupportTicketsView: React.FC = () => {
                 key={idx}
                 className={`p-3 rounded-2xl text-xs space-y-1 max-w-xl ${
                   msg.sender === "Customer"
-                    ? "bg-[#00AEEF] text-white ml-auto"
+                    ? "bg-[#2563EB] text-white ml-auto"
                     : "bg-white text-slate-800 border border-slate-200"
                 }`}
               >
@@ -234,11 +234,11 @@ export const SupportTicketsView: React.FC = () => {
               placeholder="Type your reply message to support engineers..."
               value={replyText}
               onChange={(e) => setReplyText(e.target.value)}
-              className="flex-1 bg-slate-50 border border-slate-200 p-3 rounded-xl text-xs focus:outline-none"
+              className="flex-1 bg-slate-50 border border-slate-200 p-3 rounded-xl text-xs focus:outline-none focus:border-[#2563EB]"
             />
             <button
               type="submit"
-              className="bg-slate-900 hover:bg-[#00AEEF] text-white px-4 rounded-xl text-xs font-extrabold flex items-center gap-1.5"
+              className="bg-slate-900 hover:bg-[#2563EB] text-white px-4 rounded-xl text-xs font-extrabold flex items-center gap-1.5 transition-colors"
             >
               <Send className="w-3.5 h-3.5" />
               <span>Reply</span>
@@ -252,7 +252,7 @@ export const SupportTicketsView: React.FC = () => {
             <div
               key={tkt.id}
               onClick={() => setSelectedTicket(tkt)}
-              className="bg-slate-50 border border-slate-200/90 rounded-2xl p-4 flex items-center justify-between gap-4 cursor-pointer hover:border-[#00AEEF] transition-colors"
+              className="bg-slate-50 border border-slate-200/90 rounded-2xl p-4 flex items-center justify-between gap-4 cursor-pointer hover:border-[#2563EB] transition-colors"
             >
               <div>
                 <div className="flex items-center gap-2">
@@ -272,7 +272,7 @@ export const SupportTicketsView: React.FC = () => {
               </div>
 
               <div className="flex items-center gap-3 shrink-0">
-                <span className="bg-[#E0F7FC] text-[#00AEEF] text-xs font-black px-3 py-1 rounded-full border border-[#00AEEF]/20">
+                <span className="bg-blue-50 text-[#2563EB] text-xs font-black px-3 py-1 rounded-full border border-blue-200/60">
                   {tkt.status}
                 </span>
               </div>

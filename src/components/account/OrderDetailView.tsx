@@ -303,7 +303,7 @@ export const OrderDetailView: React.FC<OrderDetailProps> = ({ orderId }) => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
         <div>
           <div className="flex items-center gap-2">
-            <span className="text-[10px] font-black uppercase tracking-widest text-[#00AEEF] bg-[#E0F7FC] px-3.5 py-1 rounded-full border border-[#00AEEF]/20">
+            <span className="text-[10px] font-black uppercase tracking-widest text-[#2563EB] bg-blue-50 px-3.5 py-1 rounded-full border border-blue-200/60">
               Section 21 · Order Management
             </span>
           </div>
@@ -324,7 +324,7 @@ export const OrderDetailView: React.FC<OrderDetailProps> = ({ orderId }) => {
                 "_blank",
               )
             }
-            className="bg-slate-900 hover:bg-[#00AEEF] text-white px-4 py-2.5 rounded-2xl text-xs font-black flex items-center gap-1.5 transition-all shadow-md active:scale-95 cursor-pointer"
+            className="bg-slate-900 hover:bg-[#2563EB] text-white px-4 py-2.5 rounded-2xl text-xs font-black flex items-center gap-1.5 transition-all shadow-md active:scale-95 cursor-pointer"
           >
             <FileText className="w-4 h-4 text-[#FFC20E]" />
             <span>Download Invoice (PDF)</span>
@@ -353,10 +353,10 @@ export const OrderDetailView: React.FC<OrderDetailProps> = ({ orderId }) => {
       <div className="space-y-4 bg-slate-50 border border-slate-200 rounded-3xl p-6 shadow-2xs">
         <div className="flex items-center justify-between">
           <h3 className="text-xs font-black uppercase text-slate-900 tracking-wider flex items-center gap-1.5">
-            <Clock className="w-4 h-4 text-[#00AEEF]" /> Live Order Progression
+            <Clock className="w-4 h-4 text-[#2563EB]" /> Live Order Progression
             Timeline
           </h3>
-          <span className="bg-[#E0F7FC] text-[#00AEEF] text-xs font-black px-3.5 py-1 rounded-full border border-[#00AEEF]/20">
+          <span className="bg-blue-50 text-[#2563EB] text-xs font-black px-3.5 py-1 rounded-full border border-blue-200/60">
             {order.status}
           </span>
         </div>
@@ -372,7 +372,7 @@ export const OrderDetailView: React.FC<OrderDetailProps> = ({ orderId }) => {
                 key={step.key}
                 className={`p-3.5 rounded-2xl border text-center space-y-1 transition-all ${
                   isCurrent
-                    ? "bg-[#E0F7FC] border-[#00AEEF] text-[#00AEEF] ring-2 ring-[#00AEEF]/20 shadow-xs"
+                    ? "bg-blue-50 border-[#2563EB] text-[#2563EB] ring-2 ring-[#2563EB]/20 shadow-xs"
                     : isCompleted
                       ? "bg-white border-emerald-300 text-emerald-700"
                       : "bg-slate-100 border-slate-200 text-slate-400"
@@ -402,7 +402,7 @@ export const OrderDetailView: React.FC<OrderDetailProps> = ({ orderId }) => {
         {/* Payment Status Card */}
         <div className="bg-white border border-slate-200 rounded-3xl p-5 space-y-3 shadow-2xs">
           <h3 className="text-xs font-black uppercase text-slate-900 tracking-wider flex items-center gap-1.5">
-            <CreditCard className="w-4 h-4 text-[#00AEEF]" /> Payment Status
+            <CreditCard className="w-4 h-4 text-[#2563EB]" /> Payment Status
           </h3>
           <div className="bg-slate-50 border border-slate-200/80 p-4 rounded-2xl space-y-2 text-xs">
             <div className="flex justify-between items-center">
@@ -431,7 +431,7 @@ export const OrderDetailView: React.FC<OrderDetailProps> = ({ orderId }) => {
         {/* Courier Dispatch & Tracking Card */}
         <div className="bg-white border border-slate-200 rounded-3xl p-5 space-y-3 shadow-2xs">
           <h3 className="text-xs font-black uppercase text-slate-900 tracking-wider flex items-center gap-1.5">
-            <Truck className="w-4 h-4 text-[#00AEEF]" /> Courier Shipment
+            <Truck className="w-4 h-4 text-[#2563EB]" /> Courier Shipment
             Tracking
           </h3>
           <div className="bg-slate-50 border border-slate-200/80 p-4 rounded-2xl space-y-2 text-xs">
@@ -466,7 +466,7 @@ export const OrderDetailView: React.FC<OrderDetailProps> = ({ orderId }) => {
                 href={order.trackingUrl || "https://www.delhivery.com"}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 text-xs font-black text-[#00AEEF] hover:underline"
+                className="inline-flex items-center gap-1.5 text-xs font-black text-[#2563EB] hover:underline"
               >
                 <span>Track on Carrier Portal</span>
                 <ExternalLink className="w-3.5 h-3.5" />
@@ -493,7 +493,7 @@ export const OrderDetailView: React.FC<OrderDetailProps> = ({ orderId }) => {
                   {order.trackingEvents.map((evt, eIdx) => (
                     <div
                       key={eIdx}
-                      className="text-[11px] flex items-start gap-2 border-l-2 border-[#00AEEF] pl-2 py-0.5"
+                      className="text-[11px] flex items-start gap-2 border-l-2 border-[#2563EB] pl-2 py-0.5"
                     >
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center justify-between text-[10px] text-slate-400 font-mono">
@@ -559,9 +559,9 @@ export const OrderDetailView: React.FC<OrderDetailProps> = ({ orderId }) => {
                         name: item.name,
                       })
                     }
-                    className="bg-[#E0F7FC] hover:bg-[#bceefb] text-[#00AEEF] px-3 py-1.5 rounded-xl font-bold text-[11px] flex items-center gap-1 transition-all cursor-pointer shadow-2xs"
+                    className="bg-blue-50 hover:bg-blue-100 text-[#2563EB] px-3 py-1.5 rounded-xl font-bold text-[11px] flex items-center gap-1 transition-all cursor-pointer shadow-2xs border border-blue-200/60"
                   >
-                    <Sparkles className="w-3 h-3 text-[#00AEEF]" /> Rate &amp;
+                    <Sparkles className="w-3 h-3 text-[#2563EB]" /> Rate &amp;
                     Review
                   </button>
                 )}
@@ -619,7 +619,7 @@ export const OrderDetailView: React.FC<OrderDetailProps> = ({ orderId }) => {
           {/* Reorder Action */}
           <button
             onClick={handleReorder}
-            className="bg-[#00AEEF] hover:bg-[#0096D6] text-white px-4 py-2.5 rounded-2xl font-black text-xs uppercase tracking-wider transition-all shadow-md flex items-center gap-1.5 cursor-pointer active:scale-95"
+            className="bg-[#2563EB] hover:bg-[#1D4ED8] text-white px-4 py-2.5 rounded-2xl font-black text-xs uppercase tracking-wider transition-all shadow-md flex items-center gap-1.5 cursor-pointer active:scale-95"
           >
             <RefreshCw className="w-4 h-4 text-[#FFC20E]" />
             <span>Reorder Items</span>
@@ -641,7 +641,7 @@ export const OrderDetailView: React.FC<OrderDetailProps> = ({ orderId }) => {
             onClick={() => setModalType("return")}
             className="bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-200 px-4 py-2.5 rounded-2xl font-bold text-xs flex items-center gap-1.5 transition-colors cursor-pointer"
           >
-            <RotateCcw className="w-4 h-4 text-[#00AEEF]" />
+            <RotateCcw className="w-4 h-4 text-[#2563EB]" />
             <span>Request Return</span>
           </button>
 
@@ -705,7 +705,7 @@ export const OrderDetailView: React.FC<OrderDetailProps> = ({ orderId }) => {
                   value={requestReason}
                   onChange={(e) => setRequestReason(e.target.value)}
                   placeholder={`Describe reason for ${modalType} (e.g. damaged in transit, defective sensor, incorrect kit component)...`}
-                  className="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl focus:outline-none focus:border-[#00AEEF] font-semibold text-slate-900"
+                  className="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl focus:outline-none focus:border-[#2563EB] font-semibold text-slate-900"
                 />
               </div>
             )}
@@ -725,7 +725,7 @@ export const OrderDetailView: React.FC<OrderDetailProps> = ({ orderId }) => {
                     ? handleCancelOrderSubmit
                     : handleRequestSubmit
                 }
-                className="bg-[#00AEEF] hover:bg-[#0096D6] text-white px-5 py-2.5 rounded-xl font-black uppercase tracking-wider shadow-md cursor-pointer"
+                className="bg-[#2563EB] hover:bg-[#1D4ED8] text-white px-5 py-2.5 rounded-xl font-black uppercase tracking-wider shadow-md cursor-pointer"
               >
                 Submit Request
               </button>
@@ -743,7 +743,7 @@ export const OrderDetailView: React.FC<OrderDetailProps> = ({ orderId }) => {
           />
           <div className="relative max-w-md w-full bg-white rounded-3xl p-6 shadow-2xl z-10 space-y-4 text-xs">
             <div>
-              <span className="text-[10px] font-black uppercase tracking-wider text-[#00AEEF] bg-[#E0F7FC] px-2.5 py-0.5 rounded-full border border-[#00AEEF]/20">
+              <span className="text-[10px] font-black uppercase tracking-wider text-[#2563EB] bg-blue-50 px-2.5 py-0.5 rounded-full border border-blue-200/60">
                 Verified Purchase Review
               </span>
               <h3 className="text-base font-black text-slate-900 tracking-tight mt-1">
@@ -804,7 +804,7 @@ export const OrderDetailView: React.FC<OrderDetailProps> = ({ orderId }) => {
                     value={reviewTitle}
                     onChange={(e) => setReviewTitle(e.target.value)}
                     placeholder="e.g. Excellent build quality and easy to interface with Arduino"
-                    className="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl font-semibold text-slate-900 focus:outline-none focus:border-[#00AEEF]"
+                    className="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl font-semibold text-slate-900 focus:outline-none focus:border-[#2563EB]"
                   />
                 </div>
 
@@ -819,7 +819,7 @@ export const OrderDetailView: React.FC<OrderDetailProps> = ({ orderId }) => {
                     value={reviewBody}
                     onChange={(e) => setReviewBody(e.target.value)}
                     placeholder="Share your practical experience with this hardware kit, pinout accuracy, documentation, etc. (minimum 10 characters)..."
-                    className="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl font-semibold text-slate-900 focus:outline-none focus:border-[#00AEEF]"
+                    className="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl font-semibold text-slate-900 focus:outline-none focus:border-[#2563EB]"
                   />
                 </div>
 
@@ -834,7 +834,7 @@ export const OrderDetailView: React.FC<OrderDetailProps> = ({ orderId }) => {
                   <button
                     type="submit"
                     disabled={submittingReview}
-                    className="bg-[#00AEEF] hover:bg-[#0096D6] disabled:opacity-50 text-white px-5 py-2.5 rounded-xl font-black uppercase tracking-wider shadow-md flex items-center gap-1.5 cursor-pointer"
+                    className="bg-[#2563EB] hover:bg-[#1D4ED8] disabled:opacity-50 text-white px-5 py-2.5 rounded-xl font-black uppercase tracking-wider shadow-md flex items-center gap-1.5 cursor-pointer"
                   >
                     {submittingReview ? (
                       <>

@@ -116,9 +116,9 @@ export const CUSTOMER_TYPE_RULES: Record<CustomerTypeCode, CustomerTypeRule> = {
   B2B: {
     id: "B2B",
     name: "B2B Customer",
-    badgeColor: "text-[#00AEEF]",
-    badgeBg: "bg-sky-50",
-    badgeBorder: "border-sky-200",
+    badgeColor: "text-[#2563EB]",
+    badgeBg: "bg-blue-50",
+    badgeBorder: "border-blue-200",
     description:
       "Corporate, university, school, or research lab account with official GSTIN and bulk institutional purchase terms.",
     pricing: {

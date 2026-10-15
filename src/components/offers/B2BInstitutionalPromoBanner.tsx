@@ -16,7 +16,7 @@ export const B2BInstitutionalPromoBanner: React.FC = () => {
   return (
     <div className="rounded-3xl bg-gradient-to-br from-slate-900 via-slate-950 to-[#071927] border border-slate-800 text-white p-6 sm:p-10 relative overflow-hidden shadow-2xl">
       {/* Background Lighting Elements */}
-      <div className="absolute top-0 right-0 w-80 h-80 bg-[#00AEEF]/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-0 right-0 w-80 h-80 bg-[#2563EB]/10 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-0 left-10 w-60 h-60 bg-[#FFC20E]/10 rounded-full blur-3xl pointer-events-none" />
 
       <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
@@ -42,7 +42,7 @@ export const B2BInstitutionalPromoBanner: React.FC = () => {
 
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-2 text-xs">
             <div className="flex items-center gap-2 text-slate-300">
-              <ShieldCheck className="w-4 h-4 text-[#00AEEF] shrink-0" />
+              <ShieldCheck className="w-4 h-4 text-[#2563EB] shrink-0" />
               <span>Bulk Tier Discounts</span>
             </div>
             <div className="flex items-center gap-2 text-slate-300">

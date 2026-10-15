@@ -36,8 +36,8 @@ export const AboutView: React.FC = () => {
       label: "Innovators & Labs",
       description: "Engineers, student researchers & hobbyists supported",
       icon: UsersIcon,
-      color: "text-[#00AEEF]",
-      bg: "bg-[#E0F7FC]",
+      color: "text-[#2563EB]",
+      bg: "bg-blue-50",
     },
     {
       value: "50,000+",
@@ -152,15 +152,15 @@ export const AboutView: React.FC = () => {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
             {/* Left Content */}
             <div className="lg:col-span-7 space-y-6">
-              <div className="inline-flex items-center gap-2 bg-[#E0F7FC] border border-[#00AEEF]/20 text-[#00AEEF] text-xs font-black tracking-widest uppercase px-3.5 py-1.5 rounded-full">
+              <div className="inline-flex items-center gap-2 bg-blue-50 border border-blue-200/60 text-[#2563EB] text-xs font-black tracking-widest uppercase px-3.5 py-1.5 rounded-full">
                 <Sparkles className="w-3.5 h-3.5 text-[#FFC20E]" />
                 <span>PRAYOG INDIA • THE WORLD OF ROBOTICS</span>
               </div>
 
               <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-[1.15] text-slate-900">
                 Powering India’s Next Generation of{" "}
-                <span className="text-[#00AEEF]">Robotics</span>,{" "}
-                <span className="text-[#00AEEF]">AI</span> &amp;{" "}
+                <span className="text-[#2563EB]">Robotics</span>,{" "}
+                <span className="text-[#2563EB]">AI</span> &amp;{" "}
                 <span className="text-[#FFC20E]">STEM</span> Innovators
               </h1>
 
@@ -175,7 +175,7 @@ export const AboutView: React.FC = () => {
               {/* Trust Badges */}
               <div className="flex flex-wrap items-center gap-3 pt-1 text-xs font-bold text-slate-700">
                 <span className="inline-flex items-center gap-1.5 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-200">
-                  <CheckCircle2 className="w-4 h-4 text-[#00AEEF]" /> 100%
+                  <CheckCircle2 className="w-4 h-4 text-[#2563EB]" /> 100%
                   Genuine Silicon
                 </span>
                 <span className="inline-flex items-center gap-1.5 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-200">
@@ -192,7 +192,7 @@ export const AboutView: React.FC = () => {
               <div className="flex flex-wrap items-center gap-4 pt-2">
                 <Link
                   href="/products"
-                  className="bg-[#00AEEF] hover:bg-[#0096D6] text-white font-bold text-xs uppercase tracking-wider px-6 py-3.5 rounded-2xl transition-all shadow-md hover:shadow-lg hover:scale-[1.02] flex items-center gap-2"
+                  className="bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-bold text-xs uppercase tracking-wider px-6 py-3.5 rounded-2xl transition-all shadow-md hover:shadow-lg hover:scale-[1.02] flex items-center gap-2"
                 >
                   <ShoppingBag className="w-4 h-4" />
                   <span>Explore Hardware Store</span>
@@ -202,7 +202,7 @@ export const AboutView: React.FC = () => {
                   href="/services"
                   className="bg-white hover:bg-slate-50 text-slate-800 border border-slate-200 font-bold text-xs uppercase tracking-wider px-6 py-3.5 rounded-2xl transition-all shadow-2xs hover:border-slate-300 flex items-center gap-2"
                 >
-                  <Wrench className="w-4 h-4 text-[#00AEEF]" />
+                  <Wrench className="w-4 h-4 text-[#2563EB]" />
                   <span>Turnkey Lab Services</span>
                 </Link>
               </div>
@@ -253,7 +253,7 @@ export const AboutView: React.FC = () => {
             return (
               <div
                 key={idx}
-                className="bg-white border border-slate-200/90 rounded-3xl p-6 shadow-xs hover:shadow-md transition-all space-y-3 group hover:border-[#00AEEF]/40"
+                className="bg-white border border-slate-200/90 rounded-3xl p-6 shadow-xs hover:shadow-md transition-all space-y-3 group hover:border-[#2563EB]/40"
               >
                 <div className="flex items-center justify-between">
                   <span
@@ -283,7 +283,7 @@ export const AboutView: React.FC = () => {
         {/* 4. Our Story & Bento Grid (Identity, Mission, Vision, Indigenous Focus) */}
         <section className="space-y-6">
           <div className="text-center max-w-3xl mx-auto space-y-2">
-            <span className="bg-[#E0F7FC] text-[#00AEEF] text-[11px] font-black uppercase tracking-widest px-3.5 py-1 rounded-full inline-block">
+            <span className="bg-blue-50 text-[#2563EB] text-[11px] font-black uppercase tracking-widest px-3.5 py-1 rounded-full inline-block border border-blue-200/60">
               OUR HERITAGE &amp; MISSION
             </span>
             <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
@@ -300,7 +300,7 @@ export const AboutView: React.FC = () => {
             {/* Story Card - Spans 7 columns */}
             <div className="md:col-span-7 bg-slate-50 border border-slate-200/90 rounded-3xl p-8 space-y-4 flex flex-col justify-between shadow-xs">
               <div className="space-y-3">
-                <div className="inline-flex items-center gap-2 text-xs font-black text-[#00AEEF] uppercase tracking-wider">
+                <div className="inline-flex items-center gap-2 text-xs font-black text-[#2563EB] uppercase tracking-wider">
                   <Compass className="w-4 h-4" />
                   <span>The Prayog India Origin</span>
                 </div>
@@ -325,7 +325,7 @@ export const AboutView: React.FC = () => {
 
               <div className="pt-4 border-t border-slate-200 flex flex-wrap items-center gap-4 text-xs font-bold text-slate-700">
                 <div className="flex items-center gap-1.5">
-                  <CheckCircle2 className="w-4 h-4 text-[#00AEEF]" /> Dual Hubs
+                  <CheckCircle2 className="w-4 h-4 text-[#2563EB]" /> Dual Hubs
                   in Ranchi &amp; Bengaluru
                 </div>
                 <div className="flex items-center gap-1.5">
@@ -338,8 +338,8 @@ export const AboutView: React.FC = () => {
             {/* Mission & Vision Bento Cards - Spans 5 columns */}
             <div className="md:col-span-5 flex flex-col gap-6">
               {/* Mission Card */}
-              <div className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-7 space-y-2.5 shadow-xs flex-1 hover:border-[#00AEEF]/40 transition-colors">
-                <div className="w-10 h-10 rounded-2xl bg-[#E0F7FC] text-[#00AEEF] flex items-center justify-center">
+              <div className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-7 space-y-2.5 shadow-xs flex-1 hover:border-[#2563EB]/40 transition-colors">
+                <div className="w-10 h-10 rounded-2xl bg-blue-50 text-[#2563EB] flex items-center justify-center">
                   <Target className="w-5 h-5" />
                 </div>
                 <h3 className="text-base font-black text-slate-900">
@@ -375,7 +375,7 @@ export const AboutView: React.FC = () => {
         {/* 5. Four Pillars of Prayog India */}
         <section className="space-y-8 bg-slate-50/70 border border-slate-200/80 rounded-3xl p-8 sm:p-12">
           <div className="text-center max-w-3xl mx-auto space-y-2">
-            <span className="bg-[#E0F7FC] text-[#00AEEF] text-[11px] font-black uppercase tracking-widest px-3.5 py-1 rounded-full inline-block">
+            <span className="bg-blue-50 text-[#2563EB] text-[11px] font-black uppercase tracking-widest px-3.5 py-1 rounded-full inline-block border border-blue-200/60">
               THE PRAYOG PROMISE
             </span>
             <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
@@ -393,10 +393,10 @@ export const AboutView: React.FC = () => {
               return (
                 <div
                   key={idx}
-                  className="bg-white rounded-3xl border border-slate-200 p-6 space-y-3.5 shadow-2xs flex flex-col justify-between hover:shadow-md hover:border-[#00AEEF]/50 transition-all duration-300"
+                  className="bg-white rounded-3xl border border-slate-200 p-6 space-y-3.5 shadow-2xs flex flex-col justify-between hover:shadow-md hover:border-[#2563EB]/50 transition-all duration-300"
                 >
                   <div className="space-y-3">
-                    <div className="w-10 h-10 rounded-2xl bg-[#E0F7FC] text-[#00AEEF] flex items-center justify-center">
+                    <div className="w-10 h-10 rounded-2xl bg-blue-50 text-[#2563EB] flex items-center justify-center">
                       <Icon className="w-5 h-5" />
                     </div>
                     <span className="inline-block text-[10px] font-black uppercase tracking-wider text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md">
@@ -419,7 +419,7 @@ export const AboutView: React.FC = () => {
         <section className="space-y-8">
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
             <div className="space-y-2 max-w-2xl">
-              <span className="bg-[#E0F7FC] text-[#00AEEF] text-[11px] font-black uppercase tracking-widest px-3.5 py-1 rounded-full inline-block">
+              <span className="bg-blue-50 text-[#2563EB] text-[11px] font-black uppercase tracking-widest px-3.5 py-1 rounded-full inline-block border border-blue-200/60">
                 HARDWARE DOMAINS
               </span>
               <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
@@ -433,7 +433,7 @@ export const AboutView: React.FC = () => {
 
             <Link
               href="/products"
-              className="text-xs font-bold text-[#00AEEF] hover:text-[#008BBF] flex items-center gap-1.5 shrink-0 self-start sm:self-auto"
+              className="text-xs font-bold text-[#2563EB] hover:text-[#1D4ED8] flex items-center gap-1.5 shrink-0 self-start sm:self-auto"
             >
               <span>View Full Hardware Catalog</span>
               <ArrowRight className="w-4 h-4" />
@@ -445,7 +445,7 @@ export const AboutView: React.FC = () => {
               <Link
                 key={idx}
                 href={domain.href}
-                className="group bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-2xs hover:shadow-xl hover:border-[#00AEEF]/60 transition-all duration-300 flex flex-col justify-between"
+                className="group bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-2xs hover:shadow-xl hover:border-[#2563EB]/60 transition-all duration-300 flex flex-col justify-between"
               >
                 <div>
                   <div className="relative h-44 w-full bg-slate-100 overflow-hidden">
@@ -465,7 +465,7 @@ export const AboutView: React.FC = () => {
                   </div>
 
                   <div className="p-5 space-y-2">
-                    <h3 className="text-sm font-black text-slate-900 group-hover:text-[#00AEEF] transition-colors">
+                    <h3 className="text-sm font-black text-slate-900 group-hover:text-[#2563EB] transition-colors">
                       {domain.title}
                     </h3>
                     <p className="text-xs text-slate-600 leading-relaxed font-normal">
@@ -474,7 +474,7 @@ export const AboutView: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="px-5 pb-5 pt-2 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-[#00AEEF]">
+                <div className="px-5 pb-5 pt-2 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-[#2563EB]">
                   <span>Explore Hardware</span>
                   <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
                 </div>
@@ -486,7 +486,7 @@ export const AboutView: React.FC = () => {
         {/* 7. Institutions & Labs Trust Banner */}
         <section className="bg-slate-50 border border-slate-200/90 rounded-3xl p-8 sm:p-10 space-y-6">
           <div className="text-center max-w-2xl mx-auto space-y-2">
-            <span className="text-[10px] font-black uppercase tracking-widest text-[#00AEEF] bg-[#E0F7FC] px-3 py-1 rounded-full inline-block">
+            <span className="text-[10px] font-black uppercase tracking-widest text-[#2563EB] bg-blue-50 px-3 py-1 rounded-full inline-block border border-blue-200/60">
               INSTITUTIONAL NETWORK
             </span>
             <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
@@ -521,10 +521,10 @@ export const AboutView: React.FC = () => {
         </section>
 
         {/* 8. Institutional Procurement & Contact CTA */}
-        <section className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-[#E0F7FC]/70 via-white to-sky-50/60 border border-[#00AEEF]/30 p-8 sm:p-12 shadow-sm">
+        <section className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-blue-50/70 via-white to-blue-50/40 border border-blue-200/60 p-8 sm:p-12 shadow-sm">
           <div className="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-8">
             <div className="space-y-3 text-center lg:text-left max-w-2xl">
-              <div className="inline-flex items-center gap-2 bg-white border border-[#00AEEF]/30 text-[#00AEEF] text-[11px] font-black tracking-widest uppercase px-3.5 py-1 rounded-full shadow-2xs">
+              <div className="inline-flex items-center gap-2 bg-white border border-blue-200/60 text-[#2563EB] text-[11px] font-black tracking-widest uppercase px-3.5 py-1 rounded-full shadow-2xs">
                 <Building2 className="w-3.5 h-3.5" />
                 <span>INSTITUTIONAL &amp; B2B PROCUREMENT DESK</span>
               </div>
@@ -538,7 +538,7 @@ export const AboutView: React.FC = () => {
               </p>
               <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 pt-1 text-xs font-bold text-slate-700">
                 <span className="flex items-center gap-1.5 bg-white/80 px-3 py-1 rounded-xl border border-slate-200">
-                  <Phone className="w-4 h-4 text-[#00AEEF]" />{" "}
+                  <Phone className="w-4 h-4 text-[#2563EB]" />{" "}
                   {COMPANY_INFO.phone}
                 </span>
                 <span className="flex items-center gap-1.5 bg-white/80 px-3 py-1 rounded-xl border border-slate-200">
@@ -555,7 +555,7 @@ export const AboutView: React.FC = () => {
             <div className="flex flex-col sm:flex-row lg:flex-col gap-3 shrink-0 w-full sm:w-auto">
               <Link
                 href="/contact"
-                className="bg-[#00AEEF] hover:bg-[#0096D6] text-white px-7 py-3.5 rounded-2xl text-xs font-black uppercase tracking-wider transition-all shadow-md hover:shadow-lg text-center flex items-center justify-center gap-2 hover:scale-[1.02]"
+                className="bg-[#2563EB] hover:bg-[#1D4ED8] text-white px-7 py-3.5 rounded-2xl text-xs font-black uppercase tracking-wider transition-all shadow-md hover:shadow-lg text-center flex items-center justify-center gap-2 hover:scale-[1.02]"
               >
                 <span>Request Institutional Quote</span>
                 <ArrowRight className="w-4 h-4" />

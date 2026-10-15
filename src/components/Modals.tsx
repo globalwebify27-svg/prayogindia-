@@ -231,7 +231,7 @@ export const B2BModal: React.FC<B2BModalProps> = ({ isOpen, onClose }) => {
             <h3 className="text-lg font-bold text-slate-900">
               Quotation Request Received
             </h3>
-            <p className="text-xs font-mono font-bold text-[#00AEEF] bg-[#E0F7FC] px-3 py-1 rounded-full inline-block">
+            <p className="text-xs font-mono font-bold text-[#2563EB] bg-blue-50 border border-blue-200/60 px-3 py-1 rounded-full inline-block">
               Quote Ref: {quoteNumber}
             </p>
             <p className="text-xs text-slate-500 max-w-xs mx-auto">
@@ -242,7 +242,7 @@ export const B2BModal: React.FC<B2BModalProps> = ({ isOpen, onClose }) => {
                 setSubmitted(false);
                 onClose();
               }}
-              className="bg-[#00AEEF] hover:bg-[#0096D6] text-white text-xs font-bold px-6 py-2.5 rounded-xl cursor-pointer transition-colors"
+              className="bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-xs font-bold px-6 py-2.5 rounded-xl cursor-pointer transition-colors shadow-md shadow-blue-500/20"
             >
               Done
             </button>
@@ -282,7 +282,7 @@ export const B2BModal: React.FC<B2BModalProps> = ({ isOpen, onClose }) => {
                       onClick={() => setFormData({ ...formData, institutionType: type })}
                       className={`px-3 py-1 rounded-full font-bold text-xs transition-all cursor-pointer ${
                         isSelected
-                          ? "bg-[#00AEEF] text-white shadow-2xs"
+                          ? "bg-[#2563EB] text-white shadow-2xs"
                           : "bg-slate-100 text-slate-600 hover:bg-slate-200"
                       }`}
                     >
@@ -301,7 +301,7 @@ export const B2BModal: React.FC<B2BModalProps> = ({ isOpen, onClose }) => {
                   onChange={(e) =>
                     setFormData({ ...formData, fullName: e.target.value })
                   }
-                  className="w-full bg-slate-50/70 hover:bg-slate-50 focus:bg-white p-2.5 rounded-xl border border-slate-200 focus:border-[#00AEEF] focus:ring-2 focus:ring-[#00AEEF]/15 outline-none transition-all font-medium text-slate-900"
+                  className="w-full bg-slate-50/70 hover:bg-slate-50 focus:bg-white p-2.5 rounded-xl border border-slate-200 focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/15 outline-none transition-all font-medium text-slate-900"
                 />
                 <input
                   required
@@ -311,7 +311,7 @@ export const B2BModal: React.FC<B2BModalProps> = ({ isOpen, onClose }) => {
                   onChange={(e) =>
                     setFormData({ ...formData, email: e.target.value })
                   }
-                  className="w-full bg-slate-50/70 hover:bg-slate-50 focus:bg-white p-2.5 rounded-xl border border-slate-200 focus:border-[#00AEEF] focus:ring-2 focus:ring-[#00AEEF]/15 outline-none transition-all font-medium text-slate-900"
+                  className="w-full bg-slate-50/70 hover:bg-slate-50 focus:bg-white p-2.5 rounded-xl border border-slate-200 focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/15 outline-none transition-all font-medium text-slate-900"
                 />
               </div>
 
@@ -324,7 +324,7 @@ export const B2BModal: React.FC<B2BModalProps> = ({ isOpen, onClose }) => {
                   onChange={(e) =>
                     setFormData({ ...formData, phone: e.target.value })
                   }
-                  className="w-full bg-slate-50/70 hover:bg-slate-50 focus:bg-white p-2.5 rounded-xl border border-slate-200 focus:border-[#00AEEF] focus:ring-2 focus:ring-[#00AEEF]/15 outline-none transition-all font-medium text-slate-900"
+                  className="w-full bg-slate-50/70 hover:bg-slate-50 focus:bg-white p-2.5 rounded-xl border border-slate-200 focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/15 outline-none transition-all font-medium text-slate-900"
                 />
                 <input
                   required
@@ -337,7 +337,7 @@ export const B2BModal: React.FC<B2BModalProps> = ({ isOpen, onClose }) => {
                       institutionName: e.target.value,
                     })
                   }
-                  className="w-full bg-slate-50/70 hover:bg-slate-50 focus:bg-white p-2.5 rounded-xl border border-slate-200 focus:border-[#00AEEF] focus:ring-2 focus:ring-[#00AEEF]/15 outline-none transition-all font-medium text-slate-900"
+                  className="w-full bg-slate-50/70 hover:bg-slate-50 focus:bg-white p-2.5 rounded-xl border border-slate-200 focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/15 outline-none transition-all font-medium text-slate-900"
                 />
               </div>
 
@@ -351,7 +351,7 @@ export const B2BModal: React.FC<B2BModalProps> = ({ isOpen, onClose }) => {
                     gstin: e.target.value.toUpperCase(),
                   })
                 }
-                className="w-full bg-slate-50/70 hover:bg-slate-50 focus:bg-white p-2.5 rounded-xl border border-slate-200 focus:border-[#00AEEF] focus:ring-2 focus:ring-[#00AEEF]/15 outline-none transition-all uppercase font-medium text-slate-900"
+                className="w-full bg-slate-50/70 hover:bg-slate-50 focus:bg-white p-2.5 rounded-xl border border-slate-200 focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/15 outline-none transition-all uppercase font-medium text-slate-900"
               />
 
               {/* Product items list */}
@@ -363,7 +363,7 @@ export const B2BModal: React.FC<B2BModalProps> = ({ isOpen, onClose }) => {
                   <button
                     type="button"
                     onClick={handleAddItem}
-                    className="text-[11px] font-bold text-[#00AEEF] hover:underline cursor-pointer"
+                    className="text-[11px] font-bold text-[#2563EB] hover:underline cursor-pointer"
                   >
                     + Add Item
                   </button>
@@ -380,7 +380,7 @@ export const B2BModal: React.FC<B2BModalProps> = ({ isOpen, onClose }) => {
                         next[idx].productName = e.target.value;
                         setFormData({ ...formData, items: next });
                       }}
-                      className="flex-1 bg-white p-2 rounded-xl border border-slate-200 text-xs font-medium text-slate-900 focus:border-[#00AEEF] outline-none"
+                      className="flex-1 bg-white p-2 rounded-xl border border-slate-200 text-xs font-medium text-slate-900 focus:border-[#2563EB] outline-none"
                     />
                     <input
                       type="number"
@@ -392,7 +392,7 @@ export const B2BModal: React.FC<B2BModalProps> = ({ isOpen, onClose }) => {
                         next[idx].quantity = parseInt(e.target.value, 10) || 1;
                         setFormData({ ...formData, items: next });
                       }}
-                      className="w-16 bg-white p-2 rounded-xl border border-slate-200 text-xs text-center font-bold text-slate-900 focus:border-[#00AEEF] outline-none"
+                      className="w-16 bg-white p-2 rounded-xl border border-slate-200 text-xs text-center font-bold text-slate-900 focus:border-[#2563EB] outline-none"
                     />
                     {formData.items.length > 1 && (
                       <button
@@ -414,7 +414,7 @@ export const B2BModal: React.FC<B2BModalProps> = ({ isOpen, onClose }) => {
                 onChange={(e) =>
                   setFormData({ ...formData, requirements: e.target.value })
                 }
-                className="w-full bg-slate-50/70 hover:bg-slate-50 focus:bg-white p-2.5 rounded-xl border border-slate-200 focus:border-[#00AEEF] focus:ring-2 focus:ring-[#00AEEF]/15 outline-none transition-all resize-none font-medium text-slate-900"
+                className="w-full bg-slate-50/70 hover:bg-slate-50 focus:bg-white p-2.5 rounded-xl border border-slate-200 focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/15 outline-none transition-all resize-none font-medium text-slate-900"
               />
 
               <input
@@ -424,14 +424,14 @@ export const B2BModal: React.FC<B2BModalProps> = ({ isOpen, onClose }) => {
                 onChange={(e) =>
                   setFormData({ ...formData, deliveryAddress: e.target.value })
                 }
-                className="w-full bg-slate-50/70 hover:bg-slate-50 focus:bg-white p-2.5 rounded-xl border border-slate-200 focus:border-[#00AEEF] focus:ring-2 focus:ring-[#00AEEF]/15 outline-none transition-all font-medium text-slate-900"
+                className="w-full bg-slate-50/70 hover:bg-slate-50 focus:bg-white p-2.5 rounded-xl border border-slate-200 focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/15 outline-none transition-all font-medium text-slate-900"
               />
             </div>
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-[#00AEEF] hover:bg-[#0096D6] disabled:opacity-50 text-white py-3 rounded-xl text-xs font-bold shadow-2xs cursor-pointer transition-all active:scale-95"
+              className="w-full bg-[#2563EB] hover:bg-[#1D4ED8] disabled:opacity-50 text-white py-3 rounded-xl text-xs font-bold shadow-md shadow-blue-500/20 cursor-pointer transition-all active:scale-95"
             >
               {loading ? "Submitting..." : "Submit Request"}
             </button>

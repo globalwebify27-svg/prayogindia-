@@ -10,7 +10,7 @@ export const ProductEmptyState: React.FC<ProductEmptyStateProps> = ({
 }) => {
   return (
     <div className="py-16 px-4 text-center bg-slate-50 border border-slate-200 rounded-3xl space-y-4 max-w-md mx-auto my-8">
-      <div className="w-16 h-16 rounded-2xl bg-[#E0F7FC] text-[#00AEEF] flex items-center justify-center mx-auto border border-[#00AEEF]/20">
+      <div className="w-16 h-16 rounded-2xl bg-blue-50 text-[#2563EB] flex items-center justify-center mx-auto border border-blue-200/60">
         <PackageSearch className="w-8 h-8" />
       </div>
 
@@ -24,7 +24,7 @@ export const ProductEmptyState: React.FC<ProductEmptyStateProps> = ({
 
       <button
         onClick={onClearFilters}
-        className="bg-[#00AEEF] hover:bg-[#0096D6] text-white px-5 py-2.5 rounded-xl text-xs font-black transition-colors shadow-sm inline-flex items-center gap-2"
+        className="bg-[#2563EB] hover:bg-[#1D4ED8] text-white px-5 py-2.5 rounded-xl text-xs font-black transition-colors shadow-md shadow-blue-500/20 inline-flex items-center gap-2"
       >
         <FilterX className="w-4 h-4" />
         <span>Clear All Filters</span>

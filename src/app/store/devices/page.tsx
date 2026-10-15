@@ -96,7 +96,7 @@ export default function StoreDevicesPage() {
       <div className="bg-white border border-slate-200/90 p-5 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-2xs">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <span className="bg-[#00AEEF] text-white text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+            <span className="bg-[#2563EB] text-white text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider">
               {storeCode} Branch Hardware
             </span>
             <span className="text-xs text-slate-500 font-medium">
@@ -126,7 +126,7 @@ export default function StoreDevicesPage() {
 
           <button
             onClick={() => setShowModal(true)}
-            className="flex items-center gap-1.5 bg-[#00AEEF] hover:bg-[#0096D6] text-white text-xs font-bold px-4 py-2 rounded-xl shadow-md active:scale-95 transition-all cursor-pointer"
+            className="flex items-center gap-1.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-xs font-bold px-4 py-2 rounded-xl shadow-md active:scale-95 transition-all cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             <span>Add Kiosk / Tablet</span>
@@ -138,7 +138,7 @@ export default function StoreDevicesPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
         {loading ? (
           <div className="col-span-full py-12 text-center text-slate-400">
-            <div className="w-8 h-8 border-2 border-[#00AEEF] border-t-transparent rounded-full animate-spin mx-auto mb-2" />
+            <div className="w-8 h-8 border-2 border-[#2563EB] border-t-transparent rounded-full animate-spin mx-auto mb-2" />
             <span>Connecting to store device fleet...</span>
           </div>
         ) : devices.length === 0 ? (
@@ -153,7 +153,7 @@ export default function StoreDevicesPage() {
               className="bg-white border border-slate-200/90 rounded-2xl p-5 space-y-4 hover:border-slate-300 transition-all shadow-2xs"
             >
               <div className="flex items-start justify-between">
-                <div className="w-10 h-10 bg-slate-100 border border-slate-200 rounded-xl flex items-center justify-center text-[#00AEEF]">
+                <div className="w-10 h-10 bg-slate-100 border border-slate-200 rounded-xl flex items-center justify-center text-[#2563EB]">
                   <Tablet className="w-5 h-5" />
                 </div>
                 <span className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-bold uppercase px-2.5 py-0.5 rounded-full">
@@ -174,7 +174,7 @@ export default function StoreDevicesPage() {
               <div className="bg-slate-50 p-3 rounded-xl space-y-1.5 text-[11px] font-mono border border-slate-200">
                 <div className="text-slate-500 flex justify-between">
                   <span>Login / Staff:</span>
-                  <span className="text-[#00AEEF] font-bold">
+                  <span className="text-[#2563EB] font-bold">
                     {device.assignedStaff || "Kiosk Device"}
                   </span>
                 </div>
@@ -208,7 +208,7 @@ export default function StoreDevicesPage() {
             </button>
 
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-[#00AEEF]/10 border border-[#00AEEF]/20 flex items-center justify-center text-[#00AEEF]">
+              <div className="w-10 h-10 rounded-xl bg-blue-50 border border-blue-200 flex items-center justify-center text-[#2563EB]">
                 <Tablet className="w-5 h-5" />
               </div>
               <div>
@@ -217,7 +217,7 @@ export default function StoreDevicesPage() {
                 </h3>
                 <p className="text-xs text-slate-500">
                   Locked strictly to{" "}
-                  <span className="text-[#00AEEF] font-bold">
+                  <span className="text-[#2563EB] font-bold">
                     {storeCode} Branch
                   </span>
                 </p>
@@ -248,7 +248,7 @@ export default function StoreDevicesPage() {
                   value={deviceName}
                   onChange={(e) => setDeviceName(e.target.value)}
                   placeholder={`e.g. ${storeCode} Customer Tablet #2`}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs text-slate-900 placeholder-slate-400 focus:bg-white focus:outline-none focus:border-[#00AEEF]"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs text-slate-900 placeholder-slate-400 focus:bg-white focus:outline-none focus:border-[#2563EB]"
                 />
               </div>
 
@@ -259,7 +259,7 @@ export default function StoreDevicesPage() {
                 <select
                   value={deviceType}
                   onChange={(e) => setDeviceType(e.target.value as any)}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs text-slate-900 focus:bg-white focus:outline-none focus:border-[#00AEEF]"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs text-slate-900 focus:bg-white focus:outline-none focus:border-[#2563EB]"
                 >
                   <option value="KIOSK_TABLET">
                     📱 Store Shopping Tablet (Kiosk Mode)
@@ -286,7 +286,7 @@ export default function StoreDevicesPage() {
                       )
                     }
                     placeholder={`e.g. ${storeCode.toLowerCase()}_kiosk_02`}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-3.5 py-2 text-xs text-slate-900 placeholder-slate-400 focus:bg-white focus:outline-none focus:border-[#00AEEF]"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-3.5 py-2 text-xs text-slate-900 placeholder-slate-400 focus:bg-white focus:outline-none focus:border-[#2563EB]"
                   />
                 </div>
               </div>
@@ -304,7 +304,7 @@ export default function StoreDevicesPage() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Minimum 6 characters"
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-3.5 py-2 text-xs text-slate-900 placeholder-slate-400 focus:bg-white focus:outline-none focus:border-[#00AEEF]"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-3.5 py-2 text-xs text-slate-900 placeholder-slate-400 focus:bg-white focus:outline-none focus:border-[#2563EB]"
                   />
                 </div>
               </div>
@@ -320,7 +320,7 @@ export default function StoreDevicesPage() {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="bg-[#00AEEF] hover:bg-[#0096D6] text-white text-xs font-bold px-5 py-2.5 rounded-xl shadow-md active:scale-95 disabled:opacity-50 transition-all cursor-pointer"
+                  className="bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-xs font-bold px-5 py-2.5 rounded-xl shadow-md active:scale-95 disabled:opacity-50 transition-all cursor-pointer"
                 >
                   {submitting ? "Registering..." : "Confirm & Register Device"}
                 </button>

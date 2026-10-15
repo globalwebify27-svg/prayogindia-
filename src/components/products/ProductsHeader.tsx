@@ -49,7 +49,7 @@ export const ProductsHeader: React.FC<ProductsHeaderProps> = ({
       <div className="relative z-10 space-y-4 max-w-4xl">
         {/* Top Tag Header */}
         <div>
-          <span className="text-[10px] font-black uppercase tracking-widest text-[#00AEEF] bg-[#E0F7FC]/90 border border-[#00AEEF]/20 px-3 py-1 rounded-md inline-block shadow-2xs">
+          <span className="text-[10px] font-black uppercase tracking-widest text-[#2563EB] bg-blue-50/90 border border-blue-200/60 px-3 py-1 rounded-md inline-block shadow-2xs">
             Official Catalogue
           </span>
           <h1 className="text-3xl sm:text-4xl font-extrabold text-[#0B1528] tracking-tight mt-1.5 font-sans">
@@ -81,7 +81,7 @@ export const ProductsHeader: React.FC<ProductsHeaderProps> = ({
                   }
                   className={`inline-flex items-center px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all duration-200 cursor-pointer ${
                     isSelected
-                      ? "bg-[#00AEEF] text-white shadow-sm shadow-[#00AEEF]/30 scale-[1.02]"
+                      ? "bg-[#2563EB] text-white shadow-sm shadow-blue-500/30 scale-[1.02]"
                       : "bg-white text-slate-700 border border-slate-200/80 hover:bg-slate-50 hover:border-slate-300 shadow-2xs"
                   }`}
                 >

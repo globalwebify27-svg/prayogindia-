@@ -238,11 +238,11 @@ export const ProfileForm: React.FC = () => {
             <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 block">
               System Customer Tier
             </span>
-            <span className="text-sm font-extrabold text-[#00AEEF]">
+            <span className="text-sm font-extrabold text-[#2563EB]">
               {user?.customerType || "B2C Customer"}
             </span>
           </div>
-          <span className="bg-[#E0F7FC] text-[#00AEEF] text-[10px] font-black uppercase px-2.5 py-1 rounded-md border border-[#00AEEF]/20">
+          <span className="bg-blue-50 text-[#2563EB] text-[10px] font-black uppercase px-2.5 py-1 rounded-md border border-blue-200/60">
             Verified Account
           </span>
         </div>
@@ -326,7 +326,7 @@ export const ProfileForm: React.FC = () => {
         {/* Company & GST Tax Credentials Group */}
         <div className="pt-4 border-t border-slate-100 space-y-4">
           <h3 className="text-xs font-black uppercase tracking-wider text-slate-900 flex items-center gap-1.5">
-            <Building className="w-4 h-4 text-[#00AEEF]" /> Institutional / B2B
+            <Building className="w-4 h-4 text-[#2563EB]" /> Institutional / B2B
             GST Information (Optional)
           </h3>
 
@@ -369,7 +369,7 @@ export const ProfileForm: React.FC = () => {
         <button
           type="submit"
           disabled={saving}
-          className="bg-[#00AEEF] hover:bg-[#0096D6] disabled:opacity-50 text-white px-6 py-3 rounded-xl font-extrabold text-xs uppercase tracking-wider transition-colors shadow-md flex items-center gap-2 cursor-pointer"
+          className="bg-[#2563EB] hover:bg-[#1D4ED8] disabled:opacity-50 text-white px-6 py-3 rounded-xl font-extrabold text-xs uppercase tracking-wider transition-colors shadow-md shadow-blue-500/20 flex items-center gap-2 cursor-pointer"
         >
           {saving && <Loader2 className="w-4 h-4 animate-spin" />}
           {isPhoneChanged
@@ -389,7 +389,7 @@ export const ProfileForm: React.FC = () => {
           <div className="relative max-w-md w-full bg-white rounded-3xl p-6 sm:p-8 shadow-2xl z-10 space-y-5 text-xs animate-in zoom-in-95">
             <div className="flex items-start justify-between border-b border-slate-100 pb-3">
               <div>
-                <span className="text-[10px] font-black uppercase text-[#00AEEF] tracking-widest block">
+                <span className="text-[10px] font-black uppercase text-[#2563EB] tracking-widest block">
                   Security Re-verification
                 </span>
                 <h3 className="text-base font-black text-slate-900 mt-0.5">
@@ -440,7 +440,7 @@ export const ProfileForm: React.FC = () => {
                     value={digit}
                     onChange={(e) => handleOtpDigitChange(e.target.value, idx)}
                     onKeyDown={(e) => handleOtpKeyDown(e, idx)}
-                    className="w-10 h-12 sm:w-11 sm:h-13 text-center text-lg font-black text-slate-900 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-[#00AEEF] focus:ring-2 focus:ring-[#00AEEF]/20 font-mono shadow-2xs"
+                    className="w-10 h-12 sm:w-11 sm:h-13 text-center text-lg font-black text-slate-900 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/20 font-mono shadow-2xs"
                   />
                 ))}
               </div>
@@ -459,7 +459,7 @@ export const ProfileForm: React.FC = () => {
                     type="button"
                     onClick={sendPhoneChangeOtp}
                     disabled={otpLoading}
-                    className="text-[#00AEEF] font-bold hover:underline flex items-center gap-1 cursor-pointer"
+                    className="text-[#2563EB] font-bold hover:underline flex items-center gap-1 cursor-pointer"
                   >
                     <RefreshCw className="w-3 h-3" /> Resend OTP Code
                   </button>
@@ -483,7 +483,7 @@ export const ProfileForm: React.FC = () => {
                 <button
                   type="submit"
                   disabled={otpLoading || otpDigits.join("").length !== 6}
-                  className="bg-[#00AEEF] hover:bg-[#0096D6] disabled:opacity-50 text-white px-5 py-2.5 rounded-xl font-black uppercase tracking-wider shadow-md flex items-center gap-2 cursor-pointer"
+                  className="bg-[#2563EB] hover:bg-[#1D4ED8] disabled:opacity-50 text-white px-5 py-2.5 rounded-xl font-black uppercase tracking-wider shadow-md shadow-blue-500/20 flex items-center gap-2 cursor-pointer"
                 >
                   {otpLoading ? (
                     <>

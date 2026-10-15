@@ -42,9 +42,9 @@ export const ProductDetailsAccordion: React.FC<ProductDetailsTabProps> = ({
             {features.map((feat, idx) => (
               <li
                 key={idx}
-                className="bg-gradient-to-br from-slate-50 to-[#E0F7FC]/30 p-4 rounded-2xl border border-slate-200/80 text-xs font-semibold text-slate-700 flex items-start gap-2.5 hover:border-[#00AEEF]/30 transition-colors"
+                className="bg-gradient-to-br from-slate-50 to-blue-50/20 p-4 rounded-2xl border border-slate-200/80 text-xs font-semibold text-slate-700 flex items-start gap-2.5 hover:border-[#2563EB]/30 transition-colors"
               >
-                <CheckCircle2 className="w-4 h-4 text-[#00AEEF] shrink-0 mt-0.5" />
+                <CheckCircle2 className="w-4 h-4 text-[#2563EB] shrink-0 mt-0.5" />
                 <span className="leading-relaxed">{feat}</span>
               </li>
             ))}
@@ -62,7 +62,7 @@ export const ProductDetailsAccordion: React.FC<ProductDetailsTabProps> = ({
             {applications.map((app, idx) => (
               <span
                 key={idx}
-                className="bg-[#E0F7FC] text-[#0096D6] text-xs font-extrabold px-3.5 py-2 rounded-xl border border-[#00AEEF]/25 flex items-center gap-1.5 hover:bg-[#B3EBF9] transition-colors"
+                className="bg-blue-50 text-[#1D4ED8] text-xs font-extrabold px-3.5 py-2 rounded-xl border border-blue-200/60 flex items-center gap-1.5 hover:bg-blue-100 transition-colors"
               >
                 <ChevronRight className="w-3 h-3" />
                 {app}
@@ -86,7 +86,7 @@ export const ProductDetailsAccordion: React.FC<ProductDetailsTabProps> = ({
                   idx > 0 ? "border-t border-slate-100" : ""
                 }`}
               >
-                <div className="w-5 h-5 rounded-full bg-[#00AEEF]/10 text-[#00AEEF] text-[9px] font-black flex items-center justify-center shrink-0">
+                <div className="w-5 h-5 rounded-full bg-[#2563EB]/10 text-[#2563EB] text-[9px] font-black flex items-center justify-center shrink-0">
                   {idx + 1}
                 </div>
                 <span>{item}</span>

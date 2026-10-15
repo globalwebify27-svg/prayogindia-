@@ -14,7 +14,7 @@ export const ServicesLandingView: React.FC = () => {
 
       {/* 2. Services Header */}
       <div className="py-6 border-b border-slate-100 space-y-2">
-        <span className="text-[10px] font-black uppercase tracking-widest text-[#00AEEF] bg-[#E0F7FC] px-3 py-1 rounded-full inline-block">
+        <span className="text-[10px] font-black uppercase tracking-widest text-[#2563EB] bg-blue-50 px-3 py-1 rounded-full inline-block border border-blue-200/60">
           Technical & Educational Services
         </span>
         <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight mt-1">
@@ -51,7 +51,7 @@ export const ServicesLandingView: React.FC = () => {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 pt-4 text-center">
           <div className="p-4 bg-slate-800/80 rounded-2xl border border-slate-700/60 space-y-2">
-            <Wrench className="w-6 h-6 text-[#00AEEF] mx-auto" />
+            <Wrench className="w-6 h-6 text-[#2563EB] mx-auto" />
             <h4 className="text-xs font-extrabold text-white">
               Turnkey Hardware
             </h4>
@@ -71,7 +71,7 @@ export const ServicesLandingView: React.FC = () => {
           </div>
 
           <div className="p-4 bg-slate-800/80 rounded-2xl border border-slate-700/60 space-y-2">
-            <Users className="w-6 h-6 text-[#00AEEF] mx-auto" />
+            <Users className="w-6 h-6 text-[#2563EB] mx-auto" />
             <h4 className="text-xs font-extrabold text-white">
               Faculty Training
             </h4>

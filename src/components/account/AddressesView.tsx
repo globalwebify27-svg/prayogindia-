@@ -190,14 +190,14 @@ export const AddressesView: React.FC<AddressesViewProps> = ({
       <div className="max-w-4xl mx-auto py-6 px-4 sm:px-6 space-y-6 text-slate-900 animate-in fade-in duration-200">
         {/* Breadcrumb */}
         <div className="text-xs text-slate-500 flex items-center gap-2 font-medium">
-          <a href="/account" className="text-slate-600 hover:text-[#00AEEF]">
+          <a href="/account" className="text-slate-600 hover:text-[#2563EB]">
             Your Account
           </a>
           <span>›</span>
           <button
             type="button"
             onClick={() => setShowForm(false)}
-            className="text-slate-600 hover:text-[#00AEEF] cursor-pointer"
+            className="text-slate-600 hover:text-[#2563EB] cursor-pointer"
           >
             Your Addresses
           </button>
@@ -211,7 +211,7 @@ export const AddressesView: React.FC<AddressesViewProps> = ({
           <h1 className="text-2xl sm:text-3xl font-bold text-slate-900">
             {editingId ? "Edit address" : "Add a new address"}
           </h1>
-          <p className="text-xs text-[#00AEEF] flex items-center gap-1.5 mt-1 font-medium">
+          <p className="text-xs text-[#2563EB] flex items-center gap-1.5 mt-1 font-medium">
             <span className="w-4 h-4 rounded-full bg-amber-500 text-white font-bold flex items-center justify-center text-[10px]">
               P
             </span>
@@ -281,7 +281,7 @@ export const AddressesView: React.FC<AddressesViewProps> = ({
               required
               value={form.name}
               onChange={(e) => handleFormChange("name", e.target.value)}
-              className="w-full bg-white border border-slate-300 focus:border-[#00AEEF] focus:ring-1 focus:ring-[#00AEEF] p-2.5 rounded-lg font-medium text-slate-900 outline-none transition-all"
+              className="w-full bg-white border border-slate-300 focus:border-[#2563EB] focus:ring-1 focus:ring-[#2563EB] p-2.5 rounded-lg font-medium text-slate-900 outline-none transition-all"
             />
           </div>
 
@@ -296,7 +296,7 @@ export const AddressesView: React.FC<AddressesViewProps> = ({
               maxLength={10}
               value={form.phone}
               onChange={(e) => handleFormChange("phone", e.target.value)}
-              className="w-full bg-white border border-slate-300 focus:border-[#00AEEF] focus:ring-1 focus:ring-[#00AEEF] p-2.5 rounded-lg font-medium text-slate-900 outline-none transition-all"
+              className="w-full bg-white border border-slate-300 focus:border-[#2563EB] focus:ring-1 focus:ring-[#2563EB] p-2.5 rounded-lg font-medium text-slate-900 outline-none transition-all"
             />
             <p className="text-[11px] text-slate-500 mt-1">
               May be used to assist delivery
@@ -315,7 +315,7 @@ export const AddressesView: React.FC<AddressesViewProps> = ({
               placeholder="6 digits [0-9] PIN code"
               value={form.pincode}
               onChange={(e) => handleFormChange("pincode", e.target.value)}
-              className="w-full bg-white border border-slate-300 focus:border-[#00AEEF] focus:ring-1 focus:ring-[#00AEEF] p-2.5 rounded-lg font-medium text-slate-900 outline-none transition-all"
+              className="w-full bg-white border border-slate-300 focus:border-[#2563EB] focus:ring-1 focus:ring-[#2563EB] p-2.5 rounded-lg font-medium text-slate-900 outline-none transition-all"
             />
           </div>
 
@@ -329,7 +329,7 @@ export const AddressesView: React.FC<AddressesViewProps> = ({
               required
               value={form.street}
               onChange={(e) => handleFormChange("street", e.target.value)}
-              className="w-full bg-white border border-slate-300 focus:border-[#00AEEF] focus:ring-1 focus:ring-[#00AEEF] p-2.5 rounded-lg font-medium text-slate-900 outline-none transition-all"
+              className="w-full bg-white border border-slate-300 focus:border-[#2563EB] focus:ring-1 focus:ring-[#2563EB] p-2.5 rounded-lg font-medium text-slate-900 outline-none transition-all"
             />
           </div>
 
@@ -341,7 +341,7 @@ export const AddressesView: React.FC<AddressesViewProps> = ({
             <input
               type="text"
               placeholder=""
-              className="w-full bg-white border border-slate-300 focus:border-[#00AEEF] focus:ring-1 focus:ring-[#00AEEF] p-2.5 rounded-lg font-medium text-slate-900 outline-none transition-all"
+              className="w-full bg-white border border-slate-300 focus:border-[#2563EB] focus:ring-1 focus:ring-[#2563EB] p-2.5 rounded-lg font-medium text-slate-900 outline-none transition-all"
             />
           </div>
 
@@ -353,7 +353,7 @@ export const AddressesView: React.FC<AddressesViewProps> = ({
             <input
               type="text"
               placeholder="E.g. near apollo hospital"
-              className="w-full bg-white border border-slate-300 focus:border-[#00AEEF] focus:ring-1 focus:ring-[#00AEEF] p-2.5 rounded-lg font-medium text-slate-900 outline-none transition-all"
+              className="w-full bg-white border border-slate-300 focus:border-[#2563EB] focus:ring-1 focus:ring-[#2563EB] p-2.5 rounded-lg font-medium text-slate-900 outline-none transition-all"
             />
           </div>
 
@@ -368,7 +368,7 @@ export const AddressesView: React.FC<AddressesViewProps> = ({
                 required
                 value={form.city}
                 onChange={(e) => handleFormChange("city", e.target.value)}
-                className="w-full bg-white border border-slate-300 focus:border-[#00AEEF] focus:ring-1 focus:ring-[#00AEEF] p-2.5 rounded-lg font-medium text-slate-900 outline-none transition-all"
+                className="w-full bg-white border border-slate-300 focus:border-[#2563EB] focus:ring-1 focus:ring-[#2563EB] p-2.5 rounded-lg font-medium text-slate-900 outline-none transition-all"
               />
             </div>
             <div>
@@ -378,7 +378,7 @@ export const AddressesView: React.FC<AddressesViewProps> = ({
               <select
                 value={form.state}
                 onChange={(e) => handleFormChange("state", e.target.value)}
-                className="w-full bg-white border border-slate-300 focus:border-[#00AEEF] focus:ring-1 focus:ring-[#00AEEF] p-2.5 rounded-lg font-medium text-slate-900 outline-none transition-all"
+                className="w-full bg-white border border-slate-300 focus:border-[#2563EB] focus:ring-1 focus:ring-[#2563EB] p-2.5 rounded-lg font-medium text-slate-900 outline-none transition-all"
               >
                 <option value="">Choose a state</option>
                 {[
@@ -437,7 +437,7 @@ export const AddressesView: React.FC<AddressesViewProps> = ({
                   onClick={() => handleFormChange("type", t)}
                   className={`px-4 py-1.5 rounded-full font-bold text-xs transition-colors cursor-pointer ${
                     form.type === t
-                      ? "bg-[#00AEEF] text-white"
+                      ? "bg-[#2563EB] text-white"
                       : "bg-slate-100 text-slate-700 hover:bg-slate-200"
                   }`}
                 >
@@ -453,7 +453,7 @@ export const AddressesView: React.FC<AddressesViewProps> = ({
               type="checkbox"
               checked={!!form.isDefault}
               onChange={(e) => handleFormChange("isDefault", e.target.checked)}
-              className="w-4 h-4 rounded text-[#00AEEF] accent-[#00AEEF] cursor-pointer"
+              className="w-4 h-4 rounded text-[#2563EB] accent-[#2563EB] cursor-pointer"
             />
             <span>Make this my default address</span>
           </label>
@@ -463,7 +463,7 @@ export const AddressesView: React.FC<AddressesViewProps> = ({
             <button
               type="submit"
               disabled={saving}
-              className="bg-[#00AEEF] hover:bg-[#0096D6] text-white px-8 py-3 rounded-xl font-bold text-xs shadow-xs active:scale-95 disabled:opacity-50 flex items-center gap-2 cursor-pointer transition-all"
+              className="bg-[#2563EB] hover:bg-[#1D4ED8] text-white px-8 py-3 rounded-xl font-bold text-xs shadow-xs active:scale-95 disabled:opacity-50 flex items-center gap-2 cursor-pointer transition-all"
             >
               {saving && <Loader2 className="w-3 h-3 animate-spin" />}
               {editingId ? "Save Address" : "Add address"}
@@ -495,7 +495,7 @@ export const AddressesView: React.FC<AddressesViewProps> = ({
         </div>
         <button
           onClick={openAddForm}
-          className="bg-[#00AEEF] hover:bg-[#0096D6] text-white px-4 py-2.5 rounded-xl text-xs font-extrabold flex items-center gap-1.5 transition-colors self-start sm:self-auto cursor-pointer"
+          className="bg-[#2563EB] hover:bg-[#1D4ED8] text-white px-4 py-2.5 rounded-xl text-xs font-extrabold flex items-center gap-1.5 transition-colors self-start sm:self-auto cursor-pointer"
         >
           <Plus className="w-4 h-4" />
           <span>Add New Address</span>
@@ -541,7 +541,7 @@ export const AddressesView: React.FC<AddressesViewProps> = ({
               key={addr.id}
               className={`p-5 rounded-2xl border transition-all space-y-3 relative ${
                 addr.isDefault
-                  ? "bg-[#E0F7FC]/40 border-[#00AEEF]"
+                  ? "bg-blue-50/50 border-[#2563EB]"
                   : "bg-white border-slate-200 hover:border-slate-300"
               }`}
             >
@@ -550,7 +550,7 @@ export const AddressesView: React.FC<AddressesViewProps> = ({
                   {addr.type}
                 </span>
                 {addr.isDefault && (
-                  <span className="bg-[#00AEEF] text-white text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                  <span className="bg-[#2563EB] text-white text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full flex items-center gap-1">
                     <CheckCircle2 className="w-3 h-3" /> Default
                   </span>
                 )}
@@ -573,7 +573,7 @@ export const AddressesView: React.FC<AddressesViewProps> = ({
                 {!addr.isDefault && (
                   <button
                     onClick={() => handleSetDefault(addr.id)}
-                    className="font-bold text-[#00AEEF] hover:underline"
+                    className="font-bold text-[#2563EB] hover:underline"
                   >
                     Set as Default
                   </button>

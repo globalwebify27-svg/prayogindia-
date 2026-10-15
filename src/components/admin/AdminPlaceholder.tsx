@@ -22,7 +22,7 @@ export default function AdminPlaceholderPage({ title }: { title: string }) {
       </div>
 
       <div className="bg-white rounded-2xl border border-slate-200 p-8 shadow-2xs text-center space-y-3">
-        <div className="w-12 h-12 rounded-full bg-[#E0F7FC] text-[#00AEEF] flex items-center justify-center mx-auto">
+        <div className="w-12 h-12 rounded-full bg-blue-50 text-[#2563EB] border border-blue-200/60 flex items-center justify-center mx-auto">
           <FolderTree className="w-6 h-6" />
         </div>
         <h3 className="text-sm font-extrabold text-slate-900">

@@ -150,7 +150,7 @@ export const BRANDS_LIST: BrandPartner[] = [
     badge: "Authorized Partner",
     productCount: 12,
     featured: true,
-    accentColor: "#00AEEF",
+    accentColor: "#2563EB",
     popularItems: ["Pixhawk 6C Autopilot", "M9N High-Precision GPS", "SiK Telemetry Radio", "PM02 Power Module"],
   },
   {
@@ -315,7 +315,7 @@ export const BrandsView: React.FC = () => {
 
         <div className="relative z-10 p-4 sm:p-5 lg:px-7 lg:py-4 max-w-2xl space-y-2.5">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="text-[9px] font-black uppercase tracking-widest text-[#00AEEF] bg-white/90 backdrop-blur-md px-2.5 py-0.5 rounded-full inline-block shadow-2xs border border-sky-100/80">
+            <span className="text-[9px] font-black uppercase tracking-widest text-[#2563EB] bg-white/90 backdrop-blur-md px-2.5 py-0.5 rounded-full inline-block shadow-2xs border border-blue-100/80">
               OFFICIAL HARDWARE ECOSYSTEM
             </span>
             <span className="text-[11px] text-slate-500 font-bold hidden sm:inline">
@@ -335,7 +335,7 @@ export const BrandsView: React.FC = () => {
           {/* 4 Trust Feature Badges Row */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1.5">
             <div className="flex items-center gap-1.5 p-1.5 px-2 rounded-lg bg-white/90 backdrop-blur-md border border-slate-100 shadow-2xs">
-              <div className="w-6 h-6 rounded-md bg-sky-50 text-[#00AEEF] flex items-center justify-center shrink-0">
+              <div className="w-6 h-6 rounded-md bg-blue-50 text-[#2563EB] flex items-center justify-center shrink-0">
                 <ShieldCheck className="w-3.5 h-3.5 stroke-[2.2]" />
               </div>
               <div className="leading-tight">
@@ -404,7 +404,7 @@ export const BrandsView: React.FC = () => {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search brands, microcontrollers, AI boards (e.g. Jetson, ESP32, Pixhawk)..."
-              className="w-full bg-slate-50 border border-slate-200 rounded-full pl-9.5 pr-8 py-2 text-xs text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:border-[#00AEEF] focus:ring-2 focus:ring-[#00AEEF]/15 transition-all font-medium"
+              className="w-full bg-slate-50 border border-slate-200 rounded-full pl-9.5 pr-8 py-2 text-xs text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/15 transition-all font-medium"
             />
             {searchQuery && (
               <button
@@ -462,7 +462,7 @@ export const BrandsView: React.FC = () => {
                 onClick={() => setActiveCategory(tab.key)}
                 className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 shrink-0 cursor-pointer ${
                   isActive
-                    ? "bg-[#00AEEF] text-white shadow-xs"
+                    ? "bg-[#2563EB] text-white shadow-xs"
                     : "bg-slate-100 hover:bg-slate-200/80 text-slate-600"
                 }`}
               >
@@ -486,7 +486,7 @@ export const BrandsView: React.FC = () => {
               setActiveCategory("all");
               setActiveBadge("all");
             }}
-            className="text-xs font-bold text-[#00AEEF] hover:underline cursor-pointer"
+            className="text-xs font-bold text-[#2563EB] hover:underline cursor-pointer"
           >
             Reset Filters
           </button>
@@ -505,7 +505,7 @@ export const BrandsView: React.FC = () => {
               setActiveCategory("all");
               setActiveBadge("all");
             }}
-            className="text-xs font-black text-[#00AEEF] hover:underline cursor-pointer"
+            className="text-xs font-black text-[#2563EB] hover:underline cursor-pointer"
           >
             Clear all filters
           </button>
@@ -521,7 +521,7 @@ export const BrandsView: React.FC = () => {
               viewport={{ once: true }}
               className="h-full"
             >
-              <div className="bg-white rounded-3xl border border-slate-200/90 p-5 flex flex-col justify-between hover:border-[#00AEEF] hover:shadow-xl hover:shadow-sky-500/10 transition-all duration-300 relative group h-full">
+              <div className="bg-white rounded-3xl border border-slate-200/90 p-5 flex flex-col justify-between hover:border-[#2563EB] hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-300 relative group h-full">
                 <div className="space-y-3.5">
                   {/* Card Header: Brand Monogram Box + Partner Badge & Country */}
                   <div className="flex items-start justify-between gap-2">
@@ -541,7 +541,7 @@ export const BrandsView: React.FC = () => {
                             ? "bg-emerald-50 text-emerald-700 border-emerald-200"
                             : brand.badge === "Proprietary Hardware"
                               ? "bg-amber-50 text-amber-900 border-amber-200"
-                              : "bg-sky-50 text-[#00AEEF] border-sky-200"
+                              : "bg-blue-50 text-[#2563EB] border-blue-200"
                         }`}
                       >
                         {brand.badge}
@@ -557,10 +557,10 @@ export const BrandsView: React.FC = () => {
 
                   {/* Brand Title & Technical Specialty */}
                   <div>
-                    <h3 className="text-base font-black text-slate-900 group-hover:text-[#00AEEF] transition-colors flex items-center gap-1.5">
+                    <h3 className="text-base font-black text-slate-900 group-hover:text-[#2563EB] transition-colors flex items-center gap-1.5">
                       <span>{brand.name}</span>
                     </h3>
-                    <span className="text-[11px] font-bold text-[#00AEEF] block mt-0.5">
+                    <span className="text-[11px] font-bold text-[#2563EB] block mt-0.5">
                       {brand.category}
                     </span>
                   </div>
@@ -596,7 +596,7 @@ export const BrandsView: React.FC = () => {
 
                   <Link
                     href={`/products?brand=${encodeURIComponent(brand.name)}`}
-                    className="inline-flex items-center gap-1 text-xs font-black text-[#00AEEF] group-hover:text-[#0086B8] hover:underline transition-all group/link"
+                    className="inline-flex items-center gap-1 text-xs font-black text-[#2563EB] group-hover:text-[#1D4ED8] hover:underline transition-all group/link"
                   >
                     <span>Browse Hardware</span>
                     <ArrowRight className="w-3.5 h-3.5 group-hover/link:translate-x-1 transition-transform" />
@@ -609,7 +609,7 @@ export const BrandsView: React.FC = () => {
       )}
 
       {/* ── 5. Institutional & Brand Partnership CTA Banner ── */}
-      <div className="bg-gradient-to-r from-[#00AEEF] via-[#0096D6] to-[#1E56A0] text-white rounded-3xl p-8 sm:p-10 shadow-xl relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-6">
+      <div className="bg-gradient-to-r from-blue-700 via-blue-600 to-[#2563EB] text-white rounded-3xl p-8 sm:p-10 shadow-xl relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-6">
         <div className="space-y-2 max-w-2xl">
           <span className="bg-[#FFC20E] text-slate-950 text-[10px] font-black uppercase px-3 py-1 rounded-full inline-block">
             OEM PARTNERSHIP &amp; B2B PROCUREMENT

@@ -193,7 +193,7 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
           <span className="text-slate-300">•</span>
           <a
             href="#reviews-tab"
-            className="text-xs font-medium text-slate-500 hover:text-[#00AEEF] transition-colors cursor-pointer"
+            className="text-xs font-medium text-slate-500 hover:text-[#2563EB] transition-colors cursor-pointer"
           >
             ({product.reviews || 389} reviews)
           </a>
@@ -219,7 +219,7 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
               alert("Product link copied to clipboard!");
             }
           }}
-          className="flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-[#00AEEF] bg-slate-100/80 hover:bg-slate-100 px-3 py-1 rounded-full transition-colors cursor-pointer"
+          className="flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-[#2563EB] bg-slate-100/80 hover:bg-slate-100 px-3 py-1 rounded-full transition-colors cursor-pointer"
           title="Share Product"
         >
           <Share2 className="w-3.5 h-3.5" />
@@ -307,7 +307,7 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
                 onClick={() => onSelectVariant(variant)}
                 className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all border cursor-pointer ${
                   selectedVariant?.id === variant.id
-                    ? "border-[#00AEEF] bg-[#E0F7FC] text-[#00AEEF] ring-2 ring-[#00AEEF]/20"
+                    ? "border-[#2563EB] bg-blue-50 text-[#2563EB] ring-2 ring-blue-500/20"
                     : "border-slate-200 hover:border-slate-300 text-slate-700 bg-white"
                 }`}
               >
@@ -345,7 +345,7 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
               if (pincodeStatus !== "idle") setPincodeStatus("idle");
             }}
             placeholder="Enter 6-digit pincode"
-            className="flex-1 px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#00AEEF] transition-all"
+            className="flex-1 px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#2563EB] transition-all"
           />
           <button
             type="submit"
@@ -380,7 +380,7 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
       {/* ── 4 Trust Badges Strip (Matches Screenshot) ── */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 py-3 border-y border-slate-100">
         <div className="flex items-center gap-2.5 text-left">
-          <ShieldCheck className="w-5 h-5 text-[#00AEEF] shrink-0" />
+          <ShieldCheck className="w-5 h-5 text-[#2563EB] shrink-0" />
           <div className="text-[11px] font-bold text-slate-800 leading-tight">
             Genuine Product
             <span className="block font-medium text-slate-500 text-[10px]">
@@ -390,7 +390,7 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
         </div>
 
         <div className="flex items-center gap-2.5 text-left">
-          <FileText className="w-5 h-5 text-[#00AEEF] shrink-0" />
+          <FileText className="w-5 h-5 text-[#2563EB] shrink-0" />
           <div className="text-[11px] font-bold text-slate-800 leading-tight">
             GST Invoice
             <span className="block font-medium text-slate-500 text-[10px]">
@@ -400,7 +400,7 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
         </div>
 
         <div className="flex items-center gap-2.5 text-left">
-          <Package className="w-5 h-5 text-[#00AEEF] shrink-0" />
+          <Package className="w-5 h-5 text-[#2563EB] shrink-0" />
           <div className="text-[11px] font-bold text-slate-800 leading-tight">
             Secure Packaging
             <span className="block font-medium text-slate-500 text-[10px]">
@@ -410,7 +410,7 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
         </div>
 
         <div className="flex items-center gap-2.5 text-left">
-          <Headphones className="w-5 h-5 text-[#00AEEF] shrink-0" />
+          <Headphones className="w-5 h-5 text-[#2563EB] shrink-0" />
           <div className="text-[11px] font-bold text-slate-800 leading-tight">
             Technical Support
             <span className="block font-medium text-slate-500 text-[10px]">
@@ -453,24 +453,24 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
                 </div>
               </div>
 
-              {/* Add to Cart Button */}
+              {/* Add to Cart Button (Matches Home Popular Products card button style) */}
               <button
                 onClick={() => onAddToCart(product, quantity)}
-                className="flex-1 bg-[#00AEEF] hover:bg-[#0096D6] text-white py-3 px-3 sm:py-3.5 sm:px-5 rounded-xl font-extrabold text-xs uppercase tracking-wider transition-all shadow-md shadow-[#00AEEF]/20 flex items-center justify-center gap-1.5 active:scale-95 cursor-pointer whitespace-nowrap"
+                className="flex-1 border-2 border-[#2563EB] text-[#2563EB] hover:bg-[#2563EB] hover:text-white py-3 px-3 sm:py-3.5 sm:px-5 rounded-xl font-extrabold text-xs uppercase tracking-wider transition-all duration-150 shadow-xs flex items-center justify-center gap-1.5 active:scale-95 cursor-pointer whitespace-nowrap"
               >
                 <ShoppingBag className="w-4 h-4 shrink-0" />
                 <span>ADD TO CART</span>
               </button>
             </div>
 
-            {/* Buy Now Button */}
+            {/* Buy Now Button (Royal Blue style like Home/QuickView) */}
             <button
               onClick={() =>
                 onBuyNow
                   ? onBuyNow(product, quantity)
                   : onAddToCart(product, quantity)
               }
-              className="w-full sm:flex-1 bg-[#0A1128] hover:bg-slate-800 text-white py-3 px-4 sm:py-3.5 sm:px-5 rounded-xl font-extrabold text-xs uppercase tracking-wider transition-all shadow-md flex items-center justify-center gap-1.5 active:scale-95 cursor-pointer"
+              className="w-full sm:flex-1 bg-[#2563EB] hover:bg-blue-700 text-white py-3 px-4 sm:py-3.5 sm:px-5 rounded-xl font-extrabold text-xs uppercase tracking-wider transition-all shadow-md shadow-blue-500/20 flex items-center justify-center gap-1.5 active:scale-95 cursor-pointer"
             >
               <span>BUY NOW</span>
             </button>
@@ -510,7 +510,7 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
             href={getWhatsAppInquiryUrl()}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-2 text-slate-700 hover:text-[#00AEEF] transition-colors cursor-pointer"
+            className="flex items-center gap-2 text-slate-700 hover:text-[#2563EB] transition-colors cursor-pointer"
           >
             <MessageSquare className="w-4 h-4 text-slate-500" />
             <span>Ask an Expert</span>

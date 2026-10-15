@@ -86,13 +86,13 @@ export const ProductTabsSection: React.FC<ProductTabsSectionProps> = ({
           onClick={() => setActiveTab("overview")}
           className={`pb-3 sm:pb-3.5 px-3 sm:px-4 text-xs sm:text-sm font-bold sm:font-extrabold transition-all relative whitespace-nowrap shrink-0 cursor-pointer ${
             activeTab === "overview"
-              ? "text-[#00AEEF]"
+              ? "text-[#2563EB]"
               : "text-slate-600 hover:text-slate-900"
           }`}
         >
           Overview
           {activeTab === "overview" && (
-            <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#00AEEF] rounded-t-full" />
+            <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#2563EB] rounded-t-full" />
           )}
         </button>
 
@@ -100,13 +100,13 @@ export const ProductTabsSection: React.FC<ProductTabsSectionProps> = ({
           onClick={() => setActiveTab("specifications")}
           className={`pb-3 sm:pb-3.5 px-3 sm:px-4 text-xs sm:text-sm font-bold sm:font-extrabold transition-all relative whitespace-nowrap shrink-0 cursor-pointer ${
             activeTab === "specifications"
-              ? "text-[#00AEEF]"
+              ? "text-[#2563EB]"
               : "text-slate-600 hover:text-slate-900"
           }`}
         >
           Specifications
           {activeTab === "specifications" && (
-            <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#00AEEF] rounded-t-full" />
+            <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#2563EB] rounded-t-full" />
           )}
         </button>
 
@@ -114,13 +114,13 @@ export const ProductTabsSection: React.FC<ProductTabsSectionProps> = ({
           onClick={() => setActiveTab("box")}
           className={`pb-3 sm:pb-3.5 px-3 sm:px-4 text-xs sm:text-sm font-bold sm:font-extrabold transition-all relative whitespace-nowrap shrink-0 cursor-pointer ${
             activeTab === "box"
-              ? "text-[#00AEEF]"
+              ? "text-[#2563EB]"
               : "text-slate-600 hover:text-slate-900"
           }`}
         >
           What&apos;s in the Box
           {activeTab === "box" && (
-            <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#00AEEF] rounded-t-full" />
+            <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#2563EB] rounded-t-full" />
           )}
         </button>
 
@@ -128,13 +128,13 @@ export const ProductTabsSection: React.FC<ProductTabsSectionProps> = ({
           onClick={() => setActiveTab("compatibility")}
           className={`pb-3 sm:pb-3.5 px-3 sm:px-4 text-xs sm:text-sm font-bold sm:font-extrabold transition-all relative whitespace-nowrap shrink-0 cursor-pointer ${
             activeTab === "compatibility"
-              ? "text-[#00AEEF]"
+              ? "text-[#2563EB]"
               : "text-slate-600 hover:text-slate-900"
           }`}
         >
           Compatibility
           {activeTab === "compatibility" && (
-            <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#00AEEF] rounded-t-full" />
+            <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#2563EB] rounded-t-full" />
           )}
         </button>
 
@@ -142,13 +142,13 @@ export const ProductTabsSection: React.FC<ProductTabsSectionProps> = ({
           onClick={() => setActiveTab("reviews")}
           className={`pb-3 sm:pb-3.5 px-3 sm:px-4 text-xs sm:text-sm font-bold sm:font-extrabold transition-all relative whitespace-nowrap shrink-0 cursor-pointer ${
             activeTab === "reviews"
-              ? "text-[#00AEEF]"
+              ? "text-[#2563EB]"
               : "text-slate-600 hover:text-slate-900"
           }`}
         >
           Reviews ({product.reviews || 389})
           {activeTab === "reviews" && (
-            <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#00AEEF] rounded-t-full" />
+            <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#2563EB] rounded-t-full" />
           )}
         </button>
 
@@ -156,13 +156,13 @@ export const ProductTabsSection: React.FC<ProductTabsSectionProps> = ({
           onClick={() => setActiveTab("faq")}
           className={`pb-3 sm:pb-3.5 px-3 sm:px-4 text-xs sm:text-sm font-bold sm:font-extrabold transition-all relative whitespace-nowrap shrink-0 cursor-pointer ${
             activeTab === "faq"
-              ? "text-[#00AEEF]"
+              ? "text-[#2563EB]"
               : "text-slate-600 hover:text-slate-900"
           }`}
         >
           FAQ
           {activeTab === "faq" && (
-            <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#00AEEF] rounded-t-full" />
+            <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#2563EB] rounded-t-full" />
           )}
         </button>
       </div>
@@ -262,7 +262,7 @@ export const ProductTabsSection: React.FC<ProductTabsSectionProps> = ({
                 <button
                   type="button"
                   onClick={() => setActiveTab("specifications")}
-                  className="inline-flex items-center gap-1 text-xs font-extrabold text-[#00AEEF] hover:underline cursor-pointer pt-1"
+                  className="inline-flex items-center gap-1 text-xs font-extrabold text-[#2563EB] hover:underline cursor-pointer pt-1"
                 >
                   <span>View all specifications</span>
                   <ChevronRight className="w-3.5 h-3.5" />
@@ -335,7 +335,7 @@ export const ProductTabsSection: React.FC<ProductTabsSectionProps> = ({
                     idx > 0 ? "border-t border-slate-200/80" : ""
                   }`}
                 >
-                  <div className="w-6 h-6 rounded-full bg-[#00AEEF]/10 text-[#00AEEF] text-xs font-black flex items-center justify-center shrink-0">
+                  <div className="w-6 h-6 rounded-full bg-[#2563EB]/10 text-[#2563EB] text-xs font-black flex items-center justify-center shrink-0">
                     {idx + 1}
                   </div>
                   <span>{item}</span>
@@ -362,7 +362,7 @@ export const ProductTabsSection: React.FC<ProductTabsSectionProps> = ({
                     key={idx}
                     className="bg-sky-50 text-sky-800 text-xs font-extrabold px-3.5 py-2 rounded-xl border border-sky-200 flex items-center gap-1.5"
                   >
-                    <ChevronRight className="w-3.5 h-3.5 text-[#00AEEF]" />
+                    <ChevronRight className="w-3.5 h-3.5 text-[#2563EB]" />
                     {app}
                   </span>
                 ))}
@@ -421,7 +421,7 @@ export const ProductTabsSection: React.FC<ProductTabsSectionProps> = ({
                       className="w-full flex items-center justify-between p-4 text-left font-bold text-xs sm:text-sm text-slate-900 bg-slate-50/50 hover:bg-slate-100/60 cursor-pointer"
                     >
                       <span className="flex items-center gap-2">
-                        <HelpCircle className="w-4 h-4 text-[#00AEEF] shrink-0" />
+                        <HelpCircle className="w-4 h-4 text-[#2563EB] shrink-0" />
                         {item.q}
                       </span>
                       <ChevronDown

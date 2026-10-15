@@ -99,7 +99,7 @@ export const DealsProductShowcase: React.FC = () => {
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <div className="w-2.5 h-6 bg-[#00AEEF] rounded-full" />
+            <div className="w-2.5 h-6 bg-[#2563EB] rounded-full" />
             <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2">
               <span>All Discounted Products &amp; Hardware</span>
               <Zap className="w-5 h-5 text-amber-500 fill-amber-400" />
@@ -120,7 +120,7 @@ export const DealsProductShowcase: React.FC = () => {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search deal products..."
-              className="w-full bg-slate-50 text-xs pl-10 pr-8 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-[#00AEEF] focus:bg-white transition-all"
+              className="w-full bg-slate-50 text-xs pl-10 pr-8 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-[#2563EB] focus:bg-white transition-all"
             />
             {searchQuery && (
               <button
@@ -177,7 +177,7 @@ export const DealsProductShowcase: React.FC = () => {
             onClick={() => setPriceFilter(priceFilter === "under999" ? "all" : "under999")}
             className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${
               priceFilter === "under999"
-                ? "bg-[#00AEEF] text-white"
+                ? "bg-[#2563EB] text-white"
                 : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-100"
             }`}
           >
@@ -187,7 +187,7 @@ export const DealsProductShowcase: React.FC = () => {
             onClick={() => setPriceFilter(priceFilter === "under2999" ? "all" : "under2999")}
             className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${
               priceFilter === "under2999"
-                ? "bg-[#00AEEF] text-white"
+                ? "bg-[#2563EB] text-white"
                 : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-100"
             }`}
           >
@@ -197,7 +197,7 @@ export const DealsProductShowcase: React.FC = () => {
             onClick={() => setPriceFilter(priceFilter === "above2999" ? "all" : "above2999")}
             className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${
               priceFilter === "above2999"
-                ? "bg-[#00AEEF] text-white"
+                ? "bg-[#2563EB] text-white"
                 : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-100"
             }`}
           >
@@ -236,7 +236,7 @@ export const DealsProductShowcase: React.FC = () => {
               setSelectedCategory("all");
               setPriceFilter("all");
             }}
-            className="text-xs font-bold text-[#00AEEF] bg-[#E0F7FC] hover:bg-[#c9f1fa] px-4 py-2 rounded-xl transition-colors cursor-pointer"
+            className="text-xs font-bold text-[#2563EB] bg-blue-50 hover:bg-blue-100 px-4 py-2 rounded-xl transition-colors cursor-pointer"
           >
             Clear All Filters
           </button>
