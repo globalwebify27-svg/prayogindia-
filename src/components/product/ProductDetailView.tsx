@@ -15,7 +15,6 @@ import {
   ShoppingCart,
   ArrowLeft,
   PackageSearch,
-  Zap,
   Check,
   Heart,
 } from "lucide-react";
@@ -320,13 +319,12 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
                 )}
               </button>
 
-              {/* Buy Now Button — Prayog Deep Navy #0A1128 with Gold Accent Zap */}
+              {/* Buy Now Button — Prayog Deep Navy #0A1128 */}
               <button
                 type="button"
                 onClick={() => handleBuyNow(product, 1)}
                 className="h-11 sm:h-12 rounded-xl bg-[#0A1128] hover:bg-slate-900 text-white font-black text-xs sm:text-[13px] uppercase tracking-wider flex items-center justify-center gap-1.5 sm:gap-2 shadow-md shadow-slate-950/25 active:scale-95 transition-all cursor-pointer whitespace-nowrap"
               >
-                <Zap className="w-4 h-4 shrink-0 fill-[#FFC20E] text-[#FFC20E]" />
                 <span>BUY NOW</span>
               </button>
             </div>

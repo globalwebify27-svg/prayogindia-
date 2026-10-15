@@ -239,8 +239,10 @@ export const ProductGridSection: React.FC<ProductSectionProps> = ({
               id: item.id,
               slug: item.slug || item.id,
               name: item.name,
-              sku: item.sku || `SKU-${item.id.slice(0, 6)}`,
-              brand: item.brand || "Prayog India",
+              brand:
+                item.brand && item.brand.trim().toLowerCase() !== "prayog india"
+                  ? item.brand
+                  : undefined,
               category: item.category?.name || "Robotics & Components",
               price: item.price,
               mrp: item.mrp || item.price * 1.2,
@@ -381,9 +383,6 @@ export const ProductGridSection: React.FC<ProductSectionProps> = ({
               </h2>
               <div className="hidden sm:block w-10 h-1 bg-[#2563EB] rounded-full" />
             </div>
-            <p className="text-xs sm:text-sm text-slate-500 font-normal mt-0.5">
-              Quality robotics, development boards, and electronic components.
-            </p>
           </div>
 
           <button

@@ -13,9 +13,13 @@ import {
   ExternalLink,
   ShieldCheck,
   AlertCircle,
+  AlertTriangle,
+  RotateCcw,
+  Phone,
   ArrowRight,
 } from "lucide-react";
 import { useStore } from "@/context/StoreContext";
+import { TruckLoader } from "@/components/TruckLoader";
 
 export const TrackOrderView: React.FC = () => {
   const { user, isLoggedIn } = useStore();
@@ -23,77 +27,59 @@ export const TrackOrderView: React.FC = () => {
   const [searched, setSearched] = useState(false);
   const [loading, setLoading] = useState(false);
   const [trackingResult, setTrackingResult] = useState<any>(null);
+  const [errorMessage, setErrorMessage] = useState<{ query: string; message: string } | null>(null);
 
-  const handleSearch = (e: React.FormEvent) => {
+  const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!query.trim()) return;
+    const clean = query.trim();
+    if (!clean) return;
 
     setLoading(true);
     setSearched(true);
+    setTrackingResult(null);
+    setErrorMessage(null);
 
-    setTimeout(() => {
-      // Mock lookup simulation or dynamic response
-      const clean = query.trim().toUpperCase();
-      setTrackingResult({
-        orderNumber: clean.startsWith("ORD-") ? clean : `ORD-${clean.slice(0, 8)}`,
-        awb: clean.startsWith("DEL-") || clean.startsWith("SR-") ? clean : `DEL-${Math.floor(100000000 + Math.random() * 900000000)}`,
-        courier: "Delhivery Surface Express",
-        courierCode: "delhivery",
-        estimatedDelivery: "In 2 Business Days",
-        destination: "Bengaluru, Karnataka (560103)",
-        status: "In Transit - Out for Local Hub Transfer",
-        currentLocation: "Bengaluru Central Air Cargo Hub",
-        checkpoints: [
-          {
-            title: "Order Placed & Confirmed",
-            time: "Yesterday, 04:30 PM",
-            location: "Prayog Hardware Dispatch Hub, Delhi",
-            done: true,
-          },
-          {
-            title: "Quality Tested & Packed in Anti-Static Enclosure",
-            time: "Yesterday, 07:15 PM",
-            location: "Prayog STEM Fulfilment Centre",
-            done: true,
-          },
-          {
-            title: "Handed over to Delhivery Logistics",
-            time: "Today, 02:40 AM",
-            location: "Delhi Linehaul Sorting Facility",
-            done: true,
-          },
-          {
-            title: "Arrived at Destination Hub (In Transit)",
-            time: "Today, 11:20 AM",
-            location: "Bengaluru Cargo Hub, Karnataka",
-            done: true,
-            current: true,
-          },
-          {
-            title: "Out for Final Lab Delivery",
-            time: "Expected Tomorrow, 10:00 AM",
-            location: "Local Express Delivery Courier Desk",
-            done: false,
-          },
-          {
-            title: "Delivered to Customer / Institution",
-            time: "Estimated by 2:00 PM",
-            location: "Designated Delivery Address",
-            done: false,
-          },
-        ],
-      });
-      setLoading(false);
-    }, 600);
+    const startTime = Date.now();
+
+    try {
+      const res = await fetch(`/api/orders/track?q=${encodeURIComponent(clean)}`);
+      const data = await res.json();
+
+      // Ensure at least 1100ms so user can see the animated truck loader
+      const elapsed = Date.now() - startTime;
+      const remainingDelay = Math.max(0, 1100 - elapsed);
+
+      setTimeout(() => {
+        if (res.ok && data.success && data.data) {
+          setTrackingResult(data.data);
+          setErrorMessage(null);
+        } else {
+          setTrackingResult(null);
+          setErrorMessage({
+            query: clean,
+            message:
+              data.message ||
+              `We couldn't find any active dispatch or courier record matching "${clean}".`,
+          });
+        }
+        setLoading(false);
+      }, remainingDelay);
+    } catch {
+      setTimeout(() => {
+        setTrackingResult(null);
+        setErrorMessage({
+          query: clean,
+          message: "Unable to connect to courier server. Please try again in a few moments.",
+        });
+        setLoading(false);
+      }, 900);
+    }
   };
 
   return (
     <div className="max-w-4xl mx-auto py-10 px-4 sm:px-6 space-y-8 text-slate-900">
       {/* Header Banner */}
       <div className="text-center space-y-3">
-        <div className="inline-flex items-center gap-2 bg-blue-50 text-[#2563EB] px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-wider border border-blue-200/60">
-          <Truck className="w-4 h-4" /> Live Courier Logistics Tracker
-        </div>
         <h1 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">
           Track Your Order
         </h1>
@@ -110,7 +96,10 @@ export const TrackOrderView: React.FC = () => {
             <input
               type="text"
               value={query}
-              onChange={(e) => setQuery(e.target.value)}
+              onChange={(e) => {
+                setQuery(e.target.value);
+                if (errorMessage) setErrorMessage(null);
+              }}
               placeholder="Enter Order ID / AWB Number / Mobile No..."
               className="w-full pl-11 pr-4 py-3.5 rounded-2xl border border-slate-200 text-sm font-semibold focus:outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/10 transition-all text-slate-900 placeholder:text-slate-400"
               required
@@ -119,10 +108,13 @@ export const TrackOrderView: React.FC = () => {
           <button
             type="submit"
             disabled={loading}
-            className="bg-[#2563EB] hover:bg-[#1D4ED8] text-white px-8 py-3.5 rounded-2xl text-xs font-black uppercase tracking-wider transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer active:scale-98 disabled:opacity-50"
+            className="bg-[#2563EB] hover:bg-[#1D4ED8] text-white px-8 py-3.5 rounded-2xl text-xs font-black uppercase tracking-wider transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer active:scale-98 disabled:opacity-75 disabled:cursor-wait"
           >
             {loading ? (
-              <span>Tracking...</span>
+              <>
+                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                <span>Tracking...</span>
+              </>
             ) : (
               <>
                 <Truck className="w-4 h-4" />
@@ -131,27 +123,79 @@ export const TrackOrderView: React.FC = () => {
             )}
           </button>
         </form>
-
-        {/* Quick Sample Queries */}
-        <div className="flex flex-wrap items-center gap-2 mt-4 text-[11px] text-slate-500 pt-3 border-t border-slate-100">
-          <span className="font-bold">Try example:</span>
-          {["ORD-9821-DEL", "DEL-849201948", "SR-77391024"].map((sample) => (
-            <button
-              key={sample}
-              type="button"
-              onClick={() => {
-                setQuery(sample);
-              }}
-              className="bg-slate-100 hover:bg-blue-50 hover:text-[#2563EB] px-2.5 py-1 rounded-lg font-mono font-bold text-slate-700 transition-colors"
-            >
-              {sample}
-            </button>
-          ))}
-        </div>
       </div>
 
+      {/* Animated Truck Loader during Search */}
+      {loading && (
+        <TruckLoader
+          message={`Locating Order #${query.trim().toUpperCase() || "SHIPMENT"}...`}
+        />
+      )}
+
+      {/* Invalid Order / Order Not Found View */}
+      {!loading && searched && errorMessage && (
+        <div className="bg-white rounded-3xl border border-rose-200 p-6 sm:p-8 shadow-sm space-y-6 animate-in fade-in slide-in-from-bottom-3 duration-200">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 border-b border-rose-100 pb-5">
+            <div className="w-12 h-12 rounded-2xl bg-rose-50 border border-rose-200 flex items-center justify-center text-rose-600 shrink-0">
+              <AlertCircle className="w-6 h-6" />
+            </div>
+            <div className="space-y-1">
+              <span className="text-[10px] font-black uppercase tracking-widest text-rose-600 bg-rose-50 px-2.5 py-0.5 rounded-full border border-rose-200/60">
+                Order Record Not Found
+              </span>
+              <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+                No Shipment Found for &ldquo;<span className="text-rose-600">{errorMessage.query}</span>&rdquo;
+              </h2>
+              <p className="text-xs sm:text-sm text-slate-500">
+                {errorMessage.message}
+              </p>
+            </div>
+          </div>
+
+          <div className="bg-amber-50/70 border border-amber-200/80 rounded-2xl p-4 sm:p-5 space-y-2.5 text-xs">
+            <h4 className="font-bold uppercase tracking-wider text-[11px] text-amber-800 flex items-center gap-2">
+              <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
+              Please check the following suggestions:
+            </h4>
+            <ul className="space-y-1.5 text-slate-600 list-disc list-inside">
+              <li>
+                <strong className="text-slate-800">Check Order ID format:</strong> Prayog Order IDs start with <span className="font-mono font-bold text-slate-800">ORD-</span> (e.g., <code className="bg-amber-100/70 px-1.5 py-0.5 rounded text-amber-900 font-mono font-semibold">ORD-9821-DEL</code>).
+              </li>
+              <li>
+                <strong className="text-slate-800">Air Waybill (AWB):</strong> Courier tracking codes typically start with <span className="font-mono font-bold text-slate-800">DEL-</span> (Delhivery) or <span className="font-mono font-bold text-slate-800">SR-</span> (Shiprocket).
+              </li>
+              <li>
+                <strong className="text-slate-800">Recent orders:</strong> If placed within the last 2–4 hours, dispatch data may still be synchronizing with the carrier linehaul network.
+              </li>
+            </ul>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-3 pt-2">
+            <button
+              type="button"
+              onClick={() => {
+                setQuery("");
+                setErrorMessage(null);
+                setSearched(false);
+              }}
+              className="bg-[#2563EB] hover:bg-[#1D4ED8] text-white px-5 py-2.5 rounded-xl text-xs font-bold transition-all shadow-sm flex items-center gap-2 cursor-pointer active:scale-98"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              <span>Try Another Number</span>
+            </button>
+            <a
+              href="tel:+91912345678"
+              className="bg-slate-100 hover:bg-slate-200 text-slate-800 px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2"
+            >
+              <Phone className="w-3.5 h-3.5 text-slate-600" />
+              <span>Contact Support: +91 912345678</span>
+            </a>
+          </div>
+        </div>
+      )}
+
       {/* Tracking Result View */}
-      {searched && trackingResult && (
+      {!loading && searched && trackingResult && (
         <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm space-y-6 animate-in fade-in slide-in-from-bottom-3 duration-200">
           {/* Top Status Strip */}
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-6">

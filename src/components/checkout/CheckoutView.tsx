@@ -256,6 +256,10 @@ export const CheckoutView: React.FC = () => {
   const [placedOrderNumber, setPlacedOrderNumber] = useState<string | null>(
     null,
   );
+  const [placedOrderTotal, setPlacedOrderTotal] = useState<number>(0);
+  const [placedOrderAddress, setPlacedOrderAddress] = useState<Address | null>(
+    null,
+  );
 
   // ── Customer Type Change
   const handleCustomerTypeChange = (newType: CustomerType) => {
@@ -644,6 +648,8 @@ export const CheckoutView: React.FC = () => {
       redeemRewardPoints(rewardPointsAvailable);
     }
 
+    setPlacedOrderTotal(grandTotal);
+    setPlacedOrderAddress(selectedAddr);
     clearCart();
     setPlacedOrderNumber(confirmedOrderNumber);
     setIsOrderPlacedDemo(true);
@@ -653,68 +659,227 @@ export const CheckoutView: React.FC = () => {
   // ── Order Confirmation Screen
   if (isOrderPlacedDemo) {
     return (
-      <div className="max-w-lg mx-auto py-12 px-4 text-center space-y-6 animate-in fade-in duration-300">
-        <div className="w-16 h-16 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto border border-emerald-100 shadow-xs">
-          <CheckCircle2 className="w-8 h-8" />
-        </div>
-
-        <div className="space-y-1.5">
-          <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
-            Thank you for your order!
-          </h1>
-          <p className="text-xs text-slate-500 max-w-sm mx-auto">
-            We’ve received your order and are preparing it for shipment.
-          </p>
-        </div>
-
-        {/* Clean Summary Card */}
-        <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-2xs text-left space-y-4">
-          <div className="flex justify-between items-center pb-3 border-b border-slate-100">
-            <div>
-              <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
-                Order Number
-              </span>
-              <span className="font-mono font-extrabold text-slate-900 text-sm">
-                {placedOrderNumber}
-              </span>
+      <div className="max-w-2xl mx-auto py-8 sm:py-12 px-4 sm:px-6 space-y-6 sm:space-y-7 animate-in fade-in duration-300">
+        {/* Top Hero: Success Badge & Heading */}
+        <div className="text-center space-y-3">
+          <div className="relative inline-flex items-center justify-center">
+            <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-emerald-500/15 border-4 border-emerald-500/20 flex items-center justify-center">
+              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-emerald-600 text-white flex items-center justify-center shadow-lg shadow-emerald-600/30">
+                <Check className="w-8 h-8 sm:w-9 sm:h-9 stroke-[3]" />
+              </div>
             </div>
-            <span className="bg-emerald-50 text-emerald-700 text-xs font-bold px-3 py-1 rounded-full border border-emerald-100">
-              Confirmed
-            </span>
           </div>
 
-          <div className="space-y-2.5 text-xs">
-            <div className="flex justify-between items-center text-slate-600">
-              <span>Payment</span>
-              <span className="font-bold text-slate-800 uppercase">
-                {paymentMethod === "cod" ? "Cash on Delivery" : `${paymentMethod.toUpperCase()} (Paid)`}
-              </span>
+          <div className="space-y-1">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200/80 text-emerald-800 text-[11px] font-extrabold uppercase tracking-wider mb-1">
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+              <span>Order Successfully Placed</span>
             </div>
-            <div className="flex justify-between items-center text-slate-600">
-              <span>Delivery</span>
-              <span className="font-medium text-slate-800">
-                {effectiveDeliveryMethod === "ranchi_24h"
-                  ? "Ranchi 24-Hour Express"
-                  : effectiveDeliveryMethod === "store_pickup"
-                    ? "In-Store Pickup"
-                    : "Standard Surface Express (2-4 Days)"}
-              </span>
-            </div>
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-[#0A1128] tracking-tight">
+              Thank you for your order!
+            </h1>
+            <p className="text-xs sm:text-sm text-slate-500 max-w-md mx-auto">
+              We&apos;ve received your order and our robotics logistics team is preparing it for shipment.
+            </p>
           </div>
         </div>
 
-        {/* Action Buttons */}
-        <div className="flex flex-col sm:flex-row justify-center gap-3 pt-2">
+        {/* ── Main Order Details Card (Prayog Theme) ── */}
+        <div className="bg-white border border-slate-200/90 rounded-3xl shadow-sm overflow-hidden">
+          {/* Prayog Deep Navy Header Strip */}
+          <div className="bg-[#0A1128] text-white p-4 sm:p-5 flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-[#FFC20E] text-[#0A1128] flex items-center justify-center font-black text-xs shadow-xs">
+                PRG
+              </div>
+              <div>
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">
+                  ORDER REFERENCE
+                </span>
+                <span className="font-mono font-black text-white text-base sm:text-lg tracking-wider">
+                  {placedOrderNumber}
+                </span>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <span className="inline-flex items-center gap-1.5 bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 px-3 py-1 rounded-full text-xs font-bold">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                <span>Confirmed</span>
+              </span>
+              {placedOrderTotal > 0 && (
+                <span className="bg-white/10 text-white font-extrabold text-xs px-3 py-1 rounded-full">
+                  ₹{placedOrderTotal.toLocaleString("en-IN")}
+                </span>
+              )}
+            </div>
+          </div>
+
+          {/* 4-Step Visual Progress Bar */}
+          <div className="p-4 sm:p-6 border-b border-slate-100 bg-slate-50/70">
+            <div className="flex items-center justify-between text-center relative">
+              {/* Connector Line */}
+              <div className="absolute left-6 right-6 top-3.5 h-0.5 bg-slate-200 -z-0" />
+              <div
+                className="absolute left-6 top-3.5 h-0.5 bg-emerald-500 -z-0 transition-all duration-500"
+                style={{ width: "33%" }}
+              />
+
+              {/* Step 1: Placed */}
+              <div className="relative z-10 flex flex-col items-center">
+                <div className="w-7 h-7 rounded-full bg-emerald-600 text-white flex items-center justify-center text-xs font-bold shadow-xs">
+                  <Check className="w-4 h-4 stroke-[2.5]" />
+                </div>
+                <span className="text-[10px] sm:text-xs font-bold text-slate-900 mt-1.5">
+                  Placed
+                </span>
+                <span className="text-[9px] text-emerald-600 font-semibold hidden sm:block">
+                  Just now
+                </span>
+              </div>
+
+              {/* Step 2: Processing */}
+              <div className="relative z-10 flex flex-col items-center">
+                <div className="w-7 h-7 rounded-full bg-[#0A1128] text-[#FFC20E] flex items-center justify-center text-xs font-black shadow-xs ring-4 ring-[#0A1128]/10">
+                  2
+                </div>
+                <span className="text-[10px] sm:text-xs font-bold text-slate-900 mt-1.5">
+                  Processing
+                </span>
+                <span className="text-[9px] text-slate-500 hidden sm:block">
+                  Warehouse
+                </span>
+              </div>
+
+              {/* Step 3: Shipped */}
+              <div className="relative z-10 flex flex-col items-center">
+                <div className="w-7 h-7 rounded-full bg-white border-2 border-slate-300 text-slate-400 flex items-center justify-center text-xs font-bold">
+                  3
+                </div>
+                <span className="text-[10px] sm:text-xs font-medium text-slate-500 mt-1.5">
+                  Shipped
+                </span>
+                <span className="text-[9px] text-slate-400 hidden sm:block">
+                  Express
+                </span>
+              </div>
+
+              {/* Step 4: Delivered */}
+              <div className="relative z-10 flex flex-col items-center">
+                <div className="w-7 h-7 rounded-full bg-white border-2 border-slate-300 text-slate-400 flex items-center justify-center text-xs font-bold">
+                  4
+                </div>
+                <span className="text-[10px] sm:text-xs font-medium text-slate-500 mt-1.5">
+                  Delivered
+                </span>
+                <span className="text-[9px] text-slate-400 hidden sm:block">
+                  Doorstep
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Key Order Specs Grid */}
+          <div className="p-4 sm:p-6 grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+            {/* Payment Spec */}
+            <div className="flex items-start gap-3 p-3.5 bg-slate-50 rounded-2xl border border-slate-100">
+              <div className="w-8 h-8 rounded-xl bg-blue-100/80 text-[#2563EB] flex items-center justify-center shrink-0">
+                <CreditCard className="w-4 h-4" />
+              </div>
+              <div className="min-w-0">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+                  Payment Method
+                </span>
+                <span className="font-extrabold text-slate-900 block truncate">
+                  {paymentMethod === "cod"
+                    ? "Cash on Delivery"
+                    : `${paymentMethod.toUpperCase()} (Paid Online)`}
+                </span>
+                <span className="text-[11px] text-emerald-600 font-semibold block mt-0.5">
+                  Verified & Logged
+                </span>
+              </div>
+            </div>
+
+            {/* Delivery Spec */}
+            <div className="flex items-start gap-3 p-3.5 bg-slate-50 rounded-2xl border border-slate-100">
+              <div className="w-8 h-8 rounded-xl bg-amber-100/80 text-amber-800 flex items-center justify-center shrink-0">
+                <Truck className="w-4 h-4" />
+              </div>
+              <div className="min-w-0">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+                  Delivery Method
+                </span>
+                <span className="font-extrabold text-slate-900 block truncate">
+                  {effectiveDeliveryMethod === "ranchi_24h"
+                    ? "Ranchi 24-Hour Express"
+                    : effectiveDeliveryMethod === "store_pickup"
+                      ? "In-Store Pickup"
+                      : "Standard Surface Express (2-4 Days)"}
+                </span>
+                <span className="text-[11px] text-slate-500 block mt-0.5">
+                  Tracking sent via SMS & Email
+                </span>
+              </div>
+            </div>
+
+            {/* Shipping Address Spec */}
+            {placedOrderAddress && (
+              <div className="sm:col-span-2 flex items-start gap-3 p-3.5 bg-slate-50 rounded-2xl border border-slate-100">
+                <div className="w-8 h-8 rounded-xl bg-purple-100/80 text-purple-700 flex items-center justify-center shrink-0">
+                  <MapPin className="w-4 h-4" />
+                </div>
+                <div className="min-w-0">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+                    Delivery Address
+                  </span>
+                  <p className="font-bold text-slate-900 truncate">
+                    {placedOrderAddress.name} ({placedOrderAddress.phone})
+                  </p>
+                  <p className="text-slate-600 text-[11px] truncate mt-0.5">
+                    {placedOrderAddress.street}, {placedOrderAddress.city}, {placedOrderAddress.state} - {placedOrderAddress.pincode}
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* ── Help & Support Strip ── */}
+        <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-blue-50 text-[#2563EB] flex items-center justify-center shrink-0">
+              <Phone className="w-4 h-4" />
+            </div>
+            <div className="text-left">
+              <p className="font-bold text-slate-800">Need help or changes to this order?</p>
+              <p className="text-slate-500 text-[11px]">Helpline: +91 912345678 (Mon–Sat, 9 AM – 8 PM)</p>
+            </div>
+          </div>
+          <a
+            href={`https://wa.me/91912345678?text=${encodeURIComponent(
+              `Hello Prayog India Team, I placed order ${placedOrderNumber || ""} and need assistance.`
+            )}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="bg-[#25D366] hover:bg-[#20bd5a] text-white px-4 py-2 rounded-xl font-bold text-xs flex items-center gap-1.5 shadow-xs transition-all active:scale-95 shrink-0"
+          >
+            <span>WhatsApp Support</span>
+          </a>
+        </div>
+
+        {/* ── Action Buttons (Prayog Navy + Yellow Theme) ── */}
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
           <Link
             href="/account/orders"
-            className="bg-[#2563EB] hover:bg-[#1D4ED8] text-white px-6 py-2.5 rounded-xl text-xs font-bold transition-all shadow-2xs flex items-center justify-center gap-1.5 active:scale-95"
+            className="w-full sm:w-auto bg-[#0A1128] hover:bg-slate-900 text-white font-black px-7 py-3.5 rounded-xl text-xs sm:text-[13px] uppercase tracking-wider transition-all shadow-md shadow-slate-950/20 flex items-center justify-center gap-2 active:scale-95 cursor-pointer"
           >
             <span>View My Orders</span>
-            <ArrowRight className="w-4 h-4" />
+            <ArrowRight className="w-4 h-4 text-[#FFC20E]" />
           </Link>
           <Link
             href="/products"
-            className="bg-slate-100 hover:bg-slate-200 text-slate-700 px-6 py-2.5 rounded-xl text-xs font-bold transition-colors flex items-center justify-center"
+            className="w-full sm:w-auto bg-white hover:bg-slate-50 text-slate-800 border-2 border-slate-200 hover:border-slate-300 font-extrabold px-6 py-3.5 rounded-xl text-xs sm:text-[13px] transition-all flex items-center justify-center cursor-pointer active:scale-95"
           >
             <span>Continue Shopping</span>
           </Link>

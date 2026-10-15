@@ -256,10 +256,12 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         className="flex-1 flex flex-col justify-between space-y-0.5 sm:space-y-1 block cursor-pointer"
       >
         <div className="space-y-0.5 sm:space-y-1">
-          {/* Brand Name (Bold Uppercase) */}
-          <div className="text-[9px] sm:text-xs font-black text-slate-900 tracking-wider uppercase truncate">
-            {product.brand || "PRAYOG INDIA"}
-          </div>
+          {/* Brand Name (Only show if distinct third-party brand and not Prayog India) */}
+          {product.brand && product.brand.trim().toLowerCase() !== "prayog india" && (
+            <div className="text-[9px] sm:text-xs font-black text-slate-900 tracking-wider uppercase truncate">
+              {product.brand}
+            </div>
+          )}
 
           {/* Product Name Subtitle (Medium weight, 2 lines clamp on mobile) */}
           <h3 className="text-[11px] sm:text-sm font-medium text-slate-700 line-clamp-2 min-h-[1.25rem] sm:h-9 group-hover:text-[#2563EB] transition-colors leading-tight sm:leading-snug">

@@ -396,9 +396,11 @@ export const BrowsingHistorySection: React.FC<BrowsingHistorySectionProps> = ({
                     </div>
 
                     {/* Brand Name */}
-                    <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 truncate">
-                      {prod.brand || "PRAYOG INDIA"}
-                    </div>
+                    {prod.brand && prod.brand.trim().toLowerCase() !== "prayog india" && (
+                      <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 truncate">
+                        {prod.brand}
+                      </div>
+                    )}
 
                     {/* Product Title */}
                     <Link

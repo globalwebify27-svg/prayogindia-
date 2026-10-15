@@ -24,6 +24,7 @@ import {
   Layers,
   Sparkles,
   Award,
+  Coins,
   Tag,
   BookOpen,
   Briefcase,
@@ -1368,8 +1369,8 @@ export const Header: React.FC<HeaderProps> = ({
                               <div className="text-[11px] text-slate-400 truncate">
                                 {user.email || "user@prayogindia.com"}
                               </div>
-                              <div className="mt-1 inline-flex items-center gap-1 text-[10px] bg-amber-50 text-amber-700 font-bold px-2 py-0.5 rounded-md border border-amber-200/60">
-                                <Sparkles className="w-3 h-3 text-[#FFC20E]" />
+                              <div className="mt-1 inline-flex items-center gap-1.5 text-[10px] bg-amber-50 text-amber-800 font-bold px-2 py-0.5 rounded-md border border-amber-200/80">
+                                <Coins className="w-3.5 h-3.5 text-amber-600 shrink-0" />
                                 <span>{user.rewardPoints || 0} Reward Points</span>
                               </div>
                             </div>

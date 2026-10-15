@@ -91,7 +91,10 @@ function ProductsContent() {
               slug: item.slug || item.id,
               name: item.name,
               sku: item.sku || `SKU-${item.id.slice(0, 6)}`,
-              brand: item.brand || "Prayog India",
+              brand:
+                item.brand && item.brand.trim().toLowerCase() !== "prayog india"
+                  ? item.brand
+                  : undefined,
               category: item.category?.name || "Robotics & Components",
               price: item.price,
               mrp: item.mrp || item.price * 1.2,

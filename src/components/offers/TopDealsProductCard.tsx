@@ -148,7 +148,9 @@ export const TopDealsProductCard: React.FC<TopDealsProductCardProps> = ({
           {/* Category & Brand Subtitle */}
           <div className="flex items-center justify-between text-[9px] font-bold text-slate-400">
             <span className="uppercase tracking-wider truncate text-[#2563EB] max-w-[110px]">
-              {product.brand || product.category}
+              {product.brand && product.brand.trim().toLowerCase() !== "prayog india"
+                ? product.brand
+                : product.category}
             </span>
             <span className="font-mono text-slate-400 text-[8.5px]">
               SKU: {product.sku?.replace("PRG-", "") || "HW"}

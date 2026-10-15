@@ -17,7 +17,6 @@ import {
   Share2,
   Info,
   X,
-  Zap,
 } from "lucide-react";
 import { Product, ProductVariant } from "@/data/mockData";
 
@@ -475,7 +474,6 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
                 }
                 className="w-full sm:flex-1 bg-[#0A1128] hover:bg-slate-900 text-white py-3 px-4 sm:py-3.5 sm:px-5 rounded-xl font-black text-xs uppercase tracking-wider transition-all shadow-md shadow-slate-950/20 flex items-center justify-center gap-2 active:scale-95 cursor-pointer"
               >
-                <Zap className="w-4 h-4 fill-[#FFC20E] text-[#FFC20E] shrink-0" />
                 <span>BUY NOW</span>
               </button>
             </div>

@@ -593,10 +593,12 @@ const PopularProductCard: React.FC<PopularProductCardProps> = ({
           href={`/products/${product.slug || product.id}`}
           className="block cursor-pointer space-y-1"
         >
-          {/* Brand Name (Clean Slate Title Case) */}
-          <div className="text-xs sm:text-[13px] text-slate-500 font-normal leading-tight truncate">
-            {product.brand || "Prayog India"}
-          </div>
+          {/* Brand Name (Only show if distinct brand and not Prayog India) */}
+          {product.brand && product.brand.trim().toLowerCase() !== "prayog india" && (
+            <div className="text-xs sm:text-[13px] text-slate-500 font-normal leading-tight truncate">
+              {product.brand}
+            </div>
+          )}
 
           {/* Product Title (Bold Dark Slate/Black) */}
           <h3 className="text-xs sm:text-[14px] font-bold text-slate-900 line-clamp-2 group-hover:text-[#2563EB] transition-colors leading-snug">
@@ -743,9 +745,6 @@ export const FeaturedCategories: React.FC<Props> = ({
                 </h2>
                 <div className="hidden sm:block w-10 h-1 bg-[#FFC20E] rounded-full" />
               </div>
-              <p className="text-[11px] sm:text-sm text-slate-500 mt-0.5 sm:mt-1">
-                Do not miss the current offers until the end of March.
-              </p>
             </div>
           </div>
 

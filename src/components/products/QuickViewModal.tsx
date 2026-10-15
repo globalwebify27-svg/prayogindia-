@@ -8,7 +8,6 @@ import {
   X,
   Star,
   ShoppingCart,
-  Zap,
   Heart,
   Check,
   CheckCircle,
@@ -681,7 +680,6 @@ const QuickViewModalContent: React.FC<{
                   onClick={handleBuyNow}
                   className="flex items-center justify-center gap-1.5 bg-[#0A1128] hover:bg-slate-900 text-white py-3 rounded-xl text-xs font-black uppercase tracking-wider shadow-md shadow-slate-950/20 transition-all active:scale-95 cursor-pointer"
                 >
-                  <Zap className="w-3.5 h-3.5 fill-[#FFC20E] text-[#FFC20E]" />
                   <span>BUY NOW</span>
                 </button>
               </div>

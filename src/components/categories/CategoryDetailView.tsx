@@ -22,8 +22,6 @@ import {
   X,
   Search,
   SlidersHorizontal,
-  Sparkles,
-  ShieldCheck,
 } from "lucide-react";
 import { useStore } from "@/context/StoreContext";
 
@@ -255,55 +253,8 @@ export const CategoryDetailView: React.FC<CategoryDetailProps> = ({
         </button>
       </div>
 
-      {/* 2. Desktop Category Header Hero Banner */}
-      <div className="hidden sm:block relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-br from-white via-sky-50/20 to-slate-50 border border-slate-200/80 shadow-xs p-6 sm:p-8 lg:p-10">
-        <div
-          className="absolute inset-0 opacity-[0.03] pointer-events-none"
-          style={{
-            backgroundImage: `radial-gradient(#2563EB 1.5px, transparent 1.5px)`,
-            backgroundSize: "20px 20px",
-          }}
-        />
-        <div className="absolute -top-24 -right-24 w-80 h-80 rounded-full bg-[#2563EB]/8 blur-3xl pointer-events-none" />
-
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6 lg:gap-10">
-          <div className="space-y-3.5 max-w-2xl">
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-[#2563EB]/10 text-[#1D4ED8] border border-[#2563EB]/20">
-                <Sparkles className="w-3.5 h-3.5 text-[#2563EB]" />
-                {category.productCount.toLocaleString()}+ Hardware Items
-              </span>
-              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200/60">
-                <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-                100% Genuine Certified
-              </span>
-            </div>
-
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 tracking-tight">
-              {category.name}
-            </h1>
-
-            <p className="text-xs sm:text-sm text-slate-600 leading-relaxed max-w-xl">
-              {category.fullDescription || category.shortDescription}
-            </p>
-          </div>
-
-          {category.image && (
-            <div className="relative shrink-0 self-center md:self-auto hidden sm:block">
-              <div className="relative w-48 h-32 sm:w-56 sm:h-36 lg:w-64 lg:h-40 rounded-2xl overflow-hidden bg-white border border-slate-200/80 shadow-md p-2 group">
-                <div className="relative w-full h-full rounded-xl overflow-hidden bg-slate-50">
-                  <Image
-                    src={category.image}
-                    alt={category.name}
-                    fill
-                    className="object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
+      {/* Category Heading for Screen Readers & SEO */}
+      <h1 className="sr-only">{category.name}</h1>
 
       {/* 3. Mobile Subcategories: Clean Horizontal Scrollable Filter Chips */}
       {category.subcategories.length > 0 && (
