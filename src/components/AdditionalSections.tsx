@@ -76,9 +76,6 @@ export const LearningHubSection: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
           <div>
-            <div className="inline-block bg-amber-50 text-[#D4AF37] text-xs font-extrabold tracking-widest uppercase px-3.5 py-1 rounded-full mb-3 border border-amber-200/60">
-              LEARNING HUB
-            </div>
             <h2 className="text-3xl sm:text-4xl font-extrabold text-[#0A1128] tracking-tight">
               Learn. Build. Experiment.
             </h2>
@@ -448,10 +445,6 @@ export const TestimonialsSection: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto space-y-2.5">
-          <div className="inline-flex items-center gap-1.5 bg-blue-50 text-[#2563EB] text-[11px] font-black tracking-widest uppercase px-3.5 py-1 rounded-full border border-blue-200/60">
-            <CheckCircle2 className="w-3.5 h-3.5" /> VERIFIED CUSTOMER REVIEWS
-            &amp; BUILDS
-          </div>
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 tracking-tight">
             Trusted by 5,000+ Innovators, Labs &amp; Schools
           </h2>

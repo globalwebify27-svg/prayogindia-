@@ -95,22 +95,22 @@ export const RoboticsCollectionShowcase: React.FC<Props> = ({
                   loading={idx < 2 ? "eager" : "lazy"}
                 />
 
-                {/* 2. Subtle Dark Gradient Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-b from-black/65 via-black/25 to-black/90 pointer-events-none group-hover:opacity-90 transition-opacity duration-500" />
+                {/* 2. Dark Gradient Overlay for Maximum Text Legibility */}
+                <div className="absolute inset-0 bg-gradient-to-b from-black/75 via-black/35 to-black/90 pointer-events-none group-hover:from-black/85 group-hover:via-black/50 group-hover:to-black/95 transition-all duration-500" />
 
                 {/* 3. Card Content */}
                 <div className="relative z-10 h-full flex flex-col justify-between items-start p-5 sm:p-7 pointer-events-none">
                   {/* Top-Left Heading & Reveal Subtitle */}
                   <div className="space-y-2 max-w-full">
-                    <span className="text-[10px] font-semibold uppercase tracking-wider text-[#2563EB] bg-black/50 backdrop-blur-md px-2.5 py-1 rounded-full border border-white/15 inline-flex items-center gap-1.5 shadow-sm whitespace-nowrap">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-blue-300 bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-full border border-white/20 inline-flex items-center gap-1.5 shadow-sm whitespace-nowrap">
                       <Icon className="w-3 h-3 shrink-0" />
                       {card.category}
                     </span>
-                    <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-white leading-tight tracking-tight group-hover:text-[#2563EB] transition-colors duration-300">
+                    <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-white leading-tight tracking-tight drop-shadow-md">
                       {card.title}
                     </h3>
                     {/* Expandable description on hover */}
-                    <p className="text-xs text-slate-300 line-clamp-2 max-w-xs opacity-0 sm:group-hover:opacity-100 transition-opacity duration-500 delay-100 leading-relaxed hidden sm:block">
+                    <p className="text-xs sm:text-sm text-white/90 font-medium line-clamp-2 max-w-xs opacity-0 sm:group-hover:opacity-100 transition-opacity duration-500 delay-100 leading-relaxed hidden sm:block drop-shadow-sm">
                       {card.description}
                     </p>
                   </div>

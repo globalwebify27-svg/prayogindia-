@@ -348,6 +348,24 @@ export const ProductGridSection: React.FC<ProductSectionProps> = ({
     );
   }, [selectedCategory, liveProducts]);
 
+  const top10 = useMemo(() => displayedProducts.slice(0, 10), [displayedProducts]);
+
+  const row1Products = useMemo(() => [
+    top10[0],
+    top10[1],
+    top10[4],
+    top10[5],
+    top10[8],
+  ].filter(Boolean), [top10]);
+
+  const row2Products = useMemo(() => [
+    top10[2],
+    top10[3],
+    top10[6],
+    top10[7],
+    top10[9],
+  ].filter(Boolean), [top10]);
+
   return (
     <section
       id="featured-products"
@@ -410,15 +428,53 @@ export const ProductGridSection: React.FC<ProductSectionProps> = ({
           })}
         </div>
 
-        {/* 2-Row Responsive Product Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4.5">
-          {displayedProducts.slice(0, 10).map((product, index) => (
+        {/* Mobile: 2 Independent Swipeable Rows */}
+        <div className="sm:hidden space-y-3">
+          {/* Row 1 */}
+          <div className="flex gap-3 items-stretch overflow-x-auto pb-1 scrollbar-none snap-x snap-mandatory touch-pan-x -mx-3.5 px-3.5">
+            {row1Products.map((product) => (
+              <div
+                key={product.id}
+                className="w-[165px] xs:w-[178px] shrink-0 snap-start h-full flex flex-col"
+              >
+                <ProductCard
+                  product={product}
+                  onAddToCart={onAddToCart}
+                  onToggleWishlist={onToggleWishlist}
+                  onQuickView={onQuickView}
+                  isWishlisted={wishlistIds.includes(product.id)}
+                />
+              </div>
+            ))}
+          </div>
+
+          {/* Row 2 */}
+          <div className="flex gap-3 items-stretch overflow-x-auto pb-1 scrollbar-none snap-x snap-mandatory touch-pan-x -mx-3.5 px-3.5">
+            {row2Products.map((product) => (
+              <div
+                key={product.id}
+                className="w-[165px] xs:w-[178px] shrink-0 snap-start h-full flex flex-col"
+              >
+                <ProductCard
+                  product={product}
+                  onAddToCart={onAddToCart}
+                  onToggleWishlist={onToggleWishlist}
+                  onQuickView={onQuickView}
+                  isWishlisted={wishlistIds.includes(product.id)}
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Desktop / Tablet: Responsive Multi-Column Grid */}
+        <div className="hidden sm:grid sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4.5 items-stretch">
+          {top10.map((product, index) => (
             <div
               key={product.id}
-              className={`
-                ${index >= 4 ? "hidden sm:block" : ""}
-                ${index >= 6 ? "hidden md:block" : ""}
-                ${index >= 8 ? "hidden xl:block" : ""}
+              className={`h-full flex flex-col
+                ${index >= 6 ? "sm:hidden md:flex" : ""}
+                ${index >= 8 ? "md:hidden xl:flex" : ""}
               `}
             >
               <ProductCard

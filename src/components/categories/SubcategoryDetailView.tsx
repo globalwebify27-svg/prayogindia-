@@ -2,7 +2,6 @@
 
 import React, { useState, useMemo } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { CategoryBreadcrumb } from "@/components/categories/CategoryBreadcrumb";
 import { ProductCard } from "@/components/products/ProductCard";
 import {
@@ -16,12 +15,10 @@ import { ProductEmptyState } from "@/components/products/ProductEmptyState";
 import { CATEGORIES_DATA } from "@/data/categories";
 import { PRODUCTS, Product } from "@/data/mockData";
 import {
-  ArrowLeft,
   ChevronRight,
   Layers,
   X,
   SlidersHorizontal,
-  Sparkles,
   ShieldCheck,
   ShoppingCart,
 } from "lucide-react";
@@ -192,52 +189,6 @@ export const SubcategoryDetailView: React.FC<SubcategoryDetailProps> = ({
           { label: subcategory.name },
         ]}
       />
-
-      {/* 2. Subcategory Header */}
-      <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-br from-white via-sky-50/20 to-slate-50 border border-slate-200/80 shadow-xs p-6 sm:p-8 lg:p-10">
-        {/* Subtle background ambient glow */}
-        <div className="absolute -top-20 -right-20 w-72 h-72 rounded-full bg-[#2563EB]/8 blur-3xl pointer-events-none" />
-
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6 lg:gap-10">
-          <div className="space-y-3 max-w-2xl">
-            <div className="flex items-center gap-2 flex-wrap">
-              <Link
-                href={`/categories/${category.slug}`}
-                className="text-xs font-bold text-[#2563EB] hover:underline flex items-center gap-1 bg-white px-2.5 py-1 rounded-full border border-slate-200/80 shadow-2xs"
-              >
-                <ArrowLeft className="w-3.5 h-3.5" /> Back to {category.name}
-              </Link>
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-[#2563EB]/10 text-[#1D4ED8] border border-[#2563EB]/20">
-                <Sparkles className="w-3.5 h-3.5 text-[#2563EB]" />
-                {subcategory.productCount} Items Available
-              </span>
-            </div>
-
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 tracking-tight">
-              {subcategory.name}
-            </h1>
-
-            <p className="text-xs sm:text-sm text-slate-600 leading-relaxed max-w-xl">
-              {subcategory.description}
-            </p>
-          </div>
-
-          {subcategory.image && (
-            <div className="relative shrink-0 self-center md:self-auto hidden sm:block">
-              <div className="relative w-48 h-32 sm:w-56 sm:h-36 rounded-2xl overflow-hidden bg-white border border-slate-200/80 shadow-md p-2 group">
-                <div className="relative w-full h-full rounded-xl overflow-hidden bg-slate-50">
-                  <Image
-                    src={subcategory.image}
-                    alt={subcategory.name}
-                    fill
-                    className="object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
 
       {/* 3. Filter Toolbar & Active Chips */}
       <div className="space-y-3 pt-2">

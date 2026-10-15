@@ -26,7 +26,7 @@ export interface ToastData {
   duration?: number;
   product?: Product;
   count?: number;
-  iconType?: "wishlist-add" | "wishlist-remove" | "default";
+  iconType?: "wishlist-add" | "wishlist-remove" | "cart-add" | "default";
 }
 
 interface SuccessToastProps {
@@ -52,11 +52,18 @@ export const SuccessToast: React.FC<SuccessToastProps> = ({
     (toast?.title?.toLowerCase().includes("wishlist") &&
       toast?.type === "info");
 
+  const isCartAdd =
+    toast?.iconType === "cart-add" ||
+    (toast?.title?.toLowerCase().includes("cart") &&
+      toast?.type === "success");
+
+  const isCenterPill = isWishlistAdd || isWishlistRemove || isCartAdd;
+
   useEffect(() => {
     if (!toast || isPaused) return;
 
     const timeoutDuration =
-      isWishlistAdd || isWishlistRemove ? 2000 : (toast.duration || 3500);
+      isCenterPill ? 2000 : (toast.duration || 3500);
 
     const timer = setTimeout(() => {
       onCloseRef.current();
@@ -65,12 +72,12 @@ export const SuccessToast: React.FC<SuccessToastProps> = ({
     return () => {
       clearTimeout(timer);
     };
-  }, [toast?.id, isPaused, isWishlistAdd, isWishlistRemove]);
+  }, [toast?.id, isPaused, isCenterPill]);
 
   return (
     <AnimatePresence mode="wait">
       {toast && (
-        isWishlistAdd || isWishlistRemove ? (
+        isCenterPill ? (
           <aside
             key={toast.id}
             aria-live="polite"
@@ -86,21 +93,23 @@ export const SuccessToast: React.FC<SuccessToastProps> = ({
             >
               <div
                 className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 ${
-                  isWishlistAdd
-                    ? "bg-[#10B981] text-white"
-                    : "bg-slate-700 text-white"
+                  isWishlistRemove
+                    ? "bg-slate-700 text-white"
+                    : "bg-[#10B981] text-white"
                 }`}
               >
-                {isWishlistAdd ? (
-                  <Check className="w-3.5 h-3.5 stroke-[3] text-white" />
-                ) : (
+                {isWishlistRemove ? (
                   <X className="w-3.5 h-3.5 stroke-[3] text-white" />
+                ) : (
+                  <Check className="w-3.5 h-3.5 stroke-[3] text-white" />
                 )}
               </div>
               <span className="text-[14px] sm:text-[15px] font-semibold text-slate-800 tracking-tight">
                 {isWishlistAdd
                   ? "Product added to wishlist!"
-                  : "Product removed from wishlist!"}
+                  : isWishlistRemove
+                    ? "Product removed from wishlist!"
+                    : "Product added to cart!"}
               </span>
             </motion.div>
           </aside>

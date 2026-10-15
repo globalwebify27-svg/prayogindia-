@@ -4,7 +4,6 @@ import React, { useState } from "react";
 import { Header } from "@/components/Header";
 import { FooterSection } from "@/components/FooterSection";
 import { CartDrawer } from "@/components/CartDrawer";
-import { CartToast } from "@/components/CartToast";
 import { SuccessToast } from "@/components/SuccessToast";
 import { B2BModal } from "@/components/Modals";
 import { useStore } from "@/context/StoreContext";
@@ -18,8 +17,6 @@ export const AppShell: React.FC<{ children: React.ReactNode }> = ({
   const {
     cart,
     wishlist,
-    cartNotification,
-    dismissCartNotification,
     toast,
     dismissToast,
     updateQuantity,
@@ -88,12 +85,6 @@ export const AppShell: React.FC<{ children: React.ReactNode }> = ({
       />
 
       <B2BModal isOpen={b2bOpen} onClose={() => setB2bOpen(false)} />
-
-      <CartToast
-        notification={cartNotification}
-        onClose={dismissCartNotification}
-        onOpenCart={() => setCartOpen(true)}
-      />
 
       <SuccessToast toast={toast} onClose={dismissToast} />
     </div>

@@ -18,6 +18,9 @@ import {
   Share2,
   LogIn,
   UserPlus,
+  Eye,
+  EyeOff,
+  AlertCircle,
   Layers,
   Sparkles,
   Award,
@@ -261,7 +264,92 @@ export const Header: React.FC<HeaderProps> = ({
 }) => {
   const router = useRouter();
   const pathname = usePathname();
-  const { user, isLoggedIn, logoutUser, cart } = useStore();
+  const { user, isLoggedIn, loginUser, logoutUser, cart } = useStore();
+
+  // Quick Sign In Dropdown state & hover handlers
+  const accountCloseTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const [quickLoginEmail, setQuickLoginEmail] = useState("");
+  const [quickLoginPassword, setQuickLoginPassword] = useState("");
+  const [quickShowPassword, setQuickShowPassword] = useState(false);
+  const [quickRememberMe, setQuickRememberMe] = useState(false);
+  const [captchaChecked, setCaptchaChecked] = useState(false);
+  const [quickLoginLoading, setQuickLoginLoading] = useState(false);
+  const [quickLoginError, setQuickLoginError] = useState<string | null>(null);
+
+  const isAuthPage =
+    Boolean(pathname?.startsWith("/login")) ||
+    Boolean(pathname?.startsWith("/register"));
+
+  useEffect(() => {
+    setAccountDropdownOpen(false);
+  }, [pathname]);
+
+  const handleAccountMouseEnter = () => {
+    // If the user is already on the login or register page, do not open dropdown on hover
+    if (isAuthPage && !isLoggedIn) return;
+
+    if (accountCloseTimerRef.current) {
+      clearTimeout(accountCloseTimerRef.current);
+      accountCloseTimerRef.current = null;
+    }
+    setAccountDropdownOpen(true);
+  };
+
+  const handleAccountMouseLeave = () => {
+    if (accountCloseTimerRef.current) {
+      clearTimeout(accountCloseTimerRef.current);
+    }
+    accountCloseTimerRef.current = setTimeout(() => {
+      setAccountDropdownOpen(false);
+    }, 250);
+  };
+
+  const handleQuickLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setQuickLoginError(null);
+
+    const clean = quickLoginEmail.trim();
+    if (!clean) {
+      setQuickLoginError("Please enter your email or username");
+      return;
+    }
+    if (!quickLoginPassword) {
+      setQuickLoginError("Please enter your password");
+      return;
+    }
+
+    setQuickLoginLoading(true);
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: clean, password: quickLoginPassword }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        setQuickLoginError(data.message || "Invalid credentials");
+        setQuickLoginLoading(false);
+        return;
+      }
+
+      if (data?.user) {
+        loginUser({
+          name: data.user.name,
+          email: data.user.email,
+          phone: data.user.phone || "+91 98765 43210",
+          customerType: "Registered Customer",
+          rewardPoints: 1250,
+        });
+        setAccountDropdownOpen(false);
+        setQuickLoginPassword("");
+        setQuickLoginError(null);
+      }
+    } catch {
+      setQuickLoginError("Authentication error. Please try again.");
+    } finally {
+      setQuickLoginLoading(false);
+    }
+  };
 
   const cartTotal =
     cart && cart.length > 0
@@ -560,7 +648,7 @@ export const Header: React.FC<HeaderProps> = ({
       {/* Scrolls away on desktop so only the action bar sticks */}
       {/* ======================================================== */}
       <div
-        className="w-full bg-white border-b border-slate-200/90 relative z-30 sticky top-0 lg:static lg:relative"
+        className="w-full bg-white border-b border-slate-200/90 relative z-30 lg:z-50 sticky top-0 lg:relative"
       >
         <div className="w-full px-3.5 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 py-1.5 sm:py-3">
           {/* Mobile Top Header: [ Circular Hamburger ☰ ] [ Centered Logo ] [ Circular Cart with Badge 🛒 ] */}
@@ -1201,10 +1289,18 @@ export const Header: React.FC<HeaderProps> = ({
                 )}
               </Link>
 
-              {/* User Avatar Circle Button */}
-              <div ref={accountMenuRef} className="relative">
+              {/* User Avatar Circle Button with Hover Dropdown */}
+              <div
+                ref={accountMenuRef}
+                onMouseEnter={isAuthPage && !isLoggedIn ? undefined : handleAccountMouseEnter}
+                onMouseLeave={isAuthPage && !isLoggedIn ? undefined : handleAccountMouseLeave}
+                className="relative z-50 py-1"
+              >
                 <button
-                  onClick={() => setAccountDropdownOpen(!accountDropdownOpen)}
+                  onClick={() => {
+                    setAccountDropdownOpen(false);
+                    router.push(isLoggedIn ? "/account" : "/login");
+                  }}
                   className="w-8 h-8 xl:w-9 xl:h-9 rounded-full bg-[#0A233F] hover:bg-[#12365D] text-white flex items-center justify-center cursor-pointer transition-colors shadow-xs"
                   aria-label="Account Menu"
                 >
@@ -1234,191 +1330,274 @@ export const Header: React.FC<HeaderProps> = ({
                 </button>
 
                 {/* Account Dropdown Menu */}
-                {accountDropdownOpen && (
-                  <div className="absolute right-0 top-full mt-2 w-64 bg-white rounded-2xl shadow-xl border border-slate-200/90 p-1.5 z-50 animate-in fade-in zoom-in-95 duration-150 text-xs text-slate-700">
-                    {isLoggedIn && user ? (
-                      <div className="space-y-0.5">
-                        <div className="px-3 py-2.5 flex items-center gap-3">
-                          <div className="w-9 h-9 rounded-full bg-[#0A233F] text-white font-bold text-xs flex items-center justify-center shrink-0 shadow-2xs">
-                            {user.avatarUrl ? (
-                              <img
-                                src={user.avatarUrl}
-                                alt={user.name}
-                                className="w-full h-full rounded-full object-cover"
-                              />
-                            ) : (
-                              <span>
-                                {user.name
-                                  ? user.name
-                                      .trim()
-                                      .split(/\s+/)
-                                      .map((n: string) => n[0])
-                                      .slice(0, 2)
-                                      .join("")
-                                      .toUpperCase()
-                                  : "OK"}
+                {accountDropdownOpen && !(isAuthPage && !isLoggedIn) && (
+                  <div
+                    onMouseEnter={handleAccountMouseEnter}
+                    onMouseLeave={handleAccountMouseLeave}
+                    className="absolute right-0 top-full pt-1.5 z-50 animate-in fade-in zoom-in-95 duration-150 text-xs text-slate-700"
+                  >
+                    <div className="w-[330px] sm:w-[350px] bg-white rounded-2xl shadow-2xl border border-slate-200/90 p-4 sm:p-5 text-slate-900">
+                      {isLoggedIn && user ? (
+                        <div className="space-y-1">
+                          <div className="px-2 py-2 flex items-center gap-3 border-b border-slate-100 pb-3 mb-2">
+                            <div className="w-10 h-10 rounded-full bg-[#0A233F] text-white font-bold text-xs flex items-center justify-center shrink-0 shadow-2xs">
+                              {user.avatarUrl ? (
+                                <img
+                                  src={user.avatarUrl}
+                                  alt={user.name}
+                                  className="w-full h-full rounded-full object-cover"
+                                />
+                              ) : (
+                                <span>
+                                  {user.name
+                                    ? user.name
+                                        .trim()
+                                        .split(/\s+/)
+                                        .map((n: string) => n[0])
+                                        .slice(0, 2)
+                                        .join("")
+                                        .toUpperCase()
+                                    : "OK"}
+                                </span>
+                              )}
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <div className="text-sm font-bold text-slate-900 truncate">
+                                {user.name || "Om Kumar"}
+                              </div>
+                              <div className="text-[11px] text-slate-400 truncate">
+                                {user.email || "user@prayogindia.com"}
+                              </div>
+                              <div className="mt-1 inline-flex items-center gap-1 text-[10px] bg-amber-50 text-amber-700 font-bold px-2 py-0.5 rounded-md border border-amber-200/60">
+                                <Sparkles className="w-3 h-3 text-[#FFC20E]" />
+                                <span>{user.rewardPoints || 0} Reward Points</span>
+                              </div>
+                            </div>
+                          </div>
+
+                          <Link
+                            href="/account/profile"
+                            onClick={() => setAccountDropdownOpen(false)}
+                            className="w-full text-left px-3 py-2 hover:bg-slate-50 hover:text-[#2563EB] rounded-xl transition-colors flex items-center gap-2.5 font-medium text-slate-700 group"
+                          >
+                            <User className="w-4 h-4 text-slate-400 group-hover:text-[#2563EB]" />
+                            <span>My Account</span>
+                          </Link>
+
+                          <Link
+                            href="/account/orders"
+                            onClick={() => setAccountDropdownOpen(false)}
+                            className="w-full text-left px-3 py-2 hover:bg-slate-50 hover:text-[#2563EB] rounded-xl transition-colors flex items-center gap-2.5 font-medium text-slate-700 group"
+                          >
+                            <Package className="w-4 h-4 text-slate-400 group-hover:text-[#2563EB]" />
+                            <span>My Orders</span>
+                          </Link>
+
+                          <Link
+                            href="/wishlist"
+                            onClick={() => setAccountDropdownOpen(false)}
+                            className="w-full text-left px-3 py-2 hover:bg-slate-50 hover:text-[#2563EB] rounded-xl transition-colors flex items-center justify-between font-medium text-slate-700 group"
+                          >
+                            <div className="flex items-center gap-2.5">
+                              <Heart className="w-4 h-4 text-slate-400 group-hover:text-[#2563EB]" />
+                              <span>Wishlist</span>
+                            </div>
+                            {wishlistCount > 0 && (
+                              <span className="text-[10px] bg-rose-50 text-rose-600 font-bold px-1.5 py-0.5 rounded-full">
+                                {wishlistCount}
                               </span>
                             )}
+                          </Link>
+
+                          <Link
+                            href="/track-order"
+                            onClick={() => setAccountDropdownOpen(false)}
+                            className="w-full text-left px-3 py-2 hover:bg-slate-50 hover:text-[#2563EB] rounded-xl transition-colors flex items-center gap-2.5 font-medium text-slate-700 group"
+                          >
+                            <Truck className="w-4 h-4 text-slate-400 group-hover:text-[#2563EB]" />
+                            <span>Track Order</span>
+                          </Link>
+
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setAccountDropdownOpen(false);
+                              if (onOpenB2BModal) {
+                                onOpenB2BModal();
+                              } else {
+                                router.push("/account/quotations");
+                              }
+                            }}
+                            className="w-full text-left px-3 py-2 hover:bg-slate-50 hover:text-[#2563EB] rounded-xl transition-colors flex items-center gap-2.5 font-medium text-slate-700 cursor-pointer group"
+                          >
+                            <Building2 className="w-4 h-4 text-slate-400 group-hover:text-[#2563EB]" />
+                            <span>B2B / Institutional Sales</span>
+                          </button>
+
+                          <div className="border-t border-slate-100 my-1 pt-1" />
+
+                          <button
+                            type="button"
+                            onClick={() => {
+                              logoutUser();
+                              setAccountDropdownOpen(false);
+                              router.push("/login");
+                            }}
+                            className="w-full text-left px-3 py-2 hover:bg-red-50 text-red-600 rounded-xl transition-colors flex items-center gap-2.5 font-semibold cursor-pointer group"
+                          >
+                            <LogOut className="w-4 h-4 text-red-500" />
+                            <span>Logout</span>
+                          </button>
+                        </div>
+                      ) : (
+                        /* ── Guest Quick Sign In Form (Matches Reference Screenshot) ── */
+                        <div className="space-y-4">
+                          {/* Header: Sign in on Left, Create an Account on Right */}
+                          <div className="flex items-baseline justify-between border-b border-slate-100 pb-3">
+                            <h3 className="text-xl font-bold text-slate-900 tracking-tight">
+                              Sign in
+                            </h3>
+                            <Link
+                              href="/register"
+                              onClick={() => setAccountDropdownOpen(false)}
+                              className="text-xs font-semibold text-[#2563EB] hover:text-[#1D4ED8] hover:underline transition-colors"
+                            >
+                              Create an Account
+                            </Link>
                           </div>
-                          <div className="min-w-0 flex-1">
-                            <div className="text-xs font-bold text-slate-900 truncate">
-                              {user.name || "Om Kumar"}
+
+                          {quickLoginError && (
+                            <div className="p-2.5 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs font-medium flex items-center gap-1.5 animate-in fade-in">
+                              <AlertCircle className="w-3.5 h-3.5 shrink-0 text-red-600" />
+                              <span>{quickLoginError}</span>
                             </div>
-                            <div className="text-[11px] text-slate-400 truncate">
-                              {user.email || "user@prayogindia.com"}
+                          )}
+
+                          <form onSubmit={handleQuickLogin} className="space-y-3.5">
+                            {/* Username or Email Address */}
+                            <div className="space-y-1.5 text-left">
+                              <label className="block text-xs font-medium text-slate-800">
+                                Username or email address <span className="text-red-500">*</span>
+                              </label>
+                              <input
+                                type="text"
+                                required
+                                value={quickLoginEmail}
+                                onChange={(e) => setQuickLoginEmail(e.target.value)}
+                                placeholder="Enter your email or username"
+                                className="w-full bg-white text-slate-900 px-3.5 py-2.5 text-xs rounded-xl border border-slate-200 hover:border-slate-300 focus:outline-none focus:border-[#2563EB] focus:ring-1 focus:ring-[#2563EB] transition-all font-medium placeholder:text-slate-400"
+                              />
                             </div>
+
+                            {/* Password with Eye Toggle */}
+                            <div className="space-y-1.5 text-left">
+                              <label className="block text-xs font-medium text-slate-800">
+                                Password <span className="text-red-500">*</span>
+                              </label>
+                              <div className="relative">
+                                <input
+                                  type={quickShowPassword ? "text" : "password"}
+                                  required
+                                  value={quickLoginPassword}
+                                  onChange={(e) => setQuickLoginPassword(e.target.value)}
+                                  placeholder="Enter your password"
+                                  className="w-full bg-white text-slate-900 pl-3.5 pr-10 py-2.5 text-xs rounded-xl border border-slate-200 hover:border-slate-300 focus:outline-none focus:border-[#2563EB] focus:ring-1 focus:ring-[#2563EB] transition-all font-medium placeholder:text-slate-400"
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() => setQuickShowPassword(!quickShowPassword)}
+                                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 cursor-pointer"
+                                  aria-label="Toggle password visibility"
+                                >
+                                  {quickShowPassword ? (
+                                    <EyeOff className="w-4 h-4" />
+                                  ) : (
+                                    <Eye className="w-4 h-4" />
+                                  )}
+                                </button>
+                              </div>
+                            </div>
+
+                            {/* reCAPTCHA Box (Matches Reference Screenshot) */}
+                            <div className="flex items-center justify-between p-2.5 rounded-xl border border-slate-200 bg-slate-50/70 text-slate-700 text-xs">
+                              <label className="flex items-center gap-2.5 cursor-pointer select-none font-medium">
+                                <input
+                                  type="checkbox"
+                                  checked={captchaChecked}
+                                  onChange={(e) => setCaptchaChecked(e.target.checked)}
+                                  className="w-4 h-4 rounded border-slate-300 text-[#0A1128] focus:ring-0 cursor-pointer"
+                                />
+                                <span className="text-xs">I&apos;m not a robot</span>
+                              </label>
+                              <div className="flex flex-col items-center leading-none text-[8px] text-slate-400 select-none">
+                                <svg className="w-5 h-5 text-blue-500 mb-0.5" viewBox="0 0 24 24" fill="currentColor">
+                                  <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm1 14.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-4a1 1 0 0 1-2 0V7a1 1 0 0 1 2 0z"/>
+                                </svg>
+                                <span>reCAPTCHA</span>
+                              </div>
+                            </div>
+
+                            {/* LOG IN Button (Styled in Prayog Deep Navy #0A1128 theme) */}
+                            <button
+                              type="submit"
+                              disabled={quickLoginLoading}
+                              className="w-full bg-[#0A1128] hover:bg-slate-900 active:scale-[0.98] text-white py-3 rounded-xl font-bold text-xs uppercase tracking-wider transition-all shadow-md shadow-slate-950/20 flex items-center justify-center cursor-pointer disabled:opacity-50"
+                            >
+                              {quickLoginLoading ? "Signing In..." : "LOG IN"}
+                            </button>
+
+                            {/* Remember me + Lost your password? */}
+                            <div className="flex items-center justify-between pt-0.5 text-xs text-slate-600">
+                              <label className="flex items-center gap-2 cursor-pointer select-none">
+                                <input
+                                  type="checkbox"
+                                  checked={quickRememberMe}
+                                  onChange={(e) => setQuickRememberMe(e.target.checked)}
+                                  className="w-3.5 h-3.5 rounded border-slate-300 text-[#0A1128] focus:ring-0 cursor-pointer"
+                                />
+                                <span>Remember me</span>
+                              </label>
+
+                              <Link
+                                href="/forgot-password"
+                                onClick={() => setAccountDropdownOpen(false)}
+                                className="font-medium text-[#2563EB] hover:text-[#1D4ED8] hover:underline transition-colors"
+                              >
+                                Lost your password?
+                              </Link>
+                            </div>
+                          </form>
+
+                          {/* Secondary Links: Track Order & B2B / Institutional Sales */}
+                          <div className="border-t border-slate-100 pt-2 space-y-1 text-left">
+                            <Link
+                              href="/track-order"
+                              onClick={() => setAccountDropdownOpen(false)}
+                              className="w-full px-3 py-2.5 hover:bg-slate-50 hover:text-[#2563EB] rounded-xl transition-colors flex items-center gap-2.5 font-medium text-slate-700"
+                            >
+                              <Truck className="w-4 h-4 text-slate-500" />
+                              <span>Track Order</span>
+                            </Link>
+
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setAccountDropdownOpen(false);
+                                if (onOpenB2BModal) {
+                                  onOpenB2BModal();
+                                } else {
+                                  router.push("/services");
+                                }
+                              }}
+                              className="w-full text-left px-3 py-2.5 hover:bg-slate-50 hover:text-[#2563EB] rounded-xl transition-colors flex items-center gap-2.5 font-medium text-slate-700 cursor-pointer"
+                            >
+                              <Building2 className="w-4 h-4 text-slate-500" />
+                              <span>B2B / Institutional Sales</span>
+                            </button>
                           </div>
                         </div>
-
-                        <div className="border-t border-slate-100 my-1" />
-
-                        <Link
-                          href="/account/profile"
-                          onClick={() => setAccountDropdownOpen(false)}
-                          className="w-full text-left px-3 py-2 hover:bg-slate-50 hover:text-[#2563EB] rounded-xl transition-colors flex items-center gap-2.5 font-medium text-slate-700 group"
-                        >
-                          <User className="w-4 h-4 text-slate-400 group-hover:text-[#2563EB]" />
-                          <span>My Account</span>
-                        </Link>
-
-                        <Link
-                          href="/account/orders"
-                          onClick={() => setAccountDropdownOpen(false)}
-                          className="w-full text-left px-3 py-2 hover:bg-slate-50 hover:text-[#2563EB] rounded-xl transition-colors flex items-center gap-2.5 font-medium text-slate-700 group"
-                        >
-                          <Package className="w-4 h-4 text-slate-400 group-hover:text-[#2563EB]" />
-                          <span>My Orders</span>
-                        </Link>
-
-                        <Link
-                          href="/wishlist"
-                          onClick={() => setAccountDropdownOpen(false)}
-                          className="w-full text-left px-3 py-2 hover:bg-slate-50 hover:text-[#2563EB] rounded-xl transition-colors flex items-center justify-between font-medium text-slate-700 group"
-                        >
-                          <div className="flex items-center gap-2.5">
-                            <Heart className="w-4 h-4 text-slate-400 group-hover:text-[#2563EB]" />
-                            <span>Wishlist</span>
-                          </div>
-                          {wishlistCount > 0 && (
-                            <span className="text-[10px] bg-rose-50 text-rose-600 font-bold px-1.5 py-0.2 rounded-full">
-                              {wishlistCount}
-                            </span>
-                          )}
-                        </Link>
-
-                        <Link
-                          href="/account/addresses"
-                          onClick={() => setAccountDropdownOpen(false)}
-                          className="w-full text-left px-3 py-2 hover:bg-slate-50 hover:text-[#2563EB] rounded-xl transition-colors flex items-center gap-2.5 font-medium text-slate-700 group"
-                        >
-                          <MapPin className="w-4 h-4 text-slate-400 group-hover:text-[#2563EB]" />
-                          <span>Saved Addresses</span>
-                        </Link>
-
-                        <Link
-                          href="/account/payments"
-                          onClick={() => setAccountDropdownOpen(false)}
-                          className="w-full text-left px-3 py-2 hover:bg-slate-50 hover:text-[#2563EB] rounded-xl transition-colors flex items-center gap-2.5 font-medium text-slate-700 group"
-                        >
-                          <CreditCard className="w-4 h-4 text-slate-400 group-hover:text-[#2563EB]" />
-                          <span>Payment Methods</span>
-                        </Link>
-
-                        <Link
-                          href="/account/rewards"
-                          onClick={() => setAccountDropdownOpen(false)}
-                          className="w-full text-left px-3 py-2 hover:bg-slate-50 hover:text-[#2563EB] rounded-xl transition-colors flex items-center justify-between font-medium text-slate-700 group"
-                        >
-                          <div className="flex items-center gap-2.5">
-                            <Gift className="w-4 h-4 text-slate-400 group-hover:text-[#2563EB]" />
-                            <span>Rewards / Credits</span>
-                          </div>
-                          <span className="text-[10px] bg-amber-50 text-amber-700 font-bold px-1.5 py-0.2 rounded-md">
-                            {user.rewardPoints || 0} pts
-                          </span>
-                        </Link>
-
-                        <div className="border-t border-slate-100 my-1" />
-
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setAccountDropdownOpen(false);
-                            if (onOpenB2BModal) {
-                              onOpenB2BModal();
-                            } else {
-                              router.push("/account/quotations");
-                            }
-                          }}
-                          className="w-full text-left px-3 py-2 hover:bg-slate-50 hover:text-[#2563EB] rounded-xl transition-colors flex items-center gap-2.5 font-medium text-slate-700 cursor-pointer group"
-                        >
-                          <Building2 className="w-4 h-4 text-slate-400 group-hover:text-[#2563EB]" />
-                          <span>B2B / Institutional Sales</span>
-                        </button>
-
-                        <div className="border-t border-slate-100 my-1" />
-
-                        <button
-                          type="button"
-                          onClick={() => {
-                            logoutUser();
-                            setAccountDropdownOpen(false);
-                            router.push("/login");
-                          }}
-                          className="w-full text-left px-3 py-2 hover:bg-red-50 text-red-600 rounded-xl transition-colors flex items-center gap-2.5 font-semibold cursor-pointer group"
-                        >
-                          <LogOut className="w-4 h-4 text-red-500" />
-                          <span>Logout</span>
-                        </button>
-                      </div>
-                    ) : (
-                      <div className="space-y-0.5 p-1">
-                        <Link
-                          href="/login"
-                          onClick={() => setAccountDropdownOpen(false)}
-                          className="w-full text-left px-3 py-2.5 hover:bg-sky-50 hover:text-[#2563EB] rounded-xl transition-colors flex items-center gap-2.5 font-bold text-slate-800"
-                        >
-                          <LogIn className="w-4 h-4 text-[#2563EB]" />
-                          <span>Sign In</span>
-                        </Link>
-
-                        <Link
-                          href="/register"
-                          onClick={() => setAccountDropdownOpen(false)}
-                          className="w-full text-left px-3 py-2.5 hover:bg-emerald-50 hover:text-emerald-700 rounded-xl transition-colors flex items-center gap-2.5 font-bold text-slate-800"
-                        >
-                          <UserPlus className="w-4 h-4 text-emerald-600" />
-                          <span>Create Account</span>
-                        </Link>
-
-                        <Link
-                          href="/track-order"
-                          onClick={() => setAccountDropdownOpen(false)}
-                          className="w-full text-left px-3 py-2.5 hover:bg-slate-50 hover:text-[#2563EB] rounded-xl transition-colors flex items-center gap-2.5 font-medium text-slate-700"
-                        >
-                          <Truck className="w-4 h-4 text-slate-400" />
-                          <span>Track Order</span>
-                        </Link>
-
-                        <div className="border-t border-slate-100 my-1" />
-
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setAccountDropdownOpen(false);
-                            if (onOpenB2BModal) {
-                              onOpenB2BModal();
-                            } else {
-                              router.push("/services");
-                            }
-                          }}
-                          className="w-full text-left px-3 py-2.5 hover:bg-slate-50 hover:text-[#2563EB] rounded-xl transition-colors flex items-center gap-2.5 font-medium text-slate-700 cursor-pointer"
-                        >
-                          <Building2 className="w-4 h-4 text-slate-400" />
-                          <span>B2B / Institutional Sales</span>
-                        </button>
-                      </div>
-                    )}
+                      )}
+                    </div>
                   </div>
                 )}
               </div>

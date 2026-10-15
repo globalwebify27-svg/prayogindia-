@@ -37,7 +37,8 @@ export async function POST(request: Request) {
 
     const { name, email, phone, password } = parseResult.data;
     const cleanEmail = normalizeEmail(email);
-    const cleanPhone = phone.replace(/\D/g, "");
+    const cleanPhone = phone ? phone.replace(/\D/g, "") : "";
+    const displayName = (name || cleanEmail.split("@")[0] || "Prayog Member").trim();
 
     // 4. Password Complexity Validation
     // Requires min 6 characters
@@ -85,9 +86,9 @@ export async function POST(request: Request) {
 
     // Save to UserDB
     const createdUser = UserDB.create({
-      name: name.trim(),
+      name: displayName,
       email: cleanEmail,
-      phone: `+91 ${cleanPhone.slice(-10)}`,
+      phone: cleanPhone ? `+91 ${cleanPhone.slice(-10)}` : "",
       passwordHash,
       rewardPoints: 100, // 100 Welcome coins
       customerType: "Registered Customer",
@@ -97,9 +98,9 @@ export async function POST(request: Request) {
       try {
         const dbNewUser = await db.user.create({
           data: {
-            name: name.trim(),
+            name: displayName,
             email: cleanEmail,
-            phone: `+91 ${cleanPhone.slice(-10)}`,
+            phone: cleanPhone ? `+91 ${cleanPhone.slice(-10)}` : "",
             passwordHash,
             role: "CUSTOMER",
           },

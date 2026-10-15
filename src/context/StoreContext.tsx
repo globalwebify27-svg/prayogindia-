@@ -105,7 +105,10 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({
     const isWishlist =
       options.iconType?.startsWith("wishlist") ||
       options.title?.toLowerCase().includes("wishlist");
-    const autoDismissMs = options.duration || (isWishlist ? 2000 : 3500);
+    const isCart =
+      options.iconType?.startsWith("cart") ||
+      options.title?.toLowerCase().includes("cart");
+    const autoDismissMs = options.duration || (isWishlist || isCart ? 2000 : 3500);
 
     toastTimerRef.current = setTimeout(() => {
       setToast((cur) => (cur?.id === toastId ? null : cur));
@@ -191,20 +194,15 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({
       return [...prev, { product, variant, quantity }];
     });
 
-    // Trigger Toast Notification (Auto dismiss after 4 seconds)
-    const toastId = `toast-${Date.now()}`;
-    setCartNotification({
-      id: toastId,
+    // Trigger Clean Toast Notification (Matches Home & All Pages)
+    showToast({
+      type: "success",
+      title: "Product added to cart!",
+      message: product.name,
       product,
-      variant,
-      quantity,
+      iconType: "cart-add" as any,
+      duration: 2000,
     });
-
-    setTimeout(() => {
-      setCartNotification((current) =>
-        current?.id === toastId ? null : current,
-      );
-    }, 4000);
   };
 
   const dismissCartNotification = () => {

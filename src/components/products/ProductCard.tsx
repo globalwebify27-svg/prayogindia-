@@ -55,8 +55,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({
     (v) => v.id === selectedVariantId,
   );
 
-  const displayPrice = activeVariant?.price ?? product.price;
-  const displayMrp = activeVariant?.mrp ?? product.mrp ?? Math.round(displayPrice * 1.3);
+  const displayPrice = Math.round(activeVariant?.price ?? product.price);
+  const displayMrp = Math.round(activeVariant?.mrp ?? product.mrp ?? (displayPrice * 1.3));
   const discountAmount = displayMrp > displayPrice ? displayMrp - displayPrice : 0;
   const discountPercent = discountAmount > 0 ? Math.round((discountAmount / displayMrp) * 100) : 0;
   const isInStock = activeVariant ? activeVariant.inStock : product.inStock;
@@ -125,13 +125,13 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   return (
     <div
       id={`product-card-${product.id}`}
-      className="group bg-white rounded-2xl border border-slate-200/90 p-2 sm:p-3 flex flex-col justify-between hover:border-[#2563EB] hover:shadow-lg transition-all duration-300 relative overflow-hidden font-sans"
+      className="group bg-white rounded-xl sm:rounded-2xl border border-slate-200/90 p-1.5 sm:p-3 flex flex-col justify-between hover:border-[#2563EB] hover:shadow-lg transition-all duration-300 relative overflow-hidden font-sans h-full"
     >
       {/* ── Top: Product Image with Smooth Hover Swap & Floating Action Icons ── */}
-      <div className="relative aspect-square w-full mb-2 flex items-center justify-center overflow-hidden rounded-xl bg-slate-50/70 p-1.5">
+      <div className="relative aspect-[1/0.88] sm:aspect-square w-full mb-1 sm:mb-2 flex items-center justify-center overflow-hidden rounded-lg sm:rounded-xl bg-slate-50/70 p-1 sm:p-1.5">
         {/* Discount Badge in Top-Left (if discount > 5%) */}
         {discountPercent > 5 && (
-          <div className="absolute top-2 left-2 z-20 bg-[#FF3B30] text-white text-[10px] font-extrabold px-1.5 py-0.5 rounded-lg shadow-xs pointer-events-none">
+          <div className="absolute top-1.5 left-1.5 sm:top-2 sm:left-2 z-20 bg-[#FF3B30] text-white text-[9px] sm:text-[10px] font-extrabold px-1 sm:px-1.5 py-0.5 rounded-sm sm:rounded-lg shadow-xs pointer-events-none">
             {discountPercent}%
           </div>
         )}
@@ -197,11 +197,11 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         <button
           type="button"
           onClick={handleToggleWishlist}
-          className="sm:hidden absolute top-2 right-2 z-20 w-7 h-7 rounded-full bg-white/95 backdrop-blur-xs border border-slate-200/90 shadow-xs flex items-center justify-center active:scale-90 transition-all cursor-pointer"
+          className="sm:hidden absolute top-1.5 right-1.5 z-20 w-6 h-6 rounded-full bg-white/95 backdrop-blur-xs border border-slate-200/90 shadow-xs flex items-center justify-center active:scale-90 transition-all cursor-pointer"
           aria-label={itemIsWishlisted ? "Remove from wishlist" : "Add to wishlist"}
         >
           <Heart
-            className={`w-3.5 h-3.5 transition-colors ${
+            className={`w-3 h-3 transition-colors ${
               itemIsWishlisted ? "fill-red-500 text-red-500" : "text-slate-500 stroke-[2.2]"
             }`}
           />
@@ -253,21 +253,21 @@ export const ProductCard: React.FC<ProductCardProps> = ({
       {/* ── Card Body (Amazon / Myntra Style Grid Card Layout) ── */}
       <Link
         href={`/products/${product.slug || product.id}`}
-        className="flex-1 flex flex-col justify-between space-y-1 block cursor-pointer"
+        className="flex-1 flex flex-col justify-between space-y-0.5 sm:space-y-1 block cursor-pointer"
       >
         <div className="space-y-0.5 sm:space-y-1">
           {/* Brand Name (Bold Uppercase) */}
-          <div className="text-[10px] sm:text-xs font-black text-slate-900 tracking-wider uppercase truncate">
+          <div className="text-[9px] sm:text-xs font-black text-slate-900 tracking-wider uppercase truncate">
             {product.brand || "PRAYOG INDIA"}
           </div>
 
           {/* Product Name Subtitle (Medium weight, 2 lines clamp on mobile) */}
-          <h3 className="text-xs sm:text-sm font-medium text-slate-700 line-clamp-2 h-7 sm:h-9 group-hover:text-[#2563EB] transition-colors leading-snug">
+          <h3 className="text-[11px] sm:text-sm font-medium text-slate-700 line-clamp-2 min-h-[1.25rem] sm:h-9 group-hover:text-[#2563EB] transition-colors leading-tight sm:leading-snug">
             {product.name}
           </h3>
 
           {/* Rating Stars + Review Count */}
-          <div className="flex items-center gap-1 text-[11px] text-slate-500 pt-0.5">
+          <div className="flex items-center gap-1 text-[10px] sm:text-[11px] text-slate-500 pt-0 sm:pt-0.5">
             <div className="flex items-center text-amber-500 gap-0.5">
               {[...Array(5)].map((_, i) => (
                 <Star
@@ -280,46 +280,48 @@ export const ProductCard: React.FC<ProductCardProps> = ({
                 />
               ))}
             </div>
-            <span className="text-[10px] sm:text-[11px] font-semibold text-slate-600">
+            <span className="text-[9px] sm:text-[11px] font-semibold text-slate-600">
               {product.reviews || 35}
             </span>
           </div>
 
           {/* Deal Tag Badge (e.g. Limited time deal) */}
           {discountPercent > 10 && (
-            <div className="pt-0.5">
-              <span className="bg-[#CC0C39] text-white text-[9px] sm:text-[10px] font-black px-1.5 py-0.5 rounded-xs tracking-tight uppercase inline-block">
+            <div className="pt-0 sm:pt-0.5">
+              <span className="bg-[#CC0C39] text-white text-[8px] sm:text-[10px] font-black px-1.5 py-0.2 sm:py-0.5 rounded-xs tracking-tight uppercase inline-block leading-tight">
                 Limited time deal
               </span>
             </div>
           )}
 
           {/* Price Row: Bold Rupee Price + Strikethrough MRP + Percentage Off */}
-          <div className="pt-0.5 flex items-baseline flex-wrap gap-1 sm:gap-1.5">
-            <span className="text-sm sm:text-base font-black text-slate-900 tracking-tight">
-              ₹{displayPrice.toLocaleString("en-IN")}
-            </span>
-            {displayMrp > displayPrice && (
-              <>
-                <span className="text-[10px] sm:text-xs text-slate-400 line-through">
-                  ₹{displayMrp.toLocaleString("en-IN")}
-                </span>
-                <span className="text-[10px] sm:text-xs text-emerald-600 font-bold">
-                  ({discountPercent}% off)
-                </span>
-              </>
-            )}
+          <div className="pt-0 sm:pt-0.5 min-h-[30px] sm:min-h-0 flex flex-col justify-center leading-tight">
+            <div className="flex items-baseline flex-wrap gap-1 sm:gap-1.5 leading-tight">
+              <span className="text-xs sm:text-base font-black text-slate-900 tracking-tight whitespace-nowrap">
+                ₹{displayPrice.toLocaleString("en-IN")}
+              </span>
+              {displayMrp > displayPrice && (
+                <>
+                  <span className="text-[9px] sm:text-xs text-slate-400 line-through whitespace-nowrap">
+                    ₹{displayMrp.toLocaleString("en-IN")}
+                  </span>
+                  <span className="text-[9px] sm:text-xs text-emerald-600 font-bold whitespace-nowrap">
+                    ({discountPercent}% off)
+                  </span>
+                </>
+              )}
+            </div>
           </div>
         </div>
       </Link>
 
       {/* ── Add to Cart CTA Button ── */}
-      <div className="pt-1.5 sm:pt-2 mt-auto">
+      <div className="pt-1 sm:pt-2 mt-auto">
         {isInStock ? (
           <button
             id={`add-to-cart-${product.id}`}
             onClick={handleAddToCart}
-            className={`w-full py-2 sm:py-2.5 px-2 sm:px-3 rounded-xl border text-[11px] sm:text-xs font-bold uppercase tracking-normal sm:tracking-wider flex items-center justify-center gap-1.5 sm:gap-2 transition-all duration-150 active:scale-95 cursor-pointer shadow-2xs whitespace-nowrap overflow-hidden ${
+            className={`w-full py-1.5 sm:py-2.5 px-2 sm:px-3 rounded-lg sm:rounded-xl border text-[10px] sm:text-xs font-bold uppercase tracking-normal sm:tracking-wider flex items-center justify-center gap-1 sm:gap-2 transition-all duration-150 active:scale-95 cursor-pointer shadow-2xs whitespace-nowrap overflow-hidden ${
               isAdded
                 ? "bg-emerald-600 border-emerald-600 text-white"
                 : "border-[#2563EB] text-[#2563EB] bg-white hover:bg-[#2563EB] hover:text-white active:bg-blue-50"
@@ -327,12 +329,12 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           >
             {isAdded ? (
               <>
-                <Check className="w-3.5 h-3.5 shrink-0" />
+                <Check className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0" />
                 <span className="whitespace-nowrap font-bold">ADDED!</span>
               </>
             ) : (
               <>
-                <ShoppingCart className="w-3.5 h-3.5 shrink-0" />
+                <ShoppingCart className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0" />
                 <span className="whitespace-nowrap font-bold">ADD TO CART</span>
               </>
             )}
@@ -345,10 +347,10 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             target="_blank"
             rel="noopener noreferrer"
             onClick={(e) => e.stopPropagation()}
-            className="w-full py-2 sm:py-2.5 px-1.5 sm:px-2 rounded-xl bg-[#25D366] hover:bg-[#20bd5a] text-white text-[10px] sm:text-[11px] font-bold tracking-tight flex items-center justify-center gap-1.5 transition-all duration-150 active:scale-95 cursor-pointer shadow-2xs whitespace-nowrap overflow-hidden"
+            className="w-full py-1.5 sm:py-2.5 px-1.5 sm:px-2 rounded-lg sm:rounded-xl bg-[#25D366] hover:bg-[#20bd5a] text-white text-[9px] sm:text-[11px] font-bold tracking-tight flex items-center justify-center gap-1 sm:gap-1.5 transition-all duration-150 active:scale-95 cursor-pointer shadow-2xs whitespace-nowrap overflow-hidden"
             title="Out of Stock — Inquire on WhatsApp"
           >
-            <WhatsAppIcon className="w-3.5 h-3.5 fill-white shrink-0" />
+            <WhatsAppIcon className="w-3 h-3 sm:w-3.5 sm:h-3.5 fill-white shrink-0" />
             <span className="truncate">Out of Stock — Inquire on WhatsApp</span>
           </a>
         )}

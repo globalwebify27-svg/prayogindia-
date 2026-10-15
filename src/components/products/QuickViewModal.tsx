@@ -658,20 +658,20 @@ const QuickViewModalContent: React.FC<{
                 <button
                   id={`quickview-add-cart-${fullProduct.id}`}
                   onClick={handleAddToCart}
-                  className={`flex items-center justify-center gap-2 py-3 rounded-xl border text-xs font-bold uppercase tracking-wider transition-all duration-150 active:scale-95 cursor-pointer shadow-2xs ${
+                  className={`flex items-center justify-center gap-2 py-3 rounded-xl text-xs font-black uppercase tracking-wider transition-all duration-150 active:scale-95 cursor-pointer shadow-sm ${
                     addedFeedback
-                      ? "bg-emerald-600 border-emerald-600 text-white"
-                      : "border-[#2563EB] text-[#2563EB] hover:bg-[#2563EB] hover:text-white"
+                      ? "bg-emerald-600 text-white"
+                      : "bg-[#FFC20E] hover:bg-[#E5AC0D] text-slate-950 shadow-amber-500/15"
                   }`}
                 >
                   {addedFeedback ? (
                     <>
-                      <Check className="w-3.5 h-3.5" />
+                      <Check className="w-3.5 h-3.5 stroke-[2.5]" />
                       <span>ADDED!</span>
                     </>
                   ) : (
                     <>
-                      <ShoppingCart className="w-3.5 h-3.5" />
+                      <ShoppingCart className="w-3.5 h-3.5 stroke-[2.2]" />
                       <span>ADD TO CART</span>
                     </>
                   )}
@@ -679,9 +679,9 @@ const QuickViewModalContent: React.FC<{
                 <button
                   id={`quickview-buy-now-${fullProduct.id}`}
                   onClick={handleBuyNow}
-                  className="flex items-center justify-center gap-1.5 bg-[#2563EB] hover:bg-blue-700 text-white py-3 rounded-xl text-xs font-bold uppercase tracking-wider shadow-md shadow-blue-500/20 transition-all active:scale-95 cursor-pointer"
+                  className="flex items-center justify-center gap-1.5 bg-[#0A1128] hover:bg-slate-900 text-white py-3 rounded-xl text-xs font-black uppercase tracking-wider shadow-md shadow-slate-950/20 transition-all active:scale-95 cursor-pointer"
                 >
-                  <Zap className="w-3.5 h-3.5" />
+                  <Zap className="w-3.5 h-3.5 fill-[#FFC20E] text-[#FFC20E]" />
                   <span>BUY NOW</span>
                 </button>
               </div>

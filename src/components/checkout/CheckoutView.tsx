@@ -37,6 +37,8 @@ import {
   Banknote,
   Sparkles,
   Zap,
+  Phone,
+  Lock,
 } from "lucide-react";
 import {
   CustomerType,
@@ -322,6 +324,13 @@ export const CheckoutView: React.FC = () => {
   });
 
   const shippingFee = deliveryCalc.fee;
+  const grandTotal = Math.max(
+    0,
+    subtotal -
+      couponDiscount -
+      (useRewardPoints ? rewardDiscount : 0) +
+      shippingFee,
+  );
   const isFreeStandardShipping = subtotal >= 2000;
   const isRanchiEligible = deliveryCalc.isRanchiEligible;
   const effectiveDeliveryMethod = selectedDeliveryMethod;
@@ -1223,45 +1232,65 @@ export const CheckoutView: React.FC = () => {
           )}
 
           {/* ── 1. Customer Information Card ── */}
-          <div className="bg-white border border-slate-200 rounded-3xl p-6 space-y-4 shadow-2xs">
-            <h3 className="text-sm font-black text-slate-900 uppercase tracking-wider flex items-center gap-2 border-b border-slate-100 pb-3">
-              <UserCheck className="w-4 h-4 text-[#2563EB]" /> 1. Customer
-              Contact Details
-            </h3>
+          <div className="bg-white border border-slate-200/90 rounded-3xl p-5 sm:p-7 space-y-6 shadow-[0_2px_16px_rgba(0,0,0,0.03)] hover:border-slate-300/80 transition-all">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-2xl bg-[#0A1128] text-white flex items-center justify-center font-black text-xs sm:text-sm shrink-0 shadow-sm shadow-[#0A1128]/20">
+                  1
+                </div>
+                <div>
+                  <h3 className="text-sm sm:text-base font-extrabold text-slate-900 tracking-tight flex items-center gap-2">
+                    Customer Contact Details
+                  </h3>
+                  <p className="text-xs text-slate-500 font-medium">
+                    Order confirmation &amp; dispatch tracking SMS/Email will be sent here
+                  </p>
+                </div>
+              </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <div>
-                <label className="block text-[11px] font-bold text-slate-600 mb-1">
-                  Full Name *
+              {isPhoneVerified && (
+                <span className="self-start sm:self-auto inline-flex items-center gap-1.5 text-xs font-bold text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200/80">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                  Verified Account
+                </span>
+              )}
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {/* Full Name */}
+              <div className="space-y-1.5">
+                <label className="block text-xs font-bold text-slate-700">
+                  Full Name <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
                   required
                   value={customerName}
                   onChange={(e) => setCustomerName(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs font-bold text-slate-900 focus:outline-none focus:border-[#2563EB]"
+                  placeholder="e.g. Om Kumar"
+                  className="w-full bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 hover:border-slate-300 focus:border-[#0A1128] focus:ring-2 focus:ring-[#0A1128]/10 rounded-2xl px-4 py-3 text-xs sm:text-sm font-semibold text-slate-900 transition-all placeholder:text-slate-400 outline-none shadow-2xs"
                 />
               </div>
 
-              <div>
-                <div className="flex items-center justify-between mb-1">
-                  <label className="block text-[11px] font-bold text-slate-600">
-                    Mobile Number *
+              {/* Mobile Number */}
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <label className="block text-xs font-bold text-slate-700">
+                    Mobile Number <span className="text-red-500">*</span>
                   </label>
                   {isPhoneVerified ? (
-                    <span className="text-[10px] font-black text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full flex items-center gap-1">
-                      <CheckCircle2 className="w-3 h-3 text-emerald-600" />{" "}
-                      Verified
+                    <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200 flex items-center gap-1">
+                      <CheckCircle2 className="w-3 h-3 text-emerald-600" /> Verified
                     </span>
                   ) : (
                     <button
                       type="button"
                       onClick={handleSendCheckoutOtp}
                       disabled={customerMobile.length < 10 || otpSending}
-                      className="text-[10px] font-black text-[#2563EB] hover:underline disabled:opacity-50 flex items-center gap-0.5 cursor-pointer"
+                      className="text-[11px] font-bold text-[#2563EB] hover:text-[#1D4ED8] hover:underline disabled:opacity-50 flex items-center gap-0.5 cursor-pointer transition-colors"
                     >
                       <span>
-                        {otpSending ? "Sending OTP..." : "Verify with OTP →"}
+                        {otpSending ? "Sending OTP..." : "Verify via OTP →"}
                       </span>
                     </button>
                   )}
@@ -1274,38 +1303,40 @@ export const CheckoutView: React.FC = () => {
                     value={customerMobile}
                     onChange={(e) => handleMobileChange(e.target.value)}
                     placeholder="10-digit number"
-                    className={`w-full bg-slate-50 border rounded-xl p-2.5 text-xs font-bold text-slate-900 focus:outline-none ${
+                    className={`w-full border rounded-2xl px-4 py-3 text-xs sm:text-sm font-semibold text-slate-900 transition-all outline-none shadow-2xs placeholder:text-slate-400 ${
                       isPhoneVerified
-                        ? "border-emerald-400 bg-emerald-50/30"
-                        : "border-slate-200 focus:border-[#2563EB]"
+                        ? "border-emerald-300 bg-emerald-50/20 pr-10 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/10"
+                        : "bg-slate-50/70 hover:bg-white focus:bg-white border-slate-200 hover:border-slate-300 focus:border-[#0A1128] focus:ring-2 focus:ring-[#0A1128]/10"
                     }`}
                   />
                   {isPhoneVerified && (
-                    <ShieldCheck className="w-4 h-4 text-emerald-600 absolute right-3 top-1/2 -translate-y-1/2" />
+                    <ShieldCheck className="w-4 h-4 text-emerald-600 absolute right-3.5 top-1/2 -translate-y-1/2" />
                   )}
                 </div>
                 {!isPhoneVerified && customerMobile.length === 10 && (
                   <button
                     type="button"
                     onClick={handleSendCheckoutOtp}
-                    className="text-[11px] text-[#2563EB] font-extrabold mt-1.5 flex items-center gap-1 hover:underline cursor-pointer"
+                    className="text-[11px] text-[#2563EB] font-bold mt-1 flex items-center gap-1 hover:underline cursor-pointer"
                   >
-                    <span>Click here to verify this number via SMS OTP</span>
+                    <span>Click to verify this number via SMS OTP</span>
                     <ArrowRight className="w-3 h-3 text-[#FFC20E]" />
                   </button>
                 )}
               </div>
 
-              <div>
-                <label className="block text-[11px] font-bold text-slate-600 mb-1">
-                  Email Address *
+              {/* Email Address */}
+              <div className="space-y-1.5">
+                <label className="block text-xs font-bold text-slate-700">
+                  Email Address <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="email"
                   required
                   value={customerEmail}
                   onChange={(e) => setCustomerEmail(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs font-bold text-slate-900 focus:outline-none focus:border-[#2563EB]"
+                  placeholder="name@example.com"
+                  className="w-full bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 hover:border-slate-300 focus:border-[#0A1128] focus:ring-2 focus:ring-[#0A1128]/10 rounded-2xl px-4 py-3 text-xs sm:text-sm font-semibold text-slate-900 transition-all placeholder:text-slate-400 outline-none shadow-2xs"
                 />
               </div>
             </div>
@@ -1331,7 +1362,7 @@ export const CheckoutView: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => setShowOtpModal(false)}
-                      className="text-slate-400 hover:text-slate-700 font-black p-1"
+                      className="text-slate-400 hover:text-slate-700 font-black p-1 cursor-pointer"
                     >
                       ✕
                     </button>
@@ -1356,7 +1387,7 @@ export const CheckoutView: React.FC = () => {
                       <button
                         type="button"
                         onClick={() => setCheckoutOtp(checkoutReceivedOtp)}
-                        className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[11px] rounded-lg transition-all"
+                        className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[11px] rounded-lg transition-all cursor-pointer"
                       >
                         Auto-Fill
                       </button>
@@ -1381,7 +1412,7 @@ export const CheckoutView: React.FC = () => {
                         setCheckoutOtp(e.target.value.replace(/\D/g, ""))
                       }
                       placeholder="e.g. 123456"
-                      className="w-full bg-slate-50 text-slate-900 p-3 rounded-xl border-2 border-slate-200 focus:border-[#2563EB] text-center text-lg font-black tracking-widest focus:outline-none"
+                      className="w-full bg-slate-50 text-slate-900 p-3 rounded-xl border-2 border-slate-200 focus:border-[#0A1128] text-center text-lg font-black tracking-widest focus:outline-none"
                     />
                   </div>
 
@@ -1390,7 +1421,7 @@ export const CheckoutView: React.FC = () => {
                       type="button"
                       onClick={handleVerifyCheckoutOtp}
                       disabled={checkoutOtp.length < 6 || otpVerifying}
-                      className="w-full bg-[#2563EB] hover:bg-[#1D4ED8] disabled:opacity-50 text-white py-3 rounded-xl font-black text-xs uppercase tracking-wider transition-all shadow-md active:scale-95 cursor-pointer"
+                      className="w-full bg-[#0A1128] hover:bg-[#12365D] disabled:opacity-50 text-white py-3 rounded-xl font-black text-xs uppercase tracking-wider transition-all shadow-md active:scale-95 cursor-pointer"
                     >
                       {otpVerifying ? "Verifying..." : "Confirm & Verify"}
                     </button>
@@ -1401,7 +1432,7 @@ export const CheckoutView: React.FC = () => {
                       type="button"
                       onClick={handleSendCheckoutOtp}
                       disabled={otpSending}
-                      className="text-[11px] font-extrabold text-[#2563EB] hover:underline"
+                      className="text-[11px] font-extrabold text-[#2563EB] hover:underline cursor-pointer"
                     >
                       Resend OTP Code
                     </button>
@@ -1411,37 +1442,64 @@ export const CheckoutView: React.FC = () => {
             )}
 
             {/* GST & B2B Company Details Toggle */}
-            <div className="pt-2 border-t border-slate-100 space-y-3">
-              <label className="flex items-center gap-2 text-xs font-bold text-slate-700 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={requireGSTInvoice}
-                  onChange={(e) => setRequireGSTInvoice(e.target.checked)}
-                  className="w-4 h-4 rounded text-[#2563EB] accent-[#2563EB]"
-                />
-                <span className="flex items-center gap-1">
-                  <Building2 className="w-3.5 h-3.5 text-purple-600" />
-                  Add Business GSTIN for Input Tax Credit (B2B Tax Invoice)
-                </span>
-              </label>
+            <div className="pt-1 border-t border-slate-100">
+              <div
+                onClick={() => setRequireGSTInvoice(!requireGSTInvoice)}
+                className={`p-3.5 sm:p-4 rounded-2xl border transition-all cursor-pointer flex items-center justify-between ${
+                  requireGSTInvoice
+                    ? "bg-purple-50/50 border-purple-200 shadow-xs"
+                    : "bg-slate-50/60 hover:bg-slate-50 border-slate-200/80"
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <div
+                    className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
+                      requireGSTInvoice
+                        ? "bg-purple-100 text-purple-700"
+                        : "bg-white text-slate-600 border border-slate-200"
+                    }`}
+                  >
+                    <Building2 className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <span className="text-xs sm:text-sm font-bold text-slate-900 block">
+                      Add Business GSTIN for Input Tax Credit (B2B Tax Invoice)
+                    </span>
+                    <span className="text-[11px] text-slate-500 block">
+                      Claim 18% GST credit with an official tax invoice in your school, college or company name
+                    </span>
+                  </div>
+                </div>
+                <div className="flex items-center pl-2">
+                  <div
+                    className={`w-5 h-5 rounded-md border flex items-center justify-center transition-colors ${
+                      requireGSTInvoice
+                        ? "bg-purple-600 border-purple-600 text-white"
+                        : "border-slate-300 bg-white"
+                    }`}
+                  >
+                    {requireGSTInvoice && <Check className="w-3.5 h-3.5 stroke-[3]" />}
+                  </div>
+                </div>
+              </div>
 
               {requireGSTInvoice && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-purple-50/60 p-4 rounded-2xl border border-purple-200 animate-in fade-in">
-                  <div>
-                    <label className="block text-[11px] font-bold text-purple-900 mb-1">
-                      Company / Institution Name *
+                <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3.5 p-4 sm:p-5 bg-purple-50/30 rounded-2xl border border-purple-200 animate-in fade-in">
+                  <div className="space-y-1.5">
+                    <label className="block text-xs font-bold text-purple-950">
+                      Company / Institution Name <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="text"
                       placeholder="e.g. Prayog Tech Labs Pvt Ltd"
                       value={companyName}
                       onChange={(e) => setCompanyName(e.target.value)}
-                      className="w-full bg-white border border-purple-200 rounded-xl p-2.5 text-xs font-bold text-slate-900 focus:outline-none focus:border-purple-500"
+                      className="w-full bg-white border border-purple-200 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-purple-600 shadow-2xs"
                     />
                   </div>
-                  <div>
-                    <label className="block text-[11px] font-bold text-purple-900 mb-1">
-                      GSTIN Number * (15 Digits)
+                  <div className="space-y-1.5">
+                    <label className="block text-xs font-bold text-purple-950">
+                      GSTIN Number <span className="text-red-500">*</span> (15 Digits)
                     </label>
                     <input
                       type="text"
@@ -1451,7 +1509,7 @@ export const CheckoutView: React.FC = () => {
                       onChange={(e) =>
                         setGstinNumber(e.target.value.toUpperCase())
                       }
-                      className="w-full bg-white border border-purple-200 rounded-xl p-2.5 text-xs font-mono font-bold text-slate-900 focus:outline-none focus:border-purple-500"
+                      className="w-full bg-white border border-purple-200 rounded-xl px-3.5 py-2.5 text-xs font-mono font-bold text-slate-900 focus:outline-none focus:border-purple-600 uppercase shadow-2xs"
                     />
                   </div>
                 </div>
@@ -1460,44 +1518,54 @@ export const CheckoutView: React.FC = () => {
           </div>
 
           {/* ── 2. Shipping Address & Multiple Address Book ── */}
-          <div className="bg-white border border-slate-200 rounded-3xl p-6 space-y-4 shadow-2xs">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <h3 className="text-sm font-black text-slate-900 uppercase tracking-wider flex items-center gap-2">
-                <MapPin className="w-4 h-4 text-[#2563EB]" /> 2. Delivery
-                Address
-              </h3>
+          <div className="bg-white border border-slate-200/90 rounded-3xl p-5 sm:p-7 space-y-6 shadow-[0_2px_16px_rgba(0,0,0,0.03)] hover:border-slate-300/80 transition-all">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-2xl bg-[#0A1128] text-white flex items-center justify-center font-black text-xs sm:text-sm shrink-0 shadow-sm shadow-[#0A1128]/20">
+                  2
+                </div>
+                <div>
+                  <h3 className="text-sm sm:text-base font-extrabold text-slate-900 tracking-tight">
+                    Delivery Address
+                  </h3>
+                  <p className="text-xs text-slate-500 font-medium">
+                    Select where you want your STEM &amp; robotics kits shipped
+                  </p>
+                </div>
+              </div>
               <button
+                type="button"
                 onClick={handleOpenAddAddress}
-                className="text-xs font-black text-[#2563EB] hover:text-[#1D4ED8] flex items-center gap-1 cursor-pointer bg-blue-50 px-3 py-1.5 rounded-xl border border-[#2563EB]/20"
+                className="self-start sm:self-auto inline-flex items-center gap-1.5 bg-[#0A1128] hover:bg-[#12365D] text-white text-xs font-bold px-3.5 py-2 rounded-xl transition-all shadow-xs active:scale-95 cursor-pointer"
               >
-                <Plus className="w-3.5 h-3.5" /> Add New Address
+                <Plus className="w-3.5 h-3.5" />
+                <span>Add New Address</span>
               </button>
             </div>
 
             {/* Address Grid Cards */}
             {addresses.length === 0 ? (
-              <div className="bg-slate-50 border border-dashed border-slate-300 rounded-2xl p-6 text-center space-y-3">
-                <MapPin className="w-8 h-8 text-[#2563EB] mx-auto" />
+              <div className="bg-slate-50 border border-dashed border-slate-300 rounded-2xl p-8 text-center space-y-3">
+                <MapPin className="w-8 h-8 text-[#0A1128] mx-auto opacity-70" />
                 <div>
-                  <h4 className="text-xs font-bold text-slate-900">
+                  <h4 className="text-sm font-bold text-slate-900">
                     No Delivery Address Added Yet
                   </h4>
-                  <p className="text-[11px] text-slate-500 mt-0.5">
-                    Please add your shipping address to calculate courier
-                    dispatch and delivery timelines.
+                  <p className="text-xs text-slate-500 mt-0.5">
+                    Please add your shipping address to calculate courier dispatch and delivery timelines.
                   </p>
                 </div>
                 <button
                   type="button"
                   onClick={handleOpenAddAddress}
-                  className="inline-flex items-center gap-1.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-xs font-bold px-4 py-2 rounded-xl transition-all cursor-pointer shadow-xs active:scale-95"
+                  className="inline-flex items-center gap-1.5 bg-[#0A1128] hover:bg-[#12365D] text-white text-xs font-bold px-4 py-2.5 rounded-xl transition-all cursor-pointer shadow-xs active:scale-95"
                 >
                   <Plus className="w-3.5 h-3.5" />
                   <span>Add Delivery Address</span>
                 </button>
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                 {addresses.map((addr) => {
                   const isSelected = selectedShippingAddressId === addr.id;
 
@@ -1508,42 +1576,59 @@ export const CheckoutView: React.FC = () => {
                         setSelectedShippingAddressId(addr.id);
                         setValidationError(null);
                       }}
-                      className={`p-4 rounded-2xl border transition-all cursor-pointer relative flex flex-col justify-between ${
+                      className={`p-4 sm:p-5 rounded-2xl transition-all cursor-pointer relative flex flex-col justify-between group ${
                         isSelected
-                          ? "border-[#2563EB] bg-blue-50/50 ring-2 ring-[#2563EB]/20 shadow-xs"
-                          : "border-slate-200 hover:border-slate-300 bg-white"
+                          ? "border-2 border-[#0A1128] bg-slate-50/40 shadow-sm ring-4 ring-[#0A1128]/5"
+                          : "border border-slate-200 hover:border-slate-300 hover:shadow-xs bg-white"
                       }`}
                     >
-                      <div className="space-y-1">
-                        <div className="flex items-center justify-between">
-                          <span className="text-[10px] font-black uppercase text-slate-500 bg-slate-100 px-2 py-0.5 rounded">
-                            {addr.type}
-                          </span>
-                          {addr.isDefault && (
-                            <span className="text-[9px] font-black text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
-                              DEFAULT
+                      <div>
+                        {/* Top Row: Type Badge + Default Badge + Radio Indicator */}
+                        <div className="flex items-center justify-between mb-2.5">
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-[10px] font-black uppercase tracking-wider text-slate-700 bg-white px-2 py-0.5 rounded-md border border-slate-200 shadow-2xs">
+                              {addr.type}
                             </span>
-                          )}
+                            {addr.isDefault && (
+                              <span className="text-[10px] font-black uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
+                                DEFAULT
+                              </span>
+                            )}
+                          </div>
+
+                          {/* Circular Selection Radio Indicator */}
+                          <div
+                            className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 transition-all ${
+                              isSelected
+                                ? "bg-[#0A1128] text-white shadow-2xs"
+                                : "border-2 border-slate-300 group-hover:border-slate-400"
+                            }`}
+                          >
+                            {isSelected && <Check className="w-3 h-3 stroke-[3]" />}
+                          </div>
                         </div>
-                        <h4 className="text-xs font-extrabold text-slate-900 mt-1">
+
+                        {/* Address Content */}
+                        <h4 className="text-sm font-extrabold text-slate-900 tracking-tight">
                           {addr.name}
                         </h4>
-                        <p className="text-[11px] text-slate-600 leading-relaxed line-clamp-2">
+                        <p className="text-xs text-slate-600 leading-relaxed mt-1 line-clamp-2">
                           {addr.street}
                         </p>
-                        <p className="text-[11px] font-bold text-slate-700">
-                          {addr.city}, {addr.state} -{" "}
-                          <span className="font-mono text-[#2563EB]">
+                        <p className="text-xs font-bold text-slate-800 mt-1.5">
+                          {addr.city}, {addr.state} —{" "}
+                          <span className="font-extrabold text-[#0A1128]">
                             {addr.pincode}
                           </span>
                         </p>
-                        <p className="text-[10px] text-slate-400 font-mono">
-                          {addr.phone}
-                        </p>
+                        <div className="flex items-center gap-1.5 text-xs text-slate-500 font-medium mt-1">
+                          <Phone className="w-3.5 h-3.5 text-slate-400" />
+                          <span>{addr.phone}</span>
+                        </div>
                       </div>
 
-                      {/* Actions */}
-                      <div className="flex items-center justify-between pt-3 mt-3 border-t border-slate-100 text-[10px]">
+                      {/* Actions Footer */}
+                      <div className="flex items-center justify-between pt-3 mt-3.5 border-t border-slate-100 text-xs">
                         <div className="flex items-center gap-2">
                           <button
                             type="button"
@@ -1551,9 +1636,10 @@ export const CheckoutView: React.FC = () => {
                               e.stopPropagation();
                               handleOpenEditAddress(addr);
                             }}
-                            className="font-bold text-slate-500 hover:text-[#2563EB] flex items-center gap-0.5"
+                            className="font-bold text-slate-600 hover:text-[#0A1128] flex items-center gap-1 px-2 py-1 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer"
                           >
-                            <Edit2 className="w-3 h-3" /> Edit
+                            <Edit2 className="w-3 h-3" />
+                            <span>Edit</span>
                           </button>
                           {!addr.isDefault && (
                             <button
@@ -1562,7 +1648,7 @@ export const CheckoutView: React.FC = () => {
                                 e.stopPropagation();
                                 handleSetDefaultAddress(addr.id);
                               }}
-                              className="font-bold text-slate-500 hover:text-emerald-600"
+                              className="font-bold text-slate-500 hover:text-emerald-700 px-2 py-1 rounded-lg hover:bg-emerald-50 transition-colors cursor-pointer"
                             >
                               Set Default
                             </button>
@@ -1576,9 +1662,10 @@ export const CheckoutView: React.FC = () => {
                               e.stopPropagation();
                               handleDeleteAddress(addr.id);
                             }}
-                            className="font-bold text-slate-400 hover:text-red-600"
+                            className="p-1.5 text-slate-400 hover:text-red-600 rounded-lg hover:bg-red-50 transition-colors cursor-pointer"
+                            title="Delete Address"
                           >
-                            <Trash2 className="w-3 h-3" />
+                            <Trash2 className="w-3.5 h-3.5" />
                           </button>
                         )}
                       </div>
@@ -1589,28 +1676,43 @@ export const CheckoutView: React.FC = () => {
             )}
 
             {/* Billing Address Toggle */}
-            <div className="pt-2 border-t border-slate-100">
-              <label className="flex items-center gap-2 text-xs font-bold text-slate-700 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={sameAsShipping}
-                  onChange={(e) => setSameAsShipping(e.target.checked)}
-                  className="w-4 h-4 rounded text-[#2563EB] accent-[#2563EB]"
-                />
-                <span>Billing address is same as shipping address</span>
-              </label>
+            <div className="pt-1 border-t border-slate-100">
+              <div
+                onClick={() => setSameAsShipping(!sameAsShipping)}
+                className="p-3.5 sm:p-4 rounded-2xl bg-slate-50/70 hover:bg-slate-50 border border-slate-200/80 transition-all cursor-pointer flex items-center justify-between"
+              >
+                <div className="flex items-center gap-3">
+                  <div
+                    className={`w-5 h-5 rounded-md border flex items-center justify-center transition-colors shrink-0 ${
+                      sameAsShipping
+                        ? "bg-[#0A1128] border-[#0A1128] text-white"
+                        : "border-slate-300 bg-white"
+                    }`}
+                  >
+                    {sameAsShipping && <Check className="w-3.5 h-3.5 stroke-[3]" />}
+                  </div>
+                  <div>
+                    <span className="text-xs sm:text-sm font-bold text-slate-900 block">
+                      Billing address is same as shipping address
+                    </span>
+                    <span className="text-[11px] text-slate-500 block">
+                      Tax and delivery invoices will use this primary shipping address
+                    </span>
+                  </div>
+                </div>
+              </div>
 
               {!sameAsShipping && (
                 <div className="mt-3 space-y-2 bg-slate-50 p-4 rounded-2xl border border-slate-200 animate-in fade-in">
-                  <span className="text-[11px] font-black uppercase text-slate-500 block">
-                    Select Billing Address
+                  <span className="text-xs font-bold text-slate-700 block">
+                    Select Billing Address:
                   </span>
                   <select
                     value={selectedBillingAddressId}
                     onChange={(e) =>
                       setSelectedBillingAddressId(e.target.value)
                     }
-                    className="w-full bg-white border border-slate-200 rounded-xl p-2.5 text-xs font-bold text-slate-900"
+                    className="w-full bg-white border border-slate-200 rounded-xl p-3 text-xs font-bold text-slate-900 focus:outline-none focus:border-[#0A1128]"
                   >
                     {addresses.map((a) => (
                       <option key={a.id} value={a.id}>
@@ -1624,11 +1726,20 @@ export const CheckoutView: React.FC = () => {
           </div>
 
           {/* ── 3. Dispatch & Delivery Selection ── */}
-          <div className="bg-white border border-slate-200 rounded-3xl p-6 space-y-4 shadow-2xs">
-            <h3 className="text-sm font-black text-slate-900 uppercase tracking-wider flex items-center gap-2 border-b border-slate-100 pb-3">
-              <Truck className="w-4 h-4 text-[#2563EB]" /> 3. Dispatch &amp;
-              Courier Mode
-            </h3>
+          <div className="bg-white border border-slate-200/90 rounded-3xl p-5 sm:p-7 space-y-5 shadow-[0_2px_16px_rgba(0,0,0,0.03)] hover:border-slate-300/80 transition-all">
+            <div className="flex items-center gap-3 pb-4 border-b border-slate-100">
+              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-2xl bg-[#0A1128] text-white flex items-center justify-center font-black text-xs sm:text-sm shrink-0 shadow-sm shadow-[#0A1128]/20">
+                3
+              </div>
+              <div>
+                <h3 className="text-sm sm:text-base font-extrabold text-slate-900 tracking-tight">
+                  Dispatch &amp; Courier Mode
+                </h3>
+                <p className="text-xs text-slate-500 font-medium">
+                  Select your preferred freight speed and logistics carrier
+                </p>
+              </div>
+            </div>
 
             {hasRestrictedBatteryItem && (
               <div className="bg-amber-50 border-2 border-amber-300 rounded-2xl p-4 text-xs text-amber-950 space-y-1.5 shadow-xs">
@@ -1779,83 +1890,201 @@ export const CheckoutView: React.FC = () => {
           </div>
 
           {/* ── 4. Payment Method Selection ── */}
-          <div className="bg-white border border-slate-200 rounded-3xl p-6 space-y-4 shadow-2xs">
-            <h3 className="text-sm font-black text-slate-900 uppercase tracking-wider flex items-center gap-2 border-b border-slate-100 pb-3">
-              <CreditCard className="w-4 h-4 text-[#2563EB]" /> 4. Payment
-              Gateway
-            </h3>
+          <div className="bg-white border border-slate-200/90 rounded-3xl p-5 sm:p-7 space-y-6 shadow-[0_2px_16px_rgba(0,0,0,0.03)] hover:border-slate-300/80 transition-all">
+            <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-2xl bg-[#0A1128] text-white flex items-center justify-center font-black text-xs sm:text-sm shrink-0 shadow-sm shadow-[#0A1128]/20">
+                  4
+                </div>
+                <div>
+                  <h3 className="text-sm sm:text-base font-extrabold text-slate-900 tracking-tight">
+                    Payment Method
+                  </h3>
+                  <p className="text-xs text-slate-500 font-medium">
+                    100% secure encrypted checkout via UPI, Cards, NetBanking or COD
+                  </p>
+                </div>
+              </div>
+              <span className="hidden sm:inline-flex items-center gap-1.5 text-xs font-bold text-slate-600 bg-slate-50 border border-slate-200/80 px-3 py-1 rounded-full">
+                <Lock className="w-3.5 h-3.5 text-emerald-600" />
+                256-Bit SSL
+              </span>
+            </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
               {[
                 {
                   id: "upi",
                   label: "UPI / QR Code",
-                  icon: <QrCode className="w-4 h-4 text-emerald-600" />,
+                  icon: <QrCode className="w-5 h-5 text-emerald-600" />,
                   desc: "GPay, PhonePe, Paytm",
                 },
                 {
                   id: "card",
                   label: "Debit / Credit Card",
-                  icon: <CreditCard className="w-4 h-4 text-blue-600" />,
+                  icon: <CreditCard className="w-5 h-5 text-[#2563EB]" />,
                   desc: "Visa, Master, RuPay",
                 },
                 {
                   id: "netbanking",
                   label: "Net Banking",
-                  icon: <Landmark className="w-4 h-4 text-purple-600" />,
+                  icon: <Landmark className="w-5 h-5 text-purple-600" />,
                   desc: "50+ Indian Banks",
                 },
                 {
                   id: "cod",
                   label: "Cash on Delivery",
-                  icon: <Banknote className="w-4 h-4 text-amber-600" />,
+                  icon: <Banknote className="w-5 h-5 text-amber-600" />,
                   desc: "Pay at Doorstep",
                 },
-              ].map((opt) => (
-                <button
-                  key={opt.id}
-                  type="button"
-                  onClick={() => setPaymentMethod(opt.id as any)}
-                  className={`p-3.5 rounded-2xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
-                    paymentMethod === opt.id
-                      ? "border-[#2563EB] bg-blue-50/50 ring-2 ring-[#2563EB]/20 shadow-xs"
-                      : "border-slate-200 hover:border-slate-300 bg-white"
-                  }`}
-                >
-                  <div className="flex items-center justify-between mb-2">
-                    {opt.icon}
-                    {paymentMethod === opt.id && (
-                      <Check className="w-3.5 h-3.5 text-[#2563EB]" />
-                    )}
+              ].map((opt) => {
+                const isSelected = paymentMethod === opt.id;
+                return (
+                  <button
+                    key={opt.id}
+                    type="button"
+                    onClick={() => setPaymentMethod(opt.id as any)}
+                    className={`p-4 rounded-2xl border text-left transition-all cursor-pointer flex flex-col justify-between group ${
+                      isSelected
+                        ? "border-2 border-[#0A1128] bg-slate-50/50 ring-4 ring-[#0A1128]/5 shadow-sm"
+                        : "border border-slate-200 hover:border-slate-300 hover:shadow-xs bg-white"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between mb-3">
+                      <div
+                        className={`w-9 h-9 rounded-xl flex items-center justify-center border shadow-2xs transition-colors ${
+                          isSelected
+                            ? "bg-white border-slate-300"
+                            : "bg-slate-50 border-slate-200/80 group-hover:bg-white"
+                        }`}
+                      >
+                        {opt.icon}
+                      </div>
+                      <div
+                        className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 transition-all ${
+                          isSelected
+                            ? "bg-[#0A1128] text-white shadow-2xs"
+                            : "border-2 border-slate-300 group-hover:border-slate-400"
+                        }`}
+                      >
+                        {isSelected && <Check className="w-3 h-3 stroke-[3]" />}
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-xs sm:text-sm font-extrabold text-slate-900 tracking-tight">
+                        {opt.label}
+                      </div>
+                      <div className="text-[11px] text-slate-500 font-medium mt-0.5">
+                        {opt.desc}
+                      </div>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Contextual payment helper banner */}
+            {paymentMethod === "upi" && (
+              <div className="p-3.5 sm:p-4 rounded-2xl bg-emerald-50/70 border border-emerald-200/80 text-xs text-emerald-950 flex flex-col sm:flex-row sm:items-center justify-between gap-2 animate-in fade-in">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
+                    <QrCode className="w-4 h-4" />
                   </div>
                   <div>
-                    <div className="text-xs font-extrabold text-slate-900">
-                      {opt.label}
-                    </div>
-                    <div className="text-[10px] text-slate-500 mt-0.5">
-                      {opt.desc}
-                    </div>
+                    <span className="font-bold text-slate-900 block">Instant UPI &amp; Dynamic QR</span>
+                    <span className="text-[11px] text-slate-600 block">Scan QR on next step via Google Pay, PhonePe, Paytm, or BHIM UPI</span>
                   </div>
-                </button>
-              ))}
-            </div>
+                </div>
+                <span className="self-start sm:self-auto text-[10px] bg-emerald-100 text-emerald-800 font-black px-2.5 py-1 rounded-full uppercase tracking-wider shrink-0">
+                  Zero Surcharge
+                </span>
+              </div>
+            )}
+
+            {paymentMethod === "card" && (
+              <div className="p-3.5 sm:p-4 rounded-2xl bg-blue-50/60 border border-blue-200/80 text-xs text-slate-800 flex items-center gap-2.5 animate-in fade-in">
+                <div className="w-7 h-7 rounded-lg bg-blue-100 text-[#0A233F] flex items-center justify-center shrink-0">
+                  <CreditCard className="w-4 h-4 text-[#2563EB]" />
+                </div>
+                <div>
+                  <span className="font-bold text-slate-900 block">Cards (Credit / Debit / ATM)</span>
+                  <span className="text-[11px] text-slate-600 block">Supports all major banks across Visa, Mastercard, RuPay &amp; Maestro with 256-Bit SSL security</span>
+                </div>
+              </div>
+            )}
+
+            {paymentMethod === "netbanking" && (
+              <div className="p-3.5 sm:p-4 rounded-2xl bg-purple-50/60 border border-purple-200/80 text-xs text-purple-950 flex items-center gap-2.5 animate-in fade-in">
+                <div className="w-7 h-7 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center shrink-0">
+                  <Landmark className="w-4 h-4" />
+                </div>
+                <div>
+                  <span className="font-bold text-slate-900 block">Net Banking Portal</span>
+                  <span className="text-[11px] text-slate-600 block">Instant gateway connection with SBI, HDFC, ICICI, Axis, PNB and 50+ other Indian retail banks</span>
+                </div>
+              </div>
+            )}
+
+            {paymentMethod === "cod" && (
+              <div className="p-3.5 sm:p-4 rounded-2xl bg-amber-50/70 border border-amber-200/80 text-xs text-amber-950 flex items-center gap-2.5 animate-in fade-in">
+                <div className="w-7 h-7 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center shrink-0">
+                  <Banknote className="w-4 h-4" />
+                </div>
+                <div>
+                  <span className="font-bold text-slate-900 block">Cash on Delivery (Pay at Doorstep)</span>
+                  <span className="text-[11px] text-slate-600 block">Pay via Cash or UPI upon parcel arrival. A quick verification call will be placed prior to dispatch</span>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Place Order CTA */}
-          <button
-            onClick={handlePlaceOrder}
-            disabled={isSubmitting}
-            className="w-full bg-[#2563EB] hover:bg-[#1D4ED8] text-white py-4 rounded-2xl font-black text-xs uppercase tracking-wider transition-all shadow-xl shadow-[#2563EB]/25 flex items-center justify-center gap-2 active:scale-95 cursor-pointer disabled:opacity-50"
-          >
-            {isSubmitting ? (
-              <span>Confirming Order...</span>
-            ) : (
-              <>
-                <span>Complete Order &amp; Generate Tax Invoice</span>
-                <ArrowRight className="w-4 h-4 text-[#FFC20E]" />
-              </>
-            )}
-          </button>
+          <div className="space-y-3 pt-1">
+            <button
+              onClick={handlePlaceOrder}
+              disabled={isSubmitting}
+              className="w-full bg-[#0A1128] hover:bg-[#12365D] active:scale-[0.99] text-white py-4 sm:py-4.5 px-6 rounded-2xl font-black text-xs sm:text-sm uppercase tracking-wider transition-all shadow-xl shadow-[#0A1128]/15 flex items-center justify-between cursor-pointer disabled:opacity-50 group border border-slate-800"
+            >
+              {isSubmitting ? (
+                <div className="w-full text-center py-0.5">
+                  <span>Confirming Order...</span>
+                </div>
+              ) : (
+                <>
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center text-[#FFC20E] shrink-0">
+                      <ShieldCheck className="w-4 h-4" />
+                    </div>
+                    <span>Complete Order &amp; Generate Tax Invoice</span>
+                  </div>
+                  <div className="flex items-center gap-2.5">
+                    <span className="text-sm sm:text-base font-extrabold text-[#FFC20E] tracking-tight">
+                      ₹{grandTotal.toLocaleString("en-IN")}
+                    </span>
+                    <ArrowRight className="w-4 h-4 text-white group-hover:translate-x-1 transition-transform" />
+                  </div>
+                </>
+              )}
+            </button>
+
+            {/* Trust and Guarantee Bar */}
+            <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-[11px] text-slate-500 font-semibold pt-1">
+              <span className="flex items-center gap-1.5">
+                <Lock className="w-3.5 h-3.5 text-emerald-600" />
+                256-Bit SSL Encrypted
+              </span>
+              <span>•</span>
+              <span className="flex items-center gap-1.5">
+                <Receipt className="w-3.5 h-3.5 text-[#0A1128]" />
+                Official GST Tax Invoice
+              </span>
+              <span>•</span>
+              <span className="flex items-center gap-1.5">
+                <ShieldCheck className="w-3.5 h-3.5 text-blue-600" />
+                100% Genuine Robotics
+              </span>
+            </div>
+          </div>
         </div>
 
         {/* Right Column: Order Summary (Span 5) */}

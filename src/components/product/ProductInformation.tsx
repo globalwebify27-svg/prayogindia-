@@ -7,6 +7,7 @@ import {
   Truck,
   Headphones,
   ShoppingBag,
+  ShoppingCart,
   Heart,
   CheckCircle2,
   AlertTriangle,
@@ -16,6 +17,7 @@ import {
   Share2,
   Info,
   X,
+  Zap,
 } from "lucide-react";
 import { Product, ProductVariant } from "@/data/mockData";
 
@@ -420,72 +422,75 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
         </div>
       </div>
 
-      {/* ── Quantity Selector & Action Buttons Row ── */}
+      {/* ── Quantity Selector & Action Buttons Row (Desktop only, mobile shows only at bottom) ── */}
       <div className="space-y-4 pt-1">
-        {currentStock ? (
-          <div className="space-y-2.5 sm:space-y-0 sm:flex sm:items-center sm:gap-3">
-            <div className="flex items-center gap-2.5 sm:flex-1">
-              {/* Quantity Selector */}
-              <div className="flex items-center justify-between gap-1.5 bg-slate-50 border border-slate-200 rounded-xl p-1 px-2.5 shrink-0">
-                <span className="text-[11px] font-bold text-slate-500 sm:inline hidden">
-                  Qty
-                </span>
-                <div className="flex items-center bg-white border border-slate-200 rounded-lg overflow-hidden">
-                  <button
-                    type="button"
-                    onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                    disabled={quantity <= 1}
-                    className="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center text-slate-600 hover:bg-slate-100 disabled:opacity-40 font-bold text-xs cursor-pointer transition-colors"
-                  >
-                    -
-                  </button>
-                  <span className="w-7 text-center text-xs font-black text-slate-900 select-none">
-                    {quantity}
+        <div className="hidden lg:block">
+          {currentStock ? (
+            <div className="space-y-2.5 sm:space-y-0 sm:flex sm:items-center sm:gap-3">
+              <div className="flex items-center gap-2.5 sm:flex-1">
+                {/* Quantity Selector */}
+                <div className="flex items-center justify-between gap-1.5 bg-slate-50 border border-slate-200 rounded-xl p-1 px-2.5 shrink-0">
+                  <span className="text-[11px] font-bold text-slate-500 sm:inline hidden">
+                    Qty
                   </span>
-                  <button
-                    type="button"
-                    onClick={() => setQuantity((q) => Math.min(50, q + 1))}
-                    disabled={quantity >= 50}
-                    className="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center text-slate-600 hover:bg-slate-100 disabled:opacity-40 font-bold text-xs cursor-pointer transition-colors"
-                  >
-                    +
-                  </button>
+                  <div className="flex items-center bg-white border border-slate-200 rounded-lg overflow-hidden">
+                    <button
+                      type="button"
+                      onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                      disabled={quantity <= 1}
+                      className="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center text-slate-600 hover:bg-slate-100 disabled:opacity-40 font-bold text-xs cursor-pointer transition-colors"
+                    >
+                      -
+                    </button>
+                    <span className="w-7 text-center text-xs font-black text-slate-900 select-none">
+                      {quantity}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setQuantity((q) => Math.min(50, q + 1))}
+                      disabled={quantity >= 50}
+                      className="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center text-slate-600 hover:bg-slate-100 disabled:opacity-40 font-bold text-xs cursor-pointer transition-colors"
+                    >
+                      +
+                    </button>
+                  </div>
                 </div>
+
+                {/* Add to Cart Button (Prayog Brand Yellow) */}
+                <button
+                  onClick={() => onAddToCart(product, quantity)}
+                  className="flex-1 bg-[#FFC20E] hover:bg-[#E5AC0D] text-slate-950 py-3 px-3 sm:py-3.5 sm:px-5 rounded-xl font-black text-xs uppercase tracking-wider transition-all duration-150 shadow-sm flex items-center justify-center gap-2 active:scale-95 cursor-pointer whitespace-nowrap"
+                >
+                  <ShoppingCart className="w-4 h-4 stroke-[2.2] shrink-0" />
+                  <span>ADD TO CART</span>
+                </button>
               </div>
 
-              {/* Add to Cart Button (Matches Home Popular Products card button style) */}
+              {/* Buy Now Button (Prayog Deep Navy) */}
               <button
-                onClick={() => onAddToCart(product, quantity)}
-                className="flex-1 border-2 border-[#2563EB] text-[#2563EB] hover:bg-[#2563EB] hover:text-white py-3 px-3 sm:py-3.5 sm:px-5 rounded-xl font-extrabold text-xs uppercase tracking-wider transition-all duration-150 shadow-xs flex items-center justify-center gap-1.5 active:scale-95 cursor-pointer whitespace-nowrap"
+                onClick={() =>
+                  onBuyNow
+                    ? onBuyNow(product, quantity)
+                    : onAddToCart(product, quantity)
+                }
+                className="w-full sm:flex-1 bg-[#0A1128] hover:bg-slate-900 text-white py-3 px-4 sm:py-3.5 sm:px-5 rounded-xl font-black text-xs uppercase tracking-wider transition-all shadow-md shadow-slate-950/20 flex items-center justify-center gap-2 active:scale-95 cursor-pointer"
               >
-                <ShoppingBag className="w-4 h-4 shrink-0" />
-                <span>ADD TO CART</span>
+                <Zap className="w-4 h-4 fill-[#FFC20E] text-[#FFC20E] shrink-0" />
+                <span>BUY NOW</span>
               </button>
             </div>
-
-            {/* Buy Now Button (Royal Blue style like Home/QuickView) */}
-            <button
-              onClick={() =>
-                onBuyNow
-                  ? onBuyNow(product, quantity)
-                  : onAddToCart(product, quantity)
-              }
-              className="w-full sm:flex-1 bg-[#2563EB] hover:bg-blue-700 text-white py-3 px-4 sm:py-3.5 sm:px-5 rounded-xl font-extrabold text-xs uppercase tracking-wider transition-all shadow-md shadow-blue-500/20 flex items-center justify-center gap-1.5 active:scale-95 cursor-pointer"
+          ) : (
+            <a
+              href={getWhatsAppInquiryUrl()}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full bg-[#25D366] hover:bg-[#20bd5a] text-white py-3.5 px-4 rounded-xl font-black text-xs uppercase tracking-wider transition-all shadow-md shadow-[#25D366]/25 flex items-center justify-center gap-2.5 active:scale-95 cursor-pointer"
             >
-              <span>BUY NOW</span>
-            </button>
-          </div>
-        ) : (
-          <a
-            href={getWhatsAppInquiryUrl()}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="w-full bg-[#25D366] hover:bg-[#20bd5a] text-white py-3.5 px-4 rounded-xl font-black text-xs uppercase tracking-wider transition-all shadow-md shadow-[#25D366]/25 flex items-center justify-center gap-2.5 active:scale-95 cursor-pointer"
-          >
-            <WhatsAppIcon className="w-5 h-5 fill-white shrink-0" />
-            <span>Out of Stock — Inquire on WhatsApp</span>
-          </a>
-        )}
+              <WhatsAppIcon className="w-5 h-5 fill-white shrink-0" />
+              <span>Out of Stock — Inquire on WhatsApp</span>
+            </a>
+          )}
+        </div>
 
         {/* Secondary Action Links */}
         <div className="flex items-center justify-center gap-8 pt-1 text-xs font-bold text-slate-600">
