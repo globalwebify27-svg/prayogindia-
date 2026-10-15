@@ -23,6 +23,8 @@ import {
   Upload,
   Send,
   ArrowUpRight,
+  Cpu,
+  Eye,
 } from "lucide-react";
 
 interface FullSectionsProps {
@@ -209,80 +211,62 @@ export const ServicesSection: React.FC<FullSectionsProps> = ({
       ],
       apps: ["Manufacturing Plants", "Smart Agriculture", "Healthcare Tech"],
     },
-    {
-      id: "consultancy",
-      title: "Technical Consultancy",
-      icon: Wrench,
-      banner:
-        "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=800&q=80",
-      description:
-        "Expert engineering consulting for hardware component selection, BOM optimization, and academic lab accreditation.",
-      features: [
-        "BOM cost optimization",
-        "Component lifecycle analysis",
-        "Grant & lab proposal design",
-      ],
-      apps: ["Tech Startups", "Government Grants", "Institutional Labs"],
-    },
   ];
 
   return (
-    <section id="services" className="py-16 bg-white border-t border-slate-200">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
-        <div className="text-center max-w-3xl mx-auto space-y-3">
-          <span className="bg-blue-50 text-[#2563EB] border border-blue-200/60 text-xs font-black px-3.5 py-1 rounded-full uppercase tracking-wider">
-            Services & Turnkey Solutions
-          </span>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 leading-tight">
+    <section id="services" className="py-10 sm:py-14 bg-white border-t border-slate-200">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 sm:space-y-10">
+        <div className="text-center max-w-3xl mx-auto space-y-2 sm:space-y-3">
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 leading-tight">
             Specialized Hardware Services & Institutional Lab Design
           </h2>
-          <p className="text-sm text-slate-600">
+          <p className="text-xs sm:text-sm text-slate-600">
             Empowering institutions and enterprises with turnkey laboratories,
             technical consulting, and industrial prototype development.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-4.5">
           {servicesList.map((srv) => {
             const IconComp = srv.icon;
             return (
               <div
                 key={srv.id}
-                className="bg-slate-50 rounded-3xl border border-slate-200 overflow-hidden flex flex-col justify-between hover:shadow-lg transition-all group"
+                className="bg-slate-50 rounded-2xl border border-slate-200/90 overflow-hidden flex flex-col justify-between hover:shadow-md transition-all group"
               >
                 <div>
-                  <div className="relative h-48 w-full">
+                  <div className="relative h-32 sm:h-36 w-full overflow-hidden">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={srv.banner}
                       alt={srv.title}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
-                    <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-md p-2.5 rounded-2xl border border-slate-200 text-[#2563EB] shadow-md">
-                      <IconComp className="w-5 h-5" />
+                    <div className="absolute top-2.5 left-2.5 bg-white/90 backdrop-blur-md p-1.5 rounded-xl border border-slate-200 text-[#2563EB] shadow-xs">
+                      <IconComp className="w-4 h-4" />
                     </div>
                   </div>
 
-                  <div className="p-6 space-y-4">
-                    <h3 className="text-xl font-extrabold text-slate-900">
+                  <div className="p-3.5 sm:p-4 space-y-2">
+                    <h3 className="text-sm sm:text-[15px] font-bold text-slate-900 leading-snug line-clamp-1">
                       {srv.title}
                     </h3>
-                    <p className="text-xs text-slate-600 leading-relaxed">
+                    <p className="text-[11px] text-slate-600 leading-relaxed line-clamp-2">
                       {srv.description}
                     </p>
 
-                    <div className="space-y-2 pt-2 border-t border-slate-200">
-                      <span className="text-[11px] font-bold text-slate-900 block">
+                    <div className="space-y-1 pt-1.5 border-t border-slate-200/80">
+                      <span className="text-[10px] font-bold text-slate-900 block uppercase tracking-wider">
                         Key Features:
                       </span>
                       <ul className="space-y-1">
                         {srv.features.map((feat, i) => (
                           <li
                             key={i}
-                            className="text-xs text-slate-600 flex items-center gap-2"
+                            className="text-[11px] text-slate-600 flex items-center gap-1.5"
                           >
-                            <CheckCircle2 className="w-3.5 h-3.5 text-[#2563EB]" />
-                            {feat}
+                            <CheckCircle2 className="w-3 h-3 text-[#2563EB] shrink-0" />
+                            <span className="truncate">{feat}</span>
                           </li>
                         ))}
                       </ul>
@@ -290,21 +274,21 @@ export const ServicesSection: React.FC<FullSectionsProps> = ({
                   </div>
                 </div>
 
-                <div className="p-6 pt-0 flex gap-3">
+                <div className="p-3.5 sm:p-4 pt-0 flex gap-1.5">
                   <button
                     onClick={onOpenB2BModal}
-                    className="flex-1 bg-[#2563EB] hover:bg-[#1D4ED8] text-white py-2.5 rounded-xl text-xs font-bold transition-colors flex items-center justify-center gap-1.5 shadow-xs"
+                    className="flex-1 bg-[#2563EB] hover:bg-[#1D4ED8] text-white py-2 px-2.5 rounded-xl text-[11px] font-bold transition-colors flex items-center justify-center gap-1 shadow-2xs cursor-pointer active:scale-95"
                   >
-                    Enquire Now <ArrowUpRight className="w-4 h-4" />
+                    Enquire Now <ArrowUpRight className="w-3.5 h-3.5" />
                   </button>
                   <a
                     href="https://wa.me/919876543210"
                     target="_blank"
                     rel="noreferrer"
-                    className="bg-[#25D366] text-white p-2.5 rounded-xl hover:bg-[#20ba5a] transition-colors flex items-center justify-center"
+                    className="bg-[#25D366] text-white p-2 rounded-xl hover:bg-[#20ba5a] transition-colors flex items-center justify-center cursor-pointer active:scale-95 shadow-2xs"
                     title="WhatsApp Enquiry"
                   >
-                    <MessageSquare className="w-4 h-4" />
+                    <MessageSquare className="w-3.5 h-3.5" />
                   </a>
                 </div>
               </div>

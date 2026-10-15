@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -333,361 +333,104 @@ export const ProductGridSection: React.FC<ProductSectionProps> = ({
     "Motors, Steppers & Drivers",
   ];
 
-  // Scroll containers
-  const curatedScrollRef = useRef<HTMLDivElement | null>(null);
-  const categoryScrollContainers = useRef<{
-    [key: string]: HTMLDivElement | null;
-  }>({});
-  const jumpScrollRef = useRef<HTMLDivElement | null>(null);
-  const [isJumpPaused, setIsJumpPaused] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
 
-  // Smooth continuous auto-scroll for Jump To category bar
-  useEffect(() => {
-    let animationId: number;
-    let lastTime: number | null = null;
-    const speed = 35; // Pixels per second for a smooth, gentle drift
-
-    const step = (time: number) => {
-      if (lastTime !== null && jumpScrollRef.current && !isJumpPaused) {
-        const delta = (time - lastTime) / 1000;
-        const container = jumpScrollRef.current;
-        const halfWidth = container.scrollWidth / 2;
-
-        container.scrollLeft += speed * delta;
-
-        if (container.scrollLeft >= halfWidth) {
-          container.scrollLeft -= halfWidth;
-        }
-      }
-      lastTime = time;
-      animationId = requestAnimationFrame(step);
-    };
-
-    animationId = requestAnimationFrame(step);
-    return () => cancelAnimationFrame(animationId);
-  }, [isJumpPaused]);
-
-  const scrollCurated = (direction: "left" | "right") => {
-    if (curatedScrollRef.current) {
-      const scrollAmount = direction === "left" ? -360 : 360;
-      curatedScrollRef.current.scrollBy({
-        left: scrollAmount,
-        behavior: "smooth",
-      });
+  const displayedProducts = useMemo(() => {
+    if (selectedCategory === "all") {
+      return liveProducts.length > 0 ? liveProducts : PRODUCTS;
     }
-  };
-
-  const scrollCategory = (category: string, direction: "left" | "right") => {
-    const container = categoryScrollContainers.current[category];
-    if (container) {
-      const scrollAmount = direction === "left" ? -360 : 360;
-      container.scrollBy({ left: scrollAmount, behavior: "smooth" });
-    }
-  };
-
-  const scrollToCategoryShelf = (catName: string) => {
-    setViewMode("all_categories");
-    const elementId = `shelf-${catName.toLowerCase().replace(/[^a-z0-9]/g, "-")}`;
-    const el = document.getElementById(elementId);
-    if (el) {
-      el.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
-  };
-
-  const getActiveCuratedList = () => {
-    switch (activeCuratedTab) {
-      case "trending":
-        return trendingProducts.length > 0
-          ? trendingProducts
-          : PRODUCTS.slice(0, 10);
-      case "new_arrivals":
-        return newArrivals.length > 0 ? newArrivals : PRODUCTS.slice(2, 12);
-      case "best_sellers":
-        return bestSellers.length > 0 ? bestSellers : PRODUCTS.slice(0, 10);
-      case "recommended":
-        return recommendedHardware.length > 0
-          ? recommendedHardware
-          : PRODUCTS.slice(4, 14);
-      default:
-        return PRODUCTS.slice(0, 10);
-    }
-  };
+    const filtered = liveProducts.filter((p) =>
+      isProductInShelfCategory(p, selectedCategory),
+    );
+    if (filtered.length > 0) return filtered;
+    return PRODUCTS.filter((p) =>
+      isProductInShelfCategory(p, selectedCategory),
+    );
+  }, [selectedCategory, liveProducts]);
 
   return (
     <section
       id="featured-products"
-      className="py-5 sm:py-10 bg-slate-50/70 border-b border-slate-200/80 scroll-mt-20"
+      className="py-6 sm:py-10 bg-slate-50/70 border-b border-slate-200/80 scroll-mt-20"
     >
-      <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 space-y-4 sm:space-y-6">
+      <div className="w-full px-3.5 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 space-y-4 sm:space-y-6">
         {/* Main Section Header */}
-        <div className="space-y-2.5 sm:space-y-4">
-          <div className="flex items-center justify-between gap-2">
-            <div>
-              <h2 className="text-base sm:text-2xl font-black text-slate-900 tracking-tight">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between border-b border-slate-200/80 pb-3 gap-2">
+          <div>
+            <div className="flex items-center gap-2.5">
+              <h2 className="text-lg sm:text-2xl font-black text-slate-900 tracking-tight">
                 Explore Products
               </h2>
-              <p className="hidden sm:block text-xs sm:text-sm text-slate-500 font-normal mt-0.5">
-                Quality robotics, development boards, and electronic components.
-              </p>
+              <div className="hidden sm:block w-10 h-1 bg-[#2563EB] rounded-full" />
             </div>
-
-            {/* View Mode Switcher + Explore Store */}
-            <div className="flex items-center gap-1.5 sm:gap-2">
-              <div className="bg-white border border-slate-200 p-0.5 sm:p-1 rounded-xl flex items-center shadow-2xs text-[11px] sm:text-xs font-semibold">
-                <button
-                  onClick={() => setViewMode("all_categories")}
-                  className={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg transition-all flex items-center cursor-pointer ${
-                    viewMode === "all_categories"
-                      ? "bg-slate-900 text-white shadow-xs"
-                      : "text-slate-600 hover:text-slate-900"
-                  }`}
-                >
-                  <span>All Categories</span>
-                </button>
-
-                <button
-                  onClick={() => setViewMode("curated")}
-                  className={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg transition-all flex items-center cursor-pointer ${
-                    viewMode === "curated"
-                      ? "bg-[#2563EB] text-white shadow-xs"
-                      : "text-slate-600 hover:text-slate-900"
-                  }`}
-                >
-                  <span>Highlights</span>
-                </button>
-              </div>
-
-              <button
-                onClick={() => onSeeAll?.("all")}
-                className="text-xs sm:text-sm font-bold text-[#2563EB] hover:text-[#1D4ED8] hover:underline flex items-center gap-0.5 sm:gap-1 px-1.5 sm:px-3 py-1 cursor-pointer shrink-0"
-              >
-                <span>View All</span>
-                <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-              </button>
-            </div>
+            <p className="text-xs sm:text-sm text-slate-500 font-normal mt-0.5">
+              Quality robotics, development boards, and electronic components.
+            </p>
           </div>
 
-          {/* Quick Jump Category Bar (Desktop only to keep mobile laser-focused on products) */}
-          <div
-            className="hidden sm:flex bg-white/90 backdrop-blur-md rounded-2xl border border-slate-200/90 p-1.5 sm:p-2 shadow-2xs relative items-center overflow-hidden"
-            onMouseEnter={() => setIsJumpPaused(true)}
-            onMouseLeave={() => setIsJumpPaused(false)}
-            onTouchStart={() => setIsJumpPaused(true)}
-            onTouchEnd={() => setIsJumpPaused(false)}
+          <button
+            onClick={() => onSeeAll?.(selectedCategory === "all" ? "all" : selectedCategory)}
+            className="text-xs sm:text-sm font-bold text-[#2563EB] hover:text-[#1D4ED8] hover:underline flex items-center gap-1 self-start sm:self-auto cursor-pointer"
           >
-
-            {/* Pinned "Jump To:" label badge */}
-            <div className="pl-2.5 pr-2.5 sm:pr-3 shrink-0 flex items-center border-r border-slate-200 text-xs font-bold text-slate-500 z-20 bg-white/90">
-              <span className="whitespace-nowrap">Jump To:</span>
-            </div>
-
-            {/* Left and Right Fade Mask Gradients */}
-            <div className="pointer-events-none absolute left-[80px] sm:left-[90px] top-0 bottom-0 w-6 bg-gradient-to-r from-white via-white/80 to-transparent z-10" />
-            <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-white via-white/80 to-transparent z-10" />
-
-            {/* Auto-scrolling Track */}
-            <div
-              ref={jumpScrollRef}
-              className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto scrollbar-none py-1 pl-2.5 pr-8 text-xs select-none"
-            >
-              {[...categoryOrder, ...categoryOrder].map((catName, idx) => (
-                <button
-                  key={`${catName}-${idx}`}
-                  onClick={() => scrollToCategoryShelf(catName)}
-                  className="shrink-0 bg-slate-50 hover:bg-[#EFF6FF] text-slate-700 hover:text-[#2563EB] border border-slate-200/80 hover:border-[#2563EB]/40 px-3 py-1.5 rounded-lg font-medium flex items-center transition-all cursor-pointer shadow-2xs group text-xs"
-                >
-                  <span className="whitespace-nowrap">{catName}</span>
-                </button>
-              ))}
-            </div>
-          </div>
+            <span>View All Products</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </button>
         </div>
 
-        {/* ==================================================== */}
-        {/* VIEW 1: All Category Shelves */}
-        {/* ==================================================== */}
-        {viewMode === "all_categories" ? (
-          <div className="space-y-8 sm:space-y-12 animate-in fade-in duration-300">
-            {categoryOrder.map((category) => {
-              let categoryProducts = liveProducts.filter((p) =>
-                isProductInShelfCategory(p, category),
-              );
+        {/* Category Filter Chips */}
+        <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto scrollbar-none py-1 -mx-1 px-1">
+          <button
+            type="button"
+            onClick={() => setSelectedCategory("all")}
+            className={`px-3 sm:px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer shrink-0 ${
+              selectedCategory === "all"
+                ? "bg-[#2563EB] text-white shadow-xs"
+                : "bg-white text-slate-700 hover:bg-slate-100 border border-slate-200/90"
+            }`}
+          >
+            All Products
+          </button>
 
-              // Fallback safeguard to ensure category is never rendered empty if mock products exist
-              if (categoryProducts.length === 0) {
-                categoryProducts = PRODUCTS.filter((p) =>
-                  isProductInShelfCategory(p, category),
-                );
-              }
-
-              const elementId = `shelf-${category.toLowerCase().replace(/[^a-z0-9]/g, "-")}`;
-
-              return (
-                <div
-                  key={category}
-                  id={elementId}
-                  className="space-y-3 sm:space-y-4 relative group/section scroll-mt-24"
-                >
-                  {/* Category Header Row */}
-                  <div className="flex items-center justify-between border-b border-slate-200/80 pb-2.5 sm:pb-3">
-                    <div className="flex items-center gap-2 sm:gap-2.5">
-                      <h3 className="text-base sm:text-xl font-bold text-slate-900 tracking-tight">
-                        {category}
-                      </h3>
-                    </div>
-
-                    {/* See All Category Link */}
-                    <button
-                      onClick={() => onSeeAll?.(category)}
-                      className="text-xs sm:text-sm font-semibold text-[#2563EB] hover:text-[#1D4ED8] hover:underline transition-colors flex items-center gap-1 group/seeall cursor-pointer shrink-0"
-                    >
-                      <span>View all</span>
-                      <ChevronRight className="w-4 h-4 group-hover/seeall:translate-x-1 transition-transform" />
-                    </button>
-                  </div>
-
-                  {/* Horizontal Scrollable Slider Container */}
-                  <div className="relative">
-                    {/* Left Scroll Button */}
-                    <button
-                      onClick={() => scrollCategory(category, "left")}
-                      className="absolute -left-4 top-1/2 -translate-y-1/2 z-20 w-11 h-11 bg-white/95 border border-slate-200 rounded-full shadow-xl flex items-center justify-center text-slate-700 hover:bg-[#FFC20E] hover:text-slate-950 hover:border-[#FFC20E] transition-all opacity-0 group-hover/section:opacity-100 hidden sm:flex cursor-pointer"
-                      aria-label={`Scroll ${category} Left`}
-                    >
-                      <ChevronLeft className="w-5 h-5 stroke-[2.5]" />
-                    </button>
-
-                    {/* Right Scroll Button */}
-                    <button
-                      onClick={() => scrollCategory(category, "right")}
-                      className="absolute -right-4 top-1/2 -translate-y-1/2 z-20 w-11 h-11 bg-white/95 border border-slate-200 rounded-full shadow-xl flex items-center justify-center text-slate-700 hover:bg-[#FFC20E] hover:text-slate-950 hover:border-[#FFC20E] transition-all opacity-0 group-hover/section:opacity-100 hidden sm:flex cursor-pointer"
-                      aria-label={`Scroll ${category} Right`}
-                    >
-                      <ChevronRight className="w-5 h-5 stroke-[2.5]" />
-                    </button>
-
-                    {/* Scroll Track */}
-                    <div
-                      ref={(el) => {
-                        categoryScrollContainers.current[category] = el;
-                      }}
-                      className="flex items-stretch gap-2.5 sm:gap-4 overflow-x-auto scrollbar-none snap-x snap-mandatory pb-2 pt-1 px-0.5 scroll-smooth touch-pan-x"
-                      style={{ scrollbarWidth: "none" }}
-                    >
-                      {categoryProducts.map((product) => (
-                        <div
-                          key={product.id}
-                          className="w-[170px] xs:w-[190px] sm:w-[220px] md:w-[240px] shrink-0 snap-start"
-                        >
-                          <ProductCard
-                            product={product}
-                            onAddToCart={onAddToCart}
-                            onToggleWishlist={onToggleWishlist}
-                            onQuickView={onQuickView}
-                            isWishlisted={wishlistIds.includes(product.id)}
-                          />
-                        </div>
-                      ))}
-                    </div>
-
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        ) : (
-          /* ==================================================== */
-          /* VIEW 2: Curated Highlights (Trending / New / Bestsellers) */
-          /* ==================================================== */
-          <div className="space-y-6 animate-in fade-in duration-300">
-            {/* Curated Sub-tabs Bar */}
-            <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none text-xs">
+          {categoryOrder.map((catName) => {
+            const isSelected = selectedCategory === catName;
+            return (
               <button
-                onClick={() => setActiveCuratedTab("trending")}
-                className={`px-4 py-2.5 rounded-2xl font-extrabold flex items-center transition-all whitespace-nowrap cursor-pointer ${
-                  activeCuratedTab === "trending"
-                    ? "bg-gradient-to-r from-[#FF3B30] to-rose-600 text-white shadow-md shadow-red-500/20"
-                    : "bg-white text-slate-700 hover:bg-slate-100 border border-slate-200"
+                key={catName}
+                type="button"
+                onClick={() => setSelectedCategory(catName)}
+                className={`px-3 sm:px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer shrink-0 ${
+                  isSelected
+                    ? "bg-[#2563EB] text-white shadow-xs"
+                    : "bg-white text-slate-700 hover:bg-slate-100 border border-slate-200/90"
                 }`}
               >
-                <span>Trending Products</span>
+                {catName}
               </button>
+            );
+          })}
+        </div>
 
-              <button
-                onClick={() => setActiveCuratedTab("new_arrivals")}
-                className={`px-4 py-2.5 rounded-2xl font-extrabold flex items-center transition-all whitespace-nowrap cursor-pointer ${
-                  activeCuratedTab === "new_arrivals"
-                    ? "bg-gradient-to-r from-[#2563EB] to-blue-700 text-white shadow-md shadow-blue-500/20"
-                    : "bg-white text-slate-700 hover:bg-slate-100 border border-slate-200"
-                }`}
-              >
-                <span>New Arrivals</span>
-              </button>
-
-              <button
-                onClick={() => setActiveCuratedTab("best_sellers")}
-                className={`px-4 py-2.5 rounded-2xl font-extrabold flex items-center transition-all whitespace-nowrap cursor-pointer ${
-                  activeCuratedTab === "best_sellers"
-                    ? "bg-gradient-to-r from-amber-500 to-orange-600 text-white shadow-md shadow-amber-500/20"
-                    : "bg-white text-slate-700 hover:bg-slate-100 border border-slate-200"
-                }`}
-              >
-                <span>Best Sellers</span>
-              </button>
-
-              <button
-                onClick={() => setActiveCuratedTab("recommended")}
-                className={`px-4 py-2.5 rounded-2xl font-extrabold flex items-center transition-all whitespace-nowrap cursor-pointer ${
-                  activeCuratedTab === "recommended"
-                    ? "bg-gradient-to-r from-emerald-600 to-teal-700 text-white shadow-md shadow-emerald-500/20"
-                    : "bg-white text-slate-700 hover:bg-slate-100 border border-slate-200"
-                }`}
-              >
-                <span>Recommended Hardware</span>
-              </button>
+        {/* 2-Row Responsive Product Grid */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4.5">
+          {displayedProducts.slice(0, 10).map((product, index) => (
+            <div
+              key={product.id}
+              className={`
+                ${index >= 4 ? "hidden sm:block" : ""}
+                ${index >= 6 ? "hidden md:block" : ""}
+                ${index >= 8 ? "hidden xl:block" : ""}
+              `}
+            >
+              <ProductCard
+                product={product}
+                onAddToCart={onAddToCart}
+                onToggleWishlist={onToggleWishlist}
+                onQuickView={onQuickView}
+                isWishlisted={wishlistIds.includes(product.id)}
+              />
             </div>
-
-            {/* Curated Track Carousel */}
-            <div className="relative group/curated">
-              <button
-                onClick={() => scrollCurated("left")}
-                className="absolute -left-4 top-1/2 -translate-y-1/2 z-20 w-11 h-11 bg-white/95 border border-slate-200 rounded-full shadow-xl flex items-center justify-center text-slate-700 hover:bg-[#2563EB] hover:text-white hover:border-[#2563EB] transition-all opacity-0 group-hover/curated:opacity-100 hidden sm:flex cursor-pointer"
-                aria-label="Previous"
-              >
-                <ChevronLeft className="w-5 h-5 stroke-[2.5]" />
-              </button>
-
-              <button
-                onClick={() => scrollCurated("right")}
-                className="absolute -right-4 top-1/2 -translate-y-1/2 z-20 w-11 h-11 bg-white/95 border border-slate-200 rounded-full shadow-xl flex items-center justify-center text-slate-700 hover:bg-[#2563EB] hover:text-white hover:border-[#2563EB] transition-all opacity-0 group-hover/curated:opacity-100 hidden sm:flex cursor-pointer"
-                aria-label="Next"
-              >
-                <ChevronRight className="w-5 h-5 stroke-[2.5]" />
-              </button>
-
-              <div
-                ref={curatedScrollRef}
-                className="flex items-stretch gap-2.5 sm:gap-4 overflow-x-auto scrollbar-none snap-x snap-mandatory pb-2 pt-1 px-0.5 scroll-smooth touch-pan-x"
-                style={{ scrollbarWidth: "none" }}
-              >
-                {getActiveCuratedList().map((product) => (
-                  <div
-                    key={product.id}
-                    className="w-[170px] xs:w-[190px] sm:w-[220px] md:w-[240px] shrink-0 snap-start"
-                  >
-                    <ProductCard
-                      product={product}
-                      onAddToCart={onAddToCart}
-                      onToggleWishlist={onToggleWishlist}
-                      onQuickView={onQuickView}
-                      isWishlisted={wishlistIds.includes(product.id)}
-                    />
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
+          ))}
+        </div>
       </div>
     </section>
   );

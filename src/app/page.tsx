@@ -10,6 +10,7 @@ import { ShopByCategory } from "@/components/home/ShopByCategory";
 import { FeaturedCategories } from "@/components/home/FeaturedCategories";
 import { ProductGridSection } from "@/components/ProductGridSection";
 import { DealsAndOffersSection } from "@/components/home/DealsAndOffersSection";
+import { BrowsingHistorySection } from "@/components/home/BrowsingHistorySection";
 import { RoboticsCollectionShowcase } from "@/components/home/RoboticsCollectionShowcase";
 import { WhyChoosePrayog } from "@/components/home/WhyChoosePrayog";
 import { BrandPartners } from "@/components/home/BrandPartners";
@@ -185,6 +186,14 @@ export default function Home() {
               onShopDeals={() => handleTabChange("offers")}
             />
 
+            {/* 6.5 Recent View Carousel */}
+            <BrowsingHistorySection
+              title="Recent View"
+              onAddToCart={handleAddToCart}
+              onToggleWishlist={handleToggleWishlist}
+              onQuickView={(prod) => setSelectedQuickView(prod)}
+            />
+
             {/* 7. Robotics Collection Showcase */}
             <RoboticsCollectionShowcase
               onExploreCollection={handleCategoryNavigation}
@@ -357,6 +366,11 @@ export default function Home() {
           <div className="py-10 max-w-7xl mx-auto px-6 space-y-8 animate-in fade-in duration-300">
             <DealsAndOffersSection
               onShopDeals={() => handleTabChange("products")}
+            />
+            <BrowsingHistorySection
+              onAddToCart={handleAddToCart}
+              onToggleWishlist={handleToggleWishlist}
+              onQuickView={(prod) => setSelectedQuickView(prod)}
             />
             <ProductGridSection
               onAddToCart={handleAddToCart}

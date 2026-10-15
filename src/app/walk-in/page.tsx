@@ -9,15 +9,14 @@ import {
   Phone,
   ArrowRight,
   Store,
-  Tablet,
   ShieldCheck,
   Wifi,
-  CheckCircle2,
   Navigation,
   Search,
-  Sparkles,
+  Cpu,
   X,
 } from "lucide-react";
+import { PrayogLogo } from "@/components/PrayogLogo";
 import { STORES, ALL_STORE_IDS, StoreId } from "@/data/storeConfig";
 
 interface StoreDisplayMeta {
@@ -120,39 +119,32 @@ export default function WalkInGatewayPage() {
   }, [selectedCity, searchQuery]);
 
   return (
-    <div className="min-h-screen bg-[#070D18] text-slate-100 flex flex-col font-sans selection:bg-[#00AEEF] selection:text-slate-950">
+    <div className="min-h-screen bg-gradient-to-b from-white via-slate-50 to-blue-50/20 text-slate-900 flex flex-col font-sans selection:bg-[#2563EB] selection:text-white">
       {/* 1. Top Navbar */}
-      <nav className="w-full border-b border-slate-800/80 bg-slate-950/80 backdrop-blur-md sticky top-0 z-40 px-4 sm:px-8 py-3.5">
+      <nav className="w-full border-b border-slate-200/80 bg-white/90 backdrop-blur-md sticky top-0 z-40 px-4 sm:px-8 py-3 shadow-xs">
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <Link href="/" className="flex items-center gap-2 group">
-              <Image
-                src="/images/prayog-logo-white.png"
-                alt="Prayog India"
-                width={140}
-                height={32}
-                className="h-7 w-auto object-contain"
-                priority
-              />
+              <PrayogLogo size="sm" showSubtitle={false} />
             </Link>
-            <div className="hidden sm:block h-4 w-px bg-slate-800" />
-            <div className="hidden sm:flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-400">
-              <Store className="w-3.5 h-3.5 text-[#00AEEF]" />
+            <div className="hidden sm:block h-4 w-px bg-slate-200" />
+            <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-100 text-[11px] font-bold uppercase tracking-wider text-slate-700 border border-slate-200/60">
+              <Store className="w-3.5 h-3.5 text-[#2563EB]" />
               <span>Retail Experience Centers</span>
             </div>
           </div>
 
           <div className="flex items-center gap-3">
             {/* Live Terminal Status Badge */}
-            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-semibold">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-semibold">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
               <span>4 Kiosks Live &amp; Online</span>
             </div>
 
             {/* Back to Online Store button */}
             <Link
               href="/"
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold text-slate-300 hover:text-white bg-slate-800/90 hover:bg-slate-700/90 border border-slate-700 transition-all cursor-pointer active:scale-95"
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold text-slate-700 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 border border-slate-200 transition-all cursor-pointer shadow-xs active:scale-95"
             >
               <span>← Back to Online Store</span>
             </Link>
@@ -161,28 +153,20 @@ export default function WalkInGatewayPage() {
       </nav>
 
       {/* 2. Hero Section */}
-      <div className="relative pt-10 pb-8 px-4 sm:px-8 max-w-5xl mx-auto text-center">
+      <div className="relative pt-10 sm:pt-14 pb-8 px-4 sm:px-8 max-w-5xl mx-auto text-center">
         {/* Subtle background glow */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-96 h-96 bg-[#00AEEF]/10 rounded-full blur-3xl pointer-events-none -z-10" />
-
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#00AEEF]/10 border border-[#00AEEF]/30 text-[#00AEEF] text-xs font-bold uppercase tracking-wider mb-4">
-          <Sparkles className="w-3.5 h-3.5 text-[#00AEEF]" />
-          <span>Interactive In-Store Kiosk Network</span>
-        </div>
-
-        <h1 className="text-3xl sm:text-5xl font-black text-white tracking-tight leading-[1.15] mb-4">
-          Visit a Prayog Experience Center
+        <h1 className="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight leading-[1.15]">
+          Visit Our Store
         </h1>
 
-        <p className="text-slate-400 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed">
-          Select your local branch below to launch the self-service in-store terminal.
-          Browse real-time shelf stock, inspect robotics modules hands-on, and complete counter checkout with staff assistance.
+        <p className="mt-3 text-slate-600 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed">
+          Explore innovative hardware, robotics, and electronic components in person.
         </p>
 
         {/* Unified Search & Location Filter Toolbar */}
         <div className="mt-8 max-w-4xl mx-auto w-full">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-3 bg-slate-900/80 border border-slate-800 p-2 rounded-2xl shadow-xl backdrop-blur-md">
-            {/* Horizontal Location Chips (No line wrap!) */}
+          <div className="flex flex-col md:flex-row items-center justify-between gap-3 bg-white border border-slate-200 p-2 rounded-2xl shadow-sm backdrop-blur-md">
+            {/* Horizontal Location Chips (No line wrap) */}
             <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none w-full md:w-auto p-0.5">
               {CITY_FILTERS.map((filter) => {
                 const isActive = selectedCity === filter.id;
@@ -193,8 +177,8 @@ export default function WalkInGatewayPage() {
                     onClick={() => setSelectedCity(filter.id)}
                     className={`px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 shrink-0 ${
                       isActive
-                        ? "bg-[#00AEEF] text-slate-950 shadow-md font-black"
-                        : "text-slate-400 hover:text-white hover:bg-slate-800/80"
+                        ? "bg-[#2563EB] text-white shadow-sm font-black"
+                        : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
                     }`}
                   >
                     <span>{filter.label}</span>
@@ -202,8 +186,8 @@ export default function WalkInGatewayPage() {
                       <span
                         className={`text-[10px] px-1.5 py-0.5 rounded-full ${
                           isActive
-                            ? "bg-slate-950/20 text-slate-950 font-black"
-                            : "bg-slate-800 text-slate-400"
+                            ? "bg-white/20 text-white font-black"
+                            : "bg-slate-100 text-slate-600 border border-slate-200"
                         }`}
                       >
                         {filter.count}
@@ -222,13 +206,13 @@ export default function WalkInGatewayPage() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search by city, area, or store..."
-                className="w-full bg-slate-950/90 border border-slate-700/80 focus:border-[#00AEEF] rounded-xl pl-9 pr-8 py-2 text-xs text-white placeholder-slate-500 outline-none transition-all shadow-inner"
+                className="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#2563EB] rounded-xl pl-9 pr-8 py-2 text-xs text-slate-900 placeholder:text-slate-400 outline-none transition-all shadow-inner focus:ring-2 focus:ring-blue-500/10"
               />
               {searchQuery && (
                 <button
                   type="button"
                   onClick={() => setSearchQuery("")}
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-white cursor-pointer"
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-700 cursor-pointer"
                   aria-label="Clear Search"
                 >
                   <X className="w-3 h-3" />
@@ -240,11 +224,11 @@ export default function WalkInGatewayPage() {
       </div>
 
       {/* 3. Store Cards Grid */}
-      <div className="flex-1 max-w-6xl mx-auto px-4 sm:px-8 pb-12 w-full">
+      <div id="store-locations" className="flex-1 max-w-4xl mx-auto px-4 sm:px-6 pb-12 w-full scroll-mt-20">
         {filteredStoreIds.length === 0 ? (
-          <div className="text-center py-16 bg-slate-900/40 rounded-3xl border border-slate-800">
-            <Store className="w-10 h-10 text-slate-600 mx-auto mb-3" />
-            <p className="text-slate-400 text-sm font-semibold">
+          <div className="text-center py-12 bg-white rounded-2xl border border-slate-200 shadow-sm">
+            <Store className="w-9 h-9 text-slate-400 mx-auto mb-2.5" />
+            <p className="text-slate-600 text-xs sm:text-sm font-semibold">
               No store location matches your search criteria.
             </p>
             <button
@@ -252,127 +236,153 @@ export default function WalkInGatewayPage() {
                 setSelectedCity("all");
                 setSearchQuery("");
               }}
-              className="mt-4 text-xs text-[#00AEEF] hover:underline font-bold cursor-pointer"
+              className="mt-3 text-xs text-[#2563EB] hover:underline font-bold cursor-pointer"
             >
               Reset Filters
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
             {filteredStoreIds.map((storeId) => {
               const store = STORES[storeId];
               const meta = STORE_METADATA[storeId];
-              const isCentral = Boolean(store.isCentralInventory);
+              const cityName = store.city.split(",")[0].trim().toUpperCase();
 
               return (
                 <div
                   key={storeId}
-                  className="bg-slate-900/80 border border-slate-800 rounded-3xl overflow-hidden hover:border-slate-700 hover:shadow-2xl hover:shadow-[#00AEEF]/5 transition-all duration-300 flex flex-col group"
+                  className="bg-white border border-slate-200/90 rounded-2xl overflow-hidden hover:border-blue-300 hover:shadow-lg transition-all duration-300 flex flex-col group shadow-xs"
                 >
                   {/* Visual Header */}
-                  <div className="h-44 sm:h-52 relative overflow-hidden bg-slate-950">
+                  <div className="h-36 sm:h-40 relative overflow-hidden bg-slate-900">
                     <Image
                       src={meta.image}
                       alt={store.name}
                       fill
                       className="object-cover group-hover:scale-105 transition-transform duration-700"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/60 to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/25 to-transparent" />
 
                     {/* Top Badges */}
-                    <div className="absolute top-4 left-4 right-4 flex items-center justify-between pointer-events-none">
-                      {isCentral ? (
-                        <span className="bg-amber-400 text-slate-950 font-black text-[10px] uppercase tracking-wider px-2.5 py-1 rounded-full shadow-md flex items-center gap-1">
-                          ★ Central Hub
-                        </span>
-                      ) : (
-                        <span className="bg-slate-900/80 backdrop-blur-md border border-slate-700 text-slate-300 font-bold text-[10px] uppercase tracking-wider px-2.5 py-1 rounded-full">
-                          {meta.badge}
-                        </span>
-                      )}
+                    <div className="absolute top-3 left-3 right-3 flex items-center justify-between pointer-events-none">
+                      <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/95 backdrop-blur-md border border-white/60 shadow-xs text-slate-900 font-bold text-[10px] uppercase tracking-wider">
+                        <Cpu className="w-3 h-3 text-slate-800" />
+                        <span>ROBOTICS &amp; ELECTRONICS</span>
+                      </div>
 
-                      <span className="bg-emerald-500/90 text-white font-black text-[10px] uppercase tracking-wider px-2.5 py-1 rounded-full shadow-md flex items-center gap-1.5 backdrop-blur-xs">
+                      <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#00C274] text-white font-black text-[10px] uppercase tracking-wider shadow-xs">
                         <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
-                        <span>Open Now</span>
-                      </span>
+                        <span>OPEN NOW</span>
+                      </div>
                     </div>
 
                     {/* Bottom Store Title overlay */}
-                    <div className="absolute bottom-4 left-5 right-5">
-                      <span className="text-[11px] font-black uppercase tracking-wider text-[#00AEEF]">
-                        {store.city}
+                    <div className="absolute bottom-3 left-4 right-4">
+                      <span className="text-[10px] font-black uppercase tracking-wider text-[#00AEEF] drop-shadow-xs block">
+                        {cityName}
                       </span>
-                      <h2 className="text-xl sm:text-2xl font-black text-white group-hover:text-[#00AEEF] transition-colors leading-tight">
+                      <h2 className="text-lg sm:text-xl font-black text-white group-hover:text-blue-100 transition-colors leading-tight drop-shadow-sm">
                         {store.shortName}
                       </h2>
                     </div>
                   </div>
 
                   {/* Card Body */}
-                  <div className="p-5 sm:p-6 flex flex-col flex-1 gap-4">
-                    <p className="text-xs text-slate-400 leading-relaxed font-normal">
-                      {meta.description}
-                    </p>
-
-                    {/* In-Store Capabilities */}
-                    <div className="grid grid-cols-2 gap-2 pt-1 border-t border-slate-800/80">
-                      {meta.features.map((feat) => (
-                        <div
-                          key={feat}
-                          className="flex items-center gap-1.5 text-xs text-slate-300"
-                        >
-                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                          <span className="truncate">{feat}</span>
-                        </div>
-                      ))}
-                    </div>
-
-                    {/* Essential Location Details */}
-                    <div className="space-y-2 bg-slate-950/60 p-3.5 rounded-2xl border border-slate-800 text-xs text-slate-400">
+                  <div className="p-3.5 sm:p-4 flex flex-col flex-1 gap-3 bg-white">
+                    {/* Store Address & Contact Details */}
+                    <div className="bg-[#F8FAFC] border border-slate-200/70 rounded-xl p-3 sm:p-3.5 space-y-2.5">
+                      {/* Address */}
                       <div className="flex items-start gap-2.5">
-                        <MapPin className="w-4 h-4 text-[#00AEEF] shrink-0 mt-0.5" />
-                        <span className="leading-snug text-slate-300">
-                          {store.address}
-                        </span>
-                      </div>
-                      <div className="flex items-center justify-between pt-1 border-t border-slate-800/60">
-                        <div className="flex items-center gap-2 text-slate-300">
-                          <Phone className="w-3.5 h-3.5 text-[#00AEEF]" />
-                          <a
-                            href={`tel:${store.phone}`}
-                            className="font-mono hover:text-[#00AEEF] transition-colors"
-                          >
-                            {store.phone}
-                          </a>
+                        <div className="w-8 h-8 rounded-full bg-blue-100/70 text-[#2563EB] flex items-center justify-center shrink-0 mt-0.5">
+                          <MapPin className="w-3.5 h-3.5 text-[#2563EB]" />
                         </div>
-                        <div className="flex items-center gap-2 text-slate-400">
-                          <Clock className="w-3.5 h-3.5 text-slate-500" />
-                          <span>{store.timings}</span>
+                        <div className="min-w-0">
+                          <span className="text-[9px] font-bold uppercase tracking-wider text-slate-400 block mb-0.5">
+                            STORE ADDRESS
+                          </span>
+                          <p className="text-slate-800 font-bold text-[11px] sm:text-xs leading-snug">
+                            {store.address}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Phone & Timings */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-2.5 border-t border-slate-200/60 items-center">
+                        {/* Mobile / Phone */}
+                        <div className="flex items-center gap-2.5">
+                          <div className="w-8 h-8 rounded-full bg-blue-100/70 text-[#2563EB] flex items-center justify-center shrink-0">
+                            <Phone className="w-3.5 h-3.5 text-[#2563EB]" />
+                          </div>
+                          <div className="min-w-0">
+                            <span className="text-[9px] font-bold uppercase tracking-wider text-slate-400 block mb-0.5">
+                              MOBILE / PHONE
+                            </span>
+                            <a
+                              href={`tel:${store.phone}`}
+                              className="font-mono text-slate-900 font-bold text-[11px] sm:text-xs hover:text-[#2563EB] transition-colors truncate block"
+                            >
+                              {store.phone}
+                            </a>
+                          </div>
+                        </div>
+
+                        {/* Operating Hours */}
+                        <div className="flex items-center gap-2.5 sm:border-l sm:border-slate-200 sm:pl-3">
+                          <div className="w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center shrink-0">
+                            <Clock className="w-3.5 h-3.5 text-slate-600" />
+                          </div>
+                          <div className="min-w-0">
+                            <span className="text-[9px] font-bold uppercase tracking-wider text-slate-400 block mb-0.5">
+                              OPERATING HOURS
+                            </span>
+                            <span className="text-slate-700 font-semibold text-[11px] sm:text-xs block leading-tight">
+                              {store.timings}
+                            </span>
+                          </div>
                         </div>
                       </div>
                     </div>
 
-                    {/* Actions */}
-                    <div className="mt-auto pt-2 flex items-center gap-2">
+                    {/* Interactive Embedded Store Map */}
+                    <div className="space-y-1.5">
+                      <div className="flex items-center justify-between text-xs px-0.5">
+                        <div className="flex items-center gap-1.5 text-[11px] font-black text-slate-800 uppercase tracking-wider">
+                          <Navigation className="w-3.5 h-3.5 text-[#2563EB]" />
+                          <span>STORE LOCATION</span>
+                        </div>
+                        <a
+                          href={store.mapUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-[#2563EB] hover:underline font-bold text-[11px] flex items-center gap-1"
+                        >
+                          <span>Get directions</span>
+                          <ArrowRight className="w-3 h-3" />
+                        </a>
+                      </div>
+
+                      <div className="relative rounded-xl overflow-hidden border border-slate-200 bg-slate-100 h-28 sm:h-32 w-full shadow-inner">
+                        <iframe
+                          title={`${store.name} Map Location`}
+                          src={`https://maps.google.com/maps?q=${encodeURIComponent(
+                            store.shortName + ", " + store.address
+                          )}&t=&z=14&ie=UTF8&iwloc=&output=embed`}
+                          className="w-full h-full border-0 filter contrast-[1.02]"
+                          loading="lazy"
+                          referrerPolicy="no-referrer-when-downgrade"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Outlined Action Button */}
+                    <div className="pt-0.5">
                       <Link
                         href={`/walk-in/${store.id}`}
-                        className="flex-1 bg-[#00AEEF] hover:bg-[#38BDF8] active:scale-[0.98] text-slate-950 font-black text-xs uppercase tracking-wider py-3.5 px-4 rounded-2xl flex items-center justify-center gap-2 shadow-lg shadow-[#00AEEF]/20 transition-all cursor-pointer"
+                        className="w-full py-2.5 px-3 rounded-full border border-slate-300 hover:border-[#2563EB] hover:bg-blue-50/40 text-slate-800 hover:text-[#2563EB] font-bold text-xs flex items-center justify-center gap-1.5 transition-all shadow-2xs cursor-pointer active:scale-[0.99]"
                       >
-                        <Tablet className="w-4 h-4" />
-                        <span>Launch Store Terminal</span>
-                        <ArrowRight className="w-4 h-4 ml-1" />
+                        <span>View Store Details</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
                       </Link>
-
-                      <a
-                        href={store.mapUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="p-3.5 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 transition-colors flex items-center justify-center cursor-pointer active:scale-95"
-                        aria-label="Open in Google Maps"
-                        title="Open in Google Maps"
-                      >
-                        <Navigation className="w-4 h-4" />
-                      </a>
                     </div>
                   </div>
                 </div>
@@ -384,26 +394,26 @@ export default function WalkInGatewayPage() {
 
       {/* 4. 3-Step In-Store Shopping Guide */}
       <div className="max-w-6xl mx-auto px-4 sm:px-8 pb-14 w-full">
-        <div className="p-6 sm:p-8 rounded-3xl bg-slate-900/60 border border-slate-800">
+        <div className="p-6 sm:p-8 rounded-3xl bg-white border border-slate-200 shadow-sm">
           <div className="text-center max-w-xl mx-auto mb-8">
-            <h3 className="text-lg sm:text-xl font-bold text-white tracking-tight">
+            <h3 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight">
               How the In-Store Terminal Works
             </h3>
-            <p className="text-xs sm:text-sm text-slate-400 mt-1">
+            <p className="text-xs sm:text-sm text-slate-600 mt-1">
               Engineered for zero-waiting time and instant counter pickup.
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="flex items-start gap-3.5">
-              <div className="w-10 h-10 rounded-2xl bg-[#00AEEF]/10 border border-[#00AEEF]/30 text-[#00AEEF] flex items-center justify-center font-black text-sm shrink-0">
+              <div className="w-10 h-10 rounded-2xl bg-blue-50 border border-blue-200 text-[#2563EB] flex items-center justify-center font-black text-sm shrink-0 shadow-xs">
                 1
               </div>
               <div>
-                <h4 className="text-sm font-bold text-white mb-1">
+                <h4 className="text-sm font-bold text-slate-900 mb-1">
                   Select &amp; Launch
                 </h4>
-                <p className="text-xs text-slate-400 leading-relaxed">
+                <p className="text-xs text-slate-600 leading-relaxed">
                   Choose your physical store location above or on our in-store
                   touchscreen terminal.
                 </p>
@@ -411,14 +421,14 @@ export default function WalkInGatewayPage() {
             </div>
 
             <div className="flex items-start gap-3.5">
-              <div className="w-10 h-10 rounded-2xl bg-[#00AEEF]/10 border border-[#00AEEF]/30 text-[#00AEEF] flex items-center justify-center font-black text-sm shrink-0">
+              <div className="w-10 h-10 rounded-2xl bg-blue-50 border border-blue-200 text-[#2563EB] flex items-center justify-center font-black text-sm shrink-0 shadow-xs">
                 2
               </div>
               <div>
-                <h4 className="text-sm font-bold text-white mb-1">
+                <h4 className="text-sm font-bold text-slate-900 mb-1">
                   Browse Live Shelf Stock
                 </h4>
-                <p className="text-xs text-slate-400 leading-relaxed">
+                <p className="text-xs text-slate-600 leading-relaxed">
                   Inspect verified hardware specs, test robotics modules, and add
                   components to your terminal cart.
                 </p>
@@ -426,14 +436,14 @@ export default function WalkInGatewayPage() {
             </div>
 
             <div className="flex items-start gap-3.5">
-              <div className="w-10 h-10 rounded-2xl bg-[#00AEEF]/10 border border-[#00AEEF]/30 text-[#00AEEF] flex items-center justify-center font-black text-sm shrink-0">
+              <div className="w-10 h-10 rounded-2xl bg-blue-50 border border-blue-200 text-[#2563EB] flex items-center justify-center font-black text-sm shrink-0 shadow-xs">
                 3
               </div>
               <div>
-                <h4 className="text-sm font-bold text-white mb-1">
+                <h4 className="text-sm font-bold text-slate-900 mb-1">
                   Counter Pickup &amp; Pay
                 </h4>
-                <p className="text-xs text-slate-400 leading-relaxed">
+                <p className="text-xs text-slate-600 leading-relaxed">
                   Present your order token at the checkout counter. Pay via UPI,
                   Card, or Cash and collect your hardware immediately.
                 </p>
@@ -444,28 +454,28 @@ export default function WalkInGatewayPage() {
       </div>
 
       {/* 5. Footer */}
-      <footer className="border-t border-slate-800/80 bg-slate-950 py-5 px-4 sm:px-8 mt-auto">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+      <footer className="border-t border-slate-200 bg-white py-5 px-4 sm:px-8 mt-auto">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-600">
           <div className="flex items-center gap-2">
-            <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
-            <span>
+            <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
+            <span className="font-medium text-slate-700">
               Authorized Prayog India Omnichannel Retail Terminal Network
             </span>
           </div>
-          <div className="flex items-center gap-4 text-slate-400">
+          <div className="flex items-center gap-4 text-slate-600">
             <span>
               Customer Helpline:{" "}
               <a
                 href="tel:+91912345678"
-                className="text-[#00AEEF] hover:underline font-bold"
+                className="text-[#2563EB] hover:underline font-bold"
               >
                 +91 912345678
               </a>
             </span>
             <span>•</span>
             <span className="flex items-center gap-1.5">
-              <Wifi className="w-3.5 h-3.5 text-emerald-400" />
-              <span className="text-emerald-400 font-semibold">
+              <Wifi className="w-3.5 h-3.5 text-emerald-600" />
+              <span className="text-emerald-700 font-semibold">
                 Store Sync: Active
               </span>
             </span>
