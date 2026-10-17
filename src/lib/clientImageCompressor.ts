@@ -10,11 +10,7 @@ export interface ClientCompressionResult {
   dataUrl?: string;
 }
 
-/**
- * Client-side Canvas Image Compression
- * Shrinks dimensions to max 1920px and converts to WebP/JPEG at high visual fidelity (quality 0.82)
- * Runs client-side before sending to server for lightning-fast uploads
- */
+
 export async function compressImageOnClient(
   file: File,
   options: {

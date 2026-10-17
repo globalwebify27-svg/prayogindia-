@@ -216,14 +216,10 @@ export const ServicesSection: React.FC<FullSectionsProps> = ({
   return (
     <section id="services" className="py-10 sm:py-14 bg-white border-t border-slate-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 sm:space-y-10">
-        <div className="text-center max-w-3xl mx-auto space-y-2 sm:space-y-3">
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 leading-tight">
+        <div className="text-center max-w-5xl mx-auto">
+          <h2 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-slate-900 leading-tight whitespace-nowrap [text-wrap:nowrap]">
             Specialized Hardware Services & Institutional Lab Design
           </h2>
-          <p className="text-xs sm:text-sm text-slate-600">
-            Empowering institutions and enterprises with turnkey laboratories,
-            technical consulting, and industrial prototype development.
-          </p>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-4.5">

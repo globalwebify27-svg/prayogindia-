@@ -112,15 +112,15 @@ export const HeroSection: React.FC<HeroProps> = ({
   };
 
   return (
-    <div className="w-full px-3.5 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 pt-2 sm:pt-3 pb-0.5 sm:pb-2 select-none space-y-2 sm:space-y-3">
-      {/* 1. Hero Showcase Banner (Mobile Compact Aspect Ratio & Desktop Full-Bleed) */}
+    <div className="w-full select-none">
+      {/* 1. Hero Showcase Banner (Full width edge-to-edge, zero border-radius) */}
       <section
         onMouseEnter={() => setIsPaused(true)}
         onMouseLeave={() => setIsPaused(false)}
-        className="relative w-full rounded-xl sm:rounded-2xl overflow-hidden min-h-[145px] sm:min-h-[220px] lg:h-[240px] flex items-center bg-slate-900 shadow-2xs"
+        className="relative w-full rounded-none overflow-hidden min-h-[155px] sm:min-h-[220px] lg:h-[260px] flex items-center bg-slate-900"
         aria-label="Prayog India Featured Robotics Showcase Banner"
       >
-        {/* Full-Bleed Background Image (Covers 100% of the Card) */}
+        {/* Full-Bleed Background Image (Covers 100% of the screen width) */}
         <div className="absolute inset-0 w-full h-full pointer-events-none overflow-hidden">
           <AnimatePresence mode="wait">
             <motion.div
@@ -137,14 +137,14 @@ export const HeroSection: React.FC<HeroProps> = ({
                 className="absolute inset-0 w-full h-full object-cover object-center"
               />
               {/* Intelligent Soft Gradient Scrim: Preserves artwork while ensuring 100% text legibility */}
-              <div className="absolute inset-0 bg-gradient-to-r from-white/95 via-white/85 to-transparent sm:from-white/95 sm:via-white/75 sm:to-white/10 w-[68%] sm:w-[60%]" />
+              <div className="absolute inset-0 bg-gradient-to-r from-white/95 via-white/85 to-transparent sm:from-white/95 sm:via-white/75 sm:to-white/10 w-[72%] sm:w-[60%] lg:w-[52%]" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent sm:hidden" />
             </motion.div>
           </AnimatePresence>
         </div>
 
         {/* Dynamic HTML Content Layer: Real HTML Text & Interactive Buttons (NOT an Image) */}
-        <div className="w-[66%] sm:w-[68%] lg:w-[54%] flex flex-col justify-center py-2.5 sm:py-5 lg:py-6 pl-3.5 sm:pl-7 lg:pl-10 pr-2 sm:pr-6 z-10 space-y-1 sm:space-y-2 text-left relative">
+        <div className="w-[70%] sm:w-[65%] lg:w-[50%] flex flex-col justify-center py-3 sm:py-6 lg:py-8 pl-4 sm:pl-8 lg:pl-12 xl:pl-16 2xl:pl-20 pr-2 sm:pr-6 z-10 space-y-1 sm:space-y-2.5 text-left relative">
           {/* Main Headline & Description (Real HTML Text) */}
           <AnimatePresence mode="wait">
             <motion.div
@@ -154,7 +154,7 @@ export const HeroSection: React.FC<HeroProps> = ({
               exit={{ opacity: 0, y: -4 }}
               transition={{ duration: 0.22 }}
             >
-              <h1 className="text-[15px] sm:text-2xl lg:text-[28px] font-black tracking-tight leading-[1.15] text-[#0F172A]">
+              <h1 className="text-[16px] sm:text-2xl lg:text-3xl font-black tracking-tight leading-[1.15] text-[#0F172A]">
                 {activeSlide.titlePrefix}{" "}
                 <span className="text-[#2563EB]">
                   {activeSlide.titleHighlight}
@@ -162,7 +162,7 @@ export const HeroSection: React.FC<HeroProps> = ({
               </h1>
 
               {activeSlide.description && (
-                <p className="mt-0.5 sm:mt-1 text-slate-700 sm:text-slate-600 text-[10px] sm:text-[12.5px] max-w-[190px] sm:max-w-lg font-medium sm:font-normal leading-snug line-clamp-1 sm:line-clamp-2">
+                <p className="mt-0.5 sm:mt-1 text-slate-700 sm:text-slate-600 text-[10.5px] sm:text-[13px] max-w-[220px] sm:max-w-lg font-medium sm:font-normal leading-snug line-clamp-1 sm:line-clamp-2">
                   {activeSlide.description}
                 </p>
               )}
@@ -194,7 +194,7 @@ export const HeroSection: React.FC<HeroProps> = ({
 
         {/* Carousel Indicator Dots */}
         {slideCount > 1 && (
-          <div className="absolute bottom-2 right-2 sm:bottom-3.5 sm:right-4 flex items-center gap-1 z-20 bg-white/90 backdrop-blur-md px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-full border border-slate-200/70 shadow-2xs">
+          <div className="absolute bottom-2.5 right-3 sm:bottom-4 sm:right-6 lg:right-10 flex items-center gap-1 z-20 bg-white/90 backdrop-blur-md px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-full border border-slate-200/70 shadow-2xs">
             {slides.map((slide, idx) => (
               <button
                 key={slide.id}
@@ -211,8 +211,8 @@ export const HeroSection: React.FC<HeroProps> = ({
         )}
       </section>
 
-      {/* 2. Trust Badges Strip (Shown on Desktop, Hidden on Mobile for clean direct discovery) */}
-      <div className="hidden sm:block w-full bg-transparent py-2">
+      {/* 2. Trust Badges Strip (Shown on Desktop, in aligned container) */}
+      <div className="hidden sm:block w-full px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 bg-transparent py-2.5">
         <div className="grid grid-cols-4 gap-4 lg:gap-5 items-center">
           {TRUST_STATS.map((stat, idx) => {
             const Icon = stat.icon;

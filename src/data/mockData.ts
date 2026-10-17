@@ -1477,6 +1477,7 @@ export const PRODUCTS: Product[] = [
   // =======================================================
   {
     id: "rpi-5-8gb",
+    slug: "raspberry-pi-5-8gb",
     name: "Raspberry Pi 5 Model B (8GB RAM ARM Cortex-A76)",
     sku: "PRG-RPI-508",
     category: "Single Board Computers & Dev Boards",

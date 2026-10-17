@@ -2,13 +2,25 @@ import React from "react";
 
 interface TruckLoaderProps {
   message?: string;
+  subtitle?: string;
+  className?: string;
+  bare?: boolean;
 }
 
 export const TruckLoader: React.FC<TruckLoaderProps> = ({
   message = "Locating your shipment in transit...",
+  subtitle = "Connecting to courier logistics network & fetching checkpoints...",
+  className = "",
+  bare = false,
 }) => {
   return (
-    <div className="truck-loader-root flex flex-col items-center justify-center p-8 sm:p-12 bg-white rounded-3xl border border-slate-200 shadow-sm space-y-5 animate-in fade-in duration-300">
+    <div
+      className={
+        bare
+          ? `truck-loader-root flex flex-col items-center justify-center ${className}`
+          : `truck-loader-root flex flex-col items-center justify-center p-5 sm:p-8 bg-white rounded-2xl sm:rounded-3xl border border-slate-200 shadow-sm space-y-4 animate-in fade-in duration-300 ${className}`
+      }
+    >
       <div className="loader">
         <div className="truckWrapper">
           <div className="truckBody">
@@ -56,16 +68,33 @@ export const TruckLoader: React.FC<TruckLoaderProps> = ({
                 y="81"
                 x="193"
               />
+              {/* Truck Cargo Container (White branded body) */}
               <rect
                 strokeWidth="3"
                 stroke="#282828"
-                fill="#DFDFDF"
+                fill="#FFFFFF"
                 rx="2.5"
                 height="90"
                 width="121"
                 y="1.5"
                 x="6.5"
               />
+
+              {/* Cargo Container Top Brand Striping */}
+              <rect x="8" y="3" width="118" height="5" fill="#0A1128" rx="1" />
+              <rect x="8" y="8" width="59" height="2" fill="#00A3E0" />
+              <rect x="67" y="8" width="59" height="2" fill="#F59E0B" />
+
+              {/* Prayog India Official Logo (Centered) */}
+              <image
+                href="/images/prayog-mark.png"
+                x="11"
+                y="24"
+                width="112"
+                height="44"
+                preserveAspectRatio="xMidYMid meet"
+              />
+
               <rect
                 strokeWidth="2"
                 stroke="#282828"
@@ -139,14 +168,20 @@ h78.747C231.693,100.736,232.77,106.162,232.77,111.694z"
         </div>
       </div>
 
-      <div className="text-center space-y-1">
-        <p className="text-sm font-black text-slate-800 tracking-tight flex items-center justify-center gap-2">
-          <span>{message}</span>
-        </p>
-        <p className="text-xs text-slate-500 font-medium">
-          Connecting to courier logistics network & fetching checkpoints...
-        </p>
-      </div>
+      {(message || subtitle) && (
+        <div className="text-center space-y-1">
+          {message && (
+            <p className="text-sm font-black text-slate-800 tracking-tight flex items-center justify-center gap-2">
+              <span>{message}</span>
+            </p>
+          )}
+          {subtitle && (
+            <p className="text-xs text-slate-500 font-medium">
+              {subtitle}
+            </p>
+          )}
+        </div>
+      )}
     </div>
   );
 };

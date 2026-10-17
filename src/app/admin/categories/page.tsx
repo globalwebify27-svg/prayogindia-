@@ -427,12 +427,20 @@ export default function AdminCategoriesPage() {
             attributes.
           </p>
         </div>
-        <button
-          onClick={() => setIsCreateOpen(true)}
-          className="bg-[#00AEEF] hover:bg-[#0096D6] text-white text-xs font-black px-4 py-2.5 rounded-2xl flex items-center gap-1.5 shadow-md shadow-[#00AEEF]/20 active:scale-95 cursor-pointer whitespace-nowrap"
-        >
-          <Plus className="w-4 h-4" /> New Category
-        </button>
+        <div className="flex flex-wrap items-center gap-2.5">
+          <Link
+            href="/admin/category-showcase"
+            className="bg-slate-800/90 hover:bg-slate-700 text-[#00AEEF] hover:text-white text-xs font-black px-4 py-2.5 rounded-2xl flex items-center gap-1.5 border border-slate-700 active:scale-95 cursor-pointer whitespace-nowrap transition-colors"
+          >
+            <Layers className="w-4 h-4" /> Homepage Showcase Cards (Shop by Category)
+          </Link>
+          <button
+            onClick={() => setIsCreateOpen(true)}
+            className="bg-[#00AEEF] hover:bg-[#0096D6] text-white text-xs font-black px-4 py-2.5 rounded-2xl flex items-center gap-1.5 shadow-md shadow-[#00AEEF]/20 active:scale-95 cursor-pointer whitespace-nowrap"
+          >
+            <Plus className="w-4 h-4" /> New Category
+          </button>
+        </div>
       </div>
 
       {/* Success Alert */}

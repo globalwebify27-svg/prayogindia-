@@ -77,22 +77,19 @@ export const TrackOrderView: React.FC = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto py-10 px-4 sm:px-6 space-y-8 text-slate-900">
+    <div className="max-w-4xl mx-auto py-5 sm:py-8 px-4 sm:px-6 space-y-4 sm:space-y-6 text-slate-900">
       {/* Header Banner */}
-      <div className="text-center space-y-3">
-        <h1 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">
+      <div className="text-center pt-1">
+        <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
           Track Your Order
         </h1>
-        <p className="text-xs sm:text-sm text-slate-500 max-w-lg mx-auto">
-          Enter your Prayog Order ID (e.g. <span className="font-mono font-bold text-slate-700">ORD-9821</span>), AWB Air Waybill tracking number, or registered phone number.
-        </p>
       </div>
 
       {/* Search Bar */}
-      <div className="bg-white rounded-3xl border border-slate-200 p-4 sm:p-6 shadow-xl">
-        <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-3">
+      <div className="bg-white rounded-2xl sm:rounded-3xl border border-slate-200 p-3.5 sm:p-5 shadow-md">
+        <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-2.5 sm:gap-3">
           <div className="relative flex-1">
-            <Search className="w-5 h-5 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" />
+            <Search className="w-5 h-5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               value={query}
@@ -101,14 +98,14 @@ export const TrackOrderView: React.FC = () => {
                 if (errorMessage) setErrorMessage(null);
               }}
               placeholder="Enter Order ID / AWB Number / Mobile No..."
-              className="w-full pl-11 pr-4 py-3.5 rounded-2xl border border-slate-200 text-sm font-semibold focus:outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/10 transition-all text-slate-900 placeholder:text-slate-400"
+              className="w-full pl-10 pr-3.5 py-3 sm:py-3.5 rounded-xl sm:rounded-2xl border border-slate-200 text-sm font-semibold focus:outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/10 transition-all text-slate-900 placeholder:text-slate-400"
               required
             />
           </div>
           <button
             type="submit"
             disabled={loading}
-            className="bg-[#2563EB] hover:bg-[#1D4ED8] text-white px-8 py-3.5 rounded-2xl text-xs font-black uppercase tracking-wider transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer active:scale-98 disabled:opacity-75 disabled:cursor-wait"
+            className="bg-[#2563EB] hover:bg-[#1D4ED8] text-white px-7 py-3 sm:py-3.5 rounded-xl sm:rounded-2xl text-xs font-black uppercase tracking-wider transition-all shadow-sm flex items-center justify-center gap-2 cursor-pointer active:scale-98 disabled:opacity-75 disabled:cursor-wait"
           >
             {loading ? (
               <>
@@ -132,18 +129,33 @@ export const TrackOrderView: React.FC = () => {
         />
       )}
 
+      {/* Initial Landing State with Animated Truck */}
+      {!loading && !searched && (
+        <div className="bg-white rounded-2xl sm:rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm flex flex-col items-center justify-center text-center space-y-3 animate-in fade-in duration-300">
+          <TruckLoader bare={true} />
+          <div className="space-y-1 max-w-md">
+            <h3 className="text-base sm:text-lg font-bold text-slate-900">
+              Live Express Courier & Dispatch Tracking
+            </h3>
+            <p className="text-xs sm:text-sm text-slate-500">
+              Enter your Order ID (e.g. <span className="font-mono font-semibold text-slate-700">PRG-2026-4253</span>) or AWB number above to see real-time transit checkpoints.
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Invalid Order / Order Not Found View */}
       {!loading && searched && errorMessage && (
-        <div className="bg-white rounded-3xl border border-rose-200 p-6 sm:p-8 shadow-sm space-y-6 animate-in fade-in slide-in-from-bottom-3 duration-200">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 border-b border-rose-100 pb-5">
-            <div className="w-12 h-12 rounded-2xl bg-rose-50 border border-rose-200 flex items-center justify-center text-rose-600 shrink-0">
-              <AlertCircle className="w-6 h-6" />
+        <div className="bg-white rounded-2xl sm:rounded-3xl border border-rose-200 p-4 sm:p-7 shadow-sm space-y-4 sm:space-y-5 animate-in fade-in slide-in-from-bottom-2 duration-200">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3.5 border-b border-rose-100 pb-4">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-rose-50 border border-rose-200 flex items-center justify-center text-rose-600 shrink-0">
+              <AlertCircle className="w-5 h-5 sm:w-6 sm:h-6" />
             </div>
             <div className="space-y-1">
               <span className="text-[10px] font-black uppercase tracking-widest text-rose-600 bg-rose-50 px-2.5 py-0.5 rounded-full border border-rose-200/60">
                 Order Record Not Found
               </span>
-              <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+              <h2 className="text-lg sm:text-2xl font-black text-slate-900 tracking-tight">
                 No Shipment Found for &ldquo;<span className="text-rose-600">{errorMessage.query}</span>&rdquo;
               </h2>
               <p className="text-xs sm:text-sm text-slate-500">
@@ -152,7 +164,7 @@ export const TrackOrderView: React.FC = () => {
             </div>
           </div>
 
-          <div className="bg-amber-50/70 border border-amber-200/80 rounded-2xl p-4 sm:p-5 space-y-2.5 text-xs">
+          <div className="bg-amber-50/70 border border-amber-200/80 rounded-xl sm:rounded-2xl p-3.5 sm:p-5 space-y-2 text-xs">
             <h4 className="font-bold uppercase tracking-wider text-[11px] text-amber-800 flex items-center gap-2">
               <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
               Please check the following suggestions:
@@ -170,7 +182,7 @@ export const TrackOrderView: React.FC = () => {
             </ul>
           </div>
 
-          <div className="flex flex-wrap items-center gap-3 pt-2">
+          <div className="flex flex-wrap items-center gap-2.5 pt-1">
             <button
               type="button"
               onClick={() => {
@@ -178,14 +190,14 @@ export const TrackOrderView: React.FC = () => {
                 setErrorMessage(null);
                 setSearched(false);
               }}
-              className="bg-[#2563EB] hover:bg-[#1D4ED8] text-white px-5 py-2.5 rounded-xl text-xs font-bold transition-all shadow-sm flex items-center gap-2 cursor-pointer active:scale-98"
+              className="bg-[#2563EB] hover:bg-[#1D4ED8] text-white px-4 py-2 sm:px-5 sm:py-2.5 rounded-xl text-xs font-bold transition-all shadow-sm flex items-center gap-2 cursor-pointer active:scale-98"
             >
               <RotateCcw className="w-3.5 h-3.5" />
               <span>Try Another Number</span>
             </button>
             <a
               href="tel:+91912345678"
-              className="bg-slate-100 hover:bg-slate-200 text-slate-800 px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2"
+              className="bg-slate-100 hover:bg-slate-200 text-slate-800 px-4 py-2 sm:py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2"
             >
               <Phone className="w-3.5 h-3.5 text-slate-600" />
               <span>Contact Support: +91 912345678</span>
@@ -196,33 +208,58 @@ export const TrackOrderView: React.FC = () => {
 
       {/* Tracking Result View */}
       {!loading && searched && trackingResult && (
-        <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm space-y-6 animate-in fade-in slide-in-from-bottom-3 duration-200">
+        <div className="bg-white rounded-2xl sm:rounded-3xl border border-slate-200 p-4 sm:p-7 shadow-sm space-y-5 sm:space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-200">
           {/* Top Status Strip */}
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-6">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4 border-b border-slate-100 pb-4 sm:pb-5">
             <div className="space-y-1">
-              <span className="text-[10px] font-black uppercase tracking-widest text-[#2563EB] bg-blue-50 px-3 py-1 rounded-full border border-blue-200/60">
+              <span className="text-[10px] font-black uppercase tracking-widest text-[#2563EB] bg-blue-50 px-2.5 py-0.5 rounded-full border border-blue-200/60">
                 Shipment In Transit
               </span>
               <div className="text-xl sm:text-2xl font-black text-slate-900 mt-1">
                 Order #{trackingResult.orderNumber}
               </div>
-              <div className="text-xs text-slate-500 flex items-center gap-2">
+              <div className="text-xs text-slate-500 flex flex-wrap items-center gap-2">
                 <span>AWB: <strong className="font-mono text-slate-800">{trackingResult.awb}</strong></span>
                 <span>•</span>
                 <span>Carrier: <strong className="text-slate-800">{trackingResult.courier}</strong></span>
               </div>
             </div>
 
-            <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 flex flex-col items-start md:items-end">
+            <div className="bg-emerald-50 border border-emerald-200 rounded-xl sm:rounded-2xl p-3 sm:p-4 flex flex-col items-start md:items-end">
               <div className="text-[10px] uppercase font-bold text-emerald-700 tracking-wider">
                 Estimated Delivery
               </div>
-              <div className="text-lg font-black text-emerald-900">
+              <div className="text-base sm:text-lg font-black text-emerald-900">
                 {trackingResult.estimatedDelivery}
               </div>
               <div className="text-[11px] text-emerald-600 font-semibold">
                 To: {trackingResult.destination}
               </div>
+            </div>
+          </div>
+
+          {/* Animated In-Transit Live Truck Banner */}
+          <div className="bg-gradient-to-r from-blue-50/70 via-indigo-50/40 to-emerald-50/60 border border-blue-100 rounded-2xl p-4 sm:p-5 flex flex-col md:flex-row items-center justify-between gap-4 overflow-hidden relative shadow-2xs">
+            <div className="space-y-1 text-center md:text-left z-10 max-w-md">
+              <div className="flex items-center justify-center md:justify-start gap-2">
+                <span className="relative flex h-2.5 w-2.5">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+                </span>
+                <span className="text-[11px] font-black uppercase tracking-wider text-[#2563EB]">
+                  Live Shipment Movement
+                </span>
+              </div>
+              <h4 className="text-sm sm:text-base font-bold text-slate-900">
+                Prayog Express Dispatch Linehaul In Progress
+              </h4>
+              <p className="text-xs text-slate-500">
+                Carrier: {trackingResult.courier} • AWB: {trackingResult.awb} • Destination: {trackingResult.destination}
+              </p>
+            </div>
+
+            <div className="shrink-0 scale-90 sm:scale-100 z-10">
+              <TruckLoader bare={true} />
             </div>
           </div>
 

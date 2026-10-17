@@ -337,11 +337,11 @@ export const TestimonialsSection: React.FC = () => {
       role: "Robotics Lab Lead",
       institution: "IIT Kharagpur",
       rating: 5,
+      avatar:
+        "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80",
       comment:
         "Ordered 15 sets of Pixhawk 6C and SimonK ESCs for our UAV swarm testing. Ranchi dispatch arrived within 24 hours with authentic GST tax invoice. Outstanding build quality.",
       product: "Pixhawk 6C Autopilot",
-      buildImage:
-        "https://images.unsplash.com/photo-1527977966376-1c8408f9f108?auto=format&fit=crop&w=600&q=80",
       verified: true,
     },
     {
@@ -350,11 +350,11 @@ export const TestimonialsSection: React.FC = () => {
       role: "STEM Coordinator",
       institution: "St. Xavier High School",
       rating: 5,
+      avatar:
+        "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&q=80",
       comment:
         "The Dilay-Bot 4WD Robotics starter kits made our ATL lab workshop an absolute success. Students assembled obstacle avoiders in under 3 hours using the included manuals.",
       product: "PRAYOG Dilay-Bot Kit",
-      buildImage:
-        "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&w=600&q=80",
       verified: true,
     },
     {
@@ -363,11 +363,11 @@ export const TestimonialsSection: React.FC = () => {
       role: "IoT Embedded Developer",
       institution: "Apex IoT Labs",
       rating: 5,
+      avatar:
+        "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&q=80",
       comment:
         "Best supplier for genuine Raspberry Pi 5 8GB and dual-core ESP32 boards. Flashed firmware instantly without driver errors. Will definitely reorder for industrial projects.",
       product: "Raspberry Pi 5 (8GB)",
-      buildImage:
-        "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80",
       verified: true,
     },
     {
@@ -376,11 +376,11 @@ export const TestimonialsSection: React.FC = () => {
       role: "AI & Robotics Scientist",
       institution: "IISc Bangalore",
       rating: 5,
+      avatar:
+        "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=150&q=80",
       comment:
         "Procured Jetson Orin Nano modules for our SLAM LiDAR rover project. Hardware performance and GPIO pinout reliability are impeccable. Excellent institutional support.",
       product: "Jetson Orin Nano Kit",
-      buildImage:
-        "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=600&q=80",
       verified: true,
     },
     {
@@ -389,11 +389,11 @@ export const TestimonialsSection: React.FC = () => {
       role: "Drone Systems Lead",
       institution: "AeroTech Innovations",
       rating: 5,
+      avatar:
+        "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=150&q=80",
       comment:
         "The brushless A2212 motors and 30A ESCs balanced perfectly during payload drop testing. Zero jitter and solid telemetry communication up to 4km range.",
       product: "Carbon Quad Frame",
-      buildImage:
-        "https://images.unsplash.com/photo-1508614589041-895b88991e3e?auto=format&fit=crop&w=600&q=80",
       verified: true,
     },
     {
@@ -402,11 +402,11 @@ export const TestimonialsSection: React.FC = () => {
       role: "Embedded Club Mentor",
       institution: "DTU Delhi",
       rating: 5,
+      avatar:
+        "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=150&q=80",
       comment:
         "High-torque MG996R metal gear servos handled multi-axis inverse kinematics smoothly during our annual inter-college robotics symposium.",
       product: "6-DOF Robot Arm Kit",
-      buildImage:
-        "https://images.unsplash.com/photo-1553406830-ef2513450d76?auto=format&fit=crop&w=600&q=80",
       verified: true,
     },
     {
@@ -415,11 +415,11 @@ export const TestimonialsSection: React.FC = () => {
       role: "Electronics Dept",
       institution: "NIT Patna",
       rating: 5,
+      avatar:
+        "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=150&q=80",
       comment:
         "Local Patna hub delivered our batch order within 18 hours. The LED matrix on the UNO R4 WiFi is great for teaching embedded C to undergraduate engineering students.",
       product: "Arduino UNO R4 WiFi",
-      buildImage:
-        "https://images.unsplash.com/photo-1591488320449-011701bb6704?auto=format&fit=crop&w=600&q=80",
       verified: true,
     },
     {
@@ -428,11 +428,11 @@ export const TestimonialsSection: React.FC = () => {
       role: "Automation Engineer",
       institution: "Kolkata AgriTech",
       rating: 5,
+      avatar:
+        "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=150&q=80",
       comment:
         "Industrial grade capacitive soil moisture probes and LoRa SX1278 transceivers deployed across 20 greenhouse zones with flawless telemetry packet reception.",
       product: "Smart Agri LoRa Kit",
-      buildImage:
-        "https://images.unsplash.com/photo-1608564697071-ddf911d81370?auto=format&fit=crop&w=600&q=80",
       verified: true,
     },
   ];
@@ -463,7 +463,7 @@ export const TestimonialsSection: React.FC = () => {
                 className="w-[300px] sm:w-[350px] shrink-0 bg-white p-5 rounded-3xl border border-slate-200/90 shadow-sm hover:shadow-xl hover:border-[#2563EB]/50 transition-all duration-300 flex flex-col justify-between space-y-3.5 group select-none cursor-pointer"
               >
                 <div className="space-y-3">
-                  {/* Rating & Verified Badge */}
+                  {/* Rating & Circle Profile Image */}
                   <div className="flex items-center justify-between">
                     <div className="flex text-amber-400 gap-0.5">
                       {[...Array(t.rating)].map((_, i) => (
@@ -471,9 +471,16 @@ export const TestimonialsSection: React.FC = () => {
                       ))}
                     </div>
 
-                    <span className="inline-flex items-center gap-1 text-[10px] font-extrabold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
-                      <CheckCircle2 className="w-3 h-3" /> Verified Buyer
-                    </span>
+                    {/* Circle Profile Image */}
+                    <div className="relative w-10 h-10 rounded-full overflow-hidden border-2 border-white shadow-xs ring-1 ring-slate-200/80 shrink-0">
+                      <Image
+                        src={t.avatar}
+                        alt={t.name}
+                        fill
+                        sizes="40px"
+                        className="object-cover"
+                      />
+                    </div>
                   </div>
 
                   {/* Comment Text */}
@@ -481,18 +488,6 @@ export const TestimonialsSection: React.FC = () => {
                     &quot;{t.comment}&quot;
                   </p>
 
-                  {/* Customer Build Media Thumbnail */}
-                  <div className="relative h-36 w-full rounded-2xl overflow-hidden bg-slate-100 border border-slate-100">
-                    <Image
-                      src={t.buildImage}
-                      alt={t.product}
-                      fill
-                      className="object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
-                    <span className="absolute bottom-2 left-2 bg-slate-900/80 backdrop-blur-md text-white text-[9px] font-bold px-2 py-0.5 rounded-md">
-                      Customer Project Build
-                    </span>
-                  </div>
                 </div>
 
                 {/* Author & Product Info */}

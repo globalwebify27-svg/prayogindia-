@@ -576,7 +576,7 @@ export const Header: React.FC<HeaderProps> = ({
   return (
     <>
       {/* Top Header Announcement Bar Slider (Scrolls off naturally without jitter) */}
-      <div className="bg-[#0A1128] text-white text-xs border-b border-slate-800 py-1.5 sm:py-2 px-3 sm:px-4">
+      <div className="bg-[#0A1128] text-white text-xs border-b border-slate-800 py-1.5 sm:py-2 px-3 sm:px-4 font-inter site-header">
         <div className="w-full px-1 sm:px-4 lg:px-6 xl:px-8 2xl:px-10 flex flex-col sm:flex-row items-center justify-between gap-2">
           <div className="flex items-center gap-2 overflow-hidden w-full sm:w-auto justify-center sm:justify-start flex-1 min-w-0">
             {liveAnnouncements.length > 0 &&
@@ -649,7 +649,7 @@ export const Header: React.FC<HeaderProps> = ({
       {/* Scrolls away on desktop so only the action bar sticks */}
       {/* ======================================================== */}
       <div
-        className="w-full bg-white border-b border-slate-200/90 relative z-30 lg:z-50 sticky top-0 lg:relative"
+        className="w-full bg-white border-b border-slate-200/90 relative z-30 lg:z-50 sticky top-0 lg:relative font-inter site-header"
       >
         <div className="w-full px-3.5 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 py-1.5 sm:py-3">
           {/* Mobile Top Header: [ Circular Hamburger ☰ ] [ Centered Logo ] [ Circular Cart with Badge 🛒 ] */}
@@ -1614,7 +1614,7 @@ export const Header: React.FC<HeaderProps> = ({
       {/* ======================================================== */}
       <header
         style={{ position: "sticky", top: 0 }}
-        className={`sticky top-0 z-40 bg-[#D4E4F7] border-b border-slate-300/80 transition-shadow duration-200 ${
+        className={`sticky top-0 z-40 bg-[#D4E4F7] border-b border-slate-300/80 transition-shadow duration-200 font-inter site-header ${
           isScrolled ? "shadow-md shadow-slate-900/10" : "border-t border-slate-200/60"
         } w-full`}
       >

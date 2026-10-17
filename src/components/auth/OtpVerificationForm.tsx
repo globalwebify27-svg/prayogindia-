@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useStore } from "@/context/StoreContext";
 import { createCustomerOrder } from "@/lib/apiServices";
+import { TruckLoader } from "@/components/TruckLoader";
 import {
   ShieldCheck,
   Phone,
@@ -587,10 +588,12 @@ export const OtpVerificationForm: React.FC = () => {
 
       {/* ── STEP 4: Order Confirmed Screen ── */}
       {step === "confirmed" && (
-        <div className="text-center space-y-5 py-4 animate-in zoom-in-95 duration-300">
-          <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto border-2 border-emerald-300 shadow-md">
-            <CheckCircle2 className="w-9 h-9" />
-          </div>
+        <div className="text-center space-y-4 py-2 animate-in zoom-in-95 duration-300">
+          <TruckLoader
+            message={`Order #${confirmedOrderNumber} Confirmed & Handed to Logistics!`}
+            subtitle="Your robotics package is packed & booked for express dispatch."
+            className="border-none shadow-none p-2 sm:p-4"
+          />
 
           <div className="space-y-1">
             <span className="bg-emerald-100 text-emerald-800 text-[10px] font-black uppercase px-3 py-1 rounded-full border border-emerald-200">

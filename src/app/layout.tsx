@@ -1,8 +1,15 @@
 import type { Metadata } from "next";
-import { Inter, JetBrains_Mono, Caveat } from "next/font/google";
+import { Inter, Plus_Jakarta_Sans, JetBrains_Mono, Caveat } from "next/font/google";
 import "./globals.css";
 import { StoreProvider } from "@/context/StoreContext";
 import { AppShell } from "@/components/AppShell";
+
+const plusJakartaSans = Plus_Jakarta_Sans({
+  variable: "--font-jakarta",
+  subsets: ["latin"],
+  display: "swap",
+  weight: ["300", "400", "500", "600", "700", "800"],
+});
 
 const inter = Inter({
   variable: "--font-inter",
@@ -44,7 +51,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${jetbrainsMono.variable} ${caveat.variable} antialiased overflow-x-clip w-full max-w-full`}
+      className={`${plusJakartaSans.variable} ${inter.variable} ${jetbrainsMono.variable} ${caveat.variable} antialiased overflow-x-clip w-full max-w-full`}
     >
       <body className="min-h-screen flex flex-col font-sans overflow-x-clip w-full max-w-full">
         <StoreProvider>

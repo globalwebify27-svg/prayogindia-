@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { db } from "@/lib/db";
+import { db, isDatabaseAvailable } from "@/lib/db";
 import { normalizeEmail, verifyPassword, sanitizeUser } from "@/lib/authUtils";
 import { UserDB } from "@/lib/userDB";
 import { checkRateLimit, getSecurityHeaders } from "@/lib/security";
@@ -45,11 +45,15 @@ export async function POST(request: Request) {
 
     // 3. Fallback check Prisma Database if available
     let dbUser: any = null;
-    if (!userRecord && process.env.DATABASE_URL) {
+    if (!userRecord && isDatabaseAvailable()) {
       const cleanEmail = normalizeEmail(identifier);
-      dbUser = await db.user.findUnique({
-        where: { email: cleanEmail },
-      });
+      try {
+        dbUser = await db.user.findUnique({
+          where: { email: cleanEmail },
+        });
+      } catch (dbErr) {
+        console.warn("Prisma user lookup skipped during login:", dbErr);
+      }
     }
 
     // 4. If user not found in any store -> Return generic authentication failure

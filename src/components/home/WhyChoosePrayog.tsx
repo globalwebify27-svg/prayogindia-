@@ -75,10 +75,6 @@ export const WhyChoosePrayog: React.FC = () => {
           <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
             Why Choose Prayog India
           </h2>
-          <p className="text-xs sm:text-sm text-slate-500 font-normal">
-            India’s trusted ecosystem for authentic robotics hardware,
-            institutional lab setups & technical support.
-          </p>
         </div>
 
         {/* 6 Reusable Premium Feature Cards Grid */}

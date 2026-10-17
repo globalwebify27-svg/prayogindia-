@@ -24,7 +24,7 @@ export const CategoriesHeader: React.FC<CategoriesHeaderProps> = ({
   onBrowseAll,
 }) => {
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-sky-100/90 shadow-2xs min-h-[190px] sm:min-h-[210px] lg:min-h-[225px] flex items-center bg-[#EBF5FC]">
+    <div className="category-header font-inter relative overflow-hidden rounded-2xl border border-sky-100/90 shadow-2xs min-h-[190px] sm:min-h-[210px] lg:min-h-[225px] flex items-center bg-[#EBF5FC]">
       {/* 1. Full Panoramic Background Banner Image */}
       <Image
         src="/categories-hero-banner.webp"

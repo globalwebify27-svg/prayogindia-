@@ -134,70 +134,16 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
   };
 
   return (
-    <div className="space-y-5 text-slate-900">
-      {/* ── Brand & SKU Row ── */}
-      <div className="flex items-center gap-3">
-        <span className="bg-slate-100 text-slate-800 text-[10px] font-black uppercase px-2.5 py-1 rounded-md border border-slate-200 tracking-wider">
-          {product.brand || "PRAYOG INDIA"}
-        </span>
-        <span className="text-xs font-mono font-bold text-slate-400">
-          SKU: {currentSku}
-        </span>
-      </div>
-
-      {/* ── Product Title ── */}
-      <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 leading-snug tracking-tight">
-        {product.name}
-      </h1>
-
-      {/* ── Short Description ── */}
-      {product.description && (
-        <p className="text-xs sm:text-sm text-slate-600 leading-relaxed line-clamp-2">
-          {product.description}
-        </p>
-      )}
-
-      {/* ── Rating & Share Row ── */}
-      <div className="flex items-center justify-between pt-0.5">
-        <div className="flex items-center gap-2 text-xs">
-          {/* 5-Star Row with Half/Partial Fill Support */}
-          <div className="flex items-center gap-1">
-            {[1, 2, 3, 4, 5].map((star) => {
-              const currentRating = Number(product.rating || 4.5);
-              const fillPercentage = Math.max(
-                0,
-                Math.min(100, (currentRating - (star - 1)) * 100),
-              );
-
-              return (
-                <div key={star} className="relative w-4 h-4 shrink-0">
-                  {/* Empty star outline */}
-                  <Star className="w-4 h-4 text-slate-300 fill-transparent" />
-                  {/* Filled star with clip */}
-                  {fillPercentage > 0 && (
-                    <div
-                      className="absolute inset-0 overflow-hidden"
-                      style={{ width: `${fillPercentage}%` }}
-                    >
-                      <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-
-          <span className="font-semibold text-slate-700 text-xs">
-            {Number(product.rating || 4.5).toFixed(1)}
+    <div className="space-y-3 sm:space-y-3.5 text-slate-900">
+      {/* ── Brand, SKU & Share Top Row ── */}
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2">
+          <span className="bg-slate-100 text-slate-800 text-[10px] font-black uppercase px-2 py-0.5 rounded-md border border-slate-200 tracking-wider">
+            {product.brand || "PRAYOG INDIA"}
           </span>
-
-          <span className="text-slate-300">•</span>
-          <a
-            href="#reviews-tab"
-            className="text-xs font-medium text-slate-500 hover:text-[#2563EB] transition-colors cursor-pointer"
-          >
-            ({product.reviews || 389} reviews)
-          </a>
+          <span className="text-[11px] font-mono font-bold text-slate-400">
+            SKU: {currentSku}
+          </span>
         </div>
 
         {/* Share Button */}
@@ -220,93 +166,143 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
               alert("Product link copied to clipboard!");
             }
           }}
-          className="flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-[#2563EB] bg-slate-100/80 hover:bg-slate-100 px-3 py-1 rounded-full transition-colors cursor-pointer"
+          className="flex items-center gap-1.5 text-[11px] font-bold text-slate-500 hover:text-[#2563EB] bg-slate-100/90 hover:bg-slate-200/80 px-2.5 py-0.5 rounded-full transition-colors cursor-pointer"
           title="Share Product"
         >
-          <Share2 className="w-3.5 h-3.5" />
+          <Share2 className="w-3 h-3" />
           <span>Share</span>
         </button>
       </div>
 
-      {/* ── Category & Feature Tag Chips ── */}
-      {tagChips.length > 0 && (
-        <div className="flex flex-wrap items-center gap-2 pt-1">
-          {tagChips.map((chip, idx) => (
-            <span
-              key={idx}
-              className="bg-sky-50 text-sky-700 text-[11px] font-bold px-3 py-1 rounded-full border border-sky-100"
-            >
-              {chip}
-            </span>
-          ))}
-        </div>
+      {/* ── Product Title ── */}
+      <h1 className="text-xl sm:text-2xl font-black text-slate-900 leading-snug tracking-tight">
+        {product.name}
+      </h1>
+
+      {/* ── Short Description ── */}
+      {product.description && (
+        <p className="text-xs text-slate-600 leading-relaxed line-clamp-2">
+          {product.description}
+        </p>
       )}
 
-      {/* ── Price Block ── */}
-      <div className="pt-2">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-baseline gap-3">
-            <span className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">
-              ₹{currentPrice.toLocaleString("en-IN")}
-            </span>
-            {currentMrp > currentPrice && (
-              <>
-                <span className="text-sm sm:text-base text-slate-400 line-through font-semibold">
-                  ₹{currentMrp.toLocaleString("en-IN")}
-                </span>
-                <span className="bg-[#FF3B30] text-white text-[11px] font-black px-2 py-0.5 rounded-md uppercase tracking-wide">
-                  {discountPercentage}% OFF
-                </span>
-              </>
-            )}
+      {/* ── Rating & Tag Chips Row ── */}
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs">
+        <div className="flex items-center gap-1.5">
+          {/* 5-Star Row */}
+          <div className="flex items-center gap-0.5">
+            {[1, 2, 3, 4, 5].map((star) => {
+              const currentRating = Number(product.rating || 4.5);
+              const fillPercentage = Math.max(
+                0,
+                Math.min(100, (currentRating - (star - 1)) * 100),
+              );
+
+              return (
+                <div key={star} className="relative w-3.5 h-3.5 shrink-0">
+                  <Star className="w-3.5 h-3.5 text-slate-300 fill-transparent" />
+                  {fillPercentage > 0 && (
+                    <div
+                      className="absolute inset-0 overflow-hidden"
+                      style={{ width: `${fillPercentage}%` }}
+                    >
+                      <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
 
-          {savings > 0 && (
-            <div className="bg-emerald-50 text-emerald-700 text-xs font-extrabold px-3 py-1 rounded-full border border-emerald-200">
-              You Save ₹{savings.toLocaleString("en-IN")}
-            </div>
-          )}
+          <span className="font-bold text-slate-800 text-xs">
+            {Number(product.rating || 4.5).toFixed(1)}
+          </span>
+
+          <span className="text-slate-300">•</span>
+          <a
+            href="#reviews-tab"
+            className="text-[11px] font-medium text-slate-500 hover:text-[#2563EB] transition-colors cursor-pointer"
+          >
+            ({product.reviews || 230} reviews)
+          </a>
         </div>
 
-        <div className="text-[11px] text-slate-500 font-medium pt-1">
-          Inclusive of GST <span className="text-slate-300 mx-1.5">•</span> No
-          hidden charges
-        </div>
-      </div>
-
-      {/* ── Stock Availability ── */}
-      <div className="flex items-center gap-2 pt-1">
-        {currentStock ? (
-          <div className="flex items-center gap-1.5 text-xs font-bold text-slate-700">
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block animate-pulse" />
-            <span className="text-emerald-700 font-extrabold">In Stock</span>
-            <span className="text-slate-500">
-              (Only {stockCount} units left)
-            </span>
-            <Info className="w-3.5 h-3.5 text-slate-400" />
-          </div>
-        ) : (
-          <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-red-500 inline-block" />
-            <span className="text-xs font-extrabold text-red-600">
-              Currently Out of Stock
-            </span>
+        {/* Feature Tags */}
+        {tagChips.length > 0 && (
+          <div className="flex items-center gap-1.5 flex-wrap">
+            {tagChips.map((chip, idx) => (
+              <span
+                key={idx}
+                className="bg-sky-50 text-sky-700 text-[10px] font-bold px-2 py-0.5 rounded-md border border-sky-100"
+              >
+                {chip}
+              </span>
+            ))}
           </div>
         )}
       </div>
 
+      {/* ── Price & Stock Row ── */}
+      <div className="pt-1 border-t border-slate-100">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="flex items-baseline gap-2.5">
+            <span className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+              ₹{currentPrice.toLocaleString("en-IN")}
+            </span>
+            {currentMrp > currentPrice && (
+              <>
+                <span className="text-xs sm:text-sm text-slate-400 line-through font-semibold">
+                  ₹{currentMrp.toLocaleString("en-IN")}
+                </span>
+                <span className="bg-[#FF3B30] text-white text-[10px] font-black px-1.5 py-0.5 rounded uppercase tracking-wide">
+                  {discountPercentage}% OFF
+                </span>
+              </>
+            )}
+            {savings > 0 && (
+              <span className="hidden sm:inline-block bg-emerald-50 text-emerald-700 text-[11px] font-extrabold px-2 py-0.5 rounded-full border border-emerald-200">
+                You Save ₹{savings.toLocaleString("en-IN")}
+              </span>
+            )}
+          </div>
+
+          {/* Stock Availability */}
+          <div>
+            {currentStock ? (
+              <div className="flex items-center gap-1.5 text-xs font-bold text-slate-700">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block animate-pulse" />
+                <span className="text-emerald-700 font-extrabold">In Stock</span>
+                <span className="text-slate-500 text-[11px]">
+                  (Only {stockCount} left)
+                </span>
+              </div>
+            ) : (
+              <div className="flex items-center gap-1.5 text-xs font-extrabold text-red-600">
+                <span className="w-2 h-2 rounded-full bg-red-500 inline-block" />
+                <span>Out of Stock</span>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="text-[10px] text-slate-400 font-medium pt-0.5">
+          Inclusive of GST <span className="text-slate-300 mx-1">•</span> No hidden charges
+        </div>
+      </div>
+
       {/* ── Variant Selector (if product variants exist) ── */}
       {product.variants && product.variants.length > 0 && (
-        <div className="space-y-2 pt-2 border-t border-slate-100">
-          <label className="text-xs font-bold text-slate-700 block">
+        <div className="space-y-1.5 pt-1">
+          <label className="text-[11px] font-bold text-slate-700 block">
             Select Option / Variant:
           </label>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-1.5">
             {product.variants.map((variant) => (
               <button
                 key={variant.id}
+                type="button"
                 onClick={() => onSelectVariant(variant)}
-                className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all border cursor-pointer ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all border cursor-pointer ${
                   selectedVariant?.id === variant.id
                     ? "border-[#2563EB] bg-blue-50 text-[#2563EB] ring-2 ring-blue-500/20"
                     : "border-slate-200 hover:border-slate-300 text-slate-700 bg-white"
@@ -319,206 +315,173 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
         </div>
       )}
 
-      {/* ── Check Delivery Pincode Box ── */}
-      <div className="bg-sky-50/40 border border-sky-100 rounded-2xl p-4 space-y-2.5">
-        <div className="flex items-center gap-2">
-          <Truck className="w-4 h-4 text-slate-800" />
-          <div>
-            <div className="text-xs font-extrabold text-slate-900">
-              Check Delivery
-            </div>
-            <div className="text-[11px] text-slate-500">
-              Enter your pincode to know delivery time & charges
-            </div>
-          </div>
-        </div>
-
-        <form onSubmit={handleCheckPincode} className="flex items-center gap-2">
-          <input
-            type="text"
-            inputMode="numeric"
-            pattern="[0-9]*"
-            maxLength={6}
-            value={pincode}
-            onChange={(e) => {
-              const val = e.target.value.replace(/\D/g, "");
-              setPincode(val);
-              if (pincodeStatus !== "idle") setPincodeStatus("idle");
-            }}
-            placeholder="Enter 6-digit pincode"
-            className="flex-1 px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#2563EB] transition-all"
-          />
-          <button
-            type="submit"
-            className="px-6 py-2.5 bg-[#0A1128] hover:bg-slate-800 text-white text-xs font-bold rounded-xl transition-all active:scale-95 cursor-pointer shrink-0"
-          >
-            Check
-          </button>
-        </form>
-
-        {pincodeStatus === "valid" && (
-          <div className="p-2.5 bg-emerald-50 border border-emerald-200 rounded-xl text-xs space-y-1">
-            <div className="flex items-center gap-1.5 font-bold text-emerald-800">
-              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-              <span>Standard delivery available for {pincode}</span>
-            </div>
-            <p className="text-[11px] text-slate-600 font-medium">
-              ⚡ Estimated Delivery by{" "}
-              <strong className="text-slate-900">{deliveryDate}</strong> • Fast
-              Dispatch
-            </p>
-          </div>
-        )}
-
-        {pincodeStatus === "invalid" && (
-          <p className="text-xs text-red-600 font-medium flex items-center gap-1 pt-0.5">
-            <AlertTriangle className="w-3.5 h-3.5 shrink-0" /> Please enter a
-            valid 6-digit PIN code.
-          </p>
-        )}
-      </div>
-
-      {/* ── 4 Trust Badges Strip (Matches Screenshot) ── */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 py-3 border-y border-slate-100">
-        <div className="flex items-center gap-2.5 text-left">
-          <ShieldCheck className="w-5 h-5 text-[#2563EB] shrink-0" />
-          <div className="text-[11px] font-bold text-slate-800 leading-tight">
-            Genuine Product
-            <span className="block font-medium text-slate-500 text-[10px]">
-              with Warranty
-            </span>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2.5 text-left">
-          <FileText className="w-5 h-5 text-[#2563EB] shrink-0" />
-          <div className="text-[11px] font-bold text-slate-800 leading-tight">
-            GST Invoice
-            <span className="block font-medium text-slate-500 text-[10px]">
-              Available
-            </span>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2.5 text-left">
-          <Package className="w-5 h-5 text-[#2563EB] shrink-0" />
-          <div className="text-[11px] font-bold text-slate-800 leading-tight">
-            Secure Packaging
-            <span className="block font-medium text-slate-500 text-[10px]">
-              & Fast Dispatch
-            </span>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2.5 text-left">
-          <Headphones className="w-5 h-5 text-[#2563EB] shrink-0" />
-          <div className="text-[11px] font-bold text-slate-800 leading-tight">
-            Technical Support
-            <span className="block font-medium text-slate-500 text-[10px]">
-              from Experts
-            </span>
-          </div>
-        </div>
-      </div>
-
-      {/* ── Quantity Selector & Action Buttons Row (Desktop only, mobile shows only at bottom) ── */}
-      <div className="space-y-4 pt-1">
-        <div className="hidden lg:block">
-          {currentStock ? (
-            <div className="space-y-2.5 sm:space-y-0 sm:flex sm:items-center sm:gap-3">
-              <div className="flex items-center gap-2.5 sm:flex-1">
-                {/* Quantity Selector */}
-                <div className="flex items-center justify-between gap-1.5 bg-slate-50 border border-slate-200 rounded-xl p-1 px-2.5 shrink-0">
-                  <span className="text-[11px] font-bold text-slate-500 sm:inline hidden">
-                    Qty
-                  </span>
-                  <div className="flex items-center bg-white border border-slate-200 rounded-lg overflow-hidden">
-                    <button
-                      type="button"
-                      onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                      disabled={quantity <= 1}
-                      className="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center text-slate-600 hover:bg-slate-100 disabled:opacity-40 font-bold text-xs cursor-pointer transition-colors"
-                    >
-                      -
-                    </button>
-                    <span className="w-7 text-center text-xs font-black text-slate-900 select-none">
-                      {quantity}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => setQuantity((q) => Math.min(50, q + 1))}
-                      disabled={quantity >= 50}
-                      className="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center text-slate-600 hover:bg-slate-100 disabled:opacity-40 font-bold text-xs cursor-pointer transition-colors"
-                    >
-                      +
-                    </button>
-                  </div>
-                </div>
-
-                {/* Add to Cart Button (Prayog Brand Yellow) */}
-                <button
-                  onClick={() => onAddToCart(product, quantity)}
-                  className="flex-1 bg-[#FFC20E] hover:bg-[#E5AC0D] text-slate-950 py-3 px-3 sm:py-3.5 sm:px-5 rounded-xl font-black text-xs uppercase tracking-wider transition-all duration-150 shadow-sm flex items-center justify-center gap-2 active:scale-95 cursor-pointer whitespace-nowrap"
-                >
-                  <ShoppingCart className="w-4 h-4 stroke-[2.2] shrink-0" />
-                  <span>ADD TO CART</span>
-                </button>
-              </div>
-
-              {/* Buy Now Button (Prayog Deep Navy) */}
+      {/* ── Action Buttons Row (Placed immediately under Price/Stock for instant access) ── */}
+      <div className="pt-1">
+        {currentStock ? (
+          <div className="flex items-center gap-2 sm:gap-2.5">
+            {/* Quantity Selector */}
+            <div className="flex items-center bg-slate-50 border border-slate-200 rounded-xl overflow-hidden shrink-0 h-11">
               <button
-                onClick={() =>
-                  onBuyNow
-                    ? onBuyNow(product, quantity)
-                    : onAddToCart(product, quantity)
-                }
-                className="w-full sm:flex-1 bg-[#0A1128] hover:bg-slate-900 text-white py-3 px-4 sm:py-3.5 sm:px-5 rounded-xl font-black text-xs uppercase tracking-wider transition-all shadow-md shadow-slate-950/20 flex items-center justify-center gap-2 active:scale-95 cursor-pointer"
+                type="button"
+                onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                disabled={quantity <= 1}
+                className="w-7 sm:w-8 h-full flex items-center justify-center text-slate-600 hover:bg-slate-200 disabled:opacity-30 font-bold text-sm cursor-pointer transition-colors"
+                aria-label="Decrease quantity"
               >
-                <span>BUY NOW</span>
+                -
+              </button>
+              <span className="w-7 text-center text-xs font-black text-slate-900 select-none">
+                {quantity}
+              </span>
+              <button
+                type="button"
+                onClick={() => setQuantity((q) => Math.min(50, q + 1))}
+                disabled={quantity >= 50}
+                className="w-7 sm:w-8 h-full flex items-center justify-center text-slate-600 hover:bg-slate-200 disabled:opacity-30 font-bold text-sm cursor-pointer transition-colors"
+                aria-label="Increase quantity"
+              >
+                +
               </button>
             </div>
-          ) : (
-            <a
-              href={getWhatsAppInquiryUrl()}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-full bg-[#25D366] hover:bg-[#20bd5a] text-white py-3.5 px-4 rounded-xl font-black text-xs uppercase tracking-wider transition-all shadow-md shadow-[#25D366]/25 flex items-center justify-center gap-2.5 active:scale-95 cursor-pointer"
+
+            {/* Add to Cart Button (Prayog Brand Yellow) */}
+            <button
+              type="button"
+              onClick={() => onAddToCart(product, quantity)}
+              className="flex-1 h-11 bg-[#FFC20E] hover:bg-[#E5AC0D] text-slate-950 px-3 sm:px-4 rounded-xl font-black text-xs uppercase tracking-wider transition-all shadow-xs flex items-center justify-center gap-1.5 active:scale-95 cursor-pointer whitespace-nowrap"
             >
-              <WhatsAppIcon className="w-5 h-5 fill-white shrink-0" />
-              <span>Out of Stock — Inquire on WhatsApp</span>
-            </a>
-          )}
-        </div>
+              <ShoppingCart className="w-4 h-4 stroke-[2.2] shrink-0" />
+              <span>ADD TO CART</span>
+            </button>
 
-        {/* Secondary Action Links */}
-        <div className="flex items-center justify-center gap-8 pt-1 text-xs font-bold text-slate-600">
-          <button
-            type="button"
-            onClick={() => onToggleWishlist(product)}
-            className={`flex items-center gap-2 hover:text-red-500 transition-colors cursor-pointer ${
-              isWishlisted ? "text-red-500 font-black" : ""
-            }`}
-          >
-            <Heart
-              className={`w-4 h-4 ${
-                isWishlisted ? "fill-red-500 text-red-500" : ""
+            {/* Buy Now Button (Prayog Deep Navy) */}
+            <button
+              type="button"
+              onClick={() =>
+                onBuyNow
+                  ? onBuyNow(product, quantity)
+                  : onAddToCart(product, quantity)
+              }
+              className="flex-1 h-11 bg-[#0A1128] hover:bg-slate-900 text-white px-3 sm:px-4 rounded-xl font-black text-xs uppercase tracking-wider transition-all shadow-sm flex items-center justify-center gap-1.5 active:scale-95 cursor-pointer whitespace-nowrap"
+            >
+              <span>BUY NOW</span>
+            </button>
+
+            {/* Wishlist Button */}
+            <button
+              type="button"
+              onClick={() => onToggleWishlist(product)}
+              className={`w-11 h-11 rounded-xl border flex items-center justify-center shrink-0 transition-all cursor-pointer ${
+                isWishlisted
+                  ? "bg-red-50 border-red-200 text-red-500"
+                  : "bg-white border-slate-200 hover:border-slate-300 text-slate-500 hover:text-red-500"
               }`}
-            />
-            <span>{isWishlisted ? "In Wishlist" : "Add to Wishlist"}</span>
-          </button>
-
-          <span className="text-slate-200">|</span>
-
+              title={isWishlisted ? "In Wishlist" : "Add to Wishlist"}
+              aria-label={isWishlisted ? "In Wishlist" : "Add to Wishlist"}
+            >
+              <Heart
+                className={`w-4 h-4 ${
+                  isWishlisted ? "fill-red-500 text-red-500" : ""
+                }`}
+              />
+            </button>
+          </div>
+        ) : (
           <a
             href={getWhatsAppInquiryUrl()}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-2 text-slate-700 hover:text-[#2563EB] transition-colors cursor-pointer"
+            className="w-full h-11 bg-[#25D366] hover:bg-[#20bd5a] text-white rounded-xl font-black text-xs uppercase tracking-wider transition-all shadow-md shadow-[#25D366]/20 flex items-center justify-center gap-2 active:scale-95 cursor-pointer"
           >
-            <MessageSquare className="w-4 h-4 text-slate-500" />
-            <span>Ask an Expert</span>
+            <WhatsAppIcon className="w-4 h-4 fill-white shrink-0" />
+            <span>Out of Stock — Inquire on WhatsApp</span>
           </a>
+        )}
+      </div>
+
+      {/* ── Compact Delivery Pincode Box ── */}
+      <div className="bg-sky-50/50 border border-sky-100 rounded-xl p-2.5 space-y-1.5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
+          <div className="flex items-center gap-1.5 text-xs font-bold text-slate-800 shrink-0">
+            <Truck className="w-3.5 h-3.5 text-[#2563EB] shrink-0" />
+            <span>Check Delivery:</span>
+          </div>
+
+          <form onSubmit={handleCheckPincode} className="flex items-center gap-1.5 flex-1 max-w-sm">
+            <input
+              type="text"
+              inputMode="numeric"
+              pattern="[0-9]*"
+              maxLength={6}
+              value={pincode}
+              onChange={(e) => {
+                const val = e.target.value.replace(/\D/g, "");
+                setPincode(val);
+                if (pincodeStatus !== "idle") setPincodeStatus("idle");
+              }}
+              placeholder="Enter 6-digit PIN"
+              className="flex-1 px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-semibold text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#2563EB] transition-all"
+            />
+            <button
+              type="submit"
+              className="px-3.5 py-1.5 bg-[#0A1128] hover:bg-slate-800 text-white text-xs font-bold rounded-lg transition-all active:scale-95 cursor-pointer shrink-0"
+            >
+              Check
+            </button>
+          </form>
         </div>
+
+        {pincodeStatus === "valid" && (
+          <div className="p-1.5 bg-emerald-50 border border-emerald-200 rounded-lg text-[11px] flex items-center justify-between text-emerald-800 font-medium">
+            <span className="flex items-center gap-1">
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+              Delivery available for <strong>{pincode}</strong>
+            </span>
+            <span>⚡ By <strong className="text-slate-900">{deliveryDate}</strong></span>
+          </div>
+        )}
+
+        {pincodeStatus === "invalid" && (
+          <p className="text-[11px] text-red-600 font-medium flex items-center gap-1">
+            <AlertTriangle className="w-3 h-3 shrink-0" /> Please enter a valid 6-digit PIN code.
+          </p>
+        )}
+      </div>
+
+      {/* ── 4 Trust Badges Strip (Ultra-compact 4-column row) ── */}
+      <div className="grid grid-cols-4 gap-1.5 pt-0.5">
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-1 bg-slate-50 border border-slate-100/90 rounded-lg py-1.5 px-1 text-center">
+          <ShieldCheck className="w-3.5 h-3.5 text-[#2563EB] shrink-0" />
+          <span className="text-[10px] font-bold text-slate-700 leading-tight">Genuine</span>
+        </div>
+
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-1 bg-slate-50 border border-slate-100/90 rounded-lg py-1.5 px-1 text-center">
+          <FileText className="w-3.5 h-3.5 text-[#2563EB] shrink-0" />
+          <span className="text-[10px] font-bold text-slate-700 leading-tight">GST Invoice</span>
+        </div>
+
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-1 bg-slate-50 border border-slate-100/90 rounded-lg py-1.5 px-1 text-center">
+          <Package className="w-3.5 h-3.5 text-[#2563EB] shrink-0" />
+          <span className="text-[10px] font-bold text-slate-700 leading-tight">Fast Dispatch</span>
+        </div>
+
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-1 bg-slate-50 border border-slate-100/90 rounded-lg py-1.5 px-1 text-center">
+          <Headphones className="w-3.5 h-3.5 text-[#2563EB] shrink-0" />
+          <span className="text-[10px] font-bold text-slate-700 leading-tight">Tech Support</span>
+        </div>
+      </div>
+
+      {/* ── Secondary Links Row ── */}
+      <div className="flex items-center justify-center gap-6 pt-0.5 text-[11px] font-semibold text-slate-500">
+        <a
+          href={getWhatsAppInquiryUrl()}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-1.5 hover:text-[#2563EB] transition-colors cursor-pointer"
+        >
+          <MessageSquare className="w-3.5 h-3.5 text-slate-400" />
+          <span>Need technical help? Ask an Expert</span>
+        </a>
       </div>
     </div>
   );

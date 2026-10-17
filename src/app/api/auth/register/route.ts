@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { db } from "@/lib/db";
+import { db, isDatabaseAvailable } from "@/lib/db";
 import { normalizeEmail, hashPassword, sanitizeUser } from "@/lib/authUtils";
 import { UserDB } from "@/lib/userDB";
 import { checkRateLimit, getSecurityHeaders } from "@/lib/security";
@@ -64,20 +64,24 @@ export async function POST(request: Request) {
       );
     }
 
-    if (process.env.DATABASE_URL) {
-      const existingUser = await db.user.findUnique({
-        where: { email: cleanEmail },
-      });
+    if (isDatabaseAvailable()) {
+      try {
+        const existingUser = await db.user.findUnique({
+          where: { email: cleanEmail },
+        });
 
-      if (existingUser) {
-        return NextResponse.json(
-          {
-            success: false,
-            message:
-              "An account with this email address already exists. Please Sign In.",
-          },
-          { status: 409, headers },
-        );
+        if (existingUser) {
+          return NextResponse.json(
+            {
+              success: false,
+              message:
+                "An account with this email address already exists. Please Sign In.",
+            },
+            { status: 409, headers },
+          );
+        }
+      } catch (dbErr) {
+        console.warn("Prisma user duplicate check skipped:", dbErr);
       }
     }
 
@@ -94,7 +98,7 @@ export async function POST(request: Request) {
       customerType: "Registered Customer",
     });
 
-    if (process.env.DATABASE_URL) {
+    if (isDatabaseAvailable()) {
       try {
         const dbNewUser = await db.user.create({
           data: {

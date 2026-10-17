@@ -135,16 +135,16 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
   };
 
   return (
-    <div className="space-y-4">
+    <div className="flex flex-col h-full space-y-2 sm:space-y-2.5">
       {/* ── Main Media Card ── */}
       <div
-        className="relative h-80 sm:h-96 md:h-[440px] w-full rounded-2xl sm:rounded-3xl overflow-hidden bg-white border border-slate-200/90 shadow-2xs group flex items-center justify-center"
+        className="relative flex-1 h-full min-h-[340px] sm:min-h-[380px] lg:min-h-full w-full rounded-2xl overflow-hidden bg-white border border-slate-200/90 shadow-2xs group flex items-center justify-center"
       >
         {/* Top Badges Overlay */}
-        <div className="absolute top-2.5 sm:top-4 left-2.5 sm:left-4 right-2.5 sm:right-4 flex items-center justify-between z-10 pointer-events-none">
+        <div className="absolute top-2.5 sm:top-3.5 left-2.5 sm:left-3.5 right-2.5 sm:right-3.5 flex items-center justify-between z-10 pointer-events-none">
           <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap pointer-events-auto">
             {/* Brand Logo Pill */}
-            <div className="bg-white/95 backdrop-blur-md px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full shadow-2xs border border-slate-200 flex items-center gap-1 select-none">
+            <div className="bg-white/95 backdrop-blur-md px-2.5 py-1 sm:px-3 sm:py-1 rounded-full shadow-2xs border border-slate-200 flex items-center gap-1 select-none">
               <span className="text-[10px] sm:text-[11px] font-black tracking-tight text-slate-900">
                 PRAY<span className="text-[#00AEEF]">O</span>G{" "}
                 <span className="text-[#FF7A00]">INDIA</span>
@@ -152,7 +152,7 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
             </div>
 
             {/* Genuine Product Badge */}
-            <div className="bg-emerald-50/95 backdrop-blur-md text-emerald-700 border border-emerald-200 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full text-[10px] sm:text-[11px] font-bold shadow-2xs flex items-center gap-1 select-none">
+            <div className="bg-emerald-50/95 backdrop-blur-md text-emerald-700 border border-emerald-200 px-2 py-0.5 sm:px-2.5 sm:py-0.5 rounded-full text-[10px] sm:text-[11px] font-bold shadow-2xs flex items-center gap-1 select-none">
               <CheckCircle2 className="w-3 h-3 text-emerald-600 shrink-0" />
               <span>Genuine Product</span>
             </div>
@@ -184,7 +184,7 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
                   {galleryImages.map((img, idx) => (
                     <div
                       key={idx}
-                      className="min-w-full w-full h-full shrink-0 snap-center relative flex items-center justify-center p-6 sm:p-10"
+                      className="min-w-full w-full h-full shrink-0 snap-center relative flex items-center justify-center p-3 sm:p-4 pt-10 sm:pt-12"
                     >
                       <div className="relative w-full h-full">
                         <Image
@@ -193,7 +193,7 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
                           fill
                           priority={idx === 0}
                           draggable={false}
-                          className="object-contain p-2 pointer-events-none transition-transform duration-300 select-none"
+                          className="object-contain pointer-events-none transition-transform duration-300 select-none"
                         />
                       </div>
                     </div>
@@ -271,7 +271,7 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
             onClick={() => {
               scrollToSlide(idx);
             }}
-            className={`relative w-14 h-14 sm:w-[72px] sm:h-[72px] shrink-0 rounded-xl overflow-hidden transition-all bg-white cursor-pointer ${
+            className={`relative w-12 h-12 sm:w-14 sm:h-14 shrink-0 rounded-xl overflow-hidden transition-all bg-white cursor-pointer ${
               activeMode === "image" && selectedIdx === idx
                 ? "border-2 border-[#2563EB] ring-2 ring-blue-500/20 shadow-sm scale-102"
                 : "border border-slate-200 hover:border-slate-300 opacity-75 hover:opacity-100"
@@ -291,7 +291,7 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
           <button
             type="button"
             onClick={() => setActiveMode("360")}
-            className={`relative w-14 h-14 sm:w-[72px] sm:h-[72px] shrink-0 rounded-xl overflow-hidden transition-all flex flex-col items-center justify-center gap-1 cursor-pointer ${
+            className={`relative w-12 h-12 sm:w-14 sm:h-14 shrink-0 rounded-xl overflow-hidden transition-all flex flex-col items-center justify-center gap-1 cursor-pointer ${
               activeMode === "360"
                 ? "bg-slate-900 border-2 border-[#2563EB] shadow-sm"
                 : "bg-slate-900 border border-slate-800 hover:border-slate-700"
@@ -308,7 +308,7 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
           <button
             type="button"
             onClick={() => setActiveMode("video")}
-            className={`relative w-14 h-14 sm:w-[72px] sm:h-[72px] shrink-0 rounded-xl overflow-hidden transition-all flex flex-col items-center justify-center gap-1 cursor-pointer ${
+            className={`relative w-12 h-12 sm:w-14 sm:h-14 shrink-0 rounded-xl overflow-hidden transition-all flex flex-col items-center justify-center gap-1 cursor-pointer ${
               activeMode === "video"
                 ? "bg-slate-900 border-2 border-[#2563EB] shadow-sm"
                 : "bg-slate-900 border border-slate-800 hover:border-slate-700"

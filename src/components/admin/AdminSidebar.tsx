@@ -69,6 +69,12 @@ const NAV_GROUPS = [
         icon: Tag,
       },
       {
+        label: "Category Showcase",
+        href: "/admin/category-showcase",
+        icon: LayoutGrid,
+        badge: "Home",
+      },
+      {
         label: "Physical Store Branches",
         href: "/admin/stores",
         icon: Building2,

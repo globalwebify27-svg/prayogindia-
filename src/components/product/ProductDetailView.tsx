@@ -9,6 +9,7 @@ import { ProductInformation } from "@/components/product/ProductInformation";
 import { ProductTabsSection } from "@/components/product/ProductTabsSection";
 import { ProductRecommendations } from "@/components/product/ProductRecommendations";
 import { PRODUCTS, Product, ProductVariant } from "@/data/mockData";
+import { findMockProduct } from "@/lib/productResolver";
 import { useStore } from "@/context/StoreContext";
 import {
   ShoppingBag,
@@ -45,16 +46,18 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
   const slugLower = decodedSlug.toLowerCase();
 
   // ── Product lookup: check passed DB initialProduct first, enrich with mock catalog
-  const matchingMock = PRODUCTS.find(
-    (p) =>
-      (p.slug && p.slug.toLowerCase() === slugLower) ||
-      p.id.toLowerCase() === slugLower ||
-      (p.sku && p.sku.toLowerCase() === slugLower) ||
-      (initialProduct?.sku && p.sku && p.sku.toLowerCase() === initialProduct.sku.toLowerCase()) ||
-      (initialProduct?.name && p.name.toLowerCase() === initialProduct.name.toLowerCase()) ||
-      p.name.toLowerCase().replace(/[^a-z0-9]+/g, "-") === slugLower ||
-      p.name.toLowerCase() === slugLower,
-  );
+  const matchingMock =
+    findMockProduct(slug) ||
+    PRODUCTS.find(
+      (p) =>
+        (p.slug && p.slug.toLowerCase() === slugLower) ||
+        p.id.toLowerCase() === slugLower ||
+        (p.sku && p.sku.toLowerCase() === slugLower) ||
+        (initialProduct?.sku && p.sku && p.sku.toLowerCase() === initialProduct.sku.toLowerCase()) ||
+        (initialProduct?.name && p.name.toLowerCase() === initialProduct.name.toLowerCase()) ||
+        p.name.toLowerCase().replace(/[^a-z0-9]+/g, "-") === slugLower ||
+        p.name.toLowerCase() === slugLower,
+    );
 
   const product = initialProduct
     ? {
@@ -231,7 +234,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
   const isInStock = selectedVariant ? selectedVariant.inStock : product.inStock;
 
   return (
-    <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-8 sm:space-y-10 animate-in fade-in duration-300 pb-32 sm:pb-24 lg:pb-6">
+    <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-2 sm:py-3 space-y-4 sm:space-y-6 animate-in fade-in duration-300 pb-28 sm:pb-20 lg:pb-8">
       {/* ── Breadcrumb ── */}
       <CategoryBreadcrumb
         items={[
@@ -252,10 +255,10 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
         ]}
       />
 
-      {/* ── 2-Column Top Section: Gallery + Info (Matching Reference Layout) ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 xl:gap-12 items-start">
-        {/* Left — Gallery (sticky on desktop) */}
-        <div className="lg:col-span-6 lg:sticky lg:top-28">
+      {/* ── 2-Column Top Section: Gallery + Info (Single Screen Compact Layout) ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 xl:gap-8 items-stretch">
+        {/* Left — Gallery (fills height to align flush with right column) */}
+        <div className="lg:col-span-5 flex flex-col h-full">
           <ProductGallery
             images={galleryImages}
             productName={product.name}
@@ -265,7 +268,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
         </div>
 
         {/* Right — Product Information */}
-        <div className="lg:col-span-6">
+        <div className="lg:col-span-7 flex flex-col justify-between">
           <ProductInformation
             product={product}
             selectedVariant={selectedVariant}

@@ -5,16 +5,10 @@ import {
   ChevronDown,
   ChevronUp,
   Search,
-  FilterX,
-  Plus,
-  Minus,
-  Check,
   RotateCcw,
-  Sparkles,
-  Tag,
   Star,
 } from "lucide-react";
-import { CATEGORIES_DATA, CategoryData } from "@/data/categories";
+import { CATEGORIES_DATA } from "@/data/categories";
 import { BRANDS_DATA } from "@/data/brands";
 
 export interface TechnicalSpecFilters {
@@ -44,6 +38,7 @@ export interface CategoryFilterItem {
 export interface ProductFiltersProps {
   // Categories
   categories?: CategoryFilterItem[];
+  hideCategories?: boolean;
   selectedCategory: string | null;
   onSelectCategory: (catName: string | null) => void;
   selectedSubcategory?: string | null;
@@ -91,6 +86,7 @@ export interface ProductFiltersProps {
 
 export const ProductFilters: React.FC<ProductFiltersProps> = ({
   categories,
+  hideCategories = false,
   selectedCategory,
   onSelectCategory,
   selectedSubcategory,
@@ -121,64 +117,79 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
   className = "",
 }) => {
   // Accordion toggle states
-  const [stockOpen, setStockOpen] = useState(true);
   const [priceOpen, setPriceOpen] = useState(true);
   const [catOpen, setCatOpen] = useState(true);
   const [brandOpen, setBrandOpen] = useState(true);
   const [discountOpen, setDiscountOpen] = useState(false);
   const [ratingOpen, setRatingOpen] = useState(false);
+  const [showAllBrands, setShowAllBrands] = useState(false);
 
-  // Subcategory expanded accordion map
-  const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({});
-
-  // Local price input state for user editing before clicking "APPLY"
+  // Local price inputs
   const [inputMin, setInputMin] = useState<number>(priceRange[0]);
   const [inputMax, setInputMax] = useState<number>(priceRange[1]);
+  const [brandSearch, setBrandSearch] = useState("");
 
   useEffect(() => {
     setInputMin(priceRange[0]);
     setInputMax(priceRange[1]);
   }, [priceRange]);
 
-  const [brandSearch, setBrandSearch] = useState("");
+  // Context-aware category detection
+  const currentCategoryData = selectedCategory
+    ? CATEGORIES_DATA.find(
+        (c) =>
+          c.name.toLowerCase() === selectedCategory.toLowerCase() ||
+          c.slug.toLowerCase() === selectedCategory.toLowerCase(),
+      )
+    : null;
 
-  // Default categories from CATEGORIES_DATA if not provided
-  const categoryList: CategoryFilterItem[] = categories || CATEGORIES_DATA.map((c) => ({
-    id: c.id,
-    name: c.name,
-    slug: c.slug,
-    count: c.productCount,
-    subcategories: c.subcategories?.map((s) => ({
-      id: s.id,
-      name: s.name,
-      slug: s.slug,
-      count: s.productCount,
-    })),
-  }));
+  const relevantSubcategories = currentCategoryData?.subcategories || [];
 
-  // Default brands from BRANDS_DATA if not provided
-  const brandList = brands || BRANDS_DATA.map((b) => ({
-    id: b.id,
-    name: b.name,
-    count: b.count,
-  }));
+  // Default categories list for site-wide views
+  const categoryList: CategoryFilterItem[] =
+    categories ||
+    CATEGORIES_DATA.map((c) => ({
+      id: c.id,
+      name: c.name,
+      slug: c.slug,
+      count: c.productCount,
+    }));
+
+  // Default brands
+  const brandList =
+    brands ||
+    BRANDS_DATA.map((b) => ({
+      id: b.id,
+      name: b.name,
+      count: b.count,
+    }));
 
   const filteredBrands = brandList.filter((b) =>
     b.name.toLowerCase().includes(brandSearch.toLowerCase()),
   );
 
-  const toggleCategoryExpand = (catId: string, e: React.MouseEvent) => {
-    e.stopPropagation();
-    setExpandedCategories((prev) => ({
-      ...prev,
-      [catId]: !prev[catId],
-    }));
-  };
+  const displayedBrands = showAllBrands
+    ? filteredBrands
+    : filteredBrands.slice(0, 6);
 
-  const handleApplyPrice = (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
-    const cleanMin = Math.max(minPriceLimit, isNaN(inputMin) ? minPriceLimit : inputMin);
-    const cleanMax = Math.min(maxPriceLimit, isNaN(inputMax) ? maxPriceLimit : inputMax);
+  // 1-Click Price Presets
+  const PRICE_PRESETS: { label: string; range: [number, number] }[] = [
+    { label: "All", range: [minPriceLimit, maxPriceLimit] },
+    { label: "Under ₹1k", range: [0, 1000] },
+    { label: "₹1k - ₹5k", range: [1000, 5000] },
+    { label: "₹5k - ₹20k", range: [5000, 20000] },
+    { label: "₹20k+", range: [20000, maxPriceLimit] },
+  ];
+
+  const handleApplyPrice = () => {
+    const cleanMin = Math.max(
+      minPriceLimit,
+      isNaN(inputMin) ? minPriceLimit : inputMin,
+    );
+    const cleanMax = Math.min(
+      maxPriceLimit,
+      isNaN(inputMax) ? maxPriceLimit : inputMax,
+    );
     if (cleanMin <= cleanMax) {
       onPriceRangeChange([cleanMin, cleanMax]);
     } else {
@@ -186,131 +197,103 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
     }
   };
 
-  // Stock filter handler supporting either dual checkbox or enum
-  const handleStockClick = (type: "inStock" | "outOfStock") => {
+  const handlePresetClick = (range: [number, number]) => {
+    setInputMin(range[0]);
+    setInputMax(range[1]);
+    onPriceRangeChange(range);
+  };
+
+  // Stock filter toggle handler
+  const handleStockToggle = () => {
     if (onStockFilterChange) {
-      if (type === "inStock") {
-        onStockFilterChange(stockFilter === "inStock" ? "all" : "inStock");
-      } else {
-        onStockFilterChange(stockFilter === "outOfStock" ? "all" : "outOfStock");
-      }
-    } else if (type === "inStock" && onToggleStockOnly) {
+      onStockFilterChange(stockFilter === "inStock" ? "all" : "inStock");
+    } else if (onToggleStockOnly) {
       onToggleStockOnly(!inStockOnly);
-    } else if (type === "outOfStock" && onToggleOutOfStockOnly) {
-      onToggleOutOfStockOnly(!outOfStockOnly);
     }
   };
 
-  const isInStockChecked =
-    stockFilter === "inStock" || inStockOnly === true;
-  const isOutOfStockChecked =
-    stockFilter === "outOfStock" || outOfStockOnly === true;
+  const isInStockChecked = stockFilter === "inStock" || inStockOnly === true;
 
-  const hasAnyActiveFilter =
-    selectedCategory !== null ||
-    selectedSubcategory !== null ||
-    selectedBrand !== null ||
-    isInStockChecked ||
-    isOutOfStockChecked ||
-    priceRange[0] > minPriceLimit ||
-    priceRange[1] < maxPriceLimit ||
-    Boolean(minDiscount) ||
-    Boolean(minRating) ||
-    Boolean(techSpecs.voltage || techSpecs.rpmKv || techSpecs.compatibility || techSpecs.material);
+  // Active filters calculation
+  const isPriceFiltered =
+    priceRange[0] > minPriceLimit || priceRange[1] < maxPriceLimit;
+  const isPresetActive = (r: [number, number]) =>
+    priceRange[0] === r[0] && priceRange[1] === r[1];
+
+  const activeFiltersCount =
+    (selectedCategory && !hideCategories ? 1 : 0) +
+    (selectedSubcategory ? 1 : 0) +
+    (selectedBrand ? 1 : 0) +
+    (isInStockChecked ? 1 : 0) +
+    (isPriceFiltered ? 1 : 0) +
+    (minDiscount ? 1 : 0) +
+    (minRating ? 1 : 0);
+
+  const hasAnyActiveFilter = activeFiltersCount > 0;
 
   return (
-    <aside className={`space-y-5 text-slate-800 font-sans ${className}`}>
-      {/* ── 1. Top FILTERS Header ── */}
-      <div className="flex items-center justify-between border-b border-slate-200 pb-3">
-        <h3 className="text-sm font-black uppercase tracking-wider text-slate-900 flex items-center gap-2">
-          <span>FILTERS</span>
-          {hasAnyActiveFilter && (
-            <span className="bg-[#2563EB] text-white text-[10px] font-black px-1.5 py-0.5 rounded-full">
-              Active
+    <aside className={`space-y-4 text-slate-800 font-sans ${className}`}>
+      {/* ── 1. Top Filters Header ── */}
+      <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+        <div className="flex items-center gap-2">
+          <h3 className="text-xs font-black uppercase tracking-wider text-slate-900">
+            Filters
+          </h3>
+          {activeFiltersCount > 0 && (
+            <span className="w-5 h-5 rounded-full bg-[#2563EB] text-white text-[10px] font-black flex items-center justify-center shadow-xs">
+              {activeFiltersCount}
             </span>
           )}
-        </h3>
+        </div>
 
         {hasAnyActiveFilter && (
           <button
             type="button"
             onClick={onClearAll}
-            className="text-xs font-bold text-[#2563EB] hover:text-[#1D4ED8] hover:underline flex items-center gap-1 cursor-pointer transition-colors"
+            className="text-[11px] font-bold text-[#2563EB] hover:text-[#1D4ED8] flex items-center gap-1 cursor-pointer transition-colors"
           >
             <RotateCcw className="w-3 h-3" />
-            <span>Clear All</span>
+            <span>Reset</span>
           </button>
         )}
       </div>
 
-      {/* ── 2. AVAILABILITY Section ── */}
-      <div className="border-b border-slate-200/80 pb-4 space-y-3">
+      {/* ── 2. Modern In-Stock Only Toggle ── */}
+      <div className="flex items-center justify-between py-1 border-b border-slate-100">
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-bold text-slate-800">In Stock Only</span>
+          {inStockCount !== undefined && (
+            <span className="text-[10px] font-semibold text-slate-400">
+              ({inStockCount})
+            </span>
+          )}
+        </div>
+
         <button
           type="button"
-          onClick={() => setStockOpen(!stockOpen)}
-          className="flex items-center justify-between w-full font-black text-slate-900 text-xs tracking-wider text-left cursor-pointer uppercase select-none"
+          role="switch"
+          aria-checked={isInStockChecked}
+          onClick={handleStockToggle}
+          className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+            isInStockChecked ? "bg-[#2563EB]" : "bg-slate-200"
+          }`}
         >
-          <span>AVAILABILITY</span>
-          {stockOpen ? (
-            <ChevronUp className="w-4 h-4 text-slate-400" />
-          ) : (
-            <ChevronDown className="w-4 h-4 text-slate-400" />
-          )}
+          <span
+            className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out ${
+              isInStockChecked ? "translate-x-4" : "translate-x-0"
+            }`}
+          />
         </button>
-
-        {stockOpen && (
-          <div className="space-y-2 pt-1 pl-0.5">
-            {/* In Stock */}
-            <label className="flex items-center justify-between cursor-pointer group py-0.5 select-none">
-              <div className="flex items-center gap-2.5">
-                <input
-                  type="checkbox"
-                  checked={isInStockChecked}
-                  onChange={() => handleStockClick("inStock")}
-                  className="w-4 h-4 rounded border-slate-300 text-[#2563EB] focus:ring-[#2563EB] cursor-pointer"
-                />
-                <span className="text-xs font-semibold text-slate-700 group-hover:text-slate-900 transition-colors">
-                  In Stock
-                </span>
-              </div>
-              {inStockCount !== undefined && (
-                <span className="text-[11px] font-medium text-slate-400">
-                  ({inStockCount})
-                </span>
-              )}
-            </label>
-
-            {/* Out Of Stock */}
-            <label className="flex items-center justify-between cursor-pointer group py-0.5 select-none">
-              <div className="flex items-center gap-2.5">
-                <input
-                  type="checkbox"
-                  checked={isOutOfStockChecked}
-                  onChange={() => handleStockClick("outOfStock")}
-                  className="w-4 h-4 rounded border-slate-300 text-[#2563EB] focus:ring-[#2563EB] cursor-pointer"
-                />
-                <span className="text-xs font-semibold text-slate-700 group-hover:text-slate-900 transition-colors">
-                  Out Of Stock
-                </span>
-              </div>
-              {outOfStockCount !== undefined && (
-                <span className="text-[11px] font-medium text-slate-400">
-                  ({outOfStockCount})
-                </span>
-              )}
-            </label>
-          </div>
-        )}
       </div>
 
-      {/* ── 3. PRICE Slider & Inputs with APPLY button ── */}
-      <div className="border-b border-slate-200/80 pb-4 space-y-3">
+      {/* ── 3. Price Filter with 1-Click Presets & Clean Inputs ── */}
+      <div className="border-b border-slate-100 pb-4 space-y-2.5">
         <button
           type="button"
           onClick={() => setPriceOpen(!priceOpen)}
-          className="flex items-center justify-between w-full font-black text-slate-900 text-xs tracking-wider text-left cursor-pointer uppercase select-none"
+          className="flex items-center justify-between w-full font-bold text-slate-900 text-xs tracking-wider text-left cursor-pointer uppercase select-none"
         >
-          <span>PRICE</span>
+          <span>Price Range</span>
           {priceOpen ? (
             <ChevronUp className="w-4 h-4 text-slate-400" />
           ) : (
@@ -319,197 +302,203 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
         </button>
 
         {priceOpen && (
-          <form onSubmit={handleApplyPrice} className="space-y-3 pt-1">
+          <div className="space-y-3 pt-0.5">
+            {/* 1-Click Easy Preset Pills */}
+            <div className="flex flex-wrap gap-1.5">
+              {PRICE_PRESETS.map((preset) => {
+                const isSelected = isPresetActive(preset.range);
+                return (
+                  <button
+                    key={preset.label}
+                    type="button"
+                    onClick={() => handlePresetClick(preset.range)}
+                    className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all cursor-pointer border ${
+                      isSelected
+                        ? "bg-[#0A233F] text-white border-[#0A233F] shadow-xs"
+                        : "bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100 hover:text-slate-900"
+                    }`}
+                  >
+                    {preset.label}
+                  </button>
+                );
+              })}
+            </div>
+
             {/* Range Slider Track */}
             <div className="space-y-1">
               <input
                 type="range"
                 min={minPriceLimit}
                 max={maxPriceLimit}
-                step={100}
+                step={250}
                 value={inputMax}
-                onChange={(e) => setInputMax(Number(e.target.value))}
-                className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-slate-900"
+                onChange={(e) => {
+                  const val = Number(e.target.value);
+                  setInputMax(val);
+                  onPriceRangeChange([inputMin, val]);
+                }}
+                className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[#2563EB]"
               />
             </div>
 
-            {/* Two Input Boxes: ₹ min to ₹ max */}
-            <div className="flex items-center gap-2 text-xs">
-              <div className="flex-1 flex items-center bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 shadow-2xs focus-within:border-slate-900 focus-within:ring-1 focus-within:ring-slate-900">
-                <span className="text-slate-500 font-bold mr-1">₹</span>
+            {/* Clean Inline Min – Max Inputs */}
+            <div className="flex items-center gap-2">
+              <div className="relative flex-1">
+                <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-[11px] font-bold">
+                  ₹
+                </span>
                 <input
                   type="number"
                   min={minPriceLimit}
                   max={inputMax}
                   value={inputMin}
                   onChange={(e) => setInputMin(Number(e.target.value))}
+                  onBlur={handleApplyPrice}
+                  onKeyDown={(e) => e.key === "Enter" && handleApplyPrice()}
                   placeholder="Min"
-                  className="w-full bg-transparent text-slate-900 font-bold text-xs focus:outline-none"
+                  className="w-full pl-6 pr-2 py-1.5 rounded-lg border border-slate-200 text-xs font-semibold text-slate-800 focus:outline-none focus:border-[#2563EB] focus:ring-1 focus:ring-[#2563EB]"
                 />
               </div>
 
-              <span className="text-slate-400 font-medium text-xs">to</span>
+              <span className="text-slate-400 text-xs font-medium">to</span>
 
-              <div className="flex-1 flex items-center bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 shadow-2xs focus-within:border-slate-900 focus-within:ring-1 focus-within:ring-slate-900">
-                <span className="text-slate-500 font-bold mr-1">₹</span>
+              <div className="relative flex-1">
+                <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-[11px] font-bold">
+                  ₹
+                </span>
                 <input
                   type="number"
                   min={inputMin}
                   max={maxPriceLimit}
                   value={inputMax}
                   onChange={(e) => setInputMax(Number(e.target.value))}
+                  onBlur={handleApplyPrice}
+                  onKeyDown={(e) => e.key === "Enter" && handleApplyPrice()}
                   placeholder="Max"
-                  className="w-full bg-transparent text-slate-900 font-bold text-xs focus:outline-none"
+                  className="w-full pl-6 pr-2 py-1.5 rounded-lg border border-slate-200 text-xs font-semibold text-slate-800 focus:outline-none focus:border-[#2563EB] focus:ring-1 focus:ring-[#2563EB]"
                 />
               </div>
             </div>
-
-            {/* Prominent APPLY Button */}
-            <button
-              type="submit"
-              className="w-full bg-[#1A1A1A] hover:bg-black text-white text-xs font-black uppercase tracking-wider py-2.5 px-4 rounded-lg transition-all duration-200 shadow-xs cursor-pointer active:scale-[0.98] hover:shadow-md"
-            >
-              APPLY
-            </button>
-          </form>
-        )}
-      </div>
-
-      {/* ── 4. CATEGORIES Section with Expandable '+' Accordions ── */}
-      <div className="border-b border-slate-200/80 pb-4 space-y-3">
-        <button
-          type="button"
-          onClick={() => setCatOpen(!catOpen)}
-          className="flex items-center justify-between w-full font-black text-slate-900 text-xs tracking-wider text-left cursor-pointer uppercase select-none"
-        >
-          <span>CATEGORIES</span>
-          {catOpen ? (
-            <ChevronUp className="w-4 h-4 text-slate-400" />
-          ) : (
-            <ChevronDown className="w-4 h-4 text-slate-400" />
-          )}
-        </button>
-
-        {catOpen && (
-          <div className="space-y-1 pt-1 max-h-72 overflow-y-auto pr-1 scrollbar-thin">
-            {/* Option to clear category / show all */}
-            <button
-              type="button"
-              onClick={() => {
-                onSelectCategory(null);
-                onSelectSubcategory?.(null);
-              }}
-              className={`w-full text-left py-1.5 px-2.5 rounded-lg text-xs font-bold transition-all flex items-center justify-between cursor-pointer ${
-                !selectedCategory
-                  ? "bg-slate-900 text-white"
-                  : "text-slate-700 hover:bg-slate-100"
-              }`}
-            >
-              <span>All Categories</span>
-            </button>
-
-            {/* Category Items List */}
-            {categoryList.map((cat) => {
-              const isSelected = selectedCategory === cat.name;
-              const hasSubs = cat.subcategories && cat.subcategories.length > 0;
-              const isExpanded = expandedCategories[cat.id] || isSelected;
-
-              return (
-                <div key={cat.id} className="space-y-0.5">
-                  <div
-                    onClick={() => {
-                      onSelectCategory(isSelected ? null : cat.name);
-                      onSelectSubcategory?.(null);
-                    }}
-                    className={`w-full text-left py-1.5 px-2.5 rounded-lg text-xs font-semibold transition-all flex items-center justify-between group cursor-pointer ${
-                      isSelected
-                        ? "bg-blue-50 text-[#2563EB] font-bold"
-                        : "text-slate-700 hover:bg-slate-50 hover:text-slate-900"
-                    }`}
-                  >
-                    <span className="truncate pr-1">{cat.name}</span>
-
-                    <div className="flex items-center gap-1 shrink-0">
-                      {cat.count !== undefined && (
-                        <span
-                          className={`text-[10px] font-medium ${
-                            isSelected ? "text-[#2563EB]" : "text-slate-400"
-                          }`}
-                        >
-                          ({cat.count})
-                        </span>
-                      )}
-
-                      {hasSubs && (
-                        <button
-                          type="button"
-                          onClick={(e) => toggleCategoryExpand(cat.id, e)}
-                          className="p-0.5 text-slate-400 hover:text-slate-800 rounded transition-colors ml-0.5 cursor-pointer"
-                          aria-label={`Toggle ${cat.name} subcategories`}
-                        >
-                          {isExpanded ? (
-                            <Minus className="w-3 h-3" />
-                          ) : (
-                            <Plus className="w-3 h-3" />
-                          )}
-                        </button>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Nested Subcategories */}
-                  {hasSubs && isExpanded && (
-                    <div className="pl-3.5 pr-1 py-1 space-y-0.5 border-l-2 border-slate-100 ml-3">
-                      {cat.subcategories!.map((sub) => {
-                        const isSubSelected = selectedSubcategory === sub.name;
-                        return (
-                          <button
-                            key={sub.id}
-                            type="button"
-                            onClick={() => {
-                              onSelectCategory(cat.name);
-                              onSelectSubcategory?.(
-                                isSubSelected ? null : sub.name,
-                              );
-                            }}
-                            className={`w-full text-left py-1 px-2 rounded-md text-[11px] transition-colors flex items-center justify-between cursor-pointer ${
-                              isSubSelected
-                                ? "bg-[#2563EB] text-white font-bold"
-                                : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
-                            }`}
-                          >
-                            <span className="truncate">{sub.name}</span>
-                            {sub.count !== undefined && (
-                              <span
-                                className={`text-[10px] ${
-                                  isSubSelected
-                                    ? "text-white/80"
-                                    : "text-slate-400"
-                                }`}
-                              >
-                                ({sub.count})
-                              </span>
-                            )}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  )}
-                </div>
-              );
-            })}
           </div>
         )}
       </div>
 
-      {/* ── 5. BRANDS Section with Search ── */}
-      <div className="border-b border-slate-200/80 pb-4 space-y-3">
+      {/* ── 4. CATEGORIES / SUBCATEGORIES Section (Clean & Context-Aware) ── */}
+      {!hideCategories && (
+        <div className="border-b border-slate-100 pb-4 space-y-2.5">
+          <button
+            type="button"
+            onClick={() => setCatOpen(!catOpen)}
+            className="flex items-center justify-between w-full font-bold text-slate-900 text-xs tracking-wider text-left cursor-pointer uppercase select-none"
+          >
+            <span>
+              {relevantSubcategories.length > 0 ? "Subcategory" : "Category"}
+            </span>
+            {catOpen ? (
+              <ChevronUp className="w-4 h-4 text-slate-400" />
+            ) : (
+              <ChevronDown className="w-4 h-4 text-slate-400" />
+            )}
+          </button>
+
+          {catOpen && (
+            <div className="space-y-1 pt-0.5 max-h-52 overflow-y-auto pr-1 scrollbar-thin">
+              {relevantSubcategories.length > 0 ? (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => onSelectSubcategory?.(null)}
+                    className={`w-full text-left py-1.5 px-2.5 rounded-lg text-xs transition-all flex items-center justify-between cursor-pointer ${
+                      !selectedSubcategory
+                        ? "bg-[#0A233F] text-white font-bold"
+                        : "text-slate-700 hover:bg-slate-50 font-medium"
+                    }`}
+                  >
+                    <span>All {currentCategoryData?.name}</span>
+                  </button>
+
+                  {relevantSubcategories.map((sub) => {
+                    const isSelected = selectedSubcategory === sub.name;
+                    return (
+                      <button
+                        key={sub.id}
+                        type="button"
+                        onClick={() =>
+                          onSelectSubcategory?.(isSelected ? null : sub.name)
+                        }
+                        className={`w-full text-left py-1.5 px-2.5 rounded-lg text-xs transition-all flex items-center justify-between group cursor-pointer ${
+                          isSelected
+                            ? "bg-blue-50 text-[#2563EB] font-bold"
+                            : "text-slate-700 hover:bg-slate-50 hover:text-slate-900 font-medium"
+                        }`}
+                      >
+                        <span className="truncate pr-1">{sub.name}</span>
+                        {sub.productCount !== undefined && (
+                          <span className="text-[10px] text-slate-400">
+                            ({sub.productCount})
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </>
+              ) : (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onSelectCategory(null);
+                      onSelectSubcategory?.(null);
+                    }}
+                    className={`w-full text-left py-1.5 px-2.5 rounded-lg text-xs transition-all flex items-center justify-between cursor-pointer ${
+                      !selectedCategory
+                        ? "bg-[#0A233F] text-white font-bold"
+                        : "text-slate-700 hover:bg-slate-50 font-medium"
+                    }`}
+                  >
+                    <span>All Categories</span>
+                  </button>
+
+                  {categoryList.map((cat) => {
+                    const isSelected = selectedCategory === cat.name;
+                    return (
+                      <button
+                        key={cat.id}
+                        type="button"
+                        onClick={() => {
+                          onSelectCategory(isSelected ? null : cat.name);
+                          onSelectSubcategory?.(null);
+                        }}
+                        className={`w-full text-left py-1.5 px-2.5 rounded-lg text-xs transition-all flex items-center justify-between group cursor-pointer ${
+                          isSelected
+                            ? "bg-blue-50 text-[#2563EB] font-bold"
+                            : "text-slate-700 hover:bg-slate-50 hover:text-slate-900 font-medium"
+                        }`}
+                      >
+                        <span className="truncate pr-1">{cat.name}</span>
+                        {cat.count !== undefined && (
+                          <span className="text-[10px] text-slate-400">
+                            ({cat.count})
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ── 5. BRANDS Section with Compact View ── */}
+      <div className="border-b border-slate-100 pb-4 space-y-2.5">
         <button
           type="button"
           onClick={() => setBrandOpen(!brandOpen)}
-          className="flex items-center justify-between w-full font-black text-slate-900 text-xs tracking-wider text-left cursor-pointer uppercase select-none"
+          className="flex items-center justify-between w-full font-bold text-slate-900 text-xs tracking-wider text-left cursor-pointer uppercase select-none"
         >
-          <span>BRANDS</span>
+          <span>Brands</span>
           {brandOpen ? (
             <ChevronUp className="w-4 h-4 text-slate-400" />
           ) : (
@@ -518,25 +507,27 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
         </button>
 
         {brandOpen && (
-          <div className="space-y-2 pt-1">
-            {/* Brand Search Input */}
-            <div className="relative">
-              <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
-              <input
-                type="text"
-                value={brandSearch}
-                onChange={(e) => setBrandSearch(e.target.value)}
-                placeholder="Search brands..."
-                className="w-full bg-slate-50 text-[11px] pl-8 pr-2 py-1.5 rounded-lg border border-slate-200 focus:outline-none focus:border-slate-900 focus:bg-white transition-all font-medium"
-              />
-            </div>
+          <div className="space-y-2 pt-0.5">
+            {/* Compact Brand Search (only shown if more than 6 brands) */}
+            {brandList.length > 6 && (
+              <div className="relative">
+                <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  value={brandSearch}
+                  onChange={(e) => setBrandSearch(e.target.value)}
+                  placeholder="Filter brands..."
+                  className="w-full bg-slate-50 text-xs pl-8 pr-2 py-1.5 rounded-lg border border-slate-200 focus:outline-none focus:border-[#2563EB] focus:bg-white transition-all font-medium"
+                />
+              </div>
+            )}
 
             {/* Brand Checkboxes List */}
-            <div className="space-y-1 max-h-40 overflow-y-auto pr-1 scrollbar-thin">
-              {filteredBrands.map((b) => (
+            <div className="space-y-1 max-h-48 overflow-y-auto pr-1 scrollbar-thin">
+              {displayedBrands.map((b) => (
                 <label
                   key={b.id}
-                  className="flex items-center justify-between gap-2 cursor-pointer py-1 px-1 hover:bg-slate-50 rounded transition-colors group select-none"
+                  className="flex items-center justify-between gap-2 cursor-pointer py-1 px-1 hover:bg-slate-50 rounded-md transition-colors group select-none"
                 >
                   <div className="flex items-center gap-2">
                     <input
@@ -547,30 +538,43 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
                       }
                       className="w-3.5 h-3.5 rounded border-slate-300 text-[#2563EB] focus:ring-[#2563EB] cursor-pointer"
                     />
-                    <span className="text-xs font-semibold text-slate-700 group-hover:text-slate-900">
+                    <span className="text-xs font-medium text-slate-700 group-hover:text-slate-900">
                       {b.name}
                     </span>
                   </div>
                   {b.count !== undefined && (
-                    <span className="text-[10px] text-slate-400 font-medium">
+                    <span className="text-[10px] text-slate-400">
                       ({b.count})
                     </span>
                   )}
                 </label>
               ))}
             </div>
+
+            {/* Show More / Less Brands button */}
+            {filteredBrands.length > 6 && (
+              <button
+                type="button"
+                onClick={() => setShowAllBrands(!showAllBrands)}
+                className="text-[11px] font-bold text-[#2563EB] hover:underline cursor-pointer pt-0.5"
+              >
+                {showAllBrands
+                  ? "Show Less"
+                  : `+ ${filteredBrands.length - 6} More Brands`}
+              </button>
+            )}
           </div>
         )}
       </div>
 
-      {/* ── 6. DISCOUNT OFFERS (Optional Accordion) ── */}
-      <div className="border-b border-slate-200/80 pb-4 space-y-3">
+      {/* ── 6. DISCOUNT OFFERS (Clean & Collapsible) ── */}
+      <div className="border-b border-slate-100 pb-3 space-y-2">
         <button
           type="button"
           onClick={() => setDiscountOpen(!discountOpen)}
-          className="flex items-center justify-between w-full font-black text-slate-900 text-xs tracking-wider text-left cursor-pointer uppercase select-none"
+          className="flex items-center justify-between w-full font-bold text-slate-900 text-xs tracking-wider text-left cursor-pointer uppercase select-none"
         >
-          <span>DISCOUNT</span>
+          <span>Discount</span>
           {discountOpen ? (
             <ChevronUp className="w-4 h-4 text-slate-400" />
           ) : (
@@ -580,7 +584,7 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
 
         {discountOpen && (
           <div className="flex flex-wrap gap-1.5 pt-1">
-            {[10, 20, 30, 40, 50].map((pct) => (
+            {[10, 20, 30, 50].map((pct) => (
               <button
                 key={pct}
                 type="button"
@@ -589,25 +593,25 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
                 }
                 className={`px-2.5 py-1 rounded-lg text-[10px] font-bold border transition-all cursor-pointer ${
                   minDiscount === pct
-                    ? "bg-[#FF3B30] text-white border-[#FF3B30] shadow-xs"
-                    : "bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100"
+                    ? "bg-[#2563EB] text-white border-[#2563EB] shadow-xs"
+                    : "bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100"
                 }`}
               >
-                {pct}%+ OFF
+                {pct}%+ Off
               </button>
             ))}
           </div>
         )}
       </div>
 
-      {/* ── 7. CUSTOMER RATING ── */}
-      <div className="pb-2 space-y-3">
+      {/* ── 7. CUSTOMER RATING (Clean & Collapsible) ── */}
+      <div className="pb-1 space-y-2">
         <button
           type="button"
           onClick={() => setRatingOpen(!ratingOpen)}
-          className="flex items-center justify-between w-full font-black text-slate-900 text-xs tracking-wider text-left cursor-pointer uppercase select-none"
+          className="flex items-center justify-between w-full font-bold text-slate-900 text-xs tracking-wider text-left cursor-pointer uppercase select-none"
         >
-          <span>RATING</span>
+          <span>Rating</span>
           {ratingOpen ? (
             <ChevronUp className="w-4 h-4 text-slate-400" />
           ) : (
@@ -627,11 +631,11 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
                 className={`px-2.5 py-1 rounded-lg text-[10px] font-bold border transition-all cursor-pointer flex items-center gap-1 ${
                   minRating === rate
                     ? "bg-amber-500 text-white border-amber-500 shadow-xs"
-                    : "bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100"
+                    : "bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100"
                 }`}
               >
                 <Star className="w-3 h-3 fill-current" />
-                <span>{rate} &amp; Above</span>
+                <span>{rate}★ & Up</span>
               </button>
             ))}
           </div>
@@ -640,3 +644,5 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
     </aside>
   );
 };
+
+export default ProductFilters;

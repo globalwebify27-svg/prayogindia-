@@ -2,7 +2,13 @@
 
 @theme {
   --font-sans:
-    var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    var(--font-jakarta), "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  --font-jakarta:
+    var(--font-jakarta), "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  --font-inter:
+    var(--font-inter), Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
     "Helvetica Neue", Arial, sans-serif;
   --font-mono:
     var(--font-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
@@ -48,6 +54,25 @@
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
     letter-spacing: -0.011em;
+  }
+
+  input,
+  button,
+  textarea,
+  select {
+    font-family: inherit;
+  }
+
+  /* Header, Navigation Menus, and Category Navigation specifically retain Inter */
+  header,
+  .site-header,
+  .site-header-wrapper,
+  .site-menu,
+  .header-nav,
+  .browse-categories-dropdown,
+  .category-nav-bar,
+  .categories-menu {
+    font-family: var(--font-inter), Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   }
 
   /* Improved Typography Hierarchy & Readability */
@@ -318,8 +343,8 @@ div[data-nextjs-dev-overlay-container] {
 }
 
 .truck-loader-root .truckWrapper {
-  width: 200px;
-  height: 100px;
+  width: 210px;
+  height: 105px;
   display: flex;
   flex-direction: column;
   position: relative;
@@ -330,7 +355,7 @@ div[data-nextjs-dev-overlay-container] {
 
 /* truck upper body */
 .truck-loader-root .truckBody {
-  width: 130px;
+  width: 142px;
   height: fit-content;
   margin-bottom: 6px;
   animation: truckMotion 1s linear infinite;
@@ -351,18 +376,18 @@ div[data-nextjs-dev-overlay-container] {
 
 /* truck's tires */
 .truck-loader-root .truckTires {
-  width: 130px;
+  width: 142px;
   height: fit-content;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0px 10px 0px 15px;
+  padding: 0px 10px 0px 16px;
   position: absolute;
   bottom: 0;
 }
 
 .truck-loader-root .truckTires svg {
-  width: 24px;
+  width: 26px;
 }
 
 .truck-loader-root .road {

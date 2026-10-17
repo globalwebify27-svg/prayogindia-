@@ -352,7 +352,7 @@ export const CategoryDetailView: React.FC<CategoryDetailProps> = ({
       {/* 4. Filter Toolbar & Active Chips (Hidden on small mobile to maximize product focus) */}
       <div className="hidden sm:block space-y-3 pt-1">
         <ActiveFilters
-          category={selectedSubcategory || category.name}
+          category={selectedSubcategory}
           brand={selectedBrand}
           inStockOnly={stockFilter === "inStock"}
           minPrice={priceRange[0]}
@@ -386,6 +386,7 @@ export const CategoryDetailView: React.FC<CategoryDetailProps> = ({
         {/* Left Filter Sidebar (Desktop) */}
         <div className="hidden lg:block lg:col-span-3 sticky top-24 bg-white border border-slate-200/90 p-5 rounded-2xl shadow-2xs">
           <ProductFilters
+            hideCategories={true}
             selectedCategory={category.name}
             onSelectCategory={() => {}}
             selectedSubcategory={selectedSubcategory}
@@ -455,6 +456,7 @@ export const CategoryDetailView: React.FC<CategoryDetailProps> = ({
             </div>
 
             <ProductFilters
+              hideCategories={true}
               selectedCategory={category.name}
               onSelectCategory={() => {}}
               selectedSubcategory={selectedSubcategory}

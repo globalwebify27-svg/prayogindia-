@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 import { db } from "@/lib/db";
 import { PRODUCTS, Product } from "@/data/mockData";
+import { getCandidateSlugs, findMockProduct } from "@/lib/productResolver";
 import { ProductDetailView } from "@/components/product/ProductDetailView";
 
 interface Props {
@@ -8,20 +9,17 @@ interface Props {
 }
 
 async function getProduct(rawSlug: string): Promise<Product | null> {
-  const decodedSlug = decodeURIComponent(rawSlug).trim();
-  const slugLower = decodedSlug.toLowerCase();
+  const candidates = getCandidateSlugs(rawSlug);
+  const mockFallback = findMockProduct(rawSlug);
 
   if (process.env.DATABASE_URL) {
     try {
       const dbProduct = await db.product.findFirst({
         where: {
           OR: [
-            { slug: decodedSlug },
-            { id: decodedSlug },
-            { sku: decodedSlug },
-            { slug: slugLower },
-            { id: slugLower },
-            { sku: slugLower },
+            { slug: { in: candidates } },
+            { id: { in: candidates } },
+            { sku: { in: candidates } },
           ],
         },
         include: {
@@ -32,14 +30,16 @@ async function getProduct(rawSlug: string): Promise<Product | null> {
       });
 
       if (dbProduct) {
-        const mockFallback = PRODUCTS.find(
-          (p) =>
-            (p.slug && p.slug.toLowerCase() === slugLower) ||
-            p.id.toLowerCase() === slugLower ||
-            (p.sku && p.sku.toLowerCase() === slugLower) ||
-            (dbProduct.sku && p.sku && p.sku.toLowerCase() === dbProduct.sku.toLowerCase()) ||
-            p.name.toLowerCase() === dbProduct.name.toLowerCase()
-        );
+        const mockFallbackEnriched =
+          mockFallback ||
+          PRODUCTS.find(
+            (p) =>
+              (p.slug && candidates.includes(p.slug.toLowerCase())) ||
+              candidates.includes(p.id.toLowerCase()) ||
+              (p.sku && candidates.includes(p.sku.toLowerCase())) ||
+              (dbProduct.sku && p.sku && p.sku.toLowerCase() === dbProduct.sku.toLowerCase()) ||
+              p.name.toLowerCase() === dbProduct.name.toLowerCase()
+          );
 
         const rawImages = dbProduct.images.map((img) => img.imageUrl).filter(Boolean);
         const imageUrls =
@@ -47,15 +47,15 @@ async function getProduct(rawSlug: string): Promise<Product | null> {
             ? rawImages
             : (dbProduct as { imageUrl?: string }).imageUrl
             ? [(dbProduct as { imageUrl?: string }).imageUrl!]
-            : mockFallback?.images && mockFallback.images.length > 0
-            ? mockFallback.images
-            : mockFallback?.image
-            ? [mockFallback.image]
+            : mockFallbackEnriched?.images && mockFallbackEnriched.images.length > 0
+            ? mockFallbackEnriched.images
+            : mockFallbackEnriched?.image
+            ? [mockFallbackEnriched.image]
             : ["/images/products/4wd-robot-chassis-kit.jpg"];
 
         const primaryImage =
           imageUrls[0] ||
-          mockFallback?.image ||
+          mockFallbackEnriched?.image ||
           "/images/products/4wd-robot-chassis-kit.jpg";
 
         const rawSpecs =
@@ -65,7 +65,7 @@ async function getProduct(rawSlug: string): Promise<Product | null> {
             : {};
 
         const seoData = (rawSpecs._seo as Record<string, unknown>) || {};
-        const cleanSpecs: Record<string, string> = { ...(mockFallback?.specs || {}) };
+        const cleanSpecs: Record<string, string> = { ...(mockFallbackEnriched?.specs || {}) };
         for (const [k, v] of Object.entries(rawSpecs)) {
           if (k !== "_seo" && typeof v === "string") {
             cleanSpecs[k] = v;
@@ -77,10 +77,10 @@ async function getProduct(rawSlug: string): Promise<Product | null> {
           slug: dbProduct.slug,
           name: dbProduct.name,
           sku: dbProduct.sku,
-          brand: dbProduct.brand || mockFallback?.brand || "Prayog India",
-          category: dbProduct.category?.name || mockFallback?.category || "Robotics & Hardware",
+          brand: dbProduct.brand || mockFallbackEnriched?.brand || "Prayog India",
+          category: dbProduct.category?.name || mockFallbackEnriched?.category || "Robotics & Hardware",
           price: dbProduct.price,
-          mrp: dbProduct.mrp || mockFallback?.mrp || Math.round(dbProduct.price * 1.3),
+          mrp: dbProduct.mrp || mockFallbackEnriched?.mrp || Math.round(dbProduct.price * 1.3),
           discount: `${Math.round((((dbProduct.mrp || dbProduct.price * 1.3) - dbProduct.price) / (dbProduct.mrp || dbProduct.price * 1.3)) * 100)}% OFF`,
           rating: dbProduct.rating,
           reviews: dbProduct.reviewCount,
@@ -89,16 +89,16 @@ async function getProduct(rawSlug: string): Promise<Product | null> {
           images: imageUrls,
           description:
             dbProduct.description ||
-            mockFallback?.description ||
+            mockFallbackEnriched?.description ||
             "High-precision engineering component engineered for robotics and electronics prototyping.",
           features:
             dbProduct.features && dbProduct.features.length > 0
               ? dbProduct.features
-              : mockFallback?.features || [],
+              : mockFallbackEnriched?.features || [],
           specs: cleanSpecs,
-          whatsIncluded: mockFallback?.whatsIncluded || [],
-          applications: mockFallback?.applications || [],
-          documents: mockFallback?.documents || [],
+          whatsIncluded: mockFallbackEnriched?.whatsIncluded || [],
+          applications: mockFallbackEnriched?.applications || [],
+          documents: mockFallbackEnriched?.documents || [],
           metaTitle: (seoData.metaTitle as string) || undefined,
           metaDescription: (seoData.metaDescription as string) || undefined,
           metaKeywords: Array.isArray(seoData.metaKeywords) ? (seoData.metaKeywords as string[]) : undefined,
@@ -113,16 +113,7 @@ async function getProduct(rawSlug: string): Promise<Product | null> {
     }
   }
 
-  return (
-    PRODUCTS.find(
-      (p) =>
-        (p.slug && p.slug.toLowerCase() === slugLower) ||
-        p.id.toLowerCase() === slugLower ||
-        (p.sku && p.sku.toLowerCase() === slugLower) ||
-        p.name.toLowerCase().replace(/[^a-z0-9]+/g, "-") === slugLower ||
-        p.name.toLowerCase() === slugLower,
-    ) || null
-  );
+  return mockFallback || null;
 }
 
 
