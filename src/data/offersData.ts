@@ -302,7 +302,7 @@ export const OFFERS_DATA: OfferItem[] = [
       "Upgrade your embedded prototyping lab with high-speed 32-bit ESP32-S3 boards, genuine Arduino UNO R4 WiFi, and STM32 BluePill boards.",
     discountBadge: "FROM ₹199",
     discountPercentage: 30,
-    image: "/images/categories/arduino.jpg",
+    image: "/images/products/arduino-uno-r3.png",
     badge: "FLASH DEAL",
     status: "Active",
     startDate: "05 Aug 2026",

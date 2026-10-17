@@ -200,7 +200,7 @@ const QuickViewModalContent: React.FC<{
       ...(masterProduct?.images || []),
     ].filter(Boolean) as string[];
     const unique = Array.from(new Set(list));
-    return unique.length > 0 ? unique : ["/images/categories/arduino.jpg"];
+    return unique.length > 0 ? unique : ["/images/products/arduino-uno-r3.png"];
   }, [product, fullProduct, masterProduct]);
 
   const sliderRef = useRef<HTMLDivElement>(null);
