@@ -1799,10 +1799,10 @@ export const CheckoutView: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setSelectedDeliveryMethod("standard")}
-                  className={`px-3 py-1 rounded-lg text-xs font-bold border transition-all cursor-pointer ${
+                  className={`px-3.5 py-1.5 rounded-full text-xs font-bold border transition-all cursor-pointer ${
                     selectedDeliveryMethod === "standard"
-                      ? "bg-[#0A1128] text-white border-[#0A1128]"
-                      : "bg-slate-50 text-slate-600 border-slate-200"
+                      ? "bg-[#0A1128] text-white border-[#0A1128] shadow-xs"
+                      : "bg-slate-50 text-slate-600 border-slate-200 hover:bg-white"
                   }`}
                 >
                   Standard ({isFreeStandardShipping ? "FREE" : "₹99"})
@@ -1811,10 +1811,10 @@ export const CheckoutView: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setSelectedDeliveryMethod("ranchi_24h")}
-                    className={`px-3 py-1 rounded-lg text-xs font-bold border transition-all cursor-pointer ${
+                    className={`px-3.5 py-1.5 rounded-full text-xs font-bold border transition-all cursor-pointer ${
                       selectedDeliveryMethod === "ranchi_24h"
-                        ? "bg-emerald-700 text-white border-emerald-700"
-                        : "bg-slate-50 text-slate-600 border-slate-200"
+                        ? "bg-emerald-700 text-white border-emerald-700 shadow-xs"
+                        : "bg-slate-50 text-slate-600 border-slate-200 hover:bg-white"
                     }`}
                   >
                     Ranchi 24h (₹49)
@@ -1823,10 +1823,10 @@ export const CheckoutView: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setSelectedDeliveryMethod("faster_express")}
-                  className={`px-3 py-1 rounded-lg text-xs font-bold border transition-all cursor-pointer ${
+                  className={`px-3.5 py-1.5 rounded-full text-xs font-bold border transition-all cursor-pointer ${
                     selectedDeliveryMethod === "faster_express"
-                      ? "bg-[#2563EB] text-white border-[#2563EB]"
-                      : "bg-slate-50 text-slate-600 border-slate-200"
+                      ? "bg-[#2563EB] text-white border-[#2563EB] shadow-xs"
+                      : "bg-slate-50 text-slate-600 border-slate-200 hover:bg-white"
                   }`}
                 >
                   Priority Air (₹149)
@@ -1937,32 +1937,37 @@ export const CheckoutView: React.FC = () => {
             <button
               onClick={handlePlaceOrder}
               disabled={isSubmitting}
-              className="w-full bg-[#0A1128] hover:bg-[#12365D] active:scale-[0.99] text-white py-4 sm:py-4.5 px-6 rounded-2xl font-black text-xs sm:text-sm uppercase tracking-wider transition-all shadow-xl shadow-[#0A1128]/15 flex items-center justify-between cursor-pointer disabled:opacity-50 group border border-slate-800"
+              className="w-full h-14 bg-[#0A1128] hover:bg-[#12365D] active:scale-[0.99] text-white px-5 sm:px-6 rounded-full font-bold transition-all shadow-xl shadow-[#0A1128]/15 flex items-center justify-between cursor-pointer disabled:opacity-50 group border border-slate-800"
             >
               {isSubmitting ? (
-                <div className="w-full text-center py-0.5">
-                  <span>Confirming Order...</span>
+                <div className="w-full text-center py-0.5 flex items-center justify-center gap-2">
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  <span className="text-sm font-bold">Processing Order...</span>
                 </div>
               ) : (
                 <>
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center text-[#FFC20E] shrink-0">
-                      <ShieldCheck className="w-4 h-4" />
-                    </div>
-                    <span>Complete Order &amp; Generate Tax Invoice</span>
-                  </div>
-                  <div className="flex items-center gap-2.5">
-                    <span className="text-sm sm:text-base font-extrabold text-[#FFC20E] tracking-tight">
+                  <div className="flex flex-col text-left">
+                    <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider leading-none">
+                      Total to Pay
+                    </span>
+                    <span className="text-base sm:text-lg font-black text-[#FFC20E] tracking-tight leading-tight mt-0.5">
                       ₹{grandTotal.toLocaleString("en-IN")}
                     </span>
-                    <ArrowRight className="w-4 h-4 text-white group-hover:translate-x-1 transition-transform" />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm sm:text-base font-extrabold tracking-wide">
+                      Place Order
+                    </span>
+                    <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center group-hover:translate-x-1 transition-transform">
+                      <ArrowRight className="w-4 h-4 text-white" />
+                    </div>
                   </div>
                 </>
               )}
             </button>
 
             {/* Trust and Guarantee Bar */}
-            <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-[11px] text-slate-500 font-semibold pt-1">
+            <div className="flex flex-wrap items-center justify-center gap-x-3.5 gap-y-1 text-[11px] text-slate-500 font-semibold pt-1">
               <span className="flex items-center gap-1.5">
                 <Lock className="w-3.5 h-3.5 text-emerald-600" />
                 256-Bit SSL Encrypted
@@ -1970,7 +1975,7 @@ export const CheckoutView: React.FC = () => {
               <span>•</span>
               <span className="flex items-center gap-1.5">
                 <Receipt className="w-3.5 h-3.5 text-[#0A1128]" />
-                Official GST Tax Invoice
+                Official GST Invoice
               </span>
               <span>•</span>
               <span className="flex items-center gap-1.5">
