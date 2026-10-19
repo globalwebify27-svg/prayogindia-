@@ -57,7 +57,10 @@ export default function AccountLayout({
         <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 space-y-3 sm:space-y-6">
           {/* ── Mobile Horizontal Scrollable Navigation Pills ── */}
           <div className="lg:hidden space-y-2">
-            <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1 px-0.5 touch-pan-x">
+            <div
+              className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1 px-0.5 touch-pan-x touch-pan-y"
+              style={{ touchAction: "pan-x pan-y" }}
+            >
               {navTabs.map((tab) => {
                 const Icon = tab.icon;
                 const isActive =

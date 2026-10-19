@@ -16,6 +16,7 @@ import {
 import { Product } from "@/data/mockData";
 import { useStore } from "@/context/StoreContext";
 import { haptic } from "@/utils/haptics";
+import { AddToCartIcon } from "@/components/icons/AddToCartIcon";
 
 const WhatsAppIcon = ({ className = "w-3.5 h-3.5" }: { className?: string }) => (
   <svg
@@ -336,7 +337,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
               </>
             ) : (
               <>
-                <ShoppingCart className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0" />
+                <AddToCartIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
                 <span className="whitespace-nowrap font-bold">ADD TO CART</span>
               </>
             )}

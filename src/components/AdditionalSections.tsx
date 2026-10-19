@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import { INDUSTRIES, LEARNING_HUB, TESTIMONIALS } from "@/data/mockData";
 import {
@@ -18,6 +18,8 @@ import {
   Cpu,
   Headphones,
   Sparkles,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 
 interface AdditionalSectionsProps {
@@ -437,75 +439,201 @@ export const TestimonialsSection: React.FC = () => {
     },
   ];
 
-  // Circular linked list array: duplicated items for seamless infinite wrap
-  const circularReviews = [...VERIFIED_REVIEWS, ...VERIFIED_REVIEWS];
+  const sliderRef = useRef<HTMLDivElement>(null);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
+
+  const updateScrollState = () => {
+    if (!sliderRef.current) return;
+    const { scrollLeft, scrollWidth, clientWidth } = sliderRef.current;
+    const card = sliderRef.current.firstElementChild as HTMLElement;
+    const cardWidth = card ? card.offsetWidth + 20 : 360;
+    const newIdx = Math.round(scrollLeft / cardWidth);
+    setActiveIndex(Math.min(Math.max(0, newIdx), VERIFIED_REVIEWS.length - 1));
+    setCanScrollLeft(scrollLeft > 15);
+    setCanScrollRight(scrollLeft + clientWidth < scrollWidth - 15);
+  };
+
+  const scrollNext = () => {
+    if (!sliderRef.current) return;
+    const container = sliderRef.current;
+    const card = container.firstElementChild as HTMLElement;
+    const scrollAmount = card ? card.offsetWidth + 20 : 360;
+    if (container.scrollLeft + container.clientWidth >= container.scrollWidth - 25) {
+      container.scrollTo({ left: 0, behavior: "smooth" });
+    } else {
+      container.scrollBy({ left: scrollAmount, behavior: "smooth" });
+    }
+  };
+
+  const scrollPrev = () => {
+    if (!sliderRef.current) return;
+    const container = sliderRef.current;
+    const card = container.firstElementChild as HTMLElement;
+    const scrollAmount = card ? card.offsetWidth + 20 : 360;
+    if (container.scrollLeft <= 25) {
+      container.scrollTo({ left: container.scrollWidth, behavior: "smooth" });
+    } else {
+      container.scrollBy({ left: -scrollAmount, behavior: "smooth" });
+    }
+  };
+
+  const scrollToSlide = (index: number) => {
+    if (!sliderRef.current) return;
+    const container = sliderRef.current;
+    const card = container.firstElementChild as HTMLElement;
+    const scrollAmount = card ? card.offsetWidth + 20 : 360;
+    container.scrollTo({ left: index * scrollAmount, behavior: "smooth" });
+  };
+
+  // Smooth user-friendly autoplay (advances every 4.5s, pauses on hover/interaction)
+  useEffect(() => {
+    if (isPaused) return;
+    const interval = setInterval(() => {
+      scrollNext();
+    }, 4500);
+    return () => clearInterval(interval);
+  }, [isPaused]);
 
   return (
-    <section className="py-12 bg-slate-50/70 border-t border-slate-100 overflow-hidden">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
-        {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto space-y-2.5">
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 tracking-tight">
-            Trusted by 5,000+ Innovators, Labs &amp; Schools
-          </h2>
-          <p className="text-xs sm:text-sm text-slate-500 font-medium">
-            Real customer hardware setups, verified ratings, and project builds
-            across India.
-          </p>
+    <section className="py-10 sm:py-16 bg-gradient-to-b from-white via-slate-50/50 to-white border-t border-slate-200/80 overflow-hidden">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6 sm:space-y-8">
+        {/* Section Header with Navigation Controls */}
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+          <div className="space-y-2 text-center sm:text-left">
+            <h2 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-slate-900 tracking-tight">
+              Trusted by 5,000+ Innovators, Labs &amp; Schools
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-500 font-normal">
+              Real customer hardware setups, verified ratings, and project builds across India.
+            </p>
+          </div>
+
+          {/* Slider Prev / Next Controls */}
+          <div className="hidden sm:flex items-center gap-2 self-end pb-1">
+            <button
+              onClick={scrollPrev}
+              aria-label="Previous review"
+              className="w-10 h-10 rounded-full border border-slate-200/90 bg-white hover:bg-slate-50 active:scale-95 text-slate-700 hover:text-[#2563EB] flex items-center justify-center shadow-xs transition-all duration-200 cursor-pointer disabled:opacity-40"
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+            <button
+              onClick={scrollNext}
+              aria-label="Next review"
+              className="w-10 h-10 rounded-full border border-slate-200/90 bg-white hover:bg-slate-50 active:scale-95 text-slate-700 hover:text-[#2563EB] flex items-center justify-center shadow-xs transition-all duration-200 cursor-pointer disabled:opacity-40"
+            >
+              <ChevronRight className="w-5 h-5" />
+            </button>
+          </div>
         </div>
 
-        {/* Circular Linked-List Infinite Marquee Track */}
-        <div className="circular-loop-wrapper py-2">
-          <div className="circular-loop-track">
-            {circularReviews.map((t, idx) => (
+        {/* Smooth User-Friendly Snap Carousel */}
+        <div
+          className="relative"
+          onMouseEnter={() => setIsPaused(true)}
+          onMouseLeave={() => setIsPaused(false)}
+          onTouchStart={() => setIsPaused(true)}
+          onTouchEnd={() => setIsPaused(false)}
+        >
+          <div
+            ref={sliderRef}
+            onScroll={updateScrollState}
+            className="flex gap-4 sm:gap-5 overflow-x-auto snap-x snap-mandatory scroll-smooth no-scrollbar py-2 px-1"
+          >
+            {VERIFIED_REVIEWS.map((t, idx) => (
               <div
-                key={`${t.id}-${idx}`}
-                className="w-[300px] sm:w-[350px] shrink-0 bg-white p-5 rounded-3xl border border-slate-200/90 shadow-sm hover:shadow-xl hover:border-[#2563EB]/50 transition-all duration-300 flex flex-col justify-between space-y-3.5 group select-none cursor-pointer"
+                key={t.id}
+                className="w-[85vw] sm:w-[350px] lg:w-[390px] shrink-0 snap-start bg-white p-5 sm:p-6 rounded-2xl sm:rounded-3xl border border-slate-200/90 shadow-xs hover:shadow-xl hover:border-[#2563EB]/40 transition-all duration-300 flex flex-col justify-between space-y-4 group select-none cursor-pointer"
               >
                 <div className="space-y-3">
-                  {/* Rating & Circle Profile Image */}
+                  {/* Rating, Verified Pill & Circle Profile Image */}
                   <div className="flex items-center justify-between">
-                    <div className="flex text-amber-400 gap-0.5">
-                      {[...Array(t.rating)].map((_, i) => (
-                        <Star key={i} className="w-4 h-4 fill-current" />
-                      ))}
+                    <div className="space-y-1">
+                      <div className="flex text-amber-400 gap-0.5">
+                        {[...Array(t.rating)].map((_, i) => (
+                          <Star key={i} className="w-4 h-4 fill-current" />
+                        ))}
+                      </div>
+                      <div className="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100">
+                        <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                        <span>Verified Lab Setup</span>
+                      </div>
                     </div>
 
                     {/* Circle Profile Image */}
-                    <div className="relative w-10 h-10 rounded-full overflow-hidden border-2 border-white shadow-xs ring-1 ring-slate-200/80 shrink-0">
+                    <div className="relative w-11 h-11 rounded-full overflow-hidden border-2 border-white shadow-xs ring-1 ring-slate-200/80 shrink-0">
                       <Image
                         src={t.avatar}
                         alt={t.name}
                         fill
-                        sizes="40px"
+                        sizes="44px"
                         className="object-cover"
                       />
                     </div>
                   </div>
 
-                  {/* Comment Text */}
-                  <p className="text-xs text-slate-700 leading-relaxed font-medium line-clamp-3">
-                    &quot;{t.comment}&quot;
+                  {/* Comment Text with clean readability */}
+                  <p className="text-xs sm:text-[13px] text-slate-700 leading-relaxed font-normal">
+                    &ldquo;{t.comment}&rdquo;
                   </p>
-
                 </div>
 
                 {/* Author & Product Info */}
-                <div className="pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
+                <div className="pt-3.5 border-t border-slate-100 flex items-center justify-between gap-2">
                   <div className="min-w-0">
-                    <div className="text-xs font-black text-slate-900 truncate">
+                    <div className="text-xs sm:text-[13px] font-bold text-slate-900 truncate">
                       {t.name}
                     </div>
-                    <div className="text-[10px] text-slate-400 font-semibold truncate">
+                    <div className="text-[10px] sm:text-[11px] text-slate-500 font-medium truncate">
                       {t.role} • {t.institution}
                     </div>
                   </div>
-                  <span className="text-[10px] font-bold bg-slate-100 text-slate-700 px-2.5 py-1 rounded-lg shrink-0 max-w-[130px] truncate">
+                  <span className="text-[10px] font-bold bg-blue-50 text-[#2563EB] border border-blue-100 px-2.5 py-1 rounded-lg shrink-0 max-w-[130px] truncate">
                     {t.product}
                   </span>
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+
+        {/* Bottom Pagination Dots & Mobile Navigation Controls */}
+        <div className="flex items-center justify-between pt-2">
+          {/* Interactive Pagination Dots */}
+          <div className="flex items-center gap-1.5 mx-auto sm:mx-0">
+            {VERIFIED_REVIEWS.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => scrollToSlide(i)}
+                aria-label={`Go to slide ${i + 1}`}
+                className={`transition-all duration-300 rounded-full cursor-pointer ${
+                  activeIndex === i
+                    ? "w-6 h-2 bg-[#2563EB]"
+                    : "w-2 h-2 bg-slate-300 hover:bg-slate-400"
+                }`}
+              />
+            ))}
+          </div>
+
+          {/* Mobile Arrows */}
+          <div className="flex sm:hidden items-center gap-2">
+            <button
+              onClick={scrollPrev}
+              aria-label="Previous review"
+              className="w-8 h-8 rounded-full border border-slate-200 bg-white active:scale-95 text-slate-700 flex items-center justify-center shadow-xs cursor-pointer"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+            <button
+              onClick={scrollNext}
+              aria-label="Next review"
+              className="w-8 h-8 rounded-full border border-slate-200 bg-white active:scale-95 text-slate-700 flex items-center justify-center shadow-xs cursor-pointer"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
           </div>
         </div>
       </div>

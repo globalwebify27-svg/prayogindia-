@@ -122,23 +122,23 @@ const THEMES: Record<
 function getBadgeIcon(icon?: string) {
   switch (icon) {
     case "robot":
-      return <Bot className="w-5 h-5" />;
+      return <Bot className="w-3.5 h-3.5 lg:w-4 lg:h-4" />;
     case "cpu":
-      return <Cpu className="w-4 h-4" />;
+      return <Cpu className="w-3 h-3 lg:w-3.5 lg:h-3.5" />;
     case "radio":
-      return <Radio className="w-4 h-4" />;
+      return <Radio className="w-3 h-3 lg:w-3.5 lg:h-3.5" />;
     case "drone":
-      return <Navigation className="w-4 h-4" />;
+      return <Navigation className="w-3 h-3 lg:w-3.5 lg:h-3.5" />;
     case "graduation":
-      return <GraduationCap className="w-4 h-4" />;
+      return <GraduationCap className="w-3 h-3 lg:w-3.5 lg:h-3.5" />;
     case "wifi":
-      return <Wifi className="w-4 h-4" />;
+      return <Wifi className="w-3 h-3 lg:w-3.5 lg:h-3.5" />;
     case "code":
-      return <Code className="w-4 h-4" />;
+      return <Code className="w-3 h-3 lg:w-3.5 lg:h-3.5" />;
     case "chip":
-      return <Layers className="w-4 h-4" />;
+      return <Layers className="w-3 h-3 lg:w-3.5 lg:h-3.5" />;
     default:
-      return <Sparkles className="w-4 h-4" />;
+      return <Sparkles className="w-3 h-3 lg:w-3.5 lg:h-3.5" />;
   }
 }
 
@@ -178,30 +178,30 @@ export const ShopByCategory: React.FC<Props> = ({ onSelectCategory }) => {
   const bottomRow = categories.slice(4, 8);
 
   return (
-    <section className="pt-4 sm:pt-7 pb-8 sm:pb-12 bg-white">
-      <div className="w-full px-3 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 space-y-2.5 sm:space-y-4 lg:space-y-5">
+    <section className="pt-2 sm:pt-3.5 pb-4 sm:pb-6 bg-white touch-pan-y" style={{ touchAction: "pan-y" }}>
+      <div className="w-full px-3 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 space-y-1.5 sm:space-y-2 lg:space-y-2.5 touch-pan-y">
         {/* Section Header */}
-        <div className="flex items-center justify-between pb-1">
-          <div className="flex items-center gap-3">
-            <h2 className="text-lg sm:text-2xl lg:text-3xl font-bold text-slate-900 tracking-tight">
+        <div className="flex items-center justify-between pb-0.5">
+          <div className="flex items-center gap-2">
+            <h2 className="text-sm sm:text-lg lg:text-xl font-bold text-slate-900 tracking-tight">
               Shop by Category
             </h2>
-            <div className="w-12 h-1 bg-[#FFC20E] rounded-full" />
+            <div className="w-7 h-1 bg-[#FFC20E] rounded-full" />
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             <Link
               href="/categories"
               className="text-xs sm:text-sm font-semibold text-[#2563EB] hover:text-[#0A233F] hover:underline flex items-center gap-1 group cursor-pointer transition-colors"
             >
               <span>View All</span>
-              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              <ArrowRight className="w-3 h-3 sm:w-3.5 sm:h-3.5 group-hover:translate-x-1 transition-transform" />
             </Link>
           </div>
         </div>
 
         {/* Row 1: 2-Column on Mobile, 5-Column Grid Layout on Desktop */}
-        <div className="grid grid-cols-2 lg:grid-cols-5 gap-2.5 sm:gap-4 lg:gap-5">
+        <div className="grid grid-cols-2 lg:grid-cols-5 gap-2 sm:gap-2.5 lg:gap-3 touch-pan-y">
           {topRow.map((cat, idx) => {
             const isFeatured = idx === 0 || cat.isFeatured;
             const theme = THEMES[cat.themeColor || "blue"] || THEMES.blue;
@@ -219,89 +219,96 @@ export const ShopByCategory: React.FC<Props> = ({ onSelectCategory }) => {
                       onSelectCategory(cat.name);
                     }
                   }}
-                  className={`relative block w-full h-[165px] sm:h-[200px] lg:h-[235px] rounded-2xl sm:rounded-3xl overflow-hidden p-3 sm:p-5 lg:p-6 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 group cursor-pointer select-none border border-slate-100/70 ${theme.bg}`}
+                  className={`relative block w-full h-[135px] sm:h-[155px] lg:h-[172px] rounded-lg sm:rounded-xl overflow-hidden p-2.5 sm:p-3 lg:p-3.5 transition-all duration-300 hover:shadow-md hover:-translate-y-0.5 group cursor-pointer border border-slate-100/80 touch-pan-y ${theme.bg}`}
+                  style={{ touchAction: "pan-y" }}
                 >
                   {/* Subtle Background Blobs / Organic Shapes */}
                   <div
-                    className={`absolute -top-12 -right-8 w-60 h-60 rounded-full blur-2xl pointer-events-none transition-transform duration-700 group-hover:scale-110 ${theme.blobTop}`}
+                    className={`absolute -top-10 -right-6 w-40 h-40 rounded-full blur-xl pointer-events-none transition-transform duration-700 group-hover:scale-110 ${theme.blobTop}`}
                   />
                   <div
-                    className={`absolute -bottom-8 -left-8 w-28 h-28 rounded-full pointer-events-none transition-transform duration-700 group-hover:scale-110 ${theme.blobBottom}`}
+                    className={`absolute -bottom-6 -left-6 w-20 h-20 rounded-full pointer-events-none transition-transform duration-700 group-hover:scale-110 ${theme.blobBottom}`}
                   />
 
                   {/* Card Content Layout */}
-                  <div className="relative z-10 h-full flex flex-col justify-between max-w-[62%] sm:max-w-[58%]">
+                  <div
+                    className={`relative z-10 h-full flex flex-col justify-between ${
+                      isFeatured ? "max-w-[50%] sm:max-w-[46%]" : "max-w-[54%] sm:max-w-[50%]"
+                    }`}
+                  >
                     {/* Top: Icon Badge + Title + Tagline */}
                     <div>
                       <div
-                        className={`w-7 h-7 sm:w-9 sm:h-9 lg:w-10 lg:h-10 rounded-full flex items-center justify-center shrink-0 shadow-2xs transition-transform duration-300 group-hover:scale-110 ${theme.iconBg} ${theme.iconColor}`}
+                        className={`w-5.5 h-5.5 sm:w-6.5 sm:h-6.5 lg:w-7.5 lg:h-7.5 rounded-full flex items-center justify-center shrink-0 shadow-2xs transition-transform duration-300 group-hover:scale-105 ${theme.iconBg} ${theme.iconColor}`}
                       >
                         {getBadgeIcon(cat.badgeIcon || (isFeatured ? "robot" : "cpu"))}
                       </div>
 
                       <h3
-                        className={`font-bold text-slate-900 tracking-tight leading-snug mt-1.5 sm:mt-2.5 line-clamp-2 ${
+                        className={`font-bold text-slate-900 tracking-tight leading-snug mt-1 sm:mt-1.5 line-clamp-2 ${
                           isFeatured
-                            ? "text-[13px] sm:text-base lg:text-[24px]"
-                            : "text-[13px] sm:text-[15px] lg:text-[17px]"
+                            ? "text-[13.5px] sm:text-[16px] lg:text-[18.5px]"
+                            : "text-[12px] sm:text-[13.5px] lg:text-[15px]"
                         }`}
                       >
                         {cat.name}
                       </h3>
 
                       {cat.tagline && (
-                        <p className="hidden sm:block text-xs text-slate-500 font-medium mt-1 line-clamp-1">
+                        <p className="hidden sm:block text-[10px] lg:text-[11px] text-slate-500 font-medium mt-0.5 line-clamp-1">
                           {cat.tagline}
                         </p>
                       )}
                     </div>
 
-                    {/* Bottom: Count + Arrow (Stacked on mobile so arrow stays in bottom-left without overlapping image) */}
-                    <div className="pt-1 sm:pt-2">
+                    {/* Bottom: Count + Arrow */}
+                    <div className="pt-0.5">
                       {isFeatured ? (
-                        <div className="flex flex-col lg:flex-row lg:items-center gap-1 sm:gap-1.5 lg:gap-3">
+                        <div className="flex flex-col lg:flex-row lg:items-center gap-1 sm:gap-1.5 lg:gap-2">
                           {cat.productCount && (
-                            <span className={`text-[10px] sm:text-[11px] lg:text-xs font-semibold ${theme.countColor}`}>
+                            <span className={`text-[9.5px] sm:text-[10.5px] font-semibold ${theme.countColor}`}>
                               {cat.productCount}
                             </span>
                           )}
                           <div
-                            className={`w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 rounded-full flex items-center justify-center shadow-xs transition-all duration-300 group-hover:scale-110 ${theme.arrowBg} ${theme.arrowColor} ${theme.arrowHoverBg}`}
+                            className={`w-5 h-5 sm:w-5.5 sm:h-5.5 lg:w-6 lg:h-6 rounded-full flex items-center justify-center shadow-xs transition-all duration-300 group-hover:scale-105 ${theme.arrowBg} ${theme.arrowColor} ${theme.arrowHoverBg}`}
                           >
-                            <ArrowRight className="w-3 h-3 sm:w-3.5 sm:h-3.5 lg:w-4 lg:h-4 group-hover:translate-x-0.5 transition-transform" />
+                            <ArrowRight className="w-2.5 h-2.5 sm:w-3 sm:h-3 group-hover:translate-x-0.5 transition-transform" />
                           </div>
                         </div>
                       ) : (
                         <div>
                           {cat.productCount && (
-                            <span className={`block text-[10px] sm:text-[11px] font-semibold ${theme.countColor}`}>
+                            <span className={`block text-[9.5px] sm:text-[10.5px] font-semibold ${theme.countColor}`}>
                               {cat.productCount}
                             </span>
                           )}
                           <div
-                            className={`w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center mt-1 sm:mt-1.5 transition-all duration-300 group-hover:scale-110 ${theme.arrowBg} ${theme.arrowColor} ${theme.arrowHoverBg}`}
+                            className={`w-5 h-5 sm:w-5.5 sm:h-5.5 rounded-full flex items-center justify-center mt-0.5 transition-all duration-300 group-hover:scale-105 ${theme.arrowBg} ${theme.arrowColor} ${theme.arrowHoverBg}`}
                           >
-                            <ArrowRight className="w-3 h-3 sm:w-3.5 sm:h-3.5 group-hover:translate-x-0.5 transition-transform" />
+                            <ArrowRight className="w-2.5 h-2.5 sm:w-3 sm:h-3 group-hover:translate-x-0.5 transition-transform" />
                           </div>
                         </div>
                       )}
                     </div>
                   </div>
 
-                  {/* Floating Product Cutout Image */}
+                  {/* Floating Product Cutout Image - Extra Wide Cutout */}
                   <div
                     className={
                       isFeatured
-                        ? "absolute right-0 sm:right-3 bottom-0 sm:bottom-2 w-[76px] sm:w-[110px] lg:w-[50%] h-[72px] sm:h-[100px] lg:h-[85%] flex items-end justify-center pointer-events-none"
-                        : "absolute bottom-0 right-0 sm:right-0.5 w-[76px] sm:w-[105px] lg:w-[138px] h-[72px] sm:h-[95px] lg:h-[124px] pointer-events-none"
+                        ? "absolute right-0 sm:right-1 -bottom-1 w-[145px] sm:w-[195px] lg:w-[250px] xl:w-[280px] h-[98%] sm:h-[105%] lg:h-[108%] flex items-end justify-end pointer-events-none select-none touch-pan-y"
+                        : "absolute -bottom-0.5 right-0 sm:right-0.5 w-[92px] sm:w-[118px] lg:w-[140px] xl:w-[150px] h-[80%] sm:h-[90%] lg:h-[96%] flex items-end justify-end pointer-events-none select-none touch-pan-y"
                     }
                   >
                     <Image
                       src={cat.image}
                       alt={cat.imageAlt || cat.name}
                       fill
-                      sizes={isFeatured ? "(max-width: 640px) 45vw, (max-width: 1024px) 50vw, 420px" : "(max-width: 640px) 45vw, 220px"}
-                      className="object-contain object-bottom-right group-hover:scale-105 transition-transform duration-500 ease-out"
+                      draggable={false}
+                      sizes={isFeatured ? "(max-width: 640px) 150px, (max-width: 1024px) 250px, 300px" : "(max-width: 640px) 100px, 160px"}
+                      className="object-contain object-right-bottom group-hover:scale-108 transition-transform duration-500 ease-out drop-shadow-xs pointer-events-none select-none"
+                      style={{ pointerEvents: "none", userSelect: "none", WebkitUserDrag: "none" } as React.CSSProperties}
                       priority={idx < 2}
                     />
                   </div>
@@ -313,7 +320,7 @@ export const ShopByCategory: React.FC<Props> = ({ onSelectCategory }) => {
 
         {/* Row 2: 2-Column on Mobile, 4-Column Grid Layout on Desktop */}
         {bottomRow.length > 0 && (
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4 lg:gap-5">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-2.5 lg:gap-3 touch-pan-y">
             {bottomRow.map((cat, idx) => {
               const theme = THEMES[cat.themeColor || "blue"] || THEMES.blue;
 
@@ -327,57 +334,60 @@ export const ShopByCategory: React.FC<Props> = ({ onSelectCategory }) => {
                         onSelectCategory(cat.name);
                       }
                     }}
-                    className={`relative block w-full h-[175px] sm:h-[200px] lg:h-[235px] rounded-2xl sm:rounded-3xl overflow-hidden p-3.5 sm:p-5 lg:p-6 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 group cursor-pointer select-none border border-slate-100/70 ${theme.bg}`}
+                    className={`relative block w-full h-[135px] sm:h-[155px] lg:h-[172px] rounded-lg sm:rounded-xl overflow-hidden p-2.5 sm:p-3 lg:p-3.5 transition-all duration-300 hover:shadow-md hover:-translate-y-0.5 group cursor-pointer border border-slate-100/80 touch-pan-y ${theme.bg}`}
+                    style={{ touchAction: "pan-y" }}
                   >
                     {/* Subtle Corner Blob */}
                     <div
-                      className={`absolute -bottom-10 -right-10 w-36 h-36 rounded-full blur-xl pointer-events-none transition-transform duration-700 group-hover:scale-110 ${theme.blobBottom}`}
+                      className={`absolute -bottom-8 -right-8 w-28 h-28 rounded-full blur-xl pointer-events-none transition-transform duration-700 group-hover:scale-110 ${theme.blobBottom}`}
                     />
 
                     {/* Card Content Layout */}
-                    <div className="relative z-10 h-full flex flex-col justify-between max-w-[58%]">
+                    <div className="relative z-10 h-full flex flex-col justify-between max-w-[54%] sm:max-w-[50%]">
                       {/* Top: Icon Badge + Title + Tagline */}
                       <div>
                         <div
-                          className={`w-7 h-7 sm:w-9 sm:h-9 lg:w-10 lg:h-10 rounded-full flex items-center justify-center shrink-0 shadow-2xs transition-transform duration-300 group-hover:scale-110 ${theme.iconBg} ${theme.iconColor}`}
+                          className={`w-5.5 h-5.5 sm:w-6.5 sm:h-6.5 lg:w-7.5 lg:h-7.5 rounded-full flex items-center justify-center shrink-0 shadow-2xs transition-transform duration-300 group-hover:scale-105 ${theme.iconBg} ${theme.iconColor}`}
                         >
                           {getBadgeIcon(cat.badgeIcon || "chip")}
                         </div>
 
-                        <h3 className="text-[13px] sm:text-[15px] lg:text-[17px] font-bold text-slate-900 tracking-tight leading-snug mt-1.5 sm:mt-2.5 line-clamp-2">
+                        <h3 className="text-[12px] sm:text-[13.5px] lg:text-[15px] font-bold text-slate-900 tracking-tight leading-snug mt-1 sm:mt-1.5 line-clamp-2">
                           {cat.name}
                         </h3>
 
                         {cat.tagline && (
-                          <p className="hidden sm:block text-xs text-slate-500 font-medium mt-1 line-clamp-1">
+                          <p className="hidden sm:block text-[10px] lg:text-[11px] text-slate-500 font-medium mt-0.5 line-clamp-1">
                             {cat.tagline}
                           </p>
                         )}
                       </div>
 
                       {/* Bottom: Count + Arrow (Stacked vertically) */}
-                      <div className="pt-1 sm:pt-2">
+                      <div className="pt-0.5">
                         {cat.productCount && (
-                          <span className={`block text-[10px] sm:text-[11px] font-semibold ${theme.countColor}`}>
+                          <span className={`block text-[9.5px] sm:text-[10.5px] font-semibold ${theme.countColor}`}>
                             {cat.productCount}
                           </span>
                         )}
                         <div
-                          className={`w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center mt-1 sm:mt-1.5 transition-all duration-300 group-hover:scale-110 ${theme.arrowBg} ${theme.arrowColor} ${theme.arrowHoverBg}`}
+                          className={`w-5 h-5 sm:w-5.5 sm:h-5.5 rounded-full flex items-center justify-center mt-0.5 transition-all duration-300 group-hover:scale-105 ${theme.arrowBg} ${theme.arrowColor} ${theme.arrowHoverBg}`}
                         >
-                          <ArrowRight className="w-3 h-3 sm:w-3.5 sm:h-3.5 group-hover:translate-x-0.5 transition-transform" />
+                          <ArrowRight className="w-2.5 h-2.5 sm:w-3 sm:h-3 group-hover:translate-x-0.5 transition-transform" />
                         </div>
                       </div>
                     </div>
 
-                    {/* Floating Product Cutout Image */}
-                    <div className="absolute bottom-0 right-0 sm:right-0.5 w-[76px] sm:w-[105px] lg:w-[138px] h-[72px] sm:h-[95px] lg:h-[124px] pointer-events-none">
+                    {/* Floating Product Cutout Image - Extra Wide Cutout */}
+                    <div className="absolute -bottom-0.5 right-0 sm:right-0.5 w-[92px] sm:w-[118px] lg:w-[140px] xl:w-[150px] h-[80%] sm:h-[90%] lg:h-[96%] flex items-end justify-end pointer-events-none select-none touch-pan-y">
                       <Image
                         src={cat.image}
                         alt={cat.imageAlt || cat.name}
                         fill
-                        sizes="(max-width: 640px) 45vw, 220px"
-                        className="object-contain object-bottom-right group-hover:scale-105 transition-transform duration-500 ease-out"
+                        draggable={false}
+                        sizes="(max-width: 640px) 100px, 160px"
+                        className="object-contain object-right-bottom group-hover:scale-108 transition-transform duration-500 ease-out drop-shadow-xs pointer-events-none select-none"
+                        style={{ pointerEvents: "none", userSelect: "none", WebkitUserDrag: "none" } as React.CSSProperties}
                         priority={false}
                       />
                     </div>

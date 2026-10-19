@@ -258,7 +258,10 @@ export const CategoryDetailView: React.FC<CategoryDetailProps> = ({
 
       {/* 3. Mobile Subcategories: Clean Horizontal Scrollable Filter Chips */}
       {category.subcategories.length > 0 && (
-        <div className="sm:hidden flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 touch-pan-x">
+        <div
+          className="sm:hidden flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 touch-pan-x touch-pan-y"
+          style={{ touchAction: "pan-x pan-y" }}
+        >
           <button
             type="button"
             onClick={() => setSelectedSubcategory(null)}

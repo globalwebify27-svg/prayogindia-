@@ -563,10 +563,12 @@ const PopularProductCard: React.FC<PopularProductCardProps> = ({
               src={primaryImage}
               alt={product.name}
               fill
+              draggable={false}
               sizes="(max-width: 640px) 210px, 260px"
               className={`${
                 primaryIsPng ? "object-contain p-2.5" : "object-cover object-center"
-              } transition-transform duration-500 ease-out group-hover:scale-105`}
+              } transition-transform duration-500 ease-out group-hover:scale-105 pointer-events-none select-none`}
+              style={{ WebkitUserDrag: "none" } as React.CSSProperties}
             />
           </div>
 
@@ -577,10 +579,12 @@ const PopularProductCard: React.FC<PopularProductCardProps> = ({
                 src={secondaryImage}
                 alt={`${product.name} alternate angle`}
                 fill
+                draggable={false}
                 sizes="(max-width: 640px) 210px, 260px"
                 className={`${
                   secondaryIsPng ? "object-contain p-2.5" : "object-cover object-center"
-                } transition-transform duration-500 ease-out group-hover:scale-105`}
+                } transition-transform duration-500 ease-out group-hover:scale-105 pointer-events-none select-none`}
+                style={{ WebkitUserDrag: "none" } as React.CSSProperties}
               />
             </div>
           )}
@@ -804,11 +808,12 @@ export const FeaturedCategories: React.FC<Props> = ({
           {/* Smooth Snap Scrollable Track */}
           <div
             ref={scrollContainerRef}
-            className="flex gap-3.5 sm:gap-5 overflow-x-auto scroll-smooth py-2 px-1 snap-x snap-mandatory touch-pan-x no-scrollbar"
+            className="flex gap-3.5 sm:gap-5 overflow-x-auto scroll-smooth py-2 px-1 snap-x snap-mandatory touch-pan-x touch-pan-y no-scrollbar"
             style={{
               scrollbarWidth: "none",
               msOverflowStyle: "none",
               WebkitOverflowScrolling: "touch",
+              touchAction: "pan-x pan-y",
             }}
           >
             {filteredProducts.map((product) => {

@@ -430,7 +430,10 @@ export const ProductGridSection: React.FC<ProductSectionProps> = ({
         {/* Mobile: 2 Independent Swipeable Rows */}
         <div className="sm:hidden space-y-3">
           {/* Row 1 */}
-          <div className="flex gap-3 items-stretch overflow-x-auto pb-1 scrollbar-none snap-x snap-mandatory touch-pan-x -mx-3.5 px-3.5">
+          <div
+            className="flex gap-3 items-stretch overflow-x-auto pb-1 scrollbar-none snap-x snap-mandatory touch-pan-x touch-pan-y -mx-3.5 px-3.5"
+            style={{ touchAction: "pan-x pan-y" }}
+          >
             {row1Products.map((product) => (
               <div
                 key={product.id}
@@ -448,7 +451,10 @@ export const ProductGridSection: React.FC<ProductSectionProps> = ({
           </div>
 
           {/* Row 2 */}
-          <div className="flex gap-3 items-stretch overflow-x-auto pb-1 scrollbar-none snap-x snap-mandatory touch-pan-x -mx-3.5 px-3.5">
+          <div
+            className="flex gap-3 items-stretch overflow-x-auto pb-1 scrollbar-none snap-x snap-mandatory touch-pan-x touch-pan-y -mx-3.5 px-3.5"
+            style={{ touchAction: "pan-x pan-y" }}
+          >
             {row2Products.map((product) => (
               <div
                 key={product.id}

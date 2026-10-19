@@ -1,390 +1,338 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import Link from "next/link";
-import { Mail, Send, CheckCircle2, Phone, MapPin, Globe } from "lucide-react";
+import { Mail, Phone, MapPin } from "lucide-react";
 import { PrayogLogo } from "./PrayogLogo";
 
 export const FooterSection: React.FC = () => {
-  const [email, setEmail] = useState("");
-  const [subscribed, setSubscribed] = useState(false);
-
-  const handleSubscribe = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (email) {
-      setSubscribed(true);
-      setEmail("");
-    }
-  };
-
   return (
-    <>
-      {/* Classic E-Commerce Newsletter Pre-Footer */}
-      <section
-        id="community"
-        className="bg-slate-50 border-t border-b border-slate-200/90 py-10 text-slate-900"
-      >
+    <footer className="bg-white text-slate-800 pt-12 sm:pt-16 pb-12 border-t border-slate-200/90 relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-            {/* Left: Classic Brand & Newsletter Headline */}
-            <div className="flex items-start sm:items-center gap-4">
-              <div className="w-12 h-12 rounded-2xl bg-[#EFF6FF] text-[#2563EB] flex items-center justify-center shrink-0 border border-[#2563EB]/20 shadow-xs">
-                <Mail className="w-6 h-6" />
-              </div>
-              <div>
-                <div className="inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wider text-[#2563EB] bg-[#2563EB]/10 px-2.5 py-0.5 rounded-full mb-1">
-                  Prayog India Community
-                </div>
-                <h3 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight leading-snug">
-                  Subscribe to our Newsletter
-                </h3>
-                <p className="text-xs sm:text-sm text-slate-500 max-w-xl mt-0.5 font-medium leading-relaxed">
-                  Get updates about new robotics hardware, student workshops,
-                  STEM kits, and member-only discounts.
-                </p>
-              </div>
-            </div>
-
-            {/* Right: Clean, Classic High-Usability Form */}
-            <div className="w-full lg:max-w-md">
-              {subscribed ? (
-                <div className="inline-flex items-center gap-2 bg-emerald-50 text-emerald-800 text-xs font-bold px-4 py-3 rounded-xl border border-emerald-200 animate-in fade-in">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                  <span>
-                    Thank you for subscribing! Check your inbox for your welcome
-                    coupon.
-                  </span>
-                </div>
-              ) : (
-                <form onSubmit={handleSubscribe} className="space-y-2">
-                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-                    <div className="relative flex-1">
-                      <input
-                        type="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        placeholder="Enter your email address"
-                        required
-                        className="w-full bg-white text-slate-900 placeholder:text-slate-400 px-4 py-2.5 text-sm rounded-xl border border-slate-300 focus:outline-none focus:border-[#2563EB] focus:ring-1 focus:ring-[#2563EB] shadow-xs transition-all font-medium"
-                      />
-                    </div>
-                    <button
-                      type="submit"
-                      className="bg-[#FFC20E] hover:bg-[#E5AC0D] active:scale-[0.98] text-slate-950 font-bold text-sm px-6 py-2.5 rounded-xl transition-all shadow-md shadow-amber-400/20 flex items-center justify-center gap-2 shrink-0 cursor-pointer"
-                    >
-                      <span>Subscribe</span>
-                      <Send className="w-3.5 h-3.5 stroke-[2.5]" />
-                    </button>
-                  </div>
-                  <p className="text-[11px] text-slate-400 font-medium">
-                    We respect your privacy. Unsubscribe at any time. Zero spam.
-                  </p>
-                </form>
-              )}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Main Multi-Column Footer */}
-      <footer className="bg-[#050B14] text-white pt-14 pb-10 border-t border-slate-800">
-        {/* Main Multi-Column Footer Grid */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 pb-12 border-b border-slate-800 text-xs">
-            {/* Column 1: Brand Info */}
-            <div className="lg:col-span-1 space-y-4">
+          {/* Main 4-Column Grid Layout */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8 lg:gap-12 pb-12">
+            {/* Column 1: Company Logo, Bio, Contact Details, Social & CTA Buttons (lg:col-span-5) */}
+            <div className="lg:col-span-5 space-y-5">
+              {/* Logo */}
               <Link href="/" className="inline-block">
-                <PrayogLogo size="md" dark={true} />
+                <PrayogLogo size="lg" dark={false} />
               </Link>
-              <p className="text-slate-400 leading-relaxed text-xs">
-                India&apos;s premier e-commerce ecosystem for robotics
-                components, STEM learning kits, drone electronics, and research
-                development boards.
+
+              {/* Bio Paragraph */}
+              <p className="text-xs text-slate-500 leading-relaxed max-w-md">
+                Prayog India, established with a vision to advance robotics and STEM innovation, is now India&apos;s leading technology and hardware platform. Serving schools, universities, DIY makers, and industrial innovators nationwide with authentic components, turnkey lab setups, and mechatronics kits.
               </p>
-              <div className="space-y-2 text-slate-300 text-[11px]">
-                <div className="flex items-center gap-2">
-                  <MapPin className="w-3.5 h-3.5 text-[#FFC20E] shrink-0" />
-                  <span>Ranchi Main Hub, Jharkhand &amp; Delhi NCR</span>
+
+              {/* Detailed Contact List with Rose/Pink Icons */}
+              <div className="space-y-3.5 pt-1">
+                {/* Contact Item 1: Robotics & Lab Solutions */}
+                <div className="flex items-start gap-2.5">
+                  <span className="w-5 h-5 rounded-full bg-rose-50 text-rose-500 flex items-center justify-center shrink-0 mt-0.5">
+                    <Phone className="w-3 h-3" />
+                  </span>
+                  <div>
+                    <span className="block text-xs font-bold text-slate-900 leading-tight">
+                      Robotics &amp; Lab Solutions
+                    </span>
+                    <a
+                      href="tel:+919153988390"
+                      className="text-xs font-semibold text-slate-600 hover:text-[#2563EB] transition-colors"
+                    >
+                      +91 91539 88390
+                    </a>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Phone className="w-3.5 h-3.5 text-[#2563EB] shrink-0" />
-                  <a
-                    href="tel:+919153988390"
-                    className="hover:text-white transition-colors"
-                  >
-                    +91 91539 88390
-                  </a>
-                  <span>/</span>
-                  <a
-                    href="tel:+919431102931"
-                    className="hover:text-white transition-colors"
-                  >
-                    +91 94311 02931
-                  </a>
+
+                {/* Contact Item 2: Business Email */}
+                <div className="flex items-start gap-2.5">
+                  <span className="w-5 h-5 rounded-full bg-rose-50 text-rose-500 flex items-center justify-center shrink-0 mt-0.5">
+                    <Mail className="w-3 h-3" />
+                  </span>
+                  <div>
+                    <a
+                      href="mailto:business@prayogindia.com"
+                      className="text-xs font-semibold text-slate-600 hover:text-[#2563EB] transition-colors"
+                    >
+                      business@prayogindia.com
+                    </a>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Mail className="w-3.5 h-3.5 text-[#FFC20E] shrink-0" />
-                  <a
-                    href="mailto:support@prayogindia.com"
-                    className="hover:text-white transition-colors"
-                  >
-                    support@prayogindia.com
-                  </a>
+
+                {/* Contact Item 3: Sales & Institutional Inquiry */}
+                <div className="flex items-start gap-2.5">
+                  <span className="w-5 h-5 rounded-full bg-rose-50 text-rose-500 flex items-center justify-center shrink-0 mt-0.5">
+                    <Phone className="w-3 h-3" />
+                  </span>
+                  <div>
+                    <span className="block text-xs font-bold text-slate-900 leading-tight">
+                      Sales &amp; Institutional Inquiry
+                    </span>
+                    <a
+                      href="tel:+919431102931"
+                      className="text-xs font-semibold text-slate-600 hover:text-[#2563EB] transition-colors"
+                    >
+                      +91 94311 02931
+                    </a>
+                  </div>
                 </div>
+
+                {/* Contact Item 4: General Email */}
+                <div className="flex items-start gap-2.5">
+                  <span className="w-5 h-5 rounded-full bg-rose-50 text-rose-500 flex items-center justify-center shrink-0 mt-0.5">
+                    <Mail className="w-3 h-3" />
+                  </span>
+                  <div>
+                    <a
+                      href="mailto:info@prayogindia.com"
+                      className="text-xs font-semibold text-slate-600 hover:text-[#2563EB] transition-colors"
+                    >
+                      info@prayogindia.com
+                    </a>
+                  </div>
+                </div>
+
+                {/* Contact Item 5: Registered Hub Address */}
+                <div className="flex items-start gap-2.5">
+                  <span className="w-5 h-5 rounded-full bg-rose-50 text-rose-500 flex items-center justify-center shrink-0 mt-0.5">
+                    <MapPin className="w-3 h-3" />
+                  </span>
+                  <p className="text-xs text-slate-600 leading-relaxed max-w-sm">
+                    Prayog India Tech Hub, Plot No. 42, Industrial Area, Ranchi, Jharkhand - 834001, India.
+                  </p>
+                </div>
+              </div>
+
+              {/* Social Media Circular Buttons */}
+              <div className="flex items-center gap-2.5 pt-2">
+                {/* Facebook */}
+                <a
+                  href="https://facebook.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Facebook"
+                  className="w-8 h-8 rounded-full bg-[#3b5998] hover:bg-[#2d4373] text-white flex items-center justify-center transition-transform hover:scale-110 shadow-xs"
+                >
+                  <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
+                    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+                  </svg>
+                </a>
+
+                {/* Instagram */}
+                <a
+                  href="https://instagram.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Instagram"
+                  className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#f09433] via-[#dc2743] to-[#bc1888] text-white flex items-center justify-center transition-transform hover:scale-110 shadow-xs"
+                >
+                  <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
+                    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
+                  </svg>
+                </a>
+
+                {/* YouTube */}
+                <a
+                  href="https://youtube.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="YouTube"
+                  className="w-8 h-8 rounded-full bg-[#c4302b] hover:bg-[#a0221e] text-white flex items-center justify-center transition-transform hover:scale-110 shadow-xs"
+                >
+                  <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
+                    <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
+                  </svg>
+                </a>
+
+                {/* LinkedIn */}
+                <a
+                  href="https://linkedin.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="LinkedIn"
+                  className="w-8 h-8 rounded-full bg-[#0077b5] hover:bg-[#005582] text-white flex items-center justify-center transition-transform hover:scale-110 shadow-xs"
+                >
+                  <svg viewBox="0 0 24 24" fill="currentColor" className="w-3.5 h-3.5">
+                    <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" />
+                  </svg>
+                </a>
+              </div>
+
+              {/* Action CTA Pill Button */}
+              <div className="pt-2">
+                <a
+                  href="https://whatsapp.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#128C7E] hover:bg-[#075E54] active:scale-95 text-white text-xs font-bold shadow-xs transition-all duration-200 cursor-pointer"
+                >
+                  <svg viewBox="0 0 24 24" fill="currentColor" className="w-3.5 h-3.5">
+                    <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z" />
+                    </svg>
+                  <span>Join Our WhatsApp Channel</span>
+                </a>
               </div>
             </div>
 
-            {/* Column 2: Products */}
-            <div>
-              <h4 className="font-extrabold text-sm uppercase tracking-wider text-[#FFC20E] mb-4">
-                Hardware Products
-              </h4>
-              <ul className="space-y-2.5 text-slate-400 font-medium">
+            {/* Column 2: CONTACT US (lg:col-span-2) */}
+            <div className="lg:col-span-2 space-y-4">
+              <h3 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-900 border-b border-slate-100 pb-2">
+                Contact Us
+              </h3>
+              <ul className="space-y-2.5 text-xs text-slate-600 font-medium">
                 <li>
-                  <Link
-                    href="/categories/robotics"
-                    className="hover:text-white transition-colors"
-                  >
-                    Robotics Kits &amp; Manipulators
+                  <Link href="/about" className="hover:text-[#2563EB] transition-colors">
+                    About Us
                   </Link>
                 </li>
                 <li>
-                  <Link
-                    href="/categories/arduino-development-boards"
-                    className="hover:text-white transition-colors"
-                  >
-                    Arduino &amp; Dev Boards
+                  <Link href="/learning" className="hover:text-[#2563EB] transition-colors">
+                    Tech Blogs &amp; Guides
                   </Link>
                 </li>
                 <li>
-                  <Link
-                    href="/categories/drone-technology"
-                    className="hover:text-white transition-colors"
-                  >
-                    Drone &amp; Autopilot Gear
+                  <Link href="/about" className="hover:text-[#2563EB] transition-colors">
+                    Hardware News &amp; Updates
                   </Link>
                 </li>
                 <li>
-                  <Link
-                    href="/categories/iot-wireless"
-                    className="hover:text-white transition-colors"
-                  >
-                    IoT &amp; Wireless Modules
+                  <Link href="/about" className="hover:text-[#2563EB] transition-colors">
+                    News &amp; Media
                   </Link>
                 </li>
                 <li>
-                  <Link
-                    href="/categories/stem-kits"
-                    className="hover:text-white transition-colors"
-                  >
-                    STEM DIY Hardware
+                  <Link href="/account/quotations" className="hover:text-[#2563EB] transition-colors">
+                    Request a Quote
                   </Link>
                 </li>
                 <li>
-                  <Link
-                    href="/categories/raspberry-pi"
-                    className="hover:text-white transition-colors"
-                  >
-                    Raspberry Pi &amp; Single Boards
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/brands"
-                    className="hover:text-white transition-colors text-[#2563EB] font-bold"
-                  >
-                    Official Brand Partners &rarr;
-                  </Link>
-                </li>
-              </ul>
-            </div>
-
-            {/* Column 3: Solutions & Labs */}
-            <div>
-              <h4 className="font-extrabold text-sm uppercase tracking-wider text-[#FFC20E] mb-4">
-                Lab Solutions
-              </h4>
-              <ul className="space-y-2.5 text-slate-400 font-medium">
-                <li>
-                  <Link
-                    href="/services/stem-lab-setup"
-                    className="hover:text-white transition-colors"
-                  >
-                    Educational STEM &amp; ATL Labs
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/services/robotics-lab-setup"
-                    className="hover:text-white transition-colors"
-                  >
-                    Robotics &amp; AI Lab Setup
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/services/drone-lab-setup"
-                    className="hover:text-white transition-colors"
-                  >
-                    Custom UAV Aerial Platforms
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/services/industrial-projects"
-                    className="hover:text-white transition-colors"
-                  >
-                    Industrial R&amp;D Projects
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/services/consultancy"
-                    className="hover:text-white transition-colors"
-                  >
-                    Institutional Consultancy
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/services"
-                    className="hover:text-white transition-colors text-[#2563EB] font-bold"
-                  >
-                    View All Services &rarr;
-                  </Link>
-                </li>
-              </ul>
-            </div>
-
-            {/* Column 4: Resources & Customer Desk */}
-            <div>
-              <h4 className="font-extrabold text-sm uppercase tracking-wider text-[#FFC20E] mb-4">
-                Customer Desk
-              </h4>
-              <ul className="space-y-2.5 text-slate-400 font-medium">
-                <li>
-                  <Link
-                    href="/learning"
-                    className="hover:text-white transition-colors"
-                  >
-                    Learning Hub &amp; Tutorials
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/offers"
-                    className="hover:text-white transition-colors text-rose-400"
-                  >
-                    Special Offers &amp; Deals
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/account/orders"
-                    className="hover:text-white transition-colors"
-                  >
-                    Track Order &amp; Invoices
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/account/quotations"
-                    className="hover:text-white transition-colors"
-                  >
-                    B2B Bulk Quotations
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/account/support"
-                    className="hover:text-white transition-colors"
-                  >
-                    Helpdesk &amp; Tickets
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/careers"
-                    className="hover:text-white transition-colors"
-                  >
+                  <Link href="/careers" className="hover:text-[#2563EB] transition-colors">
                     Careers at Prayog
                   </Link>
                 </li>
-              </ul>
-            </div>
-
-            {/* Column 5: Company & Legal */}
-            <div>
-              <h4 className="font-extrabold text-sm uppercase tracking-wider text-[#FFC20E] mb-4">
-                Company &amp; Legal
-              </h4>
-              <ul className="space-y-2.5 text-slate-400 font-medium">
                 <li>
-                  <Link
-                    href="/about"
-                    className="hover:text-white transition-colors"
-                  >
-                    About Prayog India
+                  <Link href="/contact" className="hover:text-[#2563EB] transition-colors">
+                    Reach Us
                   </Link>
                 </li>
                 <li>
-                  <Link
-                    href="/contact"
-                    className="hover:text-white transition-colors"
-                  >
-                    Contact &amp; Head Office
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/about#terms"
-                    className="hover:text-white transition-colors"
-                  >
-                    Terms &amp; Conditions
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/about#shipping"
-                    className="hover:text-white transition-colors"
-                  >
-                    Shipping &amp; Delivery Policy
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/about#returns"
-                    className="hover:text-white transition-colors"
-                  >
-                    Returns &amp; Replacement
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/login-staff"
-                    className="hover:text-white transition-colors text-slate-500 hover:text-slate-300"
-                  >
+                  <Link href="/login-staff" className="hover:text-[#2563EB] transition-colors text-slate-400 hover:text-slate-700">
                     Staff Portal &rarr;
                   </Link>
                 </li>
               </ul>
             </div>
+
+            {/* Column 3: ROBOTICS & LAB SERVICES (lg:col-span-3) */}
+            <div className="lg:col-span-3 space-y-4">
+              <h3 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-900 border-b border-slate-100 pb-2">
+                Drone &amp; STEM Services
+              </h3>
+              <ul className="space-y-2.5 text-xs text-slate-600 font-medium">
+                <li>
+                  <Link href="/services/drone-lab-setup" className="hover:text-[#2563EB] transition-colors">
+                    Drone for Surveying &amp; Mapping
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/services/drone-lab-setup" className="hover:text-[#2563EB] transition-colors">
+                    Drone for Surveillance &amp; Inspection
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/services/drone-lab-setup" className="hover:text-[#2563EB] transition-colors">
+                    Drone for Precision Agriculture
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/services/robotics-lab-setup" className="hover:text-[#2563EB] transition-colors">
+                    Robotics &amp; AI Lab Setup
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/services/stem-lab-setup" className="hover:text-[#2563EB] transition-colors">
+                    Turnkey STEM &amp; ATL School Labs
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/services/industrial-projects" className="hover:text-[#2563EB] transition-colors">
+                    Drone Repair &amp; Maintenance
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/learning" className="hover:text-[#2563EB] transition-colors">
+                    Training &amp; Flight Certification
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/services/consultancy" className="hover:text-[#2563EB] transition-colors">
+                    Institutional Lab Consultancy
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
+            {/* Column 4: IMPORTANT LINKS (lg:col-span-2) */}
+            <div className="lg:col-span-2 space-y-4">
+              <h3 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-900 border-b border-slate-100 pb-2">
+                Important Links
+              </h3>
+              <ul className="space-y-2.5 text-xs text-slate-600 font-medium">
+                <li>
+                  <Link href="/about#terms" className="hover:text-[#2563EB] transition-colors">
+                    Terms &amp; Conditions
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/about#disclaimer" className="hover:text-[#2563EB] transition-colors">
+                    Disclaimer
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/about#privacy" className="hover:text-[#2563EB] transition-colors">
+                    Privacy Policy
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/about#returns" className="hover:text-[#2563EB] transition-colors">
+                    Return, Exchange &amp; Refund Policy
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/about#shipping" className="hover:text-[#2563EB] transition-colors">
+                    Shipping Policy
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/about#warranty" className="hover:text-[#2563EB] transition-colors">
+                    Warranty Policy
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/about#payment" className="hover:text-[#2563EB] transition-colors">
+                    Payment Policy
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/about#cookies" className="hover:text-[#2563EB] transition-colors">
+                    Cookie Policy
+                  </Link>
+                </li>
+              </ul>
+            </div>
           </div>
 
-          {/* Bottom Copyright Strip */}
-          <div className="pt-8 flex flex-col sm:flex-row items-center justify-between text-slate-400 text-xs gap-4">
-            <div>
-              © {new Date().getFullYear()}{" "}
-              <span className="font-bold text-white">PRAYOG INDIA</span> — By
-              Dilay ROBOTICS. All Rights Reserved.
-            </div>
-            <div className="flex items-center gap-6">
-              <span>Designed for Robotics &amp; Tech Innovation</span>
-              <span>100% Verified GST Invoicing</span>
-            </div>
+          {/* Bottom Strip: Disclaimer & Copyright */}
+          <div className="pt-8 border-t border-slate-200/90 flex flex-col items-center justify-center text-center space-y-2.5">
+            <p className="text-xs text-slate-500 font-normal max-w-4xl leading-relaxed">
+              <span className="font-bold text-slate-800">Disclaimer:</span> All drones, robotics hardware, and electronic components are supplied with official GST tax compliance, authentic microchip sourcing, and manufacturer warranty coverage.
+            </p>
+            <p className="text-[11px] sm:text-xs font-semibold text-slate-400">
+              © {new Date().getFullYear()} PRAYOG INDIA TECHNOLOGIES PVT. LTD. ALL RIGHTS RESERVED.
+            </p>
           </div>
         </div>
       </footer>
-    </>
   );
 };
+
+export default FooterSection;

@@ -312,36 +312,40 @@ const CIRCULAR_BRANDS = [...BRANDS, ...BRANDS];
 
 export const BrandPartners: React.FC = () => {
   return (
-    <section className="py-8 sm:py-10 bg-transparent border-y border-slate-200/60 overflow-hidden">
-      <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 space-y-6 text-center">
-        {/* Section Header */}
-        <div className="flex flex-col items-center gap-1.5">
-          <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 select-none">
-            Official Hardware &amp; Component Partners
-          </span>
-          <span className="text-xs text-slate-400 font-normal">
-            India&apos;s authorized source for authentic robotics microchips,
-            autopilots &amp; sensors
-          </span>
+    <section className="py-7 sm:py-10 bg-white border-y border-slate-200/70 overflow-hidden">
+      <div className="w-full px-3 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 space-y-4 sm:space-y-6 text-center">
+        {/* Section Header with Centered Divider (Styled like the reference design) */}
+        <div className="relative flex items-center justify-center">
+          <div className="absolute inset-0 flex items-center" aria-hidden="true">
+            <div className="w-full border-t border-slate-200" />
+          </div>
+          <div className="relative bg-white px-4 sm:px-8">
+            <h2 className="text-sm sm:text-lg lg:text-xl font-bold text-slate-900 tracking-tight">
+              Official Hardware &amp; Component Partners
+            </h2>
+          </div>
         </div>
 
-        {/* Circular Linked-List Infinite Loop Track */}
+        {/* Circular Linked-List Infinite Loop Track with Rounded Logo Cards */}
         <div className="circular-loop-wrapper py-2">
-          <div className="circular-loop-track">
+          <div className="circular-loop-track items-center">
             {CIRCULAR_BRANDS.map((b, idx) => {
               const Icon = b.icon;
               return (
                 <div
                   key={`${b.name}-${idx}`}
-                  className={`shrink-0 bg-white/70 hover:bg-white border border-slate-200/80 ${b.hoverBorderClass} ${b.hoverBgClass} rounded-2xl py-3 px-4 flex items-center justify-center gap-3 transition-all duration-300 group cursor-pointer shadow-2xs hover:shadow-md hover:-translate-y-0.5 select-none`}
+                  className="shrink-0 w-32 sm:w-36 lg:w-40 h-20 sm:h-24 lg:h-24 bg-white hover:bg-slate-50/50 border border-slate-200/90 hover:border-slate-300 rounded-xl sm:rounded-2xl p-2.5 sm:p-3 flex flex-col items-center justify-center transition-all duration-300 group cursor-pointer shadow-xs hover:shadow-md hover:-translate-y-0.5 select-none"
                 >
-                  {/* Real Brand SVG Logo */}
-                  <Icon
-                    className={`w-5 h-5 shrink-0 text-slate-500 ${b.hoverColorClass} transition-colors duration-300`}
-                  />
+                  {/* Brand SVG Logo in Official Brand Color */}
+                  <div
+                    className="h-9 sm:h-11 flex items-center justify-center"
+                    style={{ color: b.brandColor }}
+                  >
+                    <Icon className="w-7 h-7 sm:w-8 sm:h-8 shrink-0 transition-transform duration-300 group-hover:scale-110" />
+                  </div>
 
                   {/* Brand Name */}
-                  <span className="text-xs font-semibold text-slate-700 group-hover:text-slate-900 transition-colors whitespace-nowrap tracking-tight">
+                  <span className="text-[10px] sm:text-[11.5px] font-bold text-slate-700 group-hover:text-slate-900 transition-colors whitespace-nowrap tracking-tight mt-1 line-clamp-1">
                     {b.name}
                   </span>
                 </div>

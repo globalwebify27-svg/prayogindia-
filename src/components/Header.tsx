@@ -63,6 +63,7 @@ import {
   DevBoardCategoryIcon,
   ComponentsCategoryIcon,
 } from "@/components/icons/CategoryIcons";
+import { AddToCartIcon } from "@/components/icons/AddToCartIcon";
 import { PrayogLogo } from "./PrayogLogo";
 import { MobileMenuDrawer } from "./MobileMenuDrawer";
 import { PRODUCTS } from "@/data/mockData";
@@ -676,7 +677,7 @@ export const Header: React.FC<HeaderProps> = ({
               className="relative w-9 h-9 rounded-full border border-slate-200/90 bg-white flex items-center justify-center text-slate-800 shadow-2xs hover:bg-slate-50 active:scale-95 transition-all cursor-pointer"
               aria-label="Shopping Cart"
             >
-              <ShoppingBag className="w-4.5 h-4.5 stroke-[1.8]" />
+              <AddToCartIcon className="w-4.5 h-4.5 text-slate-800" />
               <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-[#FFC20E] text-slate-950 text-[10px] font-black flex items-center justify-center shadow-xs">
                 {totalCartCount}
               </span>
@@ -745,7 +746,7 @@ export const Header: React.FC<HeaderProps> = ({
                 className="relative p-1.5 text-slate-700 hover:text-[#2563EB] cursor-pointer"
                 aria-label="Cart"
               >
-                <ShoppingBag className="w-5 h-5 stroke-[1.8]" />
+                <AddToCartIcon className="w-5 h-5 text-slate-700 hover:text-[#2563EB]" />
                 {totalCartCount > 0 && (
                   <span className="absolute top-0 right-0 w-4.5 h-4.5 bg-[#FFC20E] text-slate-950 font-black text-[10px] rounded-full flex items-center justify-center shadow-xs">
                     {totalCartCount}
@@ -1950,7 +1951,7 @@ export const Header: React.FC<HeaderProps> = ({
               className="relative flex items-center gap-2.5 px-4 py-2 bg-[#0A233F] hover:bg-[#12365D] text-white rounded-full font-black text-xs shadow-xs cursor-pointer active:scale-95 transition-all shrink-0"
               aria-label="Shopping Cart"
             >
-              <ShoppingBag className="w-4 h-4 text-white stroke-[2]" />
+              <AddToCartIcon className="w-4.5 h-4.5 text-white shrink-0" />
               <span className="text-white text-xs font-extrabold tracking-wide">
                 ₹{cartTotal.toFixed(2)}
               </span>

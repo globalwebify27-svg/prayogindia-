@@ -6,6 +6,7 @@ import { FooterSection } from "@/components/FooterSection";
 import { CartDrawer } from "@/components/CartDrawer";
 import { SuccessToast } from "@/components/SuccessToast";
 import { B2BModal } from "@/components/Modals";
+import { FloatingWhatsAppWidget } from "@/components/FloatingWhatsAppWidget";
 import { useStore } from "@/context/StoreContext";
 import { usePathname } from "next/navigation";
 import { haptic } from "@/utils/haptics";
@@ -71,6 +72,8 @@ export const AppShell: React.FC<{ children: React.ReactNode }> = ({
       </main>
 
       <FooterSection />
+
+      <FloatingWhatsAppWidget />
 
       <CartDrawer
         isOpen={cartOpen}
