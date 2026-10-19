@@ -27,7 +27,7 @@ export const WhatsAppCommunityCTA: React.FC = () => {
           {/* Right Action */}
           <motion.div whileHover={{ scale: 1.03 }} className="shrink-0 z-10">
             <a
-              href="https://wa.me/919876543210?text=Hi%20Prayog%20India,%20I%20want%20to%20join%20the%20Robotics%20Community!"
+              href="https://wa.me/918709789641?text=Hi%20Prayog%20India,%20I%20want%20to%20join%20the%20Robotics%20Community!"
               target="_blank"
               rel="noopener noreferrer"
               className="bg-emerald-500 hover:bg-emerald-600 text-white font-black px-8 py-4 rounded-2xl text-xs uppercase tracking-wider transition-all shadow-xl shadow-emerald-500/30 flex items-center gap-2.5"

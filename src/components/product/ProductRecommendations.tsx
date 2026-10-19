@@ -1,20 +1,19 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import {
   Star,
-  ShoppingCart,
   Zap,
   Heart,
   ChevronRight,
-  Package,
   Check,
 } from "lucide-react";
 import { Product } from "@/data/mockData";
 import { useStore } from "@/context/StoreContext";
+import { AddToCartIcon } from "@/components/icons/AddToCartIcon";
 
 interface RecommendationGroup {
   id: string;
@@ -26,6 +25,7 @@ interface RecommendationGroup {
 
 interface ProductRecommendationsProps {
   groups: RecommendationGroup[];
+  mainProduct?: Product;
 }
 
 // Mini product card for recommendations
@@ -62,11 +62,11 @@ const RecoCard: React.FC<{ product: Product }> = ({ product }) => {
   };
 
   return (
-    <div className="group bg-white border border-slate-200 rounded-2xl overflow-hidden hover:border-[#2563EB]/40 hover:shadow-lg transition-all duration-300 flex flex-col">
+    <div className="group bg-white border border-slate-200/90 rounded-2xl overflow-hidden hover:border-[#2563EB]/40 hover:shadow-lg transition-all duration-300 flex flex-col">
       {/* Image */}
       <Link
         href={`/products/${product.slug || product.id}`}
-        className="block relative h-36 bg-slate-50 overflow-hidden"
+        className="block relative h-32 sm:h-36 bg-slate-50/80 overflow-hidden"
       >
         <Image
           src={product.image}
@@ -94,7 +94,7 @@ const RecoCard: React.FC<{ product: Product }> = ({ product }) => {
       </Link>
 
       {/* Info */}
-      <div className="p-3 flex-1 flex flex-col gap-2">
+      <div className="p-2.5 sm:p-3 flex-1 flex flex-col gap-1.5">
         <span className="text-[8px] font-mono font-bold text-slate-400 uppercase">
           {product.sku}
         </span>
@@ -113,8 +113,8 @@ const RecoCard: React.FC<{ product: Product }> = ({ product }) => {
           <span className="text-[9px] text-slate-400">({product.reviews})</span>
         </div>
 
-        {/* Price */}
-        <div className="mt-auto">
+        {/* Price & Action */}
+        <div className="mt-auto pt-1">
           <div className="flex items-baseline gap-1.5">
             <span className="text-sm font-extrabold text-slate-900">
               ₹{product.price.toLocaleString("en-IN")}
@@ -131,7 +131,7 @@ const RecoCard: React.FC<{ product: Product }> = ({ product }) => {
               <button
                 type="button"
                 onClick={handleAddToCart}
-                className={`flex-1 border text-[9px] font-extrabold py-1.5 rounded-lg transition-all active:scale-95 flex items-center justify-center gap-1 cursor-pointer ${
+                className={`flex-1 border text-[9px] font-black py-1.5 rounded-lg transition-all active:scale-95 flex items-center justify-center gap-1 cursor-pointer ${
                   isAdded
                     ? "bg-emerald-600 text-white border-emerald-600"
                     : "border-[#2563EB] text-[#2563EB] hover:bg-[#2563EB] hover:text-white"
@@ -143,16 +143,16 @@ const RecoCard: React.FC<{ product: Product }> = ({ product }) => {
                   </>
                 ) : (
                   <>
-                    <ShoppingCart className="w-2.5 h-2.5" /> ADD
+                    <AddToCartIcon className="w-2.5 h-2.5" /> ADD
                   </>
                 )}
               </button>
               <button
                 type="button"
                 onClick={handleBuyNow}
-                className="flex-1 bg-[#2563EB] text-white text-[9px] font-extrabold py-1.5 rounded-lg hover:bg-blue-700 transition-colors active:scale-95 flex items-center justify-center gap-1 cursor-pointer"
+                className="flex-1 bg-[#0A1128] text-white text-[9px] font-black py-1.5 rounded-lg hover:bg-slate-900 transition-colors active:scale-95 flex items-center justify-center gap-1 cursor-pointer"
               >
-                <Zap className="w-2.5 h-2.5" /> BUY
+                <Zap className="w-2.5 h-2.5 fill-[#FFC20E] text-[#FFC20E]" /> BUY
               </button>
             </div>
           ) : (
@@ -166,17 +166,52 @@ const RecoCard: React.FC<{ product: Product }> = ({ product }) => {
   );
 };
 
-// FBT (Frequently Bought Together) compact horizontal bundle
-const FrequentlyBoughtTogetherSection: React.FC<{ products: Product[] }> = ({
-  products,
-}) => {
+// Frequently Bought Together Bundle component
+const FrequentlyBoughtTogetherSection: React.FC<{
+  products: Product[];
+  mainProduct?: Product;
+}> = ({ products, mainProduct }) => {
   const store = useStore();
   const [bundleAdded, setBundleAdded] = useState(false);
-  const bundleTotal = products.reduce((acc, p) => acc + p.price, 0);
-  const bundleMrp = products.reduce((acc, p) => acc + p.mrp, 0);
+
+  // Full bundle: includes mainProduct as the primary anchor + companion products (deduplicated)
+  const bundleItems = React.useMemo(() => {
+    if (!mainProduct) return products;
+    const list = [mainProduct];
+    products.forEach((p) => {
+      if (p.id !== mainProduct.id) {
+        list.push(p);
+      }
+    });
+    return list;
+  }, [mainProduct, products]);
+
+  // Selected item IDs (default all checked)
+  const [selectedIds, setSelectedIds] = useState<string[]>(() =>
+    bundleItems.map((p) => p.id),
+  );
+
+  useEffect(() => {
+    setSelectedIds(bundleItems.map((p) => p.id));
+  }, [bundleItems]);
+
+  const toggleItem = (id: string) => {
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id],
+    );
+  };
+
+  const selectedItems = bundleItems.filter((p) => selectedIds.includes(p.id));
+  const bundleTotal = selectedItems.reduce((acc, p) => acc + p.price, 0);
+  const bundleMrp = selectedItems.reduce(
+    (acc, p) => acc + (p.mrp || p.price),
+    0,
+  );
+  const savings = Math.max(0, bundleMrp - bundleTotal);
 
   const handleAddBundle = () => {
-    products.forEach((p) => {
+    if (selectedItems.length === 0) return;
+    selectedItems.forEach((p) => {
       store?.addToCart(p, undefined, 1);
     });
     setBundleAdded(true);
@@ -184,73 +219,169 @@ const FrequentlyBoughtTogetherSection: React.FC<{ products: Product[] }> = ({
   };
 
   return (
-    <div className="bg-slate-50 border border-slate-200 rounded-3xl p-6 space-y-5">
+    <div className="bg-slate-50/90 border border-slate-200/90 rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 space-y-4">
       <div>
-        <h3 className="text-sm font-black text-slate-900 uppercase tracking-tight">
+        <h4 className="text-xs sm:text-sm font-black text-slate-900 uppercase tracking-tight">
           Frequently Bought Together
-        </h3>
+        </h4>
         <p className="text-xs text-slate-500 mt-0.5">
-          Customers who bought this item also purchased:
+          Customers who viewed this item frequently bundle it with:
         </p>
       </div>
 
-      {/* Product bundle row */}
-      <div className="flex items-center gap-2 overflow-x-auto scrollbar-none pb-2">
-        {products.map((prod, idx) => (
-          <React.Fragment key={prod.id}>
-            <div className="flex flex-col items-center gap-1.5 shrink-0">
-              <div className="relative w-20 h-20 bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-2xs">
-                <Image
-                  src={prod.image}
-                  alt={prod.name}
-                  fill
-                  className="object-contain p-1.5"
-                />
+      {/* Visual Product Cards Row connected with '+' */}
+      <div className="flex items-center gap-2 sm:gap-3 overflow-x-auto scrollbar-none pb-2 -mx-1 px-1">
+        {bundleItems.map((prod, idx) => {
+          const isSelected = selectedIds.includes(prod.id);
+          const isMain = prod.id === mainProduct?.id;
+
+          return (
+            <React.Fragment key={prod.id}>
+              <div
+                onClick={() => toggleItem(prod.id)}
+                className={`relative flex flex-col items-center gap-1.5 p-2 sm:p-2.5 rounded-2xl border transition-all cursor-pointer select-none shrink-0 w-28 sm:w-32 bg-white ${
+                  isSelected
+                    ? "border-slate-300 shadow-xs"
+                    : "border-slate-200 opacity-50 grayscale"
+                }`}
+              >
+                {/* Checkbox badge */}
+                <div
+                  className={`absolute top-2 left-2 w-5 h-5 rounded-md flex items-center justify-center transition-colors z-10 ${
+                    isSelected
+                      ? "bg-[#2563EB] text-white"
+                      : "bg-slate-100 border border-slate-300 text-transparent"
+                  }`}
+                >
+                  <Check className="w-3.5 h-3.5 stroke-[3]" />
+                </div>
+
+                {isMain && (
+                  <span className="absolute top-2 right-2 bg-slate-900 text-white text-[8px] font-black px-1.5 py-0.5 rounded-md uppercase tracking-wider z-10">
+                    This Item
+                  </span>
+                )}
+
+                <div className="relative w-20 h-20 sm:w-24 sm:h-24 overflow-hidden mt-1">
+                  <Image
+                    src={prod.image}
+                    alt={prod.name}
+                    fill
+                    className="object-contain p-1"
+                  />
+                </div>
+
+                <span className="text-[10px] sm:text-[11px] font-bold text-slate-800 text-center line-clamp-2 leading-snug w-full">
+                  {prod.name.split("(")[0].trim()}
+                </span>
+
+                <div className="flex items-baseline gap-1 mt-auto">
+                  <span className="text-xs sm:text-sm font-black text-slate-900">
+                    ₹{prod.price.toLocaleString("en-IN")}
+                  </span>
+                  {prod.mrp > prod.price && (
+                    <span className="text-[10px] text-slate-400 line-through">
+                      ₹{prod.mrp.toLocaleString("en-IN")}
+                    </span>
+                  )}
+                </div>
               </div>
-              <span className="text-[9px] font-bold text-slate-700 text-center max-w-[80px] line-clamp-2 leading-tight">
-                {prod.name.split("(")[0].trim()}
-              </span>
-              <span className="text-[10px] font-extrabold text-[#2563EB]">
-                ₹{prod.price.toLocaleString("en-IN")}
-              </span>
-            </div>
-            {idx < products.length - 1 && (
-              <span className="text-xl font-black text-slate-300 shrink-0">
-                +
-              </span>
-            )}
-          </React.Fragment>
-        ))}
+
+              {idx < bundleItems.length - 1 && (
+                <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-white border border-slate-200 text-slate-400 flex items-center justify-center shrink-0 shadow-2xs font-black text-sm sm:text-base">
+                  +
+                </div>
+              )}
+            </React.Fragment>
+          );
+        })}
       </div>
 
-      {/* Bundle pricing + CTA */}
-      <div className="flex items-center justify-between gap-4 bg-white border border-slate-200 rounded-2xl p-4">
-        <div>
-          <div className="text-[10px] text-slate-400 font-semibold">
-            Bundle Total ({products.length} items)
+      {/* Item Checklist selection */}
+      <div className="space-y-1.5 pt-1 border-t border-slate-200/70 text-xs">
+        {bundleItems.map((prod) => {
+          const isSelected = selectedIds.includes(prod.id);
+          const isMain = prod.id === mainProduct?.id;
+          return (
+            <label
+              key={prod.id}
+              className="flex items-center gap-2 text-slate-700 cursor-pointer select-none hover:text-slate-900"
+            >
+              <input
+                type="checkbox"
+                checked={isSelected}
+                onChange={() => toggleItem(prod.id)}
+                className="w-4 h-4 rounded text-[#2563EB] accent-[#2563EB] cursor-pointer shrink-0"
+              />
+              <span className="line-clamp-1">
+                {isMain && (
+                  <strong className="text-slate-900 font-bold mr-1">
+                    This item:
+                  </strong>
+                )}
+                {prod.name}
+              </span>
+              <span className="font-extrabold text-slate-900 ml-auto shrink-0 pl-2">
+                ₹{prod.price.toLocaleString("en-IN")}
+              </span>
+            </label>
+          );
+        })}
+      </div>
+
+      {/* Bundle Pricing Card & Action Button */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white border border-slate-200 rounded-2xl p-3.5 sm:p-4 shadow-xs">
+        <div className="space-y-0.5">
+          <div className="text-[11px] text-slate-500 font-bold">
+            Bundle Total ({selectedItems.length}{" "}
+            {selectedItems.length === 1 ? "item" : "items"}):
           </div>
-          <div className="flex items-baseline gap-2">
-            <span className="text-xl font-black text-slate-900">
+          <div className="flex items-baseline gap-2 flex-wrap">
+            <span className="text-xl sm:text-2xl font-black text-slate-900">
               ₹{bundleTotal.toLocaleString("en-IN")}
             </span>
-            <span className="text-sm text-slate-400 line-through">
-              ₹{bundleMrp.toLocaleString("en-IN")}
-            </span>
-            <span className="text-xs font-black text-emerald-600">
-              Save ₹{(bundleMrp - bundleTotal).toLocaleString("en-IN")}
-            </span>
+            {bundleMrp > bundleTotal && (
+              <>
+                <span className="text-xs sm:text-sm text-slate-400 line-through font-semibold">
+                  ₹{bundleMrp.toLocaleString("en-IN")}
+                </span>
+                <span className="bg-emerald-50 text-emerald-700 text-[10px] font-black px-2 py-0.5 rounded-full border border-emerald-200">
+                  Save ₹{savings.toLocaleString("en-IN")}
+                </span>
+              </>
+            )}
           </div>
         </div>
+
         <button
           type="button"
           onClick={handleAddBundle}
-          className={`text-xs font-black px-5 py-2.5 rounded-xl transition-all active:scale-95 cursor-pointer ${
+          disabled={selectedItems.length === 0}
+          className={`h-11 px-5 rounded-xl text-xs font-black uppercase tracking-wider flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-95 whitespace-nowrap ${
             bundleAdded
-              ? "bg-emerald-600 text-white"
-              : "bg-[#2563EB] hover:bg-blue-700 text-white shadow-md shadow-blue-500/20"
+              ? "bg-emerald-600 text-white shadow-emerald-600/20"
+              : selectedItems.length === 0
+              ? "bg-slate-200 text-slate-400 cursor-not-allowed"
+              : "bg-[#2563EB] hover:bg-[#1D4ED8] text-white shadow-md shadow-blue-500/20"
           }`}
         >
-          {bundleAdded ? "✓ Bundle Added!" : "Add Bundle to Cart"}
+          {bundleAdded ? (
+            <>
+              <Check className="w-4 h-4 stroke-[3]" />
+              <span>Bundle Added!</span>
+            </>
+          ) : (
+            <>
+              <AddToCartIcon className="w-4 h-4 shrink-0" />
+              <span>
+                Add{" "}
+                {selectedItems.length === bundleItems.length
+                  ? "All " + selectedItems.length
+                  : selectedItems.length}{" "}
+                to Cart
+              </span>
+            </>
+          )}
         </button>
       </div>
     </div>
@@ -259,6 +390,7 @@ const FrequentlyBoughtTogetherSection: React.FC<{ products: Product[] }> = ({
 
 export const ProductRecommendations: React.FC<ProductRecommendationsProps> = ({
   groups,
+  mainProduct,
 }) => {
   const [activeTab, setActiveTab] = useState(groups[0]?.id ?? "");
 
@@ -270,48 +402,68 @@ export const ProductRecommendations: React.FC<ProductRecommendationsProps> = ({
   const isFBT = activeGroup.id === "fbt";
 
   return (
-    <section className="space-y-5 border-t border-slate-200 pt-10">
-      {/* ── Tab Header ── */}
-      <div className="flex items-start justify-between gap-4 flex-wrap">
-        <div className="flex flex-wrap gap-2">
-          {validGroups.map((group) => (
-            <button
-              key={group.id}
-              onClick={() => setActiveTab(group.id)}
-              className={`px-4 py-2 rounded-2xl text-xs font-extrabold transition-all cursor-pointer border ${
-                activeTab === group.id
-                  ? "bg-slate-900 text-white border-slate-900 shadow-md"
-                  : "bg-white text-slate-600 border-slate-200 hover:border-slate-400"
-              }`}
-            >
-              {group.label}
-              <span
-                className={`ml-1.5 text-[9px] font-black ${activeTab === group.id ? "text-[#2563EB]" : "text-slate-400"}`}
-              >
-                ({group.products.length})
-              </span>
-            </button>
-          ))}
+    <section className="space-y-4 border-t border-slate-200 pt-8 sm:pt-10">
+      {/* ── Section Title & Browse Link Header ── */}
+      <div className="flex items-center justify-between gap-3">
+        <div>
+          <h3 className="text-base sm:text-lg font-black text-slate-900 tracking-tight">
+            Recommendations for You
+          </h3>
+          <p className="text-xs text-slate-500 mt-0.5">
+            {activeGroup.subtitle || "Curated hardware matches for your build."}
+          </p>
         </div>
-
         <Link
-          href="/products"
-          className="text-xs font-extrabold text-[#2563EB] hover:underline flex items-center gap-1 whitespace-nowrap"
+          href={`/products?category=${encodeURIComponent(mainProduct?.category || "")}`}
+          className="text-xs font-bold text-[#2563EB] hover:text-[#1D4ED8] hover:underline flex items-center gap-0.5 shrink-0"
         >
-          Browse All <ChevronRight className="w-3.5 h-3.5" />
+          <span>Browse All</span>
+          <ChevronRight className="w-3.5 h-3.5" />
         </Link>
       </div>
 
-      {/* ── Subtitle ── */}
-      {activeGroup.subtitle && (
-        <p className="text-xs text-slate-500">{activeGroup.subtitle}</p>
-      )}
+      {/* ── Horizontally Scrollable Tabs (Mobile & Desktop) ── */}
+      <div className="flex items-center gap-2 overflow-x-auto scrollbar-none pb-1 -mx-3 px-3 sm:mx-0 sm:px-0">
+        {validGroups.map((group) => {
+          const isActive = activeTab === group.id;
+          const count =
+            group.id === "fbt" && mainProduct
+              ? group.products.length + 1
+              : group.products.length;
 
-      {/* ── Content ── */}
+          return (
+            <button
+              key={group.id}
+              onClick={() => setActiveTab(group.id)}
+              className={`shrink-0 px-3.5 sm:px-4 py-2 rounded-xl text-xs font-extrabold transition-all cursor-pointer border flex items-center gap-1.5 whitespace-nowrap ${
+                isActive
+                  ? "bg-[#0A1128] text-white border-[#0A1128] shadow-sm"
+                  : "bg-white text-slate-700 border-slate-200 hover:border-slate-300 hover:bg-slate-50"
+              }`}
+            >
+              <span>{group.label}</span>
+              <span
+                className={`text-[10px] font-black px-1.5 py-0.5 rounded-full ${
+                  isActive
+                    ? "bg-[#FFC20E] text-slate-950"
+                    : "bg-slate-100 text-slate-500"
+                }`}
+              >
+                {count}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* ── Tab Content ── */}
       {isFBT ? (
-        <FrequentlyBoughtTogetherSection products={activeGroup.products} />
+        <FrequentlyBoughtTogetherSection
+          products={activeGroup.products}
+          mainProduct={mainProduct}
+        />
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2.5 sm:gap-3">
           {activeGroup.products.map((prod) => (
             <RecoCard key={prod.id} product={prod} />
           ))}
@@ -320,3 +472,5 @@ export const ProductRecommendations: React.FC<ProductRecommendationsProps> = ({
     </section>
   );
 };
+
+export default ProductRecommendations;

@@ -38,9 +38,9 @@ export const COMPANY_INFO: CompanyInfo = {
     "To democratize experiential mechatronics and STEM education across India by manufacturing and delivering authentic, high-reliability electronic hardware components and turnkey laboratory setups.",
   vision:
     "To build India’s largest indigenous hardware engineering ecosystem for robotics, autonomous drones, and Industry 4.0 automation.",
-  phone: "+91 98765 43210",
+  phone: "+91 87097 89641",
   email: "support@prayogindia.com",
-  whatsapp: "+919876543210",
+  whatsapp: "+918709789641",
   address: "Prayog Tech Hub, Plot 42, Electronics City Phase 1",
   city: "Bengaluru",
   state: "Karnataka",

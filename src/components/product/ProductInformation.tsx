@@ -19,6 +19,7 @@ import {
   X,
 } from "lucide-react";
 import { Product, ProductVariant } from "@/data/mockData";
+import { AddToCartIcon } from "@/components/icons/AddToCartIcon";
 
 // Official WhatsApp Vector SVG Icon
 const WhatsAppIcon = ({ className = "w-4 h-4" }: { className?: string }) => (
@@ -130,7 +131,7 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
         ? window.location.href
         : `https://prayogindia.in/products/${product.slug || product.id}`;
     const text = `Hello Prayog India Team, I have a technical query regarding this product:\n\n*Product:* ${product.name}\n*SKU:* ${currentSku}\n*Price:* ₹${currentPrice.toLocaleString("en-IN")}\n*Link:* ${currentUrl}\n\nPlease assist me. Thank you!`;
-    return `https://wa.me/919876543210?text=${encodeURIComponent(text)}`;
+    return `https://wa.me/918709789641?text=${encodeURIComponent(text)}`;
   };
 
   return (
@@ -318,60 +319,86 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
       {/* ── Action Buttons Row (Placed immediately under Price/Stock for instant access) ── */}
       <div className="pt-1">
         {currentStock ? (
-          <div className="flex items-center gap-2 sm:gap-2.5">
-            {/* Quantity Selector */}
-            <div className="flex items-center bg-slate-50 border border-slate-200 rounded-xl overflow-hidden shrink-0 h-11">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-2.5">
+            {/* Quantity Selector & Mobile Wishlist Row */}
+            <div className="flex items-center justify-between sm:justify-start gap-2">
+              {/* Quantity Selector */}
+              <div className="flex items-center bg-slate-50 border border-slate-200 rounded-xl overflow-hidden shrink-0 h-11">
+                <button
+                  type="button"
+                  onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                  disabled={quantity <= 1}
+                  className="w-8 h-full flex items-center justify-center text-slate-600 hover:bg-slate-200 disabled:opacity-30 font-bold text-sm cursor-pointer transition-colors"
+                  aria-label="Decrease quantity"
+                >
+                  -
+                </button>
+                <span className="w-8 text-center text-xs font-black text-slate-900 select-none">
+                  {quantity}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setQuantity((q) => Math.min(50, q + 1))}
+                  disabled={quantity >= 50}
+                  className="w-8 h-full flex items-center justify-center text-slate-600 hover:bg-slate-200 disabled:opacity-30 font-bold text-sm cursor-pointer transition-colors"
+                  aria-label="Increase quantity"
+                >
+                  +
+                </button>
+              </div>
+
+              {/* Wishlist Button on Mobile (placed next to Quantity) */}
               <button
                 type="button"
-                onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                disabled={quantity <= 1}
-                className="w-7 sm:w-8 h-full flex items-center justify-center text-slate-600 hover:bg-slate-200 disabled:opacity-30 font-bold text-sm cursor-pointer transition-colors"
-                aria-label="Decrease quantity"
+                onClick={() => onToggleWishlist(product)}
+                className={`sm:hidden h-11 px-3.5 rounded-xl border flex items-center justify-center gap-1.5 text-xs font-bold transition-all cursor-pointer ${
+                  isWishlisted
+                    ? "bg-red-50 border-red-200 text-red-500"
+                    : "bg-white border-slate-200 hover:border-slate-300 text-slate-600"
+                }`}
+                title={isWishlisted ? "In Wishlist" : "Add to Wishlist"}
+                aria-label={isWishlisted ? "In Wishlist" : "Add to Wishlist"}
               >
-                -
-              </button>
-              <span className="w-7 text-center text-xs font-black text-slate-900 select-none">
-                {quantity}
-              </span>
-              <button
-                type="button"
-                onClick={() => setQuantity((q) => Math.min(50, q + 1))}
-                disabled={quantity >= 50}
-                className="w-7 sm:w-8 h-full flex items-center justify-center text-slate-600 hover:bg-slate-200 disabled:opacity-30 font-bold text-sm cursor-pointer transition-colors"
-                aria-label="Increase quantity"
-              >
-                +
+                <Heart
+                  className={`w-4 h-4 ${
+                    isWishlisted ? "fill-red-500 text-red-500" : ""
+                  }`}
+                />
+                <span>{isWishlisted ? "Wishlisted" : "Wishlist"}</span>
               </button>
             </div>
 
-            {/* Add to Cart Button (Prayog Brand Yellow) */}
-            <button
-              type="button"
-              onClick={() => onAddToCart(product, quantity)}
-              className="flex-1 h-11 bg-[#FFC20E] hover:bg-[#E5AC0D] text-slate-950 px-3 sm:px-4 rounded-xl font-black text-xs uppercase tracking-wider transition-all shadow-xs flex items-center justify-center gap-1.5 active:scale-95 cursor-pointer whitespace-nowrap"
-            >
-              <ShoppingCart className="w-4 h-4 stroke-[2.2] shrink-0" />
-              <span>ADD TO CART</span>
-            </button>
+            {/* Action Buttons: Add to Cart & Buy Now (Hidden on Mobile, Visible on Desktop) */}
+            <div className="hidden sm:flex sm:flex-1 items-center gap-2.5">
+              {/* Add to Cart Button (Prayog Brand Yellow) */}
+              <button
+                type="button"
+                onClick={() => onAddToCart(product, quantity)}
+                className="flex-1 h-11 bg-[#FFC20E] hover:bg-[#E5AC0D] text-slate-950 px-2 sm:px-4 rounded-xl font-black text-xs sm:text-[13px] uppercase tracking-wider transition-all shadow-xs flex items-center justify-center gap-1.5 active:scale-95 cursor-pointer whitespace-nowrap"
+              >
+                <AddToCartIcon className="w-4 h-4 shrink-0" />
+                <span>ADD TO CART</span>
+              </button>
 
-            {/* Buy Now Button (Prayog Deep Navy) */}
-            <button
-              type="button"
-              onClick={() =>
-                onBuyNow
-                  ? onBuyNow(product, quantity)
-                  : onAddToCart(product, quantity)
-              }
-              className="flex-1 h-11 bg-[#0A1128] hover:bg-slate-900 text-white px-3 sm:px-4 rounded-xl font-black text-xs uppercase tracking-wider transition-all shadow-sm flex items-center justify-center gap-1.5 active:scale-95 cursor-pointer whitespace-nowrap"
-            >
-              <span>BUY NOW</span>
-            </button>
+              {/* Buy Now Button (Prayog Deep Navy) */}
+              <button
+                type="button"
+                onClick={() =>
+                  onBuyNow
+                    ? onBuyNow(product, quantity)
+                    : onAddToCart(product, quantity)
+                }
+                className="flex-1 h-11 bg-[#0A1128] hover:bg-slate-900 text-white px-2 sm:px-4 rounded-xl font-black text-xs sm:text-[13px] uppercase tracking-wider transition-all shadow-sm flex items-center justify-center gap-1.5 active:scale-95 cursor-pointer whitespace-nowrap"
+              >
+                <span>BUY NOW</span>
+              </button>
+            </div>
 
-            {/* Wishlist Button */}
+            {/* Wishlist Button on Desktop */}
             <button
               type="button"
               onClick={() => onToggleWishlist(product)}
-              className={`w-11 h-11 rounded-xl border flex items-center justify-center shrink-0 transition-all cursor-pointer ${
+              className={`hidden sm:flex w-11 h-11 rounded-xl border items-center justify-center shrink-0 transition-all cursor-pointer ${
                 isWishlisted
                   ? "bg-red-50 border-red-200 text-red-500"
                   : "bg-white border-slate-200 hover:border-slate-300 text-slate-500 hover:text-red-500"

@@ -19,6 +19,7 @@ import {
   Check,
   Heart,
 } from "lucide-react";
+import { AddToCartIcon } from "@/components/icons/AddToCartIcon";
 
 // Official WhatsApp Vector SVG Icon
 const WhatsAppIcon = ({ className = "w-4 h-4" }: { className?: string }) => (
@@ -234,7 +235,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
   const isInStock = selectedVariant ? selectedVariant.inStock : product.inStock;
 
   return (
-    <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-2 sm:py-3 space-y-4 sm:space-y-6 animate-in fade-in duration-300 pb-28 sm:pb-20 lg:pb-8">
+    <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-2 sm:py-3 space-y-4 sm:space-y-6 animate-in fade-in duration-300 pb-24 sm:pb-20 lg:pb-8">
       {/* ── Breadcrumb ── */}
       <CategoryBreadcrumb
         items={[
@@ -287,11 +288,11 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
       {/* ── Section: Recommendations & Related Products ── */}
       {recoGroups.length > 0 && (
         <div className="pt-4">
-          <ProductRecommendations groups={recoGroups} />
+          <ProductRecommendations groups={recoGroups} mainProduct={product} />
         </div>
       )}
 
-      {/* ── Mobile Permanent Sticky Bottom Action Bar ── */}
+      {/* ── Mobile Sticky Bottom Action Bar ── */}
       <aside
         aria-label="Mobile purchase actions"
         className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-xl border-t border-slate-200/90 shadow-[0_-8px_30px_rgba(15,23,42,0.12)] px-3 sm:px-4 pt-2.5 pb-[max(0.75rem,env(safe-area-inset-bottom))]"
@@ -316,7 +317,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
                   </>
                 ) : (
                   <>
-                    <ShoppingCart className="w-4 h-4 stroke-[2.2] shrink-0" />
+                    <AddToCartIcon className="w-4 h-4 shrink-0" />
                     <span>ADD TO CART</span>
                   </>
                 )}
@@ -333,7 +334,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
             </div>
           ) : (
             <a
-              href={`https://wa.me/919876543210?text=${encodeURIComponent(
+              href={`https://wa.me/918709789641?text=${encodeURIComponent(
                 `Hello Prayog India Team, I want to inquire about ${product.name} (SKU: ${product.sku || product.id}) which is currently out of stock.`
               )}`}
               target="_blank"

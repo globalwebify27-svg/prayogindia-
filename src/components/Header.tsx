@@ -628,11 +628,11 @@ export const Header: React.FC<HeaderProps> = ({
 
           <div className="hidden sm:flex items-center gap-4 text-[11px] text-slate-300 font-medium shrink-0">
             <a
-              href="tel:+91912345678"
+              href="tel:+918709789641"
               className="hover:text-white flex items-center gap-1.5"
             >
               <Headset className="w-3.5 h-3.5 text-[#FFC20E]" />
-              <span>+91 912345678</span>
+              <span>+91 87097 89641</span>
             </a>
             <span className="text-slate-600">•</span>
             <button
@@ -1244,7 +1244,7 @@ export const Header: React.FC<HeaderProps> = ({
                       <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover/sub:text-[#2563EB] group-hover/sub:translate-x-0.5 transition-all shrink-0" />
                     </Link>
                     <a
-                      href="https://wa.me/919876543210"
+                      href="https://wa.me/918709789641"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-emerald-50 hover:text-emerald-600 transition-colors group/sub"
@@ -1931,7 +1931,7 @@ export const Header: React.FC<HeaderProps> = ({
           <div className="flex items-center gap-3 sm:gap-4 shrink-0">
             {/* Helpline Link */}
             <a
-              href="tel:+91912345678"
+              href="tel:+918709789641"
               className="flex items-center gap-2 text-slate-700 hover:text-[#2563EB] transition-colors"
             >
               <Headset className="w-4 h-4 text-[#0A233F] shrink-0" />
@@ -1940,7 +1940,7 @@ export const Header: React.FC<HeaderProps> = ({
                   Helpline:
                 </span>
                 <span className="text-xs sm:text-[13px] font-black text-[#0A233F] tracking-tight">
-                  +91 912345678
+                  +91 87097 89641
                 </span>
               </div>
             </a>

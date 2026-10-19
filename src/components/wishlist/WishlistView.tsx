@@ -185,7 +185,7 @@ const WishlistCard: React.FC<{
             </button>
           ) : (
             <a
-              href={`https://wa.me/919876543210?text=${whatsappMsg}`}
+              href={`https://wa.me/918709789641?text=${whatsappMsg}`}
               target="_blank"
               rel="noopener noreferrer"
               className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white py-2 rounded-xl text-[10px] font-extrabold flex items-center justify-center gap-1.5 transition-all"

@@ -35,10 +35,10 @@ export const FooterSection: React.FC = () => {
                       Robotics &amp; Lab Solutions
                     </span>
                     <a
-                      href="tel:+919153988390"
+                      href="tel:+918709789641"
                       className="text-xs font-semibold text-slate-600 hover:text-[#2563EB] transition-colors"
                     >
-                      +91 91539 88390
+                      +91 87097 89641
                     </a>
                   </div>
                 </div>
@@ -68,10 +68,10 @@ export const FooterSection: React.FC = () => {
                       Sales &amp; Institutional Inquiry
                     </span>
                     <a
-                      href="tel:+919431102931"
+                      href="tel:+918709789641"
                       className="text-xs font-semibold text-slate-600 hover:text-[#2563EB] transition-colors"
                     >
-                      +91 94311 02931
+                      +91 87097 89641
                     </a>
                   </div>
                 </div>

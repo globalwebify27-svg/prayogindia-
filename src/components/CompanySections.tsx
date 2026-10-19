@@ -278,7 +278,7 @@ export const ServicesSection: React.FC<FullSectionsProps> = ({
                     Enquire Now <ArrowUpRight className="w-3.5 h-3.5" />
                   </button>
                   <a
-                    href="https://wa.me/919876543210"
+                    href="https://wa.me/918709789641"
                     target="_blank"
                     rel="noreferrer"
                     className="bg-[#25D366] text-white p-2 rounded-xl hover:bg-[#20ba5a] transition-colors flex items-center justify-center cursor-pointer active:scale-95 shadow-2xs"

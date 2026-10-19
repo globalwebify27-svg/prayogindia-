@@ -466,10 +466,10 @@ export default function WalkInGatewayPage() {
             <span>
               Customer Helpline:{" "}
               <a
-                href="tel:+91912345678"
+                href="tel:+918709789641"
                 className="text-[#2563EB] hover:underline font-bold"
               >
-                +91 912345678
+                +91 87097 89641
               </a>
             </span>
             <span>•</span>

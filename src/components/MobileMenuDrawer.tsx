@@ -729,11 +729,11 @@ export const MobileMenuDrawer: React.FC<MobileMenuDrawerProps> = ({
               <div className="flex items-center justify-between text-xs text-slate-600">
                 <span className="font-semibold">Need Assistance?</span>
                 <a
-                  href="tel:+919153988390"
+                  href="tel:+918709789641"
                   className="font-bold text-[#2563EB] flex items-center gap-1 hover:underline"
                 >
                   <PhoneCall className="w-3.5 h-3.5" />
-                  +91 91539 88390
+                  +91 87097 89641
                 </a>
               </div>
               <div className="flex items-center justify-between text-[11px] text-slate-400">

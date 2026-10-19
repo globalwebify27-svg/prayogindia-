@@ -59,7 +59,7 @@ export const B2BInstitutionalPromoBanner: React.FC = () => {
         {/* Right Column: CTA Buttons */}
         <div className="lg:col-span-4 flex flex-col gap-3 justify-center">
           <a
-            href="https://wa.me/919876543210?text=Hello%20Prayog%20India%20Team%2C%20I%20am%20looking%20for%20an%20Institutional%20B2B%20Lab%20Setup%20Quote%20and%20Bulk%20Discounts."
+            href="https://wa.me/918709789641?text=Hello%20Prayog%20India%20Team%2C%20I%20am%20looking%20for%20an%20Institutional%20B2B%20Lab%20Setup%20Quote%20and%20Bulk%20Discounts."
             target="_blank"
             rel="noopener noreferrer"
             className="w-full bg-[#25D366] hover:bg-[#20bd5a] text-white py-3.5 px-6 rounded-2xl text-xs font-black uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg shadow-emerald-900/30 active:scale-95 transition-all text-center"

@@ -1472,7 +1472,7 @@ export default function WalkInPOSPage() {
                 </button>
 
                 <a
-                  href={`https://wa.me/${completedTransaction.customerPhone ? `91${completedTransaction.customerPhone}` : "919876543210"}?text=${encodeURIComponent(`Hi ${completedTransaction.customerName}, thank you for purchasing hardware at Prayog India (${completedTransaction.store})!\n\nYour Tax Invoice: ${completedTransaction.invoiceNo}\nTotal Amount Paid: ₹${completedTransaction.total}\nPayment Breakdown: Cash: ₹${completedTransaction.cash}, UPI: ₹${completedTransaction.upi}, Card: ₹${completedTransaction.card}\n\nDownload PDF: https://prayogindia.in/invoices/${completedTransaction.invoiceNo}`)}`}
+                  href={`https://wa.me/${completedTransaction.customerPhone ? `91${completedTransaction.customerPhone}` : "918709789641"}?text=${encodeURIComponent(`Hi ${completedTransaction.customerName}, thank you for purchasing hardware at Prayog India (${completedTransaction.store})!\n\nYour Tax Invoice: ${completedTransaction.invoiceNo}\nTotal Amount Paid: ₹${completedTransaction.total}\nPayment Breakdown: Cash: ₹${completedTransaction.cash}, UPI: ₹${completedTransaction.upi}, Card: ₹${completedTransaction.card}\n\nDownload PDF: https://prayogindia.in/invoices/${completedTransaction.invoiceNo}`)}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-extrabold px-4 py-3 rounded-xl flex items-center gap-2 shadow-md active:scale-95"

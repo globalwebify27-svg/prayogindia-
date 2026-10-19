@@ -642,7 +642,7 @@ const QuickViewModalContent: React.FC<{
             {/* Action Buttons: If In Stock -> ADD TO CART & BUY NOW. If Out of Stock -> Inquire on WhatsApp */}
             {!isInStock ? (
               <a
-                href={`https://wa.me/919876543210?text=${encodeURIComponent(
+                href={`https://wa.me/918709789641?text=${encodeURIComponent(
                   `Hello Prayog India, I want to inquire about the out-of-stock product: ${fullProduct.name}`
                 )}`}
                 target="_blank"
