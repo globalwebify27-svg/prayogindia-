@@ -79,7 +79,7 @@ export const ServiceDetailView: React.FC<ServiceDetailProps> = ({ slug }) => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50/50 pb-16 font-sans">
+    <div className="min-h-screen bg-slate-50/50 pb-28 lg:pb-16 font-sans">
       {/* ── Breadcrumb Bar ── */}
       <div className="bg-white border-b border-slate-200/80">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between">
@@ -461,6 +461,35 @@ export const ServiceDetailView: React.FC<ServiceDetailProps> = ({ slug }) => {
         onClose={() => setEnquiryOpen(false)}
         serviceName={service.name}
       />
+
+      {/* ── Mobile Sticky Bottom Action Bar ── */}
+      <aside
+        aria-label="Mobile service enquiry actions"
+        className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-xl border-t border-slate-200/90 shadow-[0_-8px_30px_rgba(15,23,42,0.12)] px-3 sm:px-4 pt-2.5 pb-[max(0.75rem,env(safe-area-inset-bottom))]"
+      >
+        <div className="max-w-md mx-auto grid grid-cols-2 gap-2.5">
+          {/* WhatsApp Button */}
+          <a
+            href={`https://wa.me/918709789641?text=${whatsappMessage}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="h-11 sm:h-12 bg-[#25D366] hover:bg-[#20bd5a] active:scale-95 text-white rounded-xl font-black text-xs sm:text-[13px] uppercase tracking-wider flex items-center justify-center gap-1.5 shadow-md shadow-[#25D366]/20 transition-all cursor-pointer whitespace-nowrap"
+          >
+            <MessageSquare className="w-4 h-4 fill-white shrink-0" />
+            <span>WhatsApp</span>
+          </a>
+
+          {/* Request Quotation Button */}
+          <button
+            type="button"
+            onClick={() => setEnquiryOpen(true)}
+            className="h-11 sm:h-12 bg-[#2563EB] hover:bg-[#1D4ED8] active:scale-95 text-white rounded-xl font-black text-xs sm:text-[13px] uppercase tracking-wider flex items-center justify-center gap-1.5 shadow-md shadow-blue-600/25 transition-all cursor-pointer whitespace-nowrap"
+          >
+            <Send className="w-4 h-4 shrink-0" />
+            <span>Request Quote</span>
+          </button>
+        </div>
+      </aside>
     </div>
   );
 };

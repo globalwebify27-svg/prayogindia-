@@ -7,6 +7,7 @@ import { CartDrawer } from "@/components/CartDrawer";
 import { SuccessToast } from "@/components/SuccessToast";
 import { B2BModal } from "@/components/Modals";
 import { FloatingWhatsAppWidget } from "@/components/FloatingWhatsAppWidget";
+import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { useStore } from "@/context/StoreContext";
 import { usePathname } from "next/navigation";
 import { haptic } from "@/utils/haptics";
@@ -90,6 +91,13 @@ export const AppShell: React.FC<{ children: React.ReactNode }> = ({
       <B2BModal isOpen={b2bOpen} onClose={() => setB2bOpen(false)} />
 
       <SuccessToast toast={toast} onClose={dismissToast} />
+
+      <MobileBottomNav
+        onOpenCart={() => {
+          haptic.light();
+          setCartOpen(true);
+        }}
+      />
     </div>
   );
 };

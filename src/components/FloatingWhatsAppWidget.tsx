@@ -9,11 +9,8 @@ export const FloatingWhatsAppWidget: React.FC = () => {
   const widgetRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
 
-  // Detect pages with mobile sticky bottom action bars (e.g. Product detail pages, Checkout page)
-  const hasStickyBottomBar =
-    pathname?.startsWith("/products/") ||
-    pathname?.startsWith("/product/") ||
-    pathname?.startsWith("/checkout");
+  // Customer-facing mobile pages have a bottom bar (sticky action bar or MobileBottomNav)
+  const hasStickyBottomBar = true;
 
   // Mobile draggable position state (null = use default bottom/right classes)
   const [mobilePos, setMobilePos] = useState<{ x: number; y: number } | null>(null);

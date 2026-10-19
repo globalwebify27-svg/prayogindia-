@@ -7,7 +7,7 @@ import { PrayogLogo } from "./PrayogLogo";
 
 export const FooterSection: React.FC = () => {
   return (
-    <footer className="bg-white text-slate-800 pt-12 sm:pt-16 pb-12 border-t border-slate-200/90 relative">
+    <footer className="bg-white text-slate-800 pt-12 sm:pt-16 pb-24 lg:pb-12 border-t border-slate-200/90 relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Main 4-Column Grid Layout */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8 lg:gap-12 pb-12">
