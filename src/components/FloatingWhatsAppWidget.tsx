@@ -42,36 +42,50 @@ export const FloatingWhatsAppWidget: React.FC = () => {
         const parsed = JSON.parse(saved);
         if (typeof parsed?.x === "number" && typeof parsed?.y === "number") {
           const iconSize = 48;
-          const margin = 10;
-          const maxX = window.innerWidth - iconSize - margin;
-          const maxY = window.innerHeight - iconSize - margin;
+          const margin = 12;
+          const screenWidth = window.innerWidth;
+          const screenHeight = window.innerHeight;
+          const midX = parsed.x + iconSize / 2;
+          const snappedX =
+            midX < screenWidth / 2 ? margin : screenWidth - iconSize - margin;
+          const topBound = margin + 55;
+          const bottomBound = hasStickyBottomBar
+            ? screenHeight - iconSize - 76 - margin
+            : screenHeight - iconSize - margin;
           setMobilePos({
-            x: Math.max(margin, Math.min(maxX, parsed.x)),
-            y: Math.max(margin, Math.min(maxY, parsed.y)),
+            x: snappedX,
+            y: Math.max(topBound, Math.min(bottomBound, parsed.y)),
           });
         }
       }
     } catch {}
-  }, []);
+  }, [hasStickyBottomBar]);
 
-  // Keep mobile icon within screen bounds if window resizes or device rotates
+  // Keep mobile icon snapped within screen bounds if window resizes or device rotates
   useEffect(() => {
     const handleResize = () => {
       setMobilePos((prev) => {
         if (!prev) return null;
         const iconSize = 48;
-        const margin = 10;
-        const maxX = window.innerWidth - iconSize - margin;
-        const maxY = window.innerHeight - iconSize - margin;
+        const margin = 12;
+        const screenWidth = window.innerWidth;
+        const screenHeight = window.innerHeight;
+        const midX = prev.x + iconSize / 2;
+        const snappedX =
+          midX < screenWidth / 2 ? margin : screenWidth - iconSize - margin;
+        const topBound = margin + 55;
+        const bottomBound = hasStickyBottomBar
+          ? screenHeight - iconSize - 76 - margin
+          : screenHeight - iconSize - margin;
         return {
-          x: Math.max(margin, Math.min(maxX, prev.x)),
-          y: Math.max(margin, Math.min(maxY, prev.y)),
+          x: snappedX,
+          y: Math.max(topBound, Math.min(bottomBound, prev.y)),
         };
       });
     };
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
-  }, []);
+  }, [hasStickyBottomBar]);
 
   // Desktop click-outside to collapse popup
   useEffect(() => {
@@ -138,14 +152,35 @@ export const FloatingWhatsAppWidget: React.FC = () => {
 
     if (dragInfo.current.hasMoved) {
       setIsDragging(false);
-      // Save last user-dragged position
+
+      // Snap to nearest corner / edge (never stay floating in the middle of screen)
       setMobilePos((currentPos) => {
-        if (currentPos) {
-          try {
-            sessionStorage.setItem("prayog_wa_mobile_pos", JSON.stringify(currentPos));
-          } catch {}
-        }
-        return currentPos;
+        if (!currentPos) return null;
+
+        const iconSize = 48;
+        const margin = 12;
+        const screenWidth = window.innerWidth;
+        const screenHeight = window.innerHeight;
+
+        // Determine nearest horizontal edge: left or right corner
+        const midX = currentPos.x + iconSize / 2;
+        const snappedX =
+          midX < screenWidth / 2 ? margin : screenWidth - iconSize - margin;
+
+        // Keep vertically in safe zone (below header, above sticky bottom bar)
+        const topBound = margin + 55;
+        const bottomBound = hasStickyBottomBar
+          ? screenHeight - iconSize - 76 - margin
+          : screenHeight - iconSize - margin;
+        const snappedY = Math.max(topBound, Math.min(bottomBound, currentPos.y));
+
+        const snappedPos = { x: snappedX, y: snappedY };
+
+        try {
+          sessionStorage.setItem("prayog_wa_mobile_pos", JSON.stringify(snappedPos));
+        } catch {}
+
+        return snappedPos;
       });
     }
   };
@@ -155,6 +190,24 @@ export const FloatingWhatsAppWidget: React.FC = () => {
       e.currentTarget.releasePointerCapture(e.pointerId);
     }
     setIsDragging(false);
+    // Snap to nearest edge on cancel
+    setMobilePos((currentPos) => {
+      if (!currentPos) return null;
+      const iconSize = 48;
+      const margin = 12;
+      const screenWidth = window.innerWidth;
+      const screenHeight = window.innerHeight;
+      const midX = currentPos.x + iconSize / 2;
+      const snappedX = midX < screenWidth / 2 ? margin : screenWidth - iconSize - margin;
+      const topBound = margin + 55;
+      const bottomBound = hasStickyBottomBar
+        ? screenHeight - iconSize - 76 - margin
+        : screenHeight - iconSize - margin;
+      return {
+        x: snappedX,
+        y: Math.max(topBound, Math.min(bottomBound, currentPos.y)),
+      };
+    });
   };
 
   const handleMobileClick = (e: React.MouseEvent) => {
@@ -171,7 +224,7 @@ export const FloatingWhatsAppWidget: React.FC = () => {
 
   return (
     <>
-      {/* ── MOBILE VIEW: Freely Draggable WhatsApp Floating Button ── */}
+      {/* ── MOBILE VIEW: Draggable WhatsApp Icon Snapping to Screen Corners/Edges ── */}
       <button
         type="button"
         onPointerDown={handlePointerDown}
@@ -180,16 +233,16 @@ export const FloatingWhatsAppWidget: React.FC = () => {
         onPointerCancel={handlePointerCancel}
         onClick={handleMobileClick}
         aria-label="Chat on WhatsApp (Draggable)"
-        title="Drag to move, tap to chat"
+        title="Drag to reposition, tap to chat"
         style={
           mobilePos
             ? { left: `${mobilePos.x}px`, top: `${mobilePos.y}px` }
             : undefined
         }
-        className={`sm:hidden fixed z-50 w-12 h-12 rounded-full bg-[#25D366] active:bg-[#20bd5a] text-white flex items-center justify-center shadow-[0_4px_18px_rgba(0,0,0,0.3)] transition-all cursor-grab active:cursor-grabbing touch-none select-none ${
+        className={`sm:hidden fixed z-50 w-12 h-12 rounded-full bg-[#25D366] active:bg-[#20bd5a] text-white flex items-center justify-center shadow-[0_4px_18px_rgba(0,0,0,0.3)] cursor-grab active:cursor-grabbing touch-none select-none ${
           isDragging
-            ? "scale-110 shadow-2xl opacity-90 ring-4 ring-[#25D366]/40"
-            : "active:scale-95"
+            ? "scale-110 shadow-2xl opacity-90 ring-4 ring-[#25D366]/40 transition-none"
+            : "transition-all duration-300 ease-out active:scale-95"
         } ${
           mobilePos
             ? ""
