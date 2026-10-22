@@ -481,8 +481,7 @@ export const Header: React.FC<HeaderProps> = ({
     if (pathname.startsWith("/services")) return "services";
     if (
       pathname.startsWith("/products") ||
-      pathname.startsWith("/categories") ||
-      pathname.startsWith("/brands")
+      pathname.startsWith("/categories")
     )
       return "products";
     if (pathname.startsWith("/contact")) return "contact";
@@ -946,89 +945,6 @@ export const Header: React.FC<HeaderProps> = ({
                       className="flex items-center justify-between px-3 py-2 rounded-lg text-[#2563EB] hover:bg-[#EFF6FF] font-bold transition-colors"
                     >
                       <span>View All 20 Categories →</span>
-                    </Link>
-                  </div>
-                </div>
-              </div>
-
-              {/* 4. Brands */}
-              <div className="relative group py-1.5">
-                <Link
-                  href="/brands"
-                  className={`px-1 xl:px-1.5 2xl:px-2 py-1 xl:py-1.5 rounded-lg transition-colors inline-block ${
-                    pathname?.startsWith("/brands")
-                      ? "text-[#2563EB] font-black bg-[#EFF6FF]"
-                      : "text-slate-700 hover:text-[#2563EB] hover:bg-slate-50"
-                  }`}
-                >
-                  <span>BRANDS</span>
-                </Link>
-
-                {/* Dropdown */}
-                <div className="absolute top-full left-0 pt-1.5 opacity-0 translate-y-1 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto transition-all duration-150 ease-out z-50">
-                  <div className="w-60 bg-white rounded-xl shadow-xl border border-slate-200/90 p-1.5 space-y-0.5 text-xs font-semibold text-slate-700 normal-case">
-                    <Link
-                      href="/products?brand=Arduino"
-                      className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-[#EFF6FF] hover:text-[#2563EB] transition-colors group/sub"
-                    >
-                      <span>Arduino</span>
-                      <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover/sub:text-[#2563EB] group-hover/sub:translate-x-0.5 transition-all shrink-0" />
-                    </Link>
-                    <Link
-                      href="/products?brand=Raspberry%20Pi"
-                      className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-[#EFF6FF] hover:text-[#2563EB] transition-colors group/sub"
-                    >
-                      <span>Raspberry Pi</span>
-                      <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover/sub:text-[#2563EB] group-hover/sub:translate-x-0.5 transition-all shrink-0" />
-                    </Link>
-                    <Link
-                      href="/products?brand=NVIDIA"
-                      className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-[#EFF6FF] hover:text-[#2563EB] transition-colors group/sub"
-                    >
-                      <span>NVIDIA</span>
-                      <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover/sub:text-[#2563EB] group-hover/sub:translate-x-0.5 transition-all shrink-0" />
-                    </Link>
-                    <Link
-                      href="/products?brand=Holybro%20%2F%20Pixhawk"
-                      className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-[#EFF6FF] hover:text-[#2563EB] transition-colors group/sub"
-                    >
-                      <span>Holybro / Pixhawk</span>
-                      <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover/sub:text-[#2563EB] group-hover/sub:translate-x-0.5 transition-all shrink-0" />
-                    </Link>
-                    <Link
-                      href="/products?brand=Espressif%20Systems"
-                      className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-[#EFF6FF] hover:text-[#2563EB] transition-colors group/sub"
-                    >
-                      <span>Espressif Systems</span>
-                      <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover/sub:text-[#2563EB] group-hover/sub:translate-x-0.5 transition-all shrink-0" />
-                    </Link>
-                    <Link
-                      href="/products?brand=STMicroelectronics"
-                      className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-[#EFF6FF] hover:text-[#2563EB] transition-colors group/sub"
-                    >
-                      <span>STMicroelectronics</span>
-                      <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover/sub:text-[#2563EB] group-hover/sub:translate-x-0.5 transition-all shrink-0" />
-                    </Link>
-                    <Link
-                      href="/products?brand=SparkFun"
-                      className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-[#EFF6FF] hover:text-[#2563EB] transition-colors group/sub"
-                    >
-                      <span>SparkFun</span>
-                      <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover/sub:text-[#2563EB] group-hover/sub:translate-x-0.5 transition-all shrink-0" />
-                    </Link>
-                    <Link
-                      href="/products?brand=Waveshare"
-                      className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-[#EFF6FF] hover:text-[#2563EB] transition-colors group/sub"
-                    >
-                      <span>Waveshare</span>
-                      <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover/sub:text-[#2563EB] group-hover/sub:translate-x-0.5 transition-all shrink-0" />
-                    </Link>
-                    <div className="border-t border-slate-100 my-1 pt-0.5" />
-                    <Link
-                      href="/brands"
-                      className="flex items-center justify-between px-3 py-2 rounded-lg text-[#2563EB] hover:bg-[#EFF6FF] font-bold transition-colors"
-                    >
-                      <span>View All Brands →</span>
                     </Link>
                   </div>
                 </div>

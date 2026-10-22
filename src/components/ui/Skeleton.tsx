@@ -196,7 +196,7 @@ export const KioskGridSkeleton: React.FC<{ count?: number }> = ({ count = 8 }) =
       </div>
 
       {/* Product Grid Area */}
-      <div className="flex-1 p-4 sm:p-6 max-w-7xl mx-auto w-full">
+      <div className="flex-1 p-4 sm:p-6 w-full">
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4">
           {Array.from({ length: count }).map((_, idx) => (
             <KioskProductSkeleton key={idx} />

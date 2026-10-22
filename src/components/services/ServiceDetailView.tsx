@@ -82,7 +82,7 @@ export const ServiceDetailView: React.FC<ServiceDetailProps> = ({ slug }) => {
     <div className="min-h-screen bg-slate-50/50 pb-28 lg:pb-16 font-sans">
       {/* ── Breadcrumb Bar ── */}
       <div className="bg-white border-b border-slate-200/80">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between">
+        <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 py-3 flex items-center justify-between">
           <CategoryBreadcrumb
             items={[
               { label: "Services", href: "/services" },
@@ -99,7 +99,7 @@ export const ServiceDetailView: React.FC<ServiceDetailProps> = ({ slug }) => {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-5 space-y-6">
+      <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 pt-5 space-y-6">
         {/* ── Hero Card ── */}
         <div className="bg-white rounded-3xl border border-slate-200 shadow-xs overflow-hidden">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-0">

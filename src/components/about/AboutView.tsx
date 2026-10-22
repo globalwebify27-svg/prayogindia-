@@ -141,12 +141,12 @@ export const AboutView: React.FC = () => {
     <div className="bg-white min-h-screen">
       {/* 1. Top Breadcrumb */}
       <div className="border-b border-slate-100 bg-slate-50/50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+        <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 py-3">
           <CategoryBreadcrumb items={[{ label: "About Prayog India" }]} />
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-16">
+      <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 py-10 space-y-16">
         {/* 2. Hero Section: Open, Classic Modern Light Layout */}
         <section className="py-2 lg:py-6">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">

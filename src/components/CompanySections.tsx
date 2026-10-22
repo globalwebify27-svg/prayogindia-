@@ -34,7 +34,7 @@ interface FullSectionsProps {
 export const AboutSection: React.FC = () => {
   return (
     <section id="about" className="py-16 bg-slate-50 border-t border-slate-200">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+      <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 space-y-12">
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto space-y-3">
           <span className="bg-blue-50 text-[#2563EB] border border-blue-200/60 text-xs font-black px-3.5 py-1 rounded-full uppercase tracking-wider">
@@ -215,7 +215,7 @@ export const ServicesSection: React.FC<FullSectionsProps> = ({
 
   return (
     <section id="services" className="py-10 sm:py-14 bg-white border-t border-slate-200">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 sm:space-y-10">
+      <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 space-y-8 sm:space-y-10">
         <div className="text-center max-w-5xl mx-auto">
           <h2 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-slate-900 leading-tight whitespace-nowrap [text-wrap:nowrap]">
             Specialized Hardware Services & Institutional Lab Design
@@ -304,7 +304,7 @@ export const ContactSection: React.FC = () => {
       id="contact"
       className="py-16 bg-slate-50 border-t border-slate-200"
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+      <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 space-y-12">
         <div className="text-center max-w-3xl mx-auto space-y-3">
           <span className="bg-blue-50 text-[#2563EB] border border-blue-200/60 text-xs font-black px-3.5 py-1 rounded-full uppercase tracking-wider">
             Contact & Support
@@ -508,7 +508,7 @@ export const CareersSection: React.FC = () => {
 
   return (
     <section id="careers" className="py-16 bg-white border-t border-slate-200">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+      <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 space-y-12">
         <div className="text-center max-w-3xl mx-auto space-y-3">
           <span className="bg-[#FFC20E] text-slate-900 text-xs font-black px-3.5 py-1 rounded-full uppercase tracking-wider">
             Careers at Prayog India

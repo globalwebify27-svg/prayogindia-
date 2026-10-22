@@ -5,8 +5,8 @@ export default function ProductsLoading() {
   return (
     <div className="min-h-screen bg-slate-50/50 pb-20">
       {/* Header Banner */}
-      <div className="bg-white border-b border-slate-200/80 py-8 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto space-y-4">
+      <div className="bg-white border-b border-slate-200/80 py-8 px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12">
+        <div className="w-full space-y-4">
           <div className="flex items-center gap-2">
             <Skeleton className="h-4 w-16 rounded" />
             <span className="text-slate-300">/</span>
@@ -22,10 +22,10 @@ export default function ProductsLoading() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+      <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 pt-8">
+        <div className="flex flex-col lg:flex-row gap-8">
           {/* Left Sidebar Filter Skeleton */}
-          <div className="hidden lg:block space-y-6">
+          <div className="hidden lg:block w-64 xl:w-72 2xl:w-80 shrink-0 space-y-6">
             <div className="bg-white p-5 rounded-2xl border border-slate-200/80 space-y-5">
               <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                 <Skeleton className="h-5 w-20 rounded" />
@@ -53,7 +53,7 @@ export default function ProductsLoading() {
           </div>
 
           {/* Right Product Grid Skeleton */}
-          <div className="lg:col-span-3 space-y-6">
+          <div className="flex-1 min-w-0 space-y-6">
             {/* Toolbar */}
             <div className="bg-white p-4 rounded-2xl border border-slate-200/80 flex items-center justify-between gap-4">
               <Skeleton className="h-4 w-36 rounded" />

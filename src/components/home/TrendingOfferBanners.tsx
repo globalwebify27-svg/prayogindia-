@@ -143,7 +143,7 @@ export const TrendingOfferBanners: React.FC<Props> = ({ onShopDeals }) => {
 
   return (
     <section className="py-14 bg-[#F8FAFC] border-b border-slate-200">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+      <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 space-y-6">
         {/* Clean Light-Themed Section Header - Responsive Mobile Stack */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
           <div className="space-y-1">

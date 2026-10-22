@@ -3,8 +3,8 @@ import { Skeleton } from "@/components/ui/Skeleton";
 
 export default function CartLoading() {
   return (
-    <div className="min-h-screen bg-slate-50/50 py-10 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-6xl mx-auto space-y-8">
+    <div className="min-h-screen bg-slate-50/50 py-10 px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12">
+      <div className="w-full space-y-8">
         {/* Title */}
         <div className="space-y-2">
           <Skeleton className="h-8 w-48 rounded-xl" />

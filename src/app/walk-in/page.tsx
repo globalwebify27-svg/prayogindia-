@@ -122,7 +122,7 @@ export default function WalkInGatewayPage() {
     <div className="min-h-screen bg-gradient-to-b from-white via-slate-50 to-blue-50/20 text-slate-900 flex flex-col font-sans selection:bg-[#2563EB] selection:text-white">
       {/* 1. Top Navbar */}
       <nav className="w-full border-b border-slate-200/80 bg-white/90 backdrop-blur-md sticky top-0 z-40 px-4 sm:px-8 py-3 shadow-xs">
-        <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
+        <div className="w-full flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <Link href="/" className="flex items-center gap-2 group">
               <PrayogLogo size="sm" showSubtitle={false} />
@@ -393,7 +393,7 @@ export default function WalkInGatewayPage() {
       </div>
 
       {/* 4. 3-Step In-Store Shopping Guide */}
-      <div className="max-w-6xl mx-auto px-4 sm:px-8 pb-14 w-full">
+      <div className="w-full px-4 sm:px-8 pb-14">
         <div className="p-6 sm:p-8 rounded-3xl bg-white border border-slate-200 shadow-sm">
           <div className="text-center max-w-xl mx-auto mb-8">
             <h3 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight">
@@ -455,7 +455,7 @@ export default function WalkInGatewayPage() {
 
       {/* 5. Footer */}
       <footer className="border-t border-slate-200 bg-white py-5 px-4 sm:px-8 mt-auto">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-600">
+        <div className="w-full flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-600">
           <div className="flex items-center gap-2">
             <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
             <span className="font-medium text-slate-700">

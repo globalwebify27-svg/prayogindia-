@@ -251,7 +251,7 @@ export default function Home() {
         {/* Tab 3: Dedicated Products View */}
         {activeTab === "products" && (
           <div className="py-10 animate-in fade-in duration-300">
-            <div className="max-w-7xl mx-auto px-6 mb-6">
+            <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 mb-6">
               <div className="bg-gradient-to-r from-blue-700 via-blue-600 to-[#2563EB] text-white p-8 rounded-3xl shadow-xl flex flex-col md:flex-row justify-between items-center gap-6">
                 <div>
                   <span className="bg-[#FFC20E] text-slate-950 text-[10px] font-black uppercase px-3 py-1 rounded-full">
@@ -290,7 +290,7 @@ export default function Home() {
 
         {/* Tab 4: Drone Technology & Sub-tabs */}
         {activeTab === "drone-technology" && (
-          <div className="py-10 max-w-7xl mx-auto px-6 space-y-8 animate-in fade-in duration-300">
+          <div className="py-10 w-full px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 space-y-8 animate-in fade-in duration-300">
             <div className="bg-gradient-to-r from-[#0A1128] via-[#0F172A] to-[#1E56A0] text-white p-8 rounded-3xl border border-[#D4AF37]/30 shadow-2xl space-y-3">
               <span className="bg-[#FFC20E] text-slate-950 text-xs font-black px-3.5 py-1 rounded-full uppercase">
                 Subcategory View
@@ -323,7 +323,7 @@ export default function Home() {
         {(activeTab === "robotics-kits" ||
           activeTab === "arduino-iot" ||
           activeTab === "stem-kits") && (
-          <div className="py-10 max-w-7xl mx-auto px-6 space-y-8 animate-in fade-in duration-300">
+          <div className="py-10 w-full px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 space-y-8 animate-in fade-in duration-300">
             <div className="bg-gradient-to-r from-blue-700 via-blue-600 to-[#2563EB] text-white p-8 rounded-3xl shadow-xl space-y-2">
               <span className="bg-[#FFC20E] text-slate-950 text-xs font-black px-3.5 py-1 rounded-full uppercase">
                 Hardware Category View
@@ -363,7 +363,7 @@ export default function Home() {
 
         {/* Tab 8: Offers & Deals Dedicated Tab */}
         {activeTab === "offers" && (
-          <div className="py-10 max-w-7xl mx-auto px-6 space-y-8 animate-in fade-in duration-300">
+          <div className="py-10 w-full px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 space-y-8 animate-in fade-in duration-300">
             <DealsAndOffersSection
               onShopDeals={() => handleTabChange("products")}
             />

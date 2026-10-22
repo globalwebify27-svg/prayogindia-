@@ -1105,7 +1105,7 @@ export const CheckoutView: React.FC = () => {
   // ── Full-Page Address Add / Edit Screen (Amazon-style Layout)
   if (showAddressModal) {
     return (
-      <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 space-y-6 animate-in fade-in duration-200">
+      <div className="w-full py-6 px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 space-y-6 animate-in fade-in duration-200">
         {/* Breadcrumb Navigation */}
         <div className="text-xs text-slate-500 flex items-center gap-2 font-medium">
           <button
@@ -1446,7 +1446,7 @@ export const CheckoutView: React.FC = () => {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-8 animate-in fade-in duration-300 relative">
+    <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 py-6 space-y-8 animate-in fade-in duration-300 relative">
       {/* Order Processing Overlay with Truck Loader */}
       {isSubmitting && (
         <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">

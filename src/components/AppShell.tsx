@@ -93,9 +93,11 @@ export const AppShell: React.FC<{ children: React.ReactNode }> = ({
       <SuccessToast toast={toast} onClose={dismissToast} />
 
       <MobileBottomNav
+        isCartOpen={cartOpen}
+        onCloseCart={() => setCartOpen(false)}
         onOpenCart={() => {
           haptic.light();
-          setCartOpen(true);
+          setCartOpen((prev) => !prev);
         }}
       />
     </div>

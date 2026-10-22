@@ -10,7 +10,7 @@ export default function RootLoading() {
     <div className="min-h-screen bg-slate-50/50 pb-16">
       {/* Top Announcement & Header Skeleton Placeholder */}
       <div className="w-full bg-white border-b border-slate-200 sticky top-0 z-30">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+        <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 h-16 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <Skeleton className="w-9 h-9 rounded-xl" />
             <Skeleton className="h-6 w-32 rounded-lg" />
@@ -25,7 +25,7 @@ export default function RootLoading() {
         </div>
       </div>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 space-y-8">
+      <main className="w-full px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 pt-6 space-y-8">
         {/* Hero Banner Skeleton */}
         <div className="relative rounded-3xl overflow-hidden bg-slate-900/5 p-8 sm:p-12 min-h-[320px] sm:min-h-[400px] flex flex-col justify-center border border-slate-200/80">
           <div className="max-w-xl space-y-4">

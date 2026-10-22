@@ -375,12 +375,12 @@ function ProductsContent() {
     if (columns === 1) return "grid grid-cols-1 gap-3 sm:gap-4";
     if (columns === 2) return "grid grid-cols-2 gap-2.5 sm:gap-4";
     if (columns === 3) return "grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-2.5 sm:gap-4";
-    return "grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-2.5 sm:gap-4";
+    return "grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-2.5 sm:gap-4";
   };
 
 
   return (
-    <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-2.5 sm:py-4 space-y-3 sm:space-y-4 animate-in fade-in duration-300">
+    <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 py-2.5 sm:py-4 space-y-3 sm:space-y-4 animate-in fade-in duration-300">
       {/* Breadcrumb */}
       <CategoryBreadcrumb
         items={[
@@ -397,7 +397,7 @@ function ProductsContent() {
       />
 
       {/* ── Search Box with Suggestions ── */}
-      <div className="relative max-w-2xl w-full">
+      <div className="relative w-full">
         <Search className="w-4 h-4 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2 z-10" />
         <input
           id="product-search-input"
@@ -498,9 +498,9 @@ function ProductsContent() {
       />
 
       {/* Main Content — Sidebar + Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
+      <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 items-start">
         {/* Left Filter Sidebar (Desktop) */}
-        <div className="hidden lg:block lg:col-span-3 sticky top-24 bg-white border border-slate-200/90 p-5 rounded-2xl shadow-2xs">
+        <div className="hidden lg:block w-64 xl:w-72 2xl:w-80 shrink-0 sticky top-24 bg-white border border-slate-200/90 p-5 rounded-2xl shadow-2xs">
           <ProductFilters
             selectedCategory={selectedCategory}
             onSelectCategory={setSelectedCategory}
@@ -525,7 +525,7 @@ function ProductsContent() {
         </div>
 
         {/* Right Product Grid or List */}
-        <div className="lg:col-span-9 space-y-6">
+        <div className="flex-1 min-w-0 space-y-6">
           {filteredProducts.length === 0 ? (
             <ProductEmptyState onClearFilters={clearAllFilters} />
           ) : columns === 1 ? (

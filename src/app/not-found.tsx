@@ -1,156 +1,69 @@
 import React from "react";
 import Link from "next/link";
-import {
-  Search,
-  Home,
-  ShoppingBag,
-  ArrowRight,
-  Bot,
-  Cpu,
-  Plane,
-  Layers,
-  PhoneCall,
-  Sparkles,
-  HelpCircle,
-  RotateCcw,
-} from "lucide-react";
-import { PrayogLogo } from "@/components/PrayogLogo";
+import { Home, ShoppingBag } from "lucide-react";
 
 export const metadata = {
   title: "404 - Page Not Found | Prayog India",
-  description:
-    "The hardware component or page you are looking for does not exist.",
+  description: "The page you are looking for does not exist or has been moved.",
 };
-
-const POPULAR_CATEGORIES = [
-  {
-    name: "Arduino & Dev Boards",
-    href: "/categories/arduino-development-boards",
-    icon: Cpu,
-    color: "text-cyan-600 bg-cyan-50 border-cyan-200",
-  },
-  {
-    name: "Robotics Kits",
-    href: "/categories/robotics",
-    icon: Bot,
-    color: "text-blue-600 bg-blue-50 border-blue-200",
-  },
-  {
-    name: "Drone & Avionics",
-    href: "/categories/drone-technology",
-    icon: Plane,
-    color: "text-purple-600 bg-purple-50 border-purple-200",
-  },
-  {
-    name: "STEM Kits",
-    href: "/categories/stem-kits",
-    icon: Layers,
-    color: "text-emerald-600 bg-emerald-50 border-emerald-200",
-  },
-];
 
 export default function NotFound() {
   return (
-    <div className="min-h-[80vh] flex flex-col items-center justify-center px-4 py-16 text-center bg-radial from-slate-50 via-white to-white animate-in fade-in duration-300">
-      <div className="max-w-3xl w-full mx-auto space-y-8">
-        {/* Animated 404 Chip & Hero Icon */}
-        <div className="relative inline-flex items-center justify-center">
-          <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-3xl bg-gradient-to-tr from-[#0A1128] via-[#1E56A0] to-[#2563EB] text-white flex items-center justify-center shadow-xl shadow-blue-500/20 relative overflow-hidden">
-            {/* Background Circuit Grid Glow */}
-            <div className="absolute inset-0 bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:12px_12px] opacity-20" />
-            <Bot className="w-14 h-14 sm:w-16 sm:h-16 text-white drop-shadow-md animate-pulse" />
-          </div>
+    <div className="relative min-h-[75vh] flex items-center justify-center px-4 py-16 text-center animate-in fade-in duration-300 overflow-hidden">
+      {/* 1. Subtle Ambient Radial Glow */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-gradient-to-tr from-blue-50/50 via-sky-50/30 to-transparent rounded-full blur-3xl pointer-events-none" />
 
-          <div className="absolute -bottom-3 -right-2 bg-gradient-to-r from-[#FF3B30] to-rose-600 text-white text-[11px] font-black px-3 py-1 rounded-full shadow-md border-2 border-white uppercase tracking-wider">
-            Error 404
-          </div>
-        </div>
+      {/* 2. Subtle Engineering Dot Grid */}
+      <div className="absolute inset-0 bg-[radial-gradient(#CBD5E1_1px,transparent_1px)] [background-size:24px_24px] opacity-35 pointer-events-none" />
 
-        {/* Headline & Explanation */}
-        <div className="space-y-3 max-w-lg mx-auto">
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-tight">
-            Signal Lost in Transmission
+      {/* 3. Giant 404 Watermark with Soft Gradient */}
+      <div className="absolute inset-0 flex items-center justify-center select-none pointer-events-none z-0">
+        <span className="text-[190px] sm:text-[280px] md:text-[360px] lg:text-[420px] font-black tracking-tighter bg-gradient-to-b from-slate-200/90 via-slate-100/50 to-transparent bg-clip-text text-transparent select-none leading-none font-sans drop-shadow-2xs">
+          404
+        </span>
+      </div>
+
+      {/* 4. Foreground Content Layer Above 404 */}
+      <div className="relative z-10 max-w-lg w-full mx-auto space-y-6">
+
+        {/* Headline & Description */}
+        <div className="space-y-3">
+          <h1 className="text-4xl sm:text-5xl font-black text-slate-900 tracking-tight leading-tight">
+            Page not found
           </h1>
-          <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-medium">
-            The robotics module, sensor component, or page you requested could
-            not be located in our active hardware inventory.
+          <p className="text-xs sm:text-sm text-slate-500 leading-relaxed max-w-sm mx-auto font-normal">
+            Sorry, we couldn&apos;t find the page you&apos;re looking for. It may have been moved, renamed, or is temporarily offline.
           </p>
         </div>
 
-        {/* Embedded Quick Search Form */}
-        <div className="max-w-md mx-auto w-full">
-          <form
-            action="/search"
-            method="GET"
-            className="flex items-center gap-2 bg-white p-2 rounded-2xl border border-slate-200 shadow-lg shadow-slate-200/50 focus-within:border-[#2563EB] focus-within:ring-2 focus-within:ring-[#2563EB]/20 transition-all"
-          >
-            <div className="relative flex-1">
-              <input
-                type="text"
-                name="q"
-                placeholder="Search microcontrollers, sensors, motors..."
-                className="w-full bg-transparent px-3 pl-9 py-2 text-xs font-semibold text-slate-800 placeholder:text-slate-400 focus:outline-none"
-              />
-              <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
-            </div>
-            <button
-              type="submit"
-              className="bg-[#2563EB] hover:bg-[#1D4ED8] text-white px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer flex items-center gap-1.5 shrink-0"
-            >
-              <span>Search</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </button>
-          </form>
-        </div>
-
-        {/* Hardware Quick Jump Cards */}
-        <div className="pt-2">
-          <div className="text-[11px] font-black uppercase tracking-wider text-slate-400 mb-3">
-            Popular Hardware Categories
-          </div>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-2xl mx-auto">
-            {POPULAR_CATEGORIES.map((cat) => {
-              const Icon = cat.icon;
-              return (
-                <Link
-                  key={cat.name}
-                  href={cat.href}
-                  className={`flex flex-col items-center justify-center p-3.5 rounded-2xl border transition-all hover:scale-[1.03] hover:shadow-md ${cat.color} group`}
-                >
-                  <Icon className="w-6 h-6 mb-1.5 transition-transform group-hover:scale-110" />
-                  <span className="text-xs font-black truncate max-w-full text-slate-800">
-                    {cat.name}
-                  </span>
-                </Link>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Primary Action Buttons */}
-        <div className="flex flex-wrap items-center justify-center gap-3 pt-4 border-t border-slate-100 max-w-md mx-auto">
+        {/* Action Buttons */}
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
           <Link
             href="/"
-            className="flex-1 min-w-[140px] bg-[#0A1128] hover:bg-slate-800 text-white px-5 py-3 rounded-2xl text-xs font-black uppercase tracking-wider transition-all shadow-md flex items-center justify-center gap-2"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-[#0A233F] hover:bg-[#12365D] text-white px-7 py-3.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all shadow-sm hover:shadow-md active:scale-95 cursor-pointer"
           >
             <Home className="w-4 h-4 text-[#FFC20E]" />
-            <span>Store Home</span>
+            <span>Back to Home</span>
           </Link>
 
           <Link
             href="/products"
-            className="flex-1 min-w-[140px] bg-[#2563EB] hover:bg-[#1D4ED8] text-white px-5 py-3 rounded-2xl text-xs font-black uppercase tracking-wider transition-all shadow-md shadow-blue-500/20 flex items-center justify-center gap-2"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-white hover:bg-slate-50 text-slate-800 border border-slate-200/90 hover:border-slate-300 px-7 py-3.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all shadow-2xs hover:shadow-xs active:scale-95 cursor-pointer"
           >
-            <ShoppingBag className="w-4 h-4" />
-            <span>All Products</span>
+            <ShoppingBag className="w-4 h-4 text-[#2563EB]" />
+            <span>Browse Products</span>
           </Link>
+        </div>
 
+        {/* Subtle Support Link */}
+        <div className="pt-6 border-t border-slate-200/60 text-xs text-slate-500">
+          Need help?{" "}
           <Link
             href="/contact"
-            className="w-full sm:w-auto bg-slate-100 hover:bg-slate-200 text-slate-700 px-5 py-3 rounded-2xl text-xs font-bold transition-all flex items-center justify-center gap-2"
+            className="text-[#2563EB] font-bold hover:underline inline-flex items-center gap-1 cursor-pointer"
           >
-            <PhoneCall className="w-3.5 h-3.5 text-slate-500" />
             <span>Contact Support</span>
+            <span aria-hidden="true">&rarr;</span>
           </Link>
         </div>
       </div>

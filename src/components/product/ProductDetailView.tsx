@@ -122,7 +122,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
 
   if (isInvalidSlug || !product) {
     return (
-      <div className="max-w-7xl mx-auto px-4 py-20 text-center space-y-4">
+      <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 py-20 text-center space-y-4">
         <div className="w-16 h-16 rounded-2xl bg-red-50 text-[#FF3B30] flex items-center justify-center mx-auto border border-red-200">
           <PackageSearch className="w-8 h-8" />
         </div>
@@ -235,7 +235,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
   const isInStock = selectedVariant ? selectedVariant.inStock : product.inStock;
 
   return (
-    <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-2 sm:py-3 space-y-4 sm:space-y-6 animate-in fade-in duration-300 pb-24 sm:pb-20 lg:pb-8">
+    <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 py-2 sm:py-3 space-y-4 sm:space-y-6 animate-in fade-in duration-300 pb-24 sm:pb-20 lg:pb-8">
       {/* ── Breadcrumb ── */}
       <CategoryBreadcrumb
         items={[

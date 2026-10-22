@@ -32,7 +32,7 @@ export const IndustriesSection: React.FC = () => {
       id="industries"
       className="py-8 bg-slate-50/60 border-t border-slate-100"
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12">
         <div className="text-center max-w-3xl mx-auto mb-12">
           <div className="inline-block bg-blue-50 text-[#1E56A0] text-xs font-extrabold tracking-widest uppercase px-3.5 py-1 rounded-full mb-3">
             SECTORS SERVED
@@ -75,7 +75,7 @@ export const IndustriesSection: React.FC = () => {
 export const LearningHubSection: React.FC = () => {
   return (
     <section id="learning-hub" className="py-8 bg-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12">
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
           <div>
             <h2 className="text-3xl sm:text-4xl font-extrabold text-[#0A1128] tracking-tight">
@@ -168,7 +168,7 @@ export const WhyPrayogSection: React.FC = () => {
       id="why-prayog"
       className="py-8 bg-slate-50/70 border-y border-slate-100"
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12">
         <div className="text-center max-w-3xl mx-auto mb-14">
           <h2 className="text-3xl sm:text-4xl font-extrabold text-[#0A1128] tracking-tight">
             More Than a Store. A Technology Ecosystem.
@@ -209,7 +209,7 @@ export const B2BSection: React.FC<AdditionalSectionsProps> = ({
 }) => {
   return (
     <section className="py-10 sm:py-14 bg-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12">
         <div className="bg-gradient-to-br from-[#F0F9FF] via-white to-[#F8FAFC] rounded-3xl p-6 sm:p-10 lg:p-12 shadow-sm relative overflow-hidden border border-sky-100">
           {/* Subtle Ambient Decorative Glows */}
           <div className="absolute top-0 right-0 w-96 h-96 bg-sky-100/50 rounded-full blur-3xl pointer-events-none -z-0" />
@@ -499,7 +499,7 @@ export const TestimonialsSection: React.FC = () => {
 
   return (
     <section className="py-10 sm:py-16 bg-gradient-to-b from-white via-slate-50/50 to-white border-t border-slate-200/80 overflow-hidden">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6 sm:space-y-8">
+      <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 space-y-6 sm:space-y-8">
         {/* Section Header with Navigation Controls */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
           <div className="space-y-2 text-center sm:text-left">

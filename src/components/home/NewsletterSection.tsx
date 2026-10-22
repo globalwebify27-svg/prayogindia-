@@ -18,7 +18,7 @@ export const NewsletterSection: React.FC = () => {
 
   return (
     <section className="py-14 bg-slate-900 text-white relative border-b border-slate-800">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12">
         <div className="bg-gradient-to-r from-[#0B1528] via-[#0F1C33] to-[#0A1128] rounded-3xl p-8 sm:p-12 border border-slate-800 shadow-2xl flex flex-col lg:flex-row items-center justify-between gap-8">
           {/* Left Text */}
           <div className="space-y-2 max-w-xl text-center lg:text-left">

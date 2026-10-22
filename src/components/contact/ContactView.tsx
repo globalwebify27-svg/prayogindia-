@@ -46,7 +46,7 @@ export const ContactView: React.FC = () => {
 
   return (
     <div className="min-h-[85vh] bg-slate-50/50 py-4 font-sans">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 space-y-5">
+      <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 space-y-5">
         {/* ── Breadcrumb & Status Bar ── */}
         <div className="flex items-center justify-between flex-wrap gap-2">
           <CategoryBreadcrumb items={[{ label: "Contact Us" }]} />

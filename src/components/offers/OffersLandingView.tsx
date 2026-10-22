@@ -246,12 +246,12 @@ export const OffersLandingView: React.FC = () => {
     if (columns === 2) return "grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6";
     if (columns === 3)
       return "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-5";
-    return "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-3.5 sm:gap-4.5";
+    return "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3.5 sm:gap-4.5";
   };
 
   return (
     <div className="bg-slate-50/50 min-h-screen pb-16 font-sans">
-      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-5 animate-in fade-in duration-300">
+      <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 py-4 sm:py-6 space-y-5 animate-in fade-in duration-300">
         {/* 1. Breadcrumb */}
         <CategoryBreadcrumb items={[{ label: "Top Deals" }]} />
 
@@ -321,9 +321,9 @@ export const OffersLandingView: React.FC = () => {
         />
 
         {/* 6. Main Content Layout: Left Filter Sidebar + Right Products Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
+        <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 items-start">
           {/* Left Sticky Filter Sidebar (Desktop) */}
-          <div className="hidden lg:block lg:col-span-3 sticky top-24 bg-white border border-slate-200/90 p-5 rounded-2xl shadow-2xs">
+          <div className="hidden lg:block w-64 xl:w-72 2xl:w-80 shrink-0 sticky top-24 bg-white border border-slate-200/90 p-5 rounded-2xl shadow-2xs">
             <ProductFilters
               selectedCategory={selectedCategory}
               onSelectCategory={setSelectedCategory}
@@ -346,7 +346,7 @@ export const OffersLandingView: React.FC = () => {
           </div>
 
           {/* Right Product Grid or List */}
-          <div className="lg:col-span-9 space-y-6">
+          <div className="flex-1 min-w-0 space-y-6">
             {dealProducts.length === 0 ? (
               <div className="py-16 text-center bg-white rounded-2xl border border-slate-200 space-y-3 max-w-md mx-auto shadow-xs">
                 <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center mx-auto text-slate-400">

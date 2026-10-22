@@ -446,7 +446,7 @@ export const WishlistView: React.FC = () => {
   // ── Empty State
   if (wishlist.length === 0) {
     return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-6 animate-in fade-in duration-300">
+      <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 py-10 space-y-6 animate-in fade-in duration-300">
         <CategoryBreadcrumb items={[{ label: "My Wishlist" }]} />
         <div className="py-24 text-center bg-gradient-to-br from-slate-50 to-white rounded-3xl border border-slate-200 space-y-5 max-w-lg mx-auto">
           <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-red-50 to-rose-50 text-[#FF3B30] flex items-center justify-center mx-auto border border-red-100 shadow-sm">
@@ -473,7 +473,7 @@ export const WishlistView: React.FC = () => {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6 animate-in fade-in duration-300">
+    <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 py-6 space-y-6 animate-in fade-in duration-300">
       {/* Breadcrumb */}
       <CategoryBreadcrumb items={[{ label: "My Wishlist" }]} />
 
@@ -698,7 +698,7 @@ export const WishlistView: React.FC = () => {
           </button>
         </div>
       ) : viewMode === "grid" ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4">
           {processedWishlist.map((product) => (
             <WishlistCard
               key={product.id}

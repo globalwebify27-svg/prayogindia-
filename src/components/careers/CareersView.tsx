@@ -14,7 +14,7 @@ import {
 
 export const CareersView: React.FC = () => {
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-10 animate-in fade-in duration-300">
+    <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 py-6 space-y-10 animate-in fade-in duration-300">
       {/* 1. Breadcrumb */}
       <CategoryBreadcrumb items={[{ label: "Careers" }]} />
 

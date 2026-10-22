@@ -84,7 +84,7 @@ export const CategoriesOverviewView: React.FC = () => {
   }, [searchQuery, activeTag, sortBy]);
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 space-y-6 animate-in fade-in duration-300">
+    <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 py-5 space-y-6 animate-in fade-in duration-300">
       {/* 1. Hero Banner Header */}
       <CategoriesHeader
         onBrowseAll={() => {
@@ -189,7 +189,7 @@ export const CategoriesOverviewView: React.FC = () => {
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-4.5">
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-2.5 sm:gap-4.5">
           {filteredCategories.map((cat, idx) => (
             <CategoryCard key={cat.id} category={cat} index={idx} />
           ))}

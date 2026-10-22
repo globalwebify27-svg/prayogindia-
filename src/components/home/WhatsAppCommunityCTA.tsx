@@ -7,7 +7,7 @@ import { MessageSquare, ArrowRight } from "lucide-react";
 export const WhatsAppCommunityCTA: React.FC = () => {
   return (
     <section className="py-12 bg-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12">
         <div className="bg-gradient-to-r from-emerald-950 via-slate-900 to-slate-950 text-white rounded-3xl p-8 sm:p-10 border border-emerald-500/30 shadow-2xl relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-8">
           {/* Left Text */}
           <div className="space-y-3 max-w-xl z-10 text-center md:text-left">

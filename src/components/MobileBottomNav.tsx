@@ -14,10 +14,14 @@ import {
 
 interface MobileBottomNavProps {
   onOpenCart?: () => void;
+  onCloseCart?: () => void;
+  isCartOpen?: boolean;
 }
 
 export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
   onOpenCart,
+  onCloseCart,
+  isCartOpen = false,
 }) => {
   const pathname = usePathname();
   const { cart, wishlist, isLoggedIn } = useStore();
@@ -49,106 +53,203 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
 
   const navItems = [
     {
+      id: "home",
       label: "Home",
       href: "/",
       icon: Home,
-      isActive: pathname === "/",
     },
     {
+      id: "categories",
       label: "Categories",
       href: "/categories",
       icon: LayoutGrid,
-      isActive: pathname?.startsWith("/categories"),
     },
     {
+      id: "cart",
       label: "Cart",
       icon: ShoppingBag,
       onClick: onOpenCart,
       badge: cartCount > 0 ? cartCount : null,
-      isFab: true,
-      isActive: false,
+      badgeColor: "bg-[#FFC20E] text-slate-950",
     },
     {
+      id: "wishlist",
       label: "Wishlist",
       href: "/wishlist",
       icon: Heart,
       badge: wishlistCount > 0 ? wishlistCount : null,
-      badgeColor: "bg-rose-500",
-      isActive: pathname === "/wishlist",
+      badgeColor: "bg-rose-500 text-white",
     },
     {
-      label: isLoggedIn ? "Account" : "Account",
+      id: "account",
+      label: "Account",
       href: isLoggedIn ? "/account" : "/login",
       icon: User,
-      isActive: pathname?.startsWith("/account") || pathname === "/login",
     },
   ];
 
+  // Determine active tab index (0 to 4)
+  let activeIndex = 0;
+  if (isCartOpen) {
+    activeIndex = 2;
+  } else if (pathname === "/") {
+    activeIndex = 0;
+  } else if (
+    pathname?.startsWith("/categories") ||
+    pathname?.startsWith("/products") ||
+    pathname?.startsWith("/search")
+  ) {
+    activeIndex = 1;
+  } else if (pathname?.startsWith("/cart")) {
+    activeIndex = 2;
+  } else if (pathname === "/wishlist") {
+    activeIndex = 3;
+  } else if (pathname?.startsWith("/account") || pathname === "/login") {
+    activeIndex = 4;
+  }
+
+  const activeItem = navItems[activeIndex] || navItems[0];
+  const ActiveIcon = activeItem.icon;
+
   return (
     <nav
-      aria-label="Mobile Navigation Bar with Center FAB"
-      className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-xl border-t border-slate-200/90 shadow-[0_-4px_25px_rgba(15,23,42,0.08)] px-2 pt-1 pb-[max(0.6rem,env(safe-area-inset-bottom))] select-none"
+      aria-label="Mobile Navigation Bar with Animated Curved Tab Indicator"
+      className="lg:hidden fixed bottom-0 left-0 right-0 z-[60] select-none pb-[env(safe-area-inset-bottom)]"
     >
-      <div className="flex items-end justify-around max-w-md mx-auto relative h-[54px]">
-        {navItems.map((item) => {
-          const Icon = item.icon;
+      {/* ── 1. Sliding Curved Notch Background ── */}
+      <div className="absolute inset-x-0 bottom-0 top-0 flex flex-col pointer-events-none overflow-hidden filter drop-shadow-[0_-4px_16px_rgba(15,23,42,0.06)]">
+        {/* Fixed 60px height bar track */}
+        <div className="h-[60px] relative w-full">
+          {/* Sliding Notch Assembly: Left Wing + Notch SVG + Right Wing */}
+          <div
+            className="absolute top-0 flex items-stretch h-[60px] will-change-transform transition-all duration-[420ms] ease-[cubic-bezier(0.25,1,0.5,1)]"
+            style={{
+              left: `${(activeIndex + 0.5) * 20}%`,
+              transform: "translate3d(-50%, 0, 0)",
+              width: "calc(110px + 200vw)",
+            }}
+          >
+            {/* Left White Wing extending 100vw to the left */}
+            <div className="w-[100vw] bg-white border-t border-slate-200 shrink-0" />
 
-          // ── Center Floating Action Button (FAB) for Cart ──
-          if (item.isFab) {
-            return (
-              <div
-                key={item.label}
-                className="flex-1 flex flex-col items-center justify-center relative -top-5"
+            {/* Center Scalloped Notch SVG: 110px wide with ultra-smooth cubic easing */}
+            <div className="w-[110px] h-[60px] shrink-0 relative -mx-[0.5px]">
+              <svg
+                viewBox="0 0 110 60"
+                className="w-full h-full block"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
               >
-                <button
-                  type="button"
-                  onClick={item.onClick}
-                  aria-label="Open Cart Drawer"
-                  className="w-[58px] h-[58px] rounded-full bg-gradient-to-tr from-[#0A1128] via-[#0E2A54] to-[#1E56A0] text-white flex items-center justify-center shadow-[0_10px_25px_rgba(10,17,40,0.35),0_4px_10px_rgba(30,86,160,0.3)] ring-[5px] ring-white hover:ring-slate-50 active:scale-90 transition-all duration-200 cursor-pointer relative group"
-                >
-                  {/* Subtle inner top glow */}
-                  <span className="absolute inset-0 rounded-full bg-gradient-to-b from-white/20 to-transparent pointer-events-none" />
+                {/* Solid White Fill extending to bottom of bar */}
+                <path
+                  d="M 0 0 
+                     C 14 0, 21 2.5, 27 8.5 
+                     C 34 16, 44 31, 55 31 
+                     C 66 31, 76 16, 83 8.5 
+                     C 89 2.5, 96 0, 110 0 
+                     L 110 60 
+                     L 0 60 
+                     Z"
+                  fill="white"
+                />
+                {/* Top Border Line following the curve */}
+                <path
+                  d="M 0 0.5 
+                     C 14 0.5, 21 3, 27 9 
+                     C 34 16.5, 44 31.5, 55 31.5 
+                     C 66 31.5, 76 16.5, 83 9 
+                     C 89 3, 96 0.5, 110 0.5"
+                  stroke="#E2E8F0"
+                  strokeWidth="1"
+                  strokeLinecap="round"
+                />
+              </svg>
+            </div>
 
-                  <Icon className="w-6 h-6 text-white stroke-[2.2] group-hover:scale-110 transition-transform relative z-10" />
+            {/* Right White Wing extending 100vw to the right */}
+            <div className="w-[100vw] bg-white border-t border-slate-200 shrink-0" />
+          </div>
+        </div>
 
-                  {/* Quantity Badge */}
-                  {item.badge !== null && item.badge !== undefined && (
-                    <span className="absolute -top-1 -right-1 z-20 bg-[#FFC20E] text-slate-950 font-black text-[11px] min-w-[21px] h-[21px] px-1 rounded-full flex items-center justify-center shadow-md ring-2 ring-white animate-in zoom-in-75">
-                      {item.badge > 99 ? "99+" : item.badge}
-                    </span>
-                  )}
-                </button>
-                <span className="text-[10px] font-bold text-slate-800 tracking-tight mt-1 leading-none">
-                  {item.label}
-                </span>
-              </div>
-            );
-          }
+        {/* Safe-Area Bottom Fill */}
+        <div className="flex-1 bg-white" />
+      </div>
 
-          // ── Standard Side Navigation Items ──
+      {/* ── 2. Floating Circular Active Button (Moves smoothly across the 5 tabs) ── */}
+      <div
+        className="absolute top-0 z-20 pointer-events-auto will-change-transform transition-all duration-[420ms] ease-[cubic-bezier(0.25,1,0.5,1)]"
+        style={{
+          left: `${(activeIndex + 0.5) * 20}%`,
+          transform: "translate3d(-50%, 0, 0)",
+        }}
+      >
+        <button
+          type="button"
+          onClick={() => {
+            if (activeItem.id === "cart") {
+              if (isCartOpen && onCloseCart) {
+                onCloseCart();
+              } else if (activeItem.onClick) {
+                activeItem.onClick();
+              }
+            } else if (activeItem.onClick) {
+              activeItem.onClick();
+            }
+          }}
+          aria-label={`Active Tab: ${activeItem.label}`}
+          className="absolute -top-[24px] -translate-x-1/2 left-1/2 w-[48px] h-[48px] rounded-full bg-gradient-to-tr from-[#0A233F] via-[#12365D] to-[#2563EB] text-white flex items-center justify-center shadow-[0_8px_22px_rgba(10,35,63,0.28)] hover:shadow-[0_10px_26px_rgba(37,99,235,0.38)] active:scale-95 transition-all duration-200 cursor-pointer group"
+        >
+          {/* Subtle inner top glow */}
+          <span className="absolute inset-0 rounded-full bg-gradient-to-b from-white/25 to-transparent pointer-events-none" />
+
+          {/* Active Tab Icon with smooth animated transition */}
+          <ActiveIcon
+            key={activeItem.id}
+            className="w-5 h-5 text-white stroke-[2.4] transition-all duration-300 group-hover:scale-110"
+          />
+
+          {/* Badge on active button if applicable (e.g. cart or wishlist) */}
+          {activeItem.badge !== null && activeItem.badge !== undefined && (
+            <span className="absolute -top-1 -right-1 z-20 bg-[#FFC20E] text-slate-950 font-black text-[10px] min-w-[18px] h-[18px] px-1 rounded-full flex items-center justify-center shadow-md ring-2 ring-white transition-transform duration-200">
+              {activeItem.badge > 99 ? "99+" : activeItem.badge}
+            </span>
+          )}
+        </button>
+      </div>
+
+      {/* ── 3. Interactive Navigation Items ── */}
+      <div className="relative z-10 flex items-center justify-around w-full h-[60px] px-1">
+        {navItems.map((item, index) => {
+          const Icon = item.icon;
+          const isActive = activeIndex === index;
+
           const content = (
             <div className="flex flex-col items-center justify-center py-1 relative w-full">
-              <div className="relative">
-                <Icon
-                  className={`w-5 h-5 transition-transform ${
-                    item.isActive
-                      ? "text-[#2563EB] stroke-[2.4] scale-105"
-                      : "text-slate-500 hover:text-slate-900"
-                  }`}
-                />
+              {/* Icon (fades out and floats up when active since it's displayed in the circle) */}
+              <div
+                className={`relative transition-all duration-200 ${
+                  isActive
+                    ? "opacity-0 -translate-y-2 pointer-events-none scale-75"
+                    : "opacity-100 translate-y-0"
+                }`}
+              >
+                <Icon className="w-5 h-5 text-slate-500 hover:text-slate-900 transition-colors" />
+
                 {item.badge !== null && item.badge !== undefined && (
                   <span
-                    className={`absolute -top-1.5 -right-2.5 ${item.badgeColor} text-white text-[9px] font-black min-w-[16px] h-4 px-1 rounded-full flex items-center justify-center shadow-xs ring-1 ring-white animate-in zoom-in-75`}
+                    className={`absolute -top-1.5 -right-2.5 ${item.badgeColor} text-[9px] font-black min-w-[16px] h-4 px-1 rounded-full flex items-center justify-center shadow-xs ring-1 ring-white animate-in zoom-in-75`}
                   >
                     {item.badge > 99 ? "99+" : item.badge}
                   </span>
                 )}
               </div>
+
+              {/* Label */}
               <span
-                className={`text-[10px] tracking-tight mt-1 leading-none transition-colors ${
-                  item.isActive
-                    ? "font-bold text-[#2563EB]"
-                    : "font-semibold text-slate-500"
+                className={`text-[10px] tracking-tight leading-none transition-all duration-200 ${
+                  isActive
+                    ? "font-bold text-[#2563EB] mt-3.5 scale-105"
+                    : "font-semibold text-slate-500 mt-1"
                 }`}
               >
                 {item.label}
@@ -159,9 +260,15 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
           if (item.onClick) {
             return (
               <button
-                key={item.label}
+                key={item.id}
                 type="button"
-                onClick={item.onClick}
+                onClick={() => {
+                  if (item.id === "cart" && isCartOpen && onCloseCart) {
+                    onCloseCart();
+                  } else if (item.onClick) {
+                    item.onClick();
+                  }
+                }}
                 className="flex-1 flex items-center justify-center cursor-pointer select-none active:scale-95 transition-transform"
               >
                 {content}
@@ -171,8 +278,11 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
 
           return (
             <Link
-              key={item.label}
+              key={item.id}
               href={item.href!}
+              onClick={() => {
+                if (onCloseCart) onCloseCart();
+              }}
               className="flex-1 flex items-center justify-center select-none active:scale-95 transition-transform"
             >
               {content}
