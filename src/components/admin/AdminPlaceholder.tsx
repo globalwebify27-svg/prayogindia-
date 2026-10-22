@@ -1,13 +1,7 @@
 "use client";
 
 import React from "react";
-import {
-  FolderTree,
-  Wrench,
-  GraduationCap,
-  Tag,
-  FolderKanban,
-} from "lucide-react";
+import { FolderTree } from "lucide-react";
 
 export default function AdminPlaceholderPage({ title }: { title: string }) {
   return (

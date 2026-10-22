@@ -7,50 +7,27 @@ import {
   Search,
   User,
   Heart,
-  ShoppingBag,
   ChevronDown,
   ChevronRight,
   Menu,
   X,
-  ShieldCheck,
   Headset,
   Globe,
-  Share2,
-  LogIn,
-  UserPlus,
   Eye,
   EyeOff,
   AlertCircle,
   Layers,
-  Sparkles,
-  Award,
   Coins,
-  Tag,
-  BookOpen,
   Briefcase,
-  PhoneCall,
-  Info,
   MapPin,
-  Headphones,
   LogOut,
   LayoutGrid,
-  Bot,
-  Cpu,
-  Plane,
   Activity,
-  Wifi,
   Building2,
-  CreditCard,
   Package,
   Truck,
-  Gift,
   CircuitBoard,
   Zap,
-  Flame,
-  MessageSquare,
-  GraduationCap,
-  Code2,
-  FileText,
   ArrowRight,
 } from "lucide-react";
 import {
@@ -255,13 +232,10 @@ const POPUP_CATEGORIES = HEADER_CATEGORIES.map((cat) => {
 });
 
 export const Header: React.FC<HeaderProps> = ({
-  activeTab: activeTabProp,
-  onSelectTab,
   cartCount = 0,
   wishlistCount = 0,
   onOpenCart,
   onOpenWishlist,
-  onOpenSearch,
   onOpenB2BModal,
 }) => {
   const router = useRouter();
@@ -269,6 +243,7 @@ export const Header: React.FC<HeaderProps> = ({
   const { user, isLoggedIn, loginUser, logoutUser, cart } = useStore();
 
   // Quick Sign In Dropdown state & hover handlers
+  const [accountDropdownOpen, setAccountDropdownOpen] = useState(false);
   const accountCloseTimerRef = useRef<NodeJS.Timeout | null>(null);
   const [quickLoginEmail, setQuickLoginEmail] = useState("");
   const [quickLoginPassword, setQuickLoginPassword] = useState("");
@@ -282,9 +257,11 @@ export const Header: React.FC<HeaderProps> = ({
     Boolean(pathname?.startsWith("/login")) ||
     Boolean(pathname?.startsWith("/register"));
 
-  useEffect(() => {
+  const [prevPathname, setPrevPathname] = useState(pathname);
+  if (prevPathname !== pathname) {
+    setPrevPathname(pathname);
     setAccountDropdownOpen(false);
-  }, [pathname]);
+  }
 
   const handleAccountMouseEnter = () => {
     // If the user is already on the login or register page, do not open dropdown on hover
@@ -375,12 +352,6 @@ export const Header: React.FC<HeaderProps> = ({
   const activeCategory = POPUP_CATEGORIES.find((c) => c.slug === hoveredCategorySlug);
 
   // Dropdown hover & mobile accordion states
-  const [servicesDropdownOpen, setServicesDropdownOpen] = useState(false);
-  const [productsDropdownOpen, setProductsDropdownOpen] = useState(false);
-  const [accountDropdownOpen, setAccountDropdownOpen] = useState(false);
-  const [mobileServicesOpen, setMobileServicesOpen] = useState(false);
-  const [mobileProductsOpen, setMobileProductsOpen] = useState(false);
-  const [mobileAccountOpen, setMobileAccountOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
 
   const searchContainerRef = useRef<HTMLDivElement>(null);
@@ -457,8 +428,6 @@ export const Header: React.FC<HeaderProps> = ({
       setCategoryDropdownOpen(false);
       setHoveredCategorySlug(null);
       setSearchExpanded(false);
-      setServicesDropdownOpen(false);
-      setProductsDropdownOpen(false);
       setAccountDropdownOpen(false);
       setIsScrolled(window.scrollY > 10);
     };
@@ -475,72 +444,7 @@ export const Header: React.FC<HeaderProps> = ({
     };
   }, []);
 
-  const getComputedActiveTab = (): TabType => {
-    if (!pathname || pathname === "/") return "home";
-    if (pathname.startsWith("/about")) return "about";
-    if (pathname.startsWith("/services")) return "services";
-    if (
-      pathname.startsWith("/products") ||
-      pathname.startsWith("/categories")
-    )
-      return "products";
-    if (pathname.startsWith("/contact")) return "contact";
-    if (pathname.startsWith("/careers")) return "careers";
-    if (
-      pathname.startsWith("/account") ||
-      pathname.startsWith("/login") ||
-      pathname.startsWith("/register")
-    )
-      return "account";
-    return activeTabProp || "home";
-  };
-
-  const activeTab = activeTabProp || getComputedActiveTab();
-
-  const handleTabClick = (tab: TabType, subPath?: string) => {
-    if (onSelectTab) {
-      onSelectTab(tab, subPath);
-    }
-
-    setServicesDropdownOpen(false);
-    setProductsDropdownOpen(false);
-    setAccountDropdownOpen(false);
-    setMobileMenuOpen(false);
-
-    if (subPath) {
-      router.push(subPath);
-      return;
-    }
-
-    let href = "/";
-    switch (tab) {
-      case "home":
-        href = "/";
-        break;
-      case "about":
-        href = "/about";
-        break;
-      case "services":
-        href = "/services";
-        break;
-      case "products":
-        href = "/products";
-        break;
-      case "contact":
-        href = "/contact";
-        break;
-      case "careers":
-        href = "/careers";
-        break;
-      case "account":
-        href = "/account";
-        break;
-      default:
-        href = tab.startsWith("/") ? tab : `/${tab}`;
-    }
-
-    router.push(href);
-  };
+  // Notifications State
 
   const [notifications, setNotifications] = useState<WebsiteNotification[]>(
     DEFAULT_NOTIFICATIONS,

@@ -1,100 +1,9 @@
 "use client";
 
-import React, { useState, useRef, useEffect, useMemo } from "react";
-import Image from "next/image";
-import Link from "next/link";
-import {
-  Eye,
-  ChevronLeft,
-  ChevronRight,
-  Clock,
-  Star,
-  Heart,
-  ArrowRight,
-  CheckCircle2,
-  ShoppingBag,
-} from "lucide-react";
+import React, { useState, useEffect, useMemo } from "react";
+import { ArrowRight } from "lucide-react";
 import { PRODUCTS, Product } from "@/data/mockData";
 import { ProductCard } from "@/components/products/ProductCard";
-
-
-type ViewMode = "all_categories" | "curated";
-type CuratedTab = "trending" | "new_arrivals" | "best_sellers" | "recommended";
-
-interface CategoryConfig {
-  name: string;
-  slug: string;
-  accent: string;
-  badgeBg: string;
-  description: string;
-}
-
-const CATEGORY_CONFIGS: Record<string, CategoryConfig> = {
-  "Arduino & Microcontrollers": {
-    name: "Arduino & Microcontrollers",
-    slug: "arduino-development-boards",
-    accent: "text-amber-600",
-    badgeBg: "bg-amber-50 text-amber-700 border-amber-200",
-    description:
-      "Official UNO R4 WiFi, Mega 2560, Nano Type-C, ESP32 & dev boards for rapid prototyping.",
-  },
-  "Drones & UAV Parts": {
-    name: "Drones & UAV Parts",
-    slug: "drone-technology",
-    accent: "text-sky-600",
-    badgeBg: "bg-sky-50 text-sky-700 border-sky-200",
-    description:
-      "Pixhawk 6C autopilots, BLDC motors, 50A ESC stacks, FPV cameras, props & frames.",
-  },
-  "Robotics & DIY Kits": {
-    name: "Robotics & DIY Kits",
-    slug: "robotics",
-    accent: "text-blue-600",
-    badgeBg: "bg-blue-50 text-blue-700 border-blue-200",
-    description:
-      "6-DOF manipulator arms, Mecanum rovers, ROS 2 SLAM platforms & metal gear servos.",
-  },
-  "IoT & Wireless Modules": {
-    name: "IoT & Wireless Modules",
-    slug: "iot",
-    accent: "text-teal-600",
-    badgeBg: "bg-teal-50 text-teal-700 border-teal-200",
-    description:
-      "Ra-02 LoRa 433MHz, Bluetooth HC-05, ESP32-CAM, 8-channel relays & Zigbee mesh.",
-  },
-  "Sensors & Electronic Modules": {
-    name: "Sensors & Electronic Modules",
-    slug: "sensors-modules",
-    accent: "text-rose-600",
-    badgeBg: "bg-rose-50 text-rose-700 border-rose-200",
-    description:
-      "Precision LiDAR, ToF lasers, 6-DOF IMU gyros, barometric weather & gas detectors.",
-  },
-  "Single Board Computers & Dev Boards": {
-    name: "Single Board Computers & Dev Boards",
-    slug: "arduino-development-boards",
-    accent: "text-purple-600",
-    badgeBg: "bg-purple-50 text-purple-700 border-purple-200",
-    description:
-      "Raspberry Pi 5 8GB, NVIDIA Jetson Orin Nano, STM32 Nucleo, Orange Pi & Teensy.",
-  },
-  "STEM & Educational Kits": {
-    name: "STEM & Educational Kits",
-    slug: "stem-kits",
-    accent: "text-emerald-600",
-    badgeBg: "bg-emerald-50 text-emerald-700 border-emerald-200",
-    description:
-      "Atal Tinkering Lab (ATL) starter packs, DIY solar rovers, snap circuits & smart city models.",
-  },
-  "Motors, Steppers & Drivers": {
-    name: "Motors, Steppers & Drivers",
-    slug: "electronic-components",
-    accent: "text-orange-600",
-    badgeBg: "bg-orange-50 text-orange-700 border-orange-200",
-    description:
-      "NEMA 17 high torque steppers, TB6600 drivers, RS-775 motors, planetary gearboxes & shields.",
-  },
-};
 
 export const isProductInShelfCategory = (
   product: Product,
@@ -213,9 +122,6 @@ export const ProductGridSection: React.FC<ProductSectionProps> = ({
   wishlistIds = [],
   onSeeAll,
 }) => {
-  const [viewMode, setViewMode] = useState<ViewMode>("all_categories");
-  const [activeCuratedTab, setActiveCuratedTab] =
-    useState<CuratedTab>("trending");
   const [liveProducts, setLiveProducts] = useState<Product[]>(PRODUCTS);
 
   useEffect(() => {
@@ -298,30 +204,6 @@ export const ProductGridSection: React.FC<ProductSectionProps> = ({
         );
       });
   }, []);
-
-  // Curated Lists Logic
-  const trendingProducts = liveProducts.filter(
-    (p) => p.badge?.includes("HOT") || p.reviews > 300 || p.price > 4000,
-  );
-  const newArrivals = liveProducts.filter(
-    (p) =>
-      p.badge?.includes("NEW") ||
-      p.id.includes("rpi-5") ||
-      p.id.includes("jetson") ||
-      p.id.includes("r4") ||
-      // database products added recently
-      liveProducts.slice(0, 5).some((lp) => lp.id === p.id),
-  );
-  const bestSellers = liveProducts.filter(
-    (p) =>
-      p.badge?.includes("BESTSELLER") || p.rating >= 4.9 || p.reviews > 400,
-  );
-  const recommendedHardware = liveProducts.filter(
-    (p) =>
-      p.badge?.includes("TOP RATED") ||
-      p.category.includes("Sensors") ||
-      p.category.includes("Robotics"),
-  );
 
   // Distinct Ordered Categories
   const categoryOrder = [

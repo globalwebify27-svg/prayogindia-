@@ -17,7 +17,6 @@ import {
   Check,
   CheckCircle2,
   Truck,
-  Sparkles,
 } from "lucide-react";
 import { useStore, CartItem } from "@/context/StoreContext";
 import { haptic } from "@/utils/haptics";
@@ -32,7 +31,7 @@ interface CartDrawerProps {
     variantId?: string,
   ) => void;
   onRemoveItem: (productId: string, variantId?: string) => void;
-  onOpenB2BModal: () => void;
+  onOpenB2BModal?: () => void;
 }
 
 export const CartDrawer: React.FC<CartDrawerProps> = ({
@@ -41,7 +40,6 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   items,
   onUpdateQuantity,
   onRemoveItem,
-  onOpenB2BModal,
 }) => {
   const { moveToWishlist } = useStore();
   const [coupon, setCoupon] = useState("");

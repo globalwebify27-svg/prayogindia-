@@ -1,8 +1,6 @@
 "use client";
 
 import React from "react";
-import Image from "next/image";
-import { ShoppingBag, CheckCircle, X, ArrowRight } from "lucide-react";
 import { Product, ProductVariant } from "@/data/mockData";
 
 export interface CartToastNotification {

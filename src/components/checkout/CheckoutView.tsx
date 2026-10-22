@@ -19,28 +19,14 @@ import {
   AlertTriangle,
   CreditCard,
   ArrowRight,
-  Plus,
-  Tag,
   ArrowLeft,
-  BadgePercent,
-  Gift,
-  UserCheck,
   ShieldCheck,
-  Building2,
   Receipt,
-  Trash2,
-  Edit2,
-  Star,
   Check,
   X,
-  Plane,
   QrCode,
-  Smartphone,
   Landmark,
   Banknote,
-  Sparkles,
-  Zap,
-  Phone,
   Lock,
   KeyRound,
   Copy,
@@ -52,11 +38,8 @@ import {
 } from "lucide-react";
 import {
   CustomerType,
-  CUSTOMER_TYPE_RULES,
   calculateCustomerPrice,
   isCouponEligibleForCustomer,
-  calculateEarnedRewards,
-  getCustomerTypeCode,
 } from "@/data/customerTypes";
 import { INITIAL_PROMO_COUPONS, evaluatePromoCoupon } from "@/data/promoData";
 import { calculateDeliveryRules } from "@/data/deliveryRules";
@@ -216,7 +199,6 @@ export const CheckoutView: React.FC = () => {
     useState<string>(
       addresses.find((a) => a.isDefault)?.id || addresses[0]?.id || "",
     );
-  const [sameAsShipping, setSameAsShipping] = useState(true);
   const [selectedBillingAddressId, setSelectedBillingAddressId] =
     useState<string>(
       addresses.find((a) => a.isDefault)?.id || addresses[0]?.id || "",
@@ -372,7 +354,6 @@ export const CheckoutView: React.FC = () => {
   );
   const isFreeStandardShipping = subtotal >= 2000;
   const isRanchiEligible = deliveryCalc.isRanchiEligible;
-  const effectiveDeliveryMethod = selectedDeliveryMethod;
 
   // ── Section 23 Promo Coupon Application (Server-Authoritative)
   const handleApplyCoupon = async (code: string) => {

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Header, TabType } from "@/components/Header";
+import type { TabType } from "@/components/Header";
 import { HeroSection } from "@/components/HeroSection";
 import { StatsSection } from "@/components/StatsSection";
 
@@ -17,7 +17,6 @@ import { BrandPartners } from "@/components/home/BrandPartners";
 import { KnowledgeCenterSection } from "@/components/home/KnowledgeCenterSection";
 
 import {
-  IndustriesSection,
   LearningHubSection,
   B2BSection,
   TestimonialsSection,
@@ -28,7 +27,6 @@ import {
   ContactSection,
   CareersSection,
 } from "@/components/CompanySections";
-import { FooterSection } from "@/components/FooterSection";
 import { QuickViewModal, B2BModal } from "@/components/Modals";
 import { PRODUCTS, Product } from "@/data/mockData";
 import { useStore } from "@/context/StoreContext";
@@ -48,7 +46,6 @@ export default function Home() {
     addToCart: storeAddToCart,
     toggleWishlist: storeToggleWishlist,
   } = useStore();
-  const [searchOpen, setSearchOpen] = useState(false);
   const [b2bOpen, setB2bOpen] = useState(false);
   const [selectedQuickView, setSelectedQuickView] = useState<Product | null>(
     null,
