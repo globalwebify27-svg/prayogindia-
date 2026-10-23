@@ -145,6 +145,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
   }
 
   const currentPrice = selectedVariant?.price ?? product.price;
+  const currentMrp = selectedVariant?.mrp ?? product.mrp;
 
   const relatedProducts = PRODUCTS.filter(
     (p) =>
@@ -225,8 +226,9 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
     router.push("/checkout");
   };
 
+  const [stickyQuantity, setStickyQuantity] = useState(1);
   const handleStickyAddToCart = () => {
-    handleAddToCart(product, 1);
+    handleAddToCart(product, stickyQuantity);
     setStickyAdded(true);
     setTimeout(() => setStickyAdded(false), 1800);
   };
@@ -235,7 +237,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
   const isInStock = selectedVariant ? selectedVariant.inStock : product.inStock;
 
   return (
-    <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 py-2 sm:py-3 space-y-4 sm:space-y-6 animate-in fade-in duration-300 pb-24 sm:pb-20 lg:pb-8">
+    <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 py-2 sm:py-3 space-y-4 sm:space-y-6 animate-in fade-in duration-300 pb-28 sm:pb-28 lg:pb-28">
       {/* ── Breadcrumb ── */}
       <CategoryBreadcrumb
         items={[
@@ -292,59 +294,152 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
         </div>
       )}
 
-      {/* ── Mobile Sticky Bottom Action Bar ── */}
+      {/* ── Sticky Bottom Action Bar with Price, Add to Cart & Buy Now ── */}
       <aside
-        aria-label="Mobile purchase actions"
-        className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-xl border-t border-slate-200/90 shadow-[0_-8px_30px_rgba(15,23,42,0.12)] px-3 sm:px-4 pt-2.5 pb-[max(0.75rem,env(safe-area-inset-bottom))]"
+        aria-label="Sticky purchase action bar"
+        className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-xl border-t border-slate-200/90 shadow-[0_-8px_30px_rgba(15,23,42,0.12)] px-4 sm:px-6 lg:px-8 xl:px-12 py-2.5 pb-[max(0.75rem,env(safe-area-inset-bottom))]"
       >
-        <div className="max-w-md mx-auto">
-          {isInStock ? (
-            <div className="grid grid-cols-2 gap-2.5">
-              {/* Add to Cart Button — Prayog Brand Yellow #FFC20E */}
-              <button
-                type="button"
-                onClick={handleStickyAddToCart}
-                className={`h-11 sm:h-12 rounded-xl font-black text-xs sm:text-[13px] uppercase tracking-wider flex items-center justify-center gap-1.5 sm:gap-2 active:scale-95 transition-all cursor-pointer whitespace-nowrap shadow-sm ${
-                  stickyAdded
-                    ? "bg-emerald-600 text-white shadow-emerald-600/20"
-                    : "bg-[#FFC20E] hover:bg-[#E5AC0D] text-slate-950 shadow-amber-500/20"
-                }`}
-              >
-                {stickyAdded ? (
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
+          {/* Left: Product Thumbnail, Title & Live Price */}
+          <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+            {/* Thumbnail (Tablet & Desktop) */}
+            <div className="hidden sm:flex relative w-12 h-12 rounded-xl bg-slate-50 border border-slate-200 overflow-hidden shrink-0 items-center justify-center p-1">
+              <img
+                src={galleryImages[0] || product.image}
+                alt={product.name}
+                className="w-full h-full object-contain"
+              />
+            </div>
+
+            {/* Title & Price Breakdown */}
+            <div className="flex flex-col min-w-0">
+              <div className="hidden md:flex items-center gap-2">
+                <span className="text-xs font-extrabold text-slate-900 truncate max-w-xs xl:max-w-md">
+                  {product.name}
+                </span>
+                {selectedVariant && (
+                  <span className="text-[10px] font-bold text-slate-600 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200">
+                    {selectedVariant.name}
+                  </span>
+                )}
+              </div>
+
+              {/* Price Row */}
+              <div className="flex items-baseline gap-2">
+                <span className="text-lg sm:text-2xl font-black text-slate-900 tracking-tight">
+                  ₹{currentPrice.toLocaleString("en-IN")}
+                </span>
+                {currentMrp > currentPrice && (
                   <>
-                    <Check className="w-4 h-4 stroke-[2.5] shrink-0" />
-                    <span>ADDED!</span>
-                  </>
-                ) : (
-                  <>
-                    <AddToCartIcon className="w-4 h-4 shrink-0" />
-                    <span>ADD TO CART</span>
+                    <span className="text-xs sm:text-sm font-semibold text-slate-400 line-through">
+                      ₹{currentMrp.toLocaleString("en-IN")}
+                    </span>
+                    <span className="text-[11px] font-black text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200 hidden sm:inline-block">
+                      {Math.round(((currentMrp - currentPrice) / currentMrp) * 100)}% OFF
+                    </span>
                   </>
                 )}
-              </button>
-
-              {/* Buy Now Button — Brand Primary Blue #2563EB */}
-              <button
-                type="button"
-                onClick={() => handleBuyNow(product, 1)}
-                className="h-11 sm:h-12 rounded-xl bg-[#2563EB] hover:bg-[#1D4ED8] active:bg-[#1E40AF] text-white font-black text-xs sm:text-[13px] uppercase tracking-wider flex items-center justify-center gap-1.5 sm:gap-2 shadow-md shadow-blue-500/20 active:scale-95 transition-all cursor-pointer whitespace-nowrap"
-              >
-                <span>BUY NOW</span>
-              </button>
+                <span className="text-[10px] font-bold text-slate-400 hidden lg:inline">
+                  (Incl. GST)
+                </span>
+              </div>
             </div>
-          ) : (
-            <a
-              href={`https://wa.me/918709789641?text=${encodeURIComponent(
-                `Hello Prayog India Team, I want to inquire about ${product.name} (SKU: ${product.sku || product.id}) which is currently out of stock.`
-              )}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-full h-11 sm:h-12 bg-[#25D366] hover:bg-[#20bd5a] text-white rounded-xl font-black text-xs sm:text-[13px] uppercase tracking-wider transition-all shadow-md shadow-[#25D366]/25 flex items-center justify-center gap-2 active:scale-95 cursor-pointer whitespace-nowrap"
-            >
-              <WhatsAppIcon className="w-5 h-5 fill-white shrink-0" />
-              <span>Out of Stock — Inquire</span>
-            </a>
-          )}
+          </div>
+
+          {/* Right: Quantity Selector, Add to Cart and Buy Now Action Buttons */}
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+            {isInStock ? (
+              <>
+                {/* Quantity Selector: [ - 1 + ] */}
+                <div className="flex items-center border border-slate-200 rounded-xl h-10 sm:h-11 bg-white shrink-0 overflow-hidden shadow-2xs">
+                  <button
+                    type="button"
+                    onClick={() => setStickyQuantity((q) => Math.max(1, q - 1))}
+                    disabled={stickyQuantity <= 1}
+                    className="w-7 sm:w-9 h-full flex items-center justify-center text-slate-500 hover:bg-slate-50 disabled:opacity-30 font-bold text-sm cursor-pointer transition-colors"
+                    aria-label="Decrease quantity"
+                  >
+                    -
+                  </button>
+                  <span className="w-6 sm:w-8 text-center text-xs sm:text-sm font-extrabold text-slate-900 select-none">
+                    {stickyQuantity}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setStickyQuantity((q) => Math.min(50, q + 1))}
+                    disabled={stickyQuantity >= 50}
+                    className="w-7 sm:w-9 h-full flex items-center justify-center text-slate-500 hover:bg-slate-50 disabled:opacity-30 font-bold text-sm cursor-pointer transition-colors"
+                    aria-label="Increase quantity"
+                  >
+                    +
+                  </button>
+                </div>
+
+                {/* Add to Cart Button — Prayog Brand Yellow #FFC20E */}
+                <button
+                  type="button"
+                  onClick={handleStickyAddToCart}
+                  className={`h-10 sm:h-11 px-3.5 sm:px-6 rounded-xl font-black text-xs sm:text-sm uppercase tracking-wider flex items-center justify-center gap-1.5 sm:gap-2 active:scale-95 transition-all cursor-pointer whitespace-nowrap shadow-xs ${
+                    stickyAdded
+                      ? "bg-emerald-600 text-white shadow-emerald-600/20"
+                      : "bg-[#FFC20E] hover:bg-[#E5AC0D] text-slate-950 shadow-amber-500/20"
+                  }`}
+                >
+                  {stickyAdded ? (
+                    <>
+                      <Check className="w-4 h-4 stroke-[2.5] shrink-0" />
+                      <span>ADDED!</span>
+                    </>
+                  ) : (
+                    <>
+                      <AddToCartIcon className="w-4 h-4 shrink-0" />
+                      <span>ADD TO CART</span>
+                    </>
+                  )}
+                </button>
+
+                {/* Buy Now Button — Brand Primary Blue #2563EB */}
+                <button
+                  type="button"
+                  onClick={() => handleBuyNow(product, stickyQuantity)}
+                  className="h-10 sm:h-11 px-4 sm:px-7 rounded-xl bg-[#2563EB] hover:bg-[#1D4ED8] active:bg-[#1E40AF] text-white font-black text-xs sm:text-sm uppercase tracking-wider flex items-center justify-center gap-1.5 shadow-md shadow-blue-500/20 active:scale-95 transition-all cursor-pointer whitespace-nowrap"
+                >
+                  <span>BUY NOW</span>
+                </button>
+
+                {/* Wishlist Button */}
+                <button
+                  type="button"
+                  onClick={() => handleToggleWishlist(product)}
+                  className={`h-10 sm:h-11 w-10 sm:w-11 rounded-xl border flex items-center justify-center shrink-0 transition-all cursor-pointer ${
+                    isProductWishlisted
+                      ? "bg-red-50 border-red-200 text-red-500"
+                      : "bg-white border-slate-200 hover:border-slate-300 text-slate-400 hover:text-red-500"
+                  }`}
+                  title={isProductWishlisted ? "In Wishlist" : "Add to Wishlist"}
+                  aria-label={isProductWishlisted ? "In Wishlist" : "Add to Wishlist"}
+                >
+                  <Heart
+                    className={`w-4 h-4 ${
+                      isProductWishlisted ? "fill-red-500 text-red-500" : ""
+                    }`}
+                  />
+                </button>
+              </>
+            ) : (
+              <a
+                href={`https://wa.me/918709789641?text=${encodeURIComponent(
+                  `Hello Prayog India Team, I want to inquire about ${product.name} (SKU: ${product.sku || product.id}) which is currently out of stock.`
+                )}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="h-10 sm:h-11 px-4 sm:px-6 bg-[#25D366] hover:bg-[#20bd5a] text-white rounded-xl font-black text-xs sm:text-sm uppercase tracking-wider transition-all shadow-md shadow-[#25D366]/25 flex items-center justify-center gap-2 active:scale-95 cursor-pointer whitespace-nowrap"
+              >
+                <WhatsAppIcon className="w-4 h-4 fill-white shrink-0" />
+                <span>Out of Stock — Inquire</span>
+              </a>
+            )}
+          </div>
         </div>
       </aside>
     </div>

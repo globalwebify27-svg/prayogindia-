@@ -256,7 +256,9 @@ export const FloatingWhatsAppWidget: React.FC = () => {
       {/* ── DESKTOP VIEW: Toggle Button (Down-arrow when open, Pill when closed) ── */}
       <div
         ref={widgetRef}
-        className="hidden sm:flex fixed z-50 bottom-6 right-6 flex-col items-end pointer-events-auto select-none transition-all duration-300"
+        className={`hidden sm:flex fixed z-50 right-6 flex-col items-end pointer-events-auto select-none transition-all duration-300 ${
+          hasStickyBottomBar ? "bottom-20" : "bottom-6"
+        }`}
       >
         {/* Speech Bubble Popup Modal */}
         {isOpen && (

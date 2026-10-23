@@ -139,32 +139,55 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
           </span>
         </div>
 
-        {/* Share Button (Clean Text Button) */}
-        <button
-          type="button"
-          onClick={() => {
-            if (typeof navigator !== "undefined" && navigator.share) {
-              navigator
-                .share({
-                  title: product.name,
-                  text: product.description,
-                  url: window.location.href,
-                })
-                .catch(() => {});
-            } else if (
-              typeof navigator !== "undefined" &&
-              navigator.clipboard
-            ) {
-              navigator.clipboard.writeText(window.location.href);
-              alert("Product link copied to clipboard!");
-            }
-          }}
-          className="flex items-center gap-1.5 text-xs font-semibold text-slate-400 hover:text-slate-800 transition-colors cursor-pointer"
-          title="Share Product"
-        >
-          <Share2 className="w-3.5 h-3.5" />
-          <span>Share</span>
-        </button>
+        {/* Wishlist & Share Buttons (Clean Inline Controls) */}
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => onToggleWishlist(product)}
+            className={`flex items-center gap-1.5 text-xs font-semibold transition-colors cursor-pointer ${
+              isWishlisted
+                ? "text-red-600 font-bold"
+                : "text-slate-400 hover:text-red-600"
+            }`}
+            title={isWishlisted ? "In Wishlist" : "Add to Wishlist"}
+          >
+            <Heart
+              className={`w-3.5 h-3.5 ${
+                isWishlisted ? "fill-red-500 text-red-500" : ""
+              }`}
+            />
+            <span>{isWishlisted ? "Wishlisted" : "Wishlist"}</span>
+          </button>
+
+          <span className="text-slate-200">•</span>
+
+          {/* Share Button (Clean Text Button) */}
+          <button
+            type="button"
+            onClick={() => {
+              if (typeof navigator !== "undefined" && navigator.share) {
+                navigator
+                  .share({
+                    title: product.name,
+                    text: product.description,
+                    url: window.location.href,
+                  })
+                  .catch(() => {});
+              } else if (
+                typeof navigator !== "undefined" &&
+                navigator.clipboard
+              ) {
+                navigator.clipboard.writeText(window.location.href);
+                alert("Product link copied to clipboard!");
+              }
+            }}
+            className="flex items-center gap-1.5 text-xs font-semibold text-slate-400 hover:text-slate-800 transition-colors cursor-pointer"
+            title="Share Product"
+          >
+            <Share2 className="w-3.5 h-3.5" />
+            <span>Share</span>
+          </button>
+        </div>
       </div>
 
       {/* ── Product Title ── */}
@@ -300,90 +323,6 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
         </div>
       )}
 
-      {/* ── Action Buttons Row ── */}
-      <div className="pt-2">
-        {currentStock ? (
-          <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-            {/* Quantity Selector (Clean & Compact) */}
-            <div className="flex items-center border border-slate-200 rounded-xl overflow-hidden shrink-0 h-11 bg-white">
-              <button
-                type="button"
-                onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                disabled={quantity <= 1}
-                className="w-9 h-full flex items-center justify-center text-slate-500 hover:bg-slate-50 disabled:opacity-30 font-bold text-sm cursor-pointer transition-colors"
-                aria-label="Decrease quantity"
-              >
-                -
-              </button>
-              <span className="w-9 text-center text-xs font-bold text-slate-900 select-none">
-                {quantity}
-              </span>
-              <button
-                type="button"
-                onClick={() => setQuantity((q) => Math.min(50, q + 1))}
-                disabled={quantity >= 50}
-                className="w-9 h-full flex items-center justify-center text-slate-500 hover:bg-slate-50 disabled:opacity-30 font-bold text-sm cursor-pointer transition-colors"
-                aria-label="Increase quantity"
-              >
-                +
-              </button>
-            </div>
-
-            {/* Add to Cart & Buy Now Buttons */}
-            <div className="flex items-center gap-2.5 flex-1">
-              <button
-                type="button"
-                onClick={() => onAddToCart(product, quantity)}
-                className="flex-1 h-11 bg-[#FFC20E] hover:bg-[#E5AC0D] text-slate-950 rounded-xl font-bold text-xs uppercase tracking-wider transition-all shadow-xs flex items-center justify-center gap-2 active:scale-95 cursor-pointer whitespace-nowrap"
-              >
-                <AddToCartIcon className="w-4 h-4 shrink-0" />
-                <span>Add to Cart</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() =>
-                  onBuyNow
-                    ? onBuyNow(product, quantity)
-                    : onAddToCart(product, quantity)
-                }
-                className="flex-1 h-11 bg-[#2563EB] hover:bg-[#1D4ED8] text-white rounded-xl font-bold text-xs uppercase tracking-wider transition-all shadow-xs flex items-center justify-center gap-2 active:scale-95 cursor-pointer whitespace-nowrap"
-              >
-                <span>Buy Now</span>
-              </button>
-
-              {/* Wishlist Button */}
-              <button
-                type="button"
-                onClick={() => onToggleWishlist(product)}
-                className={`w-11 h-11 rounded-xl border flex items-center justify-center shrink-0 transition-all cursor-pointer ${
-                  isWishlisted
-                    ? "bg-red-50 border-red-200 text-red-500"
-                    : "bg-white border-slate-200 hover:border-slate-300 text-slate-400 hover:text-red-500"
-                }`}
-                title={isWishlisted ? "In Wishlist" : "Add to Wishlist"}
-                aria-label={isWishlisted ? "In Wishlist" : "Add to Wishlist"}
-              >
-                <Heart
-                  className={`w-4 h-4 ${
-                    isWishlisted ? "fill-red-500 text-red-500" : ""
-                  }`}
-                />
-              </button>
-            </div>
-          </div>
-        ) : (
-          <a
-            href={getWhatsAppInquiryUrl()}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="w-full h-11 bg-[#25D366] hover:bg-[#20bd5a] text-white rounded-xl font-bold text-xs uppercase tracking-wider transition-all shadow-xs flex items-center justify-center gap-2 active:scale-95 cursor-pointer"
-          >
-            <WhatsAppIcon className="w-4 h-4 fill-white shrink-0" />
-            <span>Out of Stock — Inquire on WhatsApp</span>
-          </a>
-        )}
-      </div>
 
       {/* ── Delivery Pincode Checker (Clean Inline Layout, No Big Nested Boxes) ── */}
       <div className="pt-2">
