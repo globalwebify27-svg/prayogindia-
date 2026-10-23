@@ -156,7 +156,7 @@ export const DealsAndOffersSection: React.FC<Props> = ({ onShopDeals }) => {
               {/* Action CTA */}
               <button
                 onClick={handleClaim}
-                className="w-full bg-[#0A233F] hover:bg-[#FFC20E] hover:text-slate-950 text-white font-bold py-2.5 rounded-xl text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs active:scale-95"
+                className="w-full bg-[#2563EB] hover:bg-[#1D4ED8] active:bg-[#1E40AF] text-white font-bold py-2.5 rounded-xl text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer shadow-sm shadow-blue-500/20 active:scale-95"
               >
                 <span>Claim Deal</span>
                 <ArrowRight className="w-3.5 h-3.5" />
@@ -285,7 +285,7 @@ export const DealsAndOffersSection: React.FC<Props> = ({ onShopDeals }) => {
               {/* Action CTA */}
               <button
                 onClick={handleClaim}
-                className="w-full bg-[#0A233F] hover:bg-[#FFC20E] hover:text-slate-950 text-white font-bold py-2.5 rounded-xl text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs active:scale-95"
+                className="w-full bg-[#2563EB] hover:bg-[#1D4ED8] active:bg-[#1E40AF] text-white font-bold py-2.5 rounded-xl text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer shadow-sm shadow-blue-500/20 active:scale-95"
               >
                 <span>Shop Eligible Products</span>
                 <ArrowRight className="w-3.5 h-3.5" />

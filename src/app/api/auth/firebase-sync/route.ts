@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { normalizeEmail, sanitizeUser } from "@/lib/authUtils";
 import { UserDB } from "@/lib/userDB";
 import { getSecurityHeaders } from "@/lib/security";
+import { signSessionToken } from "@/lib/jwt";
 
 export async function POST(request: Request) {
   const headers = getSecurityHeaders();
@@ -97,6 +98,8 @@ export async function POST(request: Request) {
       };
     }
 
+    const sessionToken = await signSessionToken(userPayload, "7d");
+
     const response = NextResponse.json({
       success: true,
       message: "Firebase authentication synced successfully.",
@@ -106,7 +109,7 @@ export async function POST(request: Request) {
     // Set standard session cookie
     response.cookies.set({
       name: "prayog_customer_session",
-      value: JSON.stringify(userPayload),
+      value: sessionToken,
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",

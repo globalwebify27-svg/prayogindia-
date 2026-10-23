@@ -15,8 +15,6 @@ import {
   Package,
   MessageSquare,
   Share2,
-  Info,
-  X,
 } from "lucide-react";
 import { Product, ProductVariant } from "@/data/mockData";
 import { AddToCartIcon } from "@/components/icons/AddToCartIcon";
@@ -75,10 +73,7 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
   >("idle");
   const [deliveryDate, setDeliveryDate] = React.useState("");
 
-  // Ask Expert / Inquiry Modal State
-  const [showInquiryModal, setShowInquiryModal] = React.useState(false);
-
-  // Calculate estimated delivery date (3 days ahead)
+  // Calculate estimated delivery date
   React.useEffect(() => {
     const d = new Date();
     d.setDate(d.getDate() + 3);
@@ -106,22 +101,18 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
   );
   const savings = currentMrp - currentPrice;
 
-  // Extract relevant tag chips for product (Category, Subcategory, Key Spec values)
-  const tagChips = React.useMemo(() => {
+  // Extract clean inline spec highlights
+  const keySpecs = React.useMemo(() => {
     const tags: string[] = [];
     if (product.category) tags.push(product.category);
-    if (product.subcategory && product.subcategory !== product.category) {
-      tags.push(product.subcategory);
-    }
-    // Add 2 key spec or feature highlights if available
     if (product.specs) {
       const specKeys = Object.keys(product.specs);
       for (const key of specKeys.slice(0, 2)) {
         const val = product.specs[key];
-        if (val && val.length < 20) tags.push(val);
+        if (val && val.length < 25) tags.push(val);
       }
     }
-    return tags.slice(0, 4);
+    return tags.slice(0, 3);
   }, [product]);
 
   // WhatsApp Expert URL
@@ -135,19 +126,20 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
   };
 
   return (
-    <div className="space-y-3 sm:space-y-3.5 text-slate-900">
-      {/* ── Brand, SKU & Share Top Row ── */}
-      <div className="flex items-center justify-between gap-2">
-        <div className="flex items-center gap-2">
-          <span className="bg-slate-100 text-slate-800 text-[10px] font-black uppercase px-2 py-0.5 rounded-md border border-slate-200 tracking-wider">
-            {product.brand || "PRAYOG INDIA"}
+    <div className="space-y-4 text-slate-900">
+      {/* ── Brand, SKU & Share (Clean Inline Text, No Boxes) ── */}
+      <div className="flex items-center justify-between gap-2 text-xs">
+        <div className="flex items-center gap-2.5">
+          <span className="font-extrabold uppercase tracking-wider text-[#2563EB]">
+            {product.brand || "Prayog India"}
           </span>
-          <span className="text-[11px] font-mono font-bold text-slate-400">
+          <span className="text-slate-300">•</span>
+          <span className="font-mono text-slate-400 font-medium">
             SKU: {currentSku}
           </span>
         </div>
 
-        {/* Share Button */}
+        {/* Share Button (Clean Text Button) */}
         <button
           type="button"
           onClick={() => {
@@ -167,30 +159,29 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
               alert("Product link copied to clipboard!");
             }
           }}
-          className="flex items-center gap-1.5 text-[11px] font-bold text-slate-500 hover:text-[#2563EB] bg-slate-100/90 hover:bg-slate-200/80 px-2.5 py-0.5 rounded-full transition-colors cursor-pointer"
+          className="flex items-center gap-1.5 text-xs font-semibold text-slate-400 hover:text-slate-800 transition-colors cursor-pointer"
           title="Share Product"
         >
-          <Share2 className="w-3 h-3" />
+          <Share2 className="w-3.5 h-3.5" />
           <span>Share</span>
         </button>
       </div>
 
       {/* ── Product Title ── */}
-      <h1 className="text-xl sm:text-2xl font-black text-slate-900 leading-snug tracking-tight">
+      <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight leading-tight">
         {product.name}
       </h1>
 
-      {/* ── Short Description ── */}
+      {/* ── Short Description (Clean Text) ── */}
       {product.description && (
-        <p className="text-xs text-slate-600 leading-relaxed line-clamp-2">
+        <p className="text-xs sm:text-sm text-slate-500 leading-relaxed max-w-2xl">
           {product.description}
         </p>
       )}
 
-      {/* ── Rating & Tag Chips Row ── */}
-      <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs">
+      {/* ── Rating & Specs Row (Clean Inline Text, No Pill Boxes) ── */}
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
         <div className="flex items-center gap-1.5">
-          {/* 5-Star Row */}
           <div className="flex items-center gap-0.5">
             {[1, 2, 3, 4, 5].map((star) => {
               const currentRating = Number(product.rating || 4.5);
@@ -215,146 +206,160 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
             })}
           </div>
 
-          <span className="font-bold text-slate-800 text-xs">
+          <span className="font-bold text-slate-800">
             {Number(product.rating || 4.5).toFixed(1)}
           </span>
 
           <span className="text-slate-300">•</span>
           <a
             href="#reviews-tab"
-            className="text-[11px] font-medium text-slate-500 hover:text-[#2563EB] transition-colors cursor-pointer"
+            className="text-slate-500 hover:text-[#2563EB] transition-colors cursor-pointer"
           >
             ({product.reviews || 230} reviews)
           </a>
         </div>
 
-        {/* Feature Tags */}
-        {tagChips.length > 0 && (
-          <div className="flex items-center gap-1.5 flex-wrap">
-            {tagChips.map((chip, idx) => (
-              <span
-                key={idx}
-                className="bg-sky-50 text-sky-700 text-[10px] font-bold px-2 py-0.5 rounded-md border border-sky-100"
-              >
-                {chip}
-              </span>
+        {keySpecs.length > 0 && (
+          <div className="flex items-center gap-2 text-slate-400 font-medium">
+            {keySpecs.map((spec, idx) => (
+              <React.Fragment key={idx}>
+                <span>•</span>
+                <span className="text-slate-600">{spec}</span>
+              </React.Fragment>
             ))}
           </div>
         )}
       </div>
 
-      {/* ── Price & Stock Row ── */}
-      <div className="pt-1 border-t border-slate-100">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <div className="flex items-baseline gap-2.5">
-            <span className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-              ₹{currentPrice.toLocaleString("en-IN")}
-            </span>
-            {currentMrp > currentPrice && (
-              <>
-                <span className="text-xs sm:text-sm text-slate-400 line-through font-semibold">
-                  ₹{currentMrp.toLocaleString("en-IN")}
-                </span>
-                <span className="bg-[#FF3B30] text-white text-[10px] font-black px-1.5 py-0.5 rounded uppercase tracking-wide">
-                  {discountPercentage}% OFF
-                </span>
-              </>
-            )}
-            {savings > 0 && (
-              <span className="hidden sm:inline-block bg-emerald-50 text-emerald-700 text-[11px] font-extrabold px-2 py-0.5 rounded-full border border-emerald-200">
-                You Save ₹{savings.toLocaleString("en-IN")}
+      {/* ── Price & Stock Row (Clean, Open & Elegant) ── */}
+      <div className="py-2.5 border-y border-slate-100 flex flex-wrap items-baseline justify-between gap-3">
+        <div className="flex items-baseline gap-3">
+          <span className="text-3xl font-black text-slate-900 tracking-tight">
+            ₹{currentPrice.toLocaleString("en-IN")}
+          </span>
+          {currentMrp > currentPrice && (
+            <>
+              <span className="text-sm text-slate-400 line-through font-medium">
+                ₹{currentMrp.toLocaleString("en-IN")}
               </span>
-            )}
-          </div>
-
-          {/* Stock Availability */}
-          <div>
-            {currentStock ? (
-              <div className="flex items-center gap-1.5 text-xs font-bold text-slate-700">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block animate-pulse" />
-                <span className="text-emerald-700 font-extrabold">In Stock</span>
-                <span className="text-slate-500 text-[11px]">
-                  (Only {stockCount} left)
-                </span>
-              </div>
-            ) : (
-              <div className="flex items-center gap-1.5 text-xs font-extrabold text-red-600">
-                <span className="w-2 h-2 rounded-full bg-red-500 inline-block" />
-                <span>Out of Stock</span>
-              </div>
-            )}
-          </div>
+              <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">
+                Save ₹{savings.toLocaleString("en-IN")} ({discountPercentage}% OFF)
+              </span>
+            </>
+          )}
         </div>
 
-        <div className="text-[10px] text-slate-400 font-medium pt-0.5">
-          Inclusive of GST <span className="text-slate-300 mx-1">•</span> No hidden charges
+        {/* Stock Status */}
+        <div>
+          {currentStock ? (
+            <div className="flex items-center gap-1.5 text-xs font-semibold text-emerald-700">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block animate-pulse" />
+              <span>In Stock</span>
+              <span className="text-slate-400 font-normal">
+                (Only {stockCount} left)
+              </span>
+            </div>
+          ) : (
+            <div className="flex items-center gap-1.5 text-xs font-bold text-red-600">
+              <span className="w-2 h-2 rounded-full bg-red-500 inline-block" />
+              <span>Out of Stock</span>
+            </div>
+          )}
         </div>
       </div>
 
-      {/* ── Variant Selector (if product variants exist) ── */}
+      <p className="text-[11px] text-slate-400 font-normal -mt-2">
+        Inclusive of GST • 100% Authentic Hardware • Manufacturer Warranty
+      </p>
+
+      {/* ── Variant Selector (Minimalist Chips) ── */}
       {product.variants && product.variants.length > 0 && (
-        <div className="space-y-1.5 pt-1">
-          <label className="text-[11px] font-bold text-slate-700 block">
-            Select Option / Variant:
-          </label>
-          <div className="flex flex-wrap gap-1.5">
-            {product.variants.map((variant) => (
-              <button
-                key={variant.id}
-                type="button"
-                onClick={() => onSelectVariant(variant)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all border cursor-pointer ${
-                  selectedVariant?.id === variant.id
-                    ? "border-[#2563EB] bg-blue-50 text-[#2563EB] ring-2 ring-blue-500/20"
-                    : "border-slate-200 hover:border-slate-300 text-slate-700 bg-white"
-                }`}
-              >
-                {variant.name} — ₹{variant.price}
-              </button>
-            ))}
+        <div className="space-y-2 pt-1">
+          <span className="text-xs font-bold text-slate-700 block">
+            Select Variant:
+          </span>
+          <div className="flex flex-wrap gap-2">
+            {product.variants.map((variant) => {
+              const isSelected = selectedVariant?.id === variant.id;
+              return (
+                <button
+                  key={variant.id}
+                  type="button"
+                  onClick={() => onSelectVariant(variant)}
+                  className={`px-3.5 py-2 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                    isSelected
+                      ? "bg-[#2563EB] text-white shadow-xs"
+                      : "bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200/80"
+                  }`}
+                >
+                  {variant.name} — ₹{variant.price}
+                </button>
+              );
+            })}
           </div>
         </div>
       )}
 
-      {/* ── Action Buttons Row (Placed immediately under Price/Stock for instant access) ── */}
-      <div className="pt-1">
+      {/* ── Action Buttons Row ── */}
+      <div className="pt-2">
         {currentStock ? (
-          <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-2.5">
-            {/* Quantity Selector & Mobile Wishlist Row */}
-            <div className="flex items-center justify-between sm:justify-start gap-2">
-              {/* Quantity Selector */}
-              <div className="flex items-center bg-slate-50 border border-slate-200 rounded-xl overflow-hidden shrink-0 h-11">
-                <button
-                  type="button"
-                  onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                  disabled={quantity <= 1}
-                  className="w-8 h-full flex items-center justify-center text-slate-600 hover:bg-slate-200 disabled:opacity-30 font-bold text-sm cursor-pointer transition-colors"
-                  aria-label="Decrease quantity"
-                >
-                  -
-                </button>
-                <span className="w-8 text-center text-xs font-black text-slate-900 select-none">
-                  {quantity}
-                </span>
-                <button
-                  type="button"
-                  onClick={() => setQuantity((q) => Math.min(50, q + 1))}
-                  disabled={quantity >= 50}
-                  className="w-8 h-full flex items-center justify-center text-slate-600 hover:bg-slate-200 disabled:opacity-30 font-bold text-sm cursor-pointer transition-colors"
-                  aria-label="Increase quantity"
-                >
-                  +
-                </button>
-              </div>
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+            {/* Quantity Selector (Clean & Compact) */}
+            <div className="flex items-center border border-slate-200 rounded-xl overflow-hidden shrink-0 h-11 bg-white">
+              <button
+                type="button"
+                onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                disabled={quantity <= 1}
+                className="w-9 h-full flex items-center justify-center text-slate-500 hover:bg-slate-50 disabled:opacity-30 font-bold text-sm cursor-pointer transition-colors"
+                aria-label="Decrease quantity"
+              >
+                -
+              </button>
+              <span className="w-9 text-center text-xs font-bold text-slate-900 select-none">
+                {quantity}
+              </span>
+              <button
+                type="button"
+                onClick={() => setQuantity((q) => Math.min(50, q + 1))}
+                disabled={quantity >= 50}
+                className="w-9 h-full flex items-center justify-center text-slate-500 hover:bg-slate-50 disabled:opacity-30 font-bold text-sm cursor-pointer transition-colors"
+                aria-label="Increase quantity"
+              >
+                +
+              </button>
+            </div>
 
-              {/* Wishlist Button on Mobile (placed next to Quantity) */}
+            {/* Add to Cart & Buy Now Buttons */}
+            <div className="flex items-center gap-2.5 flex-1">
+              <button
+                type="button"
+                onClick={() => onAddToCart(product, quantity)}
+                className="flex-1 h-11 bg-[#FFC20E] hover:bg-[#E5AC0D] text-slate-950 rounded-xl font-bold text-xs uppercase tracking-wider transition-all shadow-xs flex items-center justify-center gap-2 active:scale-95 cursor-pointer whitespace-nowrap"
+              >
+                <AddToCartIcon className="w-4 h-4 shrink-0" />
+                <span>Add to Cart</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() =>
+                  onBuyNow
+                    ? onBuyNow(product, quantity)
+                    : onAddToCart(product, quantity)
+                }
+                className="flex-1 h-11 bg-[#2563EB] hover:bg-[#1D4ED8] text-white rounded-xl font-bold text-xs uppercase tracking-wider transition-all shadow-xs flex items-center justify-center gap-2 active:scale-95 cursor-pointer whitespace-nowrap"
+              >
+                <span>Buy Now</span>
+              </button>
+
+              {/* Wishlist Button */}
               <button
                 type="button"
                 onClick={() => onToggleWishlist(product)}
-                className={`sm:hidden h-11 px-3.5 rounded-xl border flex items-center justify-center gap-1.5 text-xs font-bold transition-all cursor-pointer ${
+                className={`w-11 h-11 rounded-xl border flex items-center justify-center shrink-0 transition-all cursor-pointer ${
                   isWishlisted
                     ? "bg-red-50 border-red-200 text-red-500"
-                    : "bg-white border-slate-200 hover:border-slate-300 text-slate-600"
+                    : "bg-white border-slate-200 hover:border-slate-300 text-slate-400 hover:text-red-500"
                 }`}
                 title={isWishlisted ? "In Wishlist" : "Add to Wishlist"}
                 aria-label={isWishlisted ? "In Wishlist" : "Add to Wishlist"}
@@ -364,61 +369,15 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
                     isWishlisted ? "fill-red-500 text-red-500" : ""
                   }`}
                 />
-                <span>{isWishlisted ? "Wishlisted" : "Wishlist"}</span>
               </button>
             </div>
-
-            {/* Action Buttons: Add to Cart & Buy Now (Hidden on Mobile, Visible on Desktop) */}
-            <div className="hidden sm:flex sm:flex-1 items-center gap-2.5">
-              {/* Add to Cart Button (Prayog Brand Yellow) */}
-              <button
-                type="button"
-                onClick={() => onAddToCart(product, quantity)}
-                className="flex-1 h-11 bg-[#FFC20E] hover:bg-[#E5AC0D] text-slate-950 px-2 sm:px-4 rounded-xl font-black text-xs sm:text-[13px] uppercase tracking-wider transition-all shadow-xs flex items-center justify-center gap-1.5 active:scale-95 cursor-pointer whitespace-nowrap"
-              >
-                <AddToCartIcon className="w-4 h-4 shrink-0" />
-                <span>ADD TO CART</span>
-              </button>
-
-              {/* Buy Now Button (Prayog Deep Navy) */}
-              <button
-                type="button"
-                onClick={() =>
-                  onBuyNow
-                    ? onBuyNow(product, quantity)
-                    : onAddToCart(product, quantity)
-                }
-                className="flex-1 h-11 bg-[#0A1128] hover:bg-slate-900 text-white px-2 sm:px-4 rounded-xl font-black text-xs sm:text-[13px] uppercase tracking-wider transition-all shadow-sm flex items-center justify-center gap-1.5 active:scale-95 cursor-pointer whitespace-nowrap"
-              >
-                <span>BUY NOW</span>
-              </button>
-            </div>
-
-            {/* Wishlist Button on Desktop */}
-            <button
-              type="button"
-              onClick={() => onToggleWishlist(product)}
-              className={`hidden sm:flex w-11 h-11 rounded-xl border items-center justify-center shrink-0 transition-all cursor-pointer ${
-                isWishlisted
-                  ? "bg-red-50 border-red-200 text-red-500"
-                  : "bg-white border-slate-200 hover:border-slate-300 text-slate-500 hover:text-red-500"
-              }`}
-              title={isWishlisted ? "In Wishlist" : "Add to Wishlist"}
-              aria-label={isWishlisted ? "In Wishlist" : "Add to Wishlist"}
-            >
-              <Heart
-                className={`w-4 h-4 ${
-                  isWishlisted ? "fill-red-500 text-red-500" : ""
-                }`}
-              />
-            </button>
           </div>
         ) : (
           <a
             href={getWhatsAppInquiryUrl()}
             target="_blank"
             rel="noopener noreferrer"
-            className="w-full h-11 bg-[#25D366] hover:bg-[#20bd5a] text-white rounded-xl font-black text-xs uppercase tracking-wider transition-all shadow-md shadow-[#25D366]/20 flex items-center justify-center gap-2 active:scale-95 cursor-pointer"
+            className="w-full h-11 bg-[#25D366] hover:bg-[#20bd5a] text-white rounded-xl font-bold text-xs uppercase tracking-wider transition-all shadow-xs flex items-center justify-center gap-2 active:scale-95 cursor-pointer"
           >
             <WhatsAppIcon className="w-4 h-4 fill-white shrink-0" />
             <span>Out of Stock — Inquire on WhatsApp</span>
@@ -426,88 +385,77 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
         )}
       </div>
 
-      {/* ── Compact Delivery Pincode Box ── */}
-      <div className="bg-sky-50/50 border border-sky-100 rounded-xl p-2.5 space-y-1.5">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
-          <div className="flex items-center gap-1.5 text-xs font-bold text-slate-800 shrink-0">
-            <Truck className="w-3.5 h-3.5 text-[#2563EB] shrink-0" />
-            <span>Check Delivery:</span>
-          </div>
-
-          <form onSubmit={handleCheckPincode} className="flex items-center gap-1.5 flex-1 max-w-sm">
-            <input
-              type="text"
-              inputMode="numeric"
-              pattern="[0-9]*"
-              maxLength={6}
-              value={pincode}
-              onChange={(e) => {
-                const val = e.target.value.replace(/\D/g, "");
-                setPincode(val);
-                if (pincodeStatus !== "idle") setPincodeStatus("idle");
-              }}
-              placeholder="Enter 6-digit PIN"
-              className="flex-1 px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-semibold text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#2563EB] transition-all"
-            />
-            <button
-              type="submit"
-              className="px-3.5 py-1.5 bg-[#0A1128] hover:bg-slate-800 text-white text-xs font-bold rounded-lg transition-all active:scale-95 cursor-pointer shrink-0"
-            >
-              Check
-            </button>
-          </form>
-        </div>
+      {/* ── Delivery Pincode Checker (Clean Inline Layout, No Big Nested Boxes) ── */}
+      <div className="pt-2">
+        <form onSubmit={handleCheckPincode} className="flex items-center gap-2 max-w-sm">
+          <Truck className="w-4 h-4 text-slate-400 shrink-0" />
+          <input
+            type="text"
+            inputMode="numeric"
+            pattern="[0-9]*"
+            maxLength={6}
+            value={pincode}
+            onChange={(e) => {
+              const val = e.target.value.replace(/\D/g, "");
+              setPincode(val);
+              if (pincodeStatus !== "idle") setPincodeStatus("idle");
+            }}
+            placeholder="Enter 6-digit PIN code"
+            className="flex-1 px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-medium text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#2563EB] focus:bg-white transition-all"
+          />
+          <button
+            type="submit"
+            className="px-3.5 py-1.5 text-xs font-bold text-[#2563EB] hover:text-[#1D4ED8] hover:bg-blue-50 rounded-lg transition-colors cursor-pointer shrink-0"
+          >
+            Check
+          </button>
+        </form>
 
         {pincodeStatus === "valid" && (
-          <div className="p-1.5 bg-emerald-50 border border-emerald-200 rounded-lg text-[11px] flex items-center justify-between text-emerald-800 font-medium">
-            <span className="flex items-center gap-1">
-              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-              Delivery available for <strong>{pincode}</strong>
-            </span>
-            <span>⚡ By <strong className="text-slate-900">{deliveryDate}</strong></span>
-          </div>
+          <p className="text-xs text-emerald-700 font-medium flex items-center gap-1.5 pt-1.5">
+            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+            <span>Delivery available • Estimated by <strong>{deliveryDate}</strong></span>
+          </p>
         )}
 
         {pincodeStatus === "invalid" && (
-          <p className="text-[11px] text-red-600 font-medium flex items-center gap-1">
-            <AlertTriangle className="w-3 h-3 shrink-0" /> Please enter a valid 6-digit PIN code.
+          <p className="text-xs text-red-600 font-medium flex items-center gap-1.5 pt-1.5">
+            <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
+            <span>Please enter a valid 6-digit Indian PIN code.</span>
           </p>
         )}
       </div>
 
-      {/* ── 4 Trust Badges Strip (Ultra-compact 4-column row) ── */}
-      <div className="grid grid-cols-4 gap-1.5 pt-0.5">
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-1 bg-slate-50 border border-slate-100/90 rounded-lg py-1.5 px-1 text-center">
-          <ShieldCheck className="w-3.5 h-3.5 text-[#2563EB] shrink-0" />
-          <span className="text-[10px] font-bold text-slate-700 leading-tight">Genuine</span>
+      {/* ── Clean Horizontal Trust Row (No 4 Separate Grey Boxes) ── */}
+      <div className="pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-y-2 text-xs text-slate-500">
+        <div className="flex items-center gap-1.5">
+          <ShieldCheck className="w-3.5 h-3.5 text-[#2563EB]" />
+          <span>100% Genuine</span>
         </div>
-
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-1 bg-slate-50 border border-slate-100/90 rounded-lg py-1.5 px-1 text-center">
-          <FileText className="w-3.5 h-3.5 text-[#2563EB] shrink-0" />
-          <span className="text-[10px] font-bold text-slate-700 leading-tight">GST Invoice</span>
+        <div className="flex items-center gap-1.5">
+          <FileText className="w-3.5 h-3.5 text-[#2563EB]" />
+          <span>GST Invoice</span>
         </div>
-
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-1 bg-slate-50 border border-slate-100/90 rounded-lg py-1.5 px-1 text-center">
-          <Package className="w-3.5 h-3.5 text-[#2563EB] shrink-0" />
-          <span className="text-[10px] font-bold text-slate-700 leading-tight">Fast Dispatch</span>
+        <div className="flex items-center gap-1.5">
+          <Package className="w-3.5 h-3.5 text-[#2563EB]" />
+          <span>Fast Dispatch</span>
         </div>
-
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-1 bg-slate-50 border border-slate-100/90 rounded-lg py-1.5 px-1 text-center">
-          <Headphones className="w-3.5 h-3.5 text-[#2563EB] shrink-0" />
-          <span className="text-[10px] font-bold text-slate-700 leading-tight">Tech Support</span>
+        <div className="flex items-center gap-1.5">
+          <Headphones className="w-3.5 h-3.5 text-[#2563EB]" />
+          <span>Tech Support</span>
         </div>
       </div>
 
-      {/* ── Secondary Links Row ── */}
-      <div className="flex items-center justify-center gap-6 pt-0.5 text-[11px] font-semibold text-slate-500">
+      {/* ── Technical Help Link ── */}
+      <div className="pt-1">
         <a
           href={getWhatsAppInquiryUrl()}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center gap-1.5 hover:text-[#2563EB] transition-colors cursor-pointer"
+          className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-400 hover:text-[#2563EB] transition-colors"
         >
-          <MessageSquare className="w-3.5 h-3.5 text-slate-400" />
-          <span>Need technical help? Ask an Expert</span>
+          <MessageSquare className="w-3.5 h-3.5" />
+          <span>Have technical doubts? Chat with our hardware engineer</span>
         </a>
       </div>
     </div>

@@ -13,7 +13,7 @@ import {
 import { ProductFilters } from "@/components/products/ProductFilters";
 import { ActiveFilters } from "@/components/products/ActiveFilters";
 import { ProductEmptyState } from "@/components/products/ProductEmptyState";
-import { CategoryData, CATEGORIES_DATA } from "@/data/categories";
+import { CategoryData, CATEGORIES_DATA, matchCategory } from "@/data/categories";
 import { PRODUCTS, Product } from "@/data/mockData";
 import {
   ArrowRight,
@@ -34,11 +34,10 @@ export const CategoryDetailView: React.FC<CategoryDetailProps> = ({
 }) => {
   const store = useStore();
 
-  // Find category data by slug
+  // Find category data by slug or alias
   const category =
-    CATEGORIES_DATA.find(
-      (c) => c.slug === categorySlug || c.slugAlias === categorySlug,
-    ) || CATEGORIES_DATA[0];
+    CATEGORIES_DATA.find((c) => matchCategory(c, categorySlug)) ||
+    CATEGORIES_DATA[0];
 
   // Filter products belonging to this category
   const allCategoryProducts = useMemo(() => {
@@ -55,6 +54,21 @@ export const CategoryDetailView: React.FC<CategoryDetailProps> = ({
           (pCat.includes(shortLower) || shortLower.includes(pCat)))
       ) {
         return true;
+      }
+
+      if (category.slugAlias) {
+        const aliases = Array.isArray(category.slugAlias)
+          ? category.slugAlias
+          : [category.slugAlias];
+        if (
+          aliases.some(
+            (a) =>
+              pCat.includes(a.replace(/-/g, " ")) ||
+              a.replace(/-/g, " ").includes(pCat)
+          )
+        ) {
+          return true;
+        }
       }
 
       return category.subcategories.some((sub) => {

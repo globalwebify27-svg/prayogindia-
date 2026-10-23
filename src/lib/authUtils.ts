@@ -54,14 +54,22 @@ export function sanitizeUser(user: {
   name: string;
   email: string;
   phone: string;
-  role: string;
+  role?: string;
+  customerType?: string;
+  companyName?: string | null;
+  gstin?: string | null;
+  rewardPoints?: number;
 }): AuthSessionUser {
   return {
     id: user.id,
     name: user.name,
     email: user.email,
     phone: user.phone,
-    role: "CUSTOMER",
+    role: user.role === "ADMIN" ? "ADMIN" : "CUSTOMER",
+    customerType: user.customerType || "Registered Customer",
+    companyName: user.companyName ?? null,
+    gstin: user.gstin ?? null,
+    rewardPoints: typeof user.rewardPoints === "number" ? user.rewardPoints : 100,
   };
 }
 

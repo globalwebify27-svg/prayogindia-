@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import Image from "next/image";
 import {
   getOptimizedImageUrl,
@@ -21,8 +21,6 @@ interface ProductGalleryProps {
   media360?: string[];
 }
 
-type MediaMode = "image" | "video" | "360";
-
 export const ProductGallery: React.FC<ProductGalleryProps> = ({
   images,
   productName,
@@ -37,292 +35,426 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
     ? getOptimizedVideoUrl(videoUrl)
     : undefined;
 
-  const [activeMode, setActiveMode] = useState<MediaMode>("image");
-  const [selectedIdx, setSelectedIdx] = useState(0);
-
-  const sliderRef = useRef<HTMLDivElement>(null);
-  const isDraggingRef = useRef(false);
-  const startXRef = useRef(0);
-  const scrollLeftRef = useRef(0);
-  const isInteractingRef = useRef(false);
-
   const hasVideo = !!videoUrl;
   const has360 = media360.length > 0;
 
-  const scrollToSlide = (idx: number) => {
-    if (!sliderRef.current) return;
-    const container = sliderRef.current;
-    const width = container.clientWidth;
-    container.scrollTo({
-      left: idx * width,
-      behavior: "smooth",
-    });
-    setSelectedIdx(idx);
-    setActiveMode("image");
-  };
+  // Slide indices
+  const videoSlideIndex = hasVideo ? galleryImages.length : -1;
+  const media360SlideIndex = has360
+    ? galleryImages.length + (hasVideo ? 1 : 0)
+    : -1;
+  const totalSlides =
+    galleryImages.length + (hasVideo ? 1 : 0) + (has360 ? 1 : 0);
 
-  const prevImage = () => {
-    const newIdx =
-      (selectedIdx - 1 + galleryImages.length) % galleryImages.length;
-    scrollToSlide(newIdx);
-  };
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [dragOffset, setDragOffset] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
 
-  const nextImage = () => {
-    const newIdx = (selectedIdx + 1) % galleryImages.length;
-    scrollToSlide(newIdx);
-  };
+  const containerRef = useRef<HTMLDivElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const startXRef = useRef(0);
+  const startYRef = useRef(0);
+  const currentXRef = useRef(0);
+  const isPointerDownRef = useRef(false);
+  const isHorizontalSwipeRef = useRef<boolean | null>(null);
 
-  // Synchronize active index during trackpad/touch/drag scrolling
-  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
-    const container = e.currentTarget;
-    const width = container.clientWidth;
-    if (width > 0) {
-      const newIdx = Math.round(container.scrollLeft / width);
-      if (
-        newIdx >= 0 &&
-        newIdx < galleryImages.length &&
-        newIdx !== selectedIdx
-      ) {
-        setSelectedIdx(newIdx);
+  // Navigate to slide and pause video if navigating away from it
+  const goToSlide = useCallback(
+    (idx: number) => {
+      if (totalSlides <= 0) return;
+      const safeIdx = (idx + totalSlides) % totalSlides;
+      if (safeIdx !== videoSlideIndex && videoRef.current) {
+        videoRef.current.pause();
+      }
+      setCurrentIndex(safeIdx);
+      setDragOffset(0);
+      setIsDragging(false);
+    },
+    [totalSlides, videoSlideIndex],
+  );
+
+  const prevSlide = useCallback(() => {
+    goToSlide(currentIndex - 1);
+  }, [currentIndex, goToSlide]);
+
+  const nextSlide = useCallback(() => {
+    goToSlide(currentIndex + 1);
+  }, [currentIndex, goToSlide]);
+
+  // Autoplay video on entering video slide
+  useEffect(() => {
+    if (currentIndex === videoSlideIndex && videoRef.current) {
+      videoRef.current.play().catch(() => {
+        // Autoplay may be restricted by browser policy; user can click play
+      });
+    }
+  }, [currentIndex, videoSlideIndex]);
+
+  // ── Touch Gesture Handlers (Mobile & Tablet) ──
+  const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (e.touches.length !== 1) return;
+    const touch = e.touches[0];
+    // If user touches near bottom of video player (native controls), don't intercept
+    if (currentIndex === videoSlideIndex && containerRef.current) {
+      const rect = containerRef.current.getBoundingClientRect();
+      if (touch.clientY - rect.top > rect.height * 0.72) {
+        return;
       }
     }
+    isPointerDownRef.current = true;
+    startXRef.current = touch.clientX;
+    startYRef.current = touch.clientY;
+    currentXRef.current = touch.clientX;
+    isHorizontalSwipeRef.current = null;
   };
 
-  // Pointer Drag to Slide support (Mouse, Trackpad, Stylus & Touch)
-  const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (!sliderRef.current || activeMode !== "image") return;
-    if (e.button !== 0 && e.pointerType === "mouse") return;
-    isDraggingRef.current = true;
-    isInteractingRef.current = false;
-    startXRef.current = e.clientX;
-    scrollLeftRef.current = sliderRef.current.scrollLeft;
-    try {
-      e.currentTarget.setPointerCapture(e.pointerId);
-    } catch {}
-  };
+  const handleTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (!isPointerDownRef.current || e.touches.length !== 1) return;
+    const touch = e.touches[0];
+    const diffX = touch.clientX - startXRef.current;
+    const diffY = touch.clientY - startYRef.current;
 
-  const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (!isDraggingRef.current || !sliderRef.current) return;
-    const deltaX = e.clientX - startXRef.current;
-    if (Math.abs(deltaX) > 4) {
-      isInteractingRef.current = true;
+    // Detect direction of gesture
+    if (isHorizontalSwipeRef.current === null) {
+      const absX = Math.abs(diffX);
+      const absY = Math.abs(diffY);
+      if (absX > 6 || absY > 6) {
+        isHorizontalSwipeRef.current = absX > absY;
+      }
     }
-    sliderRef.current.scrollLeft = scrollLeftRef.current - deltaX;
+
+    if (isHorizontalSwipeRef.current === true) {
+      setIsDragging(true);
+      currentXRef.current = touch.clientX;
+      setDragOffset(diffX);
+    }
   };
 
-  const handlePointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (!isDraggingRef.current) return;
-    isDraggingRef.current = false;
-    try {
-      e.currentTarget.releasePointerCapture(e.pointerId);
-    } catch {}
-    if (isInteractingRef.current && sliderRef.current) {
-      const container = sliderRef.current;
-      const width = container.clientWidth;
-      const deltaX = e.clientX - startXRef.current;
-      let targetIdx = selectedIdx;
-      if (deltaX < -40 && selectedIdx < galleryImages.length - 1) {
-        targetIdx = selectedIdx + 1;
-      } else if (deltaX > 40 && selectedIdx > 0) {
-        targetIdx = selectedIdx - 1;
+  const handleTouchEnd = () => {
+    if (!isPointerDownRef.current) return;
+    isPointerDownRef.current = false;
+
+    if (isHorizontalSwipeRef.current === true) {
+      const diffX = currentXRef.current - startXRef.current;
+      const swipeThreshold = 35;
+      if (diffX < -swipeThreshold) {
+        nextSlide();
+      } else if (diffX > swipeThreshold) {
+        prevSlide();
       } else {
-        targetIdx = Math.round(container.scrollLeft / width);
+        setDragOffset(0);
+        setIsDragging(false);
       }
-      scrollToSlide(
-        Math.max(0, Math.min(galleryImages.length - 1, targetIdx)),
-      );
+    } else {
+      setDragOffset(0);
+      setIsDragging(false);
+    }
+    isHorizontalSwipeRef.current = null;
+  };
+
+  // ── Trackpad Horizontal Swipe Handler (Mac & Laptop Trackpads) ──
+  const isWheelThrottledRef = useRef(false);
+  const wheelDeltaAccumulatorRef = useRef(0);
+  const wheelTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  const handleWheel = (e: React.WheelEvent<HTMLDivElement>) => {
+    // Detect horizontal trackpad swipe gesture
+    if (Math.abs(e.deltaX) > Math.abs(e.deltaY) && Math.abs(e.deltaX) > 6) {
+      if (isWheelThrottledRef.current) return;
+
+      wheelDeltaAccumulatorRef.current += e.deltaX;
+
+      if (wheelTimerRef.current) clearTimeout(wheelTimerRef.current);
+      wheelTimerRef.current = setTimeout(() => {
+        wheelDeltaAccumulatorRef.current = 0;
+      }, 180);
+
+      const threshold = 25;
+      if (wheelDeltaAccumulatorRef.current > threshold) {
+        isWheelThrottledRef.current = true;
+        wheelDeltaAccumulatorRef.current = 0;
+        nextSlide();
+        setTimeout(() => {
+          isWheelThrottledRef.current = false;
+        }, 400);
+      } else if (wheelDeltaAccumulatorRef.current < -threshold) {
+        isWheelThrottledRef.current = true;
+        wheelDeltaAccumulatorRef.current = 0;
+        prevSlide();
+        setTimeout(() => {
+          isWheelThrottledRef.current = false;
+        }, 400);
+      }
     }
   };
+
+  // ── Mouse Drag Handlers (Desktop) ──
+  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.button !== 0) return;
+    const target = e.target as HTMLElement;
+    if (target.closest("button, a, input, select")) return;
+    if (currentIndex === videoSlideIndex && containerRef.current) {
+      const rect = containerRef.current.getBoundingClientRect();
+      if (e.clientY - rect.top > rect.height * 0.72) {
+        return;
+      }
+    }
+
+    e.preventDefault(); // Prevents native image ghost drag & selection
+    isPointerDownRef.current = true;
+    startXRef.current = e.clientX;
+    currentXRef.current = e.clientX;
+    setIsDragging(false);
+  };
+
+  // Global mouse tracking so dragging continues smoothly even if cursor leaves container
+  useEffect(() => {
+    const handleGlobalMouseMove = (e: MouseEvent) => {
+      if (!isPointerDownRef.current) return;
+      const diffX = e.clientX - startXRef.current;
+      if (Math.abs(diffX) > 6) {
+        setIsDragging(true);
+        currentXRef.current = e.clientX;
+        setDragOffset(diffX);
+      }
+    };
+
+    const handleGlobalMouseUp = () => {
+      if (!isPointerDownRef.current) return;
+      isPointerDownRef.current = false;
+      const diffX = currentXRef.current - startXRef.current;
+      const swipeThreshold = 35;
+      if (diffX < -swipeThreshold) {
+        nextSlide();
+      } else if (diffX > swipeThreshold) {
+        prevSlide();
+      } else {
+        setDragOffset(0);
+        setIsDragging(false);
+      }
+    };
+
+    window.addEventListener("mousemove", handleGlobalMouseMove);
+    window.addEventListener("mouseup", handleGlobalMouseUp);
+    return () => {
+      window.removeEventListener("mousemove", handleGlobalMouseMove);
+      window.removeEventListener("mouseup", handleGlobalMouseUp);
+    };
+  }, [currentIndex, totalSlides, nextSlide, prevSlide]);
 
   return (
-    <div className="flex flex-col h-full space-y-2 sm:space-y-2.5">
-      {/* ── Main Media Card ── */}
+    <div className="flex flex-col w-full space-y-3">
+      {/* ── Main Media Canvas ── */}
       <div
-        className="relative flex-1 h-full min-h-[340px] sm:min-h-[380px] lg:min-h-full w-full rounded-2xl overflow-hidden bg-white border border-slate-200/90 shadow-2xs group flex items-center justify-center"
+        ref={containerRef}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+        onTouchCancel={handleTouchEnd}
+        onMouseDown={handleMouseDown}
+        onWheel={handleWheel}
+        onDragStart={(e) => e.preventDefault()}
+        className="relative w-full aspect-square rounded-2xl overflow-hidden bg-slate-50/70 border border-slate-100 group flex items-center justify-center shrink-0 select-none cursor-grab active:cursor-grabbing touch-pan-y"
       >
-        {/* Top Badges Overlay */}
-        <div className="absolute top-2.5 sm:top-3.5 left-2.5 sm:left-3.5 right-2.5 sm:right-3.5 flex items-center justify-between z-10 pointer-events-none">
-          <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap pointer-events-auto">
-            {/* Brand Logo Pill */}
-            <div className="bg-white/95 backdrop-blur-md px-2.5 py-1 sm:px-3 sm:py-1 rounded-full shadow-2xs border border-slate-200 flex items-center gap-1 select-none">
-              <span className="text-[10px] sm:text-[11px] font-black tracking-tight text-slate-900">
-                PRAY<span className="text-[#00AEEF]">O</span>G{" "}
-                <span className="text-[#FF7A00]">INDIA</span>
-              </span>
-            </div>
-
-            {/* Genuine Product Badge */}
-            <div className="bg-emerald-50/95 backdrop-blur-md text-emerald-700 border border-emerald-200 px-2 py-0.5 sm:px-2.5 sm:py-0.5 rounded-full text-[10px] sm:text-[11px] font-bold shadow-2xs flex items-center gap-1 select-none">
-              <CheckCircle2 className="w-3 h-3 text-emerald-600 shrink-0" />
-              <span>Genuine Product</span>
+        {/* Top Badges & Controls Overlay */}
+        <div className="absolute top-3 left-3 right-3 flex items-center justify-between z-20 pointer-events-none">
+          <div className="flex items-center gap-2 pointer-events-auto">
+            <div className="bg-white/90 backdrop-blur-xs text-emerald-700 px-2.5 py-1 rounded-full text-xs font-semibold flex items-center gap-1.5 shadow-2xs select-none border border-emerald-100/60">
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+              <span>Genuine Hardware</span>
             </div>
           </div>
+          {currentIndex === videoSlideIndex && (
+            <button
+              type="button"
+              onClick={() => goToSlide(0)}
+              className="pointer-events-auto bg-white/95 hover:bg-white text-slate-800 hover:text-[#2563EB] backdrop-blur-xs px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5 shadow-md border border-slate-200 transition-all cursor-pointer"
+            >
+              <ChevronLeft className="w-4 h-4 text-[#2563EB]" />
+              <span>Back to Images</span>
+            </button>
+          )}
         </div>
 
-        {/* Media Viewer Area */}
-        {activeMode === "image" && (
-          <>
-            {galleryImages.length === 0 ? (
-              <div className="w-full h-full flex flex-col items-center justify-center text-slate-300 gap-2 p-8 text-center">
-                <span className="text-xs text-slate-400 font-bold">No product image uploaded</span>
-              </div>
-            ) : (
-              <>
-                {/* Horizontal Swipeable / Draggable Container */}
-                <div
-                  ref={sliderRef}
-                  onScroll={handleScroll}
-                  onPointerDown={handlePointerDown}
-                  onPointerMove={handlePointerMove}
-                  onPointerUp={handlePointerUp}
-                  onPointerCancel={handlePointerUp}
-                  className="flex w-full h-full overflow-x-auto snap-x snap-mandatory scrollbar-none cursor-grab active:cursor-grabbing select-none touch-pan-y overscroll-x-contain"
-                  style={{
-                    WebkitOverflowScrolling: "touch",
-                  }}
-                >
-                  {galleryImages.map((img, idx) => (
-                    <div
-                      key={idx}
-                      className="min-w-full w-full h-full shrink-0 snap-center relative flex items-center justify-center p-3 sm:p-4 pt-10 sm:pt-12"
-                    >
-                      <div className="relative w-full h-full">
-                        <Image
-                          src={img}
-                          alt={`${productName} image ${idx + 1}`}
-                          fill
-                          priority={idx === 0}
-                          draggable={false}
-                          className="object-contain pointer-events-none transition-transform duration-300 select-none"
-                        />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Prev/Next arrows */}
-                {galleryImages.length > 1 && (
-                  <>
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        prevImage();
-                      }}
-                      className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 bg-white/90 hover:bg-white text-slate-700 hover:text-[#2563EB] rounded-full shadow-md border border-slate-200/80 flex items-center justify-center transition-all cursor-pointer z-10 opacity-80 group-hover:opacity-100"
-                      aria-label="Previous Image"
-                    >
-                      <ChevronLeft className="w-5 h-5" />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        nextImage();
-                      }}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 bg-white/90 hover:bg-white text-slate-700 hover:text-[#2563EB] rounded-full shadow-md border border-slate-200/80 flex items-center justify-center transition-all cursor-pointer z-10 opacity-80 group-hover:opacity-100"
-                      aria-label="Next Image"
-                    >
-                      <ChevronRight className="w-5 h-5" />
-                    </button>
-                  </>
-                )}
-              </>
-            )}
-          </>
-        )}
-
-        {activeMode === "video" && optimizedVideoUrl && (
-          <video
-            src={optimizedVideoUrl}
-            controls
-            autoPlay
-            className="w-full h-full object-cover rounded-2xl"
-          />
-        )}
-
-        {activeMode === "360" && (
-          <div className="w-full h-full flex flex-col items-center justify-center gap-3 text-slate-600 select-none bg-slate-50/50 rounded-2xl p-4">
-            <div className="relative w-full h-48 flex items-center justify-center">
-              {galleryImages[0] ? (
-                <Image
-                  src={media360[0] || galleryImages[selectedIdx] || galleryImages[0]}
-                  alt="360 view model"
-                  fill
-                  className="object-contain animate-pulse"
-                />
-              ) : null}
-            </div>
-            <div className="flex items-center gap-2 bg-slate-900 text-white px-3.5 py-1.5 rounded-full text-xs font-bold shadow-sm">
-              <RotateCcw className="w-3.5 h-3.5 text-[#2563EB] animate-spin-slow" />
-              <span>360° Interactive View Mode</span>
-            </div>
+        {/* Unified Slides Track (Smooth CSS Transform with Touch/Drag Support) */}
+        {totalSlides === 0 ? (
+          <div className="w-full h-full flex flex-col items-center justify-center text-slate-300 gap-2 p-8 text-center">
+            <span className="text-xs text-slate-400 font-bold">No product media uploaded</span>
           </div>
+        ) : (
+          <div
+            className="flex w-full h-full"
+            style={{
+              transform: `translateX(calc(-${currentIndex * 100}% + ${dragOffset}px))`,
+              transition: isDragging
+                ? "none"
+                : "transform 500ms cubic-bezier(0.25, 1, 0.5, 1)",
+              willChange: "transform",
+            }}
+          >
+            {/* 1. Image Slides */}
+            {galleryImages.map((img, idx) => (
+              <div
+                key={`img-${idx}`}
+                className="min-w-full w-full h-full shrink-0 relative flex items-center justify-center p-4 pt-10 sm:pt-12"
+              >
+                <div className="relative w-full h-full">
+                  <Image
+                    src={img}
+                    alt={`${productName} image ${idx + 1}`}
+                    fill
+                    priority={idx === 0}
+                    draggable={false}
+                    className="object-contain pointer-events-none select-none"
+                  />
+                </div>
+              </div>
+            ))}
+
+            {/* 2. Video Slide */}
+            {hasVideo && optimizedVideoUrl && (
+              <div
+                key="video-slide"
+                className="min-w-full w-full h-full shrink-0 relative flex items-center justify-center bg-slate-950 p-2 select-none"
+              >
+                <video
+                  ref={videoRef}
+                  src={optimizedVideoUrl}
+                  controls
+                  playsInline
+                  className="w-full h-full object-contain rounded-xl"
+                />
+                {/* Swipeable gesture zone over video (bottom 64px left open for native playbar/volume) */}
+                <div
+                  className="absolute inset-x-0 top-0 bottom-16 z-10 cursor-grab active:cursor-grabbing"
+                  onClick={() => {
+                    if (videoRef.current) {
+                      if (videoRef.current.paused) {
+                        videoRef.current.play();
+                      } else {
+                        videoRef.current.pause();
+                      }
+                    }
+                  }}
+                />
+              </div>
+            )}
+
+            {/* 3. 360° Interactive Slide */}
+            {has360 && (
+              <div
+                key="360-slide"
+                className="min-w-full w-full h-full shrink-0 relative flex flex-col items-center justify-center gap-3 bg-slate-50/50 p-4"
+              >
+                <div className="relative w-full h-48 flex items-center justify-center">
+                  <Image
+                    src={media360[0] || galleryImages[0]}
+                    alt="360 view model"
+                    fill
+                    className="object-contain animate-pulse"
+                  />
+                </div>
+                <div className="flex items-center gap-2 bg-slate-900 text-white px-3.5 py-1.5 rounded-full text-xs font-bold shadow-sm">
+                  <RotateCcw className="w-3.5 h-3.5 text-[#2563EB] animate-spin-slow" />
+                  <span>360° Interactive View Mode</span>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Prev / Next Chevrons */}
+        {totalSlides > 1 && (
+          <>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                prevSlide();
+              }}
+              className="absolute left-3 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/90 hover:bg-white text-slate-700 hover:text-[#2563EB] rounded-full shadow-xs border border-slate-200/80 flex items-center justify-center transition-all cursor-pointer z-20 opacity-70 group-hover:opacity-100"
+              aria-label="Previous Slide"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                nextSlide();
+              }}
+              className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/90 hover:bg-white text-slate-700 hover:text-[#2563EB] rounded-full shadow-xs border border-slate-200/80 flex items-center justify-center transition-all cursor-pointer z-20 opacity-70 group-hover:opacity-100"
+              aria-label="Next Slide"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </>
         )}
       </div>
 
       {/* ── Thumbnail Strip ── */}
-      {(galleryImages.length > 1 || has360 || hasVideo) && (
-        <div className="flex items-center gap-2 overflow-x-auto scrollbar-none pb-1 px-0.5">
-        {galleryImages.map((img, idx) => (
-          <button
-            key={idx}
-            type="button"
-            onClick={() => {
-              scrollToSlide(idx);
-            }}
-            className={`relative w-12 h-12 sm:w-14 sm:h-14 shrink-0 rounded-xl overflow-hidden transition-all bg-white cursor-pointer ${
-              activeMode === "image" && selectedIdx === idx
-                ? "border-2 border-[#2563EB] ring-2 ring-blue-500/20 shadow-sm scale-102"
-                : "border border-slate-200 hover:border-slate-300 opacity-75 hover:opacity-100"
-            }`}
-          >
-            <Image
-              src={img}
-              alt={`Thumbnail ${idx + 1}`}
-              fill
-              className="object-contain p-1"
-            />
-          </button>
-        ))}
+      {totalSlides > 1 && (
+        <div className="flex items-center gap-2.5 overflow-x-auto scrollbar-none pt-1 pb-1 px-0.5 shrink-0">
+          {galleryImages.map((img, idx) => (
+            <button
+              key={idx}
+              type="button"
+              onClick={() => goToSlide(idx)}
+              className={`relative w-14 h-14 sm:w-16 sm:h-16 shrink-0 rounded-xl overflow-hidden transition-all bg-white cursor-pointer ${
+                currentIndex === idx
+                  ? "border-2 border-[#2563EB] shadow-xs ring-2 ring-blue-500/20"
+                  : "border border-slate-200/80 hover:border-slate-300 opacity-75 hover:opacity-100"
+              }`}
+            >
+              <Image
+                src={img}
+                alt={`Thumbnail ${idx + 1}`}
+                fill
+                className="object-contain p-1.5"
+              />
+            </button>
+          ))}
 
-        {/* 360° View / Interactive Mode Thumbnail */}
-        {has360 ? (
-          <button
-            type="button"
-            onClick={() => setActiveMode("360")}
-            className={`relative w-12 h-12 sm:w-14 sm:h-14 shrink-0 rounded-xl overflow-hidden transition-all flex flex-col items-center justify-center gap-1 cursor-pointer ${
-              activeMode === "360"
-                ? "bg-slate-900 border-2 border-[#2563EB] shadow-sm"
-                : "bg-slate-900 border border-slate-800 hover:border-slate-700"
-            }`}
-          >
-            <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full border border-white/40 flex items-center justify-center">
-              <RotateCcw className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#2563EB]" />
-            </div>
-            <span className="text-[8px] sm:text-[9px] font-bold text-white tracking-tight">
-              360° View
-            </span>
-          </button>
-        ) : hasVideo ? (
-          <button
-            type="button"
-            onClick={() => setActiveMode("video")}
-            className={`relative w-12 h-12 sm:w-14 sm:h-14 shrink-0 rounded-xl overflow-hidden transition-all flex flex-col items-center justify-center gap-1 cursor-pointer ${
-              activeMode === "video"
-                ? "bg-slate-900 border-2 border-[#2563EB] shadow-sm"
-                : "bg-slate-900 border border-slate-800 hover:border-slate-700"
-            }`}
-          >
-            <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full border border-white/40 flex items-center justify-center">
-              <Play className="w-3 h-3 sm:w-3.5 sm:h-3.5 fill-white text-white translate-x-0.5" />
-            </div>
-            <span className="text-[8px] sm:text-[9px] font-bold text-white tracking-tight">
-              Video
-            </span>
-          </button>
-        ) : null}
-      </div>
+          {/* 360° View Thumbnail */}
+          {has360 && media360SlideIndex !== -1 && (
+            <button
+              type="button"
+              onClick={() => goToSlide(media360SlideIndex)}
+              className={`relative w-14 h-14 sm:w-16 sm:h-16 shrink-0 rounded-xl overflow-hidden transition-all flex flex-col items-center justify-center gap-1 cursor-pointer ${
+                currentIndex === media360SlideIndex
+                  ? "bg-slate-900 border-2 border-[#2563EB] shadow-xs ring-2 ring-blue-500/20"
+                  : "bg-slate-900 border border-slate-800 hover:border-slate-700"
+              }`}
+            >
+              <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full border border-white/40 flex items-center justify-center">
+                <RotateCcw className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#2563EB]" />
+              </div>
+              <span className="text-[8px] sm:text-[9px] font-bold text-white tracking-tight">
+                360° View
+              </span>
+            </button>
+          )}
+
+          {/* Video Thumbnail */}
+          {hasVideo && videoSlideIndex !== -1 && (
+            <button
+              type="button"
+              onClick={() => goToSlide(videoSlideIndex)}
+              className={`relative w-14 h-14 sm:w-16 sm:h-16 shrink-0 rounded-xl overflow-hidden transition-all flex flex-col items-center justify-center gap-1 cursor-pointer ${
+                currentIndex === videoSlideIndex
+                  ? "bg-slate-900 border-2 border-[#2563EB] shadow-xs ring-2 ring-blue-500/20"
+                  : "bg-slate-900 border border-slate-800 hover:border-slate-700"
+              }`}
+            >
+              <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full border border-white/40 flex items-center justify-center">
+                <Play className="w-3 h-3 sm:w-3.5 sm:h-3.5 fill-white text-white translate-x-0.5" />
+              </div>
+              <span className="text-[8px] sm:text-[9px] font-bold text-white tracking-tight">
+                Video
+              </span>
+            </button>
+          )}
+        </div>
       )}
     </div>
   );

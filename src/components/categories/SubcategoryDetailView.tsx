@@ -12,7 +12,7 @@ import {
 import { ProductFilters } from "@/components/products/ProductFilters";
 import { ActiveFilters } from "@/components/products/ActiveFilters";
 import { ProductEmptyState } from "@/components/products/ProductEmptyState";
-import { CATEGORIES_DATA } from "@/data/categories";
+import { CATEGORIES_DATA, matchCategory, matchSubcategory } from "@/data/categories";
 import { PRODUCTS, Product } from "@/data/mockData";
 import {
   ChevronRight,
@@ -36,11 +36,10 @@ export const SubcategoryDetailView: React.FC<SubcategoryDetailProps> = ({
   const store = useStore();
 
   const category =
-    CATEGORIES_DATA.find(
-      (c) => c.slug === categorySlug || c.slugAlias === categorySlug,
-    ) || CATEGORIES_DATA[0];
+    CATEGORIES_DATA.find((c) => matchCategory(c, categorySlug)) ||
+    CATEGORIES_DATA[0];
   const subcategory =
-    category.subcategories.find((s) => s.slug === subcategorySlug) ||
+    category.subcategories.find((s) => matchSubcategory(s, subcategorySlug)) ||
     category.subcategories[0];
 
   // Filter products for this subcategory

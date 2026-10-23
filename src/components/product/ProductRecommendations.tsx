@@ -150,7 +150,7 @@ const RecoCard: React.FC<{ product: Product }> = ({ product }) => {
               <button
                 type="button"
                 onClick={handleBuyNow}
-                className="flex-1 bg-[#0A1128] text-white text-[9px] font-black py-1.5 rounded-lg hover:bg-slate-900 transition-colors active:scale-95 flex items-center justify-center gap-1 cursor-pointer"
+                className="flex-1 bg-[#2563EB] hover:bg-[#1D4ED8] active:bg-[#1E40AF] text-white text-[9px] font-black py-1.5 rounded-lg transition-colors active:scale-95 flex items-center justify-center gap-1 cursor-pointer shadow-2xs"
               >
                 <Zap className="w-2.5 h-2.5 fill-[#FFC20E] text-[#FFC20E]" /> BUY
               </button>

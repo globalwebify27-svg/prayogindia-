@@ -1,6 +1,7 @@
 export interface Subcategory {
   id: string;
   slug: string;
+  slugAlias?: string[];
   name: string;
   description: string;
   image: string;
@@ -10,7 +11,7 @@ export interface Subcategory {
 export interface CategoryData {
   id: string;
   slug: string;
-  slugAlias?: string;
+  slugAlias?: string | string[];
   name: string;
   shortName?: string;
   shortDescription: string;
@@ -24,1154 +25,546 @@ export interface CategoryData {
 }
 
 export const CATEGORIES_DATA: CategoryData[] = [
-  // 1. Arduino & Development Boards
-  {
-    id: "cat-arduino-devboards",
-    slug: "arduino-development-boards",
-    slugAlias: "arduino",
-    name: "Arduino & Development Boards",
-    shortName: "Arduino",
-    shortDescription:
-      "Official Arduino boards, shields, microcontrollers & accessories.",
-    fullDescription:
-      "Explore our range of authentic Arduino boards, ATmega328P platforms, R4 WiFi series, shield expansion modules, and development accessories for engineers & hobbyists.",
-    image:
-      "https://images.unsplash.com/photo-1553406830-ef2513450d76?auto=format&fit=crop&w=800&q=80",
-    productCount: 1850,
-    featured: true,
-    color: "#00878F",
-    bgColor: "#E6F7F8",
-    subcategories: [
-      {
-        id: "sub-ard-boards",
-        slug: "arduino-boards",
-        name: "Arduino Boards",
-        description: "UNO, Nano, Mega, Pro Mini & MKR boards.",
-        image:
-          "https://images.unsplash.com/photo-1553406830-ef2513450d76?auto=format&fit=crop&w=600&q=80",
-        productCount: 450,
-      },
-      {
-        id: "sub-ard-shields",
-        slug: "arduino-shields",
-        name: "Arduino Shields",
-        description: "Motor, Ethernet, Relay, and CNC shields.",
-        image:
-          "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=600&q=80",
-        productCount: 320,
-      },
-      {
-        id: "sub-ard-modules",
-        slug: "arduino-modules",
-        name: "Arduino Modules",
-        description: "Sensor breakout boards & communication modules.",
-        image:
-          "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80",
-        productCount: 520,
-      },
-      {
-        id: "sub-mcu-boards",
-        slug: "microcontroller-boards",
-        name: "Microcontroller Boards",
-        description: "ESP32, STM32, NodeMCU, PIC & AVR boards.",
-        image:
-          "https://images.unsplash.com/photo-1591488320449-011701bb6704?auto=format&fit=crop&w=600&q=80",
-        productCount: 280,
-      },
-      {
-        id: "sub-dev-boards",
-        slug: "development-boards",
-        name: "Development Boards",
-        description: "FPGA, CPLD, and specialized SOC development kits.",
-        image:
-          "https://images.unsplash.com/photo-1608564697071-ddf911d81370?auto=format&fit=crop&w=600&q=80",
-        productCount: 160,
-      },
-      {
-        id: "sub-prog-debug",
-        slug: "programmer-debugger",
-        name: "Programmer & Debugger",
-        description: "ST-Link, USBasp, FTDI, JTAG & CP2102 debuggers.",
-        image:
-          "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=600&q=80",
-        productCount: 120,
-      },
-    ],
-  },
-
-  // 2. Raspberry Pi
-  {
-    id: "cat-raspberry-pi",
-    slug: "raspberry-pi",
-    shortName: "Raspberry Pi",
-    name: "Raspberry Pi",
-    shortDescription:
-      "Single-board compute modules, HATs, displays & power supplies.",
-    fullDescription:
-      "Raspberry Pi 5, Pi 4B, Compute Module 4, official cases, camera modules, active coolers, Touch displays, and AI accelerators.",
-    image:
-      "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=80",
-    productCount: 1200,
-    featured: true,
-    color: "#C51A4A",
-    bgColor: "#FDE8EF",
-    subcategories: [
-      {
-        id: "sub-rpi-boards",
-        slug: "raspberry-pi-boards",
-        name: "Raspberry Pi Boards",
-        description: "Raspberry Pi 5, 4 Model B, Zero 2W & CM4.",
-        image:
-          "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80",
-        productCount: 280,
-      },
-      {
-        id: "sub-rpi-hats",
-        slug: "raspberry-pi-hats",
-        name: "Raspberry Pi HATs",
-        description: "PoE HATs, Motor Driver HATs, GPS & Audio DACs.",
-        image:
-          "https://images.unsplash.com/photo-1553406830-ef2513450d76?auto=format&fit=crop&w=600&q=80",
-        productCount: 340,
-      },
-      {
-        id: "sub-rpi-cases",
-        slug: "raspberry-pi-cases",
-        name: "Raspberry Pi Cases",
-        description: "Aluminum passive cooling cases and acrylic enclosures.",
-        image:
-          "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=600&q=80",
-        productCount: 210,
-      },
-      {
-        id: "sub-rpi-power",
-        slug: "power-supplies",
-        name: "Power Supplies",
-        description: "Official 27W USB-C PD and 15W power adapters.",
-        image:
-          "https://images.unsplash.com/photo-1619725002198-6a689b72f41d?auto=format&fit=crop&w=600&q=80",
-        productCount: 150,
-      },
-      {
-        id: "sub-rpi-display",
-        slug: "display-camera",
-        name: "Display & Camera",
-        description: "HQ Camera 12MP, Global Shutter & DSI Touchscreens.",
-        image:
-          "https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=600&q=80",
-        productCount: 220,
-      },
-    ],
-  },
-
-  // 3. Robotics
-  {
-    id: "cat-robotics",
-    slug: "robotics",
-    shortName: "Robotics",
-    name: "Robotics",
-    shortDescription:
-      "Build, learn and explore autonomous robotics, arms & chassis.",
-    fullDescription:
-      "Comprehensive range of robotics hardware, 6-DOF manipulator arms, ROS 2 mobility platforms, metal chassis, servos, and industrial actuators.",
-    image:
-      "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&w=800&q=80",
-    productCount: 2450,
-    featured: true,
-    color: "#7C3AED",
-    bgColor: "#F5F3FF",
-    subcategories: [
-      {
-        id: "sub-robotics-kits",
-        slug: "robotics-kits",
-        name: "Robot Kits",
-        description: "Complete hands-on STEM & ROS robotics kits.",
-        image:
-          "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&w=600&q=80",
-        productCount: 420,
-      },
-      {
-        id: "sub-robot-parts",
-        slug: "robot-chassis",
-        name: "Robot Chassis",
-        description: "Metal frames, omni wheels & structural brackets.",
-        image:
-          "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=600&q=80",
-        productCount: 680,
-      },
-      {
-        id: "sub-robot-wheels",
-        slug: "robot-wheels",
-        name: "Robot Wheels",
-        description: "Mecanum wheels, rubber tracks & caster wheels.",
-        image:
-          "https://images.unsplash.com/photo-1608564697071-ddf911d81370?auto=format&fit=crop&w=600&q=80",
-        productCount: 310,
-      },
-      {
-        id: "sub-robot-arms",
-        slug: "robot-arms",
-        name: "Robot Arms",
-        description: "6-DOF robotic metal arm grippers and kinematic kits.",
-        image:
-          "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&w=600&q=80",
-        productCount: 290,
-      },
-      {
-        id: "sub-robot-controllers",
-        slug: "robotics-controllers",
-        name: "Robotics Controllers",
-        description: "PCA9685 16-channel servo drivers & ROS controllers.",
-        image:
-          "https://images.unsplash.com/photo-1553406830-ef2513450d76?auto=format&fit=crop&w=600&q=80",
-        productCount: 500,
-      },
-      {
-        id: "sub-line-following",
-        slug: "line-following-robots",
-        name: "Line Following Robots",
-        description: "High-speed line tracker sensors and DIY STEM kits.",
-        image:
-          "https://images.unsplash.com/photo-1591488320449-011701bb6704?auto=format&fit=crop&w=600&q=80",
-        productCount: 250,
-      },
-    ],
-  },
-
-  // 4. Sensors & Modules
-  {
-    id: "cat-sensors-modules",
-    slug: "sensors-modules",
-    shortName: "Sensors",
-    name: "Sensors & Modules",
-    shortDescription:
-      "Precision environmental, motion, optical, gas & biosensors.",
-    fullDescription:
-      "From temperature and humidity probes (DHT22, BME280) to 6-axis IMUs (MPU6050), LiDAR distance sensors, and smart AI vision modules.",
-    image:
-      "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=800&q=80",
-    productCount: 3100,
-    featured: true,
-    color: "#D97706",
-    bgColor: "#FFFBEB",
-    subcategories: [
-      {
-        id: "sub-temp-sensors",
-        slug: "temperature-sensors",
-        name: "Temperature Sensors",
-        description: "DHT11, DHT22, DS18B20 & PT100 thermal probes.",
-        image:
-          "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=600&q=80",
-        productCount: 410,
-      },
-      {
-        id: "sub-humidity-sensors",
-        slug: "humidity-sensors",
-        name: "Humidity Sensors",
-        description: "BME280, SHT31 & capacitive soil moisture sensors.",
-        image:
-          "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80",
-        productCount: 330,
-      },
-      {
-        id: "sub-ultrasonic-sensors",
-        slug: "ultrasonic-sensors",
-        name: "Ultrasonic Sensors",
-        description: "HC-SR04, waterproof JSN-SR04T distance sensors.",
-        image:
-          "https://images.unsplash.com/photo-1508614589041-895b88991e3e?auto=format&fit=crop&w=600&q=80",
-        productCount: 290,
-      },
-      {
-        id: "sub-motion-sensors",
-        slug: "motion-sensors",
-        name: "Motion & IMU Sensors",
-        description: "MPU6050, PIR motion, ADXL345 & radar sensors.",
-        image:
-          "https://images.unsplash.com/photo-1553406830-ef2513450d76?auto=format&fit=crop&w=600&q=80",
-        productCount: 460,
-      },
-      {
-        id: "sub-gas-sensors",
-        slug: "gas-sensors",
-        name: "Gas Sensors",
-        description: "MQ-2, MQ-7, MQ-135 air quality & CO2 sensors.",
-        image:
-          "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=600&q=80",
-        productCount: 380,
-      },
-      {
-        id: "sub-gps-rfid",
-        slug: "gps-rfid-modules",
-        name: "GPS & RFID Modules",
-        description: "NEO-6M GPS, RC522 RFID & NFC readers.",
-        image:
-          "https://images.unsplash.com/photo-1591488320449-011701bb6704?auto=format&fit=crop&w=600&q=80",
-        productCount: 420,
-      },
-    ],
-  },
-
-  // 5. Motors & Motor Drivers
-  {
-    id: "cat-motors-drivers",
-    slug: "motors-drivers",
-    shortName: "Motors",
-    name: "Motors & Motor Drivers",
-    shortDescription:
-      "DC, Stepper, BLDC, Servo motors and H-bridge motor drivers.",
-    fullDescription:
-      "Heavy-duty NEMA 17/23 stepper motors, MG996R metal gear servos, drone BLDC brushless motors, and high-current L298N/TB6600 driver controllers.",
-    image:
-      "https://images.unsplash.com/photo-1608564697071-ddf911d81370?auto=format&fit=crop&w=800&q=80",
-    productCount: 1950,
-    featured: true,
-    color: "#EA580C",
-    bgColor: "#FFF7ED",
-    subcategories: [
-      {
-        id: "sub-dc-motors",
-        slug: "dc-motors",
-        name: "DC Motors",
-        description: "Bo motor, high-torque RS775, and micro vibration motors.",
-        image:
-          "https://images.unsplash.com/photo-1608564697071-ddf911d81370?auto=format&fit=crop&w=600&q=80",
-        productCount: 410,
-      },
-      {
-        id: "sub-gear-motors",
-        slug: "gear-motors",
-        name: "Gear Motors",
-        description: "Planetary gear, metal spur gearbox & worm gear motors.",
-        image:
-          "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=600&q=80",
-        productCount: 380,
-      },
-      {
-        id: "sub-servo-motors",
-        slug: "servo-motors",
-        name: "Servo Motors",
-        description: "SG90 micro servos, MG995/MG996R & serial bus servos.",
-        image:
-          "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&w=600&q=80",
-        productCount: 360,
-      },
-      {
-        id: "sub-stepper-motors",
-        slug: "stepper-motors",
-        name: "Stepper Motors",
-        description: "NEMA 17, NEMA 23 & 28BYJ-48 stepper motors.",
-        image:
-          "https://images.unsplash.com/photo-1553406830-ef2513450d76?auto=format&fit=crop&w=600&q=80",
-        productCount: 310,
-      },
-      {
-        id: "sub-bldc-motors",
-        slug: "bldc-motors",
-        name: "BLDC Motors",
-        description: "A2212, 2205 brushless drone motors & outrunners.",
-        image:
-          "https://images.unsplash.com/photo-1508614589041-895b88991e3e?auto=format&fit=crop&w=600&q=80",
-        productCount: 290,
-      },
-      {
-        id: "sub-motor-drivers",
-        slug: "motor-drivers",
-        name: "Motor Drivers & ESC",
-        description: "L298N, L293D, TB6600, A4988 & 30A SimonK ESCs.",
-        image:
-          "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80",
-        productCount: 320,
-      },
-    ],
-  },
-
-  // 6. Electronic Components
+  // 1. Electronic Components
   {
     id: "cat-electronic-components",
     slug: "electronic-components",
-    shortName: "Components",
+    slugAlias: ["cables-connectors", "components", "passives"],
     name: "Electronic Components",
+    shortName: "Components",
     shortDescription:
-      "Semiconductors, resistors, capacitors, ICs, relays & switches.",
+      "Essential active & passive components: resistors, capacitors, ICs, LEDs, relays, and connectors.",
     fullDescription:
-      "Core discrete active and passive components, NE555 timers, LM358 op-amps, MOSFETs, diodes, high-precision metal film resistors, and relays.",
+      "Comprehensive catalog of authentic electronic components for electronics engineering, prototyping, and assembly. Includes precision resistors, high-grade electrolytic & ceramic capacitors, logic ICs, power regulators, optoelectronics, switching relays, and robust PCB connectors.",
     image:
-      "https://images.unsplash.com/photo-1527977966376-1c8408f9f108?auto=format&fit=crop&w=800&q=80",
-    productCount: 5400,
+      "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=80",
+    productCount: 4200,
     featured: true,
-    color: "#0284C7",
-    bgColor: "#F0F9FF",
+    color: "#E11D48",
+    bgColor: "#FFE4E6",
     subcategories: [
       {
         id: "sub-resistors",
         slug: "resistors",
         name: "Resistors",
-        description:
-          "Carbon film, metal film, SMD & potentiometer trimmer resistors.",
+        description: "Through-hole, SMD metal film resistors, power wirewound & potentiometers.",
         image:
-          "https://images.unsplash.com/photo-1527977966376-1c8408f9f108?auto=format&fit=crop&w=600&q=80",
-        productCount: 890,
+          "https://images.unsplash.com/photo-1555680202-c86f0e12f086?auto=format&fit=crop&w=600&q=80",
+        productCount: 1100,
       },
       {
         id: "sub-capacitors",
         slug: "capacitors",
         name: "Capacitors",
-        description: "Electrolytic, ceramic disc, tantalum & SMD capacitors.",
+        description: "Electrolytic, ceramic multilayer, tantalum, and supercapacitors.",
         image:
-          "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80",
-        productCount: 780,
-      },
-      {
-        id: "sub-diodes-transistors",
-        slug: "diodes-transistors",
-        name: "Diodes & Transistors",
-        description:
-          "1N4007, Zener, Schottky, BC547, 2N2222 & IRF540N MOSFETs.",
-        image:
-          "https://images.unsplash.com/photo-1553406830-ef2513450d76?auto=format&fit=crop&w=600&q=80",
-        productCount: 940,
+          "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=600&q=80",
+        productCount: 950,
       },
       {
         id: "sub-ics",
         slug: "ics",
-        name: "Integrated Circuits (ICs)",
-        description:
-          "Logic gates, operational amplifiers, timers & voltage regulators.",
+        name: "ICs",
+        description: "Linear regulators, operational amplifiers, 555 timers, logic gates, and driver ICs.",
         image:
-          "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=600&q=80",
-        productCount: 1100,
+          "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80",
+        productCount: 820,
       },
       {
-        id: "sub-relays-switches",
-        slug: "relays-switches",
-        name: "Relays & Switches",
-        description:
-          "5V/12V relay modules, tactile push buttons, toggle switches.",
+        id: "sub-leds",
+        slug: "leds",
+        name: "LEDs",
+        description: "Standard 3mm/5mm through-hole LEDs, RGB Neopixels, SMD diodes, and high-power emitters.",
         image:
-          "https://images.unsplash.com/photo-1608564697071-ddf911d81370?auto=format&fit=crop&w=600&q=80",
-        productCount: 650,
+          "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=600&q=80",
+        productCount: 480,
+      },
+      {
+        id: "sub-relays",
+        slug: "relays",
+        name: "Relays",
+        description: "Electromechanical 5V/12V relays, solid state relays (SSR), and multi-channel relay modules.",
+        image:
+          "https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=600&q=80",
+        productCount: 390,
+      },
+      {
+        id: "sub-connectors",
+        slug: "connectors",
+        name: "Connectors",
+        description: "JST, Dupont headers, screw terminals, USB connectors, DC barrel jacks, and wire assemblies.",
+        image:
+          "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=600&q=80",
+        productCount: 460,
       },
     ],
   },
 
-  // 7. IoT & Wireless
+  // 2. Robotics
   {
-    id: "cat-iot-wireless",
-    slug: "iot-wireless",
-    shortName: "IoT & Wireless",
-    name: "IoT & Wireless",
-    shortDescription: "Wi-Fi, Bluetooth, LoRa, GSM, RF modules & antennas.",
+    id: "cat-robotics",
+    slug: "robotics",
+    slugAlias: ["robotics-diy-kits", "robotics-accessories", "motors-drivers"],
+    name: "Robotics",
+    shortName: "Robotics",
+    shortDescription:
+      "Robot kits, robotics accessories, precision motors, motor drivers, wheels, and motion controllers.",
     fullDescription:
-      "Long-range wireless transceivers, ESP8266 ESP-01, ESP32 NodeMCU, SX1278 LoRa 433MHz, SIM800L GSM, and high-gain SMA antennas.",
+      "Explore high-grade hardware for autonomous rovers, robotic arm manipulators, hexapods, line followers, and industrial research robots. Features complete chassis kits, heavy-duty gearboxes, encoder stepper drives, omnidirectional wheels, and smart PID servo controllers.",
     image:
-      "https://images.unsplash.com/photo-1591488320449-011701bb6704?auto=format&fit=crop&w=800&q=80",
-    productCount: 1650,
+      "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&w=800&q=80",
+    productCount: 3600,
     featured: true,
     color: "#2563EB",
     bgColor: "#EFF6FF",
     subcategories: [
       {
-        id: "sub-wifi-modules",
-        slug: "wifi-modules",
-        name: "Wi-Fi Modules",
-        description: "ESP8266, ESP32-WROOM & USB Wi-Fi dongles.",
+        id: "sub-robot-kits",
+        slug: "robot-kits",
+        name: "Robot Kits",
+        description: "2WD/4WD obstacle avoiding rovers, 6-DOF robotic arms, bipedal walkers, and SLAM kits.",
         image:
-          "https://images.unsplash.com/photo-1591488320449-011701bb6704?auto=format&fit=crop&w=600&q=80",
-        productCount: 380,
+          "/images/products/4wd-robot-chassis-kit.jpg",
+        productCount: 680,
       },
       {
-        id: "sub-bluetooth-modules",
-        slug: "bluetooth-modules",
-        name: "Bluetooth Modules",
-        description: "HC-05, HC-06, BLE 4.0 & ESP32 BLE transceivers.",
+        id: "sub-robotics-accessories",
+        slug: "robotics-accessories",
+        name: "Robotics Accessories",
+        description: "Metal brackets, servo horns, ball casters, pan-tilt mounts, and chassis hardware.",
         image:
-          "https://images.unsplash.com/photo-1553406830-ef2513450d76?auto=format&fit=crop&w=600&q=80",
-        productCount: 310,
+          "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=600&q=80",
+        productCount: 750,
       },
       {
-        id: "sub-lora-rf",
-        slug: "lora-rf-modules",
-        name: "LoRa & RF Modules",
-        description: "SX1278 LoRa, NRF24L01+ 2.4GHz & 433MHz RF pairs.",
+        id: "sub-motors-drivers",
+        slug: "motors-drivers",
+        name: "Motors & Drivers",
+        description: "NEMA steppers, DC gear motors, coreless servos, L298N, TB6600, and Cytron motor drivers.",
         image:
-          "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80",
-        productCount: 290,
+          "/images/products/l298n-motor-driver.jpg",
+        productCount: 1100,
       },
       {
-        id: "sub-gsm-gprs",
-        slug: "gsm-gprs-modules",
-        name: "GSM/GPRS Modules",
-        description: "SIM800L, SIM900A & 4G LTE IoT gateways.",
+        id: "sub-wheels",
+        slug: "wheels",
+        name: "Wheels",
+        description: "Mecanum wheels, omnidirectional rollers, high-grip rubber tires, and brass motor couplings.",
         image:
-          "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=600&q=80",
-        productCount: 240,
+          "/images/products/tt-gear-motor-wheel.png",
+        productCount: 520,
+      },
+      {
+        id: "sub-controllers",
+        slug: "controllers",
+        name: "Controllers",
+        description: "Robotics motion control boards, 16-channel PWM servo drivers, and wireless RC joysticks.",
+        image:
+          "https://images.unsplash.com/photo-1555680202-c86f0e12f086?auto=format&fit=crop&w=600&q=80",
+        productCount: 550,
       },
     ],
   },
 
-  // 8. Batteries & Power
+  // 3. Development Boards
+  {
+    id: "cat-development-boards",
+    slug: "development-boards",
+    slugAlias: ["arduino-development-boards", "arduino", "raspberry-pi", "devboards", "arduino-microcontrollers"],
+    name: "Development Boards",
+    shortName: "Dev Boards",
+    shortDescription:
+      "Official Arduino, Raspberry Pi single-board computers, and advanced embedded development platforms.",
+    fullDescription:
+      "The ultimate destination for embedded prototyping and AI computing. Featuring genuine Arduino UNO, Nano & Mega boards, Raspberry Pi 5 & Compute Module 4, ESP32 dual-core IoT modules, NVIDIA Jetson edge AI boards, and STM32 ARM platforms.",
+    image:
+      "https://images.unsplash.com/photo-1553406830-ef2513450d76?auto=format&fit=crop&w=800&q=80",
+    productCount: 2900,
+    featured: true,
+    color: "#00878F",
+    bgColor: "#E6F7F8",
+    subcategories: [
+      {
+        id: "sub-arduino",
+        slug: "arduino",
+        name: "Arduino",
+        description: "UNO R3, R4 WiFi, Mega 2560, Nano, Pro Mini, and official Arduino shield accessories.",
+        image:
+          "/images/products/arduino-uno-r3.png",
+        productCount: 1200,
+      },
+      {
+        id: "sub-raspberry-pi",
+        slug: "raspberry-pi",
+        name: "Raspberry Pi",
+        description: "Raspberry Pi 5, 4B, Pi 400, Compute Module 4, Pico W, and official cooling HATs.",
+        image:
+          "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80",
+        productCount: 850,
+      },
+      {
+        id: "sub-other-dev-boards",
+        slug: "other-development-boards",
+        name: "Other Development Boards",
+        description: "ESP32, ESP8266, STM32 Blue Pill, NVIDIA Jetson Orin Nano, BeagleBone, and FPGA platforms.",
+        image:
+          "https://images.unsplash.com/photo-1608564697071-ddf911d81370?auto=format&fit=crop&w=600&q=80",
+        productCount: 850,
+      },
+    ],
+  },
+
+  // 4. Drone Technology
+  {
+    id: "cat-drone-technology",
+    slug: "drone-technology",
+    slugAlias: ["drones", "uav-parts", "drone-parts"],
+    name: "Drone Technology",
+    shortName: "Drones",
+    shortDescription:
+      "UAV avionics: flight controllers, BLDC motors, ESC speed controllers, GPS modules, propellers, batteries, and FPV cameras.",
+    fullDescription:
+      "Professional drone components and UAV technology for quadcopters, hexacopters, surveying UAVs, and FPV racing drones. Includes Pixhawk autopilots, high-thrust brushless motors, 4-in-1 DShot ESCs, high-precision GPS compass modules, carbon fiber props, LiPo batteries, and low-latency HD cameras.",
+    image:
+      "https://images.unsplash.com/photo-1527977966376-1c8408f9f108?auto=format&fit=crop&w=800&q=80",
+    productCount: 2200,
+    featured: true,
+    color: "#0284C7",
+    bgColor: "#E0F2FE",
+    subcategories: [
+      {
+        id: "sub-flight-controllers",
+        slug: "flight-controllers",
+        name: "Flight Controllers",
+        description: "Pixhawk 6C/2.4.8, Betaflight F4/F7/H7 flight controllers, and APM autopilot systems.",
+        image:
+          "https://images.unsplash.com/photo-1508614589041-895b88991e3e?auto=format&fit=crop&w=600&q=80",
+        productCount: 380,
+      },
+      {
+        id: "sub-drone-motors",
+        slug: "motors",
+        name: "Motors",
+        description: "High-thrust BLDC motors: 2205, 2212, 2306, 2814, and heavy-lift agricultural drone motors.",
+        image:
+          "https://images.unsplash.com/photo-1581092162384-8987c1d64718?auto=format&fit=crop&w=600&q=80",
+        productCount: 420,
+      },
+      {
+        id: "sub-esc",
+        slug: "esc",
+        name: "ESC",
+        description: "Electronic Speed Controllers: SimonK 30A, BLHeli_S, BLHeli_32 4-in-1, and 60A high-voltage ESCs.",
+        image:
+          "https://images.unsplash.com/photo-1517420704952-d9f39e95b43e?auto=format&fit=crop&w=600&q=80",
+        productCount: 310,
+      },
+      {
+        id: "sub-gps-modules",
+        slug: "gps-modules",
+        name: "GPS Modules",
+        description: "NEO-6M, NEO-M8N, M9N high-precision GPS antennas, RTK positioning, and compass modules.",
+        image:
+          "https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=600&q=80",
+        productCount: 240,
+      },
+      {
+        id: "sub-propellers",
+        slug: "propellers",
+        name: "Propellers",
+        description: "Carbon fiber, poly-carbonate 5040, 1045, 1245 props, and folding agricultural propellers.",
+        image:
+          "https://images.unsplash.com/photo-1527977966376-1c8408f9f108?auto=format&fit=crop&w=600&q=80",
+        productCount: 320,
+      },
+      {
+        id: "sub-drone-batteries",
+        slug: "drone-batteries",
+        slugAlias: ["batteries", "lipo-batteries", "lipo-battery-packs"],
+        name: "Batteries",
+        description: "High discharge rate LiPo battery packs: 3S 2200mAh, 4S 1500mAh, 6S 4500mAh, and 12S drone power.",
+        image:
+          "https://images.unsplash.com/photo-1619641253018-095a2542a22c?auto=format&fit=crop&w=600&q=80",
+        productCount: 280,
+      },
+      {
+        id: "sub-drone-cameras",
+        slug: "cameras",
+        name: "Cameras",
+        description: "FPV analog 1200TVL cameras, Caddx digital HD units, and 3-axis brushless camera gimbals.",
+        image:
+          "https://images.unsplash.com/photo-1502920917128-1aa500764cbd?auto=format&fit=crop&w=600&q=80",
+        productCount: 250,
+      },
+    ],
+  },
+
+  // 5. Sensors & IoT
+  {
+    id: "cat-sensors-iot",
+    slug: "sensors-iot",
+    slugAlias: ["sensors-modules", "iot-wireless", "sensors", "iot", "iot-wireless-modules"],
+    name: "Sensors & IoT",
+    shortName: "Sensors & IoT",
+    shortDescription:
+      "Environmental, motion, optical sensors and smart IoT wireless connectivity hardware.",
+    fullDescription:
+      "A complete ecosystem of telemetry sensors and connected IoT hardware. Includes ultrasonic distance meters, IMU motion trackers, environmental gas & humidity sensors, LoRaWAN long-range modems, Wi-Fi ESP modules, Zigbee nodes, and smart IoT gateways.",
+    image:
+      "/images/products/ultrasonic-sensor-hcsr04.png",
+    productCount: 3100,
+    featured: true,
+    color: "#7C3AED",
+    bgColor: "#F5F3FF",
+    subcategories: [
+      {
+        id: "sub-sensors-modules",
+        slug: "sensors-modules",
+        name: "Sensors & Modules",
+        description: "HC-SR04 ultrasonic, MPU-6050 gyro, DHT11/22, LiDAR, PIR motion, and optical gas sensors.",
+        image:
+          "/images/products/ultrasonic-sensor-hcsr04.png",
+        productCount: 1850,
+      },
+      {
+        id: "sub-iot-products",
+        slug: "iot-products",
+        name: "IoT Products",
+        description: "ESP8266 NodeMCU, LoRa SX1278 transceivers, NRF24L01, GSM/GPRS shields, and cloud IoT gateways.",
+        image:
+          "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80",
+        productCount: 1250,
+      },
+    ],
+  },
+
+  // 6. Batteries & Power
   {
     id: "cat-batteries-power",
     slug: "batteries-power",
-    shortName: "Power & Batt",
+    slugAlias: ["batteries", "power-supplies", "power"],
     name: "Batteries & Power",
+    shortName: "Batteries & Power",
     shortDescription:
-      "Li-ion cells, LiPo battery packs, BMS, chargers & buck converters.",
+      "Lithium-ion 18650 cells, LiPo battery packs, step-down converters, and smart battery chargers.",
     fullDescription:
-      "High-discharge 18650 Li-ion cells, 3S/4S drone LiPo packs, TP4056 chargers, multi-cell BMS protection boards, and DC-DC step-down converters.",
+      "Certified energy storage and power conversion solutions for hardware systems. Featuring authentic 18650 and 21700 lithium cells, multi-cell battery management systems (BMS), buck/boost voltage regulators, solar charge controllers, and AC-DC desktop power supplies.",
     image:
-      "https://images.unsplash.com/photo-1619725002198-6a689b72f41d?auto=format&fit=crop&w=800&q=80",
-    productCount: 1420,
+      "https://images.unsplash.com/photo-1619641253018-095a2542a22c?auto=format&fit=crop&w=800&q=80",
+    productCount: 1200,
+    featured: false,
+    color: "#F59E0B",
+    bgColor: "#FEF3C7",
+    subcategories: [
+      {
+        id: "sub-batteries",
+        slug: "batteries",
+        name: "Batteries",
+        description: "18650 Li-ion cells, LiFePO4 packs, 9V rechargeable batteries, BMS protection boards, and smart balance chargers.",
+        image:
+          "https://images.unsplash.com/photo-1619641253018-095a2542a22c?auto=format&fit=crop&w=600&q=80",
+        productCount: 1200,
+      },
+    ],
+  },
+
+  // 7. Mechanical & Hardware
+  {
+    id: "cat-mechanical-hardware",
+    slug: "mechanical-hardware",
+    slugAlias: ["mechanical-components", "hardware-tools", "3d-printing"],
+    name: "Mechanical & Hardware",
+    shortName: "Mechanical & Hardware",
+    shortDescription:
+      "Mechanical gears, aluminum extrusions, precision fasteners, brackets, and 3D printing accessories.",
+    fullDescription:
+      "Industrial-grade structural mechanical components and hardware prototyping parts. Covers aluminum V-slot profiles, linear bearings, timing belts, metric screw kits, standoffs, 3D printer extruders, hotends, nozzles, and engineering filaments.",
+    image:
+      "https://images.unsplash.com/photo-1581092162384-8987c1d64718?auto=format&fit=crop&w=800&q=80",
+    productCount: 2100,
+    featured: false,
+    color: "#475569",
+    bgColor: "#F1F5F9",
+    subcategories: [
+      {
+        id: "sub-mechanical-products",
+        slug: "mechanical-products",
+        name: "Mechanical Products",
+        description: "Linear motion shafts, lead screws, GT2 timing pulleys, spur gears, and structural brackets.",
+        image:
+          "https://images.unsplash.com/photo-1581092162384-8987c1d64718?auto=format&fit=crop&w=600&q=80",
+        productCount: 850,
+      },
+      {
+        id: "sub-hardware",
+        slug: "hardware",
+        name: "Hardware",
+        description: "M2/M3/M4 hex screws, nylon standoffs, T-nuts, washers, heat-set inserts, and prototyping enclosures.",
+        image:
+          "https://images.unsplash.com/photo-1504917599217-d4dc5ebe6122?auto=format&fit=crop&w=600&q=80",
+        productCount: 780,
+      },
+      {
+        id: "sub-3d-accessories",
+        slug: "3d-accessories",
+        name: "3D Accessories",
+        description: "Brass nozzles, PTFE Capricorn tubes, magnetic build plates, thermistors, and PLA/PETG filaments.",
+        image:
+          "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=600&q=80",
+        productCount: 470,
+      },
+    ],
+  },
+
+  // 8. Educational & STEM Kits
+  {
+    id: "cat-educational-stem-kits",
+    slug: "educational-stem-kits",
+    slugAlias: ["educational-stem", "stem-kits", "project-kits", "stem"],
+    name: "Educational & STEM Kits",
+    shortName: "STEM & Kits",
+    shortDescription:
+      "Hands-on STEM learning kits, educational robotics, electronic science toys, and college project kits.",
+    fullDescription:
+      "Designed for students, schools, Atal Tinkering Labs (ATL), and engineering makers. Complete self-contained learning kits covering electronics basics, sensor experiments, IoT telemetry, robotics building, and capstone engineering degree project kits.",
+    image:
+      "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=800&q=80",
+    productCount: 1650,
     featured: true,
     color: "#059669",
     bgColor: "#ECFDF5",
     subcategories: [
       {
-        id: "sub-li-ion",
-        slug: "li-ion-batteries",
-        name: "Li-ion Batteries",
-        description: "18650 2600mAh/3000mAh, 21700 high-capacity cells.",
-        image:
-          "https://images.unsplash.com/photo-1619725002198-6a689b72f41d?auto=format&fit=crop&w=600&q=80",
-        productCount: 320,
-      },
-      {
-        id: "sub-lipo",
-        slug: "lipo-batteries",
-        name: "Li-Po Batteries",
-        description: "11.1V 3S, 14.8V 4S high-C discharge drone packs.",
-        image:
-          "https://images.unsplash.com/photo-1508614589041-895b88991e3e?auto=format&fit=crop&w=600&q=80",
-        productCount: 290,
-      },
-      {
-        id: "sub-bms-chargers",
-        slug: "battery-chargers-bms",
-        name: "Battery Chargers & BMS",
-        description: "TP4056 USB Type-C, IMAX B6, 3S/4S BMS modules.",
+        id: "sub-stem-kits",
+        slug: "stem-kits",
+        name: "STEM Kits",
+        description: "Hands-on robotics, electronics foundation, solar power, and Atal Tinkering Lab curriculum kits.",
         image:
           "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=600&q=80",
-        productCount: 350,
-      },
-      {
-        id: "sub-power-supplies",
-        slug: "dc-dc-power-modules",
-        name: "DC-DC Converters & Supplies",
-        description: "LM2596 buck, XL6009 boost & 12V 5A SMPS power bricks.",
-        image:
-          "https://images.unsplash.com/photo-1553406830-ef2513450d76?auto=format&fit=crop&w=600&q=80",
-        productCount: 360,
-      },
-    ],
-  },
-
-  // 9. Cameras & Imaging
-  {
-    id: "cat-cameras-imaging",
-    slug: "cameras-imaging",
-    shortName: "Cameras",
-    name: "Cameras & Imaging",
-    shortDescription:
-      "USB, Pi, ESP32-CAM, lenses & smart machine vision sensors.",
-    fullDescription:
-      "High-resolution camera sensors, OV2640, Raspberry Pi HQ camera lenses, thermal imaging modules, and smart optical flow sensors.",
-    image:
-      "https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=800&q=80",
-    productCount: 780,
-    color: "#9333EA",
-    bgColor: "#FAF5FF",
-    subcategories: [
-      {
-        id: "sub-esp-cam",
-        slug: "esp-cameras",
-        name: "ESP32-CAM & AI Cams",
-        description: "OV2640, OV7670 and Wi-Fi camera breakout modules.",
-        image:
-          "https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=600&q=80",
-        productCount: 190,
-      },
-      {
-        id: "sub-pi-cam",
-        slug: "raspberry-pi-cameras",
-        name: "Raspberry Pi Cameras",
-        description: "Pi Camera v2, HQ Camera 12MP & Wide-Angle lenses.",
-        image:
-          "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80",
-        productCount: 240,
-      },
-      {
-        id: "sub-usb-cam",
-        slug: "usb-cameras-lenses",
-        name: "USB Cameras & Lenses",
-        description: "UVC plug-and-play USB cameras & CS-mount optical lenses.",
-        image:
-          "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=600&q=80",
-        productCount: 210,
-      },
-    ],
-  },
-
-  // 10. Connectors, Cables & Adapters
-  {
-    id: "cat-cables-connectors",
-    slug: "cables-connectors",
-    shortName: "Cables",
-    name: "Connectors, Cables & Adapters",
-    shortDescription:
-      "Jumper wires, Dupont connectors, USB, HDMI & power cables.",
-    fullDescription:
-      "Premium male-to-male, male-to-female jumper cables, Dupont connector crimping kits, high-speed USB-C cables, and terminal block connectors.",
-    image:
-      "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=800&q=80",
-    productCount: 2100,
-    color: "#4F46E5",
-    bgColor: "#EEF2FF",
-    subcategories: [
-      {
-        id: "sub-jumper-wires",
-        slug: "jumper-wires",
-        name: "Jumper Wires",
-        description: "M-M, M-F, F-F 10cm/20cm/30cm ribbon jumper wires.",
-        image:
-          "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=600&q=80",
         productCount: 520,
       },
       {
-        id: "sub-dupont-pin",
-        slug: "dupont-pin-headers",
-        name: "Dupont & Pin Headers",
-        description: "2.54mm pitch male/female headers & crimp pins.",
+        id: "sub-educational-kits",
+        slug: "educational-kits",
+        name: "Educational Kits",
+        description: "Breadboard starter kits, basic soldering trainer sets, and micro-python coding bundles.",
         image:
-          "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=600&q=80",
-        productCount: 480,
-      },
-      {
-        id: "sub-usb-hdmi",
-        slug: "usb-hdmi-cables",
-        name: "USB & HDMI Cables",
-        description: "Type-C, Micro USB, Mini HDMI & ribbon display cables.",
-        image:
-          "https://images.unsplash.com/photo-1553406830-ef2513450d76?auto=format&fit=crop&w=600&q=80",
+          "https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=600&q=80",
         productCount: 410,
       },
       {
-        id: "sub-terminals",
-        slug: "terminal-blocks",
-        name: "Terminal Blocks & Plugs",
-        description: "Screw terminals, DC barrel jacks & XT60 connectors.",
+        id: "sub-educational-toys",
+        slug: "educational-toys",
+        name: "Educational Toys",
+        description: "DIY mechanical gear toys, magnetic levitation experiment sets, and early STEM creative blocks.",
         image:
-          "https://images.unsplash.com/photo-1508614589041-895b88991e3e?auto=format&fit=crop&w=600&q=80",
-        productCount: 430,
-      },
-    ],
-  },
-
-  // 11. Mechanical Components
-  {
-    id: "cat-mechanical-components",
-    slug: "mechanical-components",
-    shortName: "Mechanical",
-    name: "Mechanical Components",
-    shortDescription:
-      "Bearings, gears, shafts, pulleys, couplers & structural fasteners.",
-    fullDescription:
-      "608ZZ bearings, GT2 timing belts, aluminum flexible shaft couplers, lead screws, and CNC mechanical structural hardware.",
-    image:
-      "https://images.unsplash.com/photo-1504917599217-d4dc5ebe6122?auto=format&fit=crop&w=800&q=80",
-    productCount: 1890,
-    color: "#475569",
-    bgColor: "#F1F5F9",
-    subcategories: [
-      {
-        id: "sub-bearings",
-        slug: "bearings",
-        name: "Bearings",
-        description: "608ZZ, 625ZZ, linear ball bearings & flange bearings.",
-        image:
-          "https://images.unsplash.com/photo-1504917599217-d4dc5ebe6122?auto=format&fit=crop&w=600&q=80",
-        productCount: 390,
-      },
-      {
-        id: "sub-gears-pulleys",
-        slug: "gears-pulleys",
-        name: "Gears & GT2 Pulleys",
-        description: "Plastic & brass spur gears, GT2 20T timing pulleys.",
-        image:
-          "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=600&q=80",
-        productCount: 440,
-      },
-      {
-        id: "sub-shafts-couplers",
-        slug: "shafts-couplers",
-        name: "Shafts & Couplers",
-        description: "5mm to 8mm aluminum couplers, stainless steel rods.",
-        image:
-          "https://images.unsplash.com/photo-1608564697071-ddf911d81370?auto=format&fit=crop&w=600&q=80",
-        productCount: 420,
-      },
-      {
-        id: "sub-fasteners",
-        slug: "screws-nuts-spacers",
-        name: "Screws, Nuts & Spacers",
-        description: "M3/M4 nylon standoff kits, hex socket cap screws.",
-        image:
-          "https://images.unsplash.com/photo-1527977966376-1c8408f9f108?auto=format&fit=crop&w=600&q=80",
-        productCount: 510,
-      },
-    ],
-  },
-
-  // 12. Drone Technology
-  {
-    id: "cat-drone-technology",
-    slug: "drone-technology",
-    shortName: "Drones",
-    name: "Drone Technology",
-    shortDescription:
-      "FPV frames, flight controllers, propellers & telemetry radios.",
-    fullDescription:
-      "Pixhawk 6C autopilots, F4/F7 flight controllers, 5-inch carbon fiber racing frames, 30A BLDC ESCs, and Gemfan propellers.",
-    image:
-      "https://images.unsplash.com/photo-1508614589041-895b88991e3e?auto=format&fit=crop&w=800&q=80",
-    productCount: 1350,
-    color: "#0284C7",
-    bgColor: "#E0F2FE",
-    subcategories: [
-      {
-        id: "sub-drone-frames",
-        slug: "drone-frames",
-        name: "Drone Frames",
-        description: "Carbon fiber quadcopter & hexacopter frame kits.",
-        image:
-          "https://images.unsplash.com/photo-1508614589041-895b88991e3e?auto=format&fit=crop&w=600&q=80",
-        productCount: 260,
-      },
-      {
-        id: "sub-flight-controllers",
-        slug: "flight-controllers",
-        name: "Flight Controllers",
-        description: "APM 2.8, Pixhawk 2.4.8, Betaflight F4/F7 controllers.",
-        image:
-          "https://images.unsplash.com/photo-1553406830-ef2513450d76?auto=format&fit=crop&w=600&q=80",
-        productCount: 310,
-      },
-      {
-        id: "sub-props-motors",
-        slug: "propellers-motors",
-        name: "Propellers & ESC",
-        description: "1045 propellers, Gemfan 5-inch, 30A 4-in-1 ESCs.",
-        image:
-          "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80",
-        productCount: 390,
-      },
-      {
-        id: "sub-transmitters",
-        slug: "transmitters-receivers",
-        name: "Transmitters & Radios",
-        description: "FlySky FS-i6X, ELRS receivers & telemetry radios.",
-        image:
-          "https://images.unsplash.com/photo-1591488320449-011701bb6704?auto=format&fit=crop&w=600&q=80",
-        productCount: 220,
-      },
-    ],
-  },
-
-  // 13. 3D Printing & Accessories
-  {
-    id: "cat-3d-printing",
-    slug: "3d-printing",
-    shortName: "3D Printing",
-    name: "3D Printing & Accessories",
-    shortDescription:
-      "PLA/ABS filaments, nozzles, hotends, extruders & build plates.",
-    fullDescription:
-      "Premium 1.75mm PLA filaments, brass & hardened steel nozzles, Creality/Ender hotend assemblies, PEI spring steel magnetic beds.",
-    image:
-      "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=800&q=80",
-    productCount: 1100,
-    color: "#DB2777",
-    bgColor: "#FDF2F8",
-    subcategories: [
-      {
-        id: "sub-filaments",
-        slug: "filaments",
-        name: "Filaments",
-        description: "1.75mm PLA, ABS, PETG, TPU flexible filaments.",
-        image:
-          "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=600&q=80",
-        productCount: 380,
-      },
-      {
-        id: "sub-nozzles-hotends",
-        slug: "nozzles-hotends",
-        name: "Nozzles & Hot Ends",
-        description: "0.4mm MK8 nozzles, V6 all-metal hotends, heater blocks.",
-        image:
-          "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=600&q=80",
+          "https://images.unsplash.com/photo-1516627145497-ae6968895b74?auto=format&fit=crop&w=600&q=80",
         productCount: 320,
       },
       {
-        id: "sub-beds-extruders",
-        slug: "build-plates-extruders",
-        name: "Build Plates & Extruders",
-        description: "PEI magnetic textured sheets, dual-gear extruders.",
-        image:
-          "https://images.unsplash.com/photo-1527977966376-1c8408f9f108?auto=format&fit=crop&w=600&q=80",
-        productCount: 240,
-      },
-    ],
-  },
-
-  // 14. Educational & STEM
-  {
-    id: "cat-educational-stem",
-    slug: "educational-stem",
-    shortName: "STEM Kits",
-    name: "Educational & STEM",
-    shortDescription:
-      "STEM learning kits, science experiment sets & school lab modules.",
-    fullDescription:
-      "Structured curriculum-aligned STEM kits, electronics fundamentals sets, DIY robotics learning boxes for school & university students.",
-    image:
-      "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=800&q=80",
-    productCount: 890,
-    color: "#10B981",
-    bgColor: "#ECFDF5",
-    subcategories: [
-      {
-        id: "sub-stem-kits",
-        slug: "stem-kits",
-        name: "STEM Learning Kits",
-        description:
-          "Hands-on physics, electronics & programming starter packs.",
-        image:
-          "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=600&q=80",
-        productCount: 310,
-      },
-      {
-        id: "sub-science-kits",
-        slug: "science-kits",
-        name: "Science & Lab Kits",
-        description: "Solar energy kits, electromagnetism experiments.",
-        image:
-          "https://images.unsplash.com/photo-1553406830-ef2513450d76?auto=format&fit=crop&w=600&q=80",
-        productCount: 290,
-      },
-      {
-        id: "sub-school-kits",
-        slug: "school-lab-kits",
-        name: "School Lab Kits",
-        description: "Classroom bulk kits with manuals and lesson plans.",
-        image:
-          "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&w=600&q=80",
-        productCount: 190,
-      },
-    ],
-  },
-
-  // 15. Project Kits
-  {
-    id: "cat-project-kits",
-    slug: "project-kits",
-    shortName: "Projects",
-    name: "Project Kits",
-    shortDescription:
-      "Arduino, IoT, automation & final-year academic project packages.",
-    fullDescription:
-      "Turnkey project hardware bundles with source code, circuit diagrams, and components for home automation, obstacle avoidance, and IoT monitors.",
-    image:
-      "https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=800&q=80",
-    productCount: 1150,
-    color: "#8B5CF6",
-    bgColor: "#F3E8FF",
-    subcategories: [
-      {
-        id: "sub-iot-projects",
-        slug: "iot-project-kits",
-        name: "IoT Project Kits",
-        description: "Smart weather station, agriculture & home automation.",
-        image:
-          "https://images.unsplash.com/photo-1591488320449-011701bb6704?auto=format&fit=crop&w=600&q=80",
-        productCount: 390,
-      },
-      {
-        id: "sub-robot-projects",
-        slug: "robotics-project-kits",
-        name: "Robotics Project Kits",
-        description: "Bluetooth controlled car, robotic arm & maze solver.",
-        image:
-          "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&w=600&q=80",
-        productCount: 360,
-      },
-      {
-        id: "sub-final-year",
-        slug: "final-year-projects",
-        name: "Final Year Engineering Kits",
-        description: "Advanced AI, renewable energy & automation projects.",
+        id: "sub-project-kits",
+        slug: "project-kits",
+        name: "Project Kits",
+        description: "IoT smart agriculture, home automation, automated toll booth, and biometric attendance projects.",
         image:
           "https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=600&q=80",
-        productCount: 280,
+        productCount: 400,
       },
     ],
   },
 
-  // 16. Industrial Automation
+  // 9. Industrial Automation
   {
     id: "cat-industrial-automation",
     slug: "industrial-automation",
-    shortName: "Automation",
+    slugAlias: ["automation", "industrial"],
     name: "Industrial Automation",
+    shortName: "Automation",
     shortDescription:
-      "PLCs, HMIs, proximity sensors, relays, contactors & DIN rail modules.",
+      "PLCs, DIN-rail power supplies, solid-state relays, proximity sensors, and industrial controls.",
     fullDescription:
-      "Industrial automation hardware, micro PLCs, touch HMIs, 24V industrial proximity switches, solid state relays, and DIN-rail power modules.",
+      "Commercial and factory automation products designed for 24/7 reliability. Featuring programmable logic controllers (PLCs), 24V DIN-rail industrial PSUs, inductive proximity sensors, Modbus/RS485 converters, and industrial motor contactors.",
     image:
-      "https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=800&q=80",
-    productCount: 920,
-    color: "#0F766E",
-    bgColor: "#CCFBF1",
+      "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=800&q=80",
+    productCount: 850,
+    featured: false,
+    color: "#D97706",
+    bgColor: "#FFFBEB",
     subcategories: [
       {
-        id: "sub-plc-hmi",
-        slug: "plc-hmi",
-        name: "PLCs & HMIs",
-        description: "Micro PLCs, expansion cards & color HMI touch panels.",
-        image:
-          "https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=600&q=80",
-        productCount: 310,
-      },
-      {
-        id: "sub-ind-sensors",
-        slug: "industrial-sensors",
-        name: "Industrial Sensors",
-        description:
-          "Inductive proximity, optical photoelectric & limit switches.",
+        id: "sub-industrial-automation-products",
+        slug: "industrial-automation-products",
+        name: "Industrial Automation Products",
+        description: "Micro-PLCs, solid-state relays, DIN-rail modules, inductive proximity sensors, and RS485 communication converters.",
         image:
           "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=600&q=80",
-        productCount: 340,
-      },
-      {
-        id: "sub-contactors",
-        slug: "relays-contactors",
-        name: "Relays & Contactors",
-        description:
-          "DIN-rail solid state relays, 24V DC industrial contactors.",
-        image:
-          "https://images.unsplash.com/photo-1553406830-ef2513450d76?auto=format&fit=crop&w=600&q=80",
-        productCount: 210,
-      },
-    ],
-  },
-
-  // 17. Hardware & Tools
-  {
-    id: "cat-hardware-tools",
-    slug: "hardware-tools",
-    shortName: "Tools",
-    name: "Hardware & Tools",
-    shortDescription:
-      "Soldering irons, digital multimeters, wire strippers & screwdrivers.",
-    fullDescription:
-      "60W temperature-controlled soldering stations, solder wire, digital auto-ranging multimeters, wire strippers, tweezers & precision screwdrivers.",
-    image:
-      "https://images.unsplash.com/photo-1581244277943-fe4a9c777189?auto=format&fit=crop&w=800&q=80",
-    productCount: 1650,
-    color: "#B45309",
-    bgColor: "#FEF3C7",
-    subcategories: [
-      {
-        id: "sub-soldering",
-        slug: "soldering-tools",
-        name: "Soldering Tools",
-        description:
-          "Soldering irons, flux, wick, desoldering pumps & brass cleaners.",
-        image:
-          "https://images.unsplash.com/photo-1581244277943-fe4a9c777189?auto=format&fit=crop&w=600&q=80",
-        productCount: 480,
-      },
-      {
-        id: "sub-multimeters",
-        slug: "multimeters-testing",
-        name: "Multimeters & Testing",
-        description:
-          "Digital multimeters, logic analyzers & oscilloscope probes.",
-        image:
-          "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=600&q=80",
-        productCount: 390,
-      },
-      {
-        id: "sub-hand-tools",
-        slug: "hand-tools-cutters",
-        name: "Hand Tools & Cutters",
-        description:
-          "Precision flush cutters, wire strippers & screwdriver sets.",
-        image:
-          "https://images.unsplash.com/photo-1504917599217-d4dc5ebe6122?auto=format&fit=crop&w=600&q=80",
-        productCount: 490,
-      },
-    ],
-  },
-
-  // 18. Displays & Input Devices
-  {
-    id: "cat-displays-input",
-    slug: "displays-input-devices",
-    shortName: "Displays",
-    name: "Displays & Input Devices",
-    shortDescription:
-      "16x2 LCDs, OLED, TFT SPI screens, keypads & touch interfaces.",
-    fullDescription:
-      "I2C 1602 character LCDs, 0.96-inch SSD1306 OLEDs, Nextion HMI displays, matrix keypads, and joystick controllers.",
-    image:
-      "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=800&q=80",
-    productCount: 1250,
-    color: "#0369A1",
-    bgColor: "#E0F2FE",
-    subcategories: [
-      {
-        id: "sub-lcd-oled",
-        slug: "lcd-oled-displays",
-        name: "LCD & OLED Displays",
-        description:
-          "16x2 I2C LCD, 20x4 LCD, 0.96-inch & 1.3-inch OLED screens.",
-        image:
-          "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=600&q=80",
-        productCount: 440,
-      },
-      {
-        id: "sub-tft-touch",
-        slug: "tft-touch-displays",
-        name: "TFT & Touch Displays",
-        description: "2.4-inch, 3.5-inch SPI/DSI TFT LCDs & Nextion displays.",
-        image:
-          "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80",
-        productCount: 380,
-      },
-      {
-        id: "sub-keypads-input",
-        slug: "keypads-joysticks",
-        name: "Keypads & Input Devices",
-        description: "4x4 matrix membrane keypads, analog joystick modules.",
-        image:
-          "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=600&q=80",
-        productCount: 310,
-      },
-    ],
-  },
-
-  // 19. Communication & Networking
-  {
-    id: "cat-comm-networking",
-    slug: "communication-networking",
-    shortName: "Networking",
-    name: "Communication & Networking",
-    shortDescription:
-      "Ethernet shields, RS485, CAN bus, UART & industrial adapters.",
-    fullDescription:
-      "W5500 Ethernet controllers, MAX485 differential transceivers, MCP2515 CAN bus modules, and isolated USB-to-RS232 bridges.",
-    image:
-      "https://images.unsplash.com/photo-1544197150-b99a580bb7a8?auto=format&fit=crop&w=800&q=80",
-    productCount: 860,
-    color: "#4338CA",
-    bgColor: "#E0E7FF",
-    subcategories: [
-      {
-        id: "sub-ethernet",
-        slug: "ethernet-modules",
-        name: "Ethernet Modules",
-        description: "ENC28J60, W5500 & RJ45 breakout networking boards.",
-        image:
-          "https://images.unsplash.com/photo-1544197150-b99a580bb7a8?auto=format&fit=crop&w=600&q=80",
-        productCount: 290,
-      },
-      {
-        id: "sub-serial-bus",
-        slug: "serial-can-rs485",
-        name: "RS485 & CAN Bus",
-        description:
-          "MAX485, SN65HVD230 CAN transceivers & isolated converters.",
-        image:
-          "https://images.unsplash.com/photo-1553406830-ef2513450d76?auto=format&fit=crop&w=600&q=80",
-        productCount: 340,
-      },
-    ],
-  },
-
-  // 20. Accessories & Miscellaneous
-  {
-    id: "cat-accessories-misc",
-    slug: "accessories-miscellaneous",
-    shortName: "Accessories",
-    name: "Accessories & Miscellaneous",
-    shortDescription:
-      "Breadboards, prototype PCBs, heatsinks, cooling fans & enclosures.",
-    fullDescription:
-      "830-point solderless breadboards, perfboards, copper clad PCBs, aluminum heatsink assortments, and electronics project boxes.",
-    image:
-      "https://images.unsplash.com/photo-1581092162384-8987c1d64718?auto=format&fit=crop&w=800&q=80",
-    productCount: 1490,
-    color: "#64748B",
-    bgColor: "#F1F5F9",
-    subcategories: [
-      {
-        id: "sub-breadboards",
-        slug: "breadboards-pcbs",
-        name: "Breadboards & Perfboards",
-        description: "400/830-tie point breadboards, single/double sided PCBs.",
-        image:
-          "https://images.unsplash.com/photo-1581092162384-8987c1d64718?auto=format&fit=crop&w=600&q=80",
-        productCount: 460,
-      },
-      {
-        id: "sub-heatsinks-fans",
-        slug: "heatsinks-cooling",
-        name: "Heatsinks & Cooling Fans",
-        description:
-          "5V/12V brushless fans, thermal paste & adhesive heatsinks.",
-        image:
-          "https://images.unsplash.com/photo-1527977966376-1c8408f9f108?auto=format&fit=crop&w=600&q=80",
-        productCount: 380,
-      },
-      {
-        id: "sub-enclosures",
-        slug: "project-enclosures",
-        name: "Enclosures & Boxes",
-        description: "Waterproof ABS plastic enclosures & junction boxes.",
-        image:
-          "https://images.unsplash.com/photo-1504917599217-d4dc5ebe6122?auto=format&fit=crop&w=600&q=80",
-        productCount: 390,
+        productCount: 850,
       },
     ],
   },
 ];
 
+/** Helper to match a category by slug, id, name, or alias */
+export function matchCategory(category: CategoryData, slugOrAlias: string): boolean {
+  if (!slugOrAlias) return false;
+  const target = slugOrAlias.toLowerCase().trim();
+  if (category.slug.toLowerCase() === target) return true;
+  if (category.id.toLowerCase() === target) return true;
+  if (category.name.toLowerCase() === target) return true;
+  if (category.slugAlias) {
+    if (Array.isArray(category.slugAlias)) {
+      if (category.slugAlias.some((a) => a.toLowerCase() === target)) return true;
+    } else if (category.slugAlias.toLowerCase() === target) {
+      return true;
+    }
+  }
+  return false;
+}
+
+/** Helper to match a subcategory by slug, id, name, or alias */
+export function matchSubcategory(subcategory: Subcategory, slugOrAlias: string): boolean {
+  if (!slugOrAlias) return false;
+  const target = slugOrAlias.toLowerCase().trim();
+  if (subcategory.slug.toLowerCase() === target) return true;
+  if (subcategory.id.toLowerCase() === target) return true;
+  if (subcategory.name.toLowerCase() === target) return true;
+  if (subcategory.slugAlias) {
+    if (subcategory.slugAlias.some((a) => a.toLowerCase() === target)) return true;
+  }
+  return false;
+}
+
+/** Get a category by its slug or alias */
+export function getCategoryBySlug(slugOrAlias: string): CategoryData | undefined {
+  return CATEGORIES_DATA.find((c) => matchCategory(c, slugOrAlias));
+}
+
 export const COLLECTION_ECOSYSTEMS = [
   {
     id: "eco-robotics",
-    title: "Robotics & Manipulators Ecosystem",
+    title: "Robotics & Motion Ecosystem",
     description:
-      "Explore 6-DOF robotic arm manipulators, SLAM LiDAR rovers, and metal gear servos built for research labs.",
+      "Explore robotic arms, chassis rovers, stepper drives, and servo motion controllers built for research and makers.",
     image:
       "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&w=1000&q=80",
     categorySlug: "robotics",
     tag: "INDUSTRIAL SPEC",
   },
   {
-    id: "eco-arduino",
-    title: "Arduino & Microcontroller Platform",
+    id: "eco-development-boards",
+    title: "Development Boards & Embedded Computing",
     description:
-      "Official ATmega328P UNO boards, ESP32 dual-core Wi-Fi, and Raspberry Pi 5 single board computers.",
+      "Official Arduino boards, Raspberry Pi 5 single board computers, and ESP32/NVIDIA Jetson AI edge modules.",
     image:
       "https://images.unsplash.com/photo-1553406830-ef2513450d76?auto=format&fit=crop&w=1000&q=80",
-    categorySlug: "arduino-development-boards",
+    categorySlug: "development-boards",
     tag: "DEVELOPER SPEC",
   },
   {
     id: "eco-drones",
-    title: "UAV Aerial Drone Hardware",
+    title: "Drone Avionics & UAV Hardware",
     description:
-      "Pixhawk 6C autopilots, SimonK 30A ESC speed controls, BLDC motors, and MavLink 2.0 telemetry radios.",
+      "Pixhawk autopilots, BLDC brushless motors, DShot ESCs, high-precision GPS, and FPV cameras.",
     image:
       "https://images.unsplash.com/photo-1527977966376-1c8408f9f108?auto=format&fit=crop&w=1000&q=80",
     categorySlug: "drone-technology",

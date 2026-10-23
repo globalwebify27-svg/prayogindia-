@@ -736,310 +736,257 @@ export const CheckoutView: React.FC = () => {
           ];
 
     return (
-      <div className="max-w-4xl mx-auto py-4 sm:py-8 px-3 sm:px-6 animate-in fade-in duration-300">
-        <div className="bg-white border border-slate-200/90 rounded-2xl sm:rounded-3xl shadow-xl overflow-hidden">
-          {/* Top Header: Split Layout with Order Confirmed Message & Animated Truck */}
-          <div className="p-5 sm:p-7 flex flex-col md:flex-row items-center justify-between gap-6 bg-gradient-to-r from-slate-50/60 via-white to-blue-50/30 border-b border-slate-100 relative overflow-hidden">
-            {/* Left Content */}
-            <div className="flex items-start gap-3.5 sm:gap-4 w-full md:w-auto">
-              <div className="w-12 h-12 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0 shadow-2xs mt-0.5">
-                <Check className="w-6 h-6 stroke-[3]" />
-              </div>
-              <div className="space-y-1 min-w-0">
-                <span className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 border border-emerald-200/90 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider">
-                  ORDER CONFIRMED
-                </span>
-                <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-                  Thank you for your order!
-                </h1>
-                <p className="text-xs sm:text-sm text-slate-500">
-                  We've received your order and are getting it ready for shipment.
-                </p>
-                <div className="flex items-center gap-2 text-xs sm:text-sm text-slate-600 pt-0.5">
-                  <span>Order Ref:</span>
-                  <span className="font-mono font-bold text-[#2563EB] tracking-wider">
-                    {placedOrderNumber || "PRG-2026-6516"}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={handleCopyOrderId}
-                    title="Copy Order ID"
-                    className="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-slate-700 transition-colors inline-flex items-center"
-                  >
-                    {isOrderIdCopied ? (
-                      <Check className="w-3.5 h-3.5 text-emerald-500" />
-                    ) : (
-                      <Copy className="w-3.5 h-3.5" />
-                    )}
-                  </button>
-                </div>
-              </div>
+      <div className="max-w-2xl mx-auto py-5 sm:py-8 px-3.5 sm:px-6 animate-in fade-in duration-300">
+        {/* Header with Animated Delivery Truck */}
+        <div className="bg-white border border-slate-200/80 rounded-2xl p-5 sm:p-6 shadow-xs mb-4 sm:mb-5 flex flex-col md:flex-row items-center justify-between gap-5 bg-gradient-to-br from-slate-50/70 via-white to-blue-50/20">
+          <div className="space-y-2 text-center md:text-left min-w-0">
+            <div className="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-700 border border-emerald-200/80 px-2.5 py-0.5 rounded-full text-[11px] font-bold">
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+              <span>Order Confirmed</span>
             </div>
+            <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+              Thank you for your order!
+            </h1>
+            <p className="text-xs sm:text-sm text-slate-500 max-w-sm">
+              We&apos;ve received your order and are packing it for express dispatch.
+            </p>
 
-            {/* Right: Delivery Truck Graphic */}
-            <div className="relative shrink-0 flex items-center justify-center">
-              {/* Soft atmospheric cloud blobs behind truck */}
-              <div className="absolute -top-3 -right-2 w-20 h-7 bg-sky-100/70 rounded-full blur-xs pointer-events-none" />
-              <div className="absolute top-4 -left-4 w-16 h-5 bg-sky-100/50 rounded-full blur-xs pointer-events-none" />
-              <TruckLoader
-                bare
-                message=""
-                subtitle=""
-                className="scale-90 sm:scale-100"
-              />
+            <div className="inline-flex items-center gap-2 bg-slate-50 border border-slate-200/80 rounded-lg px-3 py-1.5 text-xs text-slate-600">
+              <span className="text-slate-400 font-medium">Order Ref:</span>
+              <span className="font-mono font-bold text-slate-900 tracking-wide">
+                {placedOrderNumber || "PRG-2026-6516"}
+              </span>
+              <button
+                type="button"
+                onClick={handleCopyOrderId}
+                title="Copy Order ID"
+                className="text-slate-400 hover:text-slate-700 transition-colors cursor-pointer pl-0.5"
+              >
+                {isOrderIdCopied ? (
+                  <Check className="w-3.5 h-3.5 text-emerald-600" />
+                ) : (
+                  <Copy className="w-3.5 h-3.5" />
+                )}
+              </button>
             </div>
           </div>
 
-          {/* Order Total Bar */}
-          <div className="mx-4 sm:mx-6 mt-4 sm:mt-5 bg-gradient-to-r from-[#0A1128] via-[#0E1A3D] to-[#0A1128] text-white px-5 sm:px-6 py-3 rounded-xl flex items-center justify-between shadow-sm border border-slate-800/40">
-            <div className="flex items-center gap-2.5">
-              <ShoppingCart className="w-4 h-4 text-slate-300" />
-              <span className="text-xs font-black text-slate-200 uppercase tracking-widest">
-                ORDER TOTAL
+          {/* Animated Delivery Truck */}
+          <div className="shrink-0 flex items-center justify-center scale-90 sm:scale-95 py-1">
+            <TruckLoader bare message="" subtitle="" />
+          </div>
+        </div>
+
+        {/* Single Unified Order Card */}
+        <div className="bg-white border border-slate-200/80 rounded-2xl shadow-xs divide-y divide-slate-100 overflow-hidden">
+          {/* Section 1: Shipment Progress Stepper */}
+          <div className="p-4 sm:p-5 space-y-4">
+            <div className="flex items-center justify-between text-xs">
+              <div className="flex items-center gap-2">
+                <Truck className="w-4 h-4 text-[#2563EB]" />
+                <span className="font-bold text-slate-900">Shipment Status</span>
+              </div>
+              <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200/60">
+                <Calendar className="w-3 h-3 text-emerald-600" />
+                Est. Delivery: 2–4 Days
               </span>
             </div>
-            <span className="text-lg sm:text-xl font-black text-white tracking-tight">
-              ₹{(placedOrderTotal || 241).toLocaleString("en-IN")}
-            </span>
-          </div>
 
-          {/* Shipment Progress Card */}
-          <div className="mx-4 sm:mx-6 mt-4 p-4 sm:p-5 bg-white border border-slate-200/80 rounded-2xl space-y-5 shadow-2xs">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-blue-50 text-[#2563EB] flex items-center justify-center shrink-0 border border-blue-100/60">
-                  <Truck className="w-4 h-4" />
-                </div>
-                <div>
-                  <h3 className="text-sm font-bold text-slate-900">Shipment Progress</h3>
-                  <p className="text-xs text-slate-500">Track your order from our warehouse to your doorstep.</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-2 sm:self-center pl-12 sm:pl-0">
-                <div className="w-8 h-8 rounded-lg bg-blue-50 text-[#2563EB] flex items-center justify-center shrink-0 border border-blue-100/60">
-                  <Calendar className="w-4 h-4" />
-                </div>
-                <div>
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block leading-tight">
-                    Estimated Delivery
-                  </span>
-                  <span className="text-xs font-black text-[#2563EB]">
-                    2-4 Days
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Stepper with progress track */}
+            {/* Stepper */}
             <div className="relative pt-1 pb-1">
-              <div className="absolute left-8 right-8 top-4.5 h-0.5 bg-slate-200 -z-0" />
+              <div className="absolute left-6 right-6 top-3.5 h-0.5 bg-slate-100 -z-0" />
               <div
-                className="absolute left-8 top-4.5 h-0.5 bg-emerald-500 -z-0 transition-all duration-500"
+                className="absolute left-6 top-3.5 h-0.5 bg-[#2563EB] -z-0 transition-all duration-500"
                 style={{ width: "33%" }}
               />
 
               <div className="grid grid-cols-4 text-center relative z-10">
                 {/* Step 1: Placed */}
                 <div className="flex flex-col items-center">
-                  <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-emerald-600 text-white flex items-center justify-center shadow-xs">
-                    <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[3]" />
+                  <div className="w-7 h-7 rounded-full bg-emerald-600 text-white flex items-center justify-center shadow-xs">
+                    <Check className="w-3.5 h-3.5 stroke-[3]" />
                   </div>
-                  <span className="text-xs font-bold text-slate-900 mt-2">Placed</span>
-                  <span className="text-[10px] text-slate-500 mt-0.5 hidden sm:block">
-                    {placedOrderTime || "Oct 16, 2026 • 10:08 AM"}
+                  <span className="text-[11px] font-bold text-slate-900 mt-1.5">Placed</span>
+                  <span className="text-[10px] text-slate-400 hidden sm:block">
+                    {placedOrderTime || "Confirmed"}
                   </span>
                 </div>
 
                 {/* Step 2: Processing */}
                 <div className="flex flex-col items-center">
-                  <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#2563EB] text-white flex items-center justify-center shadow-md ring-4 ring-blue-100">
-                    <Package className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                  <div className="w-7 h-7 rounded-full bg-[#2563EB] text-white flex items-center justify-center shadow-xs ring-4 ring-blue-50">
+                    <Package className="w-3.5 h-3.5" />
                   </div>
-                  <span className="text-xs font-bold text-slate-900 mt-2">Processing</span>
-                  <span className="text-[10px] font-bold text-[#2563EB] mt-0.5">In Progress</span>
+                  <span className="text-[11px] font-bold text-[#2563EB] mt-1.5">Processing</span>
+                  <span className="text-[10px] text-blue-600 font-medium">In Progress</span>
                 </div>
 
                 {/* Step 3: Shipped */}
                 <div className="flex flex-col items-center">
-                  <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white border border-slate-300 text-slate-400 flex items-center justify-center">
-                    <Truck className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                  <div className="w-7 h-7 rounded-full bg-white border border-slate-200 text-slate-400 flex items-center justify-center">
+                    <Truck className="w-3.5 h-3.5" />
                   </div>
-                  <span className="text-xs font-medium text-slate-500 mt-2">Shipped</span>
-                  <span className="text-[10px] text-slate-400 mt-0.5">Pending</span>
+                  <span className="text-[11px] font-medium text-slate-400 mt-1.5">Shipped</span>
+                  <span className="text-[10px] text-slate-400">Pending</span>
                 </div>
 
                 {/* Step 4: Delivered */}
                 <div className="flex flex-col items-center">
-                  <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white border border-slate-300 text-slate-400 flex items-center justify-center">
-                    <Home className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                  <div className="w-7 h-7 rounded-full bg-white border border-slate-200 text-slate-400 flex items-center justify-center">
+                    <Home className="w-3.5 h-3.5" />
                   </div>
-                  <span className="text-xs font-medium text-slate-500 mt-2">Delivered</span>
-                  <span className="text-[10px] text-slate-400 mt-0.5">Pending</span>
+                  <span className="text-[11px] font-medium text-slate-400 mt-1.5">Delivered</span>
+                  <span className="text-[10px] text-slate-400">Pending</span>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* 3-Column Info Cards */}
-          <div className="mx-4 sm:mx-6 mt-4 grid grid-cols-1 md:grid-cols-3 gap-3.5">
-            {/* Payment */}
-            <div className="bg-white rounded-xl border border-slate-200/80 p-3.5 flex items-start gap-3 shadow-2xs">
-              <div className="w-8 h-8 rounded-lg bg-blue-50 text-[#2563EB] flex items-center justify-center shrink-0 border border-blue-100/60 mt-0.5">
-                <CreditCard className="w-4 h-4" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">
-                  Payment
-                </span>
-                <span className="font-extrabold text-slate-800 text-xs block truncate mt-0.5">
-                  {paymentMethod === "cod"
-                    ? "Cash on Delivery"
-                    : `${paymentMethod.toUpperCase()} (Paid)`}
-                </span>
-                <span className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded-full text-[9px] font-bold mt-1.5">
-                  Completed
-                </span>
-              </div>
-            </div>
-
-            {/* Delivery */}
-            <div className="bg-white rounded-xl border border-slate-200/80 p-3.5 flex items-start gap-3 shadow-2xs">
-              <div className="w-8 h-8 rounded-lg bg-amber-50 text-amber-700 flex items-center justify-center shrink-0 border border-amber-100/60 mt-0.5">
-                <Truck className="w-4 h-4" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">
-                  Delivery
-                </span>
-                <span className="font-extrabold text-slate-800 text-xs block truncate mt-0.5">
-                  Standard Surface (2-4 Days)
-                </span>
-                <span className="inline-flex items-center gap-1 bg-blue-50 text-blue-700 border border-blue-200 px-2 py-0.5 rounded-full text-[9px] font-bold mt-1.5">
-                  Free Delivery
-                </span>
-              </div>
-            </div>
-
-            {/* Delivery Address */}
-            <div className="bg-white rounded-xl border border-slate-200/80 p-3.5 flex items-start gap-3 shadow-2xs relative">
-              <div className="w-8 h-8 rounded-lg bg-purple-50 text-purple-700 flex items-center justify-center shrink-0 border border-purple-100/60 mt-0.5">
-                <MapPin className="w-4 h-4" />
-              </div>
-              <div className="min-w-0 flex-1 pr-5">
-                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">
-                  Delivery Address
-                </span>
-                <p className="font-bold text-slate-800 text-xs truncate mt-0.5">
-                  {placedOrderAddress ? `${placedOrderAddress.name} (${placedOrderAddress.phone})` : "Customer Delivery Address (+91 98765 00000)"}
-                </p>
-                <p className="text-slate-500 text-[10px] truncate mt-0.5">
-                  {placedOrderAddress
-                    ? `${placedOrderAddress.street}, ${placedOrderAddress.city}, ${placedOrderAddress.state} - ${placedOrderAddress.pincode}`
-                    : "Flat 402, Green Glen Tech Park, Outer Ring Road, Bengaluru, Karnataka - 560103"}
-                </p>
-              </div>
-              <div className="absolute top-3 right-3 text-blue-500">
-                <MapPin className="w-3.5 h-3.5" />
-              </div>
-            </div>
-          </div>
-
-          {/* Items in your order preview */}
-          <div className="mx-4 sm:mx-6 mt-4 p-4 bg-white border border-slate-200/80 rounded-xl space-y-3 shadow-2xs">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-              <h3 className="text-xs sm:text-sm font-bold text-slate-900">
-                Items in your order
-              </h3>
+          {/* Section 2: Items in Order */}
+          <div className="p-4 sm:p-5 space-y-3">
+            <div className="flex items-center justify-between text-xs pb-1">
+              <span className="font-bold text-slate-900">
+                Items Ordered ({displayItems.length})
+              </span>
               <Link
                 href="/account/orders"
-                className="text-xs font-bold text-[#2563EB] hover:underline flex items-center gap-0.5"
+                className="text-[#2563EB] font-semibold hover:underline flex items-center gap-0.5"
               >
-                <span>View order details</span>
-                <ChevronRight className="w-3.5 h-3.5" />
+                <span>View Details</span>
+                <ChevronRight className="w-3 h-3" />
               </Link>
             </div>
 
-            <div className="space-y-2.5">
+            <div className="divide-y divide-slate-100">
               {displayItems.map((item: any, idx: number) => {
                 const itemPrice = item.variant ? item.variant.price : item.product.price;
                 return (
                   <div
                     key={item.product.id || idx}
-                    className="flex items-center justify-between gap-3 text-xs"
+                    className="py-2.5 first:pt-0 last:pb-0 flex items-center justify-between gap-3 text-xs"
                   >
-                    <div className="flex items-center gap-3 min-w-0">
-                      <div className="relative w-11 h-11 rounded-lg bg-slate-50 border border-slate-100 p-1 shrink-0 overflow-hidden flex items-center justify-center">
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <div className="relative w-10 h-10 rounded-lg bg-slate-50 border border-slate-100 p-1 shrink-0 overflow-hidden flex items-center justify-center">
                         {item.product.image ? (
                           <Image
                             src={item.product.image}
                             alt={item.product.name}
-                            width={44}
-                            height={44}
+                            width={40}
+                            height={40}
                             className="object-contain"
                           />
                         ) : (
-                          <Package className="w-5 h-5 text-slate-400" />
+                          <Package className="w-4 h-4 text-slate-400" />
                         )}
                       </div>
                       <div className="min-w-0">
-                        <h4 className="font-bold text-slate-800 truncate text-xs">
+                        <h4 className="font-semibold text-slate-900 truncate text-xs">
                           {item.product.name}
                         </h4>
                         <p className="text-[11px] text-slate-500">
-                          Qty: {item.quantity}
+                          Qty: {item.quantity} {item.variant ? `• ${item.variant.name}` : ""}
                         </p>
                       </div>
                     </div>
-                    <span className="font-black text-slate-900 text-xs sm:text-sm shrink-0">
+                    <span className="font-bold text-slate-900 text-xs shrink-0">
                       ₹{(itemPrice * item.quantity).toLocaleString("en-IN")}
                     </span>
                   </div>
                 );
               })}
             </div>
+
+            {/* Total Paid Row */}
+            <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
+              <span className="text-xs font-semibold text-slate-600">Total Paid</span>
+              <span className="text-base font-black text-slate-900">
+                ₹{(placedOrderTotal || 241).toLocaleString("en-IN")}
+              </span>
+            </div>
           </div>
 
-          {/* Action Buttons */}
-          <div className="mx-4 sm:mx-6 mt-5 pt-3 pb-2 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-slate-100">
-            <div className="flex items-center gap-2.5 w-full sm:w-auto">
-              <Link
-                href="/track-order"
-                className="flex-1 sm:flex-none bg-[#2563EB] hover:bg-blue-700 text-white font-bold py-2.5 px-5 rounded-xl text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-sm transition-all active:scale-98"
-              >
-                <Truck className="w-4 h-4" />
-                <span>Track Shipment</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </Link>
-              <Link
-                href="/account/orders"
-                className="flex-1 sm:flex-none bg-white hover:bg-slate-50 border border-slate-300 text-slate-800 font-bold py-2.5 px-4 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-all active:scale-98"
-              >
-                <Receipt className="w-3.5 h-3.5 text-slate-500" />
-                <span>View Orders</span>
-              </Link>
+          {/* Section 3: Delivery & Payment Details */}
+          <div className="p-4 sm:p-5 grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs bg-slate-50/50">
+            <div>
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">
+                Delivery Address
+              </span>
+              <p className="font-bold text-slate-900">
+                {placedOrderAddress ? placedOrderAddress.name : "Bahubali"}
+              </p>
+              <p className="text-slate-600 text-[11px] mt-0.5 leading-relaxed">
+                {placedOrderAddress
+                  ? `${placedOrderAddress.street}, ${placedOrderAddress.city}, ${placedOrderAddress.state} - ${placedOrderAddress.pincode}`
+                  : "Flat 402, Green Glen Tech Park, Outer Ring Road, Bengaluru, Karnataka - 560103"}
+              </p>
+              <p className="text-slate-500 text-[11px] mt-0.5">
+                Phone: {placedOrderAddress?.phone || "+91 98765 43210"}
+              </p>
             </div>
 
-            <Link
-              href="/products"
-              className="text-xs font-bold text-slate-700 hover:text-[#2563EB] flex items-center gap-1 transition-colors self-center py-1"
-            >
-              <span>Continue Shopping</span>
-              <ChevronRight className="w-3.5 h-3.5" />
-            </Link>
-          </div>
+            <div className="space-y-3 sm:border-l sm:border-slate-200/60 sm:pl-4">
+              <div>
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">
+                  Payment Method
+                </span>
+                <p className="font-semibold text-slate-900">
+                  {paymentMethod === "cod"
+                    ? "Cash on Delivery"
+                    : `${paymentMethod.toUpperCase()} (Online Payment)`}
+                </p>
+                <span className="inline-flex items-center gap-1 text-[10px] text-emerald-600 font-semibold mt-0.5">
+                  <CheckCircle2 className="w-3 h-3" />
+                  {paymentMethod === "cod" ? "Pay on Delivery" : "Payment Completed"}
+                </span>
+              </div>
 
-          {/* Support Footer */}
-          <div className="text-center py-3 text-xs text-slate-500 flex items-center justify-center gap-1.5 border-t border-slate-100 bg-slate-50/50 mt-2">
-            <Headphones className="w-3.5 h-3.5 text-slate-400" />
-            <span>Need help with your order?</span>
-            <Link
-              href="/contact"
-              className="font-bold text-[#2563EB] hover:underline flex items-center gap-0.5"
-            >
-              <span>Contact Support</span>
-              <ChevronRight className="w-3 h-3" />
-            </Link>
+              <div>
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">
+                  Shipping Method
+                </span>
+                <p className="font-semibold text-slate-900">
+                  Standard Surface Delivery (Free Express)
+                </p>
+              </div>
+            </div>
           </div>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="mt-5 flex flex-col sm:flex-row items-center justify-center gap-2.5">
+          <Link
+            href="/track-order"
+            className="w-full sm:w-auto min-w-44 bg-[#2563EB] hover:bg-[#1D4ED8] active:bg-[#1E40AF] text-white font-bold py-2.5 px-5 rounded-xl text-xs flex items-center justify-center gap-2 transition-all shadow-sm cursor-pointer"
+          >
+            <Truck className="w-4 h-4" />
+            <span>Track Shipment</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
+          <Link
+            href="/account/orders"
+            className="w-full sm:w-auto min-w-36 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-bold py-2.5 px-4 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+          >
+            <Receipt className="w-3.5 h-3.5 text-slate-500" />
+            <span>View All Orders</span>
+          </Link>
+          <Link
+            href="/products"
+            className="w-full sm:w-auto text-xs font-semibold text-slate-500 hover:text-[#2563EB] py-2 px-3 text-center transition-colors"
+          >
+            Continue Shopping →
+          </Link>
+        </div>
+
+        {/* Support Footer */}
+        <div className="text-center py-3 text-xs text-slate-400 flex items-center justify-center gap-1.5 mt-2">
+          <Headphones className="w-3.5 h-3.5 text-slate-400" />
+          <span>Need help with this order?</span>
+          <Link
+            href="/contact"
+            className="font-semibold text-[#2563EB] hover:underline"
+          >
+            Contact Support
+          </Link>
         </div>
       </div>
     );
@@ -1369,13 +1316,13 @@ export const CheckoutView: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setShowAddressModal(false)}
-                  className="w-full bg-[#FFD814] hover:bg-[#F7CA00] text-slate-900 py-2.5 rounded-full font-bold text-xs shadow-2xs transition-colors cursor-pointer text-center"
+                  className="w-full bg-[#2563EB] hover:bg-[#1D4ED8] active:bg-[#1E40AF] text-white py-2.5 rounded-full font-bold text-xs shadow-sm shadow-blue-500/20 transition-colors cursor-pointer text-center"
                 >
                   Return to Checkout
                 </button>
                 <Link
                   href="/cart"
-                  className="w-full bg-slate-100 hover:bg-slate-200 text-slate-800 py-2.5 rounded-full font-bold text-xs transition-colors text-center"
+                  className="w-full bg-white hover:bg-slate-50 text-slate-700 hover:text-slate-900 border border-slate-200 py-2.5 rounded-full font-bold text-xs transition-colors text-center"
                 >
                   Go to Cart
                 </Link>
@@ -1427,7 +1374,7 @@ export const CheckoutView: React.FC = () => {
   }
 
   return (
-    <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 py-6 space-y-8 animate-in fade-in duration-300 relative">
+    <div className="w-full px-3.5 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 py-3 sm:py-5 space-y-3 sm:space-y-4 animate-in fade-in duration-300 relative">
       {/* Order Processing Overlay with Truck Loader */}
       {isSubmitting && (
         <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
@@ -1446,36 +1393,36 @@ export const CheckoutView: React.FC = () => {
         items={[{ label: "Cart", href: "/cart" }, { label: "Secure Checkout" }]}
       />
 
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200/90 pb-4">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+      {/* Compact Professional Header */}
+      <div className="flex items-center justify-between gap-2 pb-2.5 border-b border-slate-200/80">
+        <div className="flex items-baseline gap-2.5">
+          <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
             Checkout
           </h1>
-          <p className="text-xs text-slate-500 mt-0.5">
-            Complete your order with express delivery across India.
-          </p>
+          <span className="text-xs text-slate-400 hidden sm:inline">
+            Express delivery across India
+          </span>
         </div>
 
-        <div className="flex items-center gap-1.5 text-xs font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200/80 px-3 py-1.5 rounded-full w-fit">
-          <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
-          <span>256-Bit SSL Encrypted &amp; Verified</span>
+        <div className="flex items-center gap-1.5 text-[11px] sm:text-xs font-medium text-emerald-700 bg-emerald-50 border border-emerald-100 px-2.5 py-0.5 rounded-full shrink-0">
+          <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+          <span>256-Bit SSL Secure</span>
         </div>
       </div>
 
       {/* 2-Column One-Page Checkout Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-3.5 lg:gap-8 items-start">
         {/* Left Column: One-Page Flow (Span 7) */}
-        <div className="lg:col-span-7 space-y-6">
+        <div className="lg:col-span-7 space-y-3 sm:space-y-4">
           {/* Validation Error Banner */}
           {validationError && (
-            <div className="bg-red-50 border-2 border-red-300 rounded-2xl p-4 flex items-start gap-3 text-red-900 text-xs shadow-md animate-in fade-in">
-              <AlertTriangle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
+            <div className="bg-red-50 border border-red-200 rounded-xl p-3 flex items-start gap-2.5 text-red-900 text-xs animate-in fade-in">
+              <AlertTriangle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
               <div>
-                <h4 className="font-black text-red-950">
-                  Validation Error — Action Required
+                <h4 className="font-bold text-red-950">
+                  Validation Error
                 </h4>
-                <p className="text-red-800 font-semibold mt-0.5 leading-relaxed">
+                <p className="text-red-800 font-medium mt-0.5 leading-relaxed">
                   {validationError}
                 </p>
               </div>
@@ -1484,7 +1431,7 @@ export const CheckoutView: React.FC = () => {
 
           {/* Quick Login bar for unregistered visitors */}
           {!isLoggedIn && (
-            <div className="bg-slate-100 text-slate-700 rounded-xl px-4 py-2.5 flex items-center justify-between text-xs">
+            <div className="bg-slate-50 border border-slate-200/70 text-slate-600 rounded-lg px-3.5 py-2 flex items-center justify-between text-xs">
               <span>Have an existing Prayog account?</span>
               <Link
                 href="/login?redirect=/checkout"
@@ -1495,323 +1442,359 @@ export const CheckoutView: React.FC = () => {
             </div>
           )}
 
-          {/* ── Section 1: Contact & Delivery Address (Single Unified Card) ── */}
-          <div className="bg-white border border-slate-200/90 rounded-2xl p-4 sm:p-6 space-y-4 shadow-xs">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-              <div className="flex items-center gap-2">
-                <MapPin className="w-4 h-4 text-[#2563EB]" />
-                <h2 className="text-sm sm:text-base font-extrabold text-slate-900">
-                  1. Contact &amp; Delivery Address
-                </h2>
-              </div>
-              {isPhoneVerified ? (
-                <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
-                  <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-                  Verified
-                </span>
-              ) : (
-                customerMobile.length === 10 && (
-                  <button
-                    type="button"
-                    onClick={handleSendCheckoutOtp}
-                    className="text-[11px] text-[#2563EB] font-bold hover:underline cursor-pointer"
-                  >
-                    {otpSending ? "Sending OTP..." : "Verify via OTP →"}
-                  </button>
-                )
-              )}
-            </div>
-
-            {/* Saved Addresses Quick Selector (if available) */}
-            {addresses.length > 0 && (
-              <div className="space-y-1.5">
-                <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">
-                  Delivery Destination
-                </span>
-                <div className="flex flex-wrap gap-2">
-                  {addresses.map((a) => {
-                    const isSel = selectedShippingAddressId === a.id;
-                    return (
-                      <button
-                        key={a.id}
-                        type="button"
-                        onClick={() => handleSelectSavedAddress(a.id)}
-                        className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
-                          isSel
-                            ? "bg-[#0A1128] text-white border-[#0A1128] shadow-xs"
-                            : "bg-slate-50 text-slate-700 border-slate-200 hover:bg-white"
-                        }`}
-                      >
-                        {a.type}: {a.street.slice(0, 18)}... ({a.pincode})
-                      </button>
-                    );
-                  })}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setSelectedShippingAddressId("");
-                      setAddrFormStreet("");
-                      setAddrFormPincode("");
-                    }}
-                    className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
-                      !selectedShippingAddressId
-                        ? "bg-[#0A1128] text-white border-[#0A1128] shadow-xs"
-                        : "bg-slate-50 text-slate-700 border-slate-200 hover:bg-white"
-                    }`}
-                  >
-                    + New Address
-                  </button>
+          {/* ── Single Unified Checkout Surface (Merged Address & Payment) ── */}
+          <div className="bg-white border border-slate-200/80 rounded-xl sm:rounded-2xl p-3.5 sm:p-5 shadow-xs space-y-4">
+            {/* Section 1: Contact & Delivery Address */}
+            <div className="space-y-3">
+              <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+                <div className="flex items-center gap-2 min-w-0">
+                  <MapPin className="w-4 h-4 text-[#2563EB] shrink-0" />
+                  <h2 className="text-sm sm:text-base font-extrabold text-slate-900 truncate">
+                    1. Delivery Address
+                  </h2>
                 </div>
-              </div>
-            )}
-
-            {/* Contact Details Fields */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div className="space-y-1">
-                <label className="block text-xs font-bold text-slate-700">
-                  Full Name <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={customerName}
-                  onChange={(e) => {
-                    setCustomerName(e.target.value);
-                    setAddrFormName(e.target.value);
-                  }}
-                  placeholder="e.g. Om Kumar"
-                  className="w-full bg-slate-50 focus:bg-white border border-slate-200 focus:border-[#0A1128] focus:ring-1 focus:ring-[#0A1128] rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-900 outline-none transition-all"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <div className="flex items-center justify-between">
-                  <label className="block text-xs font-bold text-slate-700">
-                    Mobile Number <span className="text-red-500">*</span>
-                  </label>
-                  {!isPhoneVerified && customerMobile.length === 10 && (
+                {isPhoneVerified ? (
+                  <span className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-600 shrink-0 whitespace-nowrap">
+                    <CheckCircle2 className="w-3.5 h-3.5" />
+                    Verified
+                  </span>
+                ) : (
+                  customerMobile.length === 10 && (
                     <button
                       type="button"
                       onClick={handleSendCheckoutOtp}
-                      className="text-[11px] text-[#2563EB] font-bold hover:underline cursor-pointer"
+                      className="text-xs text-[#2563EB] font-semibold hover:underline cursor-pointer"
                     >
-                      Verify OTP
+                      {otpSending ? "Sending OTP..." : "Verify via OTP →"}
                     </button>
-                  )}
-                </div>
-                <input
-                  type="tel"
-                  required
-                  maxLength={10}
-                  value={customerMobile}
-                  onChange={(e) => {
-                    handleMobileChange(e.target.value);
-                    setAddrFormPhone(e.target.value);
-                  }}
-                  placeholder="10-digit number"
-                  className="w-full bg-slate-50 focus:bg-white border border-slate-200 focus:border-[#0A1128] focus:ring-1 focus:ring-[#0A1128] rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-900 outline-none transition-all"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-1">
-              <label className="block text-xs font-bold text-slate-700">
-                Email Address <span className="text-slate-400 font-normal">(for tracking &amp; GST invoice)</span>
-              </label>
-              <input
-                type="email"
-                value={customerEmail}
-                onChange={(e) => setCustomerEmail(e.target.value)}
-                placeholder="name@example.com"
-                className="w-full bg-slate-50 focus:bg-white border border-slate-200 focus:border-[#0A1128] focus:ring-1 focus:ring-[#0A1128] rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-900 outline-none transition-all"
-              />
-            </div>
-
-            {/* Inline Shipping Address Form */}
-            <div className="pt-2 border-t border-slate-100 space-y-3">
-              <div className="space-y-1">
-                <label className="block text-xs font-bold text-slate-700">
-                  Flat, House no., Building, Street Address <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={addrFormStreet}
-                  onChange={(e) => setAddrFormStreet(e.target.value)}
-                  placeholder="e.g. #402, Prayog Robotics Lab, 2nd Cross"
-                  className="w-full bg-slate-50 focus:bg-white border border-slate-200 focus:border-[#0A1128] focus:ring-1 focus:ring-[#0A1128] rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-900 outline-none transition-all"
-                />
+                  )
+                )}
               </div>
 
-              <div className="grid grid-cols-3 gap-2.5">
+              {/* Saved Addresses Quick Selector */}
+              {addresses.length > 0 && (
                 <div className="space-y-1">
-                  <label className="block text-xs font-bold text-slate-700">
-                    PIN Code <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    maxLength={6}
-                    value={addrFormPincode}
-                    onChange={(e) => setAddrFormPincode(e.target.value.replace(/\D/g, ""))}
-                    placeholder="6 digits"
-                    className="w-full bg-slate-50 focus:bg-white border border-slate-200 focus:border-[#0A1128] focus:ring-1 focus:ring-[#0A1128] rounded-xl px-3 py-2.5 text-xs font-semibold text-slate-900 outline-none transition-all font-mono"
-                  />
-                </div>
-
-                <div className="space-y-1">
-                  <label className="block text-xs font-bold text-slate-700">
-                    City <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={addrFormCity}
-                    onChange={(e) => setAddrFormCity(e.target.value)}
-                    placeholder="City"
-                    className="w-full bg-slate-50 focus:bg-white border border-slate-200 focus:border-[#0A1128] focus:ring-1 focus:ring-[#0A1128] rounded-xl px-3 py-2.5 text-xs font-semibold text-slate-900 outline-none transition-all"
-                  />
-                </div>
-
-                <div className="space-y-1">
-                  <label className="block text-xs font-bold text-slate-700">
-                    State <span className="text-red-500">*</span>
-                  </label>
-                  <select
-                    value={addrFormState}
-                    onChange={(e) => setAddrFormState(e.target.value)}
-                    className="w-full bg-slate-50 focus:bg-white border border-slate-200 focus:border-[#0A1128] rounded-xl px-2 py-2.5 text-xs font-semibold text-slate-900 outline-none transition-all"
-                  >
-                    {INDIAN_STATES.map((s) => (
-                      <option key={s} value={s}>{s}</option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-            </div>
-
-            {/* Optional B2B GSTIN Accordion */}
-            <div className="pt-2 border-t border-slate-100">
-              <button
-                type="button"
-                onClick={() => setRequireGSTInvoice(!requireGSTInvoice)}
-                className="text-xs font-bold text-purple-700 flex items-center gap-1.5 hover:underline cursor-pointer"
-              >
-                <span>{requireGSTInvoice ? "✓ B2B GST invoice added" : "+ Add GSTIN for Input Tax Credit (Optional)"}</span>
-              </button>
-              {requireGSTInvoice && (
-                <div className="mt-2.5 grid grid-cols-1 sm:grid-cols-2 gap-2.5 p-3 bg-purple-50/50 rounded-xl border border-purple-100">
-                  <input
-                    type="text"
-                    placeholder="Company / Institution Name"
-                    value={companyName}
-                    onChange={(e) => setCompanyName(e.target.value)}
-                    className="w-full bg-white border border-purple-200 rounded-lg px-3 py-2 text-xs font-medium text-slate-900"
-                  />
-                  <input
-                    type="text"
-                    maxLength={15}
-                    placeholder="15-digit GSTIN"
-                    value={gstinNumber}
-                    onChange={(e) => setGstinNumber(e.target.value.toUpperCase())}
-                    className="w-full bg-white border border-purple-200 rounded-lg px-3 py-2 text-xs font-mono font-medium text-slate-900 uppercase"
-                  />
+                  <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block">
+                    Delivery Destination
+                  </span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {addresses.map((a) => {
+                      const isSel = selectedShippingAddressId === a.id;
+                      return (
+                        <button
+                          key={a.id}
+                          type="button"
+                          onClick={() => handleSelectSavedAddress(a.id)}
+                          className={`px-2.5 py-1 rounded-md text-xs font-medium border transition-colors cursor-pointer ${
+                            isSel
+                              ? "bg-blue-50 text-[#2563EB] border-blue-200 font-semibold"
+                              : "bg-white text-slate-600 border-slate-200 hover:border-slate-300 hover:text-slate-900"
+                          }`}
+                        >
+                          <span className="font-semibold text-slate-900">{a.type}:</span> {a.street.slice(0, 18)}... ({a.pincode})
+                        </button>
+                      );
+                    })}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedShippingAddressId("");
+                        setAddrFormStreet("");
+                        setAddrFormPincode("");
+                      }}
+                      className={`px-2.5 py-1 rounded-md text-xs font-medium border transition-colors cursor-pointer ${
+                        !selectedShippingAddressId
+                          ? "bg-blue-50 text-[#2563EB] border-blue-200 font-semibold"
+                          : "bg-white text-slate-600 border-slate-200 hover:border-slate-300 hover:text-slate-900"
+                      }`}
+                    >
+                      + New Address
+                    </button>
+                  </div>
                 </div>
               )}
-            </div>
-          </div>
 
-          {/* ── Section 2: Delivery & Payment Method (Single Unified Card) ── */}
-          <div className="bg-white border border-slate-200/90 rounded-2xl p-4 sm:p-6 space-y-4 shadow-xs">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-              <div className="flex items-center gap-2">
-                <CreditCard className="w-4 h-4 text-emerald-600" />
-                <h2 className="text-sm sm:text-base font-extrabold text-slate-900">
-                  2. Payment &amp; Delivery Method
-                </h2>
+              {/* Contact Details Fields */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                <div className="space-y-0.5">
+                  <label className="block text-[11px] font-semibold text-slate-700">
+                    Full Name <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={customerName}
+                    onChange={(e) => {
+                      setCustomerName(e.target.value);
+                      setAddrFormName(e.target.value);
+                    }}
+                    placeholder="e.g. Om Kumar"
+                    className="w-full bg-white border border-slate-200 focus:border-[#2563EB] focus:ring-2 focus:ring-blue-500/10 rounded-lg px-3 py-1.5 sm:py-2 text-xs font-medium text-slate-900 outline-none transition-all placeholder:text-slate-400"
+                  />
+                </div>
+
+                <div className="space-y-0.5">
+                  <div className="flex items-center justify-between">
+                    <label className="block text-[11px] font-semibold text-slate-700">
+                      Mobile Number <span className="text-red-500">*</span>
+                    </label>
+                    {!isPhoneVerified && customerMobile.length === 10 && (
+                      <button
+                        type="button"
+                        onClick={handleSendCheckoutOtp}
+                        className="text-[11px] text-[#2563EB] font-semibold hover:underline cursor-pointer"
+                      >
+                        Verify OTP
+                      </button>
+                    )}
+                  </div>
+                  <input
+                    type="tel"
+                    required
+                    maxLength={10}
+                    value={customerMobile}
+                    onChange={(e) => {
+                      handleMobileChange(e.target.value);
+                      setAddrFormPhone(e.target.value);
+                    }}
+                    placeholder="10-digit mobile number"
+                    className="w-full bg-white border border-slate-200 focus:border-[#2563EB] focus:ring-2 focus:ring-blue-500/10 rounded-lg px-3 py-1.5 sm:py-2 text-xs font-medium text-slate-900 outline-none transition-all placeholder:text-slate-400"
+                  />
+                </div>
               </div>
-              <span className="text-[11px] font-bold text-slate-500 flex items-center gap-1">
-                <Lock className="w-3 h-3 text-emerald-600" /> 256-Bit SSL Safe
-              </span>
-            </div>
 
-            {/* Payment Radio Options */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-              {[
-                { id: "cod", label: "Cash on Delivery", icon: <Banknote className="w-4 h-4 text-amber-600" />, desc: "Pay at Doorstep" },
-                { id: "upi", label: "UPI / QR Code", icon: <QrCode className="w-4 h-4 text-emerald-600" />, desc: "GPay, PhonePe, Paytm" },
-                { id: "card", label: "Cards", icon: <CreditCard className="w-4 h-4 text-[#2563EB]" />, desc: "Debit / Credit" },
-                { id: "netbanking", label: "Net Banking", icon: <Landmark className="w-4 h-4 text-purple-600" />, desc: "50+ Banks" },
-              ].map((opt) => {
-                const isSel = paymentMethod === opt.id;
-                return (
-                  <button
-                    key={opt.id}
-                    type="button"
-                    onClick={() => setPaymentMethod(opt.id as any)}
-                    className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
-                      isSel
-                        ? "border-2 border-[#0A1128] bg-slate-50 shadow-xs ring-2 ring-[#0A1128]/10"
-                        : "border-slate-200 bg-white hover:border-slate-300"
-                    }`}
-                  >
-                    <div className="flex items-center justify-between mb-1.5">
-                      {opt.icon}
-                      <div className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center ${
-                        isSel ? "bg-[#0A1128] border-[#0A1128]" : "border-slate-300"
-                      }`}>
-                        {isSel && <div className="w-1.5 h-1.5 bg-white rounded-full" />}
-                      </div>
-                    </div>
-                    <div className="text-xs font-bold text-slate-900 leading-tight">{opt.label}</div>
-                    <div className="text-[10px] text-slate-500 mt-0.5">{opt.desc}</div>
-                  </button>
-                );
-              })}
-            </div>
+              <div className="space-y-0.5">
+                <label className="block text-[11px] font-semibold text-slate-700">
+                  Email Address <span className="text-slate-400 font-normal">(for tracking &amp; GST invoice)</span>
+                </label>
+                <input
+                  type="email"
+                  value={customerEmail}
+                  onChange={(e) => setCustomerEmail(e.target.value)}
+                  placeholder="name@example.com"
+                  className="w-full bg-white border border-slate-200 focus:border-[#2563EB] focus:ring-2 focus:ring-blue-500/10 rounded-lg px-3 py-1.5 sm:py-2 text-xs font-medium text-slate-900 outline-none transition-all placeholder:text-slate-400"
+                />
+              </div>
 
-            {/* Delivery Speed Selector - Compact Row */}
-            <div className="pt-3 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-              <span className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
-                <Truck className="w-4 h-4 text-slate-500" />
-                Shipping Speed:
-              </span>
-              <div className="flex items-center gap-2">
+              {/* Inline Shipping Address Form */}
+              <div className="pt-2 border-t border-slate-100 space-y-2">
+                <div className="space-y-0.5">
+                  <label className="block text-[11px] font-semibold text-slate-700">
+                    Flat, House no., Building, Street Address <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={addrFormStreet}
+                    onChange={(e) => setAddrFormStreet(e.target.value)}
+                    placeholder="e.g. #402, Prayog Robotics Lab, 2nd Cross"
+                    className="w-full bg-white border border-slate-200 focus:border-[#2563EB] focus:ring-2 focus:ring-blue-500/10 rounded-lg px-3 py-1.5 sm:py-2 text-xs font-medium text-slate-900 outline-none transition-all placeholder:text-slate-400"
+                  />
+                </div>
+
+                <div className="grid grid-cols-3 gap-2">
+                  <div className="space-y-0.5">
+                    <label className="block text-[11px] font-semibold text-slate-700">
+                      PIN Code <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      maxLength={6}
+                      value={addrFormPincode}
+                      onChange={(e) => setAddrFormPincode(e.target.value.replace(/\D/g, ""))}
+                      placeholder="6 digits"
+                      className="w-full bg-white border border-slate-200 focus:border-[#2563EB] focus:ring-2 focus:ring-blue-500/10 rounded-lg px-2.5 py-1.5 sm:py-2 text-xs font-medium text-slate-900 outline-none transition-all placeholder:text-slate-400 font-mono"
+                    />
+                  </div>
+
+                  <div className="space-y-0.5">
+                    <label className="block text-[11px] font-semibold text-slate-700">
+                      City <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={addrFormCity}
+                      onChange={(e) => setAddrFormCity(e.target.value)}
+                      placeholder="City"
+                      className="w-full bg-white border border-slate-200 focus:border-[#2563EB] focus:ring-2 focus:ring-blue-500/10 rounded-lg px-2.5 py-1.5 sm:py-2 text-xs font-medium text-slate-900 outline-none transition-all placeholder:text-slate-400"
+                    />
+                  </div>
+
+                  <div className="space-y-0.5">
+                    <label className="block text-[11px] font-semibold text-slate-700">
+                      State <span className="text-red-500">*</span>
+                    </label>
+                    <select
+                      value={addrFormState}
+                      onChange={(e) => setAddrFormState(e.target.value)}
+                      className="w-full bg-white border border-slate-200 focus:border-[#2563EB] focus:ring-2 focus:ring-blue-500/10 rounded-lg px-2 py-1.5 sm:py-2 text-xs font-medium text-slate-900 outline-none transition-all"
+                    >
+                      {INDIAN_STATES.map((s) => (
+                        <option key={s} value={s}>{s}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              {/* Optional B2B GSTIN Accordion */}
+              <div className="pt-0.5">
                 <button
                   type="button"
-                  onClick={() => setSelectedDeliveryMethod("standard")}
-                  className={`px-3.5 py-1.5 rounded-full text-xs font-bold border transition-all cursor-pointer ${
-                    selectedDeliveryMethod === "standard"
-                      ? "bg-[#0A1128] text-white border-[#0A1128] shadow-xs"
-                      : "bg-slate-50 text-slate-600 border-slate-200 hover:bg-white"
-                  }`}
+                  onClick={() => setRequireGSTInvoice(!requireGSTInvoice)}
+                  className="text-xs font-semibold text-[#2563EB] hover:underline cursor-pointer"
                 >
-                  Standard ({isFreeStandardShipping ? "FREE" : "₹99"})
+                  {requireGSTInvoice ? "✓ B2B GST invoice details added" : "+ Add GSTIN for Input Tax Credit (Optional)"}
                 </button>
-                {isRanchiEligible && (
-                  <button
-                    type="button"
-                    onClick={() => setSelectedDeliveryMethod("ranchi_24h")}
-                    className={`px-3.5 py-1.5 rounded-full text-xs font-bold border transition-all cursor-pointer ${
-                      selectedDeliveryMethod === "ranchi_24h"
-                        ? "bg-emerald-700 text-white border-emerald-700 shadow-xs"
-                        : "bg-slate-50 text-slate-600 border-slate-200 hover:bg-white"
-                    }`}
-                  >
-                    Ranchi 24h (₹49)
-                  </button>
+                {requireGSTInvoice && (
+                  <div className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-2 p-2.5 bg-slate-50 rounded-lg border border-slate-200/70">
+                    <input
+                      type="text"
+                      placeholder="Company / Institution Name"
+                      value={companyName}
+                      onChange={(e) => setCompanyName(e.target.value)}
+                      className="w-full bg-white border border-slate-200 rounded-md px-2.5 py-1.5 text-xs font-medium text-slate-900 placeholder:text-slate-400 outline-none focus:border-[#2563EB]"
+                    />
+                    <input
+                      type="text"
+                      maxLength={15}
+                      placeholder="15-digit GSTIN"
+                      value={gstinNumber}
+                      onChange={(e) => setGstinNumber(e.target.value.toUpperCase())}
+                      className="w-full bg-white border border-slate-200 rounded-md px-2.5 py-1.5 text-xs font-mono font-medium text-slate-900 uppercase placeholder:text-slate-400 outline-none focus:border-[#2563EB]"
+                    />
+                  </div>
                 )}
-                <button
-                  type="button"
-                  onClick={() => setSelectedDeliveryMethod("faster_express")}
-                  className={`px-3.5 py-1.5 rounded-full text-xs font-bold border transition-all cursor-pointer ${
-                    selectedDeliveryMethod === "faster_express"
-                      ? "bg-[#2563EB] text-white border-[#2563EB] shadow-xs"
-                      : "bg-slate-50 text-slate-600 border-slate-200 hover:bg-white"
-                  }`}
-                >
-                  Priority Air (₹149)
-                </button>
+              </div>
+            </div>
+
+            {/* ── Section 2: Payment Method ── */}
+            <div className="pt-3.5 border-t border-slate-100 space-y-3">
+              <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+                <div className="flex items-center gap-2 min-w-0">
+                  <CreditCard className="w-4 h-4 text-[#2563EB] shrink-0" />
+                  <h2 className="text-sm sm:text-base font-extrabold text-slate-900 truncate">
+                    2. Payment Method
+                  </h2>
+                </div>
+                <span className="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-600 shrink-0 whitespace-nowrap">
+                  <Lock className="w-3 h-3 text-emerald-600" />
+                  <span>SSL Secured</span>
+                </span>
+              </div>
+
+              {/* Clean Unified Payment List Group */}
+              <div className="border border-slate-200 rounded-lg overflow-hidden divide-y divide-slate-100 bg-white">
+                {[
+                  {
+                    id: "cod",
+                    label: "Cash on Delivery",
+                    icon: <Banknote className="w-4 h-4 text-slate-600" />,
+                    desc: "Pay at Doorstep with Cash or QR",
+                  },
+                  {
+                    id: "upi",
+                    label: "UPI / QR Code",
+                    icon: <QrCode className="w-4 h-4 text-emerald-600" />,
+                    desc: "Instant payment via GPay, PhonePe, Paytm, BHIM",
+                  },
+                  {
+                    id: "card",
+                    label: "Debit / Credit Cards",
+                    icon: <CreditCard className="w-4 h-4 text-[#2563EB]" />,
+                    desc: "Visa, Mastercard, RuPay, Maestro",
+                  },
+                  {
+                    id: "netbanking",
+                    label: "Net Banking",
+                    icon: <Landmark className="w-4 h-4 text-purple-600" />,
+                    desc: "50+ Indian Banks supported",
+                  },
+                ].map((opt) => {
+                  const isSel = paymentMethod === opt.id;
+                  return (
+                    <button
+                      key={opt.id}
+                      type="button"
+                      onClick={() => setPaymentMethod(opt.id as any)}
+                      className={`w-full flex items-center justify-between px-3 py-2 sm:py-2.5 text-left transition-colors cursor-pointer ${
+                        isSel ? "bg-blue-50/60" : "hover:bg-slate-50"
+                      }`}
+                    >
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <div
+                          className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center shrink-0 ${
+                            isSel
+                              ? "bg-[#2563EB] border-[#2563EB]"
+                              : "border-slate-300 bg-white"
+                          }`}
+                        >
+                          {isSel && (
+                            <div className="w-1.5 h-1.5 bg-white rounded-full" />
+                          )}
+                        </div>
+                        <div className="flex items-center gap-2 min-w-0">
+                          <span className="shrink-0">{opt.icon}</span>
+                          <div>
+                            <div className="text-xs font-semibold text-slate-900 leading-tight">
+                              {opt.label}
+                            </div>
+                            <div className="text-[10px] text-slate-500 mt-0.5">
+                              {opt.desc}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Delivery Speed Selector - Clean segmented control */}
+              <div className="pt-2 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <span className="text-xs font-medium text-slate-700 flex items-center gap-1.5">
+                  <Truck className="w-3.5 h-3.5 text-slate-500" />
+                  Shipping Speed:
+                </span>
+                <div className="inline-flex p-0.5 bg-slate-100 rounded-lg">
+                  <button
+                    type="button"
+                    onClick={() => setSelectedDeliveryMethod("standard")}
+                    className={`px-2.5 py-1 rounded-md text-xs font-medium transition-all cursor-pointer ${
+                      selectedDeliveryMethod === "standard"
+                        ? "bg-white text-slate-900 font-semibold shadow-xs"
+                        : "text-slate-600 hover:text-slate-900"
+                    }`}
+                  >
+                    Standard ({isFreeStandardShipping ? "FREE" : "₹99"})
+                  </button>
+                  {isRanchiEligible && (
+                    <button
+                      type="button"
+                      onClick={() => setSelectedDeliveryMethod("ranchi_24h")}
+                      className={`px-2.5 py-1 rounded-md text-xs font-medium transition-all cursor-pointer ${
+                        selectedDeliveryMethod === "ranchi_24h"
+                          ? "bg-white text-slate-900 font-semibold shadow-xs"
+                          : "text-slate-600 hover:text-slate-900"
+                      }`}
+                    >
+                      Ranchi 24h (₹49)
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => setSelectedDeliveryMethod("faster_express")}
+                    className={`px-2.5 py-1 rounded-md text-xs font-medium transition-all cursor-pointer ${
+                      selectedDeliveryMethod === "faster_express"
+                        ? "bg-white text-slate-900 font-semibold shadow-xs"
+                        : "text-slate-600 hover:text-slate-900"
+                    }`}
+                  >
+                    Priority Air (₹149)
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -1893,7 +1876,7 @@ export const CheckoutView: React.FC = () => {
                     type="button"
                     onClick={handleVerifyCheckoutOtp}
                     disabled={checkoutOtp.length < 6 || otpVerifying}
-                    className="w-full bg-[#0A1128] hover:bg-[#12365D] disabled:opacity-50 text-white py-3 rounded-xl font-black text-xs uppercase tracking-wider transition-all shadow-md active:scale-95 cursor-pointer"
+                    className="w-full bg-[#2563EB] hover:bg-[#1D4ED8] active:bg-[#1E40AF] disabled:opacity-50 text-white py-3 rounded-xl font-black text-xs uppercase tracking-wider transition-all shadow-md shadow-blue-500/20 active:scale-95 cursor-pointer"
                   >
                     {otpVerifying ? "Verifying..." : "Confirm & Verify"}
                   </button>
@@ -1914,11 +1897,11 @@ export const CheckoutView: React.FC = () => {
           )}
 
           {/* Place Order CTA */}
-          <div className="space-y-3 pt-1">
+          <div className="space-y-2 pt-0.5">
             <button
               onClick={handlePlaceOrder}
               disabled={isSubmitting}
-              className="w-full h-14 bg-[#0A1128] hover:bg-[#12365D] active:scale-[0.99] text-white px-5 sm:px-6 rounded-full font-bold transition-all shadow-xl shadow-[#0A1128]/15 flex items-center justify-between cursor-pointer disabled:opacity-50 group border border-slate-800"
+              className="w-full h-12 bg-[#2563EB] hover:bg-[#1D4ED8] active:bg-[#1E40AF] active:scale-[0.99] text-white px-4 sm:px-5 rounded-xl font-bold transition-all shadow-md shadow-blue-500/20 flex items-center justify-between cursor-pointer disabled:opacity-50 group border border-blue-600"
             >
               {isSubmitting ? (
                 <div className="w-full text-center py-0.5 flex items-center justify-center gap-2">
@@ -1928,18 +1911,18 @@ export const CheckoutView: React.FC = () => {
               ) : (
                 <>
                   <div className="flex flex-col text-left">
-                    <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider leading-none">
+                    <span className="text-[10px] text-blue-100 font-medium uppercase tracking-wider leading-none">
                       Total to Pay
                     </span>
-                    <span className="text-base sm:text-lg font-black text-[#FFC20E] tracking-tight leading-tight mt-0.5">
+                    <span className="text-base sm:text-lg font-black text-white tracking-tight leading-tight mt-0.5">
                       ₹{grandTotal.toLocaleString("en-IN")}
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-sm sm:text-base font-extrabold tracking-wide">
+                    <span className="text-sm sm:text-base font-bold tracking-wide">
                       Place Order
                     </span>
-                    <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center group-hover:translate-x-1 transition-transform">
+                    <div className="w-7 h-7 rounded-lg bg-white/15 flex items-center justify-center group-hover:translate-x-0.5 transition-transform">
                       <ArrowRight className="w-4 h-4 text-white" />
                     </div>
                   </div>
@@ -1948,19 +1931,19 @@ export const CheckoutView: React.FC = () => {
             </button>
 
             {/* Trust and Guarantee Bar */}
-            <div className="flex flex-wrap items-center justify-center gap-x-3.5 gap-y-1 text-[11px] text-slate-500 font-semibold pt-1">
-              <span className="flex items-center gap-1.5">
-                <Lock className="w-3.5 h-3.5 text-emerald-600" />
-                256-Bit SSL Encrypted
+            <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-0.5 text-[10px] sm:text-[11px] text-slate-500 font-medium pt-0.5">
+              <span className="flex items-center gap-1">
+                <Lock className="w-3 h-3 text-emerald-600" />
+                256-Bit SSL
               </span>
               <span>•</span>
-              <span className="flex items-center gap-1.5">
-                <Receipt className="w-3.5 h-3.5 text-[#0A1128]" />
-                Official GST Invoice
+              <span className="flex items-center gap-1">
+                <Receipt className="w-3 h-3 text-slate-700" />
+                GST Invoice
               </span>
               <span>•</span>
-              <span className="flex items-center gap-1.5">
-                <ShieldCheck className="w-3.5 h-3.5 text-blue-600" />
+              <span className="flex items-center gap-1">
+                <ShieldCheck className="w-3 h-3 text-blue-600" />
                 100% Genuine Robotics
               </span>
             </div>

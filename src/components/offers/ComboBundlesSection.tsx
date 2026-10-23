@@ -159,7 +159,7 @@ export const ComboBundlesSection: React.FC = () => {
                   className={`w-full py-3 px-4 rounded-2xl text-xs font-black uppercase tracking-wider flex items-center justify-center gap-2 transition-all cursor-pointer shadow-md active:scale-95 ${
                     isAdded
                       ? "bg-emerald-600 text-white shadow-emerald-500/20"
-                      : "bg-slate-900 hover:bg-emerald-600 text-white shadow-slate-900/10"
+                      : "bg-[#2563EB] hover:bg-[#1D4ED8] active:bg-[#1E40AF] text-white shadow-blue-500/20"
                   }`}
                 >
                   {isAdded ? (

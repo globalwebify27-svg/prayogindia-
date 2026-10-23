@@ -113,7 +113,7 @@ function CategoryRow({
       {/* Meta */}
       <div className="flex items-center gap-2 shrink-0">
         <span className="text-[9px] text-slate-400 font-medium hidden sm:block">
-          {node.productCount.toLocaleString()} products
+          {(node.productCount ?? 0).toLocaleString()} products
         </span>
         <span
           className={`text-[9px] font-bold px-1.5 py-0.5 rounded-md ${LEVEL_STYLES[node.level]}`}
@@ -401,7 +401,7 @@ export default function AdminCategoriesPage() {
   const parentCats = allFlat.filter((n) => n.level === 0).length;
   const subCats = allFlat.filter((n) => n.level === 1).length;
   const totalProducts = allFlat.reduce(
-    (acc, n) => acc + (n.level === 0 ? n.productCount : 0),
+    (acc, n) => acc + (n.level === 0 ? (n.productCount ?? 0) : 0),
     0,
   );
 

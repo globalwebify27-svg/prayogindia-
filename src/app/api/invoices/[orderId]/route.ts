@@ -1,7 +1,25 @@
 import { NextResponse } from "next/server";
+import fs from "fs";
+import path from "path";
 import { db } from "@/lib/db";
 import { getAuthenticatedCustomer } from "@/lib/authUtils";
 import { getSecurityHeaders } from "@/lib/security";
+
+let cachedLogoDataUri: string | null = null;
+function getLogoDataUri(): string {
+  if (cachedLogoDataUri) return cachedLogoDataUri;
+  try {
+    const logoPath = path.join(process.cwd(), "public", "images", "prayog-logo.png");
+    if (fs.existsSync(logoPath)) {
+      const fileBuffer = fs.readFileSync(logoPath);
+      cachedLogoDataUri = `data:image/png;base64,${fileBuffer.toString("base64")}`;
+      return cachedLogoDataUri;
+    }
+  } catch {
+    // fallback
+  }
+  return "/images/prayog-logo.png";
+}
 
 /**
  * GET /api/invoices/[orderId]
@@ -126,15 +144,19 @@ export async function GET(
       const itemsList = Array.isArray(invoiceData.items)
         ? (invoiceData.items as any[])
         : [];
+      const logoSrc = getLogoDataUri();
       const html = `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <title>Tax Invoice - ${invoiceData.invoiceNumber}</title>
   <style>
+    * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 40px; color: #1e293b; line-height: 1.4; font-size: 13px; }
     .header { display: flex; justify-content: space-between; border-bottom: 2px solid #2563EB; padding-bottom: 20px; }
-    .logo-title { font-size: 24px; font-weight: 900; color: #2563EB; }
+    .logo-container { position: relative; display: inline-block; height: 46px; margin-bottom: 6px; }
+    .logo-container .pill-bg { position: absolute; background: #0F172A; border-radius: 9999px; left: 17.0%; top: 68.2%; width: 67.2%; height: 23.9%; pointer-events: none; }
+    .logo-container img { height: 46px; width: auto; position: relative; z-index: 2; display: block; }
     .badge { display: inline-block; background: #eff6ff; color: #2563EB; padding: 3px 8px; border-radius: 6px; font-size: 10px; font-weight: 700; text-transform: uppercase; margin-top: 5px; }
     .meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 25px 0; }
     .meta-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px; }
@@ -155,7 +177,10 @@ export async function GET(
   </div>
   <div class="header">
     <div>
-      <div class="logo-title">PRAYOG INDIA</div>
+      <div class="logo-container">
+        <div class="pill-bg" aria-hidden="true"></div>
+        <img src="${logoSrc}" alt="Prayog India - The World of Robotics" />
+      </div>
       <div style="font-size: 11px; color: #64748b; margin-top: 4px;">EdTech Hardware &amp; Robotics Research Hub</div>
       <div style="font-size: 11px; color: #64748b;">GSTIN: 20AAECP1234F1Z5 | HEC Complex, Ranchi, Jharkhand - 834004</div>
     </div>

@@ -148,13 +148,13 @@ export const AccountDashboardView: React.FC = () => {
         <div className="flex justify-center gap-3 pt-2">
           <Link
             href="/login"
-            className="bg-[#0A1128] hover:bg-[#12365D] text-white px-6 py-2.5 rounded-full text-xs font-black uppercase tracking-wider transition-colors"
+            className="bg-[#2563EB] hover:bg-[#1D4ED8] active:bg-[#1E40AF] text-white px-6 py-2.5 rounded-full text-xs font-black uppercase tracking-wider transition-colors shadow-sm shadow-blue-500/20"
           >
             Sign In
           </Link>
           <Link
             href="/register"
-            className="bg-slate-100 hover:bg-slate-200 text-slate-800 px-6 py-2.5 rounded-full text-xs font-black uppercase tracking-wider transition-colors"
+            className="bg-white hover:bg-slate-50 text-slate-700 hover:text-slate-900 border border-slate-200 px-6 py-2.5 rounded-full text-xs font-black uppercase tracking-wider transition-colors"
           >
             Create Account
           </Link>

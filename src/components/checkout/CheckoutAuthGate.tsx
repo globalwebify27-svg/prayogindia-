@@ -369,7 +369,7 @@ export const CheckoutAuthGate: React.FC<CheckoutAuthGateProps> = ({
           <button
             type="submit"
             disabled={loading || googleLoading}
-            className="w-full mt-2 h-11 bg-[#0A1128] hover:bg-[#12365D] active:scale-[0.99] text-white rounded-full font-bold text-xs sm:text-sm tracking-wide transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+            className="w-full mt-2 h-11 bg-[#2563EB] hover:bg-[#1D4ED8] active:bg-[#1E40AF] active:scale-[0.99] text-white rounded-full font-bold text-xs sm:text-sm tracking-wide transition-all shadow-md shadow-blue-500/20 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
           >
             {loading ? (
               <span>

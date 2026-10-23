@@ -314,7 +314,7 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
                     onClick={() => handlePresetClick(preset.range)}
                     className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all cursor-pointer border ${
                       isSelected
-                        ? "bg-[#0A233F] text-white border-[#0A233F] shadow-xs"
+                        ? "bg-[#2563EB] text-white border-[#2563EB] shadow-xs"
                         : "bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100 hover:text-slate-900"
                     }`}
                   >
@@ -410,7 +410,7 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
                     onClick={() => onSelectSubcategory?.(null)}
                     className={`w-full text-left py-1.5 px-2.5 rounded-lg text-xs transition-all flex items-center justify-between cursor-pointer ${
                       !selectedSubcategory
-                        ? "bg-[#0A233F] text-white font-bold"
+                        ? "bg-[#2563EB] text-white font-bold"
                         : "text-slate-700 hover:bg-slate-50 font-medium"
                     }`}
                   >
@@ -452,7 +452,7 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
                     }}
                     className={`w-full text-left py-1.5 px-2.5 rounded-lg text-xs transition-all flex items-center justify-between cursor-pointer ${
                       !selectedCategory
-                        ? "bg-[#0A233F] text-white font-bold"
+                        ? "bg-[#2563EB] text-white font-bold"
                         : "text-slate-700 hover:bg-slate-50 font-medium"
                     }`}
                   >

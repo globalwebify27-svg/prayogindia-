@@ -44,6 +44,7 @@ export interface CustomerOrder {
   isReturnable?: boolean;
   items: Array<{
     id?: string;
+    slug?: string;
     name: string;
     sku: string;
     quantity: number;

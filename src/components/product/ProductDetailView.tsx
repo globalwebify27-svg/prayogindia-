@@ -256,10 +256,10 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
         ]}
       />
 
-      {/* ── 2-Column Top Section: Gallery + Info (Single Screen Compact Layout) ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 xl:gap-8 items-stretch">
-        {/* Left — Gallery (fills height to align flush with right column) */}
-        <div className="lg:col-span-5 flex flex-col h-full">
+      {/* ── 2-Column Top Section: Gallery + Info ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 xl:gap-8 items-start">
+        {/* Left — Gallery (Ensures thumbnails are always fully visible) */}
+        <div className="lg:col-span-5 flex flex-col">
           <ProductGallery
             images={galleryImages}
             productName={product.name}
@@ -269,7 +269,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
         </div>
 
         {/* Right — Product Information */}
-        <div className="lg:col-span-7 flex flex-col justify-between">
+        <div className="lg:col-span-7 flex flex-col justify-start">
           <ProductInformation
             product={product}
             selectedVariant={selectedVariant}
@@ -323,11 +323,11 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
                 )}
               </button>
 
-              {/* Buy Now Button — Prayog Deep Navy #0A1128 */}
+              {/* Buy Now Button — Brand Primary Blue #2563EB */}
               <button
                 type="button"
                 onClick={() => handleBuyNow(product, 1)}
-                className="h-11 sm:h-12 rounded-xl bg-[#0A1128] hover:bg-slate-900 text-white font-black text-xs sm:text-[13px] uppercase tracking-wider flex items-center justify-center gap-1.5 sm:gap-2 shadow-md shadow-slate-950/25 active:scale-95 transition-all cursor-pointer whitespace-nowrap"
+                className="h-11 sm:h-12 rounded-xl bg-[#2563EB] hover:bg-[#1D4ED8] active:bg-[#1E40AF] text-white font-black text-xs sm:text-[13px] uppercase tracking-wider flex items-center justify-center gap-1.5 sm:gap-2 shadow-md shadow-blue-500/20 active:scale-95 transition-all cursor-pointer whitespace-nowrap"
               >
                 <span>BUY NOW</span>
               </button>

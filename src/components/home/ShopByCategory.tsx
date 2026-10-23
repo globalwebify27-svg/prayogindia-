@@ -175,9 +175,9 @@ const DraggableContinuousMarquee: React.FC<DraggableMarqueeProps> = ({
 
   const getMetrics = () => {
     const container = scrollRef.current;
-    if (!container || items.length === 0) return { cardWidth: 235, singleSetWidth: 940 };
+    if (!container || items.length === 0) return { cardWidth: 185, singleSetWidth: 740 };
     const card = container.querySelector<HTMLElement>("[data-marquee-card]");
-    const cardWidth = card ? card.offsetWidth + 10 : 235;
+    const cardWidth = card ? card.offsetWidth + 10 : 185;
     return { cardWidth, singleSetWidth: items.length * cardWidth };
   };
 
@@ -359,19 +359,19 @@ const DraggableContinuousMarquee: React.FC<DraggableMarqueeProps> = ({
                     onSelectCategory(cat.name);
                   }
                 }}
-                className={`relative flex items-center gap-2.5 px-3 py-2 rounded-2xl border shadow-2xs hover:shadow-xs transition-shadow duration-200 w-[225px] h-[60px] shrink-0 group select-none pointer-events-auto ${
+                className={`relative flex items-center gap-2 px-2.5 py-1 rounded-xl border shadow-2xs hover:shadow-xs transition-shadow duration-200 w-[172px] h-[48px] shrink-0 group select-none pointer-events-auto ${
                   theme.mobileBg ||
                   "bg-gradient-to-r from-blue-50/70 via-slate-50/50 to-white border-blue-100/70"
                 }`}
               >
                 {/* Left: Product Cutout Image */}
-                <div className="relative w-11 h-11 shrink-0 flex items-center justify-center pointer-events-none">
+                <div className="relative w-8.5 h-8.5 shrink-0 flex items-center justify-center pointer-events-none">
                   <Image
                     src={cat.image}
                     alt={cat.imageAlt || cat.name}
                     fill
                     draggable={false}
-                    sizes="48px"
+                    sizes="36px"
                     className="object-contain drop-shadow-xs group-hover:scale-108 transition-transform duration-300 pointer-events-none select-none"
                     style={
                       {
@@ -384,20 +384,15 @@ const DraggableContinuousMarquee: React.FC<DraggableMarqueeProps> = ({
                 </div>
 
                 {/* Center: Title & Product Count */}
-                <div className="flex-1 min-w-0 pr-0.5 pointer-events-none">
-                  <h3 className="font-bold text-[12px] text-slate-900 tracking-tight leading-tight truncate group-hover:text-[#2563EB] transition-colors">
+                <div className="flex-1 min-w-0 pointer-events-none">
+                  <h3 className="font-bold text-[11px] text-slate-900 tracking-tight leading-tight truncate group-hover:text-[#2563EB] transition-colors">
                     {cat.name}
                   </h3>
                   {cat.productCount && (
-                    <p className="text-[10px] font-medium text-slate-400 mt-0.5 leading-none truncate">
+                    <p className="text-[9px] font-medium text-slate-400 mt-0.5 leading-none truncate">
                       {cat.productCount}
                     </p>
                   )}
-                </div>
-
-                {/* Right: Circular Arrow Icon */}
-                <div className="w-5 h-5 rounded-full bg-blue-50 text-[#2563EB] flex items-center justify-center shrink-0 group-hover:bg-[#2563EB] group-hover:text-white transition-all duration-200 shadow-3xs pointer-events-none">
-                  <ArrowRight className="w-2.5 h-2.5 group-hover:translate-x-0.5 transition-transform" />
                 </div>
               </Link>
             );

@@ -44,18 +44,18 @@ export const CheckoutOrderSummary: React.FC<CheckoutSummaryProps> = ({
   );
 
   return (
-    <div className="bg-white text-slate-800 rounded-3xl p-6 sm:p-7 border border-slate-200/90 shadow-sm space-y-5 sticky top-28">
-      <div className="border-b border-slate-100 pb-3 flex items-center justify-between">
-        <h3 className="text-base font-extrabold tracking-tight text-slate-900">
+    <div className="bg-white text-slate-800 rounded-xl sm:rounded-2xl p-4 sm:p-5 border border-slate-200/80 space-y-3.5 sticky top-24 shadow-xs">
+      <div className="border-b border-slate-100 pb-2.5 flex items-center justify-between">
+        <h3 className="text-sm font-bold tracking-tight text-slate-900">
           Order Summary
         </h3>
-        <span className="text-xs text-slate-500 font-semibold bg-slate-100 px-2.5 py-0.5 rounded-full">
+        <span className="text-xs text-slate-500 font-medium">
           {cart.reduce((a, b) => a + b.quantity, 0)} {cart.reduce((a, b) => a + b.quantity, 0) === 1 ? "Item" : "Items"}
         </span>
       </div>
 
       {/* Product Mini List */}
-      <div className="space-y-3 max-h-56 overflow-y-auto pr-1 scrollbar-thin">
+      <div className="space-y-2.5 max-h-56 overflow-y-auto pr-1 scrollbar-thin">
         {cart.map((item) => {
           const price = item.variant ? item.variant.price : item.product.price;
           return (
@@ -64,7 +64,7 @@ export const CheckoutOrderSummary: React.FC<CheckoutSummaryProps> = ({
               className="flex items-center justify-between gap-3 text-xs"
             >
               <div className="flex items-center gap-2.5 min-w-0">
-                <div className="relative w-10 h-10 rounded-xl bg-slate-50 border border-slate-100 p-1 shrink-0 overflow-hidden">
+                <div className="relative w-10 h-10 rounded-lg bg-white border border-slate-200/60 p-1 shrink-0 overflow-hidden">
                   <Image
                     src={item.product.image}
                     alt={item.product.name}
@@ -92,7 +92,7 @@ export const CheckoutOrderSummary: React.FC<CheckoutSummaryProps> = ({
 
       {/* Reward Points Toggle */}
       {rewardPointsAvailable > 0 && (
-        <div className="p-3 bg-amber-50/60 border border-amber-200/70 rounded-2xl flex items-center justify-between text-xs">
+        <div className="p-2.5 bg-amber-50/60 border border-amber-200/70 rounded-xl flex items-center justify-between text-xs">
           <div className="flex items-center gap-2">
             <Award className="w-4 h-4 text-amber-500 shrink-0" />
             <div>
@@ -114,7 +114,7 @@ export const CheckoutOrderSummary: React.FC<CheckoutSummaryProps> = ({
       )}
 
       {/* Calculations Breakdown */}
-      <div className="space-y-2.5 text-xs text-slate-600 pt-2 border-t border-slate-100 font-medium">
+      <div className="space-y-2 text-xs text-slate-600 pt-2 border-t border-slate-100 font-medium">
         <div className="flex justify-between">
           <span>Product Catalogue MRP</span>
           <span className="line-through text-slate-400 font-semibold">

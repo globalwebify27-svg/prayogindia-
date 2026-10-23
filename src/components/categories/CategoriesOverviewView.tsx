@@ -7,7 +7,7 @@ import { CategoryCard } from "@/components/categories/CategoryCard";
 import { CategoryCollections } from "@/components/categories/CategoryCollections";
 import { PopularCategories } from "@/components/categories/PopularCategories";
 import { CATEGORIES_DATA } from "@/data/categories";
-import { Search, X, SlidersHorizontal, ArrowRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
 type FilterTag = "all" | "robotics" | "electronics" | "dev-boards" | "iot" | "stem";
 type SortOption = "popular" | "name" | "count";
@@ -84,7 +84,7 @@ export const CategoriesOverviewView: React.FC = () => {
   }, [searchQuery, activeTag, sortBy]);
 
   return (
-    <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 py-5 space-y-6 animate-in fade-in duration-300">
+    <div className="w-full px-3 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 py-3.5 sm:py-5 space-y-4 sm:space-y-6 animate-in fade-in duration-300">
       {/* 1. Hero Banner Header */}
       <CategoriesHeader
         onBrowseAll={() => {
@@ -95,69 +95,26 @@ export const CategoriesOverviewView: React.FC = () => {
         }}
       />
 
-      {/* 2. Browse by category Bar (Exact match to Target Design) */}
+      {/* 2. Quick Filter Tags & Sort Bar */}
       <div
         id="browse-categories-section"
-        className="bg-white rounded-2xl border border-slate-200/90 p-3 sm:p-4 shadow-sm flex flex-col xl:flex-row xl:items-center justify-between gap-4"
+        className="bg-white rounded-2xl border border-slate-200/90 p-2.5 sm:p-3 shadow-sm flex flex-wrap items-center justify-between gap-3"
       >
-        {/* Left Side: Title & Search Input Box */}
-        <div className="flex flex-col sm:flex-row sm:items-center gap-3 flex-1 min-w-0">
-          <h2 className="text-base sm:text-lg font-black text-slate-900 shrink-0">
-            Browse by category
-          </h2>
-
-          <div className="relative flex-1 max-w-sm">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search categories..."
-              className="w-full bg-slate-50 border border-slate-200 rounded-full pl-9.5 pr-8 py-2 text-xs text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/15 transition-all font-medium"
-            />
-            {searchQuery && (
-              <button
-                onClick={() => setSearchQuery("")}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 p-0.5 text-slate-400 hover:text-slate-600 rounded-full cursor-pointer"
-                aria-label="Clear category search"
-              >
-                <X className="w-3.5 h-3.5" />
-              </button>
-            )}
-          </div>
-        </div>
-
-        {/* Right Side: Quick Tag Filter Pills & Sort Selector */}
-        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-          <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none py-0.5">
-            {FILTER_TAGS.map((tag) => (
-              <button
-                key={tag.key}
-                onClick={() => setActiveTag(tag.key)}
-                className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all shrink-0 cursor-pointer ${
-                  activeTag === tag.key
-                    ? "bg-[#2563EB] text-white shadow-xs"
-                    : "bg-slate-100 hover:bg-slate-200/80 text-slate-600"
-                }`}
-              >
-                {tag.label}
-              </button>
-            ))}
-          </div>
-
-          <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-full text-xs font-bold text-slate-700 shrink-0">
-            <SlidersHorizontal className="w-3.5 h-3.5 text-slate-500" />
-            <span className="text-slate-500 font-medium">Sort by:</span>
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value as SortOption)}
-              className="bg-transparent font-bold text-slate-900 outline-none cursor-pointer"
+        {/* Quick Tag Filter Pills */}
+        <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none py-0.5">
+          {FILTER_TAGS.map((tag) => (
+            <button
+              key={tag.key}
+              onClick={() => setActiveTag(tag.key)}
+              className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all shrink-0 cursor-pointer ${
+                activeTag === tag.key
+                  ? "bg-[#2563EB] text-white shadow-xs"
+                  : "bg-slate-100 hover:bg-slate-200/80 text-slate-600"
+              }`}
             >
-              <option value="popular">Most Popular</option>
-              <option value="name">Name (A-Z)</option>
-              <option value="count">Most Products</option>
-            </select>
-          </div>
+              {tag.label}
+            </button>
+          ))}
         </div>
       </div>
 

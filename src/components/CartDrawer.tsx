@@ -378,7 +378,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                   </div>
                   <button
                     onClick={handleApplyCoupon}
-                    className="bg-[#0A233F] hover:bg-[#12365D] text-white text-xs font-black uppercase tracking-wider px-4 py-2 rounded-xl transition-all cursor-pointer active:scale-95 shadow-xs"
+                    className="bg-[#2563EB] hover:bg-[#1D4ED8] active:bg-[#1E40AF] text-white text-xs font-black uppercase tracking-wider px-4 py-2 rounded-xl transition-all cursor-pointer active:scale-95 shadow-xs"
                   >
                     Apply
                   </button>
@@ -459,7 +459,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                     haptic.light();
                     onClose();
                   }}
-                  className="border-2 border-slate-200 hover:border-slate-800 text-slate-800 hover:text-slate-950 py-3 rounded-xl font-black text-xs uppercase tracking-wider text-center transition-all block cursor-pointer"
+                  className="bg-white hover:bg-slate-50 border border-slate-200 hover:border-slate-300 text-slate-700 hover:text-slate-900 py-3 rounded-xl font-black text-xs uppercase tracking-wider text-center transition-all block cursor-pointer"
                 >
                   View Full Cart
                 </Link>
@@ -469,7 +469,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                     haptic.medium();
                     onClose();
                   }}
-                  className="bg-[#2563EB] hover:bg-[#1D4ED8] text-white py-3 rounded-xl font-black text-xs uppercase tracking-wider text-center transition-all shadow-md shadow-blue-500/25 block flex items-center justify-center gap-1.5 active:scale-95 cursor-pointer"
+                  className="bg-[#2563EB] hover:bg-[#1D4ED8] active:bg-[#1E40AF] text-white py-3 rounded-xl font-black text-xs uppercase tracking-wider text-center transition-all shadow-md shadow-blue-500/25 block flex items-center justify-center gap-1.5 active:scale-95 cursor-pointer"
                 >
                   <span>Checkout</span>
                   <ArrowRight className="w-3.5 h-3.5 text-[#FFC20E]" />

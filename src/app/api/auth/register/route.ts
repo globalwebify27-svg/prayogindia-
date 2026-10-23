@@ -35,24 +35,23 @@ export async function POST(request: Request) {
       );
     }
 
-    const { name, email, phone, password } = parseResult.data;
+    const { name, email, phone, password, confirmPassword, b2b } = parseResult.data;
     const cleanEmail = normalizeEmail(email);
     const cleanPhone = phone ? phone.replace(/\D/g, "") : "";
-    const displayName = (name || cleanEmail.split("@")[0] || "Prayog Member").trim();
+    const displayName = (name && name.trim()) || cleanEmail.split("@")[0] || "Prayog Member";
 
-    // 4. Password Complexity Validation
-    // Requires min 6 characters
-    if (!password || typeof password !== "string" || password.length < 6) {
+    // 4. Confirm Password Verification
+    if (confirmPassword && password !== confirmPassword) {
       return NextResponse.json(
         {
           success: false,
-          message: "Password must be at least 6 characters long.",
+          message: "Passwords do not match. Please verify your confirm password.",
         },
         { status: 400, headers },
       );
     }
 
-    // 5. Check Duplicate Account
+    // 5. Check Duplicate Account (UserDB & PostgreSQL)
     if (UserDB.exists(cleanEmail, cleanPhone)) {
       return NextResponse.json(
         {
@@ -66,16 +65,25 @@ export async function POST(request: Request) {
 
     if (isDatabaseAvailable()) {
       try {
-        const existingUser = await db.user.findUnique({
-          where: { email: cleanEmail },
+        const existingUser = await db.user.findFirst({
+          where: {
+            OR: [
+              { email: cleanEmail },
+              ...(cleanPhone && cleanPhone.length >= 10
+                ? [{ phone: { contains: cleanPhone.slice(-10) } }]
+                : []),
+            ],
+          },
         });
 
         if (existingUser) {
+          const isEmailMatch = existingUser.email.toLowerCase() === cleanEmail;
           return NextResponse.json(
             {
               success: false,
-              message:
-                "An account with this email address already exists. Please Sign In.",
+              message: isEmailMatch
+                ? "An account with this email address already exists. Please Sign In."
+                : "An account with this mobile number already exists. Please Sign In.",
             },
             { status: 409, headers },
           );
@@ -87,6 +95,9 @@ export async function POST(request: Request) {
 
     // 6. Securely Hash Password
     const passwordHash = await hashPassword(password);
+    const isB2B = Boolean(b2b?.companyName?.trim());
+    const companyName = b2b?.companyName?.trim() || null;
+    const gstin = b2b?.gstNumber?.trim() || null;
 
     // Save to UserDB
     const createdUser = UserDB.create({
@@ -95,7 +106,9 @@ export async function POST(request: Request) {
       phone: cleanPhone ? `+91 ${cleanPhone.slice(-10)}` : "",
       passwordHash,
       rewardPoints: 100, // 100 Welcome coins
-      customerType: "Registered Customer",
+      customerType: isB2B ? "B2B Customer" : "Registered Customer",
+      companyName: companyName || undefined,
+      gstin: gstin || undefined,
     });
 
     if (isDatabaseAvailable()) {
@@ -107,6 +120,10 @@ export async function POST(request: Request) {
             phone: cleanPhone ? `+91 ${cleanPhone.slice(-10)}` : "",
             passwordHash,
             role: "CUSTOMER",
+            customerType: isB2B ? "B2B" : "B2C",
+            companyName,
+            gstin,
+            rewardPoints: 100,
           },
         });
 
@@ -122,21 +139,24 @@ export async function POST(request: Request) {
       }
     }
 
-    const newUserPayload = sanitizeUser({
-      id: createdUser.id,
-      name: createdUser.name,
-      email: createdUser.email,
-      phone: createdUser.phone,
-      role: "CUSTOMER",
-    });
-
     // Return registration success without setting login session cookie
-    return NextResponse.json({
-      success: true,
-      message:
-        "Account created successfully! Please sign in with your credentials.",
-      email: cleanEmail,
-    });
+    return NextResponse.json(
+      {
+        success: true,
+        message:
+          "Account created successfully! Please sign in with your credentials.",
+        email: cleanEmail,
+        user: {
+          id: createdUser.id,
+          name: createdUser.name,
+          email: createdUser.email,
+          phone: createdUser.phone,
+          customerType: createdUser.customerType,
+          rewardPoints: createdUser.rewardPoints,
+        },
+      },
+      { headers },
+    );
   } catch (error: any) {
     return NextResponse.json(
       { success: false, message: error.message || "Registration failed." },

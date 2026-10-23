@@ -46,14 +46,7 @@ export async function POST(request: Request) {
 
     const cleanEmail = normalizeEmail(email);
 
-    // Mock Mode Fallback for Development
-    let adminPayload: AdminSessionUser = {
-      id: "usr-admin-demo",
-      name: "System Admin",
-      email: cleanEmail,
-      phone: "+91 99999 88888",
-      role: "ADMIN" as Role,
-    };
+    let adminPayload: AdminSessionUser | null = null;
 
     if (process.env.DATABASE_URL) {
       let dbUser = await db.user.findUnique({
@@ -61,7 +54,7 @@ export async function POST(request: Request) {
       });
 
       // Auto-provision default admin if logging in with default email in dev
-      if (!dbUser && cleanEmail === "admin@prayogindia.com") {
+      if (!dbUser && cleanEmail === "admin@prayogindia.com" && process.env.NODE_ENV !== "production") {
         const { hashPassword } = await import("@/lib/authUtils");
         const passHash = await hashPassword(password || "admin123");
         dbUser = await db.user.create({
@@ -99,6 +92,26 @@ export async function POST(request: Request) {
       }
 
       adminPayload = sanitizeAdminUser(dbUser as any);
+    } else {
+      // Offline fallback: ONLY allow in non-production for configured admin credentials
+      if (
+        process.env.NODE_ENV !== "production" &&
+        cleanEmail === "admin@prayogindia.com" &&
+        password === "admin123"
+      ) {
+        adminPayload = {
+          id: "usr-admin-demo",
+          name: "System Administrator",
+          email: cleanEmail,
+          phone: "+91 99999 88888",
+          role: "ADMIN" as Role,
+        };
+      } else {
+        return NextResponse.json(
+          { success: false, message: "Invalid admin credentials." },
+          { status: 401, headers },
+        );
+      }
     }
 
     // Record Immutable Audit Log for Successful Admin Auth

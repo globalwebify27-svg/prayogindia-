@@ -205,47 +205,38 @@ export const CartView: React.FC = () => {
   };
 
   return (
-    <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 py-6 space-y-8 animate-in fade-in duration-300">
+    <div className="w-full px-3 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 py-4 sm:py-6 pb-32 sm:pb-12 space-y-5 sm:space-y-8 animate-in fade-in duration-300">
       {/* 1. Breadcrumb */}
       <CategoryBreadcrumb items={[{ label: "Shopping Cart" }]} />
 
       {/* 2. Page Header & Segment Switcher */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 pb-6">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4 border-b border-slate-200 pb-4 sm:pb-6">
         <div>
-          <div className="flex items-center gap-2">
-            <span className="text-[10px] font-black uppercase tracking-widest text-[#2563EB] bg-blue-50 px-3 py-1 rounded-full border border-blue-200/60">
-              Section 16 · Unified Shopping Cart
+          {isLoggedIn ? (
+            <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200/80 px-2.5 py-0.5 rounded-full inline-flex items-center gap-1 shadow-2xs">
+              <User className="w-3 h-3 text-emerald-600" /> Logged In: {user?.name}
             </span>
-            {isLoggedIn ? (
-              <span className="text-[10px] font-black uppercase text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-full flex items-center gap-1">
-                <User className="w-3 h-3" /> Logged In: {user?.name}
-              </span>
-            ) : (
-              <span className="text-[10px] font-black uppercase text-slate-600 bg-slate-100 border border-slate-200 px-2.5 py-0.5 rounded-full">
-                Guest Cart
-              </span>
-            )}
-          </div>
-          <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight mt-1.5">
+          ) : (
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 bg-slate-100 border border-slate-200 px-2.5 py-0.5 rounded-full">
+              Guest Cart
+            </span>
+          )}
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 tracking-tight mt-1">
             Your Shopping Cart
           </h1>
         </div>
 
-        {/* Customer Type Pricing Tier Simulator */}
-        <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 p-1.5 rounded-2xl">
-          <span className="text-[11px] font-bold text-slate-500 pl-2">
-            Pricing Tier:
-          </span>
+        {/* Customer Type Pricing Tier */}
+        <div className="flex items-center gap-2 text-xs">
+          <span className="text-slate-500 font-medium shrink-0">Pricing Tier:</span>
           <select
             value={currentCustomerType}
             onChange={(e) => setCustomerType(e.target.value as CustomerType)}
-            className="text-xs font-black text-slate-900 bg-white border border-slate-200 rounded-xl px-3 py-1.5 focus:outline-none focus:border-[#2563EB] cursor-pointer"
+            className="bg-transparent text-xs font-bold text-slate-800 hover:text-[#2563EB] focus:outline-none cursor-pointer border-b border-slate-300 pb-0.5"
           >
             <option value="B2C Customer">B2C Customer (Standard)</option>
             <option value="B2B Customer">B2B Customer (15% Wholesale)</option>
-            <option value="Registered Customer">
-              Registered Customer (5% Loyalty)
-            </option>
+            <option value="Registered Customer">Registered Customer (5% Loyalty)</option>
             <option value="Guest Customer">Guest Customer (Retail)</option>
           </select>
         </div>
@@ -340,179 +331,172 @@ export const CartView: React.FC = () => {
 
             {/* Customer Type Promo Badge */}
             {customerDiscountPercent > 0 && (
-              <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-3.5 flex items-center justify-between gap-3 text-xs text-emerald-900">
-                <div className="flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 text-emerald-600" />
-                  <span className="font-black">
-                    {currentCustomerType} Privilege: {customerDiscountPercent}%
-                    instant discount applied!
+              <div className="bg-emerald-50 border border-emerald-200/90 rounded-2xl p-3 sm:p-3.5 flex items-center justify-between gap-2.5 text-xs text-emerald-900">
+                <div className="flex items-center gap-2 min-w-0">
+                  <Sparkles className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <span className="font-bold text-[11px] sm:text-xs leading-tight">
+                    {currentCustomerType} Privilege: {customerDiscountPercent}% instant discount applied!
                   </span>
                 </div>
-                <span className="font-extrabold text-emerald-700 bg-white px-2.5 py-1 rounded-lg border border-emerald-200">
+                <span className="font-extrabold text-emerald-700 bg-white px-2 py-1 rounded-lg border border-emerald-200 text-xs shrink-0 whitespace-nowrap shadow-2xs">
                   -₹{segmentDiscount.toLocaleString("en-IN")}
                 </span>
               </div>
             )}
 
             {/* Cart Items List */}
-            <div className="space-y-3.5">
-              <div className="flex items-center justify-between px-1">
-                <span className="text-xs font-black uppercase text-slate-400">
+            <div className="space-y-4">
+              <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
                   Cart Items ({cart.reduce((a, b) => a + b.quantity, 0)})
                 </span>
                 <button
                   onClick={clearCart}
-                  className="text-[11px] font-bold text-red-500 hover:text-red-700 flex items-center gap-1 cursor-pointer"
+                  className="text-xs font-semibold text-red-500 hover:text-red-700 flex items-center gap-1 cursor-pointer"
                 >
-                  <Trash2 className="w-3.5 h-3.5" /> Clear Cart
+                  <Trash2 className="w-3.5 h-3.5" /> Clear All
                 </button>
               </div>
 
-              {cart.map((item) => {
-                const price = item.variant
-                  ? item.variant.price
-                  : item.product.price;
-                const mrp = item.variant ? item.variant.mrp : item.product.mrp;
-                const sku = item.variant ? item.variant.sku : item.product.sku;
-                const isInStock = item.variant
-                  ? item.variant.inStock
-                  : item.product.inStock;
+              <div className="divide-y divide-slate-100">
+                {cart.map((item) => {
+                  const price = item.variant
+                    ? item.variant.price
+                    : item.product.price;
+                  const mrp = item.variant ? item.variant.mrp : item.product.mrp;
+                  const sku = item.variant ? item.variant.sku : item.product.sku;
+                  const isInStock = item.variant
+                    ? item.variant.inStock
+                    : item.product.inStock;
 
-                return (
-                  <div
-                    key={`${item.product.id}-${item.variant?.id || "std"}`}
-                    className={`bg-white rounded-3xl border p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all shadow-2xs ${
-                      !isInStock
-                        ? "border-red-200 bg-red-50/20"
-                        : "border-slate-200 hover:border-[#2563EB]/40"
-                    }`}
-                  >
-                    <div className="flex items-center gap-4 min-w-0 flex-1">
-                      {/* Product Image */}
-                      <Link
-                        href={`/products/${item.product.slug || item.product.id}`}
-                      >
-                        <div className="relative w-20 h-20 rounded-2xl bg-slate-50 border border-slate-100 p-1 shrink-0 overflow-hidden">
-                          <Image
-                            src={item.product.image}
-                            alt={item.product.name}
-                            fill
-                            className="object-contain p-1"
-                          />
-                        </div>
-                      </Link>
-
-                      {/* Info */}
-                      <div className="space-y-1 min-w-0 flex-1">
-                        <div className="flex items-center gap-2">
-                          <span className="text-[10px] font-mono font-bold text-slate-400">
-                            {sku}
-                          </span>
-                          {!isInStock && (
-                            <span className="text-[9px] font-black uppercase text-red-600 bg-red-100 px-1.5 py-0.5 rounded">
-                              Out of Stock
-                            </span>
-                          )}
-                        </div>
-
+                  return (
+                    <div
+                      key={`${item.product.id}-${item.variant?.id || "std"}`}
+                      className="py-4 first:pt-0 last:pb-0 flex items-start sm:items-center justify-between gap-3 sm:gap-4"
+                    >
+                      <div className="flex items-start sm:items-center gap-3 min-w-0 flex-1">
+                        {/* Product Image */}
                         <Link
                           href={`/products/${item.product.slug || item.product.id}`}
                         >
-                          <h3 className="text-xs sm:text-sm font-bold text-slate-900 truncate hover:text-[#2563EB] transition-colors">
-                            {item.product.name}
-                          </h3>
+                          <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-xl bg-slate-50 p-1 shrink-0 overflow-hidden">
+                            <Image
+                              src={item.product.image}
+                              alt={item.product.name}
+                              fill
+                              className="object-contain p-1"
+                            />
+                          </div>
                         </Link>
 
-                        {/* Variant Pill */}
-                        {item.variant && (
-                          <div className="text-[11px] font-semibold text-slate-500 flex items-center gap-1">
-                            <span className="bg-slate-100 px-2 py-0.5 rounded text-[10px] font-bold text-slate-700">
+                        {/* Info */}
+                        <div className="space-y-1 min-w-0 flex-1">
+                          <div className="flex items-center gap-2">
+                            <span className="text-[10px] font-mono text-slate-400">
+                              {sku}
+                            </span>
+                            {!isInStock && (
+                              <span className="text-[9px] font-bold uppercase text-red-600 bg-red-50 px-1.5 py-0.5 rounded">
+                                Out of Stock
+                              </span>
+                            )}
+                          </div>
+
+                          <Link
+                            href={`/products/${item.product.slug || item.product.id}`}
+                          >
+                            <h3 className="text-xs sm:text-sm font-semibold text-slate-900 line-clamp-2 hover:text-[#2563EB] transition-colors leading-snug">
+                              {item.product.name}
+                            </h3>
+                          </Link>
+
+                          {/* Variant Pill */}
+                          {item.variant && (
+                            <span className="text-[10px] text-slate-500 font-medium">
                               Variant: {item.variant.name}
                             </span>
-                          </div>
-                        )}
-
-                        {/* Price */}
-                        <div className="flex items-baseline gap-2 pt-0.5">
-                          <span className="text-sm font-extrabold text-slate-900">
-                            ₹{price.toLocaleString("en-IN")}
-                          </span>
-                          {mrp > price && (
-                            <span className="text-xs text-slate-400 line-through font-semibold">
-                              ₹{mrp.toLocaleString("en-IN")}
-                            </span>
                           )}
+
+                          {/* Price */}
+                          <div className="flex items-baseline gap-2 pt-0.5">
+                            <span className="text-sm sm:text-base font-bold text-slate-900">
+                              ₹{price.toLocaleString("en-IN")}
+                            </span>
+                            {mrp > price && (
+                              <span className="text-xs text-slate-400 line-through">
+                                ₹{mrp.toLocaleString("en-IN")}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Stepper & Actions */}
+                      <div className="flex flex-col sm:flex-row items-end sm:items-center gap-2 shrink-0">
+                        {/* Stepper */}
+                        <div className="flex items-center border border-slate-200 rounded-lg">
+                          <button
+                            onClick={() =>
+                              updateQuantity(
+                                item.product.id,
+                                -1,
+                                item.variant?.id,
+                              )
+                            }
+                            className="w-7 h-7 text-slate-600 hover:bg-slate-100 flex items-center justify-center transition-colors cursor-pointer"
+                            aria-label="Decrease quantity"
+                          >
+                            <Minus className="w-3 h-3" />
+                          </button>
+                          <span className="text-xs font-bold px-2 text-slate-900 min-w-[20px] text-center">
+                            {item.quantity}
+                          </span>
+                          <button
+                            onClick={() =>
+                              updateQuantity(item.product.id, 1, item.variant?.id)
+                            }
+                            className="w-7 h-7 text-slate-600 hover:bg-slate-100 flex items-center justify-center transition-colors cursor-pointer"
+                            aria-label="Increase quantity"
+                          >
+                            <Plus className="w-3 h-3" />
+                          </button>
+                        </div>
+
+                        <div className="flex items-center gap-1">
+                          <button
+                            onClick={() =>
+                              moveToWishlist(item.product, item.variant?.id)
+                            }
+                            className="p-1.5 text-slate-400 hover:text-red-500 rounded-lg transition-colors cursor-pointer"
+                            title="Save for Later in Wishlist"
+                          >
+                            <Heart className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() =>
+                              removeFromCart(item.product.id, item.variant?.id)
+                            }
+                            className="p-1.5 text-slate-400 hover:text-red-600 rounded-lg transition-colors cursor-pointer"
+                            title="Remove item"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
                         </div>
                       </div>
                     </div>
-
-                    {/* Quantity & Actions */}
-                    <div className="flex items-center justify-between sm:justify-end gap-3 w-full sm:w-auto border-t sm:border-t-0 border-slate-100 pt-3 sm:pt-0">
-                      {/* Stepper */}
-                      <div className="flex items-center gap-1 bg-slate-50 border border-slate-200 rounded-xl p-1">
-                        <button
-                          onClick={() =>
-                            updateQuantity(
-                              item.product.id,
-                              -1,
-                              item.variant?.id,
-                            )
-                          }
-                          className="w-7 h-7 rounded-lg bg-white text-slate-600 hover:bg-slate-200 flex items-center justify-center transition-colors shadow-2xs cursor-pointer"
-                          aria-label="Decrease quantity"
-                        >
-                          <Minus className="w-3.5 h-3.5" />
-                        </button>
-                        <span className="text-xs font-black px-2 text-slate-900 min-w-[20px] text-center">
-                          {item.quantity}
-                        </span>
-                        <button
-                          onClick={() =>
-                            updateQuantity(item.product.id, 1, item.variant?.id)
-                          }
-                          className="w-7 h-7 rounded-lg bg-white text-slate-600 hover:bg-slate-200 flex items-center justify-center transition-colors shadow-2xs cursor-pointer"
-                          aria-label="Increase quantity"
-                        >
-                          <Plus className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-
-                      {/* Move to Wishlist / Remove */}
-                      <div className="flex items-center gap-1">
-                        <button
-                          onClick={() =>
-                            moveToWishlist(item.product, item.variant?.id)
-                          }
-                          className="p-2 text-slate-400 hover:text-red-500 rounded-xl hover:bg-red-50 transition-colors cursor-pointer"
-                          title="Save for Later in Wishlist"
-                        >
-                          <Heart className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() =>
-                            removeFromCart(item.product.id, item.variant?.id)
-                          }
-                          className="p-2 text-slate-400 hover:text-slate-900 rounded-xl hover:bg-slate-100 transition-colors cursor-pointer"
-                          title="Remove item"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
+                  );
+                })}
+              </div>
             </div>
 
-            {/* Delivery Method Selection */}
-            <div className="bg-white border border-slate-200 rounded-3xl p-6 space-y-4 shadow-2xs">
-              <h4 className="text-xs font-black uppercase text-slate-900 flex items-center gap-1.5">
-                <Truck className="w-4 h-4 text-[#2563EB]" /> Select Dispatch
-                &amp; Delivery Mode
+            {/* Delivery Method & Pincode (Clean, Integrated, No box-in-box) */}
+            <div className="pt-6 border-t border-slate-200 space-y-3.5">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
+                <Truck className="w-4 h-4 text-[#2563EB]" /> Dispatch &amp; Delivery Method
               </h4>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                {/* Express Air */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                {/* Air Freight */}
                 <button
                   type="button"
                   onClick={() => {
@@ -522,62 +506,47 @@ export const CartView: React.FC = () => {
                       setDeliveryMethod("express");
                     }
                   }}
-                  className={`p-3.5 rounded-2xl border text-left transition-all ${
+                  className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
                     effectiveDeliveryMethod === "express"
-                      ? "border-[#2563EB] bg-blue-50/40 ring-2 ring-blue-500/20 cursor-pointer"
+                      ? "border-[#2563EB] bg-blue-50/50"
                       : hasBatteryOrHazardous
-                        ? "border-red-200 bg-red-50/40 opacity-90 cursor-pointer hover:border-red-300"
-                        : "border-slate-200 hover:border-slate-300 cursor-pointer"
+                        ? "border-slate-200 bg-slate-50 opacity-60"
+                        : "border-slate-200 hover:border-slate-300"
                   }`}
                 >
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="font-extrabold text-xs text-slate-900 flex items-center gap-1">
-                      <Plane className="w-3.5 h-3.5 text-blue-600" /> Air
-                      Freight
+                  <div className="flex items-center justify-between text-xs font-bold text-slate-900">
+                    <span className="flex items-center gap-1">
+                      <Plane className="w-3.5 h-3.5 text-blue-600" /> Air Freight
                     </span>
-                    <span
-                      className={`text-[10px] font-black uppercase ${hasBatteryOrHazardous ? "text-red-600" : "text-emerald-600"}`}
-                    >
-                      {hasBatteryOrHazardous ? "❌ Unavailable" : "FREE >₹999"}
+                    <span className="text-[10px] text-emerald-600">
+                      {hasBatteryOrHazardous ? "Unavailable" : "FREE >₹999"}
                     </span>
                   </div>
-                  {hasBatteryOrHazardous ? (
-                    <div className="space-y-0.5 mt-1">
-                      <p className="text-[10px] text-red-700 font-extrabold">
-                        ❌ Air Freight – Unavailable
-                      </p>
-                      <span className="text-[9px] text-slate-500 font-bold block">
-                        Reason: Contains Battery Products
-                      </span>
-                    </div>
-                  ) : (
-                    <p className="text-[10px] text-slate-500">
-                      24-48 Hours pan-India flight cargo
-                    </p>
-                  )}
+                  <p className="text-[11px] text-slate-500 mt-1">
+                    24-48h flight cargo
+                  </p>
                 </button>
 
-                {/* Surface Express */}
+                {/* Surface Freight */}
                 <button
                   type="button"
                   onClick={() => setDeliveryMethod("surface")}
-                  className={`p-3.5 rounded-2xl border text-left transition-all cursor-pointer ${
+                  className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
                     effectiveDeliveryMethod === "surface"
-                      ? "border-emerald-500 bg-emerald-50/40 ring-2 ring-emerald-400"
+                      ? "border-emerald-600 bg-emerald-50/50"
                       : "border-slate-200 hover:border-slate-300"
                   }`}
                 >
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="font-extrabold text-xs text-slate-900 flex items-center gap-1">
-                      <Truck className="w-3.5 h-3.5 text-emerald-700" /> Surface
-                      Freight
+                  <div className="flex items-center justify-between text-xs font-bold text-slate-900">
+                    <span className="flex items-center gap-1">
+                      <Truck className="w-3.5 h-3.5 text-emerald-600" /> Surface Freight
                     </span>
-                    <span className="text-[10px] font-black text-emerald-700 uppercase">
-                      ✔ Surface Freight
+                    <span className="text-[10px] text-emerald-600 font-bold">
+                      Standard
                     </span>
                   </div>
-                  <p className="text-[10px] text-slate-500">
-                    3-5 days ground freight (DGCA Battery Certified)
+                  <p className="text-[11px] text-slate-500 mt-1">
+                    3-5 days ground freight
                   </p>
                 </button>
 
@@ -585,73 +554,68 @@ export const CartView: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setDeliveryMethod("store_pickup")}
-                  className={`p-3.5 rounded-2xl border text-left transition-all cursor-pointer ${
+                  className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
                     effectiveDeliveryMethod === "store_pickup"
-                      ? "border-[#2563EB] bg-blue-50/40 ring-2 ring-blue-500/20"
+                      ? "border-[#2563EB] bg-blue-50/50"
                       : "border-slate-200 hover:border-slate-300"
                   }`}
                 >
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="font-extrabold text-xs text-slate-900 flex items-center gap-1">
-                      <MapPin className="w-3.5 h-3.5 text-purple-600" /> Store
-                      Pickup
+                  <div className="flex items-center justify-between text-xs font-bold text-slate-900">
+                    <span className="flex items-center gap-1">
+                      <MapPin className="w-3.5 h-3.5 text-purple-600" /> Store Pickup
                     </span>
-                    <span className="text-[10px] font-black text-emerald-600">
+                    <span className="text-[10px] text-emerald-600 font-bold">
                       FREE
                     </span>
                   </div>
-                  <p className="text-[10px] text-slate-500">
+                  <p className="text-[11px] text-slate-500 mt-1">
                     Collect from nearest tech desk
                   </p>
                 </button>
               </div>
-            </div>
 
-            {/* Pincode Checker */}
-            <div className="bg-slate-50 border border-slate-200 rounded-3xl p-5 space-y-3">
-              <h4 className="text-xs font-black uppercase text-slate-900 flex items-center gap-1.5">
-                <MapPin className="w-4 h-4 text-[#2563EB]" /> Check Delivery
-                Timelines by PIN Code
-              </h4>
-              <div className="flex gap-2 max-w-md">
-                <input
-                  type="text"
-                  maxLength={6}
-                  placeholder="Enter 6-digit Indian PIN Code (e.g. 560100)"
-                  value={pincode}
-                  onChange={(e) => setPincode(e.target.value)}
-                  className="flex-1 bg-white text-xs px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-[#2563EB]"
-                />
+              {/* Inline Pincode Check */}
+              <div className="flex items-center gap-2 pt-1 max-w-sm">
+                <div className="relative flex-1">
+                  <MapPin className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                  <input
+                    type="text"
+                    maxLength={6}
+                    placeholder="Enter PIN Code"
+                    value={pincode}
+                    onChange={(e) => setPincode(e.target.value)}
+                    className="w-full bg-slate-50 text-xs pl-8 pr-3 py-2 rounded-lg border border-slate-200 focus:outline-none focus:border-[#2563EB]"
+                  />
+                </div>
                 <button
                   onClick={handleCheckPincode}
-                  className="bg-slate-900 text-white text-xs font-extrabold px-4 py-2.5 rounded-xl hover:bg-[#2563EB] transition-colors cursor-pointer"
+                  className="bg-[#2563EB] hover:bg-[#1D4ED8] active:bg-[#1E40AF] text-white text-xs font-bold px-3.5 py-2 rounded-lg transition-colors cursor-pointer shrink-0 shadow-xs"
                 >
                   Check
                 </button>
               </div>
               {pincodeStatus && (
-                <p className="text-xs font-bold text-[#2563EB] flex items-center gap-1">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-500" />{" "}
-                  {pincodeStatus}
+                <p className="text-xs text-slate-600 flex items-center gap-1">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" /> {pincodeStatus}
                 </p>
               )}
             </div>
           </div>
 
-          {/* Right Column: Order Summary & Checkout (Span 4) */}
-          <div className="lg:col-span-4 sticky top-24 space-y-6">
-            <div className="bg-[#0F172A] text-white rounded-3xl p-6 sm:p-7 border border-slate-800 shadow-2xl space-y-6">
-              <h3 className="text-base font-black tracking-tight text-white border-b border-slate-800 pb-3 flex items-center justify-between">
-                <span>Order Summary</span>
-                <span className="text-xs text-slate-400 font-normal">
+          {/* Right Column: Order Summary (Span 4) */}
+          <div className="lg:col-span-4 sticky top-24">
+            <div className="bg-slate-50/90 rounded-2xl p-5 sm:p-6 border border-slate-200/80 space-y-4">
+              <div className="flex items-center justify-between border-b border-slate-200 pb-3">
+                <h3 className="text-sm font-bold text-slate-900">Order Summary</h3>
+                <span className="text-xs text-slate-500">
                   {cart.reduce((a, b) => a + b.quantity, 0)} Items
                 </span>
-              </h3>
+              </div>
 
               {/* 1. Coupon Section */}
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-slate-300 flex items-center gap-1">
-                  <Tag className="w-3.5 h-3.5 text-[#FFC20E]" /> Coupon Code
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-semibold text-slate-600 flex items-center gap-1">
+                  <Tag className="w-3 h-3 text-[#2563EB]" /> Have a Coupon?
                 </label>
                 <div className="flex gap-2">
                   <input
@@ -659,22 +623,22 @@ export const CartView: React.FC = () => {
                     placeholder="e.g. PRAYOG10"
                     value={couponCode}
                     onChange={(e) => setCouponCode(e.target.value)}
-                    className="flex-1 bg-slate-950 text-white text-xs px-3 py-2 rounded-xl border border-slate-700 focus:outline-none focus:border-[#2563EB] uppercase font-mono font-bold"
+                    className="flex-1 bg-white text-slate-900 text-xs px-3 py-2 rounded-lg border border-slate-200 focus:outline-none focus:border-[#2563EB] uppercase font-mono font-bold"
                   />
                   <button
                     onClick={handleApplyCoupon}
-                    className="bg-[#2563EB] hover:bg-blue-700 text-white text-xs font-black px-4 rounded-xl transition-colors cursor-pointer shadow-sm"
+                    className="bg-[#2563EB] hover:bg-[#1D4ED8] active:bg-[#1E40AF] text-white text-xs font-bold px-3.5 py-2 rounded-lg transition-colors cursor-pointer shrink-0 shadow-xs"
                   >
                     Apply
                   </button>
                 </div>
                 {appliedCoupon && (
-                  <p className="text-xs font-bold text-emerald-400 flex items-center gap-1">
-                    <Check className="w-3.5 h-3.5" /> Applied {appliedCoupon}
+                  <p className="text-xs font-bold text-emerald-600 flex items-center gap-1">
+                    <Check className="w-3 h-3" /> Applied {appliedCoupon}
                   </p>
                 )}
                 {couponError && (
-                  <p className="text-xs font-bold text-red-400">
+                  <p className="text-xs font-semibold text-red-500">
                     {couponError}
                   </p>
                 )}
@@ -682,39 +646,37 @@ export const CartView: React.FC = () => {
 
               {/* 2. Reward Points Redemption (if logged in) */}
               {isLoggedIn && user && user.rewardPoints > 0 && (
-                <div className="space-y-2 pt-2 border-t border-slate-800">
+                <div className="space-y-1.5 pt-3 border-t border-slate-200">
                   <div className="flex items-center justify-between text-xs">
-                    <label className="font-bold text-slate-300 flex items-center gap-1">
-                      <Coins className="w-3.5 h-3.5 text-amber-400" /> Prayog
-                      Coins
-                    </label>
-                    <span className="text-[11px] text-amber-300 font-bold">
-                      {user.rewardPoints} Available (₹
-                      {(user.rewardPoints * 0.5).toFixed(0)})
+                    <span className="font-semibold text-slate-600 flex items-center gap-1">
+                      <Coins className="w-3 h-3 text-amber-500" /> Prayog Coins
+                    </span>
+                    <span className="text-[11px] text-amber-600 font-bold">
+                      {user.rewardPoints} Available
                     </span>
                   </div>
                   <div className="flex gap-2">
                     <input
                       type="number"
-                      placeholder="Enter coins to redeem"
+                      placeholder="Coins to redeem"
                       value={pointsInput}
                       onChange={(e) => setPointsInput(e.target.value)}
-                      className="flex-1 bg-slate-950 text-white text-xs px-3 py-2 rounded-xl border border-slate-700 focus:outline-none focus:border-amber-400 font-bold"
+                      className="flex-1 bg-white text-slate-900 text-xs px-3 py-2 rounded-lg border border-slate-200 focus:outline-none focus:border-[#2563EB]"
                     />
                     <button
                       onClick={handleRedeemPoints}
-                      className="bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-black px-4 rounded-xl transition-colors cursor-pointer"
+                      className="bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-bold px-3.5 py-2 rounded-lg transition-colors cursor-pointer shrink-0"
                     >
                       Redeem
                     </button>
                   </div>
                   {redeemedDiscount > 0 && (
-                    <p className="text-xs font-bold text-amber-400">
+                    <p className="text-xs font-bold text-emerald-600">
                       ✓ Redeemed ₹{redeemedDiscount.toLocaleString("en-IN")} off
                     </p>
                   )}
                   {pointsError && (
-                    <p className="text-xs font-bold text-red-400">
+                    <p className="text-xs font-semibold text-red-500">
                       {pointsError}
                     </p>
                   )}
@@ -722,21 +684,23 @@ export const CartView: React.FC = () => {
               )}
 
               {/* 3. Detailed Calculation Matrix */}
-              <div className="space-y-2.5 text-xs text-slate-300 pt-3 border-t border-slate-800">
+              <div className="space-y-2 text-xs text-slate-600 pt-3 border-t border-slate-200">
                 <div className="flex justify-between">
                   <span>Total MRP</span>
-                  <span className="font-bold text-slate-400 line-through">
+                  <span className="text-slate-400 line-through">
                     ₹{mrpTotal.toLocaleString("en-IN")}
                   </span>
                 </div>
 
-                <div className="flex justify-between text-emerald-400 font-bold">
-                  <span>Catalogue Discount</span>
-                  <span>-₹{catalogSavings.toLocaleString("en-IN")}</span>
-                </div>
+                {catalogSavings > 0 && (
+                  <div className="flex justify-between text-emerald-600 font-medium">
+                    <span>Catalogue Savings</span>
+                    <span>-₹{catalogSavings.toLocaleString("en-IN")}</span>
+                  </div>
+                )}
 
                 {segmentDiscount > 0 && (
-                  <div className="flex justify-between text-emerald-300 font-bold">
+                  <div className="flex justify-between text-emerald-600 font-medium">
                     <span>{currentCustomerType} Discount</span>
                     <span>-₹{segmentDiscount.toLocaleString("en-IN")}</span>
                   </div>
@@ -744,77 +708,67 @@ export const CartView: React.FC = () => {
 
                 <div className="flex justify-between">
                   <span>Subtotal</span>
-                  <span className="font-extrabold text-white">
+                  <span className="font-bold text-slate-900">
                     ₹{discountedSubtotal.toLocaleString("en-IN")}
                   </span>
                 </div>
 
                 {couponDiscount > 0 && (
-                  <div className="flex justify-between text-[#FFC20E] font-bold">
+                  <div className="flex justify-between text-emerald-600 font-medium">
                     <span>Coupon Discount</span>
                     <span>-₹{couponDiscount.toLocaleString("en-IN")}</span>
                   </div>
                 )}
 
                 {redeemedDiscount > 0 && (
-                  <div className="flex justify-between text-amber-400 font-bold">
+                  <div className="flex justify-between text-emerald-600 font-medium">
                     <span>Coins Redeemed</span>
                     <span>-₹{redeemedDiscount.toLocaleString("en-IN")}</span>
                   </div>
                 )}
 
-                <div className="flex justify-between text-slate-400">
+                <div className="flex justify-between">
                   <span className="flex items-center gap-1">
-                    GST 18% <Info className="w-3 h-3 text-slate-500" />
+                    GST 18% <Info className="w-3 h-3 text-slate-400" />
                   </span>
-                  <span className="text-emerald-400 font-bold">
+                  <span className="text-slate-700 font-medium">
                     ₹{gstAmount.toLocaleString("en-IN")} (Incl.)
                   </span>
                 </div>
 
-                <div className="flex justify-between text-slate-400">
-                  <span>
-                    Delivery ({effectiveDeliveryMethod.replace("_", " ")})
-                  </span>
-                  <span
-                    className={
-                      deliveryFee === 0
-                        ? "text-emerald-400 font-extrabold"
-                        : "text-white font-bold"
-                    }
-                  >
+                <div className="flex justify-between">
+                  <span>Delivery</span>
+                  <span className={deliveryFee === 0 ? "text-emerald-600 font-bold" : "text-slate-900 font-medium"}>
                     {deliveryFee === 0 ? "FREE" : `₹${deliveryFee}`}
                   </span>
                 </div>
 
                 {/* Grand Total */}
-                <div className="flex justify-between text-base font-black text-white pt-3 border-t border-slate-800">
+                <div className="flex justify-between text-sm sm:text-base font-bold text-slate-900 pt-3 border-t border-slate-200">
                   <span>Grand Total</span>
-                  <span className="text-[#FFC20E] text-lg">
+                  <span className="text-[#2563EB] text-base sm:text-lg font-extrabold">
                     ₹{grandTotal.toLocaleString("en-IN")}
                   </span>
                 </div>
               </div>
 
               {/* 4. Checkout Action */}
-              <div className="space-y-2">
+              <div className="space-y-2 pt-1">
                 <Link
                   href="/checkout"
-                  className={`w-full py-4 rounded-2xl text-xs font-black uppercase tracking-wider transition-all shadow-xl flex items-center justify-center gap-2 ${
+                  className={`w-full py-3.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all shadow-md flex items-center justify-center gap-2 ${
                     outOfStockItems.length > 0
-                      ? "bg-slate-700 text-slate-400 cursor-not-allowed pointer-events-none"
-                      : "bg-[#2563EB] hover:bg-blue-700 text-white shadow-blue-500/25 active:scale-95"
+                      ? "bg-slate-300 text-slate-500 cursor-not-allowed pointer-events-none"
+                      : "bg-[#2563EB] hover:bg-[#1D4ED8] active:bg-[#1E40AF] text-white shadow-blue-500/20 active:scale-95"
                   }`}
                 >
-                  <span>Proceed to Secure Checkout</span>
-                  <ArrowRight className="w-4 h-4 text-[#FFC20E]" />
+                  <span>Proceed to Checkout</span>
+                  <ArrowRight className="w-4 h-4" />
                 </Link>
 
-                <div className="text-[10px] text-slate-400 text-center flex items-center justify-center gap-1 pt-1">
-                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-                  <span>
-                    256-Bit Encrypted Payment Gateway &amp; Tax Invoice
-                  </span>
+                <div className="text-[10px] text-slate-500 text-center flex items-center justify-center gap-1 pt-1">
+                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
+                  <span>Secure 256-Bit SSL Checkout</span>
                 </div>
               </div>
             </div>
@@ -894,7 +848,7 @@ export const CartView: React.FC = () => {
                   setDeliveryMethod("surface");
                   setShowRestrictionModal(false);
                 }}
-                className="w-full bg-[#2563EB] hover:bg-blue-700 text-white py-3.5 rounded-2xl font-black uppercase tracking-wider shadow-md shadow-blue-500/20 active:scale-95 cursor-pointer"
+                className="w-full bg-[#2563EB] hover:bg-[#1D4ED8] active:bg-[#1E40AF] text-white py-3.5 rounded-2xl font-black uppercase tracking-wider shadow-md shadow-blue-500/20 active:scale-95 cursor-pointer"
               >
                 Proceed with Surface Freight
               </button>

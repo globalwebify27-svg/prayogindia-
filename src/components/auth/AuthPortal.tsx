@@ -14,6 +14,7 @@ import {
   Truck,
   ShieldCheck,
   ReceiptText,
+  Phone,
 } from "lucide-react";
 import { signInWithGoogle } from "@/lib/firebase";
 
@@ -33,10 +34,16 @@ export const AuthPortal: React.FC<AuthPortalProps> = ({
   const isJustRegistered = searchParams.get("registered") === "true";
   const prefilledEmail = searchParams.get("email") || "";
 
-  // Common Fields
+  // Registration Fields (Per PDF Section 18: Name, Mobile, Email, Password, Confirm Password)
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
   const [email, setEmail] = useState(prefilledEmail);
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  // Login Field
   const [rememberMe, setRememberMe] = useState(false);
 
   // Optional B2B fields for Register
@@ -49,7 +56,7 @@ export const AuthPortal: React.FC<AuthPortalProps> = ({
   const [successMsg, setSuccessMsg] = useState<string | null>(
     isJustRegistered
       ? "Account created successfully! Please enter your credentials to sign in."
-      : null
+      : null,
   );
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
@@ -62,7 +69,6 @@ export const AuthPortal: React.FC<AuthPortalProps> = ({
     setMode(newMode);
     setError(null);
     setSuccessMsg(null);
-    // Update browser URL without triggering full page reload
     if (typeof window !== "undefined") {
       const url = new URL(window.location.href);
       url.pathname = newMode === "register" ? "/register" : "/login";
@@ -77,28 +83,28 @@ export const AuthPortal: React.FC<AuthPortalProps> = ({
     setSuccessMsg(null);
 
     const cleanEmail = email.trim();
-    if (!cleanEmail) {
-      setError(
-        mode === "register"
-          ? "Please enter your email address."
-          : "Please enter your email address or mobile number."
-      );
-      return;
-    }
-
-    if (!password || password.length < 6) {
-      setError("Password must be at least 6 characters.");
-      return;
-    }
-
-    setLoading(true);
 
     if (mode === "login") {
+      if (!cleanEmail) {
+        setError("Please enter your email address or 10-digit mobile number.");
+        return;
+      }
+      if (!password || password.length < 6) {
+        setError("Password must be at least 6 characters.");
+        return;
+      }
+
+      setLoading(true);
+
       try {
         const res = await fetch("/api/auth/login", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email: cleanEmail, password }),
+          body: JSON.stringify({
+            email: cleanEmail,
+            password,
+            rememberMe,
+          }),
         });
 
         const data = await res.json();
@@ -106,7 +112,7 @@ export const AuthPortal: React.FC<AuthPortalProps> = ({
         if (!res.ok || !data.success) {
           setError(
             data.message ||
-              "Invalid email/phone or password. Please check your credentials."
+              "Invalid email/mobile or password. Please check your credentials.",
           );
           setLoading(false);
           return;
@@ -114,24 +120,64 @@ export const AuthPortal: React.FC<AuthPortalProps> = ({
 
         if (data?.user) {
           loginUser({
+            id: data.user.id,
             name: data.user.name,
             email: data.user.email,
-            phone: data.user.phone || "+91 98765 43210",
+            phone: data.user.phone || "",
             customerType: data.user.customerType || "Registered Customer",
-            rewardPoints: data.user.rewardPoints || 1250,
+            companyName: data.user.companyName,
+            gstin: data.user.gstin,
+            rewardPoints:
+              typeof data.user.rewardPoints === "number"
+                ? data.user.rewardPoints
+                : 100,
           });
           router.push(targetRedirect);
         }
-      } catch (err: any) {
+      } catch {
         setError("Authentication server error. Please try again.");
         setLoading(false);
       }
     } else {
       // Register Mode
+      const cleanName = name.trim();
+      const rawDigits = phone.replace(/\D/g, "");
+      const cleanPhone = rawDigits.length >= 10 ? rawDigits.slice(-10) : "";
+
+      if (!cleanName) {
+        setError("Please enter your full name.");
+        return;
+      }
+
+      if (!cleanPhone || cleanPhone.length < 10) {
+        setError("Please enter a valid 10-digit mobile number.");
+        return;
+      }
+
+      if (!cleanEmail || !cleanEmail.includes("@")) {
+        setError("Please enter a valid email address.");
+        return;
+      }
+
+      if (!password || password.length < 6) {
+        setError("Password must be at least 6 characters.");
+        return;
+      }
+
+      if (password !== confirmPassword) {
+        setError("Passwords do not match. Please verify your confirm password.");
+        return;
+      }
+
+      setLoading(true);
+
       try {
         const payload: any = {
+          name: cleanName,
+          phone: `+91 ${cleanPhone}`,
           email: cleanEmail,
           password,
+          confirmPassword,
         };
 
         if (showB2B && companyName.trim()) {
@@ -165,24 +211,30 @@ export const AuthPortal: React.FC<AuthPortalProps> = ({
           const loginData = await loginRes.json();
           if (loginRes.ok && loginData.success && loginData.user) {
             loginUser({
+              id: loginData.user.id,
               name: loginData.user.name,
               email: loginData.user.email,
-              phone: loginData.user.phone || "+91 98765 43210",
+              phone: loginData.user.phone || `+91 ${cleanPhone}`,
               customerType: loginData.user.customerType || "Registered Customer",
-              rewardPoints: loginData.user.rewardPoints || 100,
+              companyName: loginData.user.companyName,
+              gstin: loginData.user.gstin,
+              rewardPoints:
+                typeof loginData.user.rewardPoints === "number"
+                  ? loginData.user.rewardPoints
+                  : 100,
             });
             router.push(targetRedirect);
             return;
           }
         } catch {
-          // If auto-login fails, switch to login view with success notification
+          // Fall back to login view with success notification
         }
 
         setSuccessMsg(
-          "Account created successfully! Please sign in with your password."
+          "Account created successfully! Please sign in with your password.",
         );
         switchMode("login");
-      } catch (err: any) {
+      } catch {
         setError("Failed to create account. Please check your connection.");
       } finally {
         setLoading(false);
@@ -215,11 +267,15 @@ export const AuthPortal: React.FC<AuthPortalProps> = ({
 
       if (data.success && data.user) {
         loginUser({
+          id: data.user.id,
           name: data.user.name,
           email: data.user.email,
-          phone: data.user.phone || "+91 98765 00000",
+          phone: data.user.phone || "",
           customerType: data.user.customerType || "Registered Customer",
-          rewardPoints: data.user.rewardPoints || 500,
+          rewardPoints:
+            typeof data.user.rewardPoints === "number"
+              ? data.user.rewardPoints
+              : 100,
         });
         router.push(targetRedirect);
       } else {
@@ -227,7 +283,9 @@ export const AuthPortal: React.FC<AuthPortalProps> = ({
       }
     } catch (err: any) {
       if (err?.code !== "auth/popup-closed-by-user") {
-        setError(err.message || "Google authentication failed. Please try again.");
+        setError(
+          err.message || "Google authentication failed. Please try again.",
+        );
       }
     } finally {
       setGoogleLoading(false);
@@ -260,13 +318,54 @@ export const AuthPortal: React.FC<AuthPortalProps> = ({
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-6">
-              {/* Field 1: Email / Username */}
+            <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
+              {/* REGISTER ONLY: Name & Mobile Number (PDF Section 18) */}
+              {mode === "register" && (
+                <>
+                  <div>
+                    <label className="block text-sm font-semibold text-slate-800 mb-1.5">
+                      Full Name <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      placeholder="e.g. Enamul Haque"
+                      className="w-full bg-white text-slate-900 px-4 py-3 sm:py-3.5 text-sm rounded-xl sm:rounded-2xl border border-slate-200 hover:border-slate-300 focus:outline-none focus:border-[#0A233F] focus:ring-1 focus:ring-[#0A233F] transition-all font-medium placeholder:text-slate-400"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-slate-800 mb-1.5">
+                      Mobile Number <span className="text-red-500">*</span>
+                    </label>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 text-sm font-medium">
+                        +91
+                      </div>
+                      <input
+                        type="tel"
+                        required
+                        maxLength={10}
+                        value={phone}
+                        onChange={(e) =>
+                          setPhone(e.target.value.replace(/\D/g, ""))
+                        }
+                        placeholder="98765 43210"
+                        className="w-full bg-white text-slate-900 pl-12 pr-4 py-3 sm:py-3.5 text-sm rounded-xl sm:rounded-2xl border border-slate-200 hover:border-slate-300 focus:outline-none focus:border-[#0A233F] focus:ring-1 focus:ring-[#0A233F] transition-all font-medium placeholder:text-slate-400"
+                      />
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {/* Email / Username */}
               <div>
-                <label className="block text-sm font-semibold text-slate-800 mb-2">
+                <label className="block text-sm font-semibold text-slate-800 mb-1.5">
                   {mode === "register"
                     ? "Email address"
-                    : "Username or email address"}{" "}
+                    : "Mobile Number or Email address"}{" "}
                   <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -276,16 +375,16 @@ export const AuthPortal: React.FC<AuthPortalProps> = ({
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder={
                     mode === "register"
-                      ? "Enter your email address"
-                      : "Enter your email or username"
+                      ? "name@example.com"
+                      : "Enter mobile number or email"
                   }
                   className="w-full bg-white text-slate-900 px-4 py-3 sm:py-3.5 text-sm rounded-xl sm:rounded-2xl border border-slate-200 hover:border-slate-300 focus:outline-none focus:border-[#0A233F] focus:ring-1 focus:ring-[#0A233F] transition-all font-medium placeholder:text-slate-400"
                 />
               </div>
 
-              {/* Field 2: Password with Eye Toggle */}
+              {/* Password with Eye Toggle */}
               <div>
-                <label className="block text-sm font-semibold text-slate-800 mb-2">
+                <label className="block text-sm font-semibold text-slate-800 mb-1.5">
                   Password <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
@@ -294,7 +393,7 @@ export const AuthPortal: React.FC<AuthPortalProps> = ({
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Enter your password"
+                    placeholder="Enter minimum 6 characters"
                     className="w-full bg-white text-slate-900 pl-4 pr-12 py-3 sm:py-3.5 text-sm rounded-xl sm:rounded-2xl border border-slate-200 hover:border-slate-300 focus:outline-none focus:border-[#0A233F] focus:ring-1 focus:ring-[#0A233F] transition-all font-medium placeholder:text-slate-400"
                   />
                   <button
@@ -311,6 +410,39 @@ export const AuthPortal: React.FC<AuthPortalProps> = ({
                   </button>
                 </div>
               </div>
+
+              {/* REGISTER ONLY: Confirm Password (PDF Section 18) */}
+              {mode === "register" && (
+                <div>
+                  <label className="block text-sm font-semibold text-slate-800 mb-1.5">
+                    Confirm Password <span className="text-red-500">*</span>
+                  </label>
+                  <div className="relative">
+                    <input
+                      type={showConfirmPassword ? "text" : "password"}
+                      required
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      placeholder="Re-enter your password"
+                      className="w-full bg-white text-slate-900 pl-4 pr-12 py-3 sm:py-3.5 text-sm rounded-xl sm:rounded-2xl border border-slate-200 hover:border-slate-300 focus:outline-none focus:border-[#0A233F] focus:ring-1 focus:ring-[#0A233F] transition-all font-medium placeholder:text-slate-400"
+                    />
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setShowConfirmPassword(!showConfirmPassword)
+                      }
+                      className="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
+                      aria-label="Toggle confirm password visibility"
+                    >
+                      {showConfirmPassword ? (
+                        <EyeOff className="w-5 h-5" />
+                      ) : (
+                        <Eye className="w-5 h-5" />
+                      )}
+                    </button>
+                  </div>
+                </div>
+              )}
 
               {/* REGISTER ONLY: Optional B2B Tax Invoicing */}
               {mode === "register" && (
@@ -375,7 +507,7 @@ export const AuthPortal: React.FC<AuthPortalProps> = ({
                     href={
                       targetRedirect !== "/account"
                         ? `/forgot-password?redirect=${encodeURIComponent(
-                            targetRedirect
+                            targetRedirect,
                           )}`
                         : "/forgot-password"
                     }
@@ -386,7 +518,7 @@ export const AuthPortal: React.FC<AuthPortalProps> = ({
                 </div>
               )}
 
-              {/* REGISTER ONLY: Privacy Policy text (Matches Reference Image) */}
+              {/* REGISTER ONLY: Privacy Policy text */}
               {mode === "register" && (
                 <p className="text-xs sm:text-sm text-slate-600 leading-relaxed pt-1">
                   Your personal data will be used to support your experience
@@ -402,19 +534,19 @@ export const AuthPortal: React.FC<AuthPortalProps> = ({
                 </p>
               )}
 
-              {/* PRIMARY ACTION BUTTON (Pill-shaped, Prayog Navy #0A1128) */}
+              {/* PRIMARY ACTION BUTTON */}
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-[#0A1128] hover:bg-[#0A233F] active:scale-[0.99] text-white py-3.5 sm:py-4 rounded-full font-extrabold text-xs sm:text-sm uppercase tracking-wider transition-all shadow-md shadow-slate-950/20 cursor-pointer disabled:opacity-50 mt-4"
+                className="w-full bg-[#2563EB] hover:bg-[#1D4ED8] active:bg-[#1E40AF] active:scale-[0.99] text-white py-3.5 sm:py-4 rounded-full font-extrabold text-xs sm:text-sm uppercase tracking-wider transition-all shadow-md shadow-blue-500/20 cursor-pointer disabled:opacity-50 mt-4"
               >
                 {loading
                   ? mode === "register"
                     ? "Creating Account..."
                     : "Signing In..."
                   : mode === "register"
-                  ? "REGISTER"
-                  : "LOG IN"}
+                    ? "REGISTER"
+                    : "LOG IN"}
               </button>
 
               {/* Social Login Divider */}
@@ -434,7 +566,10 @@ export const AuthPortal: React.FC<AuthPortalProps> = ({
                 disabled={googleLoading}
                 className="w-full bg-white hover:bg-slate-50 text-slate-700 py-3 sm:py-3.5 rounded-full font-bold text-xs sm:text-sm border border-slate-200 transition-all flex items-center justify-center gap-2.5 cursor-pointer shadow-2xs hover:shadow-xs active:scale-[0.99] disabled:opacity-60"
               >
-                <svg className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" viewBox="0 0 24 24">
+                <svg
+                  className="w-4 h-4 sm:w-5 sm:h-5 shrink-0"
+                  viewBox="0 0 24 24"
+                >
                   <path
                     fill="#4285F4"
                     d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -456,31 +591,48 @@ export const AuthPortal: React.FC<AuthPortalProps> = ({
                   {googleLoading
                     ? "Connecting..."
                     : mode === "register"
-                    ? "Sign up with Google"
-                    : "Sign in with Google"}
+                      ? "Sign up with Google"
+                      : "Sign in with Google"}
                 </span>
               </button>
+
+              {/* Login with OTP Button (PDF Section 19: Login with OTP) */}
+              <Link
+                href={
+                  targetRedirect !== "/account"
+                    ? `/verify-otp?redirect=${encodeURIComponent(
+                        targetRedirect,
+                      )}`
+                    : "/verify-otp"
+                }
+                className="w-full bg-slate-50 hover:bg-slate-100 text-slate-800 py-3 sm:py-3.5 rounded-full font-bold text-xs sm:text-sm border border-slate-200 transition-all flex items-center justify-center gap-2 cursor-pointer shadow-2xs hover:shadow-xs active:scale-[0.99]"
+              >
+                <Phone className="w-4 h-4 text-emerald-600" />
+                <span>
+                  {mode === "register"
+                    ? "Register via Mobile OTP"
+                    : "Login with Mobile OTP"}
+                </span>
+              </Link>
             </form>
           </div>
 
           {/* ══════════════════════════════════════════════════════════ */}
-          {/* RIGHT COLUMN: INFORMATIONAL CARD & TOGGLE (MATCHES IMAGE) */}
+          {/* RIGHT COLUMN: INFORMATIONAL CARD & TOGGLE (MATCHES PDF)   */}
           {/* ══════════════════════════════════════════════════════════ */}
           <div className="w-full md:border-l md:border-slate-200/90 md:pl-10 lg:pl-16 pt-8 md:pt-0 border-t border-slate-200/90 md:border-t-0 flex flex-col justify-between">
             <div>
               <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight mb-6 sm:mb-8">
-                {mode === "register" ? "Register" : "Register"}
+                {mode === "register" ? "Sign In" : "Register"}
               </h2>
 
               <p className="text-slate-600 text-sm sm:text-base leading-relaxed mb-6">
-                Registering for this site allows you to access your order status
-                and history. Just fill in the fields below, and we&apos;ll get a
-                new account set up for you in no time. We will only ask you for
-                information necessary to make the purchase process faster and
-                easier.
+                {mode === "register"
+                  ? "Already have an account? Sign in to access your previous orders, live shipments, saved lab addresses, and redeem Prayog reward coins."
+                  : "Registering for this site allows you to access your order status and history. Just fill in the fields below, and we'll get a new account set up for you in no time. We will only ask you for information necessary to make the purchase process faster and easier."}
               </p>
 
-              {/* Prayog India Perks & Highlights */}
+              {/* Prayog India Perks & Highlights (PDF Section 18 Benefits) */}
               <div className="space-y-3.5 my-8">
                 <div className="flex items-start gap-3">
                   <div className="w-8 h-8 rounded-full bg-blue-50 text-[#0A233F] flex items-center justify-center shrink-0 mt-0.5">
@@ -506,8 +658,8 @@ export const AuthPortal: React.FC<AuthPortalProps> = ({
                       Prayog STEM Reward Coins
                     </h4>
                     <p className="text-xs text-slate-500">
-                      Earn coins on every purchase and redeem for free drone parts,
-                      sensors & accessories.
+                      Earn coins on every purchase and redeem for free drone
+                      parts, sensors & accessories.
                     </p>
                   </div>
                 </div>
@@ -521,8 +673,8 @@ export const AuthPortal: React.FC<AuthPortalProps> = ({
                       Instant GST Invoicing
                     </h4>
                     <p className="text-xs text-slate-500">
-                      Download valid GST tax invoices anytime for school, college,
-                      or lab grants.
+                      Download valid GST tax invoices anytime for school,
+                      college, or lab grants.
                     </p>
                   </div>
                 </div>
@@ -536,14 +688,15 @@ export const AuthPortal: React.FC<AuthPortalProps> = ({
                       Saved Lab Addresses
                     </h4>
                     <p className="text-xs text-slate-500">
-                      Save multiple delivery locations for fast 1-click reordering.
+                      Save multiple delivery locations for fast 1-click
+                      reordering.
                     </p>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* TOGGLE BUTTON (MATCHES IMAGE: LOGIN / REGISTER PILL BUTTON) */}
+            {/* TOGGLE BUTTON: LOGIN / REGISTER */}
             <div className="pt-2">
               <button
                 type="button"

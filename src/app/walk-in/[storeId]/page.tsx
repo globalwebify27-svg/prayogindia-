@@ -36,7 +36,7 @@ import { PRODUCTS, Product } from "@/data/mockData";
 import { QuickViewModal } from "@/components/products/QuickViewModal";
 import { RoboticOrderSuccess } from "@/components/walk-in/RoboticOrderSuccess";
 import { OrderTruckButton } from "@/components/walk-in/OrderTruckButton";
-import { CATEGORIES_DATA } from "@/data/categories";
+import { CATEGORIES_DATA, matchCategory } from "@/data/categories";
 import { CATEGORIES_HIERARCHY } from "@/data/categoriesHierarchy";
 import { KioskGridSkeleton } from "@/components/ui/Skeleton";
 
@@ -419,13 +419,7 @@ export default function StoreKioskPage() {
     }
 
     // 2. Canonical category model match from CATEGORIES_DATA
-    const targetCat = CATEGORIES_DATA.find(
-      (c) =>
-        c.name.toLowerCase() === selLower ||
-        (c.shortName && c.shortName.toLowerCase() === selLower) ||
-        c.slug.toLowerCase() === selLower ||
-        (c.slugAlias && c.slugAlias.toLowerCase() === selLower),
-    );
+    const targetCat = CATEGORIES_DATA.find((c) => matchCategory(c, selLower));
     if (targetCat) {
       const catName = targetCat.name.toLowerCase();
       const shortName = (targetCat.shortName || "").toLowerCase();

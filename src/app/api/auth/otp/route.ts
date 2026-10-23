@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { UserDB } from "@/lib/userDB";
 import { sendSMS } from "@/lib/smsService";
+import { db, isDatabaseAvailable } from "@/lib/db";
+import { signSessionToken } from "@/lib/jwt";
+import { AuthSessionUser } from "@/lib/authUtils";
 
 // Server-side in-memory OTP storage for validation
 const OTP_STORE = new Map<string, { code: string; expiresAt: number }>();
@@ -45,7 +48,7 @@ export async function POST(request: Request) {
       return NextResponse.json({
         success: true,
         message: `OTP sent successfully to +91 ${cleanPhone}.`,
-        otp: generatedOtp,
+        otp: process.env.NODE_ENV !== "production" ? generatedOtp : undefined,
       });
     }
 
@@ -85,28 +88,69 @@ export async function POST(request: Request) {
       // Clear consumed OTP
       OTP_STORE.delete(cleanPhone);
 
-      // Lookup or register
+      // Lookup or register in DB & UserDB
+      let existingDbUser: any = null;
+      if (isDatabaseAvailable()) {
+        try {
+          existingDbUser = await db.user.findFirst({
+            where: {
+              phone: { contains: cleanPhone },
+            },
+          });
+        } catch (dbErr) {
+          console.warn("DB lookup during OTP login skipped:", dbErr);
+        }
+      }
+
       let existing = UserDB.findByEmailOrPhone(cleanPhone);
-      if (!existing) {
+
+      if (!existing && !existingDbUser) {
+        const dummyEmail = `user.${cleanPhone}@prayogindia.com`;
+        const displayName = `Customer ${cleanPhone.slice(-4)}`;
+
         existing = UserDB.create({
-          name: `Customer ${cleanPhone.slice(-4)}`,
-          email: `user.${cleanPhone}@prayogindia.com`,
+          name: displayName,
+          email: dummyEmail,
           phone: `+91 ${cleanPhone}`,
           passwordHash: "",
           customerType: "Registered Customer",
           rewardPoints: 100,
         });
+
+        if (isDatabaseAvailable()) {
+          try {
+            existingDbUser = await db.user.create({
+              data: {
+                name: displayName,
+                email: dummyEmail,
+                phone: `+91 ${cleanPhone}`,
+                passwordHash: "",
+                role: "CUSTOMER",
+                customerType: "B2C",
+                rewardPoints: 100,
+              },
+            });
+          } catch (dbErr) {
+            console.warn("DB user create during OTP login fallback:", dbErr);
+          }
+        }
       }
 
-      const userPayload = {
-        id: existing.id,
-        name: existing.name,
-        email: existing.email,
-        phone: existing.phone,
-        customerType: existing.customerType,
-        rewardPoints: existing.rewardPoints,
-        role: "CUSTOMER" as const,
+      const userPayload: AuthSessionUser = {
+        id: existingDbUser?.id || existing?.id || `usr-otp-${cleanPhone}`,
+        name: existingDbUser?.name || existing?.name || `Customer ${cleanPhone.slice(-4)}`,
+        email: existingDbUser?.email || existing?.email || `user.${cleanPhone}@prayogindia.com`,
+        phone: existingDbUser?.phone || existing?.phone || `+91 ${cleanPhone}`,
+        customerType:
+          existing?.customerType ||
+          (existingDbUser?.customerType === "B2B" ? "B2B Customer" : "Registered Customer"),
+        companyName: existing?.companyName || existingDbUser?.companyName || null,
+        gstin: existing?.gstin || existingDbUser?.gstin || null,
+        rewardPoints: existing?.rewardPoints ?? existingDbUser?.rewardPoints ?? 100,
+        role: "CUSTOMER",
       };
+
+      const sessionToken = await signSessionToken(userPayload, "7d");
 
       const response = NextResponse.json({
         success: true,
@@ -116,7 +160,7 @@ export async function POST(request: Request) {
 
       response.cookies.set({
         name: "prayog_customer_session",
-        value: JSON.stringify(userPayload),
+        value: sessionToken,
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "lax",

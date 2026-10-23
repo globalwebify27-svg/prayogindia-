@@ -595,7 +595,7 @@ export const CareersSection: React.FC = () => {
                       setAppliedJob(null);
                       setApplicationSuccess(false);
                     }}
-                    className="bg-slate-900 text-white text-xs font-bold px-5 py-2 rounded-full"
+                    className="bg-[#2563EB] hover:bg-[#1D4ED8] active:bg-[#1E40AF] text-white text-xs font-bold px-5 py-2 rounded-full shadow-sm shadow-blue-500/20 cursor-pointer transition-colors"
                   >
                     Done
                   </button>

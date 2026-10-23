@@ -118,84 +118,94 @@ export interface LearningItem {
 
 export const CATEGORIES: Category[] = [
   {
-    id: "robotics",
-    name: "Robotics & DIY Kits",
-    count: "2,400+ Products",
+    id: "electronic-components",
+    name: "Electronic Components",
+    count: "4,500+ Products",
     description:
-      "Humanoid arms, robotic chassis, servos, manipulators & industrial kits.",
-    image:
-      "https://res.cloudinary.com/fyueflvh/image/upload/v1788595386/prayog/products/prod_catalog_template_4.jpg",
-    iconName: "Bot",
-  },
-  {
-    id: "arduino",
-    name: "Arduino & Microcontrollers",
-    count: "1,800+ Products",
-    description:
-      "UNO, Mega, Nano, ESP8266, ESP32, and official expansion shields.",
+      "Resistors, capacitors, ICs, LEDs, relays, and connectors for circuit prototyping.",
     image:
       "https://res.cloudinary.com/fyueflvh/image/upload/v1788595383/prayog/products/prod_catalog_template_1.jpg",
     iconName: "Cpu",
   },
   {
-    id: "drones",
-    name: "Drones & UAV Parts",
-    count: "950+ Products",
+    id: "robotics",
+    name: "Robotics",
+    count: "3,600+ Products",
     description:
-      "Flight controllers, ESCs, BLDC motors, FPV gear & carbon fiber frames.",
+      "Robot kits, robotics accessories, motors & drivers, wheels, and controllers.",
+    image:
+      "https://res.cloudinary.com/fyueflvh/image/upload/v1788595386/prayog/products/prod_catalog_template_4.jpg",
+    iconName: "Bot",
+  },
+  {
+    id: "development-boards",
+    name: "Development Boards",
+    count: "2,900+ Products",
+    description:
+      "Official Arduino boards, Raspberry Pi, ESP32, and advanced embedded platforms.",
+    image:
+      "https://res.cloudinary.com/fyueflvh/image/upload/v1788595388/prayog/products/prod_catalog_template_6.jpg",
+    iconName: "CircuitBoard",
+  },
+  {
+    id: "drone-technology",
+    name: "Drone Technology",
+    count: "2,200+ Products",
+    description:
+      "Flight controllers, motors, ESC, GPS modules, propellers, batteries, and cameras.",
     image:
       "https://res.cloudinary.com/fyueflvh/image/upload/v1788595385/prayog/products/prod_catalog_template_3.jpg",
     iconName: "Plane",
   },
   {
-    id: "iot",
-    name: "IoT & Wireless Modules",
+    id: "sensors-iot",
+    name: "Sensors & IoT",
     count: "3,100+ Products",
     description:
-      "LoRaWAN modules, wireless gateways, relays, displays & power units.",
-    image:
-      "https://res.cloudinary.com/fyueflvh/image/upload/v1788595384/prayog/products/prod_catalog_template_2.jpg",
-    iconName: "Wifi",
-  },
-  {
-    id: "stem",
-    name: "STEM & Educational Kits",
-    count: "650+ Kits",
-    description:
-      "Hands-on learning science & coding lab kits tailored for schools & DIY.",
-    image:
-      "https://res.cloudinary.com/fyueflvh/image/upload/v1788595388/prayog/products/prod_catalog_template_7.jpg",
-    iconName: "GraduationCap",
-  },
-  {
-    id: "sensors",
-    name: "Sensors & Electronic Modules",
-    count: "1,450+ Sensors",
-    description:
-      "LiDAR, Ultrasonic, IMU 9-DOF, Gas, Biometric & Vision cameras.",
+      "Environmental, motion, and optical sensors plus IoT wireless communication modules.",
     image:
       "https://res.cloudinary.com/fyueflvh/image/upload/v1788595387/prayog/products/prod_catalog_template_5.jpg",
     iconName: "Activity",
   },
   {
-    id: "motors",
-    name: "Motors, Steppers & Drivers",
-    count: "1,100+ Drives",
+    id: "batteries-power",
+    name: "Batteries & Power",
+    count: "1,200+ Products",
     description:
-      "High torque stepper motors, BLDC, planetary gearheads & motor drivers.",
+      "18650 Li-ion cells, LiPo packs, BMS protection, and precision power supplies.",
     image:
-      "https://res.cloudinary.com/fyueflvh/image/upload/v1788595389/prayog/products/prod_catalog_template_8.jpg",
-    iconName: "Zap",
+      "https://images.unsplash.com/photo-1619641253018-095a2542a22c?auto=format&fit=crop&w=600&q=80",
+    iconName: "BatteryCharging",
   },
   {
-    id: "devboards",
-    name: "Single Board Computers & Dev Boards",
-    count: "820+ Boards",
+    id: "mechanical-hardware",
+    name: "Mechanical & Hardware",
+    count: "1,800+ Products",
     description:
-      "Raspberry Pi 5, Jetson Orin Nano, STM32 Nucleo & FPGA boards.",
+      "Mechanical products, fasteners, aluminum profiles, and 3D printing accessories.",
     image:
-      "https://res.cloudinary.com/fyueflvh/image/upload/v1788595388/prayog/products/prod_catalog_template_6.jpg",
-    iconName: "CircuitBoard",
+      "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=600&q=80",
+    iconName: "Wrench",
+  },
+  {
+    id: "educational-stem-kits",
+    name: "Educational & STEM Kits",
+    count: "1,500+ Kits",
+    description:
+      "STEM kits, educational kits, educational toys, and comprehensive project kits.",
+    image:
+      "https://res.cloudinary.com/fyueflvh/image/upload/v1788595388/prayog/products/prod_catalog_template_7.jpg",
+    iconName: "GraduationCap",
+  },
+  {
+    id: "industrial-automation",
+    name: "Industrial Automation",
+    count: "950+ Products",
+    description:
+      "Industrial automation products, PLCs, VFDs, HMI panels, and industrial sensors.",
+    image:
+      "https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=600&q=80",
+    iconName: "Briefcase",
   },
 ];
 

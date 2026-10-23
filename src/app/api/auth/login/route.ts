@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { db, isDatabaseAvailable } from "@/lib/db";
-import { normalizeEmail, verifyPassword, sanitizeUser } from "@/lib/authUtils";
+import { normalizeEmail, verifyPassword, sanitizeUser, AuthSessionUser } from "@/lib/authUtils";
 import { UserDB } from "@/lib/userDB";
 import { checkRateLimit, getSecurityHeaders } from "@/lib/security";
 import { loginSchema } from "@/lib/validations";
@@ -36,9 +36,11 @@ export async function POST(request: Request) {
       );
     }
 
-    const { email, password } = validation.data;
-
+    const { email, password, rememberMe } = validation.data;
     const identifier = email.trim();
+    const cleanEmail = normalizeEmail(identifier);
+    const rawDigits = identifier.replace(/\D/g, "");
+    const cleanPhone = rawDigits.length >= 10 ? rawDigits.slice(-10) : "";
 
     // 2. Lookup in UserDB (Email or Mobile)
     const userRecord = UserDB.findByEmailOrPhone(identifier);
@@ -46,23 +48,27 @@ export async function POST(request: Request) {
     // 3. Fallback check Prisma Database if available
     let dbUser: any = null;
     if (!userRecord && isDatabaseAvailable()) {
-      const cleanEmail = normalizeEmail(identifier);
       try {
-        dbUser = await db.user.findUnique({
-          where: { email: cleanEmail },
+        dbUser = await db.user.findFirst({
+          where: {
+            OR: [
+              { email: cleanEmail },
+              ...(cleanPhone ? [{ phone: { contains: cleanPhone } }] : []),
+            ],
+          },
         });
       } catch (dbErr) {
         console.warn("Prisma user lookup skipped during login:", dbErr);
       }
     }
 
-    // 4. If user not found in any store -> Return generic authentication failure
+    // 4. If user not found in any store -> Return safe authentication failure
     if (!userRecord && !dbUser) {
       return NextResponse.json(
         {
           success: false,
           message:
-            "No account found with this email/mobile. Please check your credentials or register.",
+            "Invalid email/mobile or password. Please verify your credentials or register.",
         },
         { status: 401, headers },
       );
@@ -86,15 +92,15 @@ export async function POST(request: Request) {
     }
 
     // 6. Construct Authenticated User Payload
-    const userPayload = userRecord
+    const userPayload: AuthSessionUser | null = userRecord
       ? {
           id: userRecord.id,
           name: userRecord.name,
           email: userRecord.email,
           phone: userRecord.phone,
           customerType: userRecord.customerType,
-          companyName: userRecord.companyName,
-          gstin: userRecord.gstin,
+          companyName: userRecord.companyName ?? null,
+          gstin: userRecord.gstin ?? null,
           rewardPoints: userRecord.rewardPoints,
           role: "CUSTOMER" as const,
         }
@@ -105,6 +111,13 @@ export async function POST(request: Request) {
             email: dbUser.email,
             phone: dbUser.phone,
             role: dbUser.role || "CUSTOMER",
+            customerType:
+              dbUser.customerType === "B2B"
+                ? "B2B Customer"
+                : "Registered Customer",
+            companyName: dbUser.companyName,
+            gstin: dbUser.gstin,
+            rewardPoints: dbUser.rewardPoints ?? 100,
           })
         : null;
 
@@ -116,7 +129,12 @@ export async function POST(request: Request) {
     }
 
     // 7. Set Cryptographically Signed HttpOnly Customer Session Cookie
-    const sessionToken = await signSessionToken(userPayload, "7d");
+    const expiresIn = rememberMe ? "30d" : "7d";
+    const maxAgeSeconds = rememberMe
+      ? 60 * 60 * 24 * 30 // 30 Days
+      : 60 * 60 * 24 * 7; // 7 Days
+
+    const sessionToken = await signSessionToken(userPayload, expiresIn);
 
     const response = NextResponse.json({
       success: true,
@@ -131,7 +149,7 @@ export async function POST(request: Request) {
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
       path: "/",
-      maxAge: 60 * 60 * 24 * 7, // 7 Days
+      maxAge: maxAgeSeconds,
     });
 
     return response;

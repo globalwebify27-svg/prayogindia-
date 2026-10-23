@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import { CATEGORIES_DATA } from "@/data/categories";
+import { CATEGORIES_DATA, matchCategory } from "@/data/categories";
 import { CategoryDetailView } from "@/components/categories/CategoryDetailView";
 
 interface Props {
@@ -8,9 +8,7 @@ interface Props {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { categorySlug } = await params;
-  const category = CATEGORIES_DATA.find(
-    (c) => c.slug === categorySlug || c.slugAlias === categorySlug,
-  );
+  const category = CATEGORIES_DATA.find((c) => matchCategory(c, categorySlug));
   const title = category
     ? `${category.name} Hardware & Components | Prayog India`
     : "Category | Prayog India";

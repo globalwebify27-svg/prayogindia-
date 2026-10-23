@@ -2,22 +2,40 @@ import { z } from "zod";
 
 // 1. User Authentication Schemas
 export const loginSchema = z.object({
-  email: z.string().min(1, "Email or phone is required").max(100),
+  email: z.string().min(1, "Email or mobile number is required").max(100),
   password: z.string().min(6, "Password must be at least 6 characters").max(128),
+  rememberMe: z.boolean().optional(),
 });
 
-export const registerSchema = z.object({
-  name: z.string().max(70).optional(),
-  email: z.string().email("Invalid email address").max(100),
-  phone: z.string().max(15).optional(),
-  password: z.string().min(6, "Password must be at least 6 characters").max(128),
-  b2b: z
-    .object({
-      companyName: z.string().min(2).max(120),
-      gstNumber: z.string().max(15).optional(),
-    })
-    .optional(),
-});
+export const registerSchema = z
+  .object({
+    name: z.string().max(70).optional(),
+    email: z.string().email("Invalid email address").max(100),
+    phone: z.string().max(20).optional(),
+    password: z
+      .string()
+      .min(6, "Password must be at least 6 characters")
+      .max(128),
+    confirmPassword: z.string().optional(),
+    b2b: z
+      .object({
+        companyName: z.string().min(2).max(120),
+        gstNumber: z.string().max(15).optional(),
+      })
+      .optional(),
+  })
+  .refine(
+    (data) => {
+      if (data.confirmPassword && data.password !== data.confirmPassword) {
+        return false;
+      }
+      return true;
+    },
+    {
+      message: "Passwords do not match.",
+      path: ["confirmPassword"],
+    },
+  );
 
 // 2. Quotation Request Schema
 export const quotationRequestSchema = z.object({

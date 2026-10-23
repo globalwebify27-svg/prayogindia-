@@ -115,6 +115,7 @@ export const OrderDetailView: React.FC<OrderDetailProps> = ({ orderId }) => {
                   id: item.productId,
                   name: item.productName,
                   sku: item.productSku,
+                  slug: item.product?.slug || item.productId,
                   quantity: item.quantity,
                   price: item.price,
                   image:
@@ -298,71 +299,89 @@ export const OrderDetailView: React.FC<OrderDetailProps> = ({ orderId }) => {
   };
 
   return (
-    <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-2xs space-y-8 text-slate-900 animate-in fade-in duration-300">
-      {/* 1. Header with Breadcrumb & Quick Actions */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
-        <div>
-          <div className="flex items-center gap-2">
-            <span className="text-[10px] font-black uppercase tracking-widest text-[#2563EB] bg-blue-50 px-3.5 py-1 rounded-full border border-blue-200/60">
-              Section 21 · Order Management
-            </span>
-          </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight mt-1">
-            Order #{order.orderNumber}
-          </h1>
-          <p className="text-xs text-slate-400 font-semibold">
-            Placed on {order.date} • {order.items.length} Item(s)
-          </p>
+    <div className="bg-white rounded-2xl border border-slate-200/80 p-4 sm:p-6 lg:p-7 shadow-2xs space-y-6 text-slate-900 animate-in fade-in duration-300">
+      {/* 1. Header with Back link, Order ID, Status, and Actions */}
+      <div className="space-y-3 pb-4 border-b border-slate-100">
+        <div className="flex items-center justify-between gap-2">
+          <Link
+            href="/account/orders"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-[#2563EB] transition-colors"
+          >
+            <ArrowLeft className="w-3.5 h-3.5" />
+            <span>Back to Orders</span>
+          </Link>
+
+          <span
+            className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full border flex items-center gap-1 shrink-0 ${
+              order.status?.toLowerCase().includes("delivered")
+                ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                : order.status?.toLowerCase().includes("shipped")
+                ? "bg-sky-50 text-sky-700 border-sky-200"
+                : "bg-amber-50 text-amber-700 border-amber-200"
+            }`}
+          >
+            <Clock className="w-3 h-3" />
+            <span>{order.status}</span>
+          </span>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2.5 self-start sm:self-auto">
-          {/* Download Invoice Button */}
-          <button
-            onClick={() =>
-              window.open(
-                `/api/invoices/${order.id}?format=html&print=true`,
-                "_blank",
-              )
-            }
-            className="bg-slate-900 hover:bg-[#2563EB] text-white px-4 py-2.5 rounded-2xl text-xs font-black flex items-center gap-1.5 transition-all shadow-md active:scale-95 cursor-pointer"
-          >
-            <FileText className="w-4 h-4 text-[#FFC20E]" />
-            <span>Download Invoice (PDF)</span>
-          </button>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">
+          <div>
+            <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+              Order #{order.orderNumber}
+            </h1>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Placed on {order.date} • {order.items.length}{" "}
+              {order.items.length === 1 ? "item" : "items"} • Total: ₹{order.totalAmount.toLocaleString("en-IN")}
+            </p>
+          </div>
 
-          {/* WhatsApp Support Button */}
-          <a
-            href={`https://wa.me/918709789641?text=${encodeURIComponent(`Hi Prayog India, I need help with my Order #${order.orderNumber}.`)}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="bg-[#25D366] hover:bg-[#20ba59] text-white px-4 py-2.5 rounded-2xl text-xs font-black flex items-center gap-1.5 transition-all shadow-md active:scale-95"
-          >
-            <span>WhatsApp Support</span>
-          </a>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() =>
+                window.open(
+                  `/api/invoices/${order.id}?format=html&print=true`,
+                  "_blank",
+                )
+              }
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 hover:border-slate-300 bg-white hover:bg-slate-50 text-xs font-semibold text-slate-700 transition-colors cursor-pointer shadow-2xs"
+            >
+              <FileText className="w-3.5 h-3.5 text-slate-500" />
+              <span>Download Invoice</span>
+            </button>
+
+            <a
+              href={`https://wa.me/918709789641?text=${encodeURIComponent(`Hi Prayog India, I need help with my Order #${order.orderNumber}.`)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-emerald-200 bg-emerald-50 hover:bg-emerald-100 text-xs font-semibold text-emerald-700 transition-colors shadow-2xs"
+            >
+              <span>WhatsApp Support</span>
+            </a>
+          </div>
         </div>
       </div>
 
       {requestSubmittedMessage && (
-        <div className="bg-emerald-50 text-emerald-800 text-xs font-bold p-4 rounded-2xl border border-emerald-200 flex items-center gap-2.5 animate-in fade-in">
-          <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+        <div className="bg-emerald-50 text-emerald-800 text-xs font-bold p-3.5 rounded-xl border border-emerald-200 flex items-center gap-2.5 animate-in fade-in">
+          <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
           <span>{requestSubmittedMessage}</span>
         </div>
       )}
 
-      {/* 2. Visual Order Timeline (Section 21 Hierarchy) */}
-      <div className="space-y-4 bg-slate-50 border border-slate-200 rounded-3xl p-6 shadow-2xs">
+      {/* 2. Order Progression Timeline (Vertical Stepper: Zero Overlap, Clean & Spacious) */}
+      <div className="py-2 border-b border-slate-100 space-y-3">
         <div className="flex items-center justify-between">
-          <h3 className="text-xs font-black uppercase text-slate-900 tracking-wider flex items-center gap-1.5">
-            <Clock className="w-4 h-4 text-[#2563EB]" /> Live Order Progression
-            Timeline
+          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">
+            Order Status & Tracking
           </h3>
-          <span className="bg-blue-50 text-[#2563EB] text-xs font-black px-3.5 py-1 rounded-full border border-blue-200/60">
-            {order.status}
+          <span className="text-xs font-semibold text-emerald-600 flex items-center gap-1">
+            <CheckCircle2 className="w-3.5 h-3.5" />
+            <span>{order.status}</span>
           </span>
         </div>
 
-        {/* Horizontal Timeline Bar */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 pt-2">
+        <div className="relative pl-6 space-y-4 py-1.5 before:absolute before:left-2 before:top-2.5 before:bottom-2.5 before:w-0.5 before:bg-slate-200">
           {timelineSteps.map((step, idx) => {
             const isCompleted = idx <= currentStepIndex;
             const isCurrent = idx === currentStepIndex;
@@ -370,186 +389,91 @@ export const OrderDetailView: React.FC<OrderDetailProps> = ({ orderId }) => {
             return (
               <div
                 key={step.key}
-                className={`p-3.5 rounded-2xl border text-center space-y-1 transition-all ${
-                  isCurrent
-                    ? "bg-blue-50 border-[#2563EB] text-[#2563EB] ring-2 ring-[#2563EB]/20 shadow-xs"
-                    : isCompleted
-                      ? "bg-white border-emerald-300 text-emerald-700"
-                      : "bg-slate-100 border-slate-200 text-slate-400"
-                }`}
+                className="relative flex items-start justify-between gap-3"
               >
-                <div className="flex items-center justify-center">
+                {/* Step Circle / Dot */}
+                <div
+                  className={`absolute -left-6 top-0.5 w-4.5 h-4.5 rounded-full flex items-center justify-center transition-all ${
+                    isCurrent
+                      ? "bg-[#2563EB] text-white ring-4 ring-blue-100"
+                      : isCompleted
+                      ? "bg-emerald-500 text-white"
+                      : "bg-white border-2 border-slate-300 text-slate-400"
+                  }`}
+                >
                   {isCompleted ? (
-                    <CheckCircle2 className="w-5 h-5 text-emerald-500" />
+                    <CheckCircle2 className="w-3 h-3 text-white" />
+                  ) : isCurrent ? (
+                    <span className="w-1.5 h-1.5 rounded-full bg-white" />
                   ) : (
-                    <Clock className="w-5 h-5 text-slate-300" />
+                    <span className="w-1 h-1 rounded-full bg-slate-300" />
                   )}
                 </div>
-                <div className="text-xs font-extrabold leading-tight mt-1">
-                  {step.label}
+
+                <div className="min-w-0 flex-1">
+                  <p
+                    className={`text-xs font-semibold leading-tight ${
+                      isCurrent
+                        ? "text-[#2563EB] font-bold"
+                        : isCompleted
+                        ? "text-slate-900"
+                        : "text-slate-400"
+                    }`}
+                  >
+                    {step.label}
+                  </p>
+                  <p className="text-[11px] text-slate-500 mt-0.5">{step.sub}</p>
                 </div>
-                <div className="text-[10px] opacity-75 font-semibold">
-                  {step.sub}
-                </div>
+
+                {isCurrent && (
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200 shrink-0">
+                    Current Status
+                  </span>
+                )}
               </div>
             );
           })}
         </div>
       </div>
 
-      {/* 3. Payment Status & Live Courier Tracking Details */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Payment Status Card */}
-        <div className="bg-white border border-slate-200 rounded-3xl p-5 space-y-3 shadow-2xs">
-          <h3 className="text-xs font-black uppercase text-slate-900 tracking-wider flex items-center gap-1.5">
-            <CreditCard className="w-4 h-4 text-[#2563EB]" /> Payment Status
-          </h3>
-          <div className="bg-slate-50 border border-slate-200/80 p-4 rounded-2xl space-y-2 text-xs">
-            <div className="flex justify-between items-center">
-              <span className="text-slate-500 font-bold">Payment Gateway:</span>
-              <span className="font-black text-slate-900">
-                UPI / QR (Razorpay Confirmed)
-              </span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-slate-500 font-bold">
-                Transaction Status:
-              </span>
-              <span className="bg-emerald-100 text-emerald-800 text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full">
-                PAID IN FULL (₹{order.totalAmount.toLocaleString()})
-              </span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-slate-500 font-bold">GST Tax Invoice:</span>
-              <span className="text-purple-700 font-bold">
-                18% Input Tax Credit Eligible
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* Courier Dispatch & Tracking Card */}
-        <div className="bg-white border border-slate-200 rounded-3xl p-5 space-y-3 shadow-2xs">
-          <h3 className="text-xs font-black uppercase text-slate-900 tracking-wider flex items-center gap-1.5">
-            <Truck className="w-4 h-4 text-[#2563EB]" /> Courier Shipment
-            Tracking
-          </h3>
-          <div className="bg-slate-50 border border-slate-200/80 p-4 rounded-2xl space-y-2 text-xs">
-            <div className="flex justify-between items-center">
-              <span className="text-slate-500 font-bold">
-                Logistics Partner:
-              </span>
-              <span className="font-black text-slate-900">
-                {order.courierName || "Delhivery Surface Cargo"}
-              </span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-slate-500 font-bold">
-                AWB Tracking Number:
-              </span>
-              <span className="font-mono font-black text-slate-900">
-                {order.trackingNumber || "DEL-88771122IN"}
-              </span>
-            </div>
-            {order.estimatedDelivery && (
-              <div className="flex justify-between items-center">
-                <span className="text-slate-500 font-bold">
-                  Estimated Delivery:
-                </span>
-                <span className="font-black text-[#005CA9]">
-                  {order.estimatedDelivery}
-                </span>
-              </div>
-            )}
-            <div className="pt-1 flex items-center justify-between">
-              <a
-                href={order.trackingUrl || "https://www.delhivery.com"}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 text-xs font-black text-[#2563EB] hover:underline"
-              >
-                <span>Track on Carrier Portal</span>
-                <ExternalLink className="w-3.5 h-3.5" />
-              </a>
-              {order.labelUrl && (
-                <a
-                  href={order.labelUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-[11px] font-bold text-slate-500 hover:text-slate-800 underline"
-                >
-                  Shipping Label
-                </a>
-              )}
-            </div>
-
-            {/* Checkpoint scans timeline */}
-            {order.trackingEvents && order.trackingEvents.length > 0 && (
-              <div className="mt-3 pt-3 border-t border-slate-200/70 space-y-2">
-                <div className="text-[10px] font-black uppercase text-slate-400 tracking-wider">
-                  Live Carrier Scan Checkpoints ({order.trackingEvents.length})
-                </div>
-                <div className="space-y-2 max-h-40 overflow-y-auto pr-1">
-                  {order.trackingEvents.map((evt, eIdx) => (
-                    <div
-                      key={eIdx}
-                      className="text-[11px] flex items-start gap-2 border-l-2 border-[#2563EB] pl-2 py-0.5"
-                    >
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center justify-between text-[10px] text-slate-400 font-mono">
-                          <span>{evt.location}</span>
-                          <span>
-                            {new Date(evt.timestamp).toLocaleTimeString([], {
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            })}
-                          </span>
-                        </div>
-                        <p className="font-medium text-slate-800 text-[11px] leading-snug">
-                          {evt.message}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* 4. Ordered Items Breakdown */}
-      <div className="space-y-3">
-        <h3 className="text-xs font-black uppercase text-slate-900 tracking-wider">
+      {/* 3. Ordered Products (Clean List, Direct Product Links) */}
+      <div className="py-2 border-b border-slate-100 space-y-3">
+        <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">
           Ordered Products ({order.items.length})
         </h3>
-        <div className="bg-slate-50 border border-slate-200 rounded-3xl p-5 space-y-4">
+
+        <div className="divide-y divide-slate-100">
           {order.items.map((item, idx) => (
             <div
               key={idx}
-              className="flex items-center justify-between gap-4 border-b border-slate-200/70 pb-3 last:border-0 last:pb-0"
+              className="py-3 first:pt-1 last:pb-1 flex items-center justify-between gap-3"
             >
-              <div className="flex items-center gap-3 min-w-0">
-                <div className="relative w-14 h-14 rounded-2xl bg-white border border-slate-200 p-1 shrink-0">
+              <Link
+                href={`/products/${item.slug || item.id || item.sku}`}
+                className="flex items-center gap-3 min-w-0 group/it cursor-pointer"
+              >
+                <div className="relative w-12 h-12 rounded-lg bg-slate-50 border border-slate-200/80 p-1 shrink-0 overflow-hidden flex items-center justify-center group-hover/it:border-[#2563EB]/40 transition-colors">
                   <Image
                     src={item.image}
                     alt={item.name}
-                    fill
-                    className="object-contain p-1"
+                    width={44}
+                    height={44}
+                    className="object-contain"
                   />
                 </div>
                 <div className="min-w-0">
-                  <h4 className="text-xs font-bold text-slate-900 truncate">
+                  <h4 className="text-xs sm:text-sm font-semibold text-slate-900 group-hover/it:text-[#2563EB] truncate transition-colors">
                     {item.name}
                   </h4>
-                  <span className="text-[10px] text-slate-400 font-mono block">
-                    SKU: {item.sku} | Quantity: {item.quantity}
-                  </span>
+                  <p className="text-[11px] text-slate-500 mt-0.5">
+                    Qty: {item.quantity} • ₹{item.price.toLocaleString("en-IN")} each
+                  </p>
                 </div>
-              </div>
+              </Link>
+
               <div className="flex items-center gap-3 shrink-0">
-                <span className="text-sm font-extrabold text-slate-900">
-                  ₹{item.price.toLocaleString()}
+                <span className="text-xs sm:text-sm font-bold text-slate-900">
+                  ₹{(item.price * item.quantity).toLocaleString("en-IN")}
                 </span>
                 {order.status === "Delivered" && (
                   <button
@@ -559,10 +483,9 @@ export const OrderDetailView: React.FC<OrderDetailProps> = ({ orderId }) => {
                         name: item.name,
                       })
                     }
-                    className="bg-blue-50 hover:bg-blue-100 text-[#2563EB] px-3 py-1.5 rounded-xl font-bold text-[11px] flex items-center gap-1 transition-all cursor-pointer shadow-2xs border border-blue-200/60"
+                    className="text-[11px] font-semibold text-[#2563EB] hover:underline cursor-pointer"
                   >
-                    <Sparkles className="w-3 h-3 text-[#2563EB]" /> Rate &amp;
-                    Review
+                    Rate & Review
                   </button>
                 )}
               </div>
@@ -571,57 +494,77 @@ export const OrderDetailView: React.FC<OrderDetailProps> = ({ orderId }) => {
         </div>
       </div>
 
-      {/* 5. Delivery Address & Historical Price Summary */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2 text-xs">
+      {/* 4. Delivery & Payment Details (Clean 2-Column Overview) */}
+      <div className="py-2 border-b border-slate-100 grid grid-cols-1 sm:grid-cols-2 gap-5 text-xs">
+        {/* Shipping & Delivery */}
         <div className="space-y-2">
-          <h4 className="font-extrabold uppercase text-slate-900">
-            Delivery Address
+          <h4 className="font-bold uppercase tracking-wider text-slate-400 text-[10px]">
+            Delivery Information
           </h4>
-          <p className="text-slate-700 leading-relaxed bg-slate-50 p-4 rounded-2xl border border-slate-200 font-medium">
+          <p className="text-slate-800 leading-relaxed font-medium">
             {order.shippingAddress}
           </p>
+          <div className="pt-1 text-[11px] text-slate-600 space-y-0.5">
+            <div className="flex items-center gap-1.5">
+              <Truck className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+              <span>{order.courierName || "Delhivery Surface Cargo"}</span>
+            </div>
+            {order.trackingNumber && (
+              <div className="flex items-center gap-2 pl-5">
+                <span className="font-mono text-slate-500">AWB: {order.trackingNumber}</span>
+                <a
+                  href={order.trackingUrl || "https://www.delhivery.com"}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-0.5 text-[#2563EB] hover:underline font-semibold"
+                >
+                  <span>Track</span>
+                  <ExternalLink className="w-2.5 h-2.5" />
+                </a>
+              </div>
+            )}
+          </div>
         </div>
 
+        {/* Payment Summary */}
         <div className="space-y-2">
-          <h4 className="font-extrabold uppercase text-slate-900">
-            Payment Breakdown
+          <h4 className="font-bold uppercase tracking-wider text-slate-400 text-[10px]">
+            Payment Summary
           </h4>
-          <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-1.5 font-semibold text-slate-600">
+          <div className="space-y-1 text-slate-600 font-medium">
             <div className="flex justify-between">
-              <span>Subtotal</span>
-              <span>
-                ₹{(order.subtotal || order.totalAmount * 0.82).toLocaleString()}
-              </span>
+              <span>Payment Mode:</span>
+              <span className="font-semibold text-slate-900">UPI / QR (Paid)</span>
             </div>
-            <div className="flex justify-between text-emerald-600">
-              <span>18% GST Tax Invoice</span>
+            <div className="flex justify-between">
+              <span>Subtotal:</span>
+              <span>₹{(order.subtotal || Math.round(order.totalAmount * 0.82)).toLocaleString("en-IN")}</span>
+            </div>
+            <div className="flex justify-between">
+              <span>GST (18%):</span>
               <span>Included</span>
             </div>
             <div className="flex justify-between text-emerald-600">
-              <span>Freight Shipping</span>
+              <span>Shipping:</span>
               <span>FREE Express</span>
             </div>
-            <div className="flex justify-between text-slate-900 font-black text-sm pt-2 border-t border-slate-200">
-              <span>Grand Total Paid</span>
-              <span>₹{order.totalAmount.toLocaleString()}</span>
+            <div className="flex justify-between text-slate-900 font-bold text-sm pt-1.5 border-t border-slate-100">
+              <span>Total Paid:</span>
+              <span className="text-[#2563EB]">₹{order.totalAmount.toLocaleString("en-IN")}</span>
             </div>
           </div>
         </div>
       </div>
 
-      {/* 6. Section 21 Customer Order Actions (Cancel, Return, Replacement, Refund, Support, WhatsApp) */}
-      <div className="pt-6 border-t border-slate-100 space-y-4">
-        <h3 className="text-xs font-black uppercase text-slate-900 tracking-wider">
-          Customer Order Actions
-        </h3>
-
-        <div className="flex flex-wrap items-center gap-3">
+      {/* 5. Customer Order Actions */}
+      <div className="pt-2">
+        <div className="flex flex-wrap items-center gap-2">
           {/* Reorder Action */}
           <button
             onClick={handleReorder}
-            className="bg-[#2563EB] hover:bg-[#1D4ED8] text-white px-4 py-2.5 rounded-2xl font-black text-xs uppercase tracking-wider transition-all shadow-md flex items-center gap-1.5 cursor-pointer active:scale-95"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-xs font-semibold transition-all shadow-2xs active:scale-95 cursor-pointer"
           >
-            <RefreshCw className="w-4 h-4 text-[#FFC20E]" />
+            <RefreshCw className="w-3.5 h-3.5 text-yellow-300" />
             <span>Reorder Items</span>
           </button>
 
@@ -629,9 +572,9 @@ export const OrderDetailView: React.FC<OrderDetailProps> = ({ orderId }) => {
           {order.isCancelable && (
             <button
               onClick={() => setModalType("cancel")}
-              className="bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 px-4 py-2.5 rounded-2xl font-bold text-xs flex items-center gap-1.5 transition-colors cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-semibold transition-colors cursor-pointer"
             >
-              <XCircle className="w-4 h-4" />
+              <XCircle className="w-3.5 h-3.5" />
               <span>Cancel Order</span>
             </button>
           )}
@@ -639,36 +582,36 @@ export const OrderDetailView: React.FC<OrderDetailProps> = ({ orderId }) => {
           {/* Request Return */}
           <button
             onClick={() => setModalType("return")}
-            className="bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-200 px-4 py-2.5 rounded-2xl font-bold text-xs flex items-center gap-1.5 transition-colors cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 hover:border-slate-300 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold transition-colors cursor-pointer"
           >
-            <RotateCcw className="w-4 h-4 text-[#2563EB]" />
+            <RotateCcw className="w-3.5 h-3.5 text-[#2563EB]" />
             <span>Request Return</span>
           </button>
 
           {/* Request Replacement */}
           <button
             onClick={() => setModalType("replacement")}
-            className="bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-200 px-4 py-2.5 rounded-2xl font-bold text-xs flex items-center gap-1.5 transition-colors cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 hover:border-slate-300 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold transition-colors cursor-pointer"
           >
-            <RefreshCw className="w-4 h-4 text-purple-600" />
+            <RefreshCw className="w-3.5 h-3.5 text-purple-600" />
             <span>Request Replacement</span>
           </button>
 
           {/* Request Refund */}
           <button
             onClick={() => setModalType("refund")}
-            className="bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-200 px-4 py-2.5 rounded-2xl font-bold text-xs flex items-center gap-1.5 transition-colors cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 hover:border-slate-300 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold transition-colors cursor-pointer"
           >
-            <DollarSign className="w-4 h-4 text-emerald-600" />
+            <DollarSign className="w-3.5 h-3.5 text-emerald-600" />
             <span>Request Refund</span>
           </button>
 
           {/* Contact Support Helpdesk */}
           <Link
             href="/account/support"
-            className="bg-slate-900 hover:bg-slate-800 text-white px-4 py-2.5 rounded-2xl font-bold text-xs flex items-center gap-1.5 transition-colors ml-auto shadow-md"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold transition-colors ml-auto shadow-2xs"
           >
-            <MessageSquare className="w-4 h-4 text-[#FFC20E]" />
+            <MessageSquare className="w-3.5 h-3.5 text-[#FFC20E]" />
             <span>Support Helpdesk</span>
           </Link>
         </div>

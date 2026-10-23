@@ -213,10 +213,10 @@ export const HeroSection: React.FC<HeroProps> = ({
                         e.stopPropagation();
                         handlePrimaryClick();
                       }}
-                      className="bg-[#FFC20E] hover:bg-[#E5AC0D] active:scale-[0.98] text-slate-950 font-bold px-3.5 py-1.5 sm:px-6 sm:py-2.5 rounded-full text-[11px] sm:text-xs transition-all duration-150 flex items-center gap-1 sm:gap-1.5 shadow-sm hover:shadow-md cursor-pointer group select-none"
+                      className="bg-[#2563EB] hover:bg-[#1D4ED8] active:bg-[#1E40AF] active:scale-[0.98] text-white font-bold px-3.5 py-1.5 sm:px-6 sm:py-2.5 rounded-full text-[11px] sm:text-xs transition-all duration-150 flex items-center gap-1 sm:gap-1.5 shadow-sm hover:shadow-md shadow-blue-500/25 cursor-pointer group select-none"
                     >
                       <span>{activeSlide.primaryButtonText}</span>
-                      <ArrowRight className="w-3 h-3 sm:w-3.5 sm:h-3.5 stroke-[2.5] text-slate-950 transition-transform group-hover:translate-x-0.5" />
+                      <ArrowRight className="w-3 h-3 sm:w-3.5 sm:h-3.5 stroke-[2.5] text-white transition-transform group-hover:translate-x-0.5" />
                     </button>
                   )}
 
@@ -227,7 +227,7 @@ export const HeroSection: React.FC<HeroProps> = ({
                         e.stopPropagation();
                         handleSecondaryClick();
                       }}
-                      className="hidden sm:flex bg-white/95 hover:bg-white active:scale-[0.98] text-[#2563EB] font-bold px-5 py-2.5 rounded-full text-xs border-2 border-blue-400 hover:border-blue-500 hover:bg-blue-50/80 transition-all duration-150 items-center gap-2 shadow-2xs cursor-pointer backdrop-blur-xs select-none"
+                      className="hidden sm:flex bg-white hover:bg-slate-50 active:bg-slate-100 active:scale-[0.98] text-slate-700 hover:text-slate-900 font-bold px-5 py-2.5 rounded-full text-xs border border-slate-200 hover:border-slate-300 transition-all duration-150 items-center gap-2 shadow-2xs cursor-pointer select-none"
                     >
                       <span>{activeSlide.secondaryButtonText}</span>
                     </button>

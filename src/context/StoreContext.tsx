@@ -162,11 +162,17 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({
       .then((data) => {
         if (data?.success && data?.user) {
           setUser({
+            id: data.user.id,
             name: data.user.name,
             email: data.user.email,
-            phone: data.user.phone || "+91 98765 43210",
-            customerType: "Registered Customer",
-            rewardPoints: 1250,
+            phone: data.user.phone || "",
+            customerType: data.user.customerType || "Registered Customer",
+            companyName: data.user.companyName,
+            gstin: data.user.gstin,
+            rewardPoints:
+              typeof data.user.rewardPoints === "number"
+                ? data.user.rewardPoints
+                : 100,
           });
         }
       })

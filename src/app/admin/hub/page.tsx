@@ -50,16 +50,15 @@ import { PRODUCTS, Product } from "@/data/mockData";
 import { MOCK_CUSTOMER_ORDERS, CustomerOrder } from "@/data/accountData";
 
 const CATEGORIES_LIST = [
-  "Arduino & Microcontrollers",
-  "Sensors & Modules",
-  "Motors, Drivers & Actuators",
-  "Robotics & Drones",
-  "IoT & Wireless",
-  "Batteries & Power Supplies",
-  "Camera & Vision Modules",
-  "Stepper Motors & CNC",
-  "3D Printing & Prototyping",
-  "Tools & Lab Equipment",
+  "Electronic Components",
+  "Robotics",
+  "Development Boards",
+  "Drone Technology",
+  "Sensors & IoT",
+  "Batteries & Power",
+  "Mechanical & Hardware",
+  "Educational & STEM Kits",
+  "Industrial Automation",
 ];
 
 interface AdminCustomer {

@@ -588,7 +588,7 @@ const QuickViewModalContent: React.FC<{
                       setQuickPinStatus("invalid");
                     }
                   }}
-                  className="px-4 py-2 bg-[#0A1128] hover:bg-slate-800 text-white text-xs font-bold rounded-xl transition-all cursor-pointer shrink-0"
+                  className="px-4 py-2 bg-[#2563EB] hover:bg-[#1D4ED8] active:bg-[#1E40AF] text-white text-xs font-bold rounded-xl transition-all cursor-pointer shrink-0 shadow-xs"
                 >
                   Check
                 </button>
@@ -678,7 +678,7 @@ const QuickViewModalContent: React.FC<{
                 <button
                   id={`quickview-buy-now-${fullProduct.id}`}
                   onClick={handleBuyNow}
-                  className="flex items-center justify-center gap-1.5 bg-[#0A1128] hover:bg-slate-900 text-white py-3 rounded-xl text-xs font-black uppercase tracking-wider shadow-md shadow-slate-950/20 transition-all active:scale-95 cursor-pointer"
+                  className="flex items-center justify-center gap-1.5 bg-[#2563EB] hover:bg-[#1D4ED8] active:bg-[#1E40AF] text-white py-3 rounded-xl text-xs font-black uppercase tracking-wider shadow-md shadow-blue-500/20 transition-all active:scale-95 cursor-pointer"
                 >
                   <span>BUY NOW</span>
                 </button>

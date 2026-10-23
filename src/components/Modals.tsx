@@ -102,7 +102,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({
                       onAddToCart(product);
                       onClose();
                     }}
-                    className="p-2 bg-[#0A1128] text-white rounded-lg text-xs font-semibold hover:bg-[#1E56A0]"
+                    className="p-2 bg-[#2563EB] hover:bg-[#1D4ED8] active:bg-[#1E40AF] text-white rounded-lg text-xs font-semibold shadow-xs transition-colors cursor-pointer"
                   >
                     <ShoppingBag className="w-3.5 h-3.5" />
                   </button>

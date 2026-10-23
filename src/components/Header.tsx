@@ -44,7 +44,7 @@ import { AddToCartIcon } from "@/components/icons/AddToCartIcon";
 import { PrayogLogo } from "./PrayogLogo";
 import { MobileMenuDrawer } from "./MobileMenuDrawer";
 import { PRODUCTS } from "@/data/mockData";
-import { CATEGORIES_DATA } from "@/data/categories";
+import { CATEGORIES_DATA, matchCategory } from "@/data/categories";
 import { useStore } from "@/context/StoreContext";
 import { searchProductsFuzzy } from "@/lib/fuzzySearch";
 import {
@@ -80,18 +80,11 @@ interface HeaderProps {
 
 const HEADER_CATEGORIES = [
   {
-    name: "Arduino & Dev Boards",
-    shortName: "Arduino",
-    slug: "arduino-development-boards",
-    href: "/categories/arduino-development-boards",
-    icon: ArduinoCategoryIcon,
-  },
-  {
-    name: "Raspberry Pi",
-    shortName: "Raspberry Pi",
-    slug: "raspberry-pi",
-    href: "/categories/raspberry-pi",
-    icon: CircuitBoard,
+    name: "Electronic Components",
+    shortName: "Components",
+    slug: "electronic-components",
+    href: "/categories/electronic-components",
+    icon: ComponentsCategoryIcon,
   },
   {
     name: "Robotics",
@@ -101,60 +94,11 @@ const HEADER_CATEGORIES = [
     icon: RoboticsCategoryIcon,
   },
   {
-    name: "Sensors & Modules",
-    shortName: "Sensors",
-    slug: "sensors-modules",
-    href: "/categories/sensors-modules",
-    icon: SensorsCategoryIcon,
-  },
-  {
-    name: "Motors & Motor Drivers",
-    shortName: "Motors",
-    slug: "motors-drivers",
-    href: "/categories/motors-drivers",
-    icon: Zap,
-  },
-  {
-    name: "Electronic Components",
-    shortName: "Components",
-    slug: "electronic-components",
-    href: "/categories/electronic-components",
-    icon: ComponentsCategoryIcon,
-  },
-  {
-    name: "IoT & Wireless",
-    shortName: "IoT & Wireless",
-    slug: "iot-wireless",
-    href: "/categories/iot-wireless",
-    icon: IoTCategoryIcon,
-  },
-  {
-    name: "Batteries & Power",
-    shortName: "Power & Batt",
-    slug: "batteries-power",
-    href: "/categories/batteries-power",
-    icon: Zap,
-  },
-  {
-    name: "Cameras & Imaging",
-    shortName: "Cameras",
-    slug: "cameras-imaging",
-    href: "/categories/cameras-imaging",
-    icon: Activity,
-  },
-  {
-    name: "Connectors & Cables",
-    shortName: "Cables",
-    slug: "cables-connectors",
-    href: "/categories/cables-connectors",
-    icon: Layers,
-  },
-  {
-    name: "Mechanical Components",
-    shortName: "Mechanical",
-    slug: "mechanical-components",
-    href: "/categories/mechanical-components",
-    icon: LayoutGrid,
+    name: "Development Boards",
+    shortName: "Dev Boards",
+    slug: "development-boards",
+    href: "/categories/development-boards",
+    icon: CircuitBoard,
   },
   {
     name: "Drone Technology",
@@ -164,25 +108,32 @@ const HEADER_CATEGORIES = [
     icon: DroneCategoryIcon,
   },
   {
-    name: "3D Printing & Accessories",
-    shortName: "3D Printing",
-    slug: "3d-printing",
-    href: "/categories/3d-printing",
-    icon: Layers,
+    name: "Sensors & IoT",
+    shortName: "Sensors & IoT",
+    slug: "sensors-iot",
+    href: "/categories/sensors-iot",
+    icon: SensorsCategoryIcon,
   },
   {
-    name: "Educational & STEM",
+    name: "Batteries & Power",
+    shortName: "Power & Batt",
+    slug: "batteries-power",
+    href: "/categories/batteries-power",
+    icon: Zap,
+  },
+  {
+    name: "Mechanical & Hardware",
+    shortName: "Mechanical",
+    slug: "mechanical-hardware",
+    href: "/categories/mechanical-hardware",
+    icon: LayoutGrid,
+  },
+  {
+    name: "Educational & STEM Kits",
     shortName: "STEM Kits",
-    slug: "educational-stem",
-    href: "/categories/educational-stem",
+    slug: "educational-stem-kits",
+    href: "/categories/educational-stem-kits",
     icon: StemCategoryIcon,
-  },
-  {
-    name: "Project Kits",
-    shortName: "Projects",
-    slug: "project-kits",
-    href: "/categories/project-kits",
-    icon: DevBoardCategoryIcon,
   },
   {
     name: "Industrial Automation",
@@ -191,40 +142,10 @@ const HEADER_CATEGORIES = [
     href: "/categories/industrial-automation",
     icon: Briefcase,
   },
-  {
-    name: "Hardware & Tools",
-    shortName: "Tools",
-    slug: "hardware-tools",
-    href: "/categories/hardware-tools",
-    icon: Layers,
-  },
-  {
-    name: "Displays & Input Devices",
-    shortName: "Displays",
-    slug: "displays-input-devices",
-    href: "/categories/displays-input-devices",
-    icon: LayoutGrid,
-  },
-  {
-    name: "Communication & Network",
-    shortName: "Networking",
-    slug: "communication-networking",
-    href: "/categories/communication-networking",
-    icon: Globe,
-  },
-  {
-    name: "Accessories & Misc",
-    shortName: "Accessories",
-    slug: "accessories-miscellaneous",
-    href: "/categories/accessories-miscellaneous",
-    icon: Layers,
-  },
 ];
 
 const POPUP_CATEGORIES = HEADER_CATEGORIES.map((cat) => {
-  const matched = CATEGORIES_DATA.find(
-    (c) => c.slug === cat.slug || c.id === `cat-${cat.slug}`
-  );
+  const matched = CATEGORIES_DATA.find((c) => matchCategory(c, cat.slug));
   return {
     ...cat,
     subcategories: matched?.subcategories || [],
@@ -1197,13 +1118,17 @@ export const Header: React.FC<HeaderProps> = ({
                             </div>
                           </div>
 
+                          <div className="px-3 py-1 text-xs font-bold text-slate-500 uppercase tracking-wider">
+                            Hello, {user.name ? user.name.split(" ")[0] : "Member"}
+                          </div>
+
                           <Link
                             href="/account/profile"
                             onClick={() => setAccountDropdownOpen(false)}
                             className="w-full text-left px-3 py-2 hover:bg-slate-50 hover:text-[#2563EB] rounded-xl transition-colors flex items-center gap-2.5 font-medium text-slate-700 group"
                           >
                             <User className="w-4 h-4 text-slate-400 group-hover:text-[#2563EB]" />
-                            <span>My Account</span>
+                            <span>My Profile</span>
                           </Link>
 
                           <Link
@@ -1232,29 +1157,31 @@ export const Header: React.FC<HeaderProps> = ({
                           </Link>
 
                           <Link
-                            href="/track-order"
+                            href="/account/addresses"
                             onClick={() => setAccountDropdownOpen(false)}
                             className="w-full text-left px-3 py-2 hover:bg-slate-50 hover:text-[#2563EB] rounded-xl transition-colors flex items-center gap-2.5 font-medium text-slate-700 group"
                           >
-                            <Truck className="w-4 h-4 text-slate-400 group-hover:text-[#2563EB]" />
-                            <span>Track Order</span>
+                            <MapPin className="w-4 h-4 text-slate-400 group-hover:text-[#2563EB]" />
+                            <span>Saved Address</span>
                           </Link>
 
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setAccountDropdownOpen(false);
-                              if (onOpenB2BModal) {
-                                onOpenB2BModal();
-                              } else {
-                                router.push("/account/quotations");
-                              }
-                            }}
-                            className="w-full text-left px-3 py-2 hover:bg-slate-50 hover:text-[#2563EB] rounded-xl transition-colors flex items-center gap-2.5 font-medium text-slate-700 cursor-pointer group"
+                          <Link
+                            href="/account/support"
+                            onClick={() => setAccountDropdownOpen(false)}
+                            className="w-full text-left px-3 py-2 hover:bg-slate-50 hover:text-[#2563EB] rounded-xl transition-colors flex items-center gap-2.5 font-medium text-slate-700 group"
                           >
-                            <Building2 className="w-4 h-4 text-slate-400 group-hover:text-[#2563EB]" />
-                            <span>B2B / Institutional Sales</span>
-                          </button>
+                            <Headset className="w-4 h-4 text-slate-400 group-hover:text-[#2563EB]" />
+                            <span>Support Tickets</span>
+                          </Link>
+
+                          <Link
+                            href="/account/rewards"
+                            onClick={() => setAccountDropdownOpen(false)}
+                            className="w-full text-left px-3 py-2 hover:bg-slate-50 hover:text-[#2563EB] rounded-xl transition-colors flex items-center gap-2.5 font-medium text-slate-700 group"
+                          >
+                            <Coins className="w-4 h-4 text-amber-500 group-hover:text-[#2563EB]" />
+                            <span>Reward Points</span>
+                          </Link>
 
                           <div className="border-t border-slate-100 my-1 pt-1" />
 
@@ -1359,11 +1286,11 @@ export const Header: React.FC<HeaderProps> = ({
                               </div>
                             </div>
 
-                            {/* LOG IN Button (Styled in Prayog Deep Navy #0A1128 theme) */}
+                            {/* LOG IN Button (Styled in Brand Primary Blue #2563EB) */}
                             <button
                               type="submit"
                               disabled={quickLoginLoading}
-                              className="w-full bg-[#0A1128] hover:bg-slate-900 active:scale-[0.98] text-white py-3 rounded-xl font-bold text-xs uppercase tracking-wider transition-all shadow-md shadow-slate-950/20 flex items-center justify-center cursor-pointer disabled:opacity-50"
+                              className="w-full bg-[#2563EB] hover:bg-[#1D4ED8] active:bg-[#1E40AF] active:scale-[0.98] text-white py-3 rounded-xl font-bold text-xs uppercase tracking-wider transition-all shadow-md shadow-blue-500/20 flex items-center justify-center cursor-pointer disabled:opacity-50"
                             >
                               {quickLoginLoading ? "Signing In..." : "LOG IN"}
                             </button>

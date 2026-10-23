@@ -642,7 +642,7 @@ export const TestimonialsSection: React.FC = () => {
 };
 
 const LinkButton: React.FC<{ href: string; label: string }> = ({ label }) => (
-  <button className="text-xs font-bold text-[#1E56A0] hover:text-[#0A1128] flex items-center gap-1">
+  <button className="text-xs font-bold text-[#2563EB] hover:text-[#1D4ED8] flex items-center gap-1 transition-colors cursor-pointer">
     <span>{label}</span>
     <ArrowRight className="w-4 h-4" />
   </button>

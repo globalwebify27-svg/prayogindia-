@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import { CATEGORIES_DATA } from "@/data/categories";
+import { CATEGORIES_DATA, matchCategory, matchSubcategory } from "@/data/categories";
 import { SubcategoryDetailView } from "@/components/categories/SubcategoryDetailView";
 
 interface Props {
@@ -8,11 +8,9 @@ interface Props {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { categorySlug, subcategorySlug } = await params;
-  const category = CATEGORIES_DATA.find(
-    (c) => c.slug === categorySlug || c.slugAlias === categorySlug,
-  );
+  const category = CATEGORIES_DATA.find((c) => matchCategory(c, categorySlug));
   const subcategory = category?.subcategories.find(
-    (s) => s.slug === subcategorySlug,
+    (s) => matchSubcategory(s, subcategorySlug),
   );
 
   const title = subcategory

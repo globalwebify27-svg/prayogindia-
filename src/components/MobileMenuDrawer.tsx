@@ -25,6 +25,12 @@ import {
   MapPin,
   CreditCard,
   Gift,
+  Home,
+  Bot,
+  Sparkles,
+  Plane,
+  Store,
+  Info,
 } from "lucide-react";
 import { PrayogLogo } from "./PrayogLogo";
 import { CATEGORIES_DATA } from "@/data/categories";
@@ -112,7 +118,7 @@ export const MobileMenuDrawer: React.FC<MobileMenuDrawerProps> = ({
             transition={{ type: "spring", damping: 28, stiffness: 280 }}
             className="relative w-[85vw] max-w-sm h-full max-h-[100dvh] h-[100dvh] bg-white text-slate-900 shadow-2xl flex flex-col z-10 overflow-hidden border-r border-slate-200"
           >
-            {/* Top Bar with Brand & Close Button */}
+            {/* Top Bar with Brand & Clean Round Close Button */}
             <div className="flex items-center justify-between px-4 py-3 bg-white border-b border-slate-100 shrink-0">
               <Link href="/" onClick={onClose} className="flex items-center">
                 <PrayogLogo size="sm" showSubtitle={false} />
@@ -121,115 +127,113 @@ export const MobileMenuDrawer: React.FC<MobileMenuDrawerProps> = ({
               <button
                 type="button"
                 onClick={onClose}
-                className="flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-wider text-slate-900 hover:text-[#2563EB] transition-colors cursor-pointer py-1 px-1.5"
+                className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-900 flex items-center justify-center transition-colors cursor-pointer"
                 aria-label="Close menu"
               >
-                <X className="w-4 h-4 stroke-[2.5]" />
-                <span>Close</span>
+                <X className="w-4 h-4 stroke-[2]" />
               </button>
             </div>
 
             {/* Search Input Bar */}
-            <div className="px-4 py-3 border-b border-slate-100 bg-white shrink-0">
+            <div className="px-4 py-2.5 border-b border-slate-100 bg-white shrink-0">
               <form onSubmit={handleSearch} className="relative">
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search for products"
-                  className="w-full bg-slate-50 focus:bg-white border border-slate-200 focus:border-slate-800 rounded-lg pl-3.5 pr-10 py-2.5 text-xs font-semibold text-slate-900 outline-none transition-all placeholder:text-slate-400 placeholder:font-normal"
+                  placeholder="Search for products, kits, sensors..."
+                  className="w-full bg-slate-50 focus:bg-white border border-slate-200/80 focus:border-[#2563EB] rounded-xl pl-3.5 pr-10 py-2 text-xs font-medium text-slate-900 outline-none transition-all placeholder:text-slate-400"
                 />
                 <button
                   type="submit"
                   aria-label="Search"
-                  className="absolute right-0 top-0 bottom-0 px-3 flex items-center justify-center text-slate-500 hover:text-slate-900 transition-colors cursor-pointer"
+                  className="absolute right-0 top-0 bottom-0 px-3 flex items-center justify-center text-slate-400 hover:text-slate-700 transition-colors cursor-pointer"
                 >
                   <Search className="w-4 h-4" />
                 </button>
               </form>
             </div>
 
-            {/* Segmented Top Tabs: MENU | CATEGORIES */}
-            <div className="grid grid-cols-2 border-b border-slate-200 bg-[#F1F3F5] shrink-0 text-xs sm:text-sm font-extrabold uppercase tracking-wider">
-              <button
-                type="button"
-                onClick={() => setActiveTab("menu")}
-                className={`py-3 text-center transition-all relative cursor-pointer ${
-                  activeTab === "menu"
-                    ? "bg-white text-slate-900 border-b-2 border-[#002B49] font-black"
-                    : "text-slate-500 hover:text-slate-900"
-                }`}
-              >
-                Menu
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveTab("categories")}
-                className={`py-3 text-center transition-all relative cursor-pointer ${
-                  activeTab === "categories"
-                    ? "bg-white text-slate-900 border-b-2 border-[#002B49] font-black"
-                    : "text-slate-500 hover:text-slate-900"
-                }`}
-              >
-                Categories
-              </button>
+            {/* Segmented Top Tabs: Menu | Categories */}
+            <div className="px-4 py-2 border-b border-slate-100 bg-white shrink-0">
+              <div className="grid grid-cols-2 p-1 bg-slate-100 rounded-xl text-xs font-semibold">
+                <button
+                  type="button"
+                  onClick={() => setActiveTab("menu")}
+                  className={`py-1.5 rounded-lg text-center transition-all cursor-pointer ${
+                    activeTab === "menu"
+                      ? "bg-white text-slate-900 shadow-2xs font-bold"
+                      : "text-slate-500 hover:text-slate-800"
+                  }`}
+                >
+                  Menu
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab("categories")}
+                  className={`py-1.5 rounded-lg text-center transition-all cursor-pointer ${
+                    activeTab === "categories"
+                      ? "bg-white text-slate-900 shadow-2xs font-bold"
+                      : "text-slate-500 hover:text-slate-800"
+                  }`}
+                >
+                  Categories
+                </button>
+              </div>
             </div>
 
             {/* Scrollable Navigation Body */}
             <div className="flex-1 overflow-y-auto scrollbar-thin">
               {activeTab === "menu" ? (
                 /* ── MENU TAB CONTENT ── */
-                <div className="divide-y divide-slate-100">
-                  {/* HOME */}
+                <div className="divide-y divide-slate-100 py-1">
+                  {/* Home */}
                   <Link
                     href="/"
                     onClick={onClose}
-                    className="flex items-center justify-between px-4 py-3.5 text-xs font-extrabold uppercase tracking-wider text-slate-900 hover:bg-slate-50 transition-colors"
+                    className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-slate-700 hover:text-[#2563EB] hover:bg-slate-50/80 transition-colors group"
                   >
+                    <Home className="w-4 h-4 text-slate-400 group-hover:text-[#2563EB] transition-colors" />
                     <span>Home</span>
                   </Link>
 
-                  {/* STORE */}
+                  {/* Store */}
                   <Link
                     href="/products"
                     onClick={onClose}
-                    className="flex items-center justify-between px-4 py-3.5 text-xs font-extrabold uppercase tracking-wider text-slate-900 hover:bg-slate-50 transition-colors"
+                    className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-slate-700 hover:text-[#2563EB] hover:bg-slate-50/80 transition-colors group"
                   >
+                    <Store className="w-4 h-4 text-slate-400 group-hover:text-[#2563EB] transition-colors" />
                     <span>Store</span>
                   </Link>
 
-                  {/* AI ROBOTS */}
+                  {/* AI Robots */}
                   <Link
                     href="/categories/robotics"
                     onClick={onClose}
-                    className="flex items-center justify-between px-4 py-3.5 text-xs font-extrabold uppercase tracking-wider text-slate-900 hover:bg-slate-50 transition-colors"
+                    className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-slate-700 hover:text-[#2563EB] hover:bg-slate-50/80 transition-colors group"
                   >
+                    <Bot className="w-4 h-4 text-slate-400 group-hover:text-[#2563EB] transition-colors" />
                     <span>AI Robots</span>
                   </Link>
 
-                  {/* POPULAR SERVICES (with dark navy dropdown box toggle) */}
+                  {/* Popular Services (Clean Accordion, Zero Dark Navy Box) */}
                   <div>
-                    <div className="flex items-stretch justify-between">
-                      <Link
-                        href="/services"
-                        onClick={onClose}
-                        className="flex-1 px-4 py-3.5 text-xs font-extrabold uppercase tracking-wider text-slate-900 hover:bg-slate-50 transition-colors flex items-center"
-                      >
+                    <button
+                      type="button"
+                      onClick={() => toggleAccordion("services")}
+                      className="w-full flex items-center justify-between px-4 py-3 text-sm font-medium text-slate-700 hover:text-[#2563EB] hover:bg-slate-50/80 transition-colors cursor-pointer group"
+                    >
+                      <div className="flex items-center gap-3">
+                        <Sparkles className="w-4 h-4 text-slate-400 group-hover:text-[#2563EB] transition-colors" />
                         <span>Popular Services</span>
-                      </Link>
-                      <button
-                        type="button"
-                        onClick={() => toggleAccordion("services")}
-                        className="w-13 bg-[#002B49] hover:bg-[#001D33] text-white flex items-center justify-center transition-colors cursor-pointer shrink-0"
-                        aria-label="Toggle Popular Services"
-                      >
-                        <ChevronDown
-                          className={`w-4 h-4 transition-transform duration-200 ${
-                            activeAccordion === "services" ? "rotate-180" : ""
-                          }`}
-                        />
-                      </button>
-                    </div>
+                      </div>
+                      <ChevronDown
+                        className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${
+                          activeAccordion === "services" ? "rotate-180 text-[#2563EB]" : ""
+                        }`}
+                      />
+                    </button>
 
                     <AnimatePresence>
                       {activeAccordion === "services" && (
@@ -237,47 +241,47 @@ export const MobileMenuDrawer: React.FC<MobileMenuDrawerProps> = ({
                           initial={{ height: 0, opacity: 0 }}
                           animate={{ height: "auto", opacity: 1 }}
                           exit={{ height: 0, opacity: 0 }}
-                          className="divide-y divide-slate-100 bg-slate-50/70 border-t border-slate-100"
+                          className="divide-y divide-slate-100 bg-slate-50/60 pl-11 pr-4 py-1 border-t border-slate-100"
                         >
                           <Link
                             href="/services/drone-lab-setup"
                             onClick={onClose}
-                            className="block pl-6 pr-4 py-3 text-xs text-slate-600 font-medium hover:text-[#2563EB] transition-colors"
+                            className="block py-2.5 text-xs text-slate-600 font-medium hover:text-[#2563EB] transition-colors"
                           >
                             Drone Repair &amp; Maintenance
                           </Link>
                           <Link
                             href="/services/drone-lab-setup"
                             onClick={onClose}
-                            className="block pl-6 pr-4 py-3 text-xs text-slate-600 font-medium hover:text-[#2563EB] transition-colors"
+                            className="block py-2.5 text-xs text-slate-600 font-medium hover:text-[#2563EB] transition-colors"
                           >
-                            Drone Pilot Training &amp; Certification Program
+                            Drone Pilot Training &amp; Certification
                           </Link>
                           <Link
                             href="/services/consultancy"
                             onClick={onClose}
-                            className="block pl-6 pr-4 py-3 text-xs text-slate-600 font-medium hover:text-[#2563EB] transition-colors"
+                            className="block py-2.5 text-xs text-slate-600 font-medium hover:text-[#2563EB] transition-colors"
                           >
-                            Drone Insurance
+                            Drone Insurance &amp; Compliance
                           </Link>
                           <Link
                             href="/services/stem-lab-setup"
                             onClick={onClose}
-                            className="block pl-6 pr-4 py-3 text-xs text-slate-600 font-medium hover:text-[#2563EB] transition-colors"
+                            className="block py-2.5 text-xs text-slate-600 font-medium hover:text-[#2563EB] transition-colors"
                           >
                             STEM &amp; Atal Tinkering Labs
                           </Link>
                           <Link
                             href="/services/robotics-lab-setup"
                             onClick={onClose}
-                            className="block pl-6 pr-4 py-3 text-xs text-slate-600 font-medium hover:text-[#2563EB] transition-colors"
+                            className="block py-2.5 text-xs text-slate-600 font-medium hover:text-[#2563EB] transition-colors"
                           >
                             Robotics &amp; AI Lab Setup
                           </Link>
                           <Link
                             href="/services/industrial-projects"
                             onClick={onClose}
-                            className="block pl-6 pr-4 py-3 text-xs text-slate-600 font-medium hover:text-[#2563EB] transition-colors"
+                            className="block py-2.5 text-xs text-slate-600 font-medium hover:text-[#2563EB] transition-colors"
                           >
                             Industrial Projects &amp; R&amp;D
                           </Link>
@@ -286,76 +290,88 @@ export const MobileMenuDrawer: React.FC<MobileMenuDrawerProps> = ({
                     </AnimatePresence>
                   </div>
 
-                  {/* DRONE SERVICES */}
+                  {/* Drone Services */}
                   <Link
                     href="/services/drone-lab-setup"
                     onClick={onClose}
-                    className="flex items-center justify-between px-4 py-3.5 text-xs font-extrabold uppercase tracking-wider text-slate-900 hover:bg-slate-50 transition-colors"
+                    className="flex items-center justify-between px-4 py-3 text-sm font-medium text-slate-700 hover:text-[#2563EB] hover:bg-slate-50/80 transition-colors group"
                   >
-                    <span>Drone Services</span>
-                    <ChevronRight className="w-4 h-4 text-slate-400" />
+                    <div className="flex items-center gap-3">
+                      <Plane className="w-4 h-4 text-slate-400 group-hover:text-[#2563EB] transition-colors" />
+                      <span>Drone Services</span>
+                    </div>
+                    <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-slate-500" />
                   </Link>
 
-                  {/* LEARNING HUB */}
+                  {/* Learning Hub */}
                   <Link
                     href="/learning"
                     onClick={onClose}
-                    className="flex items-center justify-between px-4 py-3.5 text-xs font-extrabold uppercase tracking-wider text-slate-900 hover:bg-slate-50 transition-colors"
+                    className="flex items-center justify-between px-4 py-3 text-sm font-medium text-slate-700 hover:text-[#2563EB] hover:bg-slate-50/80 transition-colors group"
                   >
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-3">
+                      <BookOpen className="w-4 h-4 text-slate-400 group-hover:text-[#2563EB] transition-colors" />
                       <span>Learning Hub</span>
-                      <span className="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-1.5 py-0.2 rounded">
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-[10px] bg-emerald-50 text-emerald-700 border border-emerald-200/80 font-bold px-1.5 py-0.5 rounded-md">
                         Free
                       </span>
+                      <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-slate-500" />
                     </div>
-                    <ChevronRight className="w-4 h-4 text-slate-400" />
                   </Link>
 
-                  {/* CONTACT */}
+                  {/* Contact */}
                   <Link
                     href="/contact"
                     onClick={onClose}
-                    className="flex items-center justify-between px-4 py-3.5 text-xs font-extrabold uppercase tracking-wider text-slate-900 hover:bg-slate-50 transition-colors"
+                    className="flex items-center justify-between px-4 py-3 text-sm font-medium text-slate-700 hover:text-[#2563EB] hover:bg-slate-50/80 transition-colors group"
                   >
-                    <span>Contact</span>
-                    <ChevronRight className="w-4 h-4 text-slate-400" />
+                    <div className="flex items-center gap-3">
+                      <PhoneCall className="w-4 h-4 text-slate-400 group-hover:text-[#2563EB] transition-colors" />
+                      <span>Contact</span>
+                    </div>
+                    <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-slate-500" />
                   </Link>
 
-                  {/* ABOUT */}
+                  {/* About */}
                   <Link
                     href="/about"
                     onClick={onClose}
-                    className="flex items-center justify-between px-4 py-3.5 text-xs font-extrabold uppercase tracking-wider text-slate-900 hover:bg-slate-50 transition-colors"
+                    className="flex items-center justify-between px-4 py-3 text-sm font-medium text-slate-700 hover:text-[#2563EB] hover:bg-slate-50/80 transition-colors group"
                   >
-                    <span>About</span>
-                    <ChevronRight className="w-4 h-4 text-slate-400" />
+                    <div className="flex items-center gap-3">
+                      <Info className="w-4 h-4 text-slate-400 group-hover:text-[#2563EB] transition-colors" />
+                      <span>About Us</span>
+                    </div>
+                    <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-slate-500" />
                   </Link>
 
-                  {/* MY ACCOUNT / LOGIN OPTION */}
+                  {/* My Account (Clean Profile Accordion, No Navy Box) */}
                   {isLoggedIn && user ? (
                     <div>
-                      <div className="flex items-stretch justify-between">
-                        <Link
-                          href="/account"
-                          onClick={onClose}
-                          className="flex-1 px-4 py-3.5 text-xs font-extrabold uppercase tracking-wider text-[#2563EB] hover:bg-slate-50 transition-colors flex items-center gap-2"
-                        >
-                          <User className="w-3.5 h-3.5 text-[#2563EB]" />
-                          <span>My Account ({user.name || "Customer"})</span>
-                        </Link>
-                        <button
-                          type="button"
-                          onClick={() => toggleAccordion("account")}
-                          className="w-13 bg-[#002B49] hover:bg-[#001D33] text-white flex items-center justify-center transition-colors cursor-pointer shrink-0"
-                          aria-label="Toggle Account Links"
-                        >
-                          <ChevronDown
-                            className={`w-4 h-4 transition-transform duration-200 ${
-                              activeAccordion === "account" ? "rotate-180" : ""
-                            }`}
-                          />
-                        </button>
-                      </div>
+                      <button
+                        type="button"
+                        onClick={() => toggleAccordion("account")}
+                        className="w-full flex items-center justify-between px-4 py-3 text-sm font-medium text-[#2563EB] hover:bg-blue-50/40 transition-colors cursor-pointer"
+                      >
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className="w-7 h-7 rounded-full bg-blue-100 text-[#2563EB] flex items-center justify-center font-bold text-xs shrink-0">
+                            {user.name ? user.name.charAt(0).toUpperCase() : "U"}
+                          </div>
+                          <div className="text-left min-w-0">
+                            <p className="text-xs font-bold text-slate-900 truncate">
+                              {user.name || "My Account"}
+                            </p>
+                            <p className="text-[10px] text-slate-400">View account</p>
+                          </div>
+                        </div>
+                        <ChevronDown
+                          className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${
+                            activeAccordion === "account" ? "rotate-180 text-[#2563EB]" : ""
+                          }`}
+                        />
+                      </button>
 
                       <AnimatePresence>
                         {activeAccordion === "account" && (
@@ -363,12 +379,12 @@ export const MobileMenuDrawer: React.FC<MobileMenuDrawerProps> = ({
                             initial={{ height: 0, opacity: 0 }}
                             animate={{ height: "auto", opacity: 1 }}
                             exit={{ height: 0, opacity: 0 }}
-                            className="divide-y divide-slate-100 bg-slate-50/70 border-t border-slate-100"
+                            className="divide-y divide-slate-100 bg-slate-50/60 pl-11 pr-4 py-1 border-t border-slate-100"
                           >
                             <Link
                               href="/account/orders"
                               onClick={onClose}
-                              className="flex items-center justify-between pl-6 pr-4 py-2.5 text-xs text-slate-700 font-semibold hover:text-[#2563EB]"
+                              className="flex items-center justify-between py-2.5 text-xs text-slate-700 font-medium hover:text-[#2563EB]"
                             >
                               <span>My Orders</span>
                               <ChevronRight className="w-3.5 h-3.5 text-slate-300" />
@@ -376,7 +392,7 @@ export const MobileMenuDrawer: React.FC<MobileMenuDrawerProps> = ({
                             <Link
                               href="/wishlist"
                               onClick={onClose}
-                              className="flex items-center justify-between pl-6 pr-4 py-2.5 text-xs text-slate-700 font-semibold hover:text-[#2563EB]"
+                              className="flex items-center justify-between py-2.5 text-xs text-slate-700 font-medium hover:text-[#2563EB]"
                             >
                               <span>Wishlist ({wishlistCount})</span>
                               <ChevronRight className="w-3.5 h-3.5 text-slate-300" />
@@ -384,7 +400,7 @@ export const MobileMenuDrawer: React.FC<MobileMenuDrawerProps> = ({
                             <Link
                               href="/account/addresses"
                               onClick={onClose}
-                              className="flex items-center justify-between pl-6 pr-4 py-2.5 text-xs text-slate-700 font-semibold hover:text-[#2563EB]"
+                              className="flex items-center justify-between py-2.5 text-xs text-slate-700 font-medium hover:text-[#2563EB]"
                             >
                               <span>Saved Addresses</span>
                               <ChevronRight className="w-3.5 h-3.5 text-slate-300" />
@@ -395,7 +411,7 @@ export const MobileMenuDrawer: React.FC<MobileMenuDrawerProps> = ({
                                 onLogout?.();
                                 onClose();
                               }}
-                              className="w-full text-left pl-6 pr-4 py-2.5 text-xs text-red-600 font-bold hover:bg-red-50 flex items-center gap-1.5 cursor-pointer"
+                              className="w-full text-left py-2.5 text-xs text-rose-600 font-semibold hover:text-rose-700 flex items-center gap-1.5 cursor-pointer"
                             >
                               <LogOut className="w-3.5 h-3.5" />
                               <span>Sign Out</span>
@@ -408,30 +424,30 @@ export const MobileMenuDrawer: React.FC<MobileMenuDrawerProps> = ({
                     <Link
                       href="/login"
                       onClick={onClose}
-                      className="flex items-center justify-between px-4 py-3.5 text-xs font-extrabold uppercase tracking-wider text-[#2563EB] hover:bg-slate-50 transition-colors"
+                      className="flex items-center justify-between px-4 py-3 text-sm font-semibold text-[#2563EB] hover:bg-blue-50/50 transition-colors"
                     >
-                      <div className="flex items-center gap-2">
-                        <LogIn className="w-4 h-4 text-[#2563EB]" />
+                      <div className="flex items-center gap-3">
+                        <User className="w-4 h-4 text-[#2563EB]" />
                         <span>Sign In / Register</span>
                       </div>
-                      <ChevronRight className="w-4 h-4 text-slate-400" />
+                      <ChevronRight className="w-4 h-4 text-[#2563EB]/60" />
                     </Link>
                   )}
                 </div>
               ) : (
-                /* ── CATEGORIES TAB CONTENT ── */
-                <div className="divide-y divide-slate-100">
+                /* ── CATEGORIES TAB CONTENT (Clean Accordions, No Navy Boxes) ── */
+                <div className="divide-y divide-slate-100 py-1">
                   {CATEGORIES_DATA.map((cat) => {
                     const hasSubs = cat.subcategories && cat.subcategories.length > 0;
                     const isOpen = activeAccordion === cat.id;
 
                     return (
                       <div key={cat.id}>
-                        <div className="flex items-stretch justify-between">
+                        <div className="flex items-center justify-between hover:bg-slate-50/80 transition-colors">
                           <Link
                             href={`/categories/${cat.slug}`}
                             onClick={onClose}
-                            className="flex-1 px-4 py-3.5 text-xs font-extrabold uppercase tracking-wider text-slate-900 hover:bg-slate-50 transition-colors flex items-center"
+                            className="flex-1 px-4 py-3 text-xs sm:text-sm font-medium text-slate-800 hover:text-[#2563EB] transition-colors"
                           >
                             <span>{cat.name}</span>
                           </Link>
@@ -440,17 +456,17 @@ export const MobileMenuDrawer: React.FC<MobileMenuDrawerProps> = ({
                             <button
                               type="button"
                               onClick={() => toggleAccordion(cat.id)}
-                              className="w-13 bg-[#002B49] hover:bg-[#001D33] text-white flex items-center justify-center transition-colors cursor-pointer shrink-0"
+                              className="p-3 text-slate-400 hover:text-[#2563EB] transition-colors cursor-pointer"
                               aria-label={`Toggle ${cat.name}`}
                             >
                               <ChevronDown
                                 className={`w-4 h-4 transition-transform duration-200 ${
-                                  isOpen ? "rotate-180" : ""
+                                  isOpen ? "rotate-180 text-[#2563EB]" : ""
                                 }`}
                               />
                             </button>
                           ) : (
-                            <div className="px-4 flex items-center justify-center text-slate-400">
+                            <div className="px-4 text-slate-300">
                               <ChevronRight className="w-4 h-4" />
                             </div>
                           )}
@@ -463,14 +479,14 @@ export const MobileMenuDrawer: React.FC<MobileMenuDrawerProps> = ({
                                 initial={{ height: 0, opacity: 0 }}
                                 animate={{ height: "auto", opacity: 1 }}
                                 exit={{ height: 0, opacity: 0 }}
-                                className="divide-y divide-slate-100 bg-slate-50/70 border-t border-slate-100"
+                                className="divide-y divide-slate-100 bg-slate-50/60 pl-8 pr-4 py-1 border-t border-slate-100"
                               >
                                 {cat.subcategories.map((sub) => (
                                   <Link
                                     key={sub.id}
                                     href={`/categories/${cat.slug}/${sub.slug}`}
                                     onClick={onClose}
-                                    className="block pl-6 pr-4 py-3 text-xs text-slate-600 font-medium hover:text-[#2563EB] transition-colors"
+                                    className="block py-2.5 text-xs text-slate-600 font-medium hover:text-[#2563EB] transition-colors"
                                   >
                                     {sub.name}
                                   </Link>
@@ -478,7 +494,7 @@ export const MobileMenuDrawer: React.FC<MobileMenuDrawerProps> = ({
                                 <Link
                                   href={`/categories/${cat.slug}`}
                                   onClick={onClose}
-                                  className="block pl-6 pr-4 py-2.5 text-xs text-[#2563EB] font-bold hover:underline"
+                                  className="block py-2 text-xs text-[#2563EB] font-semibold hover:underline"
                                 >
                                   View All {cat.name} &rarr;
                                 </Link>
@@ -493,7 +509,7 @@ export const MobileMenuDrawer: React.FC<MobileMenuDrawerProps> = ({
                   <Link
                     href="/categories"
                     onClick={onClose}
-                    className="flex items-center justify-between px-4 py-3.5 text-xs font-black uppercase tracking-wider text-[#2563EB] hover:bg-slate-50 transition-colors"
+                    className="flex items-center justify-between px-4 py-3 text-xs font-bold text-[#2563EB] hover:bg-slate-50 transition-colors"
                   >
                     <span>Browse All Categories</span>
                     <ChevronRight className="w-4 h-4" />
@@ -503,16 +519,16 @@ export const MobileMenuDrawer: React.FC<MobileMenuDrawerProps> = ({
             </div>
 
             {/* Quick Actions Bar (Cart, Wishlist, B2B RFQ) */}
-            <div className="grid grid-cols-3 gap-2 px-3 py-2.5 border-t border-slate-200 bg-slate-50/80 shrink-0">
+            <div className="grid grid-cols-3 gap-2 px-3.5 py-2.5 border-t border-slate-100 bg-slate-50/60 shrink-0">
               <button
                 type="button"
                 onClick={() => {
                   onClose();
                   onOpenCart?.();
                 }}
-                className="flex items-center justify-center gap-1.5 py-2 px-2 rounded-xl bg-white border border-slate-200 text-slate-700 hover:text-[#2563EB] text-xs font-bold transition-all shadow-2xs active:scale-95 cursor-pointer"
+                className="flex items-center justify-center gap-1.5 py-2 px-2 rounded-xl bg-white border border-slate-200/80 hover:border-slate-300 text-slate-700 hover:text-[#2563EB] text-xs font-semibold transition-all shadow-2xs active:scale-95 cursor-pointer"
               >
-                <ShoppingBag className="w-4 h-4" />
+                <ShoppingBag className="w-3.5 h-3.5 text-slate-500" />
                 <span>Cart ({cartCount})</span>
               </button>
 
@@ -522,9 +538,9 @@ export const MobileMenuDrawer: React.FC<MobileMenuDrawerProps> = ({
                   onClose();
                   onOpenWishlist?.();
                 }}
-                className="flex items-center justify-center gap-1.5 py-2 px-2 rounded-xl bg-white border border-slate-200 text-slate-700 hover:text-rose-600 text-xs font-bold transition-all shadow-2xs active:scale-95 cursor-pointer"
+                className="flex items-center justify-center gap-1.5 py-2 px-2 rounded-xl bg-white border border-slate-200/80 hover:border-slate-300 text-slate-700 hover:text-rose-600 text-xs font-semibold transition-all shadow-2xs active:scale-95 cursor-pointer"
               >
-                <Heart className="w-4 h-4" />
+                <Heart className="w-3.5 h-3.5 text-rose-500" />
                 <span>Wishlist</span>
               </button>
 
@@ -534,21 +550,21 @@ export const MobileMenuDrawer: React.FC<MobileMenuDrawerProps> = ({
                   onClose();
                   onOpenB2BModal?.();
                 }}
-                className="flex items-center justify-center gap-1.5 py-2 px-2 rounded-xl bg-white border border-slate-200 text-slate-700 hover:text-amber-700 text-xs font-bold transition-all shadow-2xs active:scale-95 cursor-pointer"
+                className="flex items-center justify-center gap-1.5 py-2 px-2 rounded-xl bg-white border border-slate-200/80 hover:border-slate-300 text-slate-700 hover:text-[#2563EB] text-xs font-semibold transition-all shadow-2xs active:scale-95 cursor-pointer"
               >
-                <Building2 className="w-4 h-4" />
+                <Building2 className="w-3.5 h-3.5 text-slate-500" />
                 <span>B2B</span>
               </button>
             </div>
 
-            {/* Footer / Helpline & Support Contact */}
-            <div className="px-4 py-3 border-t border-slate-200 bg-white shrink-0 flex items-center justify-between text-xs text-slate-600">
-              <span className="font-semibold text-slate-500">Helpline:</span>
+            {/* Footer / Helpline */}
+            <div className="px-4 py-2.5 border-t border-slate-100 bg-white shrink-0 flex items-center justify-between text-xs text-slate-600">
+              <span className="font-medium text-slate-400">Helpline:</span>
               <a
                 href="tel:+918709789641"
-                className="font-bold text-[#002B49] flex items-center gap-1 hover:underline"
+                className="font-bold text-[#2563EB] flex items-center gap-1.5 hover:underline"
               >
-                <PhoneCall className="w-3.5 h-3.5 text-[#2563EB]" />
+                <PhoneCall className="w-3.5 h-3.5" />
                 <span>+91 87097 89641</span>
               </a>
             </div>
