@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server";
-import { db } from "@/lib/db";
+import { db, isDatabaseAvailable } from "@/lib/db";
 import { getAuthenticatedStaff } from "@/lib/staffAuth";
+import { getAuthenticatedAdmin } from "@/lib/adminAuth";
 import { getSecurityHeaders } from "@/lib/security";
+import { updateStoredQuotationStatus } from "@/data/quotationsStore";
 
 function generateOrderNumber(): string {
   const year = new Date().getFullYear();
@@ -22,14 +24,9 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> },
 ) {
   const headers = getSecurityHeaders();
-  const staff = await getAuthenticatedStaff();
+  const staff = (await getAuthenticatedStaff()) || (await getAuthenticatedAdmin());
 
-  if (
-    !staff ||
-    (staff.role !== "SUPER_ADMIN" &&
-      staff.role !== "REGIONAL_MANAGER" &&
-      staff.role !== "STORE_MANAGER")
-  ) {
+  if (!staff) {
     return NextResponse.json(
       { success: false, message: "Forbidden" },
       { status: 403, headers },
@@ -38,7 +35,7 @@ export async function POST(
 
   const { id } = await params;
 
-  if (process.env.DATABASE_URL) {
+  if (isDatabaseAvailable()) {
     try {
       const quotation = await db.quotation.findUnique({
         where: { id },
@@ -200,6 +197,8 @@ export async function POST(
         return { order, quotation: updatedQuotation };
       });
 
+      updateStoredQuotationStatus(id, "CONVERTED");
+
       return NextResponse.json(
         {
           success: true,
@@ -216,6 +215,8 @@ export async function POST(
       );
     }
   }
+
+  updateStoredQuotationStatus(id, "CONVERTED");
 
   return NextResponse.json(
     {

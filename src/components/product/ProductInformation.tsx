@@ -15,6 +15,7 @@ import {
   Package,
   MessageSquare,
   Share2,
+  Check,
 } from "lucide-react";
 import { Product, ProductVariant } from "@/data/mockData";
 import { AddToCartIcon } from "@/components/icons/AddToCartIcon";
@@ -40,6 +41,8 @@ interface ProductInfoProps {
   onBuyNow?: (product: Product, quantity?: number) => void;
   onToggleWishlist: (product: Product) => void;
   isWishlisted: boolean;
+  quantity?: number;
+  onQuantityChange?: (qty: number) => void;
 }
 
 export const ProductInformation: React.FC<ProductInfoProps> = ({
@@ -50,8 +53,36 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
   onBuyNow,
   onToggleWishlist,
   isWishlisted,
+  quantity,
+  onQuantityChange,
 }) => {
-  const [quantity, setQuantity] = React.useState(1);
+  const [internalQuantity, setInternalQuantity] = React.useState(1);
+  const currentQuantity = quantity ?? internalQuantity;
+  const updateQuantity = (newQty: number) => {
+    if (onQuantityChange) {
+      onQuantityChange(newQty);
+    } else {
+      setInternalQuantity(newQty);
+    }
+  };
+  const [copied, setCopied] = React.useState(false);
+
+  const handleShare = () => {
+    if (typeof navigator !== "undefined" && navigator.share) {
+      navigator
+        .share({
+          title: product.name,
+          text: product.description,
+          url: window.location.href,
+        })
+        .catch(() => {});
+    } else if (typeof navigator !== "undefined" && navigator.clipboard) {
+      navigator.clipboard.writeText(window.location.href);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
   const currentPrice = selectedVariant ? selectedVariant.price : product.price;
   const currentMrp = selectedVariant ? selectedVariant.mrp : product.mrp;
   const currentSku = selectedVariant ? selectedVariant.sku : product.sku;
@@ -127,65 +158,60 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
 
   return (
     <div className="space-y-4 text-slate-900">
-      {/* ── Brand, SKU & Share (Clean Inline Text, No Boxes) ── */}
-      <div className="flex items-center justify-between gap-2 text-xs">
-        <div className="flex items-center gap-2.5">
-          <span className="font-extrabold uppercase tracking-wider text-[#2563EB]">
+      {/* ── Brand, SKU & Actions (Clean, Never Wraps Mid-Word) ── */}
+      <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 text-xs border-b border-slate-100 pb-2">
+        {/* Left: Brand & SKU */}
+        <div className="flex items-center gap-2 min-w-0">
+          <span className="font-black uppercase tracking-wider text-[#2563EB] whitespace-nowrap text-[11px] sm:text-xs bg-blue-50 px-2 py-0.5 rounded-md border border-blue-100/80">
             {product.brand || "Prayog India"}
           </span>
           <span className="text-slate-300">•</span>
-          <span className="font-mono text-slate-400 font-medium">
-            SKU: {currentSku}
+          <span className="font-mono text-slate-500 font-semibold text-[11px] whitespace-nowrap bg-slate-50 px-2 py-0.5 rounded-md border border-slate-200/80">
+            SKU: <span className="text-slate-800">{currentSku}</span>
           </span>
         </div>
 
-        {/* Wishlist & Share Buttons (Clean Inline Controls) */}
-        <div className="flex items-center gap-3">
+        {/* Right: Wishlist & Share Buttons */}
+        <div className="flex items-center gap-2 shrink-0">
           <button
             type="button"
             onClick={() => onToggleWishlist(product)}
-            className={`flex items-center gap-1.5 text-xs font-semibold transition-colors cursor-pointer ${
+            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer border ${
               isWishlisted
-                ? "text-red-600 font-bold"
-                : "text-slate-400 hover:text-red-600"
+                ? "bg-red-50 text-red-600 border-red-200"
+                : "bg-white text-slate-600 border-slate-200 hover:border-slate-300 hover:text-red-600"
             }`}
             title={isWishlisted ? "In Wishlist" : "Add to Wishlist"}
           >
             <Heart
-              className={`w-3.5 h-3.5 ${
+              className={`w-3.5 h-3.5 shrink-0 ${
                 isWishlisted ? "fill-red-500 text-red-500" : ""
               }`}
             />
-            <span>{isWishlisted ? "Wishlisted" : "Wishlist"}</span>
+            <span className="whitespace-nowrap">{isWishlisted ? "Saved" : "Wishlist"}</span>
           </button>
 
-          <span className="text-slate-200">•</span>
-
-          {/* Share Button (Clean Text Button) */}
           <button
             type="button"
-            onClick={() => {
-              if (typeof navigator !== "undefined" && navigator.share) {
-                navigator
-                  .share({
-                    title: product.name,
-                    text: product.description,
-                    url: window.location.href,
-                  })
-                  .catch(() => {});
-              } else if (
-                typeof navigator !== "undefined" &&
-                navigator.clipboard
-              ) {
-                navigator.clipboard.writeText(window.location.href);
-                alert("Product link copied to clipboard!");
-              }
-            }}
-            className="flex items-center gap-1.5 text-xs font-semibold text-slate-400 hover:text-slate-800 transition-colors cursor-pointer"
+            onClick={handleShare}
+            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold border transition-all cursor-pointer ${
+              copied
+                ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                : "bg-white text-slate-600 border-slate-200 hover:border-slate-300 hover:text-[#2563EB]"
+            }`}
             title="Share Product"
           >
-            <Share2 className="w-3.5 h-3.5" />
-            <span>Share</span>
+            {copied ? (
+              <>
+                <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0 stroke-[2.5]" />
+                <span className="whitespace-nowrap">Copied!</span>
+              </>
+            ) : (
+              <>
+                <Share2 className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                <span className="whitespace-nowrap">Share</span>
+              </>
+            )}
           </button>
         </div>
       </div>
@@ -323,6 +349,35 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
         </div>
       )}
 
+      {/* ── Quantity Selector (Desktop & Mobile) ── */}
+      {currentStock && (
+        <div className="flex items-center gap-3 pt-1">
+          <span className="text-xs font-bold text-slate-700">Quantity:</span>
+          <div className="flex items-center border border-slate-200 rounded-lg h-8.5 bg-white shadow-2xs overflow-hidden">
+            <button
+              type="button"
+              onClick={() => updateQuantity(Math.max(1, currentQuantity - 1))}
+              disabled={currentQuantity <= 1}
+              className="w-8 h-full flex items-center justify-center text-slate-500 hover:bg-slate-50 disabled:opacity-30 font-bold text-sm cursor-pointer transition-colors"
+              aria-label="Decrease quantity"
+            >
+              -
+            </button>
+            <span className="w-8 text-center text-xs font-extrabold text-slate-900 select-none">
+              {currentQuantity}
+            </span>
+            <button
+              type="button"
+              onClick={() => updateQuantity(Math.min(50, currentQuantity + 1))}
+              disabled={currentQuantity >= 50}
+              className="w-8 h-full flex items-center justify-center text-slate-500 hover:bg-slate-50 disabled:opacity-30 font-bold text-sm cursor-pointer transition-colors"
+              aria-label="Increase quantity"
+            >
+              +
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* ── Delivery Pincode Checker (Clean Inline Layout, No Big Nested Boxes) ── */}
       <div className="pt-2">

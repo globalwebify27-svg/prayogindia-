@@ -293,6 +293,8 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
             onBuyNow={handleBuyNow}
             onToggleWishlist={handleToggleWishlist}
             isWishlisted={isProductWishlisted}
+            quantity={stickyQuantity}
+            onQuantityChange={setStickyQuantity}
           />
         </div>
       </div>
@@ -310,11 +312,11 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
       {/* ── Sticky Bottom Action Bar with Price, Add to Cart & Buy Now ── */}
       <aside
         aria-label="Sticky purchase action bar"
-        className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-xl border-t border-slate-200/90 shadow-[0_-8px_30px_rgba(15,23,42,0.12)] px-4 sm:px-6 lg:px-8 xl:px-12 py-2.5 pb-[max(0.75rem,env(safe-area-inset-bottom))]"
+        className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-xl border-t border-slate-200/90 shadow-[0_-8px_30px_rgba(15,23,42,0.12)] px-2.5 sm:px-6 lg:px-8 xl:px-12 py-2 sm:py-2.5 pb-[max(0.6rem,env(safe-area-inset-bottom))]"
       >
-        <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-2 sm:gap-4">
           {/* Left: Product Thumbnail, Title & Live Price */}
-          <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+          <div className="flex items-center gap-2 sm:gap-4 shrink-0 min-w-0">
             {/* Thumbnail (Tablet & Desktop) */}
             <div className="hidden sm:flex relative w-12 h-12 rounded-xl bg-slate-50 border border-slate-200 overflow-hidden shrink-0 items-center justify-center p-1">
               <img
@@ -325,7 +327,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
             </div>
 
             {/* Title & Price Breakdown */}
-            <div className="flex flex-col min-w-0">
+            <div className="flex flex-col shrink-0 min-w-0">
               <div className="hidden md:flex items-center gap-2">
                 <span className="text-xs font-extrabold text-slate-900 truncate max-w-xs xl:max-w-md">
                   {product.name}
@@ -338,33 +340,37 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
               </div>
 
               {/* Price Row */}
-              <div className="flex items-baseline gap-2">
-                <span className="text-lg sm:text-2xl font-black text-slate-900 tracking-tight">
-                  ₹{currentPrice.toLocaleString("en-IN")}
-                </span>
-                {currentMrp > currentPrice && (
-                  <>
-                    <span className="text-xs sm:text-sm font-semibold text-slate-400 line-through">
+              <div className="flex flex-col sm:flex-row sm:items-baseline sm:gap-2 leading-tight">
+                <div className="flex items-baseline gap-1 sm:gap-2">
+                  <span className="text-base sm:text-2xl font-black text-slate-900 tracking-tight whitespace-nowrap">
+                    ₹{currentPrice.toLocaleString("en-IN")}
+                  </span>
+                  {currentMrp > currentPrice && (
+                    <span className="text-[11px] sm:text-sm font-semibold text-slate-400 line-through whitespace-nowrap">
                       ₹{currentMrp.toLocaleString("en-IN")}
                     </span>
-                    <span className="text-[11px] font-black text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200 hidden sm:inline-block">
+                  )}
+                </div>
+                <div className="flex items-center gap-1">
+                  <span className="text-[9px] sm:text-[10px] font-bold text-slate-400 whitespace-nowrap">
+                    (Incl. GST)
+                  </span>
+                  {currentMrp > currentPrice && (
+                    <span className="text-[10px] font-black text-emerald-600 bg-emerald-50 px-1 py-0.5 rounded border border-emerald-200 hidden sm:inline-block">
                       {Math.round(((currentMrp - currentPrice) / currentMrp) * 100)}% OFF
                     </span>
-                  </>
-                )}
-                <span className="text-[10px] font-bold text-slate-400 hidden lg:inline">
-                  (Incl. GST)
-                </span>
+                  )}
+                </div>
               </div>
             </div>
           </div>
 
           {/* Right: Quantity Selector, Add to Cart and Buy Now Action Buttons */}
-          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+          <div className="flex items-center gap-1.5 sm:gap-3 flex-1 sm:flex-initial justify-end min-w-0">
             {isInStock ? (
               <>
-                {/* Quantity Selector: [ - 1 + ] */}
-                <div className="flex items-center border border-slate-200 rounded-xl h-10 sm:h-11 bg-white shrink-0 overflow-hidden shadow-2xs">
+                {/* Quantity Selector: [ - 1 + ] (Tablet & Desktop) */}
+                <div className="hidden sm:flex items-center border border-slate-200 rounded-xl h-10 sm:h-11 bg-white shrink-0 overflow-hidden shadow-2xs">
                   <button
                     type="button"
                     onClick={() => setStickyQuantity((q) => Math.max(1, q - 1))}
@@ -392,7 +398,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
                 <button
                   type="button"
                   onClick={handleStickyAddToCart}
-                  className={`h-10 sm:h-11 px-3.5 sm:px-6 rounded-xl font-black text-xs sm:text-sm uppercase tracking-wider flex items-center justify-center gap-1.5 sm:gap-2 active:scale-95 transition-all cursor-pointer whitespace-nowrap shadow-xs ${
+                  className={`h-10 sm:h-11 px-2.5 sm:px-6 rounded-xl font-black text-xs sm:text-sm uppercase tracking-normal sm:tracking-wider flex items-center justify-center gap-1 sm:gap-2 active:scale-95 transition-all cursor-pointer whitespace-nowrap shadow-xs flex-1 sm:flex-initial min-w-0 ${
                     stickyAdded
                       ? "bg-emerald-600 text-white shadow-emerald-600/20"
                       : "bg-[#FFC20E] hover:bg-[#E5AC0D] text-slate-950 shadow-amber-500/20"
@@ -400,13 +406,13 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
                 >
                   {stickyAdded ? (
                     <>
-                      <Check className="w-4 h-4 stroke-[2.5] shrink-0" />
+                      <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[2.5] shrink-0" />
                       <span>ADDED!</span>
                     </>
                   ) : (
                     <>
-                      <AddToCartIcon className="w-4 h-4 shrink-0" />
-                      <span>ADD TO CART</span>
+                      <AddToCartIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
+                      <span className="truncate">ADD TO CART</span>
                     </>
                   )}
                 </button>
@@ -415,16 +421,16 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
                 <button
                   type="button"
                   onClick={() => handleBuyNow(product, stickyQuantity)}
-                  className="h-10 sm:h-11 px-4 sm:px-7 rounded-xl bg-[#2563EB] hover:bg-[#1D4ED8] active:bg-[#1E40AF] text-white font-black text-xs sm:text-sm uppercase tracking-wider flex items-center justify-center gap-1.5 shadow-md shadow-blue-500/20 active:scale-95 transition-all cursor-pointer whitespace-nowrap"
+                  className="h-10 sm:h-11 px-2.5 sm:px-7 rounded-xl bg-[#2563EB] hover:bg-[#1D4ED8] active:bg-[#1E40AF] text-white font-black text-xs sm:text-sm uppercase tracking-normal sm:tracking-wider flex items-center justify-center gap-1 sm:gap-1.5 shadow-md shadow-blue-500/20 active:scale-95 transition-all cursor-pointer whitespace-nowrap flex-1 sm:flex-initial min-w-0"
                 >
-                  <span>BUY NOW</span>
+                  <span className="truncate">BUY NOW</span>
                 </button>
 
-                {/* Wishlist Button */}
+                {/* Wishlist Button (Tablet & Desktop) */}
                 <button
                   type="button"
                   onClick={() => handleToggleWishlist(product)}
-                  className={`h-10 sm:h-11 w-10 sm:w-11 rounded-xl border flex items-center justify-center shrink-0 transition-all cursor-pointer ${
+                  className={`hidden sm:flex h-10 sm:h-11 w-10 sm:w-11 rounded-xl border items-center justify-center shrink-0 transition-all cursor-pointer ${
                     isProductWishlisted
                       ? "bg-red-50 border-red-200 text-red-500"
                       : "bg-white border-slate-200 hover:border-slate-300 text-slate-400 hover:text-red-500"
@@ -446,7 +452,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
                 )}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="h-10 sm:h-11 px-4 sm:px-6 bg-[#25D366] hover:bg-[#20bd5a] text-white rounded-xl font-black text-xs sm:text-sm uppercase tracking-wider transition-all shadow-md shadow-[#25D366]/25 flex items-center justify-center gap-2 active:scale-95 cursor-pointer whitespace-nowrap"
+                className="h-10 sm:h-11 px-3 sm:px-6 bg-[#25D366] hover:bg-[#20bd5a] text-white rounded-xl font-black text-xs sm:text-sm uppercase tracking-wider transition-all shadow-md shadow-[#25D366]/25 flex items-center justify-center gap-1.5 sm:gap-2 active:scale-95 cursor-pointer whitespace-nowrap flex-1 sm:flex-initial min-w-0"
               >
                 <WhatsAppIcon className="w-4 h-4 fill-white shrink-0" />
                 <span>Out of Stock — Inquire</span>

@@ -4,6 +4,10 @@ import { db, isDatabaseAvailable } from "@/lib/db";
 import { AuthSessionUser } from "@/lib/authUtils";
 import { getSecurityHeaders } from "@/lib/security";
 import { verifySessionToken } from "@/lib/jwt";
+import {
+  saveStoredQuotation,
+  StoredQuotation,
+} from "@/data/quotationsStore";
 
 async function getCustomerSession(): Promise<AuthSessionUser | null> {
   const cookieStore = await cookies();
@@ -260,6 +264,8 @@ export async function POST(request: Request) {
         console.warn("B2B CRM Auto-Sync Notice:", crmErr);
       }
 
+      saveStoredQuotation(quotation as any);
+
       return NextResponse.json(
         {
           success: true,
@@ -270,24 +276,84 @@ export async function POST(request: Request) {
         { status: 201, headers },
       );
     } catch (dbErr: any) {
-      console.warn("Database quotation creation failed, falling back to mock mode:", dbErr?.message);
+      console.warn("Database quotation creation failed, falling back to stored mode:", dbErr?.message);
     }
   }
 
-  // Mock Mode fallback
-    return NextResponse.json(
-      {
-        success: true,
-        message: "Quotation request received (Mock Mode).",
-        data: {
-          id: `qt-${Date.now()}`,
-          quoteNumber: `PRG-QT-2026-${Math.floor(1000 + Math.random() * 9000)}`,
-          companyName: finalCompanyName,
-          status: "REQUESTED",
-        },
-      },
-      { status: 201, headers },
-    );
+  // Persistent Fallback Mode: save to persistent store so admin can view and process
+  const fallbackQuoteNumber = await generateQuoteNumber();
+  const fallbackQuoteId = `qt-${Date.now()}`;
+  const validUntilDate = new Date();
+  validUntilDate.setDate(validUntilDate.getDate() + 30);
+
+  const quotationItems = items.map((itm: any, idx: number) => {
+    const qty = Math.max(1, parseInt(itm.quantity, 10) || 1);
+    const price = typeof itm.unitPrice === "number" && itm.unitPrice > 0 ? itm.unitPrice : 0;
+    return {
+      id: `itm-${Date.now()}-${idx}`,
+      productName: itm.productName || "Custom Robotics / STEM Component",
+      productSku: itm.productSku || "PRG-CUSTOM",
+      unitPrice: price,
+      quantity: qty,
+      discountPct: 0,
+      taxRate: 18,
+      total: price * qty,
+    };
+  });
+
+  const subtotal = quotationItems.reduce((acc: number, item: any) => acc + (item.total || 0), 0);
+  const taxAmount = Math.round(subtotal * 0.18 * 100) / 100;
+  const grandTotal = subtotal + taxAmount;
+
+  const fallbackQuotation: StoredQuotation = {
+    id: fallbackQuoteId,
+    quoteNumber: fallbackQuoteNumber,
+    userId: user?.id || null,
+    storeId: "str-ranchi-01",
+    store: {
+      id: "str-ranchi-01",
+      name: "Prayog India Ranchi Main Branch & Central Hub",
+      code: "RANCHI",
+      city: "Ranchi",
+    },
+    institutionType: institutionType || "Corporate",
+    companyName: finalCompanyName,
+    customerName: finalCustomerName,
+    customerEmail: finalEmail,
+    customerPhone: finalPhone,
+    gstin: gstin || null,
+    billingAddress: billingAddress || null,
+    shippingAddress: shippingAddress || null,
+    status: "REQUESTED",
+    createdAt: new Date().toISOString(),
+    validUntil: validUntilDate.toISOString(),
+    items: quotationItems,
+    subtotal,
+    discountAmount: 0,
+    taxRate: 18,
+    taxAmount,
+    shippingCharge: 0,
+    grandTotal,
+    notes: notes
+      ? `${notes}${preferredDeliveryDate ? ` (Preferred delivery: ${preferredDeliveryDate})` : ""}`
+      : preferredDeliveryDate
+        ? `Preferred delivery: ${preferredDeliveryDate}`
+        : null,
+    terms:
+      "1. Quotation valid for 30 days from date of issue.\n2. Official GST invoice provided upon dispatch.\n3. Standard Prayog India OEM replacement warranty applies.",
+  };
+
+  saveStoredQuotation(fallbackQuotation);
+
+  return NextResponse.json(
+    {
+      success: true,
+      message:
+        "Quotation request submitted successfully. Our B2B desk will review and send formal pricing.",
+      data: fallbackQuotation,
+    },
+    { status: 201, headers },
+  );
   } catch (error: any) {
     return NextResponse.json(
       { success: false, message: error.message },

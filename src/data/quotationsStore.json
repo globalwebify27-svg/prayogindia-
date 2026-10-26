@@ -1,0 +1,144 @@
+[
+  {
+    "id": "2727e7d9-ffc8-4815-848c-1543401db8b4",
+    "quoteNumber": "PRG-QT-2026-2168",
+    "userId": null,
+    "storeId": "c6f8803c-80d1-4282-8268-075b7b24d465",
+    "institutionType": "ATL School",
+    "companyName": "DPS Ranchi Robotics Club",
+    "customerName": "Ramesh Kumar",
+    "customerEmail": "ramesh@dps.edu.in",
+    "customerPhone": "9876543210",
+    "gstin": null,
+    "billingAddress": null,
+    "shippingAddress": null,
+    "status": "REQUESTED",
+    "validUntil": "2026-11-25T11:55:33.521Z",
+    "subtotal": 45000,
+    "discountAmount": 0,
+    "taxRate": 18,
+    "taxAmount": 8100,
+    "shippingCharge": 0,
+    "grandTotal": 53100,
+    "notes": "Urgent requirement for ATL Lab kit",
+    "terms": "1. Quotation valid for 30 days from date of issue.\n2. Official GST invoice provided upon dispatch.\n3. Standard Prayog India OEM replacement warranty applies.",
+    "adminNotes": null,
+    "customerFeedback": null,
+    "convertedAt": null,
+    "createdByStaffId": null,
+    "createdAt": "2026-10-26T11:55:33.526Z",
+    "updatedAt": "2026-10-26T11:55:33.526Z",
+    "items": [
+      {
+        "id": "fdf65d7d-6547-46fe-967e-4a094c89a2a4",
+        "quotationId": "2727e7d9-ffc8-4815-848c-1543401db8b4",
+        "productId": null,
+        "variantId": null,
+        "productName": "Autonomous Rover Kit",
+        "productSku": "PRG-CUSTOM",
+        "quantity": 10,
+        "unitPrice": 4500,
+        "discountPct": 0,
+        "taxRate": 18,
+        "total": 45000,
+        "createdAt": "2026-10-26T11:55:33.526Z"
+      }
+    ],
+    "store": {
+      "id": "c6f8803c-80d1-4282-8268-075b7b24d465",
+      "name": "Prayog India Ranchi Main Branch & Central Hub",
+      "code": "RANCHI"
+    }
+  },
+  {
+    "id": "qt-seed-01",
+    "quoteNumber": "PRG-QT-2026-8941",
+    "storeId": "str-ranchi-01",
+    "store": {
+      "id": "str-ranchi-01",
+      "name": "Prayog India Ranchi Main Branch & Central Hub",
+      "code": "RANCHI",
+      "city": "Ranchi"
+    },
+    "institutionType": "ATL School",
+    "companyName": "Delhi Public School - ATL Innovation Lab",
+    "customerName": "Dr. Rajeshwar Sharma",
+    "customerPhone": "+91 98765 43210",
+    "customerEmail": "atl.lab@dpsranchi.edu.in",
+    "gstin": "20AAACD1234F1Z5",
+    "billingAddress": "Sail Township, Dhurwa, Ranchi, Jharkhand - 834004",
+    "shippingAddress": "ATL Lab Room 204, DPS Ranchi Campus, Ranchi - 834004",
+    "status": "REQUESTED",
+    "createdAt": "2026-10-26T07:55:33.411Z",
+    "validUntil": "2026-11-25T11:55:33.411Z",
+    "subtotal": 78500,
+    "discountAmount": 3925,
+    "taxRate": 18,
+    "taxAmount": 13423.5,
+    "shippingCharge": 0,
+    "grandTotal": 87998.5,
+    "notes": "Requirement for 30 ATL Robotics Kits for upcoming inter-school mechatronics competition.",
+    "terms": "1. Quotation valid for 30 days from date of issue.\n2. Official GST invoice provided upon dispatch.\n3. Standard Prayog India OEM replacement warranty applies.",
+    "items": [
+      {
+        "id": "item-seed-01",
+        "productName": "Prayog DIY Hexacopter Drone Starter STEM Kit with Pixhawk",
+        "productSku": "PRG-HEXA-01",
+        "unitPrice": 18500,
+        "quantity": 3,
+        "discountPct": 5,
+        "total": 52725
+      },
+      {
+        "id": "item-seed-02",
+        "productName": "ESP32 IoT Sensor Suite with OLED Display (Pack of 10)",
+        "productSku": "PRG-ESP32-10",
+        "unitPrice": 25775,
+        "quantity": 1,
+        "discountPct": 0,
+        "total": 25775
+      }
+    ]
+  },
+  {
+    "id": "qt-seed-02",
+    "quoteNumber": "PRG-QT-2026-5120",
+    "storeId": "str-ranchi-01",
+    "store": {
+      "id": "str-ranchi-01",
+      "name": "Prayog India Ranchi Main Branch & Central Hub",
+      "code": "RANCHI",
+      "city": "Ranchi"
+    },
+    "institutionType": "Engineering College",
+    "companyName": "Birla Institute of Technology (BIT Mesra)",
+    "customerName": "Prof. Ananya Sen",
+    "customerPhone": "+91 94311 88990",
+    "customerEmail": "robotics.club@bitmesra.ac.in",
+    "gstin": "20AAAB1002C1Z8",
+    "billingAddress": "BIT Mesra Campus, Ranchi, Jharkhand - 835215",
+    "shippingAddress": "Central Robotics Workshop, BIT Mesra, Ranchi - 835215",
+    "status": "UNDER_REVIEW",
+    "createdAt": "2026-10-25T11:55:33.411Z",
+    "validUntil": "2026-11-20T11:55:33.411Z",
+    "subtotal": 124000,
+    "discountAmount": 12400,
+    "taxRate": 18,
+    "taxAmount": 20088,
+    "shippingCharge": 500,
+    "grandTotal": 132188,
+    "notes": "Bulk institutional pricing requested for Autonomous Rover telemetry & LiDAR mapping modules.",
+    "terms": "1. Quotation valid for 30 days.\n2. Payment terms 50% advance, 50% on delivery inspection.",
+    "items": [
+      {
+        "id": "item-seed-03",
+        "productName": "Industrial 2D 360° LiDAR Scanner Sensor A1M8",
+        "productSku": "PRG-LIDAR-A1",
+        "unitPrice": 12400,
+        "quantity": 10,
+        "discountPct": 10,
+        "total": 111600
+      }
+    ]
+  }
+]

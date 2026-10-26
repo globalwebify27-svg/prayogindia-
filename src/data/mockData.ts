@@ -21,6 +21,9 @@ export interface ProductReview {
   date: string;
   comment: string;
   verified: boolean;
+  title?: string;
+  avatar?: string;
+  helpfulCount?: number;
 }
 
 export type ShippingTag =
