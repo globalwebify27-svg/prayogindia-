@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { db } from "@/lib/db";
+import { db, isDatabaseAvailable } from "@/lib/db";
 import { getAuthenticatedCustomer, AuthSessionUser } from "@/lib/authUtils";
 import { NotificationService } from "@/lib/notifications";
 import { OrderStatus, PaymentStatus } from "@prisma/client";
@@ -70,7 +70,7 @@ export async function POST(request: Request) {
       totalAmount: clientTotal,
     } = body;
 
-    if (!process.env.DATABASE_URL) {
+    if (!isDatabaseAvailable()) {
       // Mock Mode Fallback Response
       const mockOrderNumber = generateOrderNumber();
       return NextResponse.json({
@@ -664,7 +664,7 @@ export async function GET(request: Request) {
   );
   const statusFilter = searchParams.get("status");
 
-  if (!process.env.DATABASE_URL) {
+  if (!isDatabaseAvailable()) {
     return NextResponse.json({
       success: true,
       data: {

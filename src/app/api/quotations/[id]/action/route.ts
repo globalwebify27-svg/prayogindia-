@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { db } from "@/lib/db";
+import { db, isDatabaseAvailable } from "@/lib/db";
 import { getAuthenticatedCustomer } from "@/lib/authUtils";
 import { getSecurityHeaders } from "@/lib/security";
 
@@ -26,7 +26,7 @@ export async function POST(
       );
     }
 
-    if (process.env.DATABASE_URL) {
+    if (isDatabaseAvailable()) {
       const quote = await db.quotation.findUnique({
         where: { id },
         include: {

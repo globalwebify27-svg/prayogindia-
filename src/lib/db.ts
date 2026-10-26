@@ -33,10 +33,18 @@ export const isDatabaseAvailable = (): boolean => {
   const url = process.env.DATABASE_URL;
   if (!url) return false;
   if (
-    (process.env.VERCEL || process.env.NODE_ENV === "production") &&
-    (url.includes("localhost") || url.includes("127.0.0.1"))
+    process.env.VERCEL ||
+    process.env.VERCEL_ENV ||
+    process.env.NEXT_PUBLIC_VERCEL_ENV ||
+    process.env.NODE_ENV === "production"
   ) {
-    return false;
+    if (
+      url.includes("localhost") ||
+      url.includes("127.0.0.1") ||
+      url.includes("0.0.0.0")
+    ) {
+      return false;
+    }
   }
   return true;
 };

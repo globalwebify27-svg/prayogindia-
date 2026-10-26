@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { db } from "@/lib/db";
+import { db, isDatabaseAvailable } from "@/lib/db";
 import { getAuthenticatedCustomer } from "@/lib/authUtils";
 import { getSecurityHeaders } from "@/lib/security";
 
@@ -12,7 +12,7 @@ export async function GET(
   const user = await getAuthenticatedCustomer();
   const { id } = await params;
 
-  if (process.env.DATABASE_URL) {
+  if (isDatabaseAvailable()) {
     try {
       const quotation = await db.quotation.findUnique({
         where: { id },
@@ -76,15 +76,16 @@ export async function GET(
 
       return NextResponse.json({ success: true, data: quotation }, { headers });
     } catch (error: any) {
+      console.warn("Quotation fetch error:", error?.message);
       return NextResponse.json(
-        { success: false, message: error.message },
+        { success: false, message: "Quotation details could not be loaded at this time." },
         { status: 500, headers },
       );
     }
   }
 
   return NextResponse.json(
-    { success: false, message: "Database not configured" },
-    { status: 500, headers },
+    { success: false, message: "Quotation details could not be loaded at this time." },
+    { status: 503, headers },
   );
 }

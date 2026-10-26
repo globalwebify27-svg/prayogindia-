@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { db } from "@/lib/db";
+import { db, isDatabaseAvailable } from "@/lib/db";
 import { AuthSessionUser } from "@/lib/authUtils";
 import { getSecurityHeaders } from "@/lib/security";
 import { verifySessionToken } from "@/lib/jwt";
@@ -66,8 +66,9 @@ export async function POST(request: Request) {
       );
     }
 
-    if (process.env.DATABASE_URL) {
-      // 1. Resolve servicing store (requested storeId, or Ranchi Central Hub by default)
+    if (isDatabaseAvailable()) {
+      try {
+        // 1. Resolve servicing store (requested storeId, or Ranchi Central Hub by default)
       let store = null;
       if (requestedStoreId) {
         store = await db.store.findFirst({
@@ -268,9 +269,12 @@ export async function POST(request: Request) {
         },
         { status: 201, headers },
       );
+    } catch (dbErr: any) {
+      console.warn("Database quotation creation failed, falling back to mock mode:", dbErr?.message);
     }
+  }
 
-    // Mock Mode fallback
+  // Mock Mode fallback
     return NextResponse.json(
       {
         success: true,

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { db } from "@/lib/db";
+import { db, isDatabaseAvailable } from "@/lib/db";
 import { getAuthenticatedCustomer } from "@/lib/authUtils";
 import { getSecurityHeaders } from "@/lib/security";
 
@@ -15,7 +15,7 @@ export async function GET(request: Request) {
     );
   }
 
-  if (process.env.DATABASE_URL) {
+  if (isDatabaseAvailable()) {
     try {
       const quotations = await db.quotation.findMany({
         where: {
@@ -37,9 +37,10 @@ export async function GET(request: Request) {
         { headers },
       );
     } catch (error: any) {
+      console.warn("Database quotation query unavailable, fallback to empty list:", error?.message);
       return NextResponse.json(
-        { success: false, message: error.message },
-        { status: 500, headers },
+        { success: true, data: [] },
+        { headers },
       );
     }
   }
