@@ -109,23 +109,23 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({
   };
 
   return (
-    <header className="sticky top-0 z-30 bg-white border-b border-slate-200/90 h-16 px-4 sm:px-6 flex items-center justify-between shadow-2xs">
+    <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-[#E5EAF4] h-16 px-4 sm:px-6 flex items-center justify-between shadow-[0_2px_12px_rgba(15,35,80,0.03)]">
       {/* Left Menu Toggle & Title */}
       <div className="flex items-center gap-3">
         <button
           onClick={onToggleMobileSidebar}
-          className="lg:hidden p-2 text-slate-600 hover:bg-slate-100 rounded-lg cursor-pointer"
+          className="lg:hidden p-2 text-slate-600 hover:bg-[#F1F4F9] rounded-xl cursor-pointer transition-colors"
           aria-label="Toggle Navigation"
         >
           <Menu className="w-5 h-5" />
         </button>
         <button
           onClick={onToggleMobileSidebar}
-          className="hidden lg:flex p-1.5 text-slate-500 hover:text-slate-800 rounded-lg hover:bg-slate-100 cursor-pointer mr-1"
+          className="hidden lg:flex p-1.5 text-slate-500 hover:text-slate-800 rounded-xl hover:bg-[#F1F4F9] cursor-pointer mr-1 transition-colors"
         >
           <Menu className="w-5 h-5" />
         </button>
-        <span className="text-sm font-bold text-slate-800">
+        <span className="text-sm font-bold text-slate-800 tracking-tight">
           Prayog Operations Portal
         </span>
       </div>
@@ -133,35 +133,36 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({
       {/* Center Search Bar with ⌘K */}
       <div className="hidden md:flex items-center justify-center flex-1 max-w-md mx-6">
         <div className="relative w-full">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+          <Search className="w-4 h-4 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" />
           <input
             type="text"
             placeholder="Search anything..."
-            className="w-full bg-slate-50 hover:bg-slate-100/80 focus:bg-white border border-slate-200 rounded-xl px-3.5 py-2 pl-9 pr-10 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/10 transition-all shadow-2xs"
+            className="w-full bg-[#F1F4F9] hover:bg-[#E9EEF6] focus:bg-white border border-transparent focus:border-[#0084FF]/30 rounded-full px-4 py-2 pl-10 pr-12 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-3 focus:ring-[#0084FF]/15 transition-all shadow-inner"
           />
-          <kbd className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-mono text-slate-400 bg-white border border-slate-200 px-1.5 py-0.5 rounded shadow-2xs pointer-events-none">
+          <kbd className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[10px] font-mono text-slate-400 bg-white border border-slate-200/80 px-1.5 py-0.5 rounded-md shadow-2xs pointer-events-none">
             ⌘K
           </kbd>
         </div>
       </div>
 
+
       {/* Right Notifications, Mail & User Profile */}
-      <div className="flex items-center gap-3 sm:gap-4">
+      <div className="flex items-center gap-2 sm:gap-3">
         {/* Notification Bell Dropdown */}
         <div className="relative" ref={dropdownRef}>
           <button
             onClick={() => setShowNotifications((prev) => !prev)}
-            className={`relative p-2 rounded-xl transition-all cursor-pointer ${
+            className={`relative p-2.5 rounded-full transition-all cursor-pointer ${
               showNotifications
-                ? "bg-blue-50 text-[#2563EB]"
-                : "text-slate-500 hover:text-slate-800 hover:bg-slate-100"
+                ? "bg-[#EBF5FF] text-[#0084FF]"
+                : "text-slate-500 hover:text-slate-800 hover:bg-[#F1F4F9]"
             }`}
             title="Operational Alerts"
             aria-label="View notifications"
           >
             <Bell className="w-5 h-5" />
             {unreadCount > 0 && (
-              <span className="absolute -top-0.5 -right-0.5 bg-rose-500 text-white text-[10px] font-extrabold px-1.5 min-w-[16px] h-4 rounded-full flex items-center justify-center shadow-xs animate-in zoom-in">
+              <span className="absolute 1 top-0 right-0 bg-[#EF4444] text-white text-[10px] font-extrabold px-1.5 min-w-[16px] h-4 rounded-full flex items-center justify-center shadow-xs animate-in zoom-in ring-2 ring-white">
                 {unreadCount > 99 ? "99+" : unreadCount}
               </span>
             )}
@@ -169,15 +170,15 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({
 
           {/* Notifications Flyout Tray */}
           {showNotifications && (
-            <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white border border-slate-200/90 rounded-2xl shadow-xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+            <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white border border-slate-100 rounded-3xl shadow-[0_20px_50px_rgba(15,35,80,0.12)] z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
               {/* Flyout Header */}
-              <div className="p-3.5 px-4 bg-slate-50/80 border-b border-slate-100 flex items-center justify-between">
+              <div className="p-3.5 px-4 bg-[#F8FAFD] border-b border-slate-100 flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <span className="text-xs font-black uppercase tracking-wider text-slate-800">
                     Live Alerts
                   </span>
                   {unreadCount > 0 && (
-                    <span className="text-[10px] font-extrabold bg-[#2563EB] text-white px-2 py-0.5 rounded-full">
+                    <span className="text-[10px] font-extrabold bg-[#0084FF] text-white px-2 py-0.5 rounded-full">
                       {unreadCount} New
                     </span>
                   )}
@@ -187,7 +188,7 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({
                   {unreadCount > 0 && (
                     <button
                       onClick={handleMarkAllRead}
-                      className="text-[11px] font-bold text-[#2563EB] hover:underline cursor-pointer"
+                      className="text-[11px] font-bold text-[#0084FF] hover:underline cursor-pointer"
                     >
                       Mark read
                     </button>
@@ -225,11 +226,11 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({
                       key={item.id}
                       href={item.link}
                       onClick={() => setShowNotifications(false)}
-                      className={`p-3.5 px-4 flex items-start gap-3 hover:bg-slate-50 transition-colors block ${
+                      className={`p-3.5 px-4 flex items-start gap-3 hover:bg-[#F8FAFD] transition-colors block ${
                         item.isRead ? "opacity-60 bg-slate-50/40" : "bg-white"
                       }`}
                     >
-                      <div className="mt-0.5 p-1.5 rounded-lg bg-slate-100/80">
+                      <div className="mt-0.5 p-1.5 rounded-xl bg-slate-100">
                         {getNotifIcon(item.type)}
                       </div>
                       <div className="flex-1 space-y-0.5 min-w-0">
@@ -251,11 +252,11 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({
               </div>
 
               {/* Flyout Footer */}
-              <div className="p-2.5 bg-slate-50 border-t border-slate-100 text-center">
+              <div className="p-2.5 bg-[#F8FAFD] border-t border-slate-100 text-center">
                 <Link
                   href="/admin/dashboard"
                   onClick={() => setShowNotifications(false)}
-                  className="text-[11px] font-bold text-slate-600 hover:text-[#2563EB] transition-colors"
+                  className="text-[11px] font-bold text-slate-600 hover:text-[#0084FF] transition-colors"
                 >
                   View Operations Dashboard →
                 </Link>
@@ -265,14 +266,14 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({
         </div>
 
         {/* Mail Icon */}
-        <div className="cursor-pointer p-1.5 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-colors">
+        <div className="cursor-pointer p-2.5 text-slate-500 hover:text-slate-800 hover:bg-[#F1F4F9] rounded-full transition-colors">
           <Mail className="w-5 h-5" />
         </div>
 
         {/* User Profile Pill */}
         <div className="flex items-center gap-2.5 pl-3 border-l border-slate-200">
-          <div className="w-8 h-8 rounded-full bg-blue-100 text-[#2563EB] border border-blue-200 flex items-center justify-center text-xs font-black shrink-0">
-            <User className="w-4 h-4 text-[#2563EB]" />
+          <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#0084FF] to-[#00C2E0] text-white flex items-center justify-center text-xs font-black shrink-0 shadow-sm">
+            <User className="w-4 h-4 text-white" />
           </div>
           <div className="hidden sm:block text-left">
             <span className="text-xs font-bold text-slate-900 block leading-tight">
@@ -287,7 +288,7 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({
         {/* Log Out Button */}
         <button
           onClick={handleLogout}
-          className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-rose-600 bg-rose-50 hover:bg-rose-100/90 border border-rose-200/80 rounded-xl transition-all cursor-pointer shadow-2xs active:scale-95 ml-1"
+          className="flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold text-[#EF4444] bg-[#FEE2E2]/50 hover:bg-[#FEE2E2] border border-rose-200/60 rounded-full transition-all cursor-pointer shadow-xs active:scale-95 ml-1"
           title="Sign out of Operations Portal"
         >
           <LogOut className="w-3.5 h-3.5 stroke-[2.5]" />

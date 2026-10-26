@@ -20,6 +20,7 @@ import {
   Heart,
 } from "lucide-react";
 import { AddToCartIcon } from "@/components/icons/AddToCartIcon";
+import { recordProductView } from "@/utils/recentProducts";
 
 // Official WhatsApp Vector SVG Icon
 const WhatsAppIcon = ({ className = "w-4 h-4" }: { className?: string }) => (
@@ -101,6 +102,13 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
   } = useStore();
   const [stickyAdded, setStickyAdded] = useState(false);
 
+  // Record customer product view in browsing history
+  useEffect(() => {
+    if (product?.id) {
+      recordProductView(product);
+    }
+  }, [product]);
+
   // ── Derived data (Only show images provided for this product)
   const galleryImages = React.useMemo(() => {
     if (!product) return [];
@@ -147,10 +155,13 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
   const currentPrice = selectedVariant?.price ?? product.price;
   const currentMrp = selectedVariant?.mrp ?? product.mrp;
 
+  const cat = (product.category || "").toLowerCase();
   const relatedProducts = PRODUCTS.filter(
     (p) =>
       p.id !== product.id &&
-      (p.category === product.category ||
+      (p.category.toLowerCase() === cat ||
+        (cat && p.category.toLowerCase().includes(cat)) ||
+        (cat && cat.includes(p.category.toLowerCase())) ||
         product.relatedProductIds?.includes(p.id)),
   ).slice(0, 6);
 
@@ -165,7 +176,9 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
   const similarProducts = PRODUCTS.filter(
     (p) =>
       p.id !== product.id &&
-      p.category === product.category &&
+      (p.category.toLowerCase() === cat ||
+        (cat && p.category.toLowerCase().includes(cat)) ||
+        (cat && cat.includes(p.category.toLowerCase()))) &&
       !relatedProducts.find((r) => r.id === p.id),
   ).slice(0, 4);
 
@@ -237,7 +250,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
   const isInStock = selectedVariant ? selectedVariant.inStock : product.inStock;
 
   return (
-    <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 py-2 sm:py-3 space-y-4 sm:space-y-6 animate-in fade-in duration-300 pb-28 sm:pb-28 lg:pb-28">
+    <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 py-2 sm:py-3 space-y-4 sm:space-y-5 animate-in fade-in duration-300 pb-4 sm:pb-6">
       {/* ── Breadcrumb ── */}
       <CategoryBreadcrumb
         items={[

@@ -254,7 +254,7 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
         onMouseDown={handleMouseDown}
         onWheel={handleWheel}
         onDragStart={(e) => e.preventDefault()}
-        className="relative w-full aspect-square rounded-2xl overflow-hidden bg-slate-50/70 border border-slate-100 group flex items-center justify-center shrink-0 select-none cursor-grab active:cursor-grabbing touch-pan-y"
+        className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden bg-slate-100 border border-slate-200/80 group flex items-center justify-center shrink-0 select-none cursor-grab active:cursor-grabbing touch-pan-y shadow-xs"
       >
         {/* Top Badges & Controls Overlay */}
         <div className="absolute top-3 left-3 right-3 flex items-center justify-between z-20 pointer-events-none">
@@ -296,18 +296,16 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
             {galleryImages.map((img, idx) => (
               <div
                 key={`img-${idx}`}
-                className="min-w-full w-full h-full shrink-0 relative flex items-center justify-center p-4 pt-10 sm:pt-12"
+                className="min-w-full w-full h-full shrink-0 relative overflow-hidden"
               >
-                <div className="relative w-full h-full">
-                  <Image
-                    src={img}
-                    alt={`${productName} image ${idx + 1}`}
-                    fill
-                    priority={idx === 0}
-                    draggable={false}
-                    className="object-contain pointer-events-none select-none"
-                  />
-                </div>
+                <Image
+                  src={img}
+                  alt={`${productName} image ${idx + 1}`}
+                  fill
+                  priority={idx === 0}
+                  draggable={false}
+                  className="w-full h-full object-cover pointer-events-none select-none"
+                />
               </div>
             ))}
 
@@ -410,7 +408,7 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
                 src={img}
                 alt={`Thumbnail ${idx + 1}`}
                 fill
-                className="object-contain p-1.5"
+                className="object-cover"
               />
             </button>
           ))}

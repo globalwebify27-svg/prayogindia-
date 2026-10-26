@@ -266,6 +266,16 @@ export async function getOfferBySlug(slug: string): Promise<OfferItem | null> {
   );
 }
 
+export interface CreateCustomerOrderItem {
+  productId: string;
+  variantId?: string | null;
+  productName: string;
+  productSku?: string;
+  price: number;
+  quantity: number;
+  image?: string;
+}
+
 export interface CreateCustomerOrderOptions {
   shippingAddress?: string;
   addressId?: string;
@@ -273,6 +283,13 @@ export interface CreateCustomerOrderOptions {
   rewardPointsUsed?: number;
   paymentMethod?: string;
   shippingCost?: number;
+  items?: CreateCustomerOrderItem[];
+  customerName?: string;
+  customerEmail?: string;
+  customerPhone?: string;
+  subtotal?: number;
+  gstAmount?: number;
+  totalAmount?: number;
 }
 
 export async function createCustomerOrder(
@@ -291,6 +308,13 @@ export async function createCustomerOrder(
         rewardPointsUsed: options?.rewardPointsUsed,
         paymentMethod: options?.paymentMethod,
         shippingCost: options?.shippingCost,
+        items: options?.items,
+        customerName: options?.customerName,
+        customerEmail: options?.customerEmail,
+        customerPhone: options?.customerPhone,
+        subtotal: options?.subtotal,
+        gstAmount: options?.gstAmount,
+        totalAmount: options?.totalAmount,
       }),
     });
     return await res.json();

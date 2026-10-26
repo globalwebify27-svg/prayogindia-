@@ -638,11 +638,42 @@ export const CheckoutView: React.FC = () => {
 
     try {
       const fullAddressStr = `${selectedAddr.name}, ${selectedAddr.street}, ${selectedAddr.city}, ${selectedAddr.state} - ${selectedAddr.pincode}`;
+      
+      let orderItems = cart;
+      if (!orderItems || orderItems.length === 0) {
+        try {
+          const stored = typeof window !== "undefined" ? localStorage.getItem("prayog_cart") : null;
+          if (stored) {
+            const parsed = JSON.parse(stored);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              orderItems = parsed;
+            }
+          }
+        } catch {}
+      }
+
+      const orderPayloadItems = (orderItems || []).map((i) => ({
+        productId: i.product?.id || (i as any).id,
+        variantId: i.variant?.id || null,
+        productName: i.product?.name || (i as any).name || "Hardware Component",
+        productSku: i.variant?.sku || i.product?.sku || (i as any).sku || "",
+        price: i.variant?.price || i.product?.price || (i as any).price || 0,
+        quantity: i.quantity || 1,
+        image: i.product?.images?.[0] || i.product?.image || (i as any).image,
+      }));
+
       const res = await createCustomerOrder(fullAddressStr, selectedAddr.id, {
         couponCode: appliedCoupon ? couponCode : undefined,
         rewardPointsUsed: useRewardPoints ? rewardPointsAvailable : 0,
         paymentMethod,
         shippingCost: shippingFee,
+        items: orderPayloadItems,
+        customerName: customerName || selectedAddr.name,
+        customerEmail: customerEmail,
+        customerPhone: customerMobile || selectedAddr.phone,
+        subtotal: subtotal,
+        gstAmount: Math.round(subtotal * 0.18 * 100) / 100,
+        totalAmount: grandTotal,
       });
 
       if (res && res.success && res.data) {

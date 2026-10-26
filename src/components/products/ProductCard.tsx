@@ -17,6 +17,7 @@ import { Product } from "@/data/mockData";
 import { useStore } from "@/context/StoreContext";
 import { haptic } from "@/utils/haptics";
 import { AddToCartIcon } from "@/components/icons/AddToCartIcon";
+import { recordProductView } from "@/utils/recentProducts";
 
 const WhatsAppIcon = ({ className = "w-3.5 h-3.5" }: { className?: string }) => (
   <svg
@@ -211,6 +212,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         {/* ── Product Images (Smooth Cross-Fade on Hover) ── */}
         <Link
           href={`/products/${product.slug || product.id}`}
+          onClick={() => recordProductView(product)}
           className="relative w-full h-full block cursor-pointer"
         >
           {/* Primary View */}
@@ -254,6 +256,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
       {/* ── Card Body (Amazon / Myntra Style Grid Card Layout) ── */}
       <Link
         href={`/products/${product.slug || product.id}`}
+        onClick={() => recordProductView(product)}
         className="flex-1 flex flex-col justify-between space-y-0.5 sm:space-y-1 block cursor-pointer"
       >
         <div className="space-y-0.5 sm:space-y-1">

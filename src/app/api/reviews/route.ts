@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { db } from "@/lib/db";
+import { db, isDatabaseAvailable } from "@/lib/db";
 import { AuthSessionUser, getAuthenticatedCustomer } from "@/lib/authUtils";
 import { getSecurityHeaders, checkRateLimit } from "@/lib/security";
 
@@ -7,13 +7,15 @@ const getAuthenticatedUser = getAuthenticatedCustomer;
 
 /**
  * GET /api/reviews?productId=xxx&page=1&limit=10
- * List reviews for a product — publicly accessible (no auth required for reading).
+ * Optional query: checkEligibility=true
+ * List reviews for a product or check if current customer is eligible to review.
  */
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const productId = searchParams.get("productId");
     const slug = searchParams.get("slug");
+    const checkEligibility = searchParams.get("checkEligibility") === "true";
     const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
     const limit = Math.min(
       20,
@@ -27,7 +29,178 @@ export async function GET(request: Request) {
       );
     }
 
-    if (!process.env.DATABASE_URL) {
+    // ── Eligibility Check Mode ──────────────────────────────────────────
+    if (checkEligibility) {
+      const user = await getAuthenticatedUser();
+      if (!user) {
+        return NextResponse.json({
+          success: true,
+          eligible: false,
+          reason: "UNAUTHENTICATED",
+          message:
+            "Please sign in to write a review. Only customers who purchased and received this product can review.",
+        });
+      }
+
+      if (!isDatabaseAvailable()) {
+        // Mock fallback mode: check mock flag from header or allow demo
+        const mockDeliveredHeader = request.headers.get("x-mock-delivered");
+        const mockInTransitHeader = request.headers.get("x-mock-intransit");
+        const mockAlreadyReviewedHeader = request.headers.get("x-mock-reviewed");
+
+        if (mockAlreadyReviewedHeader === "true") {
+          return NextResponse.json({
+            success: true,
+            eligible: false,
+            reason: "ALREADY_REVIEWED",
+            message: "You have already reviewed this product. Thank you for your feedback!",
+          });
+        }
+        if (mockInTransitHeader === "true") {
+          return NextResponse.json({
+            success: true,
+            eligible: false,
+            reason: "NOT_DELIVERED",
+            message: "Your order is in transit. Reviews can only be submitted once the package is delivered.",
+            order: {
+              orderNumber: "PRY-MOCK-7821",
+              status: "Shipped",
+            },
+          });
+        }
+        if (mockDeliveredHeader === "true") {
+          return NextResponse.json({
+            success: true,
+            eligible: true,
+            reason: "ELIGIBLE",
+            message: "Verified purchase confirmed.",
+            order: {
+              orderNumber: "PRY-89410",
+              deliveredAt: new Date().toISOString(),
+            },
+          });
+        }
+
+        // Default mock response: customer must have bought and had it delivered
+        return NextResponse.json({
+          success: true,
+          eligible: false,
+          reason: "NOT_PURCHASED",
+          message: "Only verified buyers who received this item can write a review.",
+        });
+      }
+
+      // Resolve product ID from slug if needed
+      let resolvedId = productId;
+      if (!resolvedId && slug) {
+        const product = await db.product.findUnique({
+          where: { slug },
+          select: { id: true },
+        });
+        if (!product) {
+          return NextResponse.json(
+            { success: false, message: "Product not found." },
+            { status: 404 },
+          );
+        }
+        resolvedId = product.id;
+      }
+
+      // 1. Check if user already reviewed this product
+      const existingReview = await db.review.findFirst({
+        where: {
+          userId: user.id,
+          productId: resolvedId!,
+        },
+      });
+      if (existingReview) {
+        return NextResponse.json({
+          success: true,
+          eligible: false,
+          reason: "ALREADY_REVIEWED",
+          message: "You have already reviewed this product. Thank you for your feedback!",
+        });
+      }
+
+      // 2. Check for DELIVERED order containing this product
+      const deliveredOrder = await db.order.findFirst({
+        where: {
+          userId: user.id,
+          status: "DELIVERED",
+          items: {
+            some: {
+              OR: [
+                { productId: resolvedId! },
+                ...(slug ? [{ product: { slug } }] : []),
+              ],
+            },
+          },
+        },
+        select: {
+          id: true,
+          orderNumber: true,
+          updatedAt: true,
+        },
+      });
+
+      if (deliveredOrder) {
+        return NextResponse.json({
+          success: true,
+          eligible: true,
+          reason: "ELIGIBLE",
+          message: "Verified buyer delivery confirmed.",
+          order: {
+            orderNumber: deliveredOrder.orderNumber,
+            deliveredAt: deliveredOrder.updatedAt,
+          },
+        });
+      }
+
+      // 3. Check if user ordered the item but it is not yet DELIVERED
+      const activeOrder = await db.order.findFirst({
+        where: {
+          userId: user.id,
+          items: {
+            some: {
+              OR: [
+                { productId: resolvedId! },
+                ...(slug ? [{ product: { slug } }] : []),
+              ],
+            },
+          },
+        },
+        select: {
+          id: true,
+          orderNumber: true,
+          status: true,
+        },
+      });
+
+      if (activeOrder) {
+        return NextResponse.json({
+          success: true,
+          eligible: false,
+          reason: "NOT_DELIVERED",
+          message: `Your Order #${activeOrder.orderNumber} is currently ${activeOrder.status.replace(/_/g, " ")}. Reviews can only be submitted once the product has been delivered to you.`,
+          order: {
+            orderNumber: activeOrder.orderNumber,
+            status: activeOrder.status,
+          },
+        });
+      }
+
+      // 4. Product never ordered by this customer
+      return NextResponse.json({
+        success: true,
+        eligible: false,
+        reason: "NOT_PURCHASED",
+        message:
+          "Only verified customers who purchased and received this product directly from Prayog India can write a review.",
+      });
+    }
+
+    // ── Public Reviews List ─────────────────────────────────────────────
+    if (!isDatabaseAvailable()) {
       return NextResponse.json({
         success: true,
         data: { items: [], page, limit, total: 0, totalPages: 0 },
@@ -110,8 +283,8 @@ export async function GET(request: Request) {
  * POST /api/reviews
  * Submit a product review.
  * - Requires authentication
- * - One review per customer per product (enforced by DB unique constraint)
- * - isVerified = true if customer has a DELIVERED order containing this product
+ * - Strictly requires customer to have a DELIVERED order containing this product
+ * - One review per customer per product
  */
 export async function POST(request: Request) {
   const headers = getSecurityHeaders();
@@ -138,7 +311,7 @@ export async function POST(request: Request) {
 
   try {
     const body = await request.json();
-    const { productId, rating, title, body: reviewBody } = body;
+    const { productId, rating, title, body: reviewBody, mockVerified } = body;
 
     if (!productId || typeof productId !== "string") {
       return NextResponse.json(
@@ -166,11 +339,27 @@ export async function POST(request: Request) {
       );
     }
 
-    if (!process.env.DATABASE_URL) {
+    if (!isDatabaseAvailable()) {
+      if (!mockVerified) {
+        return NextResponse.json(
+          {
+            success: false,
+            code: "NOT_ELIGIBLE",
+            message:
+              "Only customers who have purchased and received this product can write a review.",
+          },
+          { status: 403, headers },
+        );
+      }
       return NextResponse.json({
         success: true,
-        message: "Review submitted (Mock Mode).",
-        data: { productId, rating: numRating, body: reviewBody },
+        message: "Review submitted with Verified Purchase badge!",
+        data: {
+          productId,
+          rating: numRating,
+          body: reviewBody,
+          isVerified: true,
+        },
       });
     }
 
@@ -183,7 +372,7 @@ export async function POST(request: Request) {
       );
     }
 
-    // 2. Check for delivered order containing this product (for verified badge)
+    // 2. Strictly verify customer has a DELIVERED order for this product
     const deliveredOrderWithProduct = await db.order.findFirst({
       where: {
         userId: user.id,
@@ -192,7 +381,39 @@ export async function POST(request: Request) {
       },
     });
 
-    const isVerified = !!deliveredOrderWithProduct;
+    if (!deliveredOrderWithProduct) {
+      // Check if ordered but not yet delivered
+      const pendingOrder = await db.order.findFirst({
+        where: {
+          userId: user.id,
+          items: { some: { productId } },
+        },
+        select: { status: true, orderNumber: true },
+      });
+
+      if (pendingOrder) {
+        return NextResponse.json(
+          {
+            success: false,
+            code: "ORDER_NOT_DELIVERED",
+            message: `Order #${pendingOrder.orderNumber} is currently ${pendingOrder.status.replace(/_/g, " ")}. You can submit a review once the product has been delivered.`,
+          },
+          { status: 403, headers },
+        );
+      }
+
+      return NextResponse.json(
+        {
+          success: false,
+          code: "NOT_PURCHASED",
+          message:
+            "Only customers who have purchased and received this product directly from Prayog India can write a review.",
+        },
+        { status: 403, headers },
+      );
+    }
+
+    const isVerified = true;
 
     // 3. Create review (DB unique constraint prevents duplicates)
     try {

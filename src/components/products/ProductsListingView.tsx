@@ -20,7 +20,10 @@ import { QuickViewModal } from "@/components/products/QuickViewModal";
 import { PRODUCTS, Product } from "@/data/mockData";
 import { useStore } from "@/context/StoreContext";
 import { searchProductsFuzzy } from "@/lib/fuzzySearch";
-import { X, Search, Clock, TrendingUp, Sparkles, Tag, ShoppingCart } from "lucide-react";
+import { X, Search, Clock, TrendingUp, Sparkles, Tag, ShoppingCart, Loader2 } from "lucide-react";
+import { useDebounce } from "@/hooks/useDebounce";
+import { useSearchSuggestions } from "@/hooks/useSearchSuggestions";
+import { SearchSuggestionsDropdown } from "@/components/ui/SearchSuggestionsDropdown";
 
 const POPULAR_SEARCHES = [
   "Arduino UNO R4",
@@ -51,6 +54,9 @@ function ProductsContent() {
   // Filter & Search State
   const [productList, setProductList] = useState<Product[]>(PRODUCTS);
   const [searchQuery, setSearchQuery] = useState(initialSearch);
+  const debouncedSearch = useDebounce(searchQuery, 300);
+  const { suggestions: liveSuggestions, isLoading: isSearchSuggestLoading } =
+    useSearchSuggestions(searchQuery, 300, 6);
   const [searchFocused, setSearchFocused] = useState(false);
   const [searchHistory, setSearchHistory] = useState<string[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(
@@ -218,7 +224,7 @@ function ProductsContent() {
 
   // ── Filter & Sort Logic ──
   const filteredProducts = useMemo(() => {
-    let result = searchProductsFuzzy(productList, searchQuery);
+    let result = searchProductsFuzzy(productList, debouncedSearch);
 
     if (selectedCategory) {
       result = result.filter((p) =>
@@ -345,7 +351,7 @@ function ProductsContent() {
     return result;
   }, [
     productList,
-    searchQuery,
+    debouncedSearch,
     selectedCategory,
     selectedSubcategory,
     selectedBrand,
@@ -405,13 +411,16 @@ function ProductsContent() {
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           onFocus={() => setSearchFocused(true)}
-          onBlur={() => setTimeout(() => setSearchFocused(false), 150)}
+          onBlur={() => setTimeout(() => setSearchFocused(false), 200)}
           onKeyDown={handleSearchKeyDown}
           placeholder="Instant search — name, SKU, brand, or specs (e.g. rasberry, arduno, pixhok)..."
-          className="w-full bg-white text-xs sm:text-sm pl-11 pr-10 py-3.5 rounded-2xl border border-slate-200 focus:outline-none focus:border-[#2563EB] focus:bg-white transition-all shadow-sm"
+          className="w-full bg-white text-xs sm:text-sm pl-11 pr-12 py-3.5 rounded-2xl border border-slate-200 focus:outline-none focus:border-[#2563EB] focus:bg-white transition-all shadow-sm"
           autoComplete="off"
         />
-        {searchQuery && (
+        {isSearchSuggestLoading && (
+          <Loader2 className="w-4 h-4 animate-spin text-blue-600 absolute right-10 top-1/2 -translate-y-1/2" />
+        )}
+        {searchQuery && !isSearchSuggestLoading && (
           <button
             onClick={() => {
               setSearchQuery("");
@@ -421,6 +430,28 @@ function ProductsContent() {
             <X className="w-4 h-4" />
           </button>
         )}
+
+        {/* Live Auto-Suggestions when typing */}
+        <SearchSuggestionsDropdown
+          isOpen={searchFocused && searchQuery.trim().length > 0}
+          query={searchQuery}
+          suggestions={liveSuggestions}
+          isLoading={isSearchSuggestLoading}
+          onSelectProduct={(p) => {
+            commitSearch(p.name);
+            setSearchQuery(p.name);
+            setSearchFocused(false);
+          }}
+          onViewAll={() => {
+            commitSearch(searchQuery);
+            setSearchFocused(false);
+          }}
+          onSelectKeyword={(kw) => {
+            commitSearch(kw);
+            setSearchQuery(kw);
+            setSearchFocused(false);
+          }}
+        />
 
         {/* Search Suggestions Dropdown */}
         {showSearchSuggest && (

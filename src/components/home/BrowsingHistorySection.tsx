@@ -8,6 +8,7 @@ import { getOptimizedImageUrl } from "@/lib/cloudinaryUrl";
 import { Product } from "@/data/mockData";
 import { useStore } from "@/context/StoreContext";
 import { haptic } from "@/utils/haptics";
+import { getRecentlyViewedProducts, recordProductView } from "@/utils/recentProducts";
 
 const WhatsAppIcon = ({ className = "w-3.5 h-3.5" }: { className?: string }) => (
   <svg
@@ -30,6 +31,23 @@ interface BrowsingHistorySectionProps {
 
 // Curated list of genuine Prayog India products with authentic images and accurate reviews
 const BROWSING_HISTORY_PRODUCTS: Product[] = [
+  {
+    id: "robotic-arm-4dof",
+    slug: "4-dof-acrylic-robotic-arm-manipulator-kit",
+    name: "4-DOF Acrylic Robotic Arm Manipulator Kit with Servos",
+    sku: "PRG-KIT-101",
+    brand: "Prayog India",
+    category: "Robotics & DIY Kits",
+    price: 2499,
+    mrp: 3499,
+    discount: "29% OFF",
+    rating: 4.7,
+    reviews: 145,
+    inStock: true,
+    image: "/images/products/4wd-robot-chassis-kit.jpg",
+    description: "4-degree-of-freedom robotic arm assembly kit with 4x MG996R metal gear servos.",
+    specs: { Servos: "4x MG996R", Reach: "20cm", Payload: "150g" },
+  },
   {
     id: "ard-uno-r3",
     slug: "arduino-uno-r3-official-rev3-board",
@@ -232,6 +250,47 @@ export const BrowsingHistorySection: React.FC<BrowsingHistorySectionProps> = ({
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
   const [addedItemIds, setAddedItemIds] = useState<Record<string, boolean>>({});
+  const [productsList, setProductsList] = useState<Product[]>(BROWSING_HISTORY_PRODUCTS);
+
+  // Sync customer's real-time recently viewed items from localStorage, merged with popular products
+  useEffect(() => {
+    const loadRecentlyViewed = () => {
+      const recents = getRecentlyViewedProducts();
+      if (recents && recents.length > 0) {
+        const seen = new Set<string>();
+        const merged: Product[] = [];
+
+        // 1. Customer's recently viewed products first
+        for (const p of recents) {
+          if (p && p.id && !seen.has(p.id)) {
+            seen.add(p.id);
+            merged.push(p);
+          }
+        }
+
+        // 2. Backfill with popular store products
+        for (const p of BROWSING_HISTORY_PRODUCTS) {
+          if (p && p.id && !seen.has(p.id)) {
+            seen.add(p.id);
+            merged.push(p);
+          }
+        }
+
+        setProductsList(merged);
+      } else {
+        setProductsList(BROWSING_HISTORY_PRODUCTS);
+      }
+    };
+
+    loadRecentlyViewed();
+
+    window.addEventListener("prayog_recent_products_updated", loadRecentlyViewed);
+    window.addEventListener("storage", loadRecentlyViewed);
+    return () => {
+      window.removeEventListener("prayog_recent_products_updated", loadRecentlyViewed);
+      window.removeEventListener("storage", loadRecentlyViewed);
+    };
+  }, []);
 
   // Calculate pages based on scrollWidth and clientWidth
   const updatePagination = useCallback(() => {
@@ -272,7 +331,7 @@ export const BrowsingHistorySection: React.FC<BrowsingHistorySectionProps> = ({
       el.removeEventListener("scroll", handleScroll);
       window.removeEventListener("resize", updatePagination);
     };
-  }, [updatePagination]);
+  }, [updatePagination, productsList]);
 
   const scroll = (direction: "left" | "right") => {
     haptic?.selection?.();
@@ -303,6 +362,31 @@ export const BrowsingHistorySection: React.FC<BrowsingHistorySectionProps> = ({
     }, 2000);
   };
 
+  const handleBuyNow = (e: React.MouseEvent, product: Product) => {
+    e.preventDefault();
+    e.stopPropagation();
+    haptic?.medium?.();
+
+    if (onAddToCart) {
+      onAddToCart(product);
+    } else if (store?.addToCart) {
+      store.addToCart(product);
+    }
+    window.location.href = "/cart";
+  };
+
+  const handleToggleWishlist = (e: React.MouseEvent, product: Product) => {
+    e.preventDefault();
+    e.stopPropagation();
+    haptic?.light?.();
+
+    if (onToggleWishlist) {
+      onToggleWishlist(product);
+    } else if (store?.toggleWishlist) {
+      store.toggleWishlist(product);
+    }
+  };
+
   return (
     <section className="py-6 sm:py-8 bg-white border-t border-slate-200/80">
       <div className="w-full px-3.5 sm:px-6 lg:px-8 xl:px-10 2xl:px-12">
@@ -317,13 +401,13 @@ export const BrowsingHistorySection: React.FC<BrowsingHistorySectionProps> = ({
         </div>
 
         {/* Carousel Container with Left/Right Navigation */}
-        <div className="relative group/carousel mt-3">
+        <div className="relative group/carousel mt-2">
           {/* Left Arrow Button */}
           {canScrollLeft && (
             <button
               onClick={() => scroll("left")}
               aria-label="Previous Page"
-              className="absolute -left-2 sm:-left-3 top-1/2 -translate-y-1/2 z-20 w-8 h-10 sm:w-10 sm:h-12 bg-white/95 hover:bg-white border border-slate-300 hover:border-slate-400 rounded-md shadow-md flex items-center justify-center text-slate-800 transition-all active:scale-95 cursor-pointer hover:shadow-lg"
+              className="absolute -left-2 sm:-left-3 top-1/2 -translate-y-1/2 z-30 w-8 h-10 sm:w-10 sm:h-12 bg-white/95 hover:bg-white border border-slate-300 hover:border-slate-400 rounded-md shadow-md flex items-center justify-center text-slate-800 transition-all active:scale-95 cursor-pointer hover:shadow-lg"
             >
               <ChevronLeft className="w-5 h-5 text-slate-700" />
             </button>
@@ -334,7 +418,7 @@ export const BrowsingHistorySection: React.FC<BrowsingHistorySectionProps> = ({
             <button
               onClick={() => scroll("right")}
               aria-label="Next Page"
-              className="absolute -right-2 sm:-right-3 top-1/2 -translate-y-1/2 z-20 w-8 h-10 sm:w-10 sm:h-12 bg-white/95 hover:bg-white border border-slate-300 hover:border-slate-400 rounded-md shadow-md flex items-center justify-center text-slate-800 transition-all active:scale-95 cursor-pointer hover:shadow-lg"
+              className="absolute -right-2 sm:-right-3 top-1/2 -translate-y-1/2 z-30 w-8 h-10 sm:w-10 sm:h-12 bg-white/95 hover:bg-white border border-slate-300 hover:border-slate-400 rounded-md shadow-md flex items-center justify-center text-slate-800 transition-all active:scale-95 cursor-pointer hover:shadow-lg"
             >
               <ChevronRight className="w-5 h-5 text-slate-700" />
             </button>
@@ -343,9 +427,9 @@ export const BrowsingHistorySection: React.FC<BrowsingHistorySectionProps> = ({
           {/* Horizontal Scrolling Items */}
           <div
             ref={scrollContainerRef}
-            className="flex items-stretch gap-3.5 sm:gap-4 overflow-x-auto no-scrollbar scroll-smooth py-2 px-1 snap-x snap-mandatory"
+            className="recent-view-scope flex items-stretch gap-4 sm:gap-5 overflow-x-auto no-scrollbar scroll-smooth py-8 px-3 snap-x snap-mandatory"
           >
-            {BROWSING_HISTORY_PRODUCTS.map((prod) => {
+            {productsList.map((prod) => {
               const displayPrice = prod.price;
               const displayMrp = prod.mrp;
               const discountPercent =
@@ -354,120 +438,144 @@ export const BrowsingHistorySection: React.FC<BrowsingHistorySectionProps> = ({
                   : 0;
               const isAdded = !!addedItemIds[prod.id];
               const isInStock = prod.inStock !== false;
+              const isWishlisted = store?.isWishlisted ? store.isWishlisted(prod.id) : false;
 
               return (
-                <div
-                  key={prod.id}
-                  className="w-[170px] sm:w-[195px] md:w-[210px] lg:w-[220px] shrink-0 snap-start flex flex-col justify-between group p-3 sm:p-3.5 rounded-2xl bg-white border border-slate-100/90 hover:border-slate-200 hover:shadow-md transition-all duration-200"
-                >
-                  {/* Top Portion: Image & Details */}
-                  <div className="flex flex-col flex-1">
-                    {/* Square Image Box with hover zoom & Quick View */}
-                    <div className="relative w-full h-36 sm:h-44 bg-slate-50/50 rounded-xl flex items-center justify-center p-2 mb-2 overflow-hidden border border-slate-100/80 group-hover:border-slate-200 transition-colors">
-                      <Link
-                        href={`/products/${prod.slug || prod.id}`}
-                        className="relative w-full h-full block cursor-pointer"
-                      >
-                        <Image
-                          src={getOptimizedImageUrl(prod.image, {
-                            width: 320,
-                            quality: "auto",
-                          })}
-                          alt={prod.name}
-                          fill
-                          sizes="(max-width: 640px) 170px, 220px"
-                          className="object-contain p-1 group-hover:scale-105 transition-transform duration-300"
-                        />
-                      </Link>
-
-                      {/* Quick View Button on Hover */}
-                      <button
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          haptic?.light?.();
-                          onQuickView?.(prod);
-                        }}
-                        className="opacity-0 group-hover:opacity-100 absolute bottom-2 right-2 bg-white/95 hover:bg-white text-slate-700 hover:text-[#2563EB] p-1.5 rounded-md shadow-md border border-slate-200 transition-all active:scale-90 z-10 cursor-pointer"
-                        title="Quick View"
-                      >
-                        <Eye className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-
-                    {/* Brand Name */}
-                    {prod.brand && prod.brand.trim().toLowerCase() !== "prayog india" && (
-                      <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 truncate">
-                        {prod.brand}
-                      </div>
-                    )}
-
-                    {/* Product Title */}
+                <div key={prod.id} className="card shrink-0 snap-start">
+                  {/* Top Image Container: Full Width Cover with Curved Corner */}
+                  <div className="image-container">
                     <Link
                       href={`/products/${prod.slug || prod.id}`}
-                      className="group/title block mt-0.5"
+                      onClick={() => recordProductView(prod)}
+                      className="relative w-full h-full block cursor-pointer rounded-[0.75rem] rounded-tr-[4rem] overflow-hidden bg-white"
                     >
-                      <h3 className="text-xs sm:text-[13px] font-bold text-slate-900 line-clamp-2 group-hover/title:text-[#2563EB] transition-colors leading-snug">
+                      <Image
+                        src={getOptimizedImageUrl(prod.image, {
+                          width: 400,
+                          quality: "auto",
+                        })}
+                        alt={prod.name}
+                        fill
+                        sizes="240px"
+                        className="object-cover w-full h-full transition-transform duration-300 hover:scale-105"
+                      />
+                    </Link>
+                    <div className="price">₹{displayPrice.toLocaleString("en-IN")}</div>
+                  </div>
+
+                  {/* Floating Favorite Wishlist Heart */}
+                  <label
+                    className="favorite"
+                    onClick={(e) => handleToggleWishlist(e, prod)}
+                    title={isWishlisted ? "Wishlisted" : "Add to Wishlist"}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={isWishlisted}
+                      onChange={() => {}}
+                    />
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                      <path d="M12 20a1 1 0 0 1-.437-.1C11.214 19.73 3 15.671 3 9a5 5 0 0 1 8.535-3.536l.465.465.465-.465A5 5 0 0 1 21 9c0 6.646-8.212 10.728-8.562 10.9A1 1 0 0 1 12 20z" />
+                    </svg>
+                  </label>
+
+                  {/* Card Content with Prayog India Authentic Details */}
+                  <div className="content">
+                    {prod.brand && (
+                      <div className="brand">{prod.brand}</div>
+                    )}
+                    <Link
+                      href={`/products/${prod.slug || prod.id}`}
+                      onClick={() => recordProductView(prod)}
+                      className="block"
+                    >
+                      <h3 className="product-name" title={prod.name}>
                         {prod.name}
                       </h3>
                     </Link>
 
-                    {/* Prayog India Star Review */}
-                    <div className="flex items-center gap-1.5 pt-1">
-                      <div className="flex items-center text-amber-400 gap-0.5">
+                    {/* Rating row: 4/5 amber stars + review count */}
+                    <div className="rating">
+                      <div className="flex items-center text-amber-500 gap-0.5">
                         {[...Array(5)].map((_, i) => (
                           <Star
                             key={i}
-                            className="w-3.5 h-3.5 fill-amber-400 text-amber-400"
+                            className={`w-3 h-3 ${
+                              i < Math.floor(prod.rating || 4)
+                                ? "fill-amber-400 text-amber-400"
+                                : "fill-slate-200 text-slate-200"
+                            }`}
                           />
                         ))}
                       </div>
-                      <span className="text-[11px] font-semibold text-slate-500">
-                        {prod.reviews}
+                      <span className="reviews-count">
+                        {prod.reviews || 45}
                       </span>
                     </div>
 
-                    {/* Price Row: Bold Black Price + Strike M.R.P. + Green % Off */}
-                    <div className="flex items-baseline flex-wrap gap-1.5 pt-1.5 mt-auto">
-                      <span className="text-sm sm:text-base font-extrabold text-slate-900">
+                    {/* Limited Time Deal Badge */}
+                    {discountPercent > 15 && (
+                      <div className="deal-badge">
+                        LIMITED TIME DEAL
+                      </div>
+                    )}
+
+                    {/* Price Row */}
+                    <div className="price-row">
+                      <span className="price-main">
                         ₹{displayPrice.toLocaleString("en-IN")}
                       </span>
                       {displayMrp > displayPrice && (
                         <>
-                          <span className="text-[11px] sm:text-xs text-slate-400 line-through">
+                          <span className="price-mrp">
                             ₹{displayMrp.toLocaleString("en-IN")}
                           </span>
-                          <span className="text-[11px] sm:text-xs font-bold text-emerald-600">
+                          <span className="price-discount">
                             ({discountPercent}% off)
                           </span>
                         </>
                       )}
                     </div>
+
+                    {/* Real Product Specs / Highlights */}
+                    {prod.specs && (
+                      <div className="specs-container">
+                        {Object.entries(prod.specs).slice(0, 2).map(([key, val]) => (
+                          <span key={key} className="spec-pill" title={`${key}: ${val}`}>
+                            {val}
+                          </span>
+                        ))}
+                      </div>
+                    )}
                   </div>
 
-                  {/* Add to Cart or Out of Stock Button */}
-                  <div className="pt-2.5 mt-2">
+                  {/* Button Container: Buy Now + Add to Cart in Prayog Theme */}
+                  <div className="button-container">
                     {isInStock ? (
-                      <button
-                        onClick={(e) => handleAdd(e, prod)}
-                        className={`w-full py-2 sm:py-2.5 px-2 sm:px-3 rounded-xl border text-[11px] sm:text-xs font-bold uppercase tracking-normal sm:tracking-wider flex items-center justify-center gap-1.5 transition-all duration-150 active:scale-95 cursor-pointer shadow-2xs whitespace-nowrap overflow-hidden ${
-                          isAdded
-                            ? "bg-emerald-600 border-emerald-600 text-white"
-                            : "border-[#2563EB] text-[#2563EB] bg-white hover:bg-[#2563EB] hover:text-white active:bg-blue-50"
-                        }`}
-                      >
-                        {isAdded ? (
-                          <>
-                            <Check className="w-3.5 h-3.5 shrink-0" />
-                            <span className="whitespace-nowrap font-bold">ADDED!</span>
-                          </>
-                        ) : (
-                          <>
-                            <ShoppingCart className="w-3.5 h-3.5 shrink-0" />
-                            <span className="whitespace-nowrap font-bold">ADD TO CART</span>
-                          </>
-                        )}
-                      </button>
+                      <>
+                        <button
+                          type="button"
+                          className="buy-button button"
+                          onClick={(e) => handleBuyNow(e, prod)}
+                        >
+                          Buy Now
+                        </button>
+                        <button
+                          type="button"
+                          className="cart-button button"
+                          aria-label="Add to cart"
+                          title="Add to cart"
+                          onClick={(e) => handleAdd(e, prod)}
+                        >
+                          {isAdded ? (
+                            <Check className="w-4 h-4 text-white" />
+                          ) : (
+                            <svg viewBox="0 0 27.97 25.074" xmlns="http://www.w3.org/2000/svg">
+                              <path d="M0,1.175A1.173,1.173,0,0,1,1.175,0H3.4A2.743,2.743,0,0,1,5.882,1.567H26.01A1.958,1.958,0,0,1,27.9,4.035l-2.008,7.459a3.532,3.532,0,0,1-3.4,2.61H8.36l.264,1.4a1.18,1.18,0,0,0,1.156.955H23.9a1.175,1.175,0,0,1,0,2.351H9.78a3.522,3.522,0,0,1-3.462-2.865L3.791,2.669A.39.39,0,0,0,3.4,2.351H1.175A1.173,1.173,0,0,1,0,1.175ZM6.269,22.724a2.351,2.351,0,1,1,2.351,2.351A2.351,2.351,0,0,1,6.269,22.724Zm16.455-2.351a2.351,2.351,0,1,1-2.351,2.351A2.351,2.351,0,0,1,22.724,20.373Z" id={`cart-icon-${prod.id}`} />
+                            </svg>
+                          )}
+                        </button>
+                      </>
                     ) : (
                       <a
                         href={`https://wa.me/918709789641?text=${encodeURIComponent(
@@ -476,11 +584,11 @@ export const BrowsingHistorySection: React.FC<BrowsingHistorySectionProps> = ({
                         target="_blank"
                         rel="noopener noreferrer"
                         onClick={(e) => e.stopPropagation()}
-                        className="w-full py-2 sm:py-2.5 px-1.5 sm:px-2 rounded-xl bg-[#25D366] hover:bg-[#20bd5a] text-white text-[10px] sm:text-[11px] font-bold tracking-tight flex items-center justify-center gap-1.5 transition-all duration-150 active:scale-95 cursor-pointer shadow-2xs whitespace-nowrap overflow-hidden"
-                        title="Out of Stock — Inquire on WhatsApp"
+                        className="buy-button button !bg-emerald-600 hover:!bg-emerald-700 !text-white text-center flex items-center justify-center gap-1.5"
+                        style={{ width: "100%", borderRadius: "1.4rem" }}
                       >
                         <WhatsAppIcon className="w-3.5 h-3.5 fill-white shrink-0" />
-                        <span className="truncate">Out of Stock — Inquire on WhatsApp</span>
+                        <span className="truncate">Inquire on WhatsApp</span>
                       </a>
                     )}
                   </div>
@@ -490,6 +598,281 @@ export const BrowsingHistorySection: React.FC<BrowsingHistorySectionProps> = ({
           </div>
         </div>
       </div>
+
+      {/* Scoped CSS Matching the exact user card design in Prayog India color theme */}
+      <style>{`
+        .recent-view-scope .card {
+          --accent-color: #2563EB;
+          position: relative;
+          width: 240px;
+          background: white;
+          border-radius: 1rem;
+          padding: 0.4rem;
+          box-shadow: rgba(100, 100, 111, 0.15) 0px 20px 30px -10px, 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+          border: 1px solid #f1f5f9;
+          transition: all 0.35s ease-in-out;
+          display: flex;
+          flex-direction: column;
+        }
+
+        .recent-view-scope .card:hover {
+          transform: scale(1.03);
+          box-shadow: rgba(37, 99, 235, 0.16) 0px 25px 35px -12px, 0 2px 8px 0 rgba(0, 0, 0, 0.06);
+          border-color: #cbd5e1;
+        }
+
+        .recent-view-scope .card .image-container {
+          position: relative;
+          width: 100%;
+          height: 155px;
+          border-radius: 0.75rem;
+          border-top-right-radius: 4rem;
+          margin-bottom: 0.85rem;
+          background: #ffffff;
+          overflow: visible;
+        }
+
+        .recent-view-scope .card .image-container img {
+          width: 100% !important;
+          height: 100% !important;
+          object-fit: cover !important;
+          border-radius: inherit;
+        }
+
+        .recent-view-scope .card .image-container .price {
+          position: absolute;
+          right: 0.7rem;
+          bottom: -0.95rem;
+          background: white;
+          color: var(--accent-color);
+          font-weight: 900;
+          font-size: 0.95rem;
+          padding: 0.4rem 0.75rem;
+          border-radius: 1rem 1rem 2rem 2rem;
+          box-shadow: rgba(15, 23, 42, 0.12) 0px 4px 14px 0px;
+          z-index: 10;
+          line-height: 1;
+          border: 1px solid #f1f5f9;
+        }
+
+        .recent-view-scope .card .favorite {
+          position: absolute;
+          width: 26px;
+          height: 26px;
+          top: 8px;
+          right: 8px;
+          cursor: pointer;
+          z-index: 20;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: rgba(255, 255, 255, 0.9);
+          backdrop-filter: blur(4px);
+          border-radius: 50%;
+          box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+          transition: all 0.2s ease;
+        }
+
+        .recent-view-scope .card .favorite:hover {
+          background: #ffffff;
+          transform: scale(1.1);
+        }
+
+        .recent-view-scope .card .favorite input {
+          position: absolute;
+          opacity: 0;
+          width: 0;
+          height: 0;
+        }
+
+        .recent-view-scope .card .favorite input:checked ~ svg {
+          animation: rvBouncing 0.5s;
+          fill: #ef4444;
+          filter: drop-shadow(0px 2px 4px rgba(239, 68, 68, 0.25));
+        }
+
+        .recent-view-scope .card .favorite svg {
+          width: 16px;
+          height: 16px;
+          fill: #94a3b8;
+          transition: fill 0.2s ease;
+        }
+
+        .recent-view-scope .card .content {
+          padding: 0 0.6rem;
+          margin-bottom: 0.75rem;
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+        }
+
+        .recent-view-scope .card .content .brand {
+          font-weight: 800;
+          color: #94a3b8;
+          font-size: 0.68rem;
+          letter-spacing: 0.05em;
+          text-transform: uppercase;
+          line-height: 1.2;
+          margin-bottom: 0.15rem;
+        }
+
+        .recent-view-scope .card .content .product-name {
+          font-weight: 700;
+          color: #0f172a;
+          font-size: 0.82rem;
+          line-height: 1.35;
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+          height: 2.25rem;
+          transition: color 0.15s ease;
+          margin-bottom: 0.35rem;
+        }
+
+        .recent-view-scope .card .content .product-name:hover {
+          color: #2563eb;
+        }
+
+        .recent-view-scope .card .content .rating {
+          color: #64748b;
+          font-size: 0.7rem;
+          font-weight: 600;
+          display: flex;
+          align-items: center;
+          gap: 0.35rem;
+          margin-bottom: 0.35rem;
+        }
+
+        .recent-view-scope .card .content .rating .reviews-count {
+          font-size: 0.7rem;
+          font-weight: 600;
+          color: #64748b;
+        }
+
+        .recent-view-scope .card .content .deal-badge {
+          background: #CC0C39;
+          color: white;
+          font-size: 0.62rem;
+          font-weight: 900;
+          padding: 0.15rem 0.45rem;
+          border-radius: 2px;
+          text-transform: uppercase;
+          letter-spacing: 0.02em;
+          display: inline-block;
+          align-self: flex-start;
+          margin-bottom: 0.4rem;
+          line-height: 1.2;
+        }
+
+        .recent-view-scope .card .content .price-row {
+          display: flex;
+          align-items: baseline;
+          flex-wrap: wrap;
+          gap: 0.4rem;
+          margin-bottom: 0.4rem;
+        }
+
+        .recent-view-scope .card .content .price-main {
+          font-size: 1.05rem;
+          font-weight: 900;
+          color: #0f172a;
+          letter-spacing: -0.02em;
+        }
+
+        .recent-view-scope .card .content .price-mrp {
+          font-size: 0.72rem;
+          color: #94a3b8;
+          text-decoration: line-through;
+        }
+
+        .recent-view-scope .card .content .price-discount {
+          font-size: 0.72rem;
+          font-weight: 700;
+          color: #16a34a;
+        }
+
+        .recent-view-scope .card .content .specs-container {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 0.3rem;
+          margin-top: auto;
+          padding-top: 0.15rem;
+        }
+
+        .recent-view-scope .card .content .spec-pill {
+          font-size: 0.62rem;
+          font-weight: 600;
+          color: #475569;
+          background: #f1f5f9;
+          padding: 0.15rem 0.45rem;
+          border-radius: 4px;
+          border: 1px solid #e2e8f0;
+        }
+
+        .recent-view-scope .card .button-container {
+          display: flex;
+          gap: 0.35rem;
+          padding: 0 0.1rem;
+        }
+
+        .recent-view-scope .card .button-container .button {
+          border-radius: 1.4rem 1.4rem 0.7rem 0.7rem;
+          border: none;
+          padding: 0.55rem 0;
+          background: var(--accent-color);
+          color: white;
+          font-weight: 800;
+          cursor: pointer;
+          transition: all 0.2s ease-in-out;
+          text-decoration: none;
+        }
+
+        .recent-view-scope .card .button-container .button:hover {
+          background: #1d4ed8;
+        }
+
+        .recent-view-scope .card .button-container .buy-button {
+          flex: auto;
+          font-size: 0.78rem;
+          letter-spacing: 0.03em;
+          text-transform: uppercase;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .recent-view-scope .card .button-container .cart-button {
+          display: grid;
+          place-content: center;
+          width: 48px;
+          flex-shrink: 0;
+        }
+
+        .recent-view-scope .card .button-container .cart-button svg {
+          width: 15px;
+          fill: white;
+        }
+
+        .recent-view-scope .card:hover {
+          transform: scale(1.03);
+        }
+
+        @keyframes rvBouncing {
+          from, to {
+            transform: scale(1, 1);
+          }
+          25% {
+            transform: scale(1.5, 2.1);
+          }
+          50% {
+            transform: scale(2.1, 1.5);
+          }
+          75% {
+            transform: scale(1.5, 2.05);
+          }
+        }
+      `}</style>
     </section>
   );
 };

@@ -366,16 +366,16 @@
 .circular-loop-track-left {
   display: flex;
   width: max-content;
-  gap: 10px;
-  animation: circularLoopTrackLeft 24s linear infinite;
+  gap: 12px;
+  animation: circularLoopTrackLeft 30s linear infinite;
   will-change: transform;
 }
 
 .circular-loop-track-right {
   display: flex;
   width: max-content;
-  gap: 10px;
-  animation: circularLoopTrackRight 24s linear infinite;
+  gap: 12px;
+  animation: circularLoopTrackRight 30s linear infinite;
   will-change: transform;
 }
 

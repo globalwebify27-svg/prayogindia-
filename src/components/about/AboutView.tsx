@@ -29,6 +29,62 @@ import {
   ExternalLink,
 } from "lucide-react";
 
+const INSTITUTIONAL_PARTNERS = [
+  {
+    name: "CISF",
+    fullName: "Central Industrial Security Force",
+    logo: "/images/partners/cisf.png",
+  },
+  {
+    name: "TATA STEEL",
+    fullName: "Tata Steel",
+    logo: "/images/partners/tata-steel.png",
+  },
+  {
+    name: "Indian Air Force",
+    fullName: "Indian Air Force (Bharatiya Vayu Sena)",
+    logo: "/images/partners/indian-air-force.png",
+  },
+  {
+    name: "INDIAN ARMY",
+    fullName: "Indian Army (Bharatiya Sena)",
+    logo: "/images/partners/indian-army.png",
+  },
+  {
+    name: "Indian Navy",
+    fullName: "Indian Navy (Bharatiya Nau Sena)",
+    logo: "/images/partners/indian-navy.png",
+  },
+  {
+    name: "IndianOil",
+    fullName: "Indian Oil Corporation Limited",
+    logo: "/images/partners/indianoil.png",
+  },
+  {
+    name: "PWD Government of West Bengal",
+    fullName: "Public Works Department, Govt. of West Bengal",
+    logo: "/images/partners/pwd-wb.png",
+  },
+  {
+    name: "TATA METALIKS",
+    fullName: "Tata Metaliks",
+    logo: "/images/partners/tata-metaliks.png",
+  },
+  {
+    name: "IIT Kharagpur",
+    fullName: "Indian Institute of Technology Kharagpur",
+    logo: "/images/partners/iit-kharagpur.png",
+  },
+];
+
+const ROW_1_PARTNERS = [...INSTITUTIONAL_PARTNERS, ...INSTITUTIONAL_PARTNERS];
+const ROW_2_PARTNERS = [
+  ...INSTITUTIONAL_PARTNERS.slice(4),
+  ...INSTITUTIONAL_PARTNERS.slice(0, 4),
+  ...INSTITUTIONAL_PARTNERS.slice(4),
+  ...INSTITUTIONAL_PARTNERS.slice(0, 4),
+];
+
 export const AboutView: React.FC = () => {
   const IMPACT_STATS = [
     {
@@ -123,7 +179,7 @@ export const AboutView: React.FC = () => {
       description:
         "Raspberry Pi 5 (8GB), ESP32-WROOM dual-core modules, Arduino UNO R4 WiFi, LoRa SX1278 transceivers, and precision sensor shields.",
       image: "/images/pi_hero.jpg",
-      href: "/categories/arduino-development-boards",
+      href: "/categories/development-boards",
       tag: "Official Hardware",
     },
     {
@@ -483,40 +539,61 @@ export const AboutView: React.FC = () => {
           </div>
         </section>
 
-        {/* 7. Institutions & Labs Trust Banner */}
-        <section className="bg-slate-50 border border-slate-200/90 rounded-3xl p-8 sm:p-10 space-y-6">
-          <div className="text-center max-w-2xl mx-auto space-y-2">
-            <span className="text-[10px] font-black uppercase tracking-widest text-[#2563EB] bg-blue-50 px-3 py-1 rounded-full inline-block border border-blue-200/60">
-              INSTITUTIONAL NETWORK
-            </span>
-            <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-              Equipping India’s Premier Labs &amp; Atal Tinkering Centers
-            </h2>
-            <p className="text-xs text-slate-500">
-              Verified supply partner for premier universities, engineering
-              departments, and school robotics clubs.
-            </p>
+        {/* 7. Institutions & Labs Trust Banner - Styled like Home Page BrandPartners */}
+        <section className="py-5 sm:py-7 bg-white border-y border-slate-200/70 overflow-hidden -mx-4 sm:-mx-6 lg:-mx-8 xl:-mx-10 2xl:-mx-12 px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 space-y-3 sm:space-y-4 text-center">
+          {/* Section Header with Centered Divider (Styled like the reference design) */}
+          <div className="relative flex items-center justify-center">
+            <div className="absolute inset-0 flex items-center" aria-hidden="true">
+              <div className="w-full border-t border-slate-200" />
+            </div>
+            <div className="relative bg-white px-4 sm:px-8">
+              <h2 className="text-xs sm:text-base lg:text-lg font-bold text-slate-900 tracking-tight">
+                Official Institutional &amp; Defense Partners
+              </h2>
+            </div>
           </div>
 
-          <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 pt-2">
-            {[
-              "IIT Kharagpur",
-              "IISc Bangalore",
-              "DTU Delhi",
-              "NIT Patna",
-              "BITS Pilani",
-              "St. Xavier High School",
-              "Apex IoT Labs",
-              "AeroTech Dynamics",
-              "250+ Atal Tinkering Labs",
-            ].map((inst, i) => (
-              <span
-                key={i}
-                className="bg-white border border-slate-200 text-slate-700 text-xs font-bold px-4 py-2 rounded-2xl shadow-2xs"
-              >
-                {inst}
-              </span>
-            ))}
+          {/* Two-Row Opposing Marquee Tracks (Compact & Sleek) */}
+          <div className="space-y-2.5 sm:space-y-3 py-1">
+            {/* Row 1: Right to Left */}
+            <div className="circular-loop-wrapper">
+              <div className="circular-loop-track-left items-center">
+                {ROW_1_PARTNERS.map((partner, idx) => (
+                  <div
+                    key={`r1-${partner.name}-${idx}`}
+                    title={`${partner.name} (${partner.fullName})`}
+                    className="shrink-0 w-24 sm:w-28 lg:w-32 h-16 sm:h-[70px] lg:h-[74px] bg-white hover:bg-slate-50/50 border border-slate-200/90 hover:border-slate-300 rounded-xl p-1.5 sm:p-2 flex items-center justify-center transition-all duration-300 group cursor-pointer shadow-2xs hover:shadow-sm hover:-translate-y-0.5 select-none"
+                  >
+                    <img
+                      src={partner.logo}
+                      alt={partner.name}
+                      className="w-full h-full object-contain rounded-lg transition-transform duration-300 group-hover:scale-105"
+                      loading="lazy"
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Row 2: Left to Right */}
+            <div className="circular-loop-wrapper">
+              <div className="circular-loop-track-right items-center">
+                {ROW_2_PARTNERS.map((partner, idx) => (
+                  <div
+                    key={`r2-${partner.name}-${idx}`}
+                    title={`${partner.name} (${partner.fullName})`}
+                    className="shrink-0 w-24 sm:w-28 lg:w-32 h-16 sm:h-[70px] lg:h-[74px] bg-white hover:bg-slate-50/50 border border-slate-200/90 hover:border-slate-300 rounded-xl p-1.5 sm:p-2 flex items-center justify-center transition-all duration-300 group cursor-pointer shadow-2xs hover:shadow-sm hover:-translate-y-0.5 select-none"
+                  >
+                    <img
+                      src={partner.logo}
+                      alt={partner.name}
+                      className="w-full h-full object-contain rounded-lg transition-transform duration-300 group-hover:scale-105"
+                      loading="lazy"
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </section>
 
@@ -567,6 +644,151 @@ export const AboutView: React.FC = () => {
                 <span>View Lab Setup Services</span>
               </Link>
             </div>
+          </div>
+        </section>
+
+        {/* 9. Policy, Legal & Operational Compliance Documents (Anchors for Footer) */}
+        <section id="policies" className="pt-8 border-t border-slate-200/90 space-y-10 scroll-mt-20">
+          <div className="space-y-2 text-center max-w-2xl mx-auto">
+            <span className="text-[10px] font-black uppercase tracking-widest text-[#2563EB] bg-blue-50 px-3 py-1 rounded-full inline-block border border-blue-200/60">
+              LEGAL &amp; OPERATIONAL POLICIES
+            </span>
+            <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+              Customer Trust &amp; Hardware Compliance
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-500 font-normal">
+              Official operating standards, warranty terms, dispatch timelines, and legal disclaimers for Prayog India customers and partner labs.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+            {/* 1. Terms & Conditions */}
+            <article
+              id="terms"
+              className="scroll-mt-24 p-6 sm:p-7 rounded-3xl bg-slate-50/70 border border-slate-200/90 hover:border-blue-300 transition-all shadow-2xs space-y-3"
+            >
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-blue-100 text-[#2563EB] flex items-center justify-center shrink-0">
+                  <ShieldCheck className="w-4 h-4" />
+                </div>
+                <h3 className="text-base font-bold text-slate-900">Terms &amp; Conditions</h3>
+              </div>
+              <p className="text-xs text-slate-600 leading-relaxed">
+                By purchasing hardware components, robotics platforms, or turnkey lab setup services from Prayog India, you agree to comply with our commercial terms. All orders are subject to availability and dispatch verification. For educational institutions and bulk enterprise procurement, formal purchase orders (PO) and institutional credit agreements will supersede default retail checkout terms where applicable.
+              </p>
+            </article>
+
+            {/* 2. Disclaimer */}
+            <article
+              id="disclaimer"
+              className="scroll-mt-24 p-6 sm:p-7 rounded-3xl bg-slate-50/70 border border-slate-200/90 hover:border-blue-300 transition-all shadow-2xs space-y-3"
+            >
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center shrink-0">
+                  <Target className="w-4 h-4" />
+                </div>
+                <h3 className="text-base font-bold text-slate-900">Hardware &amp; Educational Disclaimer</h3>
+              </div>
+              <p className="text-xs text-slate-600 leading-relaxed">
+                Electronic microcontrollers, high-discharge LiPo batteries, drone flight controllers, and mechatronic actuators are intended for engineering education, prototyping, robotics competitions, and industrial research. Users must observe proper reverse-polarity protection, voltage regulation, and drone safety protocols. Prayog India is not liable for secondary damages caused by incorrect circuit wiring, firmware misconfiguration, or unauthorized battery modifications.
+              </p>
+            </article>
+
+            {/* 3. Privacy Policy */}
+            <article
+              id="privacy"
+              className="scroll-mt-24 p-6 sm:p-7 rounded-3xl bg-slate-50/70 border border-slate-200/90 hover:border-blue-300 transition-all shadow-2xs space-y-3"
+            >
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
+                  <Eye className="w-4 h-4" />
+                </div>
+                <h3 className="text-base font-bold text-slate-900">Privacy &amp; Data Protection Policy</h3>
+              </div>
+              <p className="text-xs text-slate-600 leading-relaxed">
+                Your personal details, contact numbers, shipping addresses, and GST identification numbers are securely stored using enterprise-grade encryption. We never sell, rent, or trade customer data to third-party advertisers. Information is strictly utilized to process online orders, provide real-time WhatsApp courier tracking updates, and generate compliant GST tax invoices.
+              </p>
+            </article>
+
+            {/* 4. Return & Refund Policy */}
+            <article
+              id="returns"
+              className="scroll-mt-24 p-6 sm:p-7 rounded-3xl bg-slate-50/70 border border-slate-200/90 hover:border-blue-300 transition-all shadow-2xs space-y-3"
+            >
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-indigo-100 text-indigo-700 flex items-center justify-center shrink-0">
+                  <Award className="w-4 h-4" />
+                </div>
+                <h3 className="text-base font-bold text-slate-900">Return &amp; Refund Policy</h3>
+              </div>
+              <p className="text-xs text-slate-600 leading-relaxed">
+                We provide a hassle-free 7-day replacement guarantee on hardware items delivered with manufacturing defects, shipping transit damage, or missing accessories. To request a replacement or store credit, contact our engineer support desk via WhatsApp or support ticket with an unboxing video and order ID. Refunds for authorized returns are processed directly back to the original source within 3-5 business days.
+              </p>
+            </article>
+
+            {/* 5. Shipping Policy */}
+            <article
+              id="shipping"
+              className="scroll-mt-24 p-6 sm:p-7 rounded-3xl bg-slate-50/70 border border-slate-200/90 hover:border-blue-300 transition-all shadow-2xs space-y-3"
+            >
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-cyan-100 text-cyan-700 flex items-center justify-center shrink-0">
+                  <Truck className="w-4 h-4" />
+                </div>
+                <h3 className="text-base font-bold text-slate-900">Pan-India Shipping Policy</h3>
+              </div>
+              <p className="text-xs text-slate-600 leading-relaxed">
+                Orders received before 2:00 PM IST on business days are dispatched same-day in ESD-safe protective shielding and anti-static bubble packaging. We partner with Bluedart, Delhivery, DTDC, and India Post Speed Post covering 19,000+ pincodes across India. Standard delivery timeline is 2-4 business days for metro locations and 3-6 business days for regional addresses.
+              </p>
+            </article>
+
+            {/* 6. Warranty Policy */}
+            <article
+              id="warranty"
+              className="scroll-mt-24 p-6 sm:p-7 rounded-3xl bg-slate-50/70 border border-slate-200/90 hover:border-blue-300 transition-all shadow-2xs space-y-3"
+            >
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center shrink-0">
+                  <Cpu className="w-4 h-4" />
+                </div>
+                <h3 className="text-base font-bold text-slate-900">Hardware Warranty &amp; Quality Guarantee</h3>
+              </div>
+              <p className="text-xs text-slate-600 leading-relaxed">
+                All development boards, autopilots, laboratory power supplies, 3D printers, and test equipment carry a standard 6-month or 1-year manufacturer warranty covering operational component failures. Consumable items such as soldering tips, filaments, and jumper wires are guaranteed against initial dead-on-arrival (DOA) defects upon delivery.
+              </p>
+            </article>
+
+            {/* 7. Payment Policy */}
+            <article
+              id="payment"
+              className="scroll-mt-24 p-6 sm:p-7 rounded-3xl bg-slate-50/70 border border-slate-200/90 hover:border-blue-300 transition-all shadow-2xs space-y-3"
+            >
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-rose-100 text-rose-700 flex items-center justify-center shrink-0">
+                  <Building2 className="w-4 h-4" />
+                </div>
+                <h3 className="text-base font-bold text-slate-900">Payment &amp; Institutional Credit Policy</h3>
+              </div>
+              <p className="text-xs text-slate-600 leading-relaxed">
+                We accept UPI (Google Pay, PhonePe, Paytm, BHIM), all major RuPay, Visa, and Mastercard credit/debit cards, Net Banking across 50+ Indian banks, and corporate NEFT/RTGS bank transfers. Government educational institutions and corporate R&amp;D labs can apply for Net-30 credit billing against verified purchase orders.
+              </p>
+            </article>
+
+            {/* 8. Cookie Policy */}
+            <article
+              id="cookies"
+              className="scroll-mt-24 p-6 sm:p-7 rounded-3xl bg-slate-50/70 border border-slate-200/90 hover:border-blue-300 transition-all shadow-2xs space-y-3"
+            >
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-teal-100 text-teal-700 flex items-center justify-center shrink-0">
+                  <Sparkles className="w-4 h-4" />
+                </div>
+                <h3 className="text-base font-bold text-slate-900">Cookie &amp; Browsing Session Policy</h3>
+              </div>
+              <p className="text-xs text-slate-600 leading-relaxed">
+                Prayog India utilizes lightweight session cookies and local storage to preserve your shopping cart state, recently viewed hardware items, and login authentication token. We do not run invasive cross-site tracking beacons. You may clear your browser cookies at any time without impacting basic product browsing.
+              </p>
+            </article>
           </div>
         </section>
       </div>

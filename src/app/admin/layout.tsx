@@ -66,7 +66,7 @@ export default function AdminLayout({
   }
 
   return (
-    <div className="h-screen w-screen overflow-hidden bg-[#F8FAFC] text-slate-900 flex font-sans">
+    <div className="h-screen w-screen overflow-hidden bg-[#F4F6FC] text-slate-900 flex font-sans">
       {/* Isolated Persistent Admin Sidebar (Locked in place, never scrolls with the page) */}
       <AdminSidebar
         mobileOpen={mobileSidebarOpen}
@@ -74,7 +74,7 @@ export default function AdminLayout({
       />
 
       {/* Main Operational Container (Only this section scrolls) */}
-      <div className="flex-1 h-screen overflow-y-auto overflow-x-hidden flex flex-col min-w-0 bg-[#F8FAFC]">
+      <div className="flex-1 h-screen overflow-y-auto overflow-x-hidden flex flex-col min-w-0 bg-[#F4F6FC]">
         <AdminHeader
           adminUser={adminUser}
           onToggleMobileSidebar={() => setMobileSidebarOpen(true)}

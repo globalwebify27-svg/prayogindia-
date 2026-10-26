@@ -16,10 +16,18 @@ import {
   CheckCircle,
 } from "lucide-react";
 import { PrayogLogo } from "./PrayogLogo";
+import {
+  UPILogo,
+  RuPayLogo,
+  VisaLogo,
+  MastercardLogo,
+  NetBankingLogo,
+  RazorpayLogo,
+} from "@/components/icons/PaymentLogos";
 
 export const FooterSection: React.FC = () => {
   return (
-    <footer className="relative bg-gradient-to-b from-slate-50/70 via-white to-slate-50/90 text-slate-800 pt-12 sm:pt-16 pb-24 lg:pb-12 border-t border-slate-200/90 overflow-hidden">
+    <footer className="relative bg-gradient-to-b from-slate-50/70 via-white to-slate-50/90 text-slate-800 pt-6 sm:pt-8 pb-24 lg:pb-12 border-t border-slate-200/90 overflow-hidden">
       {/* ── Top Subtle Brand Accent Line ── */}
       <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-transparent via-[#2563EB] to-transparent opacity-80" />
 
@@ -250,7 +258,7 @@ export const FooterSection: React.FC = () => {
             {/* Action CTA Pill Button */}
             <div className="pt-2">
               <a
-                href="https://whatsapp.com"
+                href="https://wa.me/918709789641?text=Hi%20Prayog%20India%2C%20I%20want%20to%20join%20the%20Robotics%20Community%20Channel!"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full bg-gradient-to-r from-[#128C7E] to-[#075E54] hover:from-[#0d7a6e] hover:to-[#054c43] active:scale-98 text-white text-xs font-bold shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer border border-emerald-400/30"
@@ -449,16 +457,58 @@ export const FooterSection: React.FC = () => {
 
         {/* ── Payment Trust Badges & Certifications ── */}
         <div className="pt-6 pb-6 border-t border-slate-200/80 flex flex-wrap items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+          <div className="flex flex-wrap items-center gap-3">
+            <span className="text-[11px] font-extrabold text-slate-500 uppercase tracking-wider whitespace-nowrap">
               100% Secure Payments
             </span>
-            <div className="flex items-center gap-1.5">
-              <span className="px-2 py-0.5 rounded bg-white text-[10px] font-extrabold text-blue-700 border border-slate-200 shadow-2xs">UPI</span>
-              <span className="px-2 py-0.5 rounded bg-white text-[10px] font-extrabold text-emerald-700 border border-slate-200 shadow-2xs">RuPay</span>
-              <span className="px-2 py-0.5 rounded bg-white text-[10px] font-extrabold text-blue-900 border border-slate-200 shadow-2xs">VISA</span>
-              <span className="px-2 py-0.5 rounded bg-white text-[10px] font-extrabold text-orange-600 border border-slate-200 shadow-2xs">Mastercard</span>
-              <span className="px-2 py-0.5 rounded bg-white text-[10px] font-extrabold text-slate-700 border border-slate-200 shadow-2xs">NetBanking</span>
+            <div className="flex flex-wrap items-center gap-2">
+              {/* UPI */}
+              <div
+                title="UPI - Unified Payments Interface"
+                className="h-8 px-2.5 rounded-lg bg-white border border-slate-200/90 shadow-2xs hover:border-slate-300 hover:shadow-xs transition-all flex items-center justify-center cursor-default"
+              >
+                <UPILogo className="h-4.5 w-auto" />
+              </div>
+
+              {/* RuPay */}
+              <div
+                title="RuPay Debit & Credit Cards"
+                className="h-8 px-2.5 rounded-lg bg-white border border-slate-200/90 shadow-2xs hover:border-slate-300 hover:shadow-xs transition-all flex items-center justify-center cursor-default"
+              >
+                <RuPayLogo className="h-4 w-auto" />
+              </div>
+
+              {/* VISA */}
+              <div
+                title="Visa Verified"
+                className="h-8 px-2.5 rounded-lg bg-white border border-slate-200/90 shadow-2xs hover:border-slate-300 hover:shadow-xs transition-all flex items-center justify-center cursor-default"
+              >
+                <VisaLogo className="h-3.5 w-auto" />
+              </div>
+
+              {/* Mastercard */}
+              <div
+                title="Mastercard Identity Check"
+                className="h-8 px-2.5 rounded-lg bg-white border border-slate-200/90 shadow-2xs hover:border-slate-300 hover:shadow-xs transition-all flex items-center justify-center cursor-default"
+              >
+                <MastercardLogo className="h-4.5 w-auto" />
+              </div>
+
+              {/* NetBanking */}
+              <div
+                title="All Major Indian Banks NetBanking"
+                className="h-8 px-2.5 rounded-lg bg-white border border-slate-200/90 shadow-2xs hover:border-slate-300 hover:shadow-xs transition-all flex items-center justify-center cursor-default"
+              >
+                <NetBankingLogo className="h-4 w-auto" />
+              </div>
+
+              {/* Razorpay */}
+              <div
+                title="Secured by Razorpay"
+                className="h-8 px-2.5 rounded-lg bg-white border border-slate-200/90 shadow-2xs hover:border-slate-300 hover:shadow-xs transition-all flex items-center justify-center cursor-default"
+              >
+                <RazorpayLogo className="h-4 w-auto" />
+              </div>
             </div>
           </div>
 

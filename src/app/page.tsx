@@ -8,6 +8,7 @@ import { StatsSection } from "@/components/StatsSection";
 // Phase 1 Component Imports
 import { ShopByCategory } from "@/components/home/ShopByCategory";
 import { FeaturedCategories } from "@/components/home/FeaturedCategories";
+import { CATEGORIES_DATA, matchCategory } from "@/data/categories";
 import { ProductGridSection } from "@/components/ProductGridSection";
 import { DealsAndOffersSection } from "@/components/home/DealsAndOffersSection";
 import { BrowsingHistorySection } from "@/components/home/BrowsingHistorySection";
@@ -65,28 +66,66 @@ export default function Home() {
   const getCategorySlug = (catName: string): string => {
     const lower = catName.toLowerCase().trim();
     if (lower === "all" || lower === "") return "/products";
+
+    const matched = CATEGORIES_DATA.find(
+      (c) =>
+        matchCategory(c, lower) ||
+        c.name.toLowerCase().includes(lower) ||
+        lower.includes(c.name.toLowerCase()) ||
+        c.subcategories.some(
+          (s) =>
+            s.slug.toLowerCase() === lower ||
+            s.name.toLowerCase().includes(lower) ||
+            lower.includes(s.name.toLowerCase())
+        )
+    );
+    if (matched) return `/categories/${matched.slug}`;
+
     if (lower.includes("drone") || lower.includes("uav"))
       return "/categories/drone-technology";
-    if (lower.includes("robot")) return "/categories/robotics";
+    if (
+      lower.includes("robot") ||
+      lower.includes("motor") ||
+      lower.includes("stepper") ||
+      lower.includes("driver")
+    )
+      return "/categories/robotics";
     if (
       lower.includes("arduino") ||
       lower.includes("devboard") ||
       lower.includes("development") ||
-      lower.includes("single board")
+      lower.includes("single board") ||
+      lower.includes("raspberry")
     )
-      return "/categories/arduino-development-boards";
-    if (lower.includes("stem") || lower.includes("education"))
-      return "/categories/stem-kits";
-    if (lower.includes("sensor")) return "/categories/sensors-modules";
-    if (lower.includes("iot") || lower.includes("wireless"))
-      return "/categories/iot";
+      return "/categories/development-boards";
     if (
-      lower.includes("component") ||
-      lower.includes("motor") ||
-      lower.includes("stepper")
+      lower.includes("stem") ||
+      lower.includes("education") ||
+      lower.includes("lab kit")
     )
+      return "/categories/educational-stem-kits";
+    if (
+      lower.includes("sensor") ||
+      lower.includes("iot") ||
+      lower.includes("wireless")
+    )
+      return "/categories/sensors-iot";
+    if (lower.includes("batter") || lower.includes("power"))
+      return "/categories/batteries-power";
+    if (
+      lower.includes("prototyp") ||
+      lower.includes("mechanical") ||
+      lower.includes("hardware") ||
+      lower.includes("tool") ||
+      lower.includes("3d")
+    )
+      return "/categories/mechanical-hardware";
+    if (lower.includes("industr") || lower.includes("automat"))
+      return "/categories/industrial-automation";
+    if (lower.includes("component") || lower.includes("cable"))
       return "/categories/electronic-components";
-    return `/categories/robotics`;
+
+    return "/products";
   };
 
   const handleCategoryNavigation = (catName: string) => {

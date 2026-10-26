@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useState } from "react";
-import { X, Search, Star, ShoppingBag, Eye, Heart } from "lucide-react";
+import { X, Search, Star, ShoppingBag, Eye, Heart, Loader2 } from "lucide-react";
 import { PRODUCTS, Product } from "@/data/mockData";
+import { useSearchSuggestions } from "@/hooks/useSearchSuggestions";
 
 interface SearchModalProps {
   isOpen: boolean;
@@ -18,18 +19,9 @@ export const SearchModal: React.FC<SearchModalProps> = ({
   onQuickView,
 }) => {
   const [query, setQuery] = useState("");
+  const { suggestions: results, isLoading } = useSearchSuggestions(query, 300, 10);
 
   if (!isOpen) return null;
-
-  const results =
-    query.trim() === ""
-      ? []
-      : PRODUCTS.filter(
-          (p) =>
-            p.name.toLowerCase().includes(query.toLowerCase()) ||
-            p.category.toLowerCase().includes(query.toLowerCase()) ||
-            p.sku.toLowerCase().includes(query.toLowerCase()),
-        );
 
   return (
     <div className="fixed inset-0 z-50 overflow-hidden flex items-start justify-center pt-20 px-4">
@@ -41,7 +33,11 @@ export const SearchModal: React.FC<SearchModalProps> = ({
       <div className="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl border border-slate-100 p-6 z-10 animate-in zoom-in-95 duration-200">
         <div className="flex items-center justify-between pb-4 border-b border-slate-100">
           <div className="flex items-center gap-3 w-full">
-            <Search className="w-5 h-5 text-[#1E56A0]" />
+            {isLoading ? (
+              <Loader2 className="w-5 h-5 text-blue-600 animate-spin" />
+            ) : (
+              <Search className="w-5 h-5 text-[#1E56A0]" />
+            )}
             <input
               type="text"
               autoFocus
@@ -61,7 +57,12 @@ export const SearchModal: React.FC<SearchModalProps> = ({
 
         {/* Results List */}
         <div className="mt-4 max-h-96 overflow-y-auto divide-y divide-slate-100">
-          {query.trim() === "" ? (
+          {isLoading && results.length === 0 ? (
+            <div className="py-8 text-center text-xs text-slate-400 flex flex-col items-center gap-2">
+              <Loader2 className="w-5 h-5 animate-spin text-blue-600" />
+              <span>Searching live database...</span>
+            </div>
+          ) : query.trim() === "" ? (
             <div className="py-8 text-center text-xs text-slate-400">
               Type to search 10,000+ technology products across all robotics
               categories.
@@ -99,7 +100,25 @@ export const SearchModal: React.FC<SearchModalProps> = ({
                   </div>
                   <button
                     onClick={() => {
-                      onAddToCart(product);
+                      const fullProduct: Product = {
+                        id: product.id,
+                        name: product.name,
+                        sku: product.sku,
+                        price: product.price,
+                        mrp: product.mrp || product.price * 1.2,
+                        category: product.category,
+                        image: product.image,
+                        inStock: product.inStock,
+                        rating: product.rating ?? 4.8,
+                        discount:
+                          product.mrp && product.mrp > product.price
+                            ? `${Math.round(((product.mrp - product.price) / product.mrp) * 100)}% OFF`
+                            : "",
+                        reviews: 12,
+                        description: "",
+                        specs: {},
+                      };
+                      onAddToCart(fullProduct);
                       onClose();
                     }}
                     className="p-2 bg-[#2563EB] hover:bg-[#1D4ED8] active:bg-[#1E40AF] text-white rounded-lg text-xs font-semibold shadow-xs transition-colors cursor-pointer"

@@ -27,22 +27,38 @@ const TRUST_STATS = [
   {
     icon: ShieldCheck,
     title: "Verified Products",
-    subtitle: "100% Genuine",
+    subtitle: "100% Genuine Tech",
+    badge: "Official",
+    color: "text-[#2563EB]",
+    bg: "bg-blue-50/90",
+    border: "border-blue-100/90",
   },
   {
     icon: Truck,
     title: "Fast Shipping",
-    subtitle: "Across India",
+    subtitle: "Pan-India Dispatch",
+    badge: "Express",
+    color: "text-[#D97706]",
+    bg: "bg-amber-50/90",
+    border: "border-amber-100/90",
   },
   {
     icon: Headphones,
     title: "Expert Support",
-    subtitle: "Technical Assistance",
+    subtitle: "Engineer Guidance",
+    badge: "Assistance",
+    color: "text-[#7C3AED]",
+    bg: "bg-purple-50/90",
+    border: "border-purple-100/90",
   },
   {
     icon: Users,
     title: "Trusted by 10K+",
-    subtitle: "Students & Institutions",
+    subtitle: "Students & Labs",
+    badge: "Community",
+    color: "text-[#059669]",
+    bg: "bg-emerald-50/90",
+    border: "border-emerald-100/90",
   },
 ];
 
@@ -288,34 +304,38 @@ export const HeroSection: React.FC<HeroProps> = ({
         )}
       </section>
 
-      {/* 2. Trust Badges Strip (Shown on Desktop, in aligned container) */}
-      <div className="hidden sm:block w-full px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 bg-transparent py-2.5">
-        <div className="grid grid-cols-4 gap-4 lg:gap-5 items-center">
-          {TRUST_STATS.map((stat, idx) => {
-            const Icon = stat.icon;
-            return (
-              <div
-                key={stat.title}
-                className={`flex items-center gap-2.5 lg:gap-3 py-1 ${
-                  idx < TRUST_STATS.length - 1
-                    ? "border-r border-slate-100 pr-2 lg:pr-4"
-                    : ""
-                }`}
-              >
-                <div className="w-8 h-8 lg:w-9 lg:h-9 rounded-xl bg-blue-50 text-[#2563EB] flex items-center justify-center shrink-0">
-                  <Icon className="w-4 h-4 lg:w-4.5 lg:h-4.5" />
-                </div>
-                <div className="min-w-0">
-                  <div className="text-[12px] lg:text-[13px] font-bold text-slate-900 leading-tight whitespace-nowrap">
-                    {stat.title}
+      {/* 2. Premium Trust Badges Bar (Responsive on all viewports) */}
+      <div className="w-full px-3 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 pt-2.5 sm:pt-3 pb-1 sm:pb-2">
+        <div className="bg-white/95 backdrop-blur-xs rounded-2xl shadow-xs hover:shadow-sm transition-all p-2.5 sm:p-3 lg:p-3.5">
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 lg:gap-4">
+            {TRUST_STATS.map((stat, idx) => {
+              const Icon = stat.icon;
+              return (
+                <div
+                  key={stat.title}
+                  className={`group/stat flex items-center gap-2.5 sm:gap-3 p-1.5 sm:p-2 rounded-xl hover:bg-slate-50/90 transition-all ${
+                    idx > 0 ? "lg:pl-4 xl:pl-6" : ""
+                  } ${idx >= 2 ? "pt-2.5 sm:pt-2" : ""}`}
+                >
+                  <div
+                    className={`w-9 h-9 sm:w-10 sm:h-10 lg:w-11 lg:h-11 rounded-xl ${stat.bg} ${stat.color} border ${stat.border} flex items-center justify-center shrink-0 shadow-2xs group-hover/stat:scale-105 group-hover/stat:shadow-xs transition-all duration-200`}
+                  >
+                    <Icon className="w-4.5 h-4.5 sm:w-5 sm:h-5 stroke-[2.2]" />
                   </div>
-                  <div className="text-[10px] lg:text-[11px] text-slate-500 font-medium leading-tight whitespace-nowrap">
-                    {stat.subtitle}
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-xs sm:text-[13px] font-bold text-slate-900 tracking-tight leading-tight group-hover/stat:text-[#2563EB] transition-colors truncate">
+                        {stat.title}
+                      </span>
+                    </div>
+                    <p className="text-[10px] sm:text-[11px] text-slate-500 font-medium leading-tight mt-0.5 truncate">
+                      {stat.subtitle}
+                    </p>
                   </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
       </div>
     </div>

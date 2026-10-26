@@ -484,12 +484,12 @@ export const WishlistView: React.FC = () => {
           </p>
           <div className="flex flex-wrap items-center justify-center gap-2">
             {[
-              { label: "Arduino Boards", href: "/categories/arduino-development-boards" },
-              { label: "Robotics STEM Kits", href: "/categories/robotics-stem-kits" },
-              { label: "Sensors & Modules", href: "/categories/sensors-modules" },
-              { label: "Drone Components", href: "/categories/drone-components" },
-              { label: "Motors & Drivers", href: "/categories/motors-drivers" },
-              { label: "IoT & Wireless", href: "/categories/wireless-iot-modules" },
+              { label: "Arduino Boards", href: "/categories/development-boards" },
+              { label: "Robotics STEM Kits", href: "/categories/robotics" },
+              { label: "Sensors & Modules", href: "/categories/sensors-iot" },
+              { label: "Drone Components", href: "/categories/drone-technology" },
+              { label: "Motors & Drivers", href: "/categories/robotics" },
+              { label: "IoT & Wireless", href: "/categories/sensors-iot" },
             ].map((cat) => (
               <Link
                 key={cat.label}

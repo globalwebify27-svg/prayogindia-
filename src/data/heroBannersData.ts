@@ -65,7 +65,7 @@ export const DEFAULT_HERO_BANNERS: HeroBanner[] = [
     description:
       "Raspberry Pi 5, Jetson AI edge modules, microcontrollers & IoT sensors engineered for next-generation smart robotic systems.",
     primaryButtonText: "Explore AI & IoT",
-    primaryButtonLink: "/categories/iot",
+    primaryButtonLink: "/categories/sensors-iot",
     secondaryButtonText: "Explore Services",
     secondaryButtonLink: "/services",
     image: "/images/stem_robot_banner.jpg",

@@ -14,6 +14,12 @@ import {
   Sparkles,
 } from "lucide-react";
 import { useStore } from "@/context/StoreContext";
+import {
+  VisaLogo,
+  MastercardLogo,
+  RuPayLogo,
+  UPILogo,
+} from "@/components/icons/PaymentLogos";
 
 interface SavedCard {
   id: string;
@@ -224,12 +230,17 @@ export const PaymentMethodsView: React.FC = () => {
               }`}
             >
               <div className="flex items-start justify-between">
-                <div>
-                  <span className="font-mono font-black text-xs uppercase px-2 py-0.5 rounded bg-slate-900 text-white">
-                    {card.brand}
-                  </span>
+                <div className="flex items-center gap-2">
+                  <div className="h-7 px-2.5 bg-white rounded-lg border border-slate-200 shadow-2xs flex items-center justify-center">
+                    {card.brand === "VISA" && <VisaLogo className="h-3 w-auto" />}
+                    {card.brand === "MASTERCARD" && <MastercardLogo className="h-4 w-auto" />}
+                    {card.brand === "RUPAY" && <RuPayLogo className="h-3.5 w-auto" />}
+                    {card.brand === "AMEX" && (
+                      <span className="font-mono font-black text-[10px] text-blue-700">AMEX</span>
+                    )}
+                  </div>
                   {card.isDefault && (
-                    <span className="ml-2 text-[10px] font-black uppercase text-[#2563EB] bg-white px-2 py-0.5 rounded-full border border-[#2563EB]/30">
+                    <span className="text-[10px] font-black uppercase text-[#2563EB] bg-white px-2 py-0.5 rounded-full border border-[#2563EB]/30">
                       Default
                     </span>
                   )}
@@ -304,8 +315,8 @@ export const PaymentMethodsView: React.FC = () => {
               }`}
             >
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-purple-600 font-black text-xs shadow-2xs">
-                  UPI
+                <div className="w-12 h-10 rounded-xl bg-white border border-slate-200/90 flex items-center justify-center px-1 shadow-2xs">
+                  <UPILogo className="h-4 w-auto" />
                 </div>
                 <div>
                   <div className="text-xs font-black text-slate-900 font-mono flex items-center gap-2">

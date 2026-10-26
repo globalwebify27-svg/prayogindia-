@@ -13,6 +13,20 @@ export const SLUG_ALIASES: Record<string, string[]> = {
   "ard-uno-r3": ["arduino-uno-r3", "arduino-uno-r3-official-rev3-board", "prg-ard-001"],
   "arduino-uno-r4-wifi": ["ard-uno-r4-wifi", "prg-ard-006"],
   "ard-uno-r4-wifi": ["arduino-uno-r4-wifi", "prg-ard-006"],
+  "arduino-mega-2560": ["ard-mega-2560", "prg-ard-002"],
+  "ard-mega-2560": ["arduino-mega-2560", "prg-ard-002"],
+  "arduino-nano-v3": ["ard-nano-v3", "prg-ard-003"],
+  "ard-nano-v3": ["arduino-nano-v3", "prg-ard-003"],
+  "arduino-nano-every": ["ard-nano-every", "prg-ard-004"],
+  "ard-nano-every": ["arduino-nano-every", "prg-ard-004"],
+  "arduino-leonardo-r3": ["ard-leonardo-r3", "prg-ard-005"],
+  "ard-leonardo-r3": ["arduino-leonardo-r3", "prg-ard-005"],
+
+  // ESP & Embedded
+  "node-mcu-v3": ["nodemcu-v3", "nodemcu-esp8266", "esp8266-nodemcu"],
+  "nodemcu-esp8266": ["node-mcu-v3", "nodemcu-v3"],
+  "stm32-bluepill": ["stm32-blue-pill", "stm32f103c8t6"],
+  "stm32-blue-pill": ["stm32-bluepill", "stm32f103c8t6"],
 
   // ESP32 Development Boards
   "esp32-devkit-v1": ["esp32-development-board-esp32-001", "esp32-001", "prg-esp-001", "prg-iot-001"],
@@ -29,6 +43,15 @@ export const SLUG_ALIASES: Record<string, string[]> = {
   "pixhawk-6c-autopilot": ["pixhawk-fc", "pixhawk-6c-flight-controller", "prg-drn-001", "prg-uav-601"],
   "pixhawk-6c-flight-controller": ["pixhawk-fc", "pixhawk-6c-autopilot", "prg-drn-001", "prg-uav-601"],
   "speedybee-f405-stack": ["prg-drn-005"],
+  "holybro-m8n-gps": ["m8n-gps", "neo-m8n-gps"],
+  "bldc-motor-2212": ["a2212-bldc-motor", "2212-1000kv-bldc-motor"],
+  "esc-30a-simonk": ["simonk-30a-esc", "30a-simonk-esc"],
+  "f450-frame": ["f450-drone-frame"],
+  "f450-drone-frame": ["f450-frame"],
+  "flysky-i6-tx": ["flysky-fs-i6"],
+  "flysky-fs-i6": ["flysky-i6-tx"],
+  "gemfan-1045-props": ["gemfan-1045-propellers"],
+  "gemfan-1045-propellers": ["gemfan-1045-props"],
 
   // Motors & Drivers
   "l298n-motor-driver": ["l298n-dual-hbridge", "l298n-dual-h-bridge-motor-driver", "prg-mot-001", "prg-mot-002", "prg-mot-201"],
@@ -40,11 +63,16 @@ export const SLUG_ALIASES: Record<string, string[]> = {
   "nema-17-stepper-motor": ["nema-17-stepper", "nema17-stepper-59ncm", "prg-mot-005", "prg-mot-003"],
   "nema17-stepper-59ncm": ["nema-17-stepper", "nema-17-stepper-motor", "prg-mot-005"],
   "nema-17-stepper-motor-high-torque": ["nema-17-stepper", "nema17-stepper-59ncm"],
+  "mg996r-servo-high-torque": ["mg996r-metal-gear-servo"],
+  "mg996r-metal-gear-servo": ["mg996r-servo-high-torque"],
+  "sg90-servos-10pack": ["sg90-micro-servo", "sg90-servo"],
 
   // Robotics Chassis & Kits
   "prayog-stem-robot-kit": ["4wd-smart-robot-car-chassis-kit", "4wd-robot-chassis", "prg-rob-001", "prg-kit-101"],
   "4wd-smart-robot-car-chassis-kit": ["prayog-stem-robot-kit", "4wd-robot-chassis", "prg-rob-001", "prg-kit-101"],
   "4wd-robot-chassis": ["prayog-stem-robot-kit", "4wd-smart-robot-car-chassis-kit", "prg-rob-001", "prg-kit-101"],
+  "robotic-arm-4dof": ["4-dof-acrylic-robotic-arm-manipulator-kit", "4-dof-acrylic-robotic-arm-manipulator-kit-with-servos", "4dof-acrylic-arm", "prg-kit-101"],
+  "4-dof-acrylic-robotic-arm-manipulator-kit": ["robotic-arm-4dof", "4-dof-acrylic-robotic-arm-manipulator-kit-with-servos", "4dof-acrylic-arm", "prg-kit-101"],
   "arm-manipulator-6dof": ["prg-rob-003"],
   "mecanum-4wd-car": ["prg-rob-004"],
   "stem-starter-lab-kit": ["prg-stm-001", "stem-starter-kit"],
@@ -244,6 +272,34 @@ export function findMockProduct(rawSlug: string): Product | null {
       pId.includes(slugLower)
     );
   });
+  if (partial) return partial;
 
-  return partial || null;
+  // 4. Token overlap match for hyphenated slug words
+  const slugTokens = slugLower
+    .split(/[^a-z0-9]+/)
+    .filter((t) => t.length > 2 && !["with", "and", "the", "for", "kit"].includes(t));
+
+  if (slugTokens.length > 0) {
+    let bestProduct: Product | null = null;
+    let maxMatchCount = 0;
+
+    for (const p of allProducts) {
+      const pText = `${p.id} ${p.slug || ""} ${p.name}`.toLowerCase();
+      const matchCount = slugTokens.reduce(
+        (acc, token) => (pText.includes(token) ? acc + 1 : acc),
+        0
+      );
+
+      if (matchCount > maxMatchCount && matchCount >= Math.min(2, slugTokens.length)) {
+        maxMatchCount = matchCount;
+        bestProduct = p;
+      }
+    }
+
+    if (bestProduct && maxMatchCount / slugTokens.length >= 0.5) {
+      return bestProduct;
+    }
+  }
+
+  return null;
 }

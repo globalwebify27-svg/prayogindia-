@@ -867,6 +867,7 @@ export const PRODUCTS: Product[] = [
   },
   {
     id: "robotic-arm-4dof",
+    slug: "4-dof-acrylic-robotic-arm-manipulator-kit",
     name: "4-DOF Acrylic Robotic Arm Manipulator Kit with Servos",
     sku: "PRG-KIT-101",
     category: "Robotics & DIY Kits",

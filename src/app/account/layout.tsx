@@ -48,15 +48,15 @@ export default function AccountLayout({
   ];
 
   return (
-    <div className="py-3 sm:py-8 bg-slate-50/60 min-h-[70vh] overflow-x-hidden">
+    <div className="pt-1 sm:pt-1.5 pb-8 sm:pb-12 bg-slate-50/60 min-h-[70vh] overflow-x-hidden">
       {isAuthPage ? (
         <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 py-4 sm:py-8">
           {children}
         </div>
       ) : (
-        <div className="w-full max-w-full px-3.5 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 space-y-3 sm:space-y-6">
+        <div className="w-full max-w-full px-3.5 sm:px-6 lg:px-8 xl:px-10 2xl:px-12">
           {/* ── Mobile Horizontal Scrollable Navigation Pills ── */}
-          <div className="lg:hidden w-full max-w-full overflow-hidden">
+          <div className="lg:hidden w-full max-w-full overflow-hidden mb-2 sm:mb-3">
             <div
               className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1 px-0.5 touch-pan-x touch-pan-y"
               style={{ touchAction: "pan-x pan-y" }}
@@ -106,7 +106,7 @@ export default function AccountLayout({
 
           {/* Desktop 2-Column Layout */}
           <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 items-start">
-            <div className="hidden lg:block w-64 xl:w-72 2xl:w-80 shrink-0 sticky top-24">
+            <div className="hidden lg:block w-64 xl:w-72 2xl:w-80 shrink-0 sticky top-20">
               <AccountSidebar />
             </div>
 

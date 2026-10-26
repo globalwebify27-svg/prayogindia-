@@ -104,7 +104,7 @@ export const CATEGORIES_DATA: CategoryData[] = [
   {
     id: "cat-robotics",
     slug: "robotics",
-    slugAlias: ["robotics-diy-kits", "robotics-accessories", "motors-drivers"],
+    slugAlias: ["robotics-diy-kits", "robotics-accessories", "motors-drivers", "robotics-stem-kits"],
     name: "Robotics",
     shortName: "Robotics",
     shortDescription:
@@ -218,7 +218,7 @@ export const CATEGORIES_DATA: CategoryData[] = [
   {
     id: "cat-drone-technology",
     slug: "drone-technology",
-    slugAlias: ["drones", "uav-parts", "drone-parts"],
+    slugAlias: ["drones", "uav-parts", "drone-parts", "drone-components"],
     name: "Drone Technology",
     shortName: "Drones",
     shortDescription:
@@ -303,7 +303,7 @@ export const CATEGORIES_DATA: CategoryData[] = [
   {
     id: "cat-sensors-iot",
     slug: "sensors-iot",
-    slugAlias: ["sensors-modules", "iot-wireless", "sensors", "iot", "iot-wireless-modules"],
+    slugAlias: ["sensors-modules", "iot-wireless", "sensors", "iot", "iot-wireless-modules", "wireless-iot-modules"],
     name: "Sensors & IoT",
     shortName: "Sensors & IoT",
     shortDescription:
@@ -372,7 +372,7 @@ export const CATEGORIES_DATA: CategoryData[] = [
   {
     id: "cat-mechanical-hardware",
     slug: "mechanical-hardware",
-    slugAlias: ["mechanical-components", "hardware-tools", "3d-printing"],
+    slugAlias: ["mechanical-components", "hardware-tools", "3d-printing", "rapid-prototyping"],
     name: "Mechanical & Hardware",
     shortName: "Mechanical & Hardware",
     shortDescription:
@@ -420,7 +420,7 @@ export const CATEGORIES_DATA: CategoryData[] = [
   {
     id: "cat-educational-stem-kits",
     slug: "educational-stem-kits",
-    slugAlias: ["educational-stem", "stem-kits", "project-kits", "stem"],
+    slugAlias: ["educational-stem", "stem-kits", "project-kits", "stem", "robotics-stem-kits"],
     name: "Educational & STEM Kits",
     shortName: "STEM & Kits",
     shortDescription:
