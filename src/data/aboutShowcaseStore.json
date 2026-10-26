@@ -1,0 +1,50 @@
+[
+  {
+    "id": "showcase-1793010900821",
+    "title": "Advancing indigenous drone technology for defense applications.",
+    "badge": "Advancing indigenous",
+    "iconType": "plane",
+    "bubbleColor": "amber",
+    "description": "Proud to share a glimpse of our ongoing Drone Development work for the Indian Army. From system integration and flight testing to payload optimization and mission-focused enhancements, our team is committed to developing reliable UAV solutions that meet demanding operational requirements.\n\nThis milestone reflects the dedication, technical expertise, and relentless efforts of the entire PRAYOG INDIA ROBOTICS team. Every test flight, every design improvement, and every successful deployment brings us one step closer to building stronger, smarter, and more capable drone technologies for the nation.\n\nA special appreciation to our engineers, researchers, and drone specialists whose passion for innovation continues to drive excellence.",
+    "image": "https://res.cloudinary.com/fyueflvh/image/upload/v1793010859/about-showcase/about-showcase/811864820_18428911162177560_2726604390764254029_n_1793010856038.jpg",
+    "alt": "811864820 18428911162177560 2726604390764254029 n",
+    "displayOrder": 3,
+    "isActive": true
+  },
+  {
+    "id": "showcase-1793011098437",
+    "title": "nspiring the Next Generation",
+    "badge": "Inspiring the Next Generation",
+    "iconType": "users",
+    "bubbleColor": "amber",
+    "description": "Today, the PRAYOG INDIA team had the privilege of conducting a Drone Exhibition, Technical Workshop, and Live Flying Demonstration during @pantheon_techfest at BIT Mesra, Ranchi.\n\nStudents explored a wide range of drone technologies, including:\n\n🔹 Agriculture Drones\n🔹 Defense & Tactical Drones\n🔹 Surveillance Drones\n🔹 Educational & Training Drones\n\nThe exhibition provided students with an opportunity to understand real-world applications of UAV technology across industries such as agriculture, defense, security, research, and education.\n\nFollowing the exhibition, we conducted an interactive workshop where students actively participated and asked insightful questions about drone development, battery selection, flight controllers, FPV systems, ELRS communication, VTX technology, and the fundamentals of drone engineering.\n\nThe highlight of the event was the Live Drone Flying Show at the Upper Lawn of BIT Mesra. Students witnessed various drone operations in action, including high-speed FPV flights that showcased the incredible capabilities, agility, and future potential of drone technology.\n\nIt was truly inspiring to see the enthusiasm, curiosity, and passion displayed by the students. Many shared that the experience motivated them to explore careers and projects in emerging technologies.\n\nAt PRAYOG INDIA, our mission goes beyond teaching technology. We strive to inspire innovation, foster practical learning, and empower young minds to become future engineers, creators, entrepreneurs, and nation builders.\n\nA sincere thank you to BIT Mesra and the Pantheon TechFest organizing team for providing this wonderful platform to engage with such talented students.\n\nTogether, we continue building a technology-driven and innovation-led India. 🇮🇳🚀",
+    "image": "https://res.cloudinary.com/fyueflvh/image/upload/v1793010995/about-showcase/about-showcase/802777673_18331260079272290_7186985148984815883_n_1793010992502.jpg",
+    "alt": "nspiring the Next Generation",
+    "displayOrder": 2,
+    "isActive": true
+  },
+  {
+    "id": "showcase-1793011194783",
+    "title": "At PRAYOG INDIA ROBOTICS, we don’t just work — we take it as a responsibility and a passion. Days and nights of effort, coding, testing, and flying — all worth it when it’s for our Nation’s Heroes.",
+    "badge": "Not every job gives you pride",
+    "iconType": "award",
+    "bubbleColor": "amber",
+    "description": "At PRAYOG INDIA ROBOTICS, we don’t just work — we take it as a responsibility and a passion.\nDays and nights of effort, coding, testing, and flying — all worth it when it’s for our Nation’s Heroes.\n\nWe recently conducted a Drone Development & Flying Workshop for our Indian Army Warriors, empowering them with innovation and technology.\n\nEvery small contribution counts — and this one fills our hearts with pride, satisfaction, and the true spirit of Patriotism.\nBecause when it’s for the nation, it’s never just work — it’s Devotion. 💪🇮🇳",
+    "image": "https://res.cloudinary.com/fyueflvh/image/upload/v1793011124/about-showcase/about-showcase/581560220_18381369193177560_4794496904395090022_n_1793011121569.webp",
+    "alt": "At PRAYOG INDIA ROBOTICS, we don’t just work — we take it as a responsibility and a passion. Days and nights of effort, coding, testing, and flying — all worth it when it’s for our Nation’s Heroes.",
+    "displayOrder": 3,
+    "isActive": true
+  },
+  {
+    "id": "showcase-1793011247677",
+    "title": "Not every job gives you pride — but serving our Indian Army through technology does.",
+    "badge": "Not every job gives you pride — but serving our Indian Army through technology does.",
+    "iconType": "users",
+    "bubbleColor": "amber",
+    "description": "At PRAYOG INDIA ROBOTICS, we don’t just work — we take it as a responsibility and a passion.\nDays and nights of effort, coding, testing, and flying — all worth it when it’s for our Nation’s Heroes.\n\nWe recently conducted a Drone Development & Flying Workshop for our Indian Army Warriors, empowering them with innovation and technology.\n\nEvery small contribution counts — and this one fills our hearts with pride, satisfaction, and the true spirit of Patriotism.\nBecause when it’s for the nation, it’s never just work — it’s Devotion. 💪🇮🇳",
+    "image": "https://res.cloudinary.com/fyueflvh/image/upload/v1793011216/about-showcase/about-showcase/580947338_18381369274177560_6889402401708767800_n_1793011213716.webp",
+    "alt": "Not every job gives you pride — but serving our Indian Army through technology does.",
+    "displayOrder": 4,
+    "isActive": true
+  }
+]

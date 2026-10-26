@@ -1,10 +1,16 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { CategoryBreadcrumb } from "@/components/categories/CategoryBreadcrumb";
 import { COMPANY_INFO } from "@/data/companyData";
+import {
+  AboutShowcaseItem,
+  DEFAULT_ABOUT_SHOWCASE,
+  BUBBLE_COLOR_MAP,
+  ShowcaseIconType,
+} from "@/data/aboutShowcaseData";
 import {
   ShieldCheck,
   Target,
@@ -27,6 +33,8 @@ import {
   MapPin,
   Star,
   ExternalLink,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 
 const INSTITUTIONAL_PARTNERS = [
@@ -85,7 +93,70 @@ const ROW_2_PARTNERS = [
   ...INSTITUTIONAL_PARTNERS.slice(0, 4),
 ];
 
+const SHOWCASE_ICONS: Record<ShowcaseIconType, React.ElementType> = {
+  users: UsersIcon,
+  plane: Plane,
+  shield: ShieldCheck,
+  award: Award,
+  bot: Bot,
+  cpu: Cpu,
+  wrench: Wrench,
+};
+
 export const AboutView: React.FC = () => {
+  const [aimSlide, setAimSlide] = useState(1);
+  const [showcaseItems, setShowcaseItems] = useState<AboutShowcaseItem[]>(DEFAULT_ABOUT_SHOWCASE);
+  const carouselRef = useRef<HTMLDivElement>(null);
+
+  const scrollToIndex = (index: number) => {
+    if (!carouselRef.current) return;
+    const container = carouselRef.current;
+    const card = container.children[index] as HTMLElement | undefined;
+    if (card) {
+      const scrollPos = card.offsetLeft - container.offsetLeft;
+      container.scrollTo({
+        left: scrollPos,
+        behavior: "smooth",
+      });
+      setAimSlide(index);
+    }
+  };
+
+  const handleNext = () => {
+    const nextIndex = aimSlide >= showcaseItems.length - 1 ? 0 : aimSlide + 1;
+    scrollToIndex(nextIndex);
+  };
+
+  const handlePrev = () => {
+    const prevIndex = aimSlide <= 0 ? showcaseItems.length - 1 : aimSlide - 1;
+    scrollToIndex(prevIndex);
+  };
+
+  const handleScroll = () => {
+    if (!carouselRef.current) return;
+    const container = carouselRef.current;
+    const scrollLeft = container.scrollLeft;
+    const firstCard = container.firstElementChild as HTMLElement | null;
+    if (firstCard) {
+      const cardWidth = firstCard.offsetWidth + 20; // 20px gap
+      const newIndex = Math.round(scrollLeft / cardWidth);
+      if (newIndex >= 0 && newIndex < showcaseItems.length && newIndex !== aimSlide) {
+        setAimSlide(newIndex);
+      }
+    }
+  };
+
+  useEffect(() => {
+    fetch("/api/about-showcase?activeOnly=true")
+      .then((res) => res.json())
+      .then((json) => {
+        if (json?.success && Array.isArray(json.data) && json.data.length > 0) {
+          setShowcaseItems(json.data);
+        }
+      })
+      .catch((err) => console.error("Error loading showcase items:", err));
+  }, []);
+
   const IMPACT_STATS = [
     {
       value: "5,000+",
@@ -202,7 +273,7 @@ export const AboutView: React.FC = () => {
         </div>
       </div>
 
-      <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 py-10 space-y-16">
+      <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 py-6 sm:py-8 space-y-8 sm:space-y-10">
         {/* 2. Hero Section: Open, Classic Modern Light Layout */}
         <section className="py-2 lg:py-6">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
@@ -336,100 +407,140 @@ export const AboutView: React.FC = () => {
           })}
         </section>
 
-        {/* 4. Our Story & Bento Grid (Identity, Mission, Vision, Indigenous Focus) */}
-        <section className="space-y-6">
-          <div className="text-center max-w-3xl mx-auto space-y-2">
-            <span className="bg-blue-50 text-[#2563EB] text-[11px] font-black uppercase tracking-widest px-3.5 py-1 rounded-full inline-block border border-blue-200/60">
-              OUR HERITAGE &amp; MISSION
-            </span>
-            <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-              Bridging the Gap Between Engineering Theory and Hardware Reality
+        {/* 4. Our Aim At Prayog India (Pixel-perfect matching reference) */}
+        <section className="relative space-y-5 sm:space-y-6">
+          {/* Subtle Ambient Decorative Gradients matching reference */}
+          <div className="absolute -top-16 -left-16 w-80 h-80 bg-blue-100/40 rounded-full blur-3xl pointer-events-none -z-10" />
+          <div className="absolute -bottom-16 -right-16 w-80 h-80 bg-amber-100/40 rounded-full blur-3xl pointer-events-none -z-10" />
+
+          {/* Header */}
+          <div className="text-center space-y-3.5 max-w-2xl mx-auto">
+            {/* Eyebrow: -- OUR MISSION -- */}
+            <div className="inline-flex items-center gap-3 justify-center">
+              <span className="w-10 h-[2px] bg-[#FFC20E] rounded-full" />
+              <span className="text-xs font-bold text-[#2563EB] tracking-widest uppercase">
+                OUR MISSION
+              </span>
+              <span className="w-10 h-[2px] bg-[#FFC20E] rounded-full" />
+            </div>
+
+            {/* Title: Our Aim At Prayog India */}
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 tracking-tight">
+              Our Aim At <span className="text-[#2563EB]">Prayog India</span>
             </h2>
-            <p className="text-xs sm:text-sm text-slate-500 max-w-2xl mx-auto leading-relaxed">
-              Prayog India was founded to eliminate the roadblocks young Indian
-              engineers face: counterfeit silicon, missing schematics, and weeks
-              of international shipping delays.
+
+            {/* Subtitle - Clear, plain language, and easily understandable */}
+            <p className="text-sm sm:text-base text-slate-600 leading-relaxed font-normal max-w-xl mx-auto">
+              Making robotics, drones, and technology simple and practical — providing 100% genuine hardware, hands-on learning, and turnkey lab setups across India.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-            {/* Story Card - Spans 7 columns */}
-            <div className="md:col-span-7 bg-slate-50 border border-slate-200/90 rounded-3xl p-8 space-y-4 flex flex-col justify-between shadow-xs">
-              <div className="space-y-3">
-                <div className="inline-flex items-center gap-2 text-xs font-black text-[#2563EB] uppercase tracking-wider">
-                  <Compass className="w-4 h-4" />
-                  <span>The Prayog India Origin</span>
-                </div>
-                <h3 className="text-xl font-black text-slate-900 leading-snug">
-                  Built by Robotics Engineers, for Innovators Across India
-                </h3>
-                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                  STEM and mechatronics education in India has long been
-                  hindered by sub-standard component clones and lack of hands-on
-                  laboratory infrastructure. When microcontrollers glitch or
-                  flight controllers lack authenticated bootloaders, student
-                  learning grinds to a halt.
-                </p>
-                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                  Prayog India established a rigorous QC-tested supply chain,
-                  direct manufacturer distribution, and comprehensive curriculum
-                  integration. Today, we equip students from primary school
-                  robotics clubs to postgraduate UAV research laboratories with
-                  verified hardware they can trust.
-                </p>
-              </div>
+          {/* Swipable Single-Row Action Showcase Carousel */}
+          <div className="relative group/showcase">
+            {/* Scrollable Gallery Track — STRICTLY Exactly ONE Single Row */}
+            <div
+              ref={carouselRef}
+              onScroll={handleScroll}
+              className="flex gap-5 overflow-x-auto scroll-smooth snap-x snap-mandatory py-2 no-scrollbar"
+              style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+            >
+              {showcaseItems.map((photo, idx) => {
+                const IconComponent = SHOWCASE_ICONS[photo.iconType] || UsersIcon;
+                const bubbleBg = BUBBLE_COLOR_MAP[photo.bubbleColor] || "bg-[#FFC20E] text-slate-900";
+                const isActive = aimSlide === idx;
+                return (
+                  <div
+                    key={photo.id || idx}
+                    onClick={() => {
+                      setAimSlide(idx);
+                      scrollToIndex(idx);
+                    }}
+                    className={`shrink-0 w-full sm:w-[calc(50%-10px)] lg:w-[calc((100%-40px)/3)] snap-start relative rounded-2xl sm:rounded-3xl overflow-hidden aspect-[10/12] bg-slate-900 group/card transition-all duration-300 cursor-pointer ${
+                      isActive
+                        ? "border-2 border-[#FFC20E] shadow-xl shadow-amber-500/10 scale-[1.01]"
+                        : "border border-slate-200/90 hover:border-slate-300 shadow-xs hover:shadow-md"
+                    }`}
+                  >
+                    <Image
+                      src={photo.image}
+                      alt={photo.alt || photo.title}
+                      fill
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                      className="object-cover group-hover/card:scale-105 transition-transform duration-500"
+                    />
+                    {/* Bottom Gradient Overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/35 to-transparent" />
 
-              <div className="pt-4 border-t border-slate-200 flex flex-wrap items-center gap-4 text-xs font-bold text-slate-700">
-                <div className="flex items-center gap-1.5">
-                  <CheckCircle2 className="w-4 h-4 text-[#2563EB]" /> Dual Hubs
-                  in Ranchi &amp; Bengaluru
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <CheckCircle2 className="w-4 h-4 text-[#FFC20E]" /> 100% Tax
-                  Invoiced
-                </div>
-              </div>
+                    {/* Top Floating Badge Tag ("Tip") — Clean Frosted White Pill with Icon Bubble */}
+                    <div className="absolute top-3.5 sm:top-4 left-3.5 sm:left-4 z-10">
+                      <span className="inline-flex items-center gap-2 bg-white/95 backdrop-blur-md pl-1.5 pr-3.5 py-1 rounded-full shadow-md border border-white/80 transition-transform group-hover/card:scale-105">
+                        {/* Colored Icon Bubble */}
+                        <span
+                          className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 shadow-2xs ${bubbleBg}`}
+                        >
+                          <IconComponent className="w-3.5 h-3.5" />
+                        </span>
+
+                        {/* Tag Label */}
+                        <span className="text-xs font-bold text-slate-900 tracking-tight">
+                          {photo.badge}
+                        </span>
+                      </span>
+                    </div>
+
+                    {/* Bottom Captions */}
+                    <div className="absolute bottom-5 left-5 right-5 text-left space-y-1.5">
+                      <h3 className="text-sm sm:text-base font-bold text-white leading-snug drop-shadow-sm">
+                        {photo.title}
+                      </h3>
+                      <p className="text-xs text-slate-300 leading-relaxed font-normal drop-shadow-sm line-clamp-3">
+                        {photo.description}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
 
-            {/* Mission & Vision Bento Cards - Spans 5 columns */}
-            <div className="md:col-span-5 flex flex-col gap-6">
-              {/* Mission Card */}
-              <div className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-7 space-y-2.5 shadow-xs flex-1 hover:border-[#2563EB]/40 transition-colors">
-                <div className="w-10 h-10 rounded-2xl bg-blue-50 text-[#2563EB] flex items-center justify-center">
-                  <Target className="w-5 h-5" />
-                </div>
-                <h3 className="text-base font-black text-slate-900">
-                  Our Mission
-                </h3>
-                <p className="text-xs text-slate-600 leading-relaxed">
-                  To democratize experiential mechatronics, embedded systems,
-                  and robotics education across every school district,
-                  university, and innovation lab in India by providing
-                  high-reliability hardware and turnkey laboratory setups.
-                </p>
-              </div>
+            {/* Left & Right Nav Arrows (White round buttons positioned outside cards) */}
+            <button
+              type="button"
+              aria-label="Previous slide"
+              onClick={handlePrev}
+              className="absolute -left-3 sm:-left-5 lg:-left-6 top-1/2 -translate-y-1/2 w-10 sm:w-11 h-10 sm:h-11 rounded-full bg-white border border-slate-200 text-slate-700 hover:text-slate-900 shadow-md hover:shadow-lg flex items-center justify-center transition-all z-20 hover:scale-105 active:scale-95"
+            >
+              <ChevronLeft className="w-5 h-5 stroke-[2.2]" />
+            </button>
+            <button
+              type="button"
+              aria-label="Next slide"
+              onClick={handleNext}
+              className="absolute -right-3 sm:-right-5 lg:-right-6 top-1/2 -translate-y-1/2 w-10 sm:w-11 h-10 sm:h-11 rounded-full bg-white border border-slate-200 text-slate-700 hover:text-slate-900 shadow-md hover:shadow-lg flex items-center justify-center transition-all z-20 hover:scale-105 active:scale-95"
+            >
+              <ChevronRight className="w-5 h-5 stroke-[2.2]" />
+            </button>
 
-              {/* Vision Card */}
-              <div className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-7 space-y-2.5 shadow-xs flex-1 hover:border-[#FFC20E]/50 transition-colors">
-                <div className="w-10 h-10 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center">
-                  <Eye className="w-5 h-5" />
-                </div>
-                <h3 className="text-base font-black text-slate-900">
-                  Our Vision
-                </h3>
-                <p className="text-xs text-slate-600 leading-relaxed">
-                  To build India’s largest indigenous hardware engineering
-                  backbone for robotics, autonomous drones, and Industry 4.0
-                  automation—fostering self-reliance in cutting-edge robotics
-                  technology.
-                </p>
-              </div>
+            {/* Pagination Dots */}
+            <div className="flex items-center justify-center gap-2 pt-2">
+              {showcaseItems.map((_, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  aria-label={`Go to slide ${i + 1}`}
+                  onClick={() => scrollToIndex(i)}
+                  className={`transition-all duration-300 rounded-full ${
+                    aimSlide === i
+                      ? "w-3 h-3 bg-[#2563EB]"
+                      : "w-2.5 h-2.5 bg-blue-200 hover:bg-blue-300"
+                  }`}
+                />
+              ))}
             </div>
           </div>
         </section>
 
         {/* 5. Four Pillars of Prayog India */}
-        <section className="space-y-8 bg-slate-50/70 border border-slate-200/80 rounded-3xl p-8 sm:p-12">
+        <section className="space-y-6 bg-slate-50/70 border border-slate-200/80 rounded-3xl p-6 sm:p-8">
           <div className="text-center max-w-3xl mx-auto space-y-2">
             <span className="bg-blue-50 text-[#2563EB] text-[11px] font-black uppercase tracking-widest px-3.5 py-1 rounded-full inline-block border border-blue-200/60">
               THE PRAYOG PROMISE

@@ -171,7 +171,15 @@ const NAV_GROUPS = [
   },
   {
     group: "CONTENT & LEARNING",
-    items: [{ label: "Learning Hub", href: "/admin/learning", icon: BookOpen }],
+    items: [
+      {
+        label: "About Showcase",
+        href: "/admin/about-showcase",
+        icon: Sparkles,
+        badge: "About",
+      },
+      { label: "Learning Hub", href: "/admin/learning", icon: BookOpen },
+    ],
   },
   {
     group: "SYSTEM & SETTINGS",
