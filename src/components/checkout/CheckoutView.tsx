@@ -784,6 +784,42 @@ export const CheckoutView: React.FC = () => {
       confirmedOrderNumber = `PRG-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
     }
 
+    // Cache order in browser storage so Admin Operations & Customer Orders reflect it instantly
+    try {
+      const orderEntry = {
+        id: `ord-${confirmedOrderNumber}`,
+        orderNumber: confirmedOrderNumber,
+        user: {
+          name: customerName || selectedAddr.name || "Customer",
+          email: customerEmail || "customer@prayogindia.com",
+          phone: customerMobile || selectedAddr.phone || "+91 8709789641",
+        },
+        totalAmount: grandTotal,
+        subtotal: subtotal,
+        shippingAddress: `${selectedAddr.name}, ${selectedAddr.street}, ${selectedAddr.city}, ${selectedAddr.state} - ${selectedAddr.pincode}`,
+        status: "ORDER_PLACED",
+        orderSource: "WEBSITE",
+        channelName: "🌐 Prayog Website Store",
+        paymentMethod: paymentMethod === "cod" ? "Cash on Delivery" : "Online Payment",
+        isPaid: paymentMethod !== "cod",
+        items: (cart || []).map((i) => ({
+          name: i.product?.name || "Component",
+          quantity: i.quantity || 1,
+          price: i.variant?.price || i.product?.price || 0,
+        })),
+        createdAt: new Date().toISOString(),
+      };
+
+      const existingStored = typeof window !== "undefined" ? localStorage.getItem("prayog_placed_orders") : null;
+      const list = existingStored ? JSON.parse(existingStored) : [];
+      const deduplicated = [orderEntry, ...list.filter((o: any) => o.orderNumber !== confirmedOrderNumber)];
+      if (typeof window !== "undefined") {
+        localStorage.setItem("prayog_placed_orders", JSON.stringify(deduplicated));
+      }
+    } catch (cacheErr) {
+      console.warn("Local orders cache error:", cacheErr);
+    }
+
     if (useRewardPoints) {
       redeemRewardPoints(rewardPointsAvailable);
     }

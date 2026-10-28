@@ -47,14 +47,33 @@ export default function AdminOrdersPage() {
     fetch(`/api/admin/orders?status=${statusFilter}&channel=${channelFilter}`)
       .then((res) => res.json())
       .then((data) => {
-        if (data.success && data.data?.items) {
-          setOrders(data.data.items);
-        } else {
-          // Fallback mock orders
-          setOrders([]);
-        }
+        let items: any[] = data.success && data.data?.items ? data.data.items : [];
+
+        // Seamlessly merge locally placed website orders (e.g. from live demo testing)
+        try {
+          const stored = typeof window !== "undefined" ? localStorage.getItem("prayog_placed_orders") : null;
+          if (stored) {
+            const parsed = JSON.parse(stored);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              const existingOrderNums = new Set(items.map((o: any) => o.orderNumber));
+              const missingLocals = parsed.filter((o: any) => !existingOrderNums.has(o.orderNumber));
+              items = [...missingLocals, ...items];
+            }
+          }
+        } catch {}
+
+        setOrders(items);
       })
-      .catch(() => {})
+      .catch(() => {
+        // Fallback to locally stored orders if fetch fails completely
+        try {
+          const stored = typeof window !== "undefined" ? localStorage.getItem("prayog_placed_orders") : null;
+          if (stored) {
+            const parsed = JSON.parse(stored);
+            if (Array.isArray(parsed)) setOrders(parsed);
+          }
+        } catch {}
+      })
       .finally(() => setLoading(false));
   };
 

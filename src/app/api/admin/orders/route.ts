@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { db } from "@/lib/db";
+import { db, isDatabaseAvailable } from "@/lib/db";
 import { getAuthenticatedAdmin } from "@/lib/adminAuth";
 import { MOCK_CUSTOMER_ORDERS } from "@/data/accountData";
 
@@ -22,7 +22,7 @@ export async function GET(request: Request) {
     Math.max(1, parseInt(searchParams.get("limit") || "15", 10)),
   );
 
-  if (process.env.DATABASE_URL) {
+  if (isDatabaseAvailable()) {
     try {
       const where: any = {};
       if (status && status !== "all") where.status = status;
