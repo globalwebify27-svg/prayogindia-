@@ -127,9 +127,48 @@ export const OrderDetailView: React.FC<OrderDetailProps> = ({ orderId }) => {
         }
       } catch (err) {
         console.warn("Falling back to local fallback order", err);
-      } finally {
-        setLoading(false);
       }
+
+      // Check local storage orders cache if API did not return it
+      try {
+        const stored = typeof window !== "undefined" ? localStorage.getItem("prayog_placed_orders") : null;
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          const found = parsed.find((o: any) => o.id === orderId || o.orderNumber === orderId);
+          if (found) {
+            setLiveOrder({
+              id: found.id || found.orderNumber,
+              orderNumber: found.orderNumber,
+              date: found.createdAt
+                ? new Date(found.createdAt).toLocaleDateString("en-IN", {
+                    day: "numeric",
+                    month: "short",
+                    year: "numeric",
+                  })
+                : "Today",
+              totalAmount: found.totalAmount,
+              subtotal: found.subtotal || found.totalAmount,
+              status: formatOrderStatus(found.status || "ORDER_PLACED"),
+              itemsCount: found.items?.length || 1,
+              shippingAddress: found.shippingAddress || "Delivery Address",
+              courierName: "Delhivery Surface Cargo",
+              trackingNumber: "DEL-99228811IN",
+              trackingUrl: "https://www.delhivery.com",
+              items: (found.items || []).map((i: any) => ({
+                id: i.id || "item-1",
+                name: i.name || "Hardware Component",
+                sku: i.sku || "PRG-SKU",
+                slug: i.slug || "hardware",
+                quantity: i.quantity || 1,
+                price: i.price || 0,
+                image: i.image || "/placeholder.png",
+              })),
+            });
+          }
+        }
+      } catch {}
+
+      setLoading(false);
     }
     loadLiveOrder();
   }, [orderId]);

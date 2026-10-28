@@ -74,6 +74,7 @@ export const OrdersList: React.FC = () => {
 
   useEffect(() => {
     async function loadOrders() {
+      let mapped: CustomerOrder[] = [];
       try {
         const res = await fetch("/api/orders");
         if (res.status === 401) {
@@ -83,7 +84,7 @@ export const OrdersList: React.FC = () => {
         if (res.ok) {
           const json = await res.json();
           if (json.success && json.data?.items && json.data.items.length > 0) {
-            const mapped: CustomerOrder[] = json.data.items.map((o: any) => ({
+            mapped = json.data.items.map((o: any) => ({
               id: o.id,
               orderNumber: o.orderNumber,
               date: new Date(o.createdAt).toLocaleDateString("en-IN", {
@@ -110,14 +111,56 @@ export const OrdersList: React.FC = () => {
                     item.product?.images?.[0]?.imageUrl || "/placeholder.png",
                 })) || [],
             }));
-            setOrders(mapped);
           }
         }
       } catch (err) {
         console.warn("Could not load customer orders from API:", err);
-      } finally {
-        setLoading(false);
       }
+
+      // Merge locally placed orders from browser cache (live demo fallback)
+      try {
+        const stored = typeof window !== "undefined" ? localStorage.getItem("prayog_placed_orders") : null;
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            const existingOrderNums = new Set(mapped.map((o) => o.orderNumber));
+            const localOrders: CustomerOrder[] = parsed
+              .filter((o: any) => !existingOrderNums.has(o.orderNumber))
+              .map((o: any) => ({
+                id: o.id || o.orderNumber,
+                orderNumber: o.orderNumber,
+                date: o.createdAt
+                  ? new Date(o.createdAt).toLocaleDateString("en-IN", {
+                      day: "numeric",
+                      month: "short",
+                      year: "numeric",
+                    })
+                  : "Today",
+                totalAmount: o.totalAmount || 0,
+                subtotal: o.subtotal || o.totalAmount || 0,
+                status: formatStatus(o.status || "ORDER_PLACED"),
+                itemsCount: o.items?.length || 1,
+                shippingAddress: o.shippingAddress || "",
+                items:
+                  o.items?.map((item: any) => ({
+                    id: item.id || item.productId || "item-1",
+                    name: item.name || item.productName || "Hardware Component",
+                    sku: item.sku || item.productSku || "PRG-SKU",
+                    slug: item.slug || item.productId || "hardware",
+                    quantity: item.quantity || 1,
+                    price: item.price || 0,
+                    image: item.image || "/placeholder.png",
+                  })) || [],
+              }));
+            mapped = [...localOrders, ...mapped];
+          }
+        }
+      } catch (cacheErr) {
+        console.warn("Failed to load local orders cache:", cacheErr);
+      }
+
+      setOrders(mapped);
+      setLoading(false);
     }
     loadOrders();
   }, [router]);
