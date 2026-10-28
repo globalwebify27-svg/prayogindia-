@@ -72,8 +72,8 @@ export interface SupportTicket {
 export const MOCK_SAVED_ADDRESSES: Address[] = [
   {
     id: "addr-default-1",
-    name: "Customer Delivery Address",
-    phone: "+91 98765 00000",
+    name: "Om Kumar",
+    phone: "+91 8709789641",
     street: "Flat 402, Green Glen Tech Park, Outer Ring Road",
     city: "Bengaluru",
     state: "Karnataka",

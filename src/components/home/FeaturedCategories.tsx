@@ -14,7 +14,7 @@ import {
   Heart,
 } from "lucide-react";
 import { Product, PRODUCTS } from "@/data/mockData";
-import { useStore } from "@/context/StoreContext";
+import { useCartStore, useWishlistStore, useUIStore } from "@/store";
 import { haptic } from "@/utils/haptics";
 
 const WhatsAppIcon = ({ className = "w-3.5 h-3.5" }: { className?: string }) => (
@@ -382,7 +382,13 @@ const PopularProductCard: React.FC<PopularProductCardProps> = ({
   onQuickView,
   isWishlisted,
 }) => {
-  const store = useStore();
+  const addToCartStore = useCartStore((s) => s.addToCart);
+  const toggleWishlistStore = useWishlistStore((s) => s.toggleWishlist);
+  const isWishlistedInStore = useWishlistStore((s) =>
+    s.wishlist.some((p) => p.id === product.id)
+  );
+  const showToast = useUIStore((s) => s.showToast);
+
   const [isAdded, setIsAdded] = useState(false);
   const [isCompared, setIsCompared] = useState(false);
 
@@ -406,9 +412,7 @@ const PopularProductCard: React.FC<PopularProductCardProps> = ({
   const secondaryIsPng = secondaryImage.endsWith(".png");
 
   const itemIsWishlisted =
-    typeof isWishlisted === "boolean"
-      ? isWishlisted
-      : (store?.isWishlisted?.(product.id) ?? false);
+    typeof isWishlisted === "boolean" ? isWishlisted : isWishlistedInStore;
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -417,8 +421,8 @@ const PopularProductCard: React.FC<PopularProductCardProps> = ({
 
     if (onAddToCart) {
       onAddToCart(product);
-    } else if (store?.addToCart) {
-      store.addToCart(product);
+    } else {
+      addToCartStore(product);
     }
     setIsAdded(true);
     setTimeout(() => setIsAdded(false), 2000);
@@ -431,8 +435,8 @@ const PopularProductCard: React.FC<PopularProductCardProps> = ({
 
     if (onToggleWishlist) {
       onToggleWishlist(product);
-    } else if (store?.toggleWishlist) {
-      store.toggleWishlist(product);
+    } else {
+      toggleWishlistStore(product);
     }
   };
 
@@ -471,7 +475,7 @@ const PopularProductCard: React.FC<PopularProductCardProps> = ({
     haptic?.light?.();
 
     setIsCompared(true);
-    store?.showToast?.({
+    showToast({
       title: "Comparison Added",
       message: `${product.name} added to comparison list.`,
       type: "success",

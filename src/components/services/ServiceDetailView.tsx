@@ -16,10 +16,6 @@ import {
   X,
   Phone,
   Mail,
-  Cpu,
-  Layers,
-  Wrench,
-  GraduationCap,
   ShieldCheck,
   Sparkles,
 } from "lucide-react";
@@ -126,23 +122,26 @@ export const ServiceDetailView: React.FC<ServiceDetailProps> = ({ slug }) => {
                 </p>
               </div>
 
-              {/* 4 Micro Stat Pills */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                <div className="p-2.5 bg-slate-50 border border-slate-200/80 rounded-xl">
-                  <div className="text-[9px] uppercase font-bold text-slate-400">Timeline</div>
-                  <div className="text-xs font-bold text-slate-900">7-14 Days</div>
+              {/* Micro Specs Strip */}
+              <div className="flex flex-wrap items-center gap-x-5 gap-y-2 pt-2 border-t border-slate-100 text-xs">
+                <div>
+                  <span className="text-slate-400 font-medium">Timeline: </span>
+                  <span className="font-bold text-slate-800">7–14 Days</span>
                 </div>
-                <div className="p-2.5 bg-slate-50 border border-slate-200/80 rounded-xl">
-                  <div className="text-[9px] uppercase font-bold text-slate-400">Hardware</div>
-                  <div className="text-xs font-bold text-slate-900">OEM Direct</div>
+                <div className="hidden sm:inline text-slate-200">•</div>
+                <div>
+                  <span className="text-slate-400 font-medium">Hardware: </span>
+                  <span className="font-bold text-slate-800">OEM Direct</span>
                 </div>
-                <div className="p-2.5 bg-slate-50 border border-slate-200/80 rounded-xl">
-                  <div className="text-[9px] uppercase font-bold text-slate-400">Training</div>
-                  <div className="text-xs font-bold text-slate-900">Certified</div>
+                <div className="hidden sm:inline text-slate-200">•</div>
+                <div>
+                  <span className="text-slate-400 font-medium">Training: </span>
+                  <span className="font-bold text-slate-800">Certified</span>
                 </div>
-                <div className="p-2.5 bg-slate-50 border border-slate-200/80 rounded-xl">
-                  <div className="text-[9px] uppercase font-bold text-slate-400">Warranty</div>
-                  <div className="text-xs font-bold text-slate-900">1-Year AMC</div>
+                <div className="hidden sm:inline text-slate-200">•</div>
+                <div>
+                  <span className="text-slate-400 font-medium">Warranty: </span>
+                  <span className="font-bold text-slate-800">1-Year AMC</span>
                 </div>
               </div>
 
@@ -182,105 +181,102 @@ export const ServiceDetailView: React.FC<ServiceDetailProps> = ({ slug }) => {
           </div>
         </div>
 
-        {/* ── 2-Column Section: Deliverables + Quotation Form ── */}
+        {/* ── 2-Column Section: Service Details + Quotation Form ── */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          {/* Left Column (7 cols): Deliverables & Process */}
-          <div className="lg:col-span-7 space-y-6">
-            {/* Deliverables */}
-            <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-xs space-y-4">
+          {/* Left Column (7 cols): Unified Service Details */}
+          <div className="lg:col-span-7 bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-xs divide-y divide-slate-100 space-y-7">
+            {/* Overview & Scope */}
+            <div className="space-y-2.5">
+              <h2 className="text-sm font-black uppercase tracking-wider text-slate-900">
+                Service Scope & Overview
+              </h2>
+              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                {service.description || service.shortDescription}
+              </p>
+            </div>
+
+            {/* Deliverables & Inclusions */}
+            <div className="space-y-4 pt-7">
               <h2 className="text-sm font-black uppercase tracking-wider text-slate-900">
                 Deliverables & Inclusions
               </h2>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 {service.features.map((feat, idx) => (
-                  <div
-                    key={idx}
-                    className="p-3 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center gap-2.5"
-                  >
-                    <div className="w-6 h-6 rounded-lg bg-white border border-slate-200 flex items-center justify-center shrink-0">
-                      {idx === 0 ? (
-                        <Cpu className="w-3.5 h-3.5 text-[#2563EB]" />
-                      ) : idx === 1 ? (
-                        <Layers className="w-3.5 h-3.5 text-[#005CA9]" />
-                      ) : idx === 2 ? (
-                        <Wrench className="w-3.5 h-3.5 text-[#FF7A00]" />
-                      ) : idx === 3 ? (
-                        <GraduationCap className="w-3.5 h-3.5 text-emerald-600" />
-                      ) : (
-                        <ShieldCheck className="w-3.5 h-3.5 text-purple-600" />
-                      )}
-                    </div>
-                    <span className="text-xs font-bold text-slate-800">
+                  <li key={idx} className="flex items-start gap-2.5">
+                    <CheckCircle2 className="w-4 h-4 text-[#2563EB] shrink-0 mt-0.5" />
+                    <span className="text-xs font-semibold text-slate-700 leading-relaxed">
                       {feat}
                     </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Setup Process */}
+            <div className="space-y-4 pt-7">
+              <h2 className="text-sm font-black uppercase tracking-wider text-slate-900">
+                Setup Process
+              </h2>
+
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                {[
+                  { step: "01", title: "Space Audit", desc: "Site survey & layout planning" },
+                  { step: "02", title: "Hardware Dispatch", desc: "OEM equipment & kits dispatch" },
+                  { step: "03", title: "On-Site Setup", desc: "Workbench & lab installation" },
+                  { step: "04", title: "Faculty Training", desc: "Educator workshop & handoff" },
+                ].map((item, idx) => (
+                  <div key={idx} className="space-y-1">
+                    <span className="inline-block text-[11px] font-black text-[#2563EB] bg-blue-50 px-2 py-0.5 rounded-md">
+                      Step {item.step}
+                    </span>
+                    <h3 className="text-xs font-bold text-slate-900">
+                      {item.title}
+                    </h3>
+                    <p className="text-[11px] text-slate-500 leading-tight">
+                      {item.desc}
+                    </p>
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* 4-Step Deployment */}
-            <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-xs space-y-4">
-              <h2 className="text-sm font-black uppercase tracking-wider text-slate-900">
-                Setup Process
-              </h2>
-
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-center">
-                <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
-                  <div className="text-[10px] font-black text-[#2563EB]">01</div>
-                  <div className="text-xs font-bold text-slate-900">Space Audit</div>
-                </div>
-                <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
-                  <div className="text-[10px] font-black text-[#005CA9]">02</div>
-                  <div className="text-xs font-bold text-slate-900">Hardware Dispatch</div>
-                </div>
-                <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
-                  <div className="text-[10px] font-black text-[#FF7A00]">03</div>
-                  <div className="text-xs font-bold text-slate-900">On-Site Setup</div>
-                </div>
-                <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
-                  <div className="text-[10px] font-black text-emerald-600">04</div>
-                  <div className="text-xs font-bold text-slate-900">Faculty Training</div>
-                </div>
-              </div>
-            </div>
-
             {/* Applications */}
-            <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-xs space-y-3">
-              <h3 className="text-xs font-black uppercase tracking-wider text-slate-400">
+            <div className="space-y-3 pt-7">
+              <h2 className="text-sm font-black uppercase tracking-wider text-slate-900">
                 Applicable For
-              </h3>
+              </h2>
               <div className="flex flex-wrap gap-2">
                 {service.applications.map((app, idx) => (
                   <span
                     key={idx}
-                    className="inline-flex items-center gap-1.5 bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-lg text-xs font-bold text-slate-700"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-700"
                   >
-                    <CheckCircle2 className="w-3.5 h-3.5 text-[#2563EB]" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#2563EB]" />
                     <span>{app}</span>
                   </span>
                 ))}
               </div>
             </div>
 
-            {/* Gallery */}
+            {/* Photos */}
             {service.gallery && service.gallery.length > 0 && (
-              <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-xs space-y-3">
-                <h3 className="text-xs font-black uppercase tracking-wider text-slate-400">
-                  Photos
-                </h3>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+              <div className="space-y-3 pt-7">
+                <h2 className="text-sm font-black uppercase tracking-wider text-slate-900">
+                  Photos & Reference Installations
+                </h2>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                   {service.gallery.map((img, idx) => (
                     <div
                       key={idx}
                       onClick={() => setSelectedGalleryImg(img)}
-                      className="relative h-28 rounded-xl overflow-hidden bg-slate-100 border border-slate-200 cursor-pointer group"
+                      className="relative h-28 sm:h-32 rounded-xl overflow-hidden bg-slate-100 cursor-pointer group"
                     >
                       <Image
                         src={img}
                         alt={`Photo ${idx + 1}`}
                         fill
-                        className="object-cover group-hover:scale-105 transition-transform"
+                        className="object-cover group-hover:scale-105 transition-transform duration-300"
                       />
                       <div className="absolute inset-0 bg-slate-950/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
                         <Maximize2 className="w-4 h-4" />

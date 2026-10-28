@@ -1,0 +1,83 @@
+-- =========================================================================
+-- Prayog India Database: Enable Row Level Security (RLS) on all public tables
+-- Compatible with PostgreSQL 12+, AWS RDS, Supabase, Neon, etc.
+-- =========================================================================
+
+-- 1. Enable RLS dynamically on all application tables in public schema
+DO $$ 
+DECLARE 
+    r RECORD;
+BEGIN 
+    FOR r IN (
+        SELECT tablename 
+        FROM pg_tables 
+        WHERE schemaname = 'public' 
+          AND tablename NOT LIKE '_prisma%'
+    ) 
+    LOOP 
+        EXECUTE 'ALTER TABLE public.' || quote_ident(r.tablename) || ' ENABLE ROW LEVEL SECURITY;';
+        RAISE NOTICE 'RLS enabled on table: %', r.tablename;
+    END LOOP; 
+END $$;
+
+-- 2. Explicit Statements for each known table in Prayog India Schema:
+ALTER TABLE IF EXISTS public."Store" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS public."StoreInventory" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS public."StoreProductSettings" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS public."Device" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS public."InventoryTransaction" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS public."StockTransfer" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS public."StockTransferItem" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS public."StaffUser" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS public."User" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS public."Address" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS public."Category" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS public."Product" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS public."ProductVariant" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS public."ProductImage" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS public."Cart" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS public."CartItem" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS public."Wishlist" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS public."WishlistItem" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS public."Order" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS public."OrderItem" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS public."Shipment" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS public."Service" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS public."ServiceEnquiry" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS public."LearningContent" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS public."Offer" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS public."OfferProduct" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS public."SupportTicket" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS public."SupportMessage" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS public."Notification" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS public."Payment" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS public."CompanyBankDetail" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS public."Invoice" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS public."Review" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS public."RewardTransaction" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS public."LoyaltyRule" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS public."CouponUsage" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS public."Supplier" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS public."PurchaseOrder" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS public."PurchaseOrderItem" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS public."GoodsReceipt" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS public."GoodsReceiptItem" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS public."SupplierPayment" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS public."Quotation" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS public."QuotationItem" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS public."QuotationRevision" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS public."B2BCompany" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS public."B2BContact" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS public."B2BActivity" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS public."B2BFollowUp" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS public."AuditLog" ENABLE ROW LEVEL SECURITY;
+
+-- 3. Verify status query
+SELECT 
+    schemaname,
+    tablename,
+    rowsecurity AS rls_enabled
+FROM pg_tables 
+WHERE schemaname = 'public' 
+  AND tablename NOT LIKE '_prisma%'
+ORDER BY tablename ASC;

@@ -48,3 +48,17 @@ export const isDatabaseAvailable = (): boolean => {
   }
   return true;
 };
+
+/**
+ * Actively checks live database connectivity by running a lightweight ping query.
+ * Returns true if PostgreSQL responds, false otherwise.
+ */
+export const checkDatabaseConnection = async (): Promise<boolean> => {
+  if (!isDatabaseAvailable()) return false;
+  try {
+    await prisma.$queryRaw`SELECT 1`;
+    return true;
+  } catch {
+    return false;
+  }
+};

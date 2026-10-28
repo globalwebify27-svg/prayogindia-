@@ -52,4 +52,40 @@ describe("Orders & Price Manipulation Prevention", () => {
     expect(getOrderForUser(userB.id, orderB).status).toBe(200);
     expect(getOrderForUser(userA.id, orderB).status).toBe(404);
   });
+
+  it("should fail safely with HTTP 503 when database is unavailable on POST /api/orders", async () => {
+    const { POST: orderHandler } = await import("@/app/api/orders/route");
+    const req = new Request("http://localhost:3000/api/orders", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        items: [{ productId: "test-prod", quantity: 1 }],
+      }),
+    });
+
+    // In environment where isDatabaseAvailable() is false (e.g. production with localhost or no DB),
+    // it must return HTTP 503 and never return mock success
+    const prevEnv = process.env.NODE_ENV;
+    const prevUrl = process.env.DATABASE_URL;
+    try {
+      (process.env as any).NODE_ENV = "production";
+      process.env.DATABASE_URL = "postgresql://postgres:postgres@localhost:5432/prayog_db"; // localhost in production is marked unavailable
+
+      const response = await orderHandler(req);
+      const data = await response.json();
+
+      expect(response.status).toBe(503);
+      expect(data.success).toBe(false);
+      expect(data.message).toContain("Database service is currently unavailable");
+    } finally {
+      (process.env as any).NODE_ENV = prevEnv;
+      process.env.DATABASE_URL = prevUrl;
+    }
+  });
+
+  it("should verify checkDatabaseConnection returns boolean", async () => {
+    const { checkDatabaseConnection } = await import("@/lib/db");
+    const isConn = await checkDatabaseConnection();
+    expect(typeof isConn).toBe("boolean");
+  });
 });

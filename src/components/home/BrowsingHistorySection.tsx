@@ -6,7 +6,7 @@ import Link from "next/link";
 import { ChevronLeft, ChevronRight, Star, ShoppingCart, Check, Eye } from "lucide-react";
 import { getOptimizedImageUrl } from "@/lib/cloudinaryUrl";
 import { Product } from "@/data/mockData";
-import { useStore } from "@/context/StoreContext";
+import { useCartStore, useWishlistStore } from "@/store";
 import { haptic } from "@/utils/haptics";
 import { getRecentlyViewedProducts, recordProductView } from "@/utils/recentProducts";
 
@@ -243,7 +243,9 @@ export const BrowsingHistorySection: React.FC<BrowsingHistorySectionProps> = ({
   onToggleWishlist,
   onQuickView,
 }) => {
-  const store = useStore();
+  const addToCartStore = useCartStore((s) => s.addToCart);
+  const toggleWishlistStore = useWishlistStore((s) => s.toggleWishlist);
+  const wishlist = useWishlistStore((s) => s.wishlist);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(4);
@@ -352,8 +354,8 @@ export const BrowsingHistorySection: React.FC<BrowsingHistorySectionProps> = ({
 
     if (onAddToCart) {
       onAddToCart(product);
-    } else if (store?.addToCart) {
-      store.addToCart(product);
+    } else {
+      addToCartStore(product);
     }
 
     setAddedItemIds((prev) => ({ ...prev, [product.id]: true }));
@@ -369,8 +371,8 @@ export const BrowsingHistorySection: React.FC<BrowsingHistorySectionProps> = ({
 
     if (onAddToCart) {
       onAddToCart(product);
-    } else if (store?.addToCart) {
-      store.addToCart(product);
+    } else {
+      addToCartStore(product);
     }
     window.location.href = "/cart";
   };
@@ -382,8 +384,8 @@ export const BrowsingHistorySection: React.FC<BrowsingHistorySectionProps> = ({
 
     if (onToggleWishlist) {
       onToggleWishlist(product);
-    } else if (store?.toggleWishlist) {
-      store.toggleWishlist(product);
+    } else {
+      toggleWishlistStore(product);
     }
   };
 
@@ -438,7 +440,7 @@ export const BrowsingHistorySection: React.FC<BrowsingHistorySectionProps> = ({
                   : 0;
               const isAdded = !!addedItemIds[prod.id];
               const isInStock = prod.inStock !== false;
-              const isWishlisted = store?.isWishlisted ? store.isWishlisted(prod.id) : false;
+              const isWishlisted = wishlist.some((p) => p.id === prod.id);
 
               return (
                 <div key={prod.id} className="card shrink-0 snap-start">

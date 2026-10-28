@@ -18,7 +18,7 @@ import {
   CheckCircle2,
   Truck,
 } from "lucide-react";
-import { useStore, CartItem } from "@/context/StoreContext";
+import { useWishlistStore, CartItem } from "@/store";
 import { haptic } from "@/utils/haptics";
 
 interface CartDrawerProps {
@@ -41,7 +41,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   onUpdateQuantity,
   onRemoveItem,
 }) => {
-  const { moveToWishlist } = useStore();
+  const moveToWishlist = useWishlistStore((s) => s.moveToWishlist);
   const [coupon, setCoupon] = useState("");
   const [appliedDiscount, setAppliedDiscount] = useState(0);
   const [appliedCode, setAppliedCode] = useState<string | null>(null);

@@ -12,7 +12,7 @@ import {
   Check,
 } from "lucide-react";
 import { Product } from "@/data/mockData";
-import { useStore } from "@/context/StoreContext";
+import { useCartStore, useWishlistStore } from "@/store";
 import { AddToCartIcon } from "@/components/icons/AddToCartIcon";
 
 interface RecommendationGroup {
@@ -30,11 +30,14 @@ interface ProductRecommendationsProps {
 
 // Mini product card for recommendations
 const RecoCard: React.FC<{ product: Product }> = ({ product }) => {
-  const store = useStore();
+  const addToCart = useCartStore((s) => s.addToCart);
+  const toggleWishlist = useWishlistStore((s) => s.toggleWishlist);
+  const isWishlisted = useWishlistStore((s) =>
+    s.wishlist.some((p) => p.id === product.id)
+  );
   const router = useRouter();
   const [isAdded, setIsAdded] = useState(false);
 
-  const isWishlisted = store?.isWishlisted?.(product.id) ?? false;
   const discountPct =
     product.mrp > product.price
       ? Math.round(((product.mrp - product.price) / product.mrp) * 100)
@@ -43,7 +46,7 @@ const RecoCard: React.FC<{ product: Product }> = ({ product }) => {
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    store?.addToCart(product, undefined, 1);
+    addToCart(product, undefined, 1);
     setIsAdded(true);
     setTimeout(() => setIsAdded(false), 1500);
   };
@@ -51,14 +54,14 @@ const RecoCard: React.FC<{ product: Product }> = ({ product }) => {
   const handleBuyNow = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    store?.addToCart(product, undefined, 1);
+    addToCart(product, undefined, 1);
     router.push("/checkout");
   };
 
   const handleToggleWishlist = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    store?.toggleWishlist(product);
+    toggleWishlist(product);
   };
 
   return (
@@ -171,7 +174,7 @@ const FrequentlyBoughtTogetherSection: React.FC<{
   products: Product[];
   mainProduct?: Product;
 }> = ({ products, mainProduct }) => {
-  const store = useStore();
+  const addToCart = useCartStore((s) => s.addToCart);
   const [bundleAdded, setBundleAdded] = useState(false);
 
   // Full bundle: includes mainProduct as the primary anchor + companion products (deduplicated)
@@ -212,7 +215,7 @@ const FrequentlyBoughtTogetherSection: React.FC<{
   const handleAddBundle = () => {
     if (selectedItems.length === 0) return;
     selectedItems.forEach((p) => {
-      store?.addToCart(p, undefined, 1);
+      addToCart(p, undefined, 1);
     });
     setBundleAdded(true);
     setTimeout(() => setBundleAdded(false), 2500);

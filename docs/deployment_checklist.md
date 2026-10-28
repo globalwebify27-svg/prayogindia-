@@ -88,5 +88,6 @@ Expected output:
 - [x] Server-authoritative trusted price recalculation on Cart & Order creation.
 - [x] Pre-signed S3 storage upload authorization with MIME whitelisting and 10MB size cap.
 - [x] Strict customer isolation across Cart, Wishlist, Orders, Tracking, Support Tickets, Attachments, and Notifications.
+- [x] Row Level Security (RLS = ON) enabled across all public database tables.
 - [x] XSS escaping and structured log redaction active.
 - [x] Approved Home Hero Video, Hero Banner, and Hero Section remain completely untouched.

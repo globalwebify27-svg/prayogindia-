@@ -30,7 +30,7 @@ import {
 } from "@/components/CompanySections";
 import { QuickViewModal, B2BModal } from "@/components/Modals";
 import { PRODUCTS, Product } from "@/data/mockData";
-import { useStore } from "@/context/StoreContext";
+import { useCartStore, useWishlistStore } from "@/store";
 import { useRouter } from "next/navigation";
 
 export default function Home() {
@@ -40,13 +40,10 @@ export default function Home() {
     string | null
   >(null);
 
-  // State for Modals
-  const {
-    cart,
-    wishlist,
-    addToCart: storeAddToCart,
-    toggleWishlist: storeToggleWishlist,
-  } = useStore();
+  // Fine-grained store subscriptions
+  const storeAddToCart = useCartStore((s) => s.addToCart);
+  const storeToggleWishlist = useWishlistStore((s) => s.toggleWishlist);
+  const wishlist = useWishlistStore((s) => s.wishlist);
   const [b2bOpen, setB2bOpen] = useState(false);
   const [selectedQuickView, setSelectedQuickView] = useState<Product | null>(
     null,

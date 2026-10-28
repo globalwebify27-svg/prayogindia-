@@ -35,6 +35,7 @@ import {
   Home,
   ChevronRight,
   Headphones,
+  Info,
 } from "lucide-react";
 import {
   CustomerType,
@@ -80,16 +81,79 @@ const INDIAN_STATES = [
   "Puducherry",
 ];
 
+const POPULAR_BANKS = [
+  "Choose an Option",
+  "HDFC Bank",
+  "State Bank of India (SBI)",
+  "ICICI Bank",
+  "Axis Bank",
+  "Kotak Mahindra Bank",
+  "Punjab National Bank",
+  "Bank of Baroda",
+  "Canara Bank",
+  "Union Bank of India",
+  "IndusInd Bank",
+  "Yes Bank",
+  "Other 50+ Indian Banks",
+];
+
+// ── Authentic Vector Logos for Card Networks & Payment Methods
+const VisaCardLogo: React.FC<{ className?: string }> = ({ className = "h-3 w-auto" }) => (
+  <svg viewBox="0 0 48 16" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path
+      d="M19.125 15.367H15.08l2.529-14.734h4.045l-2.529 14.734zm15.426-14.39c-.808-.307-2.072-.64-3.649-.64-4.015 0-6.84 2.029-6.864 4.937-.027 2.146 2.016 3.344 3.551 4.056 1.579.734 2.109 1.205 2.103 1.862-.012 1.009-1.267 1.47-2.441 1.47-1.633 0-2.5-.236-3.834-.805l-.539-.247-.582 3.424c.969.425 2.76 1.794 4.629.815 4.269 0 7.042-2.008 7.072-5.118.016-1.706-1.071-3.007-3.42-4.076-1.424-.687-2.296-1.144-2.296-1.842 0-.635.736-1.285 2.336-1.285 1.332-.027 2.304.27 3.053.58l.369.17.587-3.301zm11.758 0h-3.131c-.969 0-1.697.268-2.122 1.229l-6.064 13.828h4.256s.696-1.836.854-2.238c.465 0 4.595.038 5.179.038.122.529.497 2.2 1.497 2.2h3.757l-3.226-15.057zm-4.707 9.873c.334-.852 1.611-4.148 1.611-4.148-.024.04.331-.856.533-1.417l.273 1.287s.772 3.553.94 4.278h-3.357zm-27.876-9.873l-3.957 10.378-.423-2.036c-.732-2.355-3.009-4.908-5.56-6.195l3.606 13.064h4.277l6.37-15.211h-4.313z"
+      fill="#1A1F71"
+    />
+    <path
+      d="M8.283.643H.822L0 1.011c6.31 1.528 10.493 5.437 12.235 9.874l-1.764-8.497c-.302-1.206-1.226-1.702-2.188-1.745z"
+      fill="#F7B600"
+    />
+  </svg>
+);
+
+const MastercardCardLogo: React.FC<{ className?: string }> = ({ className = "h-3.5 w-auto" }) => (
+  <svg viewBox="0 0 32 20" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="10" cy="10" r="8" fill="#EB001B" />
+    <circle cx="22" cy="10" r="8" fill="#F79E1B" />
+    <path
+      d="M16 4.372a7.96 7.96 0 0 0-2.88 5.628c0 2.247 1.107 4.236 2.88 5.628A7.96 7.96 0 0 0 18.88 10 7.96 7.96 0 0 0 16 4.372z"
+      fill="#FF5F00"
+    />
+  </svg>
+);
+
+const RuPayCardLogo: React.FC<{ className?: string }> = ({ className = "h-3 w-auto" }) => (
+  <svg viewBox="0 0 68 20" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path
+      d="M4.2 16.5V3.5h5.4c2.8 0 4.5 1.4 4.5 3.8 0 1.9-1.1 3.2-2.7 3.6l3.3 5.6H11l-2.9-5.1H6.7v5.1H4.2zm2.5-7.1h2.7c1.4 0 2.2-.7 2.2-1.8s-.8-1.8-2.2-1.8H6.7v3.6zm13.1 7.3c-2.4 0-3.9-1.6-3.9-4.2V8.2h2.4v4c0 1.5.8 2.3 2 2.3s2-.8 2-2.3v-4h2.4v4.3c0 2.6-1.5 4.2-3.9 4.2zm11.7-.2V3.5h4.6c3.1 0 4.9 1.6 4.9 4.3 0 2.7-1.8 4.3-4.9 4.3h-2.2v4.4h-2.4zm2.4-6.4h2c1.7 0 2.7-.8 2.7-2.3 0-1.4-1-2.2-2.7-2.2h-2v4.5zm16 6.6c-.6 0-1.2-.2-1.6-.6-.4-.4-.6-1-.6-1.8 0-1.8 1.4-2.5 3.8-2.6v-.3c0-.9-.5-1.4-1.6-1.4-.7 0-1.4.2-1.9.5l-.6-1.5c.8-.5 1.7-.8 2.8-.8 2.4 0 3.7 1.2 3.7 3.3v5.2h-2.1v-1c-.5.7-1.2 1-1.9 1zm.6-1.7c.8 0 1.5-.4 1.8-1.1v-1.1c-1.5.1-2.3.5-2.3 1.3 0 .6.4.9 1 .9zm8.9 5.3l3-8.8h2.6l-4.5 11.8h-2.5l1.6-4.2-3.1-7.6h2.5l1.8 5.5.6 3.3z"
+      fill="#00529B"
+    />
+    <path d="M57 3l-3 14h3.6l3-14H57z" fill="#097939" />
+    <path d="M62 3l-3 14h3.6l3-14H62z" fill="#F37023" />
+  </svg>
+);
+
+const UpiBadgeLogo: React.FC<{ className?: string }> = ({ className = "h-3.5 w-auto" }) => (
+  <svg viewBox="0 0 52 18" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path
+      d="M4 14.5c-2.4 0-3.8-1.5-3.8-4V2.5h2.8v8c0 1.2.6 1.8 1.6 1.8s1.6-.6 1.6-1.8v-8H9v8c0 2.5-1.4 4-4 4zm8.5 0V2.5H18c2.8 0 4.6 1.5 4.6 4.1 0 2.6-1.8 4.1-4.6 4.1h-2.7v3.8h-2.8zm2.8-5.9h2.3c1.3 0 2-.6 2-1.9s-.7-1.9-2-1.9h-2.3v3.8zm11 5.9V2.5h2.8v12h-2.8z"
+      fill="#097939"
+    />
+    <path d="M37.5 2l-7.5 14h5l4.5-8.5 4.5 8.5h5L41.5 2h-4z" fill="#097939" />
+    <path d="M34 2l-7.5 14h5l4.5-8.5 4.5 8.5h5L38 2h-4z" fill="#005A36" />
+  </svg>
+);
+
 export const CheckoutView: React.FC = () => {
   const { cart, user, isLoggedIn, clearCart, redeemRewardPoints } = useStore();
 
-  // ── Customer Profile Information (Auto-populated if logged in, empty otherwise)
-  const [customerName, setCustomerName] = useState(user?.name || "");
-  const [customerEmail, setCustomerEmail] = useState(user?.email || "");
+  // ── Customer Profile Information (Auto-populated if logged in, Om Kumar default)
+  const [customerName, setCustomerName] = useState(user?.name || "Om Kumar");
+  const [customerEmail, setCustomerEmail] = useState(user?.email || "ohhmkumar4138@gmail.com");
   const [customerMobile, setCustomerMobile] = useState(
-    user?.phone?.replace(/\D/g, "").slice(-10) || "",
+    user?.phone?.replace(/\D/g, "").slice(-10) || "8709789641",
   );
-  const [isPhoneVerified, setIsPhoneVerified] = useState(!!user);
+  const [isPhoneVerified, setIsPhoneVerified] = useState(true);
   const [showOtpModal, setShowOtpModal] = useState(false);
   const [checkoutOtp, setCheckoutOtp] = useState("");
   const [otpSending, setOtpSending] = useState(false);
@@ -208,9 +272,9 @@ export const CheckoutView: React.FC = () => {
   const initialAddr = addresses.find((a) => a.isDefault) || addresses[0];
   const [editingAddressId, setEditingAddressId] = useState<string | null>(null);
   const [showAddressModal, setShowAddressModal] = useState(false);
-  const [addrFormName, setAddrFormName] = useState(user?.name || initialAddr?.name || "");
-  const [addrFormPhone, setAddrFormPhone] = useState(user?.phone || initialAddr?.phone || "");
-  const [addrFormStreet, setAddrFormStreet] = useState(initialAddr?.street || "");
+  const [addrFormName, setAddrFormName] = useState(user?.name || initialAddr?.name || "Om Kumar");
+  const [addrFormPhone, setAddrFormPhone] = useState(user?.phone || initialAddr?.phone || "8709789641");
+  const [addrFormStreet, setAddrFormStreet] = useState(initialAddr?.street || "Flat 402, Green Glen Tech Park, Outer Ring Road");
   const [addrFormCity, setAddrFormCity] = useState(initialAddr?.city || "Bengaluru");
   const [addrFormState, setAddrFormState] = useState(initialAddr?.state || "Karnataka");
   const [addrFormPincode, setAddrFormPincode] = useState(initialAddr?.pincode || "560103");
@@ -221,6 +285,11 @@ export const CheckoutView: React.FC = () => {
   const [pincodeValidationMsg, setPincodeValidationMsg] = useState<
     string | null
   >(null);
+  const [isEditingAddress, setIsEditingAddress] = useState(false);
+  const [deliveryInstructions, setDeliveryInstructions] = useState("");
+  const [showInstructionsInput, setShowInstructionsInput] = useState(false);
+  const [paymentBank, setPaymentBank] = useState("Choose an Option");
+  const [paymentCouponInput, setPaymentCouponInput] = useState("");
 
   const handleSelectSavedAddress = (id: string) => {
     setSelectedShippingAddressId(id);
@@ -1443,7 +1512,24 @@ export const CheckoutView: React.FC = () => {
 
       {/* 2-Column One-Page Checkout Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-3.5 lg:gap-8 items-start">
-        {/* Left Column: One-Page Flow (Span 7) */}
+        {/* Left Column: Order Summary (Span 5) */}
+        <div className="lg:col-span-5 sticky top-24">
+          <CheckoutOrderSummary
+            cart={cart}
+            subtotal={subtotal}
+            mrpTotal={mrpTotal}
+            couponCode={couponCode}
+            couponDiscount={couponDiscount}
+            useRewardPoints={useRewardPoints}
+            rewardDiscount={rewardDiscount}
+            selectedShippingFee={shippingFee}
+            onApplyCoupon={handleApplyCoupon}
+            onToggleRewardPoints={setUseRewardPoints}
+            rewardPointsAvailable={rewardPointsAvailable}
+          />
+        </div>
+
+        {/* Right Column: Delivery Address & Payment Flow (Span 7) */}
         <div className="lg:col-span-7 space-y-3 sm:space-y-4">
           {/* Validation Error Banner */}
           {validationError && (
@@ -1473,10 +1559,67 @@ export const CheckoutView: React.FC = () => {
             </div>
           )}
 
-          {/* ── Single Unified Checkout Surface (Merged Address & Payment) ── */}
-          <div className="bg-white border border-slate-200/80 rounded-xl sm:rounded-2xl p-3.5 sm:p-5 shadow-xs space-y-4">
-            {/* Section 1: Contact & Delivery Address */}
-            <div className="space-y-3">
+          {/* ── Section 1: Delivery Address (Amazon Reference Style) ── */}
+          {!isEditingAddress && (addrFormStreet || initialAddr?.street) ? (
+            /* Amazon-style Collapsed Delivery Address Card */
+            <div className="bg-white border border-slate-200/90 rounded-2xl p-4 sm:p-5 shadow-xs space-y-2">
+              <div className="flex items-start justify-between gap-4">
+                <div className="space-y-1 min-w-0">
+                  <h2 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight">
+                    Delivering to {customerName || addrFormName || "Om Kumar"}
+                  </h2>
+
+                  <p className="text-xs sm:text-sm text-slate-700 leading-relaxed font-normal">
+                    {addrFormStreet || initialAddr?.street}, {addrFormCity || initialAddr?.city},{" "}
+                    {addrFormState || initialAddr?.state}, {addrFormPincode || initialAddr?.pincode}, India
+                  </p>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setIsEditingAddress(true)}
+                  className="text-xs sm:text-sm font-semibold text-[#2563EB] hover:text-[#1D4ED8] hover:underline cursor-pointer shrink-0 pt-0.5"
+                >
+                  Change
+                </button>
+              </div>
+
+              {/* Delivery Instructions Link / Form */}
+              <div className="pt-1">
+                {!showInstructionsInput ? (
+                  <button
+                    type="button"
+                    onClick={() => setShowInstructionsInput(true)}
+                    className="text-xs font-medium text-[#2563EB] hover:underline flex items-center gap-1 cursor-pointer"
+                  >
+                    <span>Add delivery instructions</span>
+                  </button>
+                ) : (
+                  <div className="space-y-1.5 pt-1 animate-in fade-in">
+                    <div className="flex items-center justify-between text-xs font-semibold text-slate-700">
+                      <span>Delivery instructions (Optional)</span>
+                      <button
+                        type="button"
+                        onClick={() => setShowInstructionsInput(false)}
+                        className="text-[11px] text-slate-400 hover:text-slate-600 cursor-pointer"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                    <input
+                      type="text"
+                      value={deliveryInstructions}
+                      onChange={(e) => setDeliveryInstructions(e.target.value)}
+                      placeholder="e.g., Leave with security guard, call before delivery, gate code"
+                      className="w-full bg-slate-50 border border-slate-200 focus:border-[#2563EB] focus:ring-2 focus:ring-blue-500/10 rounded-lg px-3 py-1.5 text-xs text-slate-900 placeholder:text-slate-400 outline-none"
+                    />
+                  </div>
+                )}
+              </div>
+            </div>
+          ) : (
+            /* Expanded Address Form / Selector */
+            <div className="bg-white border border-slate-200/90 rounded-2xl p-4 sm:p-5 shadow-xs space-y-4">
               <div className="flex items-center justify-between pb-2 border-b border-slate-100">
                 <div className="flex items-center gap-2 min-w-0">
                   <MapPin className="w-4 h-4 text-[#2563EB] shrink-0" />
@@ -1484,21 +1627,14 @@ export const CheckoutView: React.FC = () => {
                     1. Delivery Address
                   </h2>
                 </div>
-                {isPhoneVerified ? (
-                  <span className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-600 shrink-0 whitespace-nowrap">
-                    <CheckCircle2 className="w-3.5 h-3.5" />
-                    Verified
-                  </span>
-                ) : (
-                  customerMobile.length === 10 && (
-                    <button
-                      type="button"
-                      onClick={handleSendCheckoutOtp}
-                      className="text-xs text-[#2563EB] font-semibold hover:underline cursor-pointer"
-                    >
-                      {otpSending ? "Sending OTP..." : "Verify via OTP →"}
-                    </button>
-                  )
+                {(addrFormStreet || initialAddr?.street) && (
+                  <button
+                    type="button"
+                    onClick={() => setIsEditingAddress(false)}
+                    className="text-xs font-bold text-[#2563EB] hover:underline cursor-pointer"
+                  >
+                    Done
+                  </button>
                 )}
               </div>
 
@@ -1699,133 +1835,307 @@ export const CheckoutView: React.FC = () => {
                   </div>
                 )}
               </div>
-            </div>
 
-            {/* ── Section 2: Payment Method ── */}
-            <div className="pt-3.5 border-t border-slate-100 space-y-3">
-              <div className="flex items-center justify-between pb-2 border-b border-slate-100">
-                <div className="flex items-center gap-2 min-w-0">
-                  <CreditCard className="w-4 h-4 text-[#2563EB] shrink-0" />
-                  <h2 className="text-sm sm:text-base font-extrabold text-slate-900 truncate">
-                    2. Payment Method
-                  </h2>
+              <div className="pt-1 flex justify-end">
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (!addrFormStreet.trim() || !addrFormPincode.trim()) {
+                      setValidationError("Please enter your street address and pincode.");
+                      return;
+                    }
+                    setValidationError(null);
+                    setIsEditingAddress(false);
+                  }}
+                  className="bg-[#2563EB] hover:bg-[#1D4ED8] text-white px-5 py-2 rounded-xl text-xs font-bold transition-all shadow-sm cursor-pointer"
+                >
+                  Use this address
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* ── Section 2: Payment Method (Amazon Reference Style) ── */}
+          <div className="space-y-2">
+            <h2 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight">
+              Payment method
+            </h2>
+
+            {/* Clean Amazon-style Payment Container */}
+            <div className="border border-slate-200/90 rounded-2xl overflow-hidden bg-white shadow-xs">
+              {/* Your available balance */}
+              <div className="p-4 sm:p-5 bg-white border-b border-slate-200/80 space-y-3">
+                <h3 className="text-xs sm:text-sm font-bold text-slate-900 tracking-tight">
+                  Your available balance
+                </h3>
+
+                {/* Prayog Wallet / Reward Points Balance */}
+                <div
+                  onClick={() => {
+                    if (rewardPointsAvailable > 0) {
+                      setUseRewardPoints(!useRewardPoints);
+                    }
+                  }}
+                  className="flex items-start gap-3 cursor-pointer group"
+                >
+                  <input
+                    type="radio"
+                    name="walletBalanceRadio"
+                    id="walletBalanceRadio"
+                    checked={useRewardPoints}
+                    disabled={rewardPointsAvailable <= 0}
+                    onChange={() => {
+                      if (rewardPointsAvailable > 0) {
+                        setUseRewardPoints(!useRewardPoints);
+                      }
+                    }}
+                    className="mt-0.5 text-[#2563EB] focus:ring-[#2563EB] cursor-pointer"
+                  />
+                  <div className="space-y-0.5">
+                    <div className="text-xs sm:text-sm font-bold text-slate-900 group-hover:text-[#2563EB] transition-colors">
+                      {rewardPointsAvailable > 0 ? (
+                        <>
+                          Prayog Reward Points Balance ₹{(rewardPointsAvailable / 2).toFixed(2)} Available
+                        </>
+                      ) : (
+                        <span className="text-slate-500 font-medium">Prayog Wallet Balance ₹0.00 Unavailable</span>
+                      )}
+                    </div>
+                    {rewardPointsAvailable > 0 ? (
+                      <div className="text-[11px] text-slate-500 flex items-center gap-1">
+                        <Info className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                        <span>{rewardPointsAvailable} pts available. Redeem points to save ₹{rewardDiscount}.</span>
+                      </div>
+                    ) : (
+                      <div className="text-[11px] text-slate-500 flex items-center gap-1">
+                        <Info className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                        <span>Insufficient balance. Add money &amp; get rewarded.</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
-                <span className="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-600 shrink-0 whitespace-nowrap">
-                  <Lock className="w-3 h-3 text-emerald-600" />
-                  <span>SSL Secured</span>
-                </span>
+
+                {/* Promo / Coupon Code Input */}
+                <div className="pt-2">
+                  <form
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      if (paymentCouponInput.trim()) {
+                        handleApplyCoupon(paymentCouponInput.trim());
+                      }
+                    }}
+                    className="flex items-center gap-2 max-w-sm"
+                  >
+                    <span className="text-slate-400 font-bold text-base leading-none select-none">+</span>
+                    <input
+                      type="text"
+                      value={paymentCouponInput}
+                      onChange={(e) => setPaymentCouponInput(e.target.value.toUpperCase())}
+                      placeholder="Enter Code"
+                      className="flex-1 bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-xs font-semibold text-slate-900 uppercase placeholder:normal-case placeholder:font-normal placeholder:text-slate-400 outline-none focus:border-[#2563EB]"
+                    />
+                    <button
+                      type="submit"
+                      className="bg-white border border-slate-300 hover:border-slate-400 text-slate-800 px-4 py-1.5 rounded-full text-xs font-bold hover:bg-slate-50 transition-colors cursor-pointer shadow-2xs"
+                    >
+                      Apply
+                    </button>
+                  </form>
+                  {appliedCoupon && couponCode && (
+                    <div className="mt-1 text-[11px] font-semibold text-emerald-600 flex items-center gap-1">
+                      <Check className="w-3 h-3" /> Coupon &ldquo;{couponCode}&rdquo; applied successfully!
+                    </div>
+                  )}
+                </div>
               </div>
 
-              {/* Clean Unified Payment List Group */}
-              <div className="border border-slate-200 rounded-lg overflow-hidden divide-y divide-slate-100 bg-white">
-                {[
-                  {
-                    id: "cod",
-                    label: "Cash on Delivery",
-                    icon: <Banknote className="w-4 h-4 text-slate-600" />,
-                    desc: "Pay at Doorstep with Cash or QR",
-                  },
-                  {
-                    id: "upi",
-                    label: "UPI / QR Code",
-                    icon: <QrCode className="w-4 h-4 text-emerald-600" />,
-                    desc: "Instant payment via GPay, PhonePe, Paytm, BHIM",
-                  },
-                  {
-                    id: "card",
-                    label: "Debit / Credit Cards",
-                    icon: <CreditCard className="w-4 h-4 text-[#2563EB]" />,
-                    desc: "Visa, Mastercard, RuPay, Maestro",
-                  },
-                  {
-                    id: "netbanking",
-                    label: "Net Banking",
-                    icon: <Landmark className="w-4 h-4 text-purple-600" />,
-                    desc: "50+ Indian Banks supported",
-                  },
-                ].map((opt) => {
-                  const isSel = paymentMethod === opt.id;
-                  return (
-                    <button
-                      key={opt.id}
-                      type="button"
-                      onClick={() => setPaymentMethod(opt.id as any)}
-                      className={`w-full flex items-center justify-between px-3 py-2 sm:py-2.5 text-left transition-colors cursor-pointer ${
-                        isSel ? "bg-blue-50/60" : "hover:bg-slate-50"
-                      }`}
-                    >
-                      <div className="flex items-center gap-2.5 min-w-0">
+              {/* Another payment method heading & list */}
+              <div className="p-4 sm:p-5 bg-white space-y-4">
+                <h3 className="text-xs sm:text-sm font-bold text-slate-900 tracking-tight">
+                  Another payment method
+                </h3>
+
+                <div className="space-y-4">
+                  {/* 1. Credit or debit card */}
+                  <div
+                    onClick={() => setPaymentMethod("card")}
+                    className="flex items-start gap-3 cursor-pointer group"
+                  >
+                    <input
+                      type="radio"
+                      name="paymentMethodRadio"
+                      checked={paymentMethod === "card"}
+                      onChange={() => setPaymentMethod("card")}
+                      className="mt-0.5 text-[#2563EB] focus:ring-[#2563EB] cursor-pointer"
+                    />
+                    <div className="space-y-1.5 min-w-0">
+                      <div className="text-xs sm:text-sm font-bold text-slate-900 group-hover:text-[#2563EB] transition-colors leading-tight">
+                        Credit or debit card
+                      </div>
+                      <div className="flex items-center gap-2 pt-0.5">
+                        {/* Visa Card Logo */}
                         <div
-                          className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center shrink-0 ${
-                            isSel
-                              ? "bg-[#2563EB] border-[#2563EB]"
-                              : "border-slate-300 bg-white"
-                          }`}
+                          className="h-6 px-2 bg-white border border-slate-200/90 rounded flex items-center justify-center shadow-2xs hover:border-slate-300 transition-colors"
+                          title="Visa"
                         >
-                          {isSel && (
-                            <div className="w-1.5 h-1.5 bg-white rounded-full" />
-                          )}
+                          <VisaCardLogo className="h-2.5 w-auto" />
                         </div>
-                        <div className="flex items-center gap-2 min-w-0">
-                          <span className="shrink-0">{opt.icon}</span>
-                          <div>
-                            <div className="text-xs font-semibold text-slate-900 leading-tight">
-                              {opt.label}
-                            </div>
-                            <div className="text-[10px] text-slate-500 mt-0.5">
-                              {opt.desc}
-                            </div>
-                          </div>
+
+                        {/* Mastercard Logo */}
+                        <div
+                          className="h-6 px-2 bg-white border border-slate-200/90 rounded flex items-center justify-center shadow-2xs hover:border-slate-300 transition-colors"
+                          title="Mastercard"
+                        >
+                          <MastercardCardLogo className="h-3.5 w-auto" />
+                        </div>
+
+                        {/* RuPay Logo */}
+                        <div
+                          className="h-6 px-2 bg-white border border-slate-200/90 rounded flex items-center justify-center shadow-2xs hover:border-slate-300 transition-colors"
+                          title="RuPay"
+                        >
+                          <RuPayCardLogo className="h-2.5 w-auto" />
                         </div>
                       </div>
-                    </button>
-                  );
-                })}
-              </div>
+                    </div>
+                  </div>
 
-              {/* Delivery Speed Selector - Clean segmented control */}
-              <div className="pt-2 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                <span className="text-xs font-medium text-slate-700 flex items-center gap-1.5">
-                  <Truck className="w-3.5 h-3.5 text-slate-500" />
-                  Shipping Speed:
-                </span>
-                <div className="inline-flex p-0.5 bg-slate-100 rounded-lg">
-                  <button
-                    type="button"
-                    onClick={() => setSelectedDeliveryMethod("standard")}
-                    className={`px-2.5 py-1 rounded-md text-xs font-medium transition-all cursor-pointer ${
-                      selectedDeliveryMethod === "standard"
-                        ? "bg-white text-slate-900 font-semibold shadow-xs"
-                        : "text-slate-600 hover:text-slate-900"
-                    }`}
+                  {/* 2. Net Banking */}
+                  <div
+                    onClick={() => setPaymentMethod("netbanking")}
+                    className="flex items-start gap-3 cursor-pointer group"
                   >
-                    Standard ({isFreeStandardShipping ? "FREE" : "₹99"})
-                  </button>
-                  {isRanchiEligible && (
-                    <button
-                      type="button"
-                      onClick={() => setSelectedDeliveryMethod("ranchi_24h")}
-                      className={`px-2.5 py-1 rounded-md text-xs font-medium transition-all cursor-pointer ${
-                        selectedDeliveryMethod === "ranchi_24h"
-                          ? "bg-white text-slate-900 font-semibold shadow-xs"
-                          : "text-slate-600 hover:text-slate-900"
-                      }`}
-                    >
-                      Ranchi 24h (₹49)
-                    </button>
-                  )}
-                  <button
-                    type="button"
-                    onClick={() => setSelectedDeliveryMethod("faster_express")}
-                    className={`px-2.5 py-1 rounded-md text-xs font-medium transition-all cursor-pointer ${
-                      selectedDeliveryMethod === "faster_express"
-                        ? "bg-white text-slate-900 font-semibold shadow-xs"
-                        : "text-slate-600 hover:text-slate-900"
-                    }`}
+                    <input
+                      type="radio"
+                      name="paymentMethodRadio"
+                      checked={paymentMethod === "netbanking"}
+                      onChange={() => setPaymentMethod("netbanking")}
+                      className="mt-0.5 text-[#2563EB] focus:ring-[#2563EB] cursor-pointer"
+                    />
+                    <div className="space-y-2 flex-1 max-w-xs">
+                      <div className="text-xs sm:text-sm font-bold text-slate-900 group-hover:text-[#2563EB] transition-colors leading-tight">
+                        Net Banking
+                      </div>
+                      <select
+                        value={paymentBank}
+                        onChange={(e) => {
+                          e.stopPropagation();
+                          setPaymentBank(e.target.value);
+                          setPaymentMethod("netbanking");
+                        }}
+                        className="w-full bg-slate-50 hover:bg-slate-100 border border-slate-300 rounded-lg px-3 py-1.5 text-xs text-slate-800 outline-none focus:border-[#2563EB] font-medium transition-colors cursor-pointer"
+                      >
+                        {POPULAR_BANKS.map((b) => (
+                          <option key={b} value={b}>
+                            {b}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* 3. Scan and Pay with UPI */}
+                  <div
+                    onClick={() => setPaymentMethod("upi")}
+                    className="flex items-start gap-3 cursor-pointer group"
                   >
-                    Priority Air (₹149)
-                  </button>
+                    <input
+                      type="radio"
+                      name="paymentMethodRadio"
+                      checked={paymentMethod === "upi"}
+                      onChange={() => setPaymentMethod("upi")}
+                      className="mt-0.5 text-[#2563EB] focus:ring-[#2563EB] cursor-pointer"
+                    />
+                    <div className="space-y-1 flex-1">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs sm:text-sm font-bold text-slate-900 group-hover:text-[#2563EB] transition-colors leading-tight">
+                          Scan and Pay with
+                        </span>
+                        <div
+                          className="h-5 px-1.5 bg-white border border-slate-200/90 rounded flex items-center justify-center shadow-2xs"
+                          title="UPI"
+                        >
+                          <UpiBadgeLogo className="h-3 w-auto" />
+                        </div>
+                      </div>
+                      <div className="text-[11px] text-slate-500 flex items-center gap-1">
+                        <Info className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                        <span>
+                          You will need to Scan the QR code on the payment page to complete the payment.
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* (NO EMI per explicit user instruction) */}
+
+                  {/* 4. Cash on Delivery / Pay on Delivery */}
+                  <div
+                    onClick={() => setPaymentMethod("cod")}
+                    className="flex items-start gap-3 cursor-pointer group"
+                  >
+                    <input
+                      type="radio"
+                      name="paymentMethodRadio"
+                      checked={paymentMethod === "cod"}
+                      onChange={() => setPaymentMethod("cod")}
+                      className="mt-0.5 text-[#2563EB] focus:ring-[#2563EB] cursor-pointer"
+                    />
+                    <div className="space-y-0.5">
+                      <div className="text-xs sm:text-sm font-bold text-slate-900 group-hover:text-[#2563EB] transition-colors leading-tight">
+                        Cash on Delivery/Pay on Delivery
+                      </div>
+                      <div className="text-[11px] text-slate-500">
+                        Pay at doorstep with cash or dynamic UPI QR upon delivery.
+                      </div>
+                    </div>
+                  </div>
                 </div>
+              </div>
+            </div>
+
+            {/* Delivery Speed Selector - Clean segmented control */}
+            <div className="pt-2 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <span className="text-xs font-medium text-slate-700 flex items-center gap-1.5">
+                <Truck className="w-3.5 h-3.5 text-slate-500" />
+                Shipping Speed:
+              </span>
+              <div className="inline-flex p-0.5 bg-slate-100 rounded-lg">
+                <button
+                  type="button"
+                  onClick={() => setSelectedDeliveryMethod("standard")}
+                  className={`px-2.5 py-1 rounded-md text-xs font-medium transition-all cursor-pointer ${
+                    selectedDeliveryMethod === "standard"
+                      ? "bg-white text-slate-900 font-semibold shadow-xs"
+                      : "text-slate-600 hover:text-slate-900"
+                  }`}
+                >
+                  Standard ({isFreeStandardShipping ? "FREE" : "₹99"})
+                </button>
+                {isRanchiEligible && (
+                  <button
+                    type="button"
+                    onClick={() => setSelectedDeliveryMethod("ranchi_24h")}
+                    className={`px-2.5 py-1 rounded-md text-xs font-medium transition-all cursor-pointer ${
+                      selectedDeliveryMethod === "ranchi_24h"
+                        ? "bg-white text-slate-900 font-semibold shadow-xs"
+                        : "text-slate-600 hover:text-slate-900"
+                    }`}
+                  >
+                    Ranchi 24h (₹49)
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={() => setSelectedDeliveryMethod("faster_express")}
+                  className={`px-2.5 py-1 rounded-md text-xs font-medium transition-all cursor-pointer ${
+                    selectedDeliveryMethod === "faster_express"
+                      ? "bg-white text-slate-900 font-semibold shadow-xs"
+                      : "text-slate-600 hover:text-slate-900"
+                  }`}
+                >
+                  Priority Air (₹149)
+                </button>
               </div>
             </div>
           </div>
@@ -1981,22 +2291,7 @@ export const CheckoutView: React.FC = () => {
           </div>
         </div>
 
-        {/* Right Column: Order Summary (Span 5) */}
-        <div className="lg:col-span-5 sticky top-24">
-          <CheckoutOrderSummary
-            cart={cart}
-            subtotal={subtotal}
-            mrpTotal={mrpTotal}
-            couponCode={couponCode}
-            couponDiscount={couponDiscount}
-            useRewardPoints={useRewardPoints}
-            rewardDiscount={rewardDiscount}
-            selectedShippingFee={shippingFee}
-            onApplyCoupon={handleApplyCoupon}
-            onToggleRewardPoints={setUseRewardPoints}
-            rewardPointsAvailable={rewardPointsAvailable}
-          />
-        </div>
+
       </div>
     </div>
   );

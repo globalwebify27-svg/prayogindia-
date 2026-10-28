@@ -71,23 +71,14 @@ export async function POST(request: Request) {
     } = body;
 
     if (!isDatabaseAvailable()) {
-      // Mock Mode Fallback Response
-      const mockOrderNumber = generateOrderNumber();
-      return NextResponse.json({
-        success: true,
-        message: "Order created successfully (Mock Mode).",
-        data: {
-          id: `ord-mock-${Date.now()}`,
-          orderNumber: mockOrderNumber,
-          status: "ORDER_PLACED",
-          totalAmount: 1499,
-          shippingAddress:
-            typeof customAddressInput === "string"
-              ? customAddressInput
-              : "Prayog Tech Hub, Bengaluru - 560100",
-          createdAt: new Date().toISOString(),
+      return NextResponse.json(
+        {
+          success: false,
+          message:
+            "Database service is currently unavailable. Order could not be placed.",
         },
-      });
+        { status: 503 },
+      );
     }
 
     // Resolve Customer Identity & Ensure in DB
@@ -177,7 +168,7 @@ export async function POST(request: Request) {
 
         if (dbProd) {
           let resolvedVariantId: string | null = null;
-          let unitPrice = itemPrice > 0 ? itemPrice : dbProd.price;
+          let unitPrice = dbProd.price;
           let sku = item.productSku || item.sku || dbProd.sku;
 
           if (item.variantId && dbProd.variants) {
@@ -186,7 +177,7 @@ export async function POST(request: Request) {
             );
             if (matchingVar) {
               resolvedVariantId = matchingVar.id;
-              if (itemPrice <= 0) unitPrice = matchingVar.price;
+              unitPrice = matchingVar.price;
               sku = matchingVar.sku;
             }
           }
@@ -665,6 +656,15 @@ export async function GET(request: Request) {
   const statusFilter = searchParams.get("status");
 
   if (!isDatabaseAvailable()) {
+    if (process.env.NODE_ENV === "production") {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Database service is currently unavailable.",
+        },
+        { status: 503 },
+      );
+    }
     return NextResponse.json({
       success: true,
       data: {

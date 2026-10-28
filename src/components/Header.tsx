@@ -48,7 +48,16 @@ import { PrayogLogo } from "./PrayogLogo";
 import { MobileMenuDrawer } from "./MobileMenuDrawer";
 import { PRODUCTS } from "@/data/mockData";
 import { CATEGORIES_DATA, matchCategory } from "@/data/categories";
-import { useStore } from "@/context/StoreContext";
+import {
+  useAuthStore,
+  useCartStore,
+  useWishlistStore,
+  selectCartCount,
+  selectCartSubtotal,
+  selectWishlistCount,
+  selectUser,
+  selectIsLoggedIn,
+} from "@/store";
 import { searchProductsFuzzy } from "@/lib/fuzzySearch";
 import {
   WebsiteNotification,
@@ -164,7 +173,12 @@ export const Header: React.FC<HeaderProps> = ({
 }) => {
   const router = useRouter();
   const pathname = usePathname();
-  const { user, isLoggedIn, loginUser, logoutUser, cart } = useStore();
+  const user = useAuthStore(selectUser);
+  const isLoggedIn = useAuthStore(selectIsLoggedIn);
+  const loginUser = useAuthStore((s) => s.loginUser);
+  const logoutUser = useAuthStore((s) => s.logoutUser);
+  const storeCartCount = useCartStore(selectCartCount);
+  const cartTotal = useCartStore(selectCartSubtotal);
 
   // Quick Sign In Dropdown state & hover handlers
   const [accountDropdownOpen, setAccountDropdownOpen] = useState(false);
@@ -254,18 +268,7 @@ export const Header: React.FC<HeaderProps> = ({
     }
   };
 
-  const cartTotal =
-    cart && cart.length > 0
-      ? cart.reduce(
-          (sum, item) => sum + (item.product.price || 0) * item.quantity,
-          0,
-        )
-      : 0;
-
-  const totalCartCount =
-    cart && cart.length > 0
-      ? cart.reduce((sum, item) => sum + item.quantity, 0)
-      : cartCount;
+  const totalCartCount = cartCount || storeCartCount;
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchExpanded, setSearchExpanded] = useState(false);

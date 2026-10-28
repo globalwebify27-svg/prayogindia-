@@ -59,6 +59,16 @@ export async function POST(request: Request) {
         });
       } catch (dbErr) {
         console.warn("Prisma user lookup skipped during login:", dbErr);
+        if (process.env.NODE_ENV === "production") {
+          return NextResponse.json(
+            {
+              success: false,
+              message:
+                "Database service is currently unavailable. Please try again later.",
+            },
+            { status: 503, headers },
+          );
+        }
       }
     }
 

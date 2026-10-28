@@ -28,6 +28,7 @@ import {
   Bot,
   Award,
   Truck,
+  RotateCcw,
   Phone,
   Mail,
   MapPin,
@@ -103,9 +104,171 @@ const SHOWCASE_ICONS: Record<ShowcaseIconType, React.ElementType> = {
   wrench: Wrench,
 };
 
+interface CompliancePolicy {
+  id: string;
+  category: "shipping" | "safety" | "legal" | "privacy";
+  categoryLabel: string;
+  title: string;
+  badge: string;
+  badgeStyle: string;
+  icon: React.ElementType;
+  iconBg: string;
+  gradient: string;
+  description: string;
+  keyPoints: string[];
+}
+
+const POLICY_CATEGORIES = [
+  { id: "all", label: "All Policies", count: 8 },
+  { id: "shipping", label: "Shipping & Returns", count: 2 },
+  { id: "safety", label: "Warranty & Safety", count: 2 },
+  { id: "legal", label: "Commercial & Terms", count: 2 },
+  { id: "privacy", label: "Privacy & Cookies", count: 2 },
+];
+
+const COMPLIANCE_POLICIES: CompliancePolicy[] = [
+  {
+    id: "terms",
+    category: "legal",
+    categoryLabel: "Commercial & Orders",
+    title: "Terms & Conditions",
+    badge: "100% Compliant",
+    badgeStyle: "bg-blue-50 text-[#2563EB] border-blue-200/80",
+    icon: ShieldCheck,
+    iconBg: "bg-blue-50 text-[#2563EB] border border-blue-200/70",
+    gradient: "from-blue-500 to-indigo-500",
+    description:
+      "By purchasing components or lab services, you agree to our commercial terms. Official POs supersede default retail checkout terms.",
+    keyPoints: [
+      "Institutional POs & SLAs honored",
+      "Transparent commercial & dispatch terms",
+    ],
+  },
+  {
+    id: "disclaimer",
+    category: "safety",
+    categoryLabel: "Safety & Education",
+    title: "Hardware Disclaimer",
+    badge: "Safety Protocol",
+    badgeStyle: "bg-amber-50 text-amber-700 border-amber-200/80",
+    icon: Target,
+    iconBg: "bg-amber-50 text-amber-700 border border-amber-200/70",
+    gradient: "from-amber-500 to-orange-500",
+    description:
+      "Hardware and drone modules are intended for education and research. Users must observe proper reverse-polarity and voltage protocols.",
+    keyPoints: [
+      "Reverse-polarity & voltage safety",
+      "LiPo battery & drone safety guidelines",
+    ],
+  },
+  {
+    id: "privacy",
+    category: "privacy",
+    categoryLabel: "Data Protection",
+    title: "Privacy & Data Policy",
+    badge: "Zero Spam • 256-Bit",
+    badgeStyle: "bg-emerald-50 text-emerald-700 border-emerald-200/80",
+    icon: Eye,
+    iconBg: "bg-emerald-50 text-emerald-700 border border-emerald-200/70",
+    gradient: "from-emerald-500 to-teal-500",
+    description:
+      "Customer details and GST info are stored with 256-bit encryption. We never sell data to advertisers, only using it for orders and tracking.",
+    keyPoints: [
+      "256-bit SSL enterprise encryption",
+      "Zero 3rd-party data selling or tracking",
+    ],
+  },
+  {
+    id: "returns",
+    category: "shipping",
+    categoryLabel: "Assurance & Returns",
+    title: "Return & Replacement",
+    badge: "7-Day Guarantee",
+    badgeStyle: "bg-indigo-50 text-indigo-700 border-indigo-200/80",
+    icon: RotateCcw,
+    iconBg: "bg-indigo-50 text-indigo-700 border border-indigo-200/70",
+    gradient: "from-indigo-500 to-violet-500",
+    description:
+      "Hassle-free 7-day replacement guarantee on hardware with transit damage or defects. Direct refunds are processed within 3-5 business days.",
+    keyPoints: [
+      "7-Day cover for defects & transit damage",
+      "Direct refunds in 3-5 business days",
+    ],
+  },
+  {
+    id: "shipping",
+    category: "shipping",
+    categoryLabel: "Logistics & Dispatch",
+    title: "Pan-India Shipping",
+    badge: "Same-Day Dispatch",
+    badgeStyle: "bg-cyan-50 text-cyan-700 border-cyan-200/80",
+    icon: Truck,
+    iconBg: "bg-cyan-50 text-cyan-700 border border-cyan-200/70",
+    gradient: "from-cyan-500 to-blue-500",
+    description:
+      "Orders before 2:00 PM IST dispatch same-day in ESD-safe packaging. Delivery in 2-4 days for metros and 3-6 days pan-India across 19,000+ pincodes.",
+    keyPoints: [
+      "Same-day cutoff at 2:00 PM IST",
+      "19,000+ pincodes via Bluedart/DTDC",
+    ],
+  },
+  {
+    id: "warranty",
+    category: "safety",
+    categoryLabel: "Quality Assurance",
+    title: "Hardware Warranty",
+    badge: "Up to 1-Yr Warranty",
+    badgeStyle: "bg-purple-50 text-purple-700 border-purple-200/80",
+    icon: Cpu,
+    iconBg: "bg-purple-50 text-purple-700 border border-purple-200/70",
+    gradient: "from-purple-500 to-pink-500",
+    description:
+      "Development boards and lab gear carry standard 6-month or 1-year warranty against failure. Consumables carry DOA replacement cover.",
+    keyPoints: [
+      "6 to 12-month hardware warranty",
+      "DOA instant replacement protection",
+    ],
+  },
+  {
+    id: "payment",
+    category: "legal",
+    categoryLabel: "Billing & Credit",
+    title: "Payment & Net-30",
+    badge: "Net-30 for Labs",
+    badgeStyle: "bg-rose-50 text-rose-700 border-rose-200/80",
+    icon: Building2,
+    iconBg: "bg-rose-50 text-rose-700 border border-rose-200/70",
+    gradient: "from-rose-500 to-red-500",
+    description:
+      "We accept UPI, cards, Net Banking across 50+ banks, and NEFT/RTGS. Colleges and research labs can apply for Net-30 credit against verified POs.",
+    keyPoints: [
+      "UPI, Net Banking & NEFT/RTGS",
+      "Net-30 credit for colleges & R&D labs",
+    ],
+  },
+  {
+    id: "cookies",
+    category: "privacy",
+    categoryLabel: "Session & Privacy",
+    title: "Cookie & Session Policy",
+    badge: "Zero Ad Trackers",
+    badgeStyle: "bg-teal-50 text-teal-700 border-teal-200/80",
+    icon: Sparkles,
+    iconBg: "bg-teal-50 text-teal-700 border border-teal-200/70",
+    gradient: "from-teal-500 to-emerald-500",
+    description:
+      "We use lightweight local storage only for cart retention and user session. We run zero cross-site ad trackers and cookies can be cleared anytime.",
+    keyPoints: [
+      "Local cart & session storage only",
+      "Zero cross-site trackers or ad pixels",
+    ],
+  },
+];
+
 export const AboutView: React.FC = () => {
   const [aimSlide, setAimSlide] = useState(1);
   const [showcaseItems, setShowcaseItems] = useState<AboutShowcaseItem[]>(DEFAULT_ABOUT_SHOWCASE);
+  const [selectedPolicyCategory, setSelectedPolicyCategory] = useState<string>("all");
   const carouselRef = useRef<HTMLDivElement>(null);
 
   const scrollToIndex = (index: number) => {
@@ -155,7 +318,20 @@ export const AboutView: React.FC = () => {
         }
       })
       .catch((err) => console.error("Error loading showcase items:", err));
+
+    if (typeof window !== "undefined" && window.location.hash) {
+      const hash = window.location.hash.replace("#", "");
+      const matched = COMPLIANCE_POLICIES.find((p) => p.id === hash);
+      if (matched) {
+        setSelectedPolicyCategory("all");
+      }
+    }
   }, []);
+
+  const filteredPolicies =
+    selectedPolicyCategory === "all"
+      ? COMPLIANCE_POLICIES
+      : COMPLIANCE_POLICIES.filter((p) => p.category === selectedPolicyCategory);
 
   const IMPACT_STATS = [
     {
@@ -759,147 +935,145 @@ export const AboutView: React.FC = () => {
         </section>
 
         {/* 9. Policy, Legal & Operational Compliance Documents (Anchors for Footer) */}
-        <section id="policies" className="pt-8 border-t border-slate-200/90 space-y-10 scroll-mt-20">
-          <div className="space-y-2 text-center max-w-2xl mx-auto">
-            <span className="text-[10px] font-black uppercase tracking-widest text-[#2563EB] bg-blue-50 px-3 py-1 rounded-full inline-block border border-blue-200/60">
-              LEGAL &amp; OPERATIONAL POLICIES
-            </span>
-            <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+        <section id="policies" className="pt-10 border-t border-slate-200/90 space-y-8 scroll-mt-20">
+          <div className="space-y-3 text-center max-w-3xl mx-auto">
+            <div className="inline-flex items-center gap-2 bg-blue-50 border border-blue-200/60 text-[#2563EB] text-[11px] font-black uppercase tracking-widest px-3.5 py-1 rounded-full shadow-2xs">
+              <ShieldCheck className="w-3.5 h-3.5" />
+              <span>LEGAL &amp; OPERATIONAL POLICIES</span>
+            </div>
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 tracking-tight">
               Customer Trust &amp; Hardware Compliance
             </h2>
-            <p className="text-xs sm:text-sm text-slate-500 font-normal">
-              Official operating standards, warranty terms, dispatch timelines, and legal disclaimers for Prayog India customers and partner labs.
+            <p className="text-xs sm:text-sm text-slate-600 font-normal leading-relaxed">
+              Official operating standards, warranty terms, dispatch timelines, and legal disclaimers for Prayog India customers, schools, and institutional partner labs.
             </p>
+
+            {/* Category Filter Tabs */}
+            <div className="flex flex-wrap items-center justify-center gap-2 pt-3">
+              {POLICY_CATEGORIES.map((cat) => {
+                const isActive = selectedPolicyCategory === cat.id;
+                return (
+                  <button
+                    key={cat.id}
+                    type="button"
+                    onClick={() => setSelectedPolicyCategory(cat.id)}
+                    className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold transition-all duration-200 cursor-pointer ${
+                      isActive
+                        ? "bg-[#2563EB] text-white shadow-md shadow-blue-500/20 scale-105"
+                        : "bg-white hover:bg-slate-50 text-slate-600 border border-slate-200/90 shadow-2xs hover:border-slate-300"
+                    }`}
+                  >
+                    <span>{cat.label}</span>
+                    <span
+                      className={`text-[10px] px-1.5 py-0.5 rounded-full font-black ${
+                        isActive
+                          ? "bg-white/25 text-white"
+                          : "bg-slate-100 text-slate-600"
+                      }`}
+                    >
+                      {cat.count}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
-            {/* 1. Terms & Conditions */}
-            <article
-              id="terms"
-              className="scroll-mt-24 p-6 sm:p-7 rounded-3xl bg-slate-50/70 border border-slate-200/90 hover:border-blue-300 transition-all shadow-2xs space-y-3"
-            >
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-blue-100 text-[#2563EB] flex items-center justify-center shrink-0">
-                  <ShieldCheck className="w-4 h-4" />
-                </div>
-                <h3 className="text-base font-bold text-slate-900">Terms &amp; Conditions</h3>
-              </div>
-              <p className="text-xs text-slate-600 leading-relaxed">
-                By purchasing hardware components, robotics platforms, or turnkey lab setup services from Prayog India, you agree to comply with our commercial terms. All orders are subject to availability and dispatch verification. For educational institutions and bulk enterprise procurement, formal purchase orders (PO) and institutional credit agreements will supersede default retail checkout terms where applicable.
-              </p>
-            </article>
+          {/* Cards Grid - Compact 4-Column Layout */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4 items-stretch">
+            {filteredPolicies.map((policy) => {
+              const Icon = policy.icon;
+              return (
+                <article
+                  id={policy.id}
+                  key={policy.id}
+                  className="scroll-mt-24 group relative bg-white rounded-2xl border border-slate-200/90 p-4 sm:p-4.5 shadow-2xs hover:shadow-lg hover:border-blue-400/50 transition-all duration-300 flex flex-col justify-between overflow-hidden"
+                >
+                  {/* Top Color Accent Line */}
+                  <div
+                    className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${policy.gradient} opacity-75 group-hover:opacity-100 transition-opacity`}
+                  />
 
-            {/* 2. Disclaimer */}
-            <article
-              id="disclaimer"
-              className="scroll-mt-24 p-6 sm:p-7 rounded-3xl bg-slate-50/70 border border-slate-200/90 hover:border-blue-300 transition-all shadow-2xs space-y-3"
-            >
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center shrink-0">
-                  <Target className="w-4 h-4" />
-                </div>
-                <h3 className="text-base font-bold text-slate-900">Hardware &amp; Educational Disclaimer</h3>
-              </div>
-              <p className="text-xs text-slate-600 leading-relaxed">
-                Electronic microcontrollers, high-discharge LiPo batteries, drone flight controllers, and mechatronic actuators are intended for engineering education, prototyping, robotics competitions, and industrial research. Users must observe proper reverse-polarity protection, voltage regulation, and drone safety protocols. Prayog India is not liable for secondary damages caused by incorrect circuit wiring, firmware misconfiguration, or unauthorized battery modifications.
-              </p>
-            </article>
+                  <div className="space-y-3">
+                    {/* Header */}
+                    <div className="flex items-start justify-between gap-2">
+                      <div
+                        className={`w-9 h-9 rounded-xl ${policy.iconBg} flex items-center justify-center shrink-0 shadow-2xs group-hover:scale-105 transition-transform duration-300`}
+                      >
+                        <Icon className="w-4 h-4" />
+                      </div>
 
-            {/* 3. Privacy Policy */}
-            <article
-              id="privacy"
-              className="scroll-mt-24 p-6 sm:p-7 rounded-3xl bg-slate-50/70 border border-slate-200/90 hover:border-blue-300 transition-all shadow-2xs space-y-3"
-            >
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
-                  <Eye className="w-4 h-4" />
-                </div>
-                <h3 className="text-base font-bold text-slate-900">Privacy &amp; Data Protection Policy</h3>
-              </div>
-              <p className="text-xs text-slate-600 leading-relaxed">
-                Your personal details, contact numbers, shipping addresses, and GST identification numbers are securely stored using enterprise-grade encryption. We never sell, rent, or trade customer data to third-party advertisers. Information is strictly utilized to process online orders, provide real-time WhatsApp courier tracking updates, and generate compliant GST tax invoices.
-              </p>
-            </article>
+                      <span
+                        className={`text-[10px] font-bold px-2 py-0.5 rounded-full border shrink-0 inline-flex items-center shadow-2xs leading-tight ${policy.badgeStyle}`}
+                      >
+                        {policy.badge}
+                      </span>
+                    </div>
 
-            {/* 4. Return & Refund Policy */}
-            <article
-              id="returns"
-              className="scroll-mt-24 p-6 sm:p-7 rounded-3xl bg-slate-50/70 border border-slate-200/90 hover:border-blue-300 transition-all shadow-2xs space-y-3"
-            >
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-indigo-100 text-indigo-700 flex items-center justify-center shrink-0">
-                  <Award className="w-4 h-4" />
-                </div>
-                <h3 className="text-base font-bold text-slate-900">Return &amp; Refund Policy</h3>
-              </div>
-              <p className="text-xs text-slate-600 leading-relaxed">
-                We provide a hassle-free 7-day replacement guarantee on hardware items delivered with manufacturing defects, shipping transit damage, or missing accessories. To request a replacement or store credit, contact our engineer support desk via WhatsApp or support ticket with an unboxing video and order ID. Refunds for authorized returns are processed directly back to the original source within 3-5 business days.
-              </p>
-            </article>
+                    <div>
+                      <span className="text-[9px] font-bold uppercase tracking-wider text-slate-400 block mb-0.5">
+                        {policy.categoryLabel}
+                      </span>
+                      <h3 className="text-sm font-bold text-slate-900 group-hover:text-[#2563EB] transition-colors leading-snug">
+                        {policy.title}
+                      </h3>
+                    </div>
 
-            {/* 5. Shipping Policy */}
-            <article
-              id="shipping"
-              className="scroll-mt-24 p-6 sm:p-7 rounded-3xl bg-slate-50/70 border border-slate-200/90 hover:border-blue-300 transition-all shadow-2xs space-y-3"
-            >
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-cyan-100 text-cyan-700 flex items-center justify-center shrink-0">
-                  <Truck className="w-4 h-4" />
-                </div>
-                <h3 className="text-base font-bold text-slate-900">Pan-India Shipping Policy</h3>
-              </div>
-              <p className="text-xs text-slate-600 leading-relaxed">
-                Orders received before 2:00 PM IST on business days are dispatched same-day in ESD-safe protective shielding and anti-static bubble packaging. We partner with Bluedart, Delhivery, DTDC, and India Post Speed Post covering 19,000+ pincodes across India. Standard delivery timeline is 2-4 business days for metro locations and 3-6 business days for regional addresses.
-              </p>
-            </article>
+                    {/* Description Body */}
+                    <p className="text-xs text-slate-600 leading-relaxed font-normal">
+                      {policy.description}
+                    </p>
+                  </div>
 
-            {/* 6. Warranty Policy */}
-            <article
-              id="warranty"
-              className="scroll-mt-24 p-6 sm:p-7 rounded-3xl bg-slate-50/70 border border-slate-200/90 hover:border-blue-300 transition-all shadow-2xs space-y-3"
-            >
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center shrink-0">
-                  <Cpu className="w-4 h-4" />
-                </div>
-                <h3 className="text-base font-bold text-slate-900">Hardware Warranty &amp; Quality Guarantee</h3>
-              </div>
-              <p className="text-xs text-slate-600 leading-relaxed">
-                All development boards, autopilots, laboratory power supplies, 3D printers, and test equipment carry a standard 6-month or 1-year manufacturer warranty covering operational component failures. Consumable items such as soldering tips, filaments, and jumper wires are guaranteed against initial dead-on-arrival (DOA) defects upon delivery.
-              </p>
-            </article>
+                  {/* Key Provisions */}
+                  <div className="mt-3.5 pt-2.5 border-t border-slate-100 space-y-1">
+                    {policy.keyPoints.map((point, pIdx) => (
+                      <div
+                        key={pIdx}
+                        className="flex items-center gap-1.5 text-[11px] font-medium text-slate-600 bg-slate-50/80 px-2 py-1 rounded-lg border border-slate-100/80"
+                      >
+                        <span className="w-1 h-1 rounded-full bg-[#2563EB] shrink-0" />
+                        <span className="truncate leading-none">{point}</span>
+                      </div>
+                    ))}
+                  </div>
+                </article>
+              );
+            })}
+          </div>
 
-            {/* 7. Payment Policy */}
-            <article
-              id="payment"
-              className="scroll-mt-24 p-6 sm:p-7 rounded-3xl bg-slate-50/70 border border-slate-200/90 hover:border-blue-300 transition-all shadow-2xs space-y-3"
-            >
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-rose-100 text-rose-700 flex items-center justify-center shrink-0">
-                  <Building2 className="w-4 h-4" />
-                </div>
-                <h3 className="text-base font-bold text-slate-900">Payment &amp; Institutional Credit Policy</h3>
+          {/* Bottom Trust & Escalation Strip */}
+          <div className="bg-gradient-to-r from-blue-50/80 via-slate-50 to-blue-50/80 border border-blue-200/70 rounded-2xl p-5 sm:p-6 flex flex-col md:flex-row items-center justify-between gap-5 shadow-xs">
+            <div className="space-y-1 text-center md:text-left">
+              <div className="flex items-center justify-center md:justify-start gap-2 text-xs font-bold text-[#2563EB] uppercase tracking-wider">
+                <ShieldCheck className="w-3.5 h-3.5" />
+                <span>Enterprise &amp; Institutional Assurance</span>
               </div>
-              <p className="text-xs text-slate-600 leading-relaxed">
-                We accept UPI (Google Pay, PhonePe, Paytm, BHIM), all major RuPay, Visa, and Mastercard credit/debit cards, Net Banking across 50+ Indian banks, and corporate NEFT/RTGS bank transfers. Government educational institutions and corporate R&amp;D labs can apply for Net-30 credit billing against verified purchase orders.
+              <h4 className="text-sm sm:text-base font-bold text-slate-900">
+                Need custom SLAs, vendor registration, or institutional onboarding?
+              </h4>
+              <p className="text-xs text-slate-500 max-w-xl">
+                Our compliance team coordinates directly with procurement officers, ATL coordinators, and academic institutions across India.
               </p>
-            </article>
+            </div>
 
-            {/* 8. Cookie Policy */}
-            <article
-              id="cookies"
-              className="scroll-mt-24 p-6 sm:p-7 rounded-3xl bg-slate-50/70 border border-slate-200/90 hover:border-blue-300 transition-all shadow-2xs space-y-3"
-            >
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-teal-100 text-teal-700 flex items-center justify-center shrink-0">
-                  <Sparkles className="w-4 h-4" />
-                </div>
-                <h3 className="text-base font-bold text-slate-900">Cookie &amp; Browsing Session Policy</h3>
-              </div>
-              <p className="text-xs text-slate-600 leading-relaxed">
-                Prayog India utilizes lightweight session cookies and local storage to preserve your shopping cart state, recently viewed hardware items, and login authentication token. We do not run invasive cross-site tracking beacons. You may clear your browser cookies at any time without impacting basic product browsing.
-              </p>
-            </article>
+            <div className="flex flex-wrap items-center justify-center gap-2.5 shrink-0">
+              <a
+                href={`https://wa.me/${COMPANY_INFO.whatsapp.replace(/[^0-9]/g, "")}?text=Hi%20Prayog%20India,%20I%20have%20an%20inquiry%20regarding%20commercial%20policies%20and%20hardware%20compliance.`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 bg-[#25D366] hover:bg-[#20ba5a] text-white text-xs font-bold px-3.5 py-2 rounded-xl transition-all shadow-2xs hover:scale-105"
+              >
+                <span>WhatsApp Legal Desk</span>
+              </a>
+              <Link
+                href="/contact"
+                className="inline-flex items-center gap-1.5 bg-white hover:bg-slate-50 text-slate-800 border border-slate-200 text-xs font-bold px-3.5 py-2 rounded-xl transition-all shadow-2xs hover:border-slate-300"
+              >
+                <span>Contact Compliance Team</span>
+                <ArrowRight className="w-3.5 h-3.5 text-[#2563EB]" />
+              </Link>
+            </div>
           </div>
         </section>
       </div>

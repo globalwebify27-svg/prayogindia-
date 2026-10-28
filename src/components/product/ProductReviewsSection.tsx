@@ -160,15 +160,24 @@ export const ProductReviewsSection: React.FC<ProductReviewsProps> = ({
     reason: "UNAUTHENTICATED",
   });
 
-  // Automatically check if logged-in customer purchased this product and it was DELIVERED
+  // Automatically check if customer purchased this product and it was DELIVERED
   useEffect(() => {
-    if (!isLoggedIn || !user) return;
-
     let isMounted = true;
     const checkDeliveredBuyer = async () => {
       try {
-        let mockDelivered = false;
-        let mockOrderNum = "";
+        // Optional quick URL flag for demo & testing: ?delivered=true
+        const urlParams =
+          typeof window !== "undefined"
+            ? new URLSearchParams(window.location.search)
+            : null;
+        const isUrlDelivered =
+          urlParams?.get("delivered") === "true" ||
+          urlParams?.get("reviewPrompt") === "true";
+
+        let mockDelivered = isUrlDelivered;
+        let mockOrderNum = isUrlDelivered ? "PRY-DELIVERED-TEST" : "";
+        let mockCustomerName = "";
+
         try {
           const rawOrders =
             localStorage.getItem("prayog_customer_orders") ||
@@ -192,44 +201,74 @@ export const ProductReviewsSection: React.FC<ProductReviewsProps> = ({
               ) {
                 mockDelivered = true;
                 mockOrderNum = found.orderNumber || "PRY-DELIVERED";
+                mockCustomerName =
+                  found.customerName ||
+                  found.shippingAddress?.fullName ||
+                  user?.name ||
+                  "";
               }
             }
           }
         } catch {}
 
-        const query = productId
-          ? `productId=${encodeURIComponent(productId)}`
-          : `slug=${encodeURIComponent(productSlug || "")}`;
+        // If authenticated, check server order history
+        if (isLoggedIn && user) {
+          const query = productId
+            ? `productId=${encodeURIComponent(productId)}`
+            : `slug=${encodeURIComponent(productSlug || "")}`;
 
-        const headers: Record<string, string> = {};
-        if (mockDelivered) headers["x-mock-delivered"] = "true";
+          const headers: Record<string, string> = {};
+          if (mockDelivered) headers["x-mock-delivered"] = "true";
 
-        const res = await fetch(`/api/reviews?checkEligibility=true&${query}`, {
-          headers,
-        });
+          const res = await fetch(`/api/reviews?checkEligibility=true&${query}`, {
+            headers,
+          });
 
-        if (res.ok && isMounted) {
-          const data = await res.json();
-          if (data.eligible) {
-            setIsDeliveredBuyer(true);
-            setVerifiedOrderInfo(
-              data.order || { orderNumber: mockOrderNum || "PRY-DELIVERED" },
-            );
-            setFormName(user.name || "");
-            setFormRole(user.customerType || "Verified Buyer");
+          if (res.ok && isMounted) {
+            const data = await res.json();
+            if (data.eligible) {
+              setIsDeliveredBuyer(true);
+              setVerifiedOrderInfo(
+                data.order || { orderNumber: mockOrderNum || "PRY-DELIVERED" },
+              );
+              setFormName(user.name || "");
+              setFormRole(user.customerType || "Verified Buyer");
 
-            // Check if dismissed in this session
-            const dismissed = sessionStorage.getItem(
-              `prayog_review_dismissed_${productId || productSlug}`,
-            );
-            if (!dismissed) {
-              setTimeout(() => {
-                if (isMounted) setShowDeliveredReviewPrompt(true);
-              }, 1200);
+              const dismissed = sessionStorage.getItem(
+                `prayog_review_dismissed_${productId || productSlug}`,
+              );
+              if (!dismissed) {
+                setTimeout(() => {
+                  if (isMounted) setShowDeliveredReviewPrompt(true);
+                }, 1200);
+              }
+              return;
             }
           }
         }
-      } catch {}
+
+        // If verified delivered order exists in local orders or demo flag
+        if (mockDelivered && isMounted) {
+          setIsDeliveredBuyer(true);
+          setVerifiedOrderInfo({
+            orderNumber: mockOrderNum || "PRY-DELIVERED",
+            deliveredAt: new Date().toISOString(),
+          });
+          setFormName(user?.name || mockCustomerName || "Verified Buyer");
+          setFormRole(user?.customerType || "Verified Buyer");
+
+          const dismissed = sessionStorage.getItem(
+            `prayog_review_dismissed_${productId || productSlug}`,
+          );
+          if (!dismissed) {
+            setTimeout(() => {
+              if (isMounted) setShowDeliveredReviewPrompt(true);
+            }, 1200);
+          }
+        }
+      } catch {
+        // Silently catch network or parsing issues
+      }
     };
 
     checkDeliveredBuyer();
@@ -534,15 +573,17 @@ export const ProductReviewsSection: React.FC<ProductReviewsProps> = ({
             {reviewsCount}
           </span>
         </h2>
-        <button
-          type="button"
-          onClick={handleWriteReviewClick}
-          disabled={isCheckingEligibility}
-          className="text-xs font-bold text-[#2563EB] hover:text-[#1D4ED8] bg-blue-50/80 hover:bg-blue-100 px-3 py-1.5 rounded-xl border border-blue-200/60 transition-colors flex items-center gap-1.5 cursor-pointer shrink-0 active:scale-95"
-        >
-          <PenSquare className="w-3.5 h-3.5" />
-          <span>Write a Review</span>
-        </button>
+        {isDeliveredBuyer && (
+          <button
+            type="button"
+            onClick={handleWriteReviewClick}
+            disabled={isCheckingEligibility}
+            className="text-xs font-bold text-[#2563EB] hover:text-[#1D4ED8] bg-blue-50/80 hover:bg-blue-100 px-3 py-1.5 rounded-xl border border-blue-200/60 transition-colors flex items-center gap-1.5 cursor-pointer shrink-0 active:scale-95"
+          >
+            <PenSquare className="w-3.5 h-3.5" />
+            <span>Write a Review</span>
+          </button>
+        )}
       </div>
 
       {/* ── Content Container (Aligned pt-5 with Left Column) ── */}

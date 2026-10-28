@@ -63,6 +63,18 @@ export async function POST(request: Request) {
       );
     }
 
+    // In production, require durable database availability
+    if (process.env.NODE_ENV === "production" && !isDatabaseAvailable()) {
+      return NextResponse.json(
+        {
+          success: false,
+          message:
+            "Database service is currently unavailable. Registration cannot be completed.",
+        },
+        { status: 503, headers },
+      );
+    }
+
     if (isDatabaseAvailable()) {
       try {
         const existingUser = await db.user.findFirst({
@@ -90,6 +102,16 @@ export async function POST(request: Request) {
         }
       } catch (dbErr) {
         console.warn("Prisma user duplicate check skipped:", dbErr);
+        if (process.env.NODE_ENV === "production") {
+          return NextResponse.json(
+            {
+              success: false,
+              message:
+                "Database service is currently unavailable. Please try again later.",
+            },
+            { status: 503, headers },
+          );
+        }
       }
     }
 
@@ -99,7 +121,7 @@ export async function POST(request: Request) {
     const companyName = b2b?.companyName?.trim() || null;
     const gstin = b2b?.gstNumber?.trim() || null;
 
-    // Save to UserDB
+    // Save to UserDB (Development / in-memory cache)
     const createdUser = UserDB.create({
       name: displayName,
       email: cleanEmail,
@@ -136,6 +158,16 @@ export async function POST(request: Request) {
         );
       } catch (dbErr) {
         console.warn("Prisma DB sync fallback:", dbErr);
+        if (process.env.NODE_ENV === "production") {
+          return NextResponse.json(
+            {
+              success: false,
+              message:
+                "Failed to durably register account in database. Please try again later.",
+            },
+            { status: 503, headers },
+          );
+        }
       }
     }
 

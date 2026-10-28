@@ -14,7 +14,7 @@ import {
   ArrowLeftRight,
 } from "lucide-react";
 import { Product } from "@/data/mockData";
-import { useStore } from "@/context/StoreContext";
+import { useCartStore, useWishlistStore, useUIStore } from "@/store";
 import { haptic } from "@/utils/haptics";
 import { AddToCartIcon } from "@/components/icons/AddToCartIcon";
 import { recordProductView } from "@/utils/recentProducts";
@@ -46,7 +46,13 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   onQuickView,
   isWishlisted,
 }) => {
-  const store = useStore();
+  const addToCartStore = useCartStore((s) => s.addToCart);
+  const toggleWishlistStore = useWishlistStore((s) => s.toggleWishlist);
+  const isWishlistedInStore = useWishlistStore((s) =>
+    s.wishlist.some((p) => p.id === product.id)
+  );
+  const showToast = useUIStore((s) => s.showToast);
+
   const [isAdded, setIsAdded] = useState(false);
   const [isCompared, setIsCompared] = useState(false);
   const [selectedVariantId, setSelectedVariantId] = useState<
@@ -64,9 +70,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   const isInStock = activeVariant ? activeVariant.inStock : product.inStock;
 
   const itemIsWishlisted =
-    typeof isWishlisted === "boolean"
-      ? isWishlisted
-      : (store?.isWishlisted?.(product.id) ?? false);
+    typeof isWishlisted === "boolean" ? isWishlisted : isWishlistedInStore;
 
   const primaryImage = product.image;
   const secondaryImage =
@@ -81,8 +85,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({
 
     if (onAddToCart) {
       onAddToCart(product, selectedVariantId);
-    } else if (store?.addToCart) {
-      store.addToCart(product, activeVariant);
+    } else {
+      addToCartStore(product, activeVariant);
     }
     setIsAdded(true);
     setTimeout(() => setIsAdded(false), 2000);
@@ -95,8 +99,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({
 
     if (onToggleWishlist) {
       onToggleWishlist(product);
-    } else if (store?.toggleWishlist) {
-      store.toggleWishlist(product);
+    } else {
+      toggleWishlistStore(product);
     }
   };
 
@@ -116,7 +120,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
     haptic?.light?.();
 
     setIsCompared(true);
-    store?.showToast?.({
+    showToast({
       title: "Comparison Added",
       message: `${product.name} added to comparison list.`,
       type: "success",

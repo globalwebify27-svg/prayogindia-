@@ -18,7 +18,7 @@ import { ProductCard } from "@/components/products/ProductCard";
 import { ProductEmptyState } from "@/components/products/ProductEmptyState";
 import { QuickViewModal } from "@/components/products/QuickViewModal";
 import { PRODUCTS, Product } from "@/data/mockData";
-import { useStore } from "@/context/StoreContext";
+import { useCartStore, useWishlistStore } from "@/store";
 import { searchProductsFuzzy } from "@/lib/fuzzySearch";
 import { X, Search, Clock, TrendingUp, Sparkles, Tag, ShoppingCart, Loader2 } from "lucide-react";
 import { useDebounce } from "@/hooks/useDebounce";
@@ -159,12 +159,9 @@ function ProductsContent() {
       });
   }, []);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
-  const {
-    cart,
-    wishlist,
-    addToCart: storeAddToCart,
-    toggleWishlist: storeToggleWishlist,
-  } = useStore();
+  const storeAddToCart = useCartStore((s) => s.addToCart);
+  const storeToggleWishlist = useWishlistStore((s) => s.toggleWishlist);
+  const wishlist = useWishlistStore((s) => s.wishlist);
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
   const [visibleCount, setVisibleCount] = useState(12);
   const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(

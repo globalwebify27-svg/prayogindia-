@@ -13,7 +13,7 @@ import {
   Check,
 } from "lucide-react";
 import { Product } from "@/data/mockData";
-import { useStore } from "@/context/StoreContext";
+import { useCartStore, useWishlistStore } from "@/store";
 import { haptic } from "@/utils/haptics";
 
 const WhatsAppIcon = ({ className = "w-3.5 h-3.5" }: { className?: string }) => (
@@ -42,7 +42,11 @@ export const TopDealsProductCard: React.FC<TopDealsProductCardProps> = ({
   claimedPercentage,
   featured = false,
 }) => {
-  const store = useStore();
+  const addToCart = useCartStore((s) => s.addToCart);
+  const toggleWishlist = useWishlistStore((s) => s.toggleWishlist);
+  const isWishlisted = useWishlistStore((s) =>
+    s.wishlist.some((p) => p.id === product.id)
+  );
   const [isAdded, setIsAdded] = useState(false);
 
   const price = product.price;
@@ -57,20 +61,16 @@ export const TopDealsProductCard: React.FC<TopDealsProductCardProps> = ({
 
   const stockRemaining = Math.max(3, Math.round((100 - claimPercent) / 3));
 
-  const isWishlisted = store?.isWishlisted?.(product.id) ?? false;
-
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     haptic?.medium?.();
 
-    if (store?.addToCart) {
-      store.addToCart(product);
-      setIsAdded(true);
-      setTimeout(() => {
-        setIsAdded(false);
-      }, 2000);
-    }
+    addToCart(product);
+    setIsAdded(true);
+    setTimeout(() => {
+      setIsAdded(false);
+    }, 2000);
   };
 
   const handleToggleWishlist = (e: React.MouseEvent) => {
@@ -78,9 +78,7 @@ export const TopDealsProductCard: React.FC<TopDealsProductCardProps> = ({
     e.stopPropagation();
     haptic?.selection?.();
 
-    if (store?.toggleWishlist) {
-      store.toggleWishlist(product);
-    }
+    toggleWishlist(product);
   };
 
   return (

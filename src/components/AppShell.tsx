@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import { Header } from "@/components/Header";
 import { FooterSection } from "@/components/FooterSection";
 import { CartDrawer } from "@/components/CartDrawer";
@@ -8,7 +8,13 @@ import { SuccessToast } from "@/components/SuccessToast";
 import { B2BModal } from "@/components/Modals";
 import { FloatingWhatsAppWidget } from "@/components/FloatingWhatsAppWidget";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
-import { useStore } from "@/context/StoreContext";
+import {
+  useCartStore,
+  useWishlistStore,
+  useUIStore,
+  selectCartCount,
+  selectWishlistCount,
+} from "@/store";
 import { usePathname } from "next/navigation";
 import { haptic } from "@/utils/haptics";
 
@@ -16,16 +22,23 @@ export const AppShell: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const pathname = usePathname();
-  const {
-    cart,
-    wishlist,
-    toast,
-    dismissToast,
-    updateQuantity,
-    removeFromCart,
-  } = useStore();
-  const [cartOpen, setCartOpen] = useState(false);
-  const [b2bOpen, setB2bOpen] = useState(false);
+
+  // ── Fine-grained Zustand store subscriptions
+  const cart = useCartStore((s) => s.cart);
+  const cartCount = useCartStore(selectCartCount);
+  const wishlistCount = useWishlistStore(selectWishlistCount);
+  const updateQuantity = useCartStore((s) => s.updateQuantity);
+  const removeFromCart = useCartStore((s) => s.removeFromCart);
+
+  const toast = useUIStore((s) => s.toast);
+  const dismissToast = useUIStore((s) => s.dismissToast);
+  const isCartOpen = useUIStore((s) => s.isCartOpen);
+  const openCart = useUIStore((s) => s.openCart);
+  const closeCart = useUIStore((s) => s.closeCart);
+  const toggleCart = useUIStore((s) => s.toggleCart);
+  const isB2BModalOpen = useUIStore((s) => s.isB2BModalOpen);
+  const openB2BModal = useUIStore((s) => s.openB2BModal);
+  const closeB2BModal = useUIStore((s) => s.closeB2BModal);
 
   const isIsolatedOperationsRoute =
     pathname?.startsWith("/admin") ||
@@ -36,9 +49,6 @@ export const AppShell: React.FC<{ children: React.ReactNode }> = ({
     pathname?.startsWith("/flutter-preview") ||
     pathname?.includes("/storemanager") ||
     pathname?.includes("/device");
-
-  const cartCount = cart.reduce((acc, item) => acc + item.quantity, 0);
-  const wishlistCount = wishlist.length;
 
   if (isIsolatedOperationsRoute) {
     return (
@@ -55,16 +65,16 @@ export const AppShell: React.FC<{ children: React.ReactNode }> = ({
         wishlistCount={wishlistCount}
         onOpenCart={() => {
           haptic.light();
-          setCartOpen(true);
+          openCart();
         }}
         onOpenWishlist={() => {
           haptic.light();
-          setCartOpen(true);
+          openCart();
         }}
         onOpenSearch={() => {}}
         onOpenB2BModal={() => {
           haptic.light();
-          setB2bOpen(true);
+          openB2BModal();
         }}
       />
 
@@ -77,27 +87,27 @@ export const AppShell: React.FC<{ children: React.ReactNode }> = ({
       <FloatingWhatsAppWidget />
 
       <CartDrawer
-        isOpen={cartOpen}
-        onClose={() => setCartOpen(false)}
+        isOpen={isCartOpen}
+        onClose={closeCart}
         items={cart}
         onUpdateQuantity={(id, delta) => updateQuantity(id, delta)}
         onRemoveItem={(id) => removeFromCart(id)}
         onOpenB2BModal={() => {
-          setCartOpen(false);
-          setB2bOpen(true);
+          closeCart();
+          openB2BModal();
         }}
       />
 
-      <B2BModal isOpen={b2bOpen} onClose={() => setB2bOpen(false)} />
+      <B2BModal isOpen={isB2BModalOpen} onClose={closeB2BModal} />
 
       <SuccessToast toast={toast} onClose={dismissToast} />
 
       <MobileBottomNav
-        isCartOpen={cartOpen}
-        onCloseCart={() => setCartOpen(false)}
+        isCartOpen={isCartOpen}
+        onCloseCart={closeCart}
         onOpenCart={() => {
           haptic.light();
-          setCartOpen((prev) => !prev);
+          toggleCart();
         }}
       />
     </div>

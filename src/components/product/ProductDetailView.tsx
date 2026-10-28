@@ -10,7 +10,7 @@ import { ProductTabsSection } from "@/components/product/ProductTabsSection";
 import { ProductRecommendations } from "@/components/product/ProductRecommendations";
 import { PRODUCTS, Product, ProductVariant } from "@/data/mockData";
 import { findMockProduct } from "@/lib/productResolver";
-import { useStore } from "@/context/StoreContext";
+import { useCartStore, useWishlistStore } from "@/store";
 import {
   ShoppingBag,
   ShoppingCart,
@@ -95,11 +95,11 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
       ? product.variants[0]
       : null,
   );
-  const {
-    wishlist,
-    addToCart: storeAddToCart,
-    toggleWishlist: storeToggleWishlist,
-  } = useStore();
+  const storeAddToCart = useCartStore((s) => s.addToCart);
+  const storeToggleWishlist = useWishlistStore((s) => s.toggleWishlist);
+  const isProductWishlisted = useWishlistStore((s) =>
+    s.wishlist.some((p) => p.id === product?.id)
+  );
   const [stickyAdded, setStickyAdded] = useState(false);
 
   // Record customer product view in browsing history
@@ -246,7 +246,6 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
     setTimeout(() => setStickyAdded(false), 1800);
   };
 
-  const isProductWishlisted = wishlist.some((p) => p.id === product.id);
   const isInStock = selectedVariant ? selectedVariant.inStock : product.inStock;
 
   return (

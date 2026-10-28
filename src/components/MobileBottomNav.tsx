@@ -3,7 +3,14 @@
 import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useStore } from "@/context/StoreContext";
+import {
+  useCartStore,
+  useWishlistStore,
+  useAuthStore,
+  selectCartCount,
+  selectWishlistCount,
+  selectIsLoggedIn,
+} from "@/store";
 import {
   Home,
   LayoutGrid,
@@ -24,10 +31,9 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
   isCartOpen = false,
 }) => {
   const pathname = usePathname();
-  const { cart, wishlist, isLoggedIn } = useStore();
-
-  const cartCount = cart.reduce((acc, item) => acc + item.quantity, 0);
-  const wishlistCount = wishlist.length;
+  const cartCount = useCartStore(selectCartCount);
+  const wishlistCount = useWishlistStore(selectWishlistCount);
+  const isLoggedIn = useAuthStore(selectIsLoggedIn);
 
   // Don't show bottom nav on admin/isolated routes
   if (
