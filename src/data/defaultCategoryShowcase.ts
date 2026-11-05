@@ -100,7 +100,7 @@ export const DEFAULT_CATEGORY_SHOWCASE: CategoryCardItem[] = [
     tagline: "Learn by doing.",
     productCount: "70+ Products",
     badgeIcon: "graduation",
-    themeColor: "blue",
+    themeColor: "indigo",
     isFeatured: false,
     image: "/products/robot_car_stem.png",
     imageAlt: "STEM Educational & DIY Maker Kits",

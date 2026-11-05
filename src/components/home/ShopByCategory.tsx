@@ -26,23 +26,11 @@ interface Props {
   onSelectCategory?: (category: string) => void;
 }
 
-const NEUTRAL_THEME = {
-  bg: "bg-white hover:bg-slate-50/60 border-slate-200/90 hover:border-slate-300 shadow-2xs hover:shadow-xs",
-  blobTop: "bg-slate-100/50",
-  blobBottom: "bg-slate-50/60",
-  iconBg: "bg-slate-100 group-hover:bg-[#2563EB]/10",
-  iconColor: "text-slate-700 group-hover:text-[#2563EB]",
-  countColor: "text-slate-500",
-  arrowBg: "bg-slate-100 group-hover:bg-[#2563EB]",
-  arrowColor: "text-slate-600 group-hover:text-white",
-  arrowHoverBg: "group-hover:bg-[#2563EB]",
-  mobileBg: "bg-white hover:bg-slate-50/80 border-slate-200/80",
-};
-
 const THEMES: Record<
   string,
   {
     bg: string;
+    border: string;
     blobTop: string;
     blobBottom: string;
     iconBg: string;
@@ -51,16 +39,113 @@ const THEMES: Record<
     arrowBg: string;
     arrowColor: string;
     arrowHoverBg: string;
-    mobileBg?: string;
+    mobileBg: string;
   }
 > = {
-  blue: NEUTRAL_THEME,
-  teal: NEUTRAL_THEME,
-  purple: NEUTRAL_THEME,
-  amber: NEUTRAL_THEME,
-  emerald: NEUTRAL_THEME,
-  rose: NEUTRAL_THEME,
-  cyan: NEUTRAL_THEME,
+  blue: {
+    bg: "bg-gradient-to-br from-[#EEF6FF] via-[#F8FAFC] to-[#DBEAFE]/45",
+    border: "border border-blue-200/90 hover:border-blue-400 shadow-[0_2px_10px_-3px_rgba(37,99,235,0.08)] hover:shadow-[0_8px_24px_-4px_rgba(37,99,235,0.18)]",
+    blobTop: "bg-[#BFDBFE]/70",
+    blobBottom: "bg-[#93C5FD]/45",
+    iconBg: "bg-blue-100 text-blue-600 border border-blue-200/90 shadow-2xs",
+    iconColor: "text-blue-600",
+    countColor: "text-blue-600",
+    arrowBg: "bg-blue-600",
+    arrowColor: "text-white",
+    arrowHoverBg: "group-hover:bg-blue-700",
+    mobileBg: "bg-gradient-to-r from-blue-50 via-white to-blue-50/50 border-blue-200/90",
+  },
+  teal: {
+    bg: "bg-gradient-to-br from-[#F0FDFA] via-[#F8FAFC] to-[#CCFBF1]/45",
+    border: "border border-teal-200/90 hover:border-teal-400 shadow-[0_2px_10px_-3px_rgba(13,148,136,0.08)] hover:shadow-[0_8px_24px_-4px_rgba(13,148,136,0.18)]",
+    blobTop: "bg-[#99F6E4]/60",
+    blobBottom: "bg-[#5EEAD4]/40",
+    iconBg: "bg-teal-100 text-teal-700 border border-teal-200/90 shadow-2xs",
+    iconColor: "text-teal-700",
+    countColor: "text-teal-700",
+    arrowBg: "bg-teal-600",
+    arrowColor: "text-white",
+    arrowHoverBg: "group-hover:bg-teal-700",
+    mobileBg: "bg-gradient-to-r from-teal-50 via-white to-teal-50/50 border-teal-200/90",
+  },
+  purple: {
+    bg: "bg-gradient-to-br from-[#FAF5FF] via-[#F8FAFC] to-[#EDE9FE]/45",
+    border: "border border-purple-200/90 hover:border-purple-400 shadow-[0_2px_10px_-3px_rgba(147,51,234,0.08)] hover:shadow-[0_8px_24px_-4px_rgba(147,51,234,0.18)]",
+    blobTop: "bg-[#DDD6FE]/60",
+    blobBottom: "bg-[#C4B5FD]/45",
+    iconBg: "bg-purple-100 text-purple-700 border border-purple-200/90 shadow-2xs",
+    iconColor: "text-purple-700",
+    countColor: "text-purple-700",
+    arrowBg: "bg-purple-600",
+    arrowColor: "text-white",
+    arrowHoverBg: "group-hover:bg-purple-700",
+    mobileBg: "bg-gradient-to-r from-purple-50 via-white to-purple-50/50 border-purple-200/90",
+  },
+  amber: {
+    bg: "bg-gradient-to-br from-[#FFFBEB] via-[#F8FAFC] to-[#FEF3C7]/50",
+    border: "border border-amber-200/90 hover:border-amber-400 shadow-[0_2px_10px_-3px_rgba(217,119,6,0.08)] hover:shadow-[0_8px_24px_-4px_rgba(217,119,6,0.18)]",
+    blobTop: "bg-[#FDE68A]/70",
+    blobBottom: "bg-[#FCD34D]/45",
+    iconBg: "bg-amber-100 text-amber-800 border border-amber-200/90 shadow-2xs",
+    iconColor: "text-amber-800",
+    countColor: "text-amber-800",
+    arrowBg: "bg-amber-500",
+    arrowColor: "text-white",
+    arrowHoverBg: "group-hover:bg-amber-600",
+    mobileBg: "bg-gradient-to-r from-amber-50 via-white to-amber-50/50 border-amber-200/90",
+  },
+  indigo: {
+    bg: "bg-gradient-to-br from-[#EEF2FF] via-[#F8FAFC] to-[#E0E7FF]/45",
+    border: "border border-indigo-200/90 hover:border-indigo-400 shadow-[0_2px_10px_-3px_rgba(79,70,229,0.08)] hover:shadow-[0_8px_24px_-4px_rgba(79,70,229,0.18)]",
+    blobTop: "bg-[#C7D2FE]/70",
+    blobBottom: "bg-[#A5B4FC]/45",
+    iconBg: "bg-indigo-100 text-indigo-700 border border-indigo-200/90 shadow-2xs",
+    iconColor: "text-indigo-700",
+    countColor: "text-indigo-700",
+    arrowBg: "bg-indigo-600",
+    arrowColor: "text-white",
+    arrowHoverBg: "group-hover:bg-indigo-700",
+    mobileBg: "bg-gradient-to-r from-indigo-50 via-white to-indigo-50/50 border-indigo-200/90",
+  },
+  emerald: {
+    bg: "bg-gradient-to-br from-[#F0FDF4] via-[#F8FAFC] to-[#DCFCE7]/45",
+    border: "border border-emerald-200/90 hover:border-emerald-400 shadow-[0_2px_10px_-3px_rgba(5,150,105,0.08)] hover:shadow-[0_8px_24px_-4px_rgba(5,150,105,0.18)]",
+    blobTop: "bg-[#BBF7D0]/70",
+    blobBottom: "bg-[#86EFAC]/45",
+    iconBg: "bg-emerald-100 text-emerald-700 border border-emerald-200/90 shadow-2xs",
+    iconColor: "text-emerald-700",
+    countColor: "text-emerald-700",
+    arrowBg: "bg-emerald-600",
+    arrowColor: "text-white",
+    arrowHoverBg: "group-hover:bg-emerald-700",
+    mobileBg: "bg-gradient-to-r from-emerald-50 via-white to-emerald-50/50 border-emerald-200/90",
+  },
+  rose: {
+    bg: "bg-gradient-to-br from-[#FFF1F2] via-[#F8FAFC] to-[#FFE4E6]/45",
+    border: "border border-rose-200/90 hover:border-rose-400 shadow-[0_2px_10px_-3px_rgba(225,29,72,0.08)] hover:shadow-[0_8px_24px_-4px_rgba(225,29,72,0.18)]",
+    blobTop: "bg-[#FECDD3]/70",
+    blobBottom: "bg-[#FDA4AF]/45",
+    iconBg: "bg-rose-100 text-rose-700 border border-rose-200/90 shadow-2xs",
+    iconColor: "text-rose-700",
+    countColor: "text-rose-700",
+    arrowBg: "bg-rose-600",
+    arrowColor: "text-white",
+    arrowHoverBg: "group-hover:bg-rose-700",
+    mobileBg: "bg-gradient-to-r from-rose-50 via-white to-rose-50/50 border-rose-200/90",
+  },
+  cyan: {
+    bg: "bg-gradient-to-br from-[#F0F9FF] via-[#F8FAFC] to-[#E0F2FE]/55",
+    border: "border border-sky-200/90 hover:border-sky-400 shadow-[0_2px_10px_-3px_rgba(2,132,199,0.08)] hover:shadow-[0_8px_24px_-4px_rgba(2,132,199,0.18)]",
+    blobTop: "bg-[#BAE6FD]/70",
+    blobBottom: "bg-[#7DD3FC]/45",
+    iconBg: "bg-sky-100 text-sky-700 border border-sky-200/90 shadow-2xs",
+    iconColor: "text-sky-700",
+    countColor: "text-sky-700",
+    arrowBg: "bg-sky-600",
+    arrowColor: "text-white",
+    arrowHoverBg: "group-hover:bg-sky-700",
+    mobileBg: "bg-gradient-to-r from-sky-50 via-white to-sky-50/50 border-sky-200/90",
+  },
 };
 
 function getBadgeIcon(icon?: string) {
@@ -440,7 +525,7 @@ export const ShopByCategory: React.FC<Props> = ({ onSelectCategory }) => {
                         onSelectCategory(cat.name);
                       }
                     }}
-                    className={`relative block w-full h-[155px] lg:h-[172px] rounded-xl overflow-hidden p-3 lg:p-3.5 transition-all duration-300 hover:shadow-md hover:-translate-y-0.5 group cursor-pointer border border-slate-100/80 touch-pan-y ${theme.bg}`}
+                    className={`relative block w-full h-[155px] lg:h-[172px] rounded-xl overflow-hidden p-3 lg:p-3.5 transition-all duration-300 hover:-translate-y-0.5 group cursor-pointer touch-pan-y ${theme.border} ${theme.bg}`}
                     style={{ touchAction: "pan-y" }}
                   >
                     {/* Subtle Background Blobs / Organic Shapes */}
@@ -555,12 +640,15 @@ export const ShopByCategory: React.FC<Props> = ({ onSelectCategory }) => {
                           onSelectCategory(cat.name);
                         }
                       }}
-                      className={`relative block w-full h-[155px] lg:h-[172px] rounded-xl overflow-hidden p-3 lg:p-3.5 transition-all duration-300 hover:shadow-md hover:-translate-y-0.5 group cursor-pointer border border-slate-100/80 touch-pan-y ${theme.bg}`}
+                      className={`relative block w-full h-[155px] lg:h-[172px] rounded-xl overflow-hidden p-3 lg:p-3.5 transition-all duration-300 hover:-translate-y-0.5 group cursor-pointer touch-pan-y ${theme.border} ${theme.bg}`}
                       style={{ touchAction: "pan-y" }}
                     >
-                      {/* Subtle Corner Blob */}
+                      {/* Subtle Background Blobs */}
                       <div
-                        className={`absolute -bottom-8 -right-8 w-28 h-28 rounded-full blur-xl pointer-events-none transition-transform duration-700 group-hover:scale-110 ${theme.blobBottom}`}
+                        className={`absolute -top-10 -right-6 w-36 h-36 rounded-full blur-xl pointer-events-none transition-transform duration-700 group-hover:scale-110 ${theme.blobTop}`}
+                      />
+                      <div
+                        className={`absolute -bottom-8 -left-6 w-24 h-24 rounded-full blur-lg pointer-events-none transition-transform duration-700 group-hover:scale-110 ${theme.blobBottom}`}
                       />
 
                       {/* Card Content Layout */}
