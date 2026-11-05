@@ -25,7 +25,7 @@ import {
   FileText,
   Layers,
 } from "lucide-react";
-import { Product, PRODUCTS } from "@/data/mockData";
+import { Product, PRODUCTS, getProductStock } from "@/data/mockData";
 
 const WhatsAppIcon = ({ className = "w-4 h-4" }: { className?: string }) => (
   <svg
@@ -547,22 +547,13 @@ const QuickViewModalContent: React.FC<{
                 </Link>
               </div>
 
-              {/* Urgency Stock Bar */}
-              {isInStock && (
-                <div className="pt-1 space-y-1.5">
-                  <p className="text-xs font-bold text-[#E05344]">
-                    Please hurry! Only {(fullProduct.id.charCodeAt(0) % 6) + 3} left in stock
-                  </p>
-                  <div className="w-full bg-slate-200/90 h-1.5 rounded-full overflow-hidden">
-                    <div
-                      className="h-full rounded-full bg-gradient-to-r from-[#E05344] via-amber-500 to-emerald-500"
-                      style={{
-                        width: `${Math.min(100, Math.max(20, (((fullProduct.id.charCodeAt(0) % 6) + 3) / 10) * 100))}%`,
-                      }}
-                    />
-                  </div>
-                </div>
-              )}
+              {/* Availability Status */}
+              <div className="flex items-center gap-1.5 text-xs sm:text-sm font-bold">
+                <span className="text-[#0A1128]">Availability:</span>
+                <span className={isInStock ? "text-[#2E7D32]" : "text-rose-600"}>
+                  {isInStock ? "In Stock" : "Out of Stock"}
+                </span>
+              </div>
             </div>
 
             {/* Pincode Delivery Availability Checker */}

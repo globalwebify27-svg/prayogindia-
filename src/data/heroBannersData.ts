@@ -3,6 +3,7 @@ export interface HeroBanner {
   badge: string;
   titlePrefix: string;
   titleHighlight: string;
+  subtitle?: string;
   description: string;
   primaryButtonText: string;
   primaryButtonLink: string;
@@ -13,6 +14,7 @@ export interface HeroBanner {
   noteLines?: string[];
   displayOrder: number;
   isActive: boolean;
+  showTextOverlay?: boolean;
   theme?: "blue-gradient" | "dark-slate" | "pure-light" | "vibrant-tech";
   createdAt?: string;
   updatedAt?: string;
@@ -20,61 +22,46 @@ export interface HeroBanner {
 
 export const DEFAULT_HERO_BANNERS: HeroBanner[] = [
   {
-    id: "stem-robotics",
-    badge: "🇮🇳 India's #1 Robotics & Electronics Platform",
-    titlePrefix: "Build. Learn.",
-    titleHighlight: "Innovate.",
-    description:
-      "Premium quality robotics kits, microcontrollers, sensors and electronic components for students, makers and professionals.",
-    primaryButtonText: "Explore Products",
+    id: "banner-1791886998567",
+    badge: "",
+    titlePrefix: "",
+    titleHighlight: "",
+    subtitle: "",
+    description: "",
+    primaryButtonText: "Shop Now",
     primaryButtonLink: "/products",
-    secondaryButtonText: "Explore Services",
-    secondaryButtonLink: "/services",
-    image: "/images/robot_banner_stem.jpg",
-    alt: "STEM Robotics Smart Rover Chassis Kit with Arduino and Ultrasonic Sensor",
-    noteLines: ["From", "Concept", "to Creation"],
+    secondaryButtonText: "",
+    secondaryButtonLink: "",
+    image: "https://res.cloudinary.com/fyueflvh/image/upload/v1793613676/banners/banners/diwali_sale_with_tech_festivities_1793613673019.webp",
+    alt: "Diwali Special Offer - Prayog India",
+    noteLines: [],
     displayOrder: 1,
     isActive: true,
+    showTextOverlay: false,
     theme: "blue-gradient",
-    createdAt: "2026-10-01T10:00:00Z",
+    createdAt: "2026-10-13T10:23:18.608Z",
+    updatedAt: "2026-11-02T10:03:07.796Z",
   },
   {
-    id: "drone-technology",
-    badge: "⚡ Advanced FPV & Drone Technology",
-    titlePrefix: "Design. Fly.",
-    titleHighlight: "Automate.",
-    description:
-      "High-performance carbon fiber frames, BLDC motors, Pixhawk flight controllers, and telemetry systems engineered for precision.",
-    primaryButtonText: "Explore Drones",
-    primaryButtonLink: "/categories/drone-technology",
-    secondaryButtonText: "Explore Services",
-    secondaryButtonLink: "/services",
-    image: "/images/drone_banner_lab.jpg",
-    alt: "Autonomous Drone UAV Lab Workbench with Telemetry Station",
-    noteLines: ["Engineered", "for Flight", "Precision"],
+    id: "banner-1791885637209",
+    badge: "",
+    titlePrefix: "",
+    titleHighlight: "",
+    subtitle: "",
+    description: "",
+    primaryButtonText: "Explore Products",
+    primaryButtonLink: "/products",
+    secondaryButtonText: "",
+    secondaryButtonLink: "",
+    image: "https://res.cloudinary.com/fyueflvh/image/upload/v1793613233/banners/banners/future_coding_and_robotics_banner_1793613230770.webp",
+    alt: "Future Coding and Robotics - Prayog India",
+    noteLines: [],
     displayOrder: 2,
     isActive: true,
+    showTextOverlay: false,
     theme: "blue-gradient",
-    createdAt: "2026-10-02T10:00:00Z",
-  },
-  {
-    id: "embedded-ai-iot",
-    badge: "🤖 Embedded AI, IoT & Microcontrollers",
-    titlePrefix: "Connect. Code.",
-    titleHighlight: "Transform.",
-    description:
-      "Raspberry Pi 5, Jetson AI edge modules, microcontrollers & IoT sensors engineered for next-generation smart robotic systems.",
-    primaryButtonText: "Explore AI & IoT",
-    primaryButtonLink: "/categories/sensors-iot",
-    secondaryButtonText: "Explore Services",
-    secondaryButtonLink: "/services",
-    image: "/images/stem_robot_banner.jpg",
-    alt: "Microcontrollers and IoT Edge Robotics Lab Setup",
-    noteLines: ["Powering", "Next-Gen", "Makers"],
-    displayOrder: 3,
-    isActive: true,
-    theme: "blue-gradient",
-    createdAt: "2026-10-03T10:00:00Z",
+    createdAt: "2026-10-13T10:00:37.300Z",
+    updatedAt: "2026-11-02T09:53:57.117Z",
   },
 ];
 

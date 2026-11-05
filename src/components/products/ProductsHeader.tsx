@@ -1,5 +1,9 @@
-import React from "react";
+"use client";
+
+import React, { useMemo, useState } from "react";
 import Image from "next/image";
+import { Layers } from "lucide-react";
+import { CATEGORIES_DATA, matchCategory, Subcategory } from "@/data/categories";
 
 interface ProductsHeaderProps {
   title?: string;
@@ -7,6 +11,8 @@ interface ProductsHeaderProps {
   totalCount: number;
   selectedCategory?: string | null;
   onSelectCategory?: (category: string | null) => void;
+  selectedSubcategory?: string | null;
+  onSelectSubcategory?: (subcategory: string | null) => void;
 }
 
 const QUICK_CATEGORIES = [
@@ -16,82 +22,144 @@ const QUICK_CATEGORIES = [
   { id: "Controllers", name: "Controllers" },
   { id: "Sensors", name: "Sensors" },
   { id: "Development Boards", name: "Development Boards" },
+  { id: "Educational & STEM Kits", name: "Educational & STEM Kits" },
   { id: "Accessories", name: "Accessories" },
 ];
 
-export const ProductsHeader: React.FC<ProductsHeaderProps> = ({
-  title,
-  description = "Robotics, electronics, STEM & IoT components for innovators, educators and industries.",
-  totalCount,
-  selectedCategory = null,
-  onSelectCategory,
-}) => {
-  const displayTitle =
-    title ||
-    (selectedCategory ? `Explore ${selectedCategory}` : "Explore Products");
+const SubcategoryCard: React.FC<{
+  sub: Subcategory;
+  isSelected: boolean;
+  onSelect: () => void;
+}> = ({ sub, isSelected, onSelect }) => {
+  const [imgError, setImgError] = useState(false);
 
   return (
-    <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl border border-indigo-100/70 bg-[#F4F2FA] p-4 sm:p-6 md:p-7 shadow-xs mb-3.5 min-h-[190px] sm:min-h-[220px] flex flex-col justify-center">
-      {/* Background Banner Image with Robot Arm & Glowing Circuit Traces */}
-      <div className="absolute inset-0 pointer-events-none select-none">
-        <Image
-          src="https://res.cloudinary.com/fyueflvh/image/upload/v1788595365/prayog/banners/robotics_arm_banner_v2.jpg"
-          alt="Robotics & Electronics Circuit Background"
-          fill
-          priority
-          unoptimized
-          className="object-contain object-right opacity-100"
-        />
-        {/* Soft Left Overlay to Ensure Text Legibility */}
-        <div className="absolute inset-0 bg-gradient-to-r from-[#F4F2FA] via-[#F4F2FA]/70 to-transparent w-full md:w-1/2" />
-      </div>
-
-      <div className="relative z-10 space-y-4 max-w-4xl">
-        {/* Top Tag Header */}
-        <div>
-          <span className="text-[10px] font-black uppercase tracking-widest text-[#2563EB] bg-blue-50/90 border border-blue-200/60 px-3 py-1 rounded-md inline-block shadow-2xs">
-            Official Catalogue
-          </span>
-          <h1 className="text-3xl sm:text-4xl font-extrabold text-[#0B1528] tracking-tight mt-1.5 font-sans">
-            {displayTitle}
-          </h1>
-        </div>
-
-        {/* Description */}
-        <p className="text-xs sm:text-sm text-slate-500 font-normal leading-relaxed max-w-2xl">
-          {description}
-        </p>
-
-        {/* Quick Category Filter Pills Row (if handler provided) */}
-        {onSelectCategory && (
-          <div
-            className="pt-2 flex items-center gap-2 overflow-x-auto scrollbar-none pb-1"
-            style={{ scrollbarWidth: "none" }}
-          >
-            {QUICK_CATEGORIES.map((cat) => {
-              const isSelected =
-                (!selectedCategory && cat.id === "all") ||
-                selectedCategory === cat.name;
-
-              return (
-                <button
-                  key={cat.id}
-                  onClick={() =>
-                    onSelectCategory(cat.id === "all" ? null : cat.name)
-                  }
-                  className={`inline-flex items-center px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all duration-200 cursor-pointer ${
-                    isSelected
-                      ? "bg-[#2563EB] text-white shadow-sm shadow-blue-500/30 scale-[1.02]"
-                      : "bg-white text-slate-700 border border-slate-200/80 hover:bg-slate-50 hover:border-slate-300 shadow-2xs"
-                  }`}
-                >
-                  <span>{cat.name}</span>
-                </button>
-              );
-            })}
-          </div>
+    <button
+      type="button"
+      onClick={onSelect}
+      className={`group bg-white rounded-2xl border p-3 sm:p-3.5 flex items-center gap-3 sm:gap-3.5 transition-all text-left cursor-pointer ${
+        isSelected
+          ? "border-[#2563EB] ring-2 ring-[#2563EB]/20 bg-blue-50/20 shadow-xs"
+          : "border-slate-200/90 hover:border-[#2563EB]/70 hover:shadow-xs shadow-2xs"
+      }`}
+    >
+      <div className="relative w-12 h-12 rounded-xl overflow-hidden shrink-0 bg-slate-100 border border-slate-200/80 flex items-center justify-center">
+        {!imgError && sub.image ? (
+          <Image
+            src={sub.image}
+            alt={sub.name}
+            fill
+            sizes="48px"
+            onError={() => setImgError(true)}
+            className="object-cover group-hover:scale-105 transition-transform duration-300"
+          />
+        ) : (
+          <Layers className="w-5 h-5 text-blue-500" />
         )}
       </div>
+
+      <div className="flex-1 min-w-0">
+        <h3
+          className={`text-xs sm:text-[13px] font-bold truncate transition-colors ${
+            isSelected ? "text-[#2563EB]" : "text-slate-900 group-hover:text-[#2563EB]"
+          }`}
+        >
+          {sub.name}
+        </h3>
+        <p className="text-[10px] sm:text-[11px] text-slate-400 font-medium mt-0.5">
+          {sub.productCount} Products
+        </p>
+      </div>
+    </button>
+  );
+};
+
+export const ProductsHeader: React.FC<ProductsHeaderProps> = ({
+  selectedCategory = null,
+  onSelectCategory,
+  selectedSubcategory = null,
+  onSelectSubcategory,
+}) => {
+  // Determine active category for the subcategories section.
+  // Defaults to "Educational & STEM Kits" when All Products is selected.
+  const activeCategory = useMemo(() => {
+    if (selectedCategory) {
+      const match = CATEGORIES_DATA.find((c) => matchCategory(c, selectedCategory));
+      if (match && match.subcategories && match.subcategories.length > 0) {
+        return match;
+      }
+    }
+    return (
+      CATEGORIES_DATA.find((c) => c.slug === "educational-stem-kits") ||
+      CATEGORIES_DATA[0]
+    );
+  }, [selectedCategory]);
+
+  return (
+    <div className="space-y-4 pt-1">
+      {/* ── 1. Clean Category Filter Pills Row (Image 1) ── */}
+      {onSelectCategory && (
+        <div
+          className="flex items-center gap-2 overflow-x-auto no-scrollbar scroll-smooth py-1"
+          style={{ scrollbarWidth: "none" }}
+        >
+          {QUICK_CATEGORIES.map((cat) => {
+            const isSelected =
+              (!selectedCategory && cat.id === "all") ||
+              selectedCategory === cat.name;
+
+            return (
+              <button
+                key={cat.id}
+                onClick={() =>
+                  onSelectCategory(cat.id === "all" ? null : cat.name)
+                }
+                className={`inline-flex items-center px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all duration-200 cursor-pointer ${
+                  isSelected
+                    ? "bg-[#2563EB] text-white shadow-sm shadow-blue-500/25 scale-[1.02]"
+                    : "bg-white text-slate-700 border border-slate-200/90 hover:bg-slate-50 hover:border-slate-300 shadow-2xs"
+                }`}
+              >
+                <span>{cat.name}</span>
+              </button>
+            );
+          })}
+        </div>
+      )}
+
+      {/* ── 2. Subcategories Section (Image 2) ── */}
+      {activeCategory && activeCategory.subcategories && activeCategory.subcategories.length > 0 && (
+        <div className="space-y-3 pt-0.5 pb-1">
+          {/* Header */}
+          <div className="flex items-center justify-between">
+            <h2 className="text-base sm:text-lg font-black text-slate-900 flex items-center gap-2">
+              <Layers className="w-4 h-4 sm:w-4.5 sm:h-4.5 text-[#2563EB]" />
+              <span>Subcategories in {activeCategory.name}</span>
+            </h2>
+            <span className="text-xs font-semibold text-slate-400">
+              {activeCategory.subcategories.length} Subcategories
+            </span>
+          </div>
+
+          {/* Cards Grid */}
+          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+            {activeCategory.subcategories.map((sub) => (
+              <SubcategoryCard
+                key={sub.id}
+                sub={sub}
+                isSelected={selectedSubcategory === sub.name}
+                onSelect={() => {
+                  if (onSelectSubcategory) {
+                    onSelectSubcategory(
+                      selectedSubcategory === sub.name ? null : sub.name
+                    );
+                  }
+                }}
+              />
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Star,
   CheckCircle,
@@ -10,6 +11,8 @@ import {
   PenSquare,
   X,
   ChevronDown,
+  ChevronLeft,
+  ChevronRight,
   ShieldAlert,
   ShieldCheck,
   Truck,
@@ -293,8 +296,10 @@ export const ProductReviewsSection: React.FC<ProductReviewsProps> = ({
   const [helpfulVotes, setHelpfulVotes] = useState<
     Record<string, "up" | "down" | null>
   >({});
-  const [visibleCount, setVisibleCount] = useState(2);
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [slideDirection, setSlideDirection] = useState<1 | -1>(1);
+  const [isPaused, setIsPaused] = useState(false);
+  const touchStartXRef = useRef<number | null>(null);
 
   // Write Review Form State
   const [formRating, setFormRating] = useState(5);
@@ -323,14 +328,72 @@ export const ProductReviewsSection: React.FC<ProductReviewsProps> = ({
     return 0; // Most Recent & Most Helpful — default order
   });
 
-  const visibleReviews = sortedReviews.slice(0, visibleCount);
+  const totalReviews = sortedReviews.length;
+  const safeCurrentIndex = totalReviews > 0 ? currentIndex % totalReviews : 0;
+  const activeReview = sortedReviews[safeCurrentIndex];
 
-  const handleLoadMore = () => {
-    setIsLoadingMore(true);
-    setTimeout(() => {
-      setVisibleCount((prev) => Math.min(prev + 2, sortedReviews.length));
-      setIsLoadingMore(false);
-    }, 200);
+  // Auto-swipe every 5.5 seconds (pauses when user hovers or interacts)
+  useEffect(() => {
+    if (totalReviews <= 1 || isPaused) return;
+
+    const timer = setInterval(() => {
+      setSlideDirection(1);
+      setCurrentIndex((prev) => (prev + 1) % totalReviews);
+    }, 5500);
+
+    return () => clearInterval(timer);
+  }, [totalReviews, isPaused]);
+
+  const handleNextReview = () => {
+    if (totalReviews <= 1) return;
+    setSlideDirection(1);
+    setCurrentIndex((prev) => (prev + 1) % totalReviews);
+  };
+
+  const handlePrevReview = () => {
+    if (totalReviews <= 1) return;
+    setSlideDirection(-1);
+    setCurrentIndex((prev) => (prev - 1 + totalReviews) % totalReviews);
+  };
+
+  const handleGoToReview = (idx: number) => {
+    if (idx === safeCurrentIndex) return;
+    setSlideDirection(idx > safeCurrentIndex ? 1 : -1);
+    setCurrentIndex(idx);
+  };
+
+  // Trackpad horizontal swipe listener (wheel deltaX) with throttle
+  const wheelTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const handleWheel = (e: React.WheelEvent<HTMLDivElement>) => {
+    if (Math.abs(e.deltaX) > 35 && !wheelTimeoutRef.current && totalReviews > 1) {
+      if (e.deltaX > 0) {
+        handleNextReview();
+      } else {
+        handlePrevReview();
+      }
+      wheelTimeoutRef.current = setTimeout(() => {
+        wheelTimeoutRef.current = null;
+      }, 450);
+    }
+  };
+
+  // Touch swipe support (mobile / touch trackpad)
+  const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
+    touchStartXRef.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (touchStartXRef.current === null) return;
+    const touchEndX = e.changedTouches[0].clientX;
+    const diff = touchStartXRef.current - touchEndX;
+    if (Math.abs(diff) > 40 && totalReviews > 1) {
+      if (diff > 0) {
+        handleNextReview();
+      } else {
+        handlePrevReview();
+      }
+    }
+    touchStartXRef.current = null;
   };
 
   /**
@@ -639,10 +702,11 @@ export const ProductReviewsSection: React.FC<ProductReviewsProps> = ({
         {localReviews.length > 0 && (
           <div className="flex items-center justify-between gap-3 pt-1">
             <span className="text-xs font-semibold text-slate-500">
-              Showing{" "}
-              <strong className="text-slate-900">{visibleReviews.length}</strong>{" "}
-              of <strong className="text-slate-900">{localReviews.length}</strong>{" "}
-              reviews
+              Review{" "}
+              <strong className="text-slate-900">
+                {safeCurrentIndex + 1}
+              </strong>{" "}
+              of <strong className="text-slate-900">{totalReviews}</strong>
             </span>
             <div className="flex items-center gap-1.5">
               <span className="text-xs text-slate-400 font-medium hidden sm:inline">
@@ -706,39 +770,110 @@ export const ProductReviewsSection: React.FC<ProductReviewsProps> = ({
             </p>
           </div>
         ) : (
-          <div>
-            <h3 className="text-base sm:text-lg font-bold text-slate-900 pb-4">
-              Top reviews from India
-            </h3>
+          <div id="reviews-list-start">
+            <div className="flex items-center justify-between pb-4">
+              <h3 className="text-base sm:text-lg font-bold text-slate-900">
+                Top reviews from India
+              </h3>
+              {totalReviews > 1 && (
+                <div className="flex items-center gap-2">
+                  <span className="text-[11px] text-slate-400 font-semibold hidden sm:inline">
+                    Auto-playing • Swipe or use arrows
+                  </span>
+                  <div className="flex items-center gap-1">
+                    <button
+                      type="button"
+                      onClick={handlePrevReview}
+                      className="w-8 h-8 rounded-full border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 flex items-center justify-center transition-all shadow-2xs hover:scale-105 active:scale-95"
+                      title="Previous review (or swipe right)"
+                      aria-label="Previous review"
+                    >
+                      <ChevronLeft className="w-4 h-4" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleNextReview}
+                      className="w-8 h-8 rounded-full border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 flex items-center justify-center transition-all shadow-2xs hover:scale-105 active:scale-95"
+                      title="Next review (or swipe left)"
+                      aria-label="Next review"
+                    >
+                      <ChevronRight className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
 
-            <div className="space-y-6">
-              {visibleReviews.map((rev) => {
-                const isHelpful = helpfulVotes[rev.id] === "up";
-                const baseHelpful = rev.helpfulCount ?? (rev.rating === 5 ? 3 : 1);
-                const currentHelpful = baseHelpful + (isHelpful ? 1 : 0);
-                const headline = rev.title || getReviewHeadline(rev.comment);
-
-                return (
-                  <div
-                    key={rev.id}
-                    className="space-y-1.5 pb-6 border-b border-slate-200/80 last:border-b-0"
+            {/* ── Single Review Carousel Container (Trackpad & Touch Swipe Enabled) ── */}
+            <div
+              className="relative overflow-hidden cursor-grab active:cursor-grabbing select-none"
+              onMouseEnter={() => setIsPaused(true)}
+              onMouseLeave={() => setIsPaused(false)}
+              onWheel={handleWheel}
+              onTouchStart={handleTouchStart}
+              onTouchEnd={handleTouchEnd}
+            >
+              <AnimatePresence mode="wait" custom={slideDirection}>
+                {activeReview && (
+                  <motion.div
+                    key={activeReview.id}
+                    custom={slideDirection}
+                    variants={{
+                      enter: (direction: number) => ({
+                        x: direction > 0 ? 80 : -80,
+                        opacity: 0,
+                      }),
+                      center: {
+                        x: 0,
+                        opacity: 1,
+                      },
+                      exit: (direction: number) => ({
+                        x: direction > 0 ? -80 : 80,
+                        opacity: 0,
+                      }),
+                    }}
+                    initial="enter"
+                    animate="center"
+                    exit="exit"
+                    transition={{
+                      x: { type: "spring", stiffness: 300, damping: 30 },
+                      opacity: { duration: 0.2 },
+                    }}
+                    drag="x"
+                    dragConstraints={{ left: 0, right: 0 }}
+                    dragElastic={0.2}
+                    onDragEnd={(_, info) => {
+                      if (info.offset.x < -40) {
+                        handleNextReview();
+                      } else if (info.offset.x > 40) {
+                        handlePrevReview();
+                      }
+                    }}
+                    className="space-y-2 pb-6 pt-1"
                   >
                     {/* 1. Author Row: Avatar + Name */}
                     <div className="flex items-center gap-2.5">
-                      {rev.avatar ? (
+                      {activeReview.avatar ? (
                         <img
-                          src={rev.avatar}
-                          alt={rev.author}
-                          className="w-8 h-8 rounded-full object-cover shrink-0 border border-slate-200"
+                          src={activeReview.avatar}
+                          alt={activeReview.author}
+                          className="w-9 h-9 rounded-full object-cover shrink-0 border border-slate-200"
                         />
                       ) : (
-                        <div className="w-8 h-8 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center shrink-0">
-                          <User className="w-4 h-4 text-slate-500" />
+                        <div className="w-9 h-9 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center shrink-0">
+                          <User className="w-4.5 h-4.5 text-slate-500" />
                         </div>
                       )}
-                      <span className="text-sm font-semibold text-slate-900">
-                        {rev.author}
-                      </span>
+                      <div>
+                        <span className="text-sm font-semibold text-slate-900 block leading-tight">
+                          {activeReview.author}
+                        </span>
+                        {activeReview.role && (
+                          <span className="text-[11px] text-slate-400 font-medium">
+                            {activeReview.role}
+                          </span>
+                        )}
+                      </div>
                     </div>
 
                     {/* 2. Star Rating + Verified Purchase */}
@@ -748,14 +883,14 @@ export const ProductReviewsSection: React.FC<ProductReviewsProps> = ({
                           <Star
                             key={s}
                             className={`w-3.5 h-3.5 ${
-                              s <= rev.rating
+                              s <= activeReview.rating
                                 ? "fill-amber-400 text-amber-400"
                                 : "fill-slate-200 text-slate-200"
                             }`}
                           />
                         ))}
                       </div>
-                      {rev.verified && (
+                      {activeReview.verified && (
                         <span className="text-xs font-bold text-[#C45500]">
                           Verified Purchase
                         </span>
@@ -763,112 +898,131 @@ export const ProductReviewsSection: React.FC<ProductReviewsProps> = ({
                     </div>
 
                     {/* 3. Review Headline / Title */}
-                    <h4 className="text-sm sm:text-base font-bold text-slate-900 tracking-tight leading-snug pt-0.5">
-                      {headline}
+                    <h4 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight leading-snug pt-0.5">
+                      {activeReview.title || getReviewHeadline(activeReview.comment)}
                     </h4>
 
-                    {/* 4. Reviewed in India line & Role */}
-                    <div className="text-xs text-slate-500 space-y-0.5">
-                      <p>Reviewed in India on {rev.date}</p>
-                      {rev.role && (
-                        <p className="text-[11px] text-slate-400 font-medium">
-                          {rev.role}
-                        </p>
-                      )}
-                    </div>
+                    {/* 4. Reviewed in India line */}
+                    <p className="text-xs text-slate-500">
+                      Reviewed in India on {activeReview.date}
+                    </p>
 
                     {/* 5. Review Comment */}
-                    <p className="text-sm text-slate-800 leading-relaxed font-normal pt-1">
-                      {rev.comment}
+                    <p className="text-sm sm:text-[15px] text-slate-800 leading-relaxed font-normal pt-1">
+                      {activeReview.comment}
                     </p>
 
                     {/* 6. Helpful Statement */}
-                    <p className="text-xs text-slate-500 pt-1">
-                      {currentHelpful > 1
-                        ? `${currentHelpful} people found this helpful`
-                        : "One person found this helpful"}
-                    </p>
+                    {(() => {
+                      const isHelpful = helpfulVotes[activeReview.id] === "up";
+                      const baseHelpful =
+                        activeReview.helpfulCount ?? (activeReview.rating === 5 ? 3 : 1);
+                      const currentHelpful = baseHelpful + (isHelpful ? 1 : 0);
+                      return (
+                        <p className="text-xs text-slate-500 pt-1">
+                          {currentHelpful > 1
+                            ? `${currentHelpful} people found this helpful`
+                            : "One person found this helpful"}
+                        </p>
+                      );
+                    })()}
 
                     {/* 7. Action Row: Helpful pill, Share, Report */}
-                    <div className="flex items-center gap-3 sm:gap-4 pt-1.5">
+                    {(() => {
+                      const isHelpful = helpfulVotes[activeReview.id] === "up";
+                      return (
+                        <div className="flex items-center gap-3 sm:gap-4 pt-2">
+                          <button
+                            type="button"
+                            onClick={() => handleHelpfulToggle(activeReview.id)}
+                            className={`px-5 py-1.5 rounded-full border text-xs font-medium transition-all cursor-pointer active:scale-95 shadow-2xs ${
+                              isHelpful
+                                ? "bg-amber-50 border-amber-400 text-amber-800 font-bold"
+                                : "bg-white hover:bg-slate-50 border-slate-300 text-slate-800"
+                            }`}
+                          >
+                            {isHelpful ? "✓ Helpful" : "Helpful"}
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => handleShareReview(activeReview)}
+                            className="flex items-center gap-1.5 text-xs text-slate-500 hover:text-slate-800 font-medium transition-colors cursor-pointer"
+                            title="Share this review"
+                          >
+                            <Upload className="w-3.5 h-3.5 text-slate-500" />
+                            <span>
+                              {sharedReviewId === activeReview.id ? "Copied!" : "Share"}
+                            </span>
+                          </button>
+
+                          <span className="text-slate-300">|</span>
+
+                          <button
+                            type="button"
+                            onClick={() => handleReportReview(activeReview.id)}
+                            className="text-xs text-slate-500 hover:text-slate-800 font-medium transition-colors cursor-pointer"
+                          >
+                            {reportedReviewIds.has(activeReview.id) ? "Reported" : "Report"}
+                          </button>
+                        </div>
+                      );
+                    })()}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
+            {/* ── Carousel Pagination Indicators (Dots + Next/Prev) ── */}
+            {totalReviews > 1 && (
+              <div className="pt-4 border-t border-slate-200/80 flex items-center justify-between gap-3">
+                {/* Review Counter */}
+                <span className="text-xs text-slate-500 font-medium">
+                  Review <strong className="text-slate-900 font-bold">{safeCurrentIndex + 1}</strong> of{" "}
+                  <strong className="text-slate-900 font-bold">{totalReviews}</strong>
+                </span>
+
+                {/* Dots indicator */}
+                <div className="flex items-center gap-1.5">
+                  {sortedReviews.map((rev, idx) => {
+                    const isActive = idx === safeCurrentIndex;
+                    return (
                       <button
+                        key={rev.id}
                         type="button"
-                        onClick={() => handleHelpfulToggle(rev.id)}
-                        className={`px-5 py-1.5 rounded-full border text-xs font-medium transition-all cursor-pointer active:scale-95 shadow-2xs ${
-                          isHelpful
-                            ? "bg-amber-50 border-amber-400 text-amber-800 font-bold"
-                            : "bg-white hover:bg-slate-50 border-slate-300 text-slate-800"
+                        onClick={() => handleGoToReview(idx)}
+                        className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${
+                          isActive
+                            ? "w-6 bg-[#2563EB]"
+                            : "w-2 bg-slate-200 hover:bg-slate-400"
                         }`}
-                      >
-                        {isHelpful ? "✓ Helpful" : "Helpful"}
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() => handleShareReview(rev)}
-                        className="flex items-center gap-1.5 text-xs text-slate-500 hover:text-slate-800 font-medium transition-colors cursor-pointer"
-                        title="Share this review"
-                      >
-                        <Upload className="w-3.5 h-3.5 text-slate-500" />
-                        <span>{sharedReviewId === rev.id ? "Copied!" : "Share"}</span>
-                      </button>
-
-                      <span className="text-slate-300">|</span>
-
-                      <button
-                        type="button"
-                        onClick={() => handleReportReview(rev.id)}
-                        className="text-xs text-slate-500 hover:text-slate-800 font-medium transition-colors cursor-pointer"
-                      >
-                        {reportedReviewIds.has(rev.id) ? "Reported" : "Report"}
-                      </button>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* ── View More Reviews Button ── */}
-            <div className="pt-2">
-              {visibleCount < sortedReviews.length ? (
-                <button
-                  type="button"
-                  onClick={handleLoadMore}
-                  disabled={isLoadingMore}
-                  className="w-full py-3 px-4 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 hover:border-slate-300 text-slate-900 text-xs font-extrabold flex items-center justify-center gap-2 shadow-2xs hover:shadow-xs transition-all cursor-pointer active:scale-[0.99]"
-                >
-                  {isLoadingMore ? (
-                    <>
-                      <div className="w-3.5 h-3.5 border-2 border-slate-300 border-t-[#2563EB] rounded-full animate-spin" />
-                      <span>Loading more reviews...</span>
-                    </>
-                  ) : (
-                    <>
-                      <span>View More Reviews</span>
-                      <span className="bg-slate-100 text-slate-600 text-[10px] font-black px-2 py-0.5 rounded-full">
-                        +{sortedReviews.length - visibleCount} more
-                      </span>
-                      <ChevronDown className="w-4 h-4 text-slate-400" />
-                    </>
-                  )}
-                </button>
-              ) : (
-                <div className="flex items-center justify-between py-2 px-1 text-xs text-slate-400 border-t border-slate-100">
-                  <span className="text-[11px] font-semibold">
-                    Showing all {sortedReviews.length} verified customer reviews
-                  </span>
-                  {sortedReviews.length > 2 && (
-                    <button
-                      type="button"
-                      onClick={() => setVisibleCount(2)}
-                      className="text-[#2563EB] hover:underline font-bold text-xs cursor-pointer"
-                    >
-                      Show Less
-                    </button>
-                  )}
+                        aria-label={`Go to review ${idx + 1}`}
+                      />
+                    );
+                  })}
                 </div>
-              )}
-            </div>
+
+                {/* Mini Prev/Next */}
+                <div className="flex items-center gap-1 text-xs">
+                  <button
+                    type="button"
+                    onClick={handlePrevReview}
+                    className="p-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-700 transition-colors"
+                    aria-label="Previous review"
+                  >
+                    <ChevronLeft className="w-3.5 h-3.5" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleNextReview}
+                    className="p-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-700 transition-colors"
+                    aria-label="Next review"
+                  >
+                    <ChevronRight className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>

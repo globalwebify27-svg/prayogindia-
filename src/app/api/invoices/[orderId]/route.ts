@@ -152,7 +152,7 @@ export async function GET(
   <title>Tax Invoice - ${invoiceData.invoiceNumber}</title>
   <style>
     * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 40px; color: #1e293b; line-height: 1.4; font-size: 13px; }
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 40px; color: #1e293b; line-height: 1.4; font-size: 13px; }
     .header { display: flex; justify-content: space-between; border-bottom: 2px solid #2563EB; padding-bottom: 20px; }
     .logo-container { position: relative; display: inline-block; height: 46px; margin-bottom: 6px; }
     .logo-container .pill-bg { position: absolute; background: #0F172A; border-radius: 9999px; left: 17.0%; top: 68.2%; width: 67.2%; height: 23.9%; pointer-events: none; }

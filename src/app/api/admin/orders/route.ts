@@ -19,14 +19,38 @@ export async function GET(request: Request) {
   const channel = searchParams.get("channel"); // 'all' | 'WEBSITE' | 'MOBILE_APP' | 'WALK_IN'
   const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
   const limit = Math.min(
-    50,
-    Math.max(1, parseInt(searchParams.get("limit") || "15", 10)),
+    200,
+    Math.max(1, parseInt(searchParams.get("limit") || "100", 10)),
   );
 
   if (isDatabaseAvailable()) {
     try {
       const where: any = {};
       if (status && status !== "all") where.status = status;
+
+      if (channel && channel !== "all") {
+        if (channel === "MOBILE_APP") {
+          where.OR = [
+            { orderNumber: { contains: "APP" } },
+            { paymentMethod: { contains: "Mobile", mode: "insensitive" } },
+          ];
+        } else if (channel === "B2B_QUOTATION") {
+          where.OR = [
+            { quotationId: { not: null } },
+            { customerType: "B2B" },
+          ];
+        } else if (channel === "WALK_IN") {
+          where.customerType = "WALK_IN";
+        } else if (channel === "WEBSITE") {
+          where.NOT = [
+            { orderNumber: { contains: "APP" } },
+            { paymentMethod: { contains: "Mobile", mode: "insensitive" } },
+            { quotationId: { not: null } },
+            { customerType: "B2B" },
+            { customerType: "WALK_IN" },
+          ];
+        }
+      }
 
       const [items, total] = await Promise.all([
         db.order.findMany({
@@ -52,26 +76,44 @@ export async function GET(request: Request) {
         db.order.count({ where }),
       ]);
 
-      const enrichedItems = items.map((ord: any) => ({
-        ...ord,
-        orderSource:
-          ord.quotationId || ord.customerType === "B2B"
+      const enrichedItems = items.map((ord: any) => {
+        const isMobileApp =
+          ord.orderNumber?.includes("APP") ||
+          ord.paymentMethod?.toLowerCase().includes("mobile") ||
+          (ord as any).orderSource === "MOBILE_APP" ||
+          (ord as any).channel === "MOBILE_APP";
+
+        const isB2B = Boolean(ord.quotationId || ord.customerType === "B2B");
+        const isWalkIn = ord.customerType === "WALK_IN";
+
+        const orderSource = isMobileApp
+          ? "MOBILE_APP"
+          : isB2B
             ? "B2B_QUOTATION"
-            : ord.customerType === "WALK_IN"
+            : isWalkIn
               ? "WALK_IN"
-              : "WEBSITE",
-        channelName: ord.quotationId
-          ? "📑 Institutional B2B Quote"
-          : ord.customerType === "WALK_IN"
-            ? "🏬 Store Walk-in"
-            : "🌐 Prayog Website Store",
-        awbNumber: ord.shipment?.trackingNumber || null,
-        courierProvider: ord.shipment?.courierName || "Delhivery Surface",
-        weightGm: ord.shipment?.weightKg
-          ? Math.round(ord.shipment.weightKg * 1000)
-          : 500,
-        freightMode: "Surface Express",
-      }));
+              : "WEBSITE";
+
+        const channelName = isMobileApp
+          ? "📱 Prayog Mobile App"
+          : isB2B
+            ? "📑 Institutional B2B Quote"
+            : isWalkIn
+              ? "🏬 Store Walk-in"
+              : "🌐 Prayog Website Store";
+
+        return {
+          ...ord,
+          orderSource,
+          channelName,
+          awbNumber: ord.shipment?.trackingNumber || null,
+          courierProvider: ord.shipment?.courierName || "Delhivery Surface",
+          weightGm: ord.shipment?.weightKg
+            ? Math.round(ord.shipment.weightKg * 1000)
+            : 500,
+          freightMode: "Surface Express",
+        };
+      });
 
       return NextResponse.json({
         success: true,

@@ -396,7 +396,12 @@ function ProductsContent() {
       <ProductsHeader
         totalCount={filteredProducts.length}
         selectedCategory={selectedCategory}
-        onSelectCategory={setSelectedCategory}
+        onSelectCategory={(cat) => {
+          setSelectedCategory(cat);
+          setSelectedSubcategory(null);
+        }}
+        selectedSubcategory={selectedSubcategory}
+        onSelectSubcategory={setSelectedSubcategory}
       />
 
       {/* ── Search Box with Suggestions ── */}

@@ -44,7 +44,7 @@ export default function AdminOrdersPage() {
 
   const fetchOrders = () => {
     setLoading(true);
-    fetch(`/api/admin/orders?status=${statusFilter}&channel=${channelFilter}`)
+    fetch(`/api/admin/orders?status=${statusFilter}&limit=100`)
       .then((res) => res.json())
       .then((data) => {
         let items: any[] = data.success && data.data?.items ? data.data.items : [];
@@ -79,7 +79,7 @@ export default function AdminOrdersPage() {
 
   useEffect(() => {
     fetchOrders();
-  }, [statusFilter, channelFilter]);
+  }, [statusFilter]);
 
   const handleStatusChange = async (orderId: string, newStatus: string) => {
     setOrders((prev) =>
@@ -269,7 +269,9 @@ export default function AdminOrdersPage() {
                         <span className="text-[#00AEEF]">
                           {ord.orderSource === "B2B_QUOTATION"
                             ? "B2B Quotation"
-                            : ord.orderSource || "Website"}
+                            : ord.orderSource === "MOBILE_APP"
+                              ? "📱 Mobile App"
+                              : ord.orderSource || "Website"}
                         </span>
                       </div>
                       {ord.quotation && (
@@ -545,7 +547,7 @@ export default function AdminOrdersPage() {
                       <div className="flex items-center gap-2">
                         <Package className="w-4 h-4 text-slate-400" />
                         <span className="font-bold text-slate-900">
-                          {item.name}
+                          {item.name || item.productName || "Product Item"}
                         </span>
                         {item.isRestricted && (
                           <span className="text-[9px] bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded font-black uppercase">
@@ -555,10 +557,10 @@ export default function AdminOrdersPage() {
                       </div>
                       <div className="text-right">
                         <span className="font-mono text-slate-600 font-bold">
-                          {item.qty}x
+                          {item.qty || item.quantity || 1}x
                         </span>
                         <span className="font-black text-slate-900 ml-2">
-                          ₹{(item.qty * item.price).toLocaleString()}
+                          ₹{((item.qty || item.quantity || 1) * (item.price || 0)).toLocaleString()}
                         </span>
                       </div>
                     </div>

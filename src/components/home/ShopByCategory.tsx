@@ -26,6 +26,19 @@ interface Props {
   onSelectCategory?: (category: string) => void;
 }
 
+const NEUTRAL_THEME = {
+  bg: "bg-white hover:bg-slate-50/60 border-slate-200/90 hover:border-slate-300 shadow-2xs hover:shadow-xs",
+  blobTop: "bg-slate-100/50",
+  blobBottom: "bg-slate-50/60",
+  iconBg: "bg-slate-100 group-hover:bg-[#2563EB]/10",
+  iconColor: "text-slate-700 group-hover:text-[#2563EB]",
+  countColor: "text-slate-500",
+  arrowBg: "bg-slate-100 group-hover:bg-[#2563EB]",
+  arrowColor: "text-slate-600 group-hover:text-white",
+  arrowHoverBg: "group-hover:bg-[#2563EB]",
+  mobileBg: "bg-white hover:bg-slate-50/80 border-slate-200/80",
+};
+
 const THEMES: Record<
   string,
   {
@@ -41,90 +54,13 @@ const THEMES: Record<
     mobileBg?: string;
   }
 > = {
-  blue: {
-    bg: "bg-gradient-to-br from-[#EEF6FF] via-[#F4F9FF] to-[#FFFDF5]",
-    blobTop: "bg-[#D6E8FE]/70",
-    blobBottom: "bg-[#FFE58F]/75",
-    iconBg: "bg-blue-100",
-    iconColor: "text-[#2563EB]",
-    countColor: "text-[#2563EB]",
-    arrowBg: "bg-[#2563EB]",
-    arrowColor: "text-white",
-    arrowHoverBg: "group-hover:bg-[#1D4ED8]",
-    mobileBg: "bg-gradient-to-r from-[#EFF6FF] via-[#F8FAFC] to-white border-[#DBEAFE]/80",
-  },
-  teal: {
-    bg: "bg-gradient-to-br from-[#F0FDF9] via-[#F7FEFC] to-[#E6FBF5]",
-    blobTop: "bg-[#CCFBF1]/50",
-    blobBottom: "bg-[#A7F3D0]/60",
-    iconBg: "bg-[#D1FAE5]",
-    iconColor: "text-[#059669]",
-    countColor: "text-[#059669]",
-    arrowBg: "bg-[#CCFBF1]",
-    arrowColor: "text-[#0F766E]",
-    arrowHoverBg: "group-hover:bg-[#99F6E4]",
-    mobileBg: "bg-gradient-to-r from-[#F0FDF4] via-[#F8FAFC] to-white border-[#DCFCE7]/80",
-  },
-  purple: {
-    bg: "bg-gradient-to-br from-[#FAF5FF] via-[#FDFBFF] to-[#F3E8FF]/60",
-    blobTop: "bg-[#EDE9FE]/50",
-    blobBottom: "bg-[#DDD6FE]/70",
-    iconBg: "bg-[#EDE9FE]",
-    iconColor: "text-[#7C3AED]",
-    countColor: "text-[#7C3AED]",
-    arrowBg: "bg-[#EDE9FE]",
-    arrowColor: "text-[#6D28D9]",
-    arrowHoverBg: "group-hover:bg-[#DDD6FE]",
-    mobileBg: "bg-gradient-to-r from-[#FAF5FF] via-[#F8FAFC] to-white border-[#EDE9FE]/80",
-  },
-  amber: {
-    bg: "bg-gradient-to-br from-[#FFFDF5] via-[#FFFFFA] to-[#FEF3C7]/60",
-    blobTop: "bg-[#FEF3C7]/50",
-    blobBottom: "bg-[#FDE68A]/70",
-    iconBg: "bg-[#FEF3C7]",
-    iconColor: "text-[#D97706]",
-    countColor: "text-[#D97706]",
-    arrowBg: "bg-[#FEF3C7]",
-    arrowColor: "text-[#B45309]",
-    arrowHoverBg: "group-hover:bg-[#FDE68A]",
-    mobileBg: "bg-gradient-to-r from-[#FFFBEB] via-[#F8FAFC] to-white border-[#FEF3C7]/80",
-  },
-  emerald: {
-    bg: "bg-gradient-to-br from-[#F0FDF4] via-[#F7FEF9] to-[#DCFCE7]/60",
-    blobTop: "bg-[#DCFCE7]/50",
-    blobBottom: "bg-[#BBF7D0]/70",
-    iconBg: "bg-[#DCFCE7]",
-    iconColor: "text-[#059669]",
-    countColor: "text-[#059669]",
-    arrowBg: "bg-[#DCFCE7]",
-    arrowColor: "text-[#047857]",
-    arrowHoverBg: "group-hover:bg-[#A7F3D0]",
-    mobileBg: "bg-gradient-to-r from-[#F0FDF4] via-[#F8FAFC] to-white border-[#DCFCE7]/80",
-  },
-  rose: {
-    bg: "bg-gradient-to-br from-[#FFF1F2] via-[#FFF8F8] to-[#FFE4E6]/60",
-    blobTop: "bg-[#FFE4E6]/50",
-    blobBottom: "bg-[#FECDD3]/70",
-    iconBg: "bg-[#FFE4E6]",
-    iconColor: "text-[#E11D48]",
-    countColor: "text-[#E11D48]",
-    arrowBg: "bg-[#FFE4E6]",
-    arrowColor: "text-[#BE123C]",
-    arrowHoverBg: "group-hover:bg-[#FECDD3]",
-    mobileBg: "bg-gradient-to-r from-[#FFF1F2] via-[#F8FAFC] to-white border-[#FFE4E6]/80",
-  },
-  cyan: {
-    bg: "bg-gradient-to-br from-[#F0F9FF] via-[#F8FCFF] to-[#E0F2FE]/60",
-    blobTop: "bg-[#E0F2FE]/50",
-    blobBottom: "bg-[#BAE6FD]/70",
-    iconBg: "bg-[#E0F2FE]",
-    iconColor: "text-[#0284C7]",
-    countColor: "text-[#0284C7]",
-    arrowBg: "bg-[#E0F2FE]",
-    arrowColor: "text-[#0369A1]",
-    arrowHoverBg: "group-hover:bg-[#BAE6FD]",
-    mobileBg: "bg-gradient-to-r from-[#F0F9FF] via-[#F8FAFC] to-white border-[#E0F2FE]/80",
-  },
+  blue: NEUTRAL_THEME,
+  teal: NEUTRAL_THEME,
+  purple: NEUTRAL_THEME,
+  amber: NEUTRAL_THEME,
+  emerald: NEUTRAL_THEME,
+  rose: NEUTRAL_THEME,
+  cyan: NEUTRAL_THEME,
 };
 
 function getBadgeIcon(icon?: string) {
@@ -442,12 +378,11 @@ export const ShopByCategory: React.FC<Props> = ({ onSelectCategory }) => {
     <section className="pt-2 sm:pt-3.5 pb-4 sm:pb-6 bg-white touch-pan-y" style={{ touchAction: "pan-y" }}>
       <div className="w-full px-3 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 space-y-1.5 sm:space-y-2 lg:space-y-2.5 touch-pan-y">
         {/* Section Header */}
-        <div className="flex items-center justify-between pb-0.5">
+        <div className="flex items-center justify-between pb-1">
           <div className="flex items-center gap-2">
-            <h2 className="text-sm sm:text-lg lg:text-xl font-bold text-slate-900 tracking-tight">
+            <h2 className="text-base sm:text-xl lg:text-2xl font-bold text-slate-900 tracking-tight">
               Shop by Category
             </h2>
-            <div className="w-7 h-1 bg-[#FFC20E] rounded-full" />
           </div>
 
           <div className="flex items-center gap-2">

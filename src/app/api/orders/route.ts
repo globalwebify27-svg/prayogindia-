@@ -68,7 +68,16 @@ export async function POST(request: Request) {
       subtotal: clientSubtotal,
       gstAmount: clientGst,
       totalAmount: clientTotal,
+      orderSource: requestedOrderSource,
+      channel: requestedChannel,
     } = body;
+
+    const isMobileAppOrder =
+      requestedOrderSource === "MOBILE_APP" ||
+      requestedChannel === "MOBILE_APP" ||
+      request.headers.get("x-client-channel") === "MOBILE_APP" ||
+      request.headers.get("x-requested-with") === "PrayogMobileApp" ||
+      request.headers.get("user-agent")?.toLowerCase().includes("dart");
 
     if (!isDatabaseAvailable()) {
       return NextResponse.json(
@@ -168,7 +177,7 @@ export async function POST(request: Request) {
 
         if (dbProd) {
           let resolvedVariantId: string | null = null;
-          let unitPrice = dbProd.price;
+          let unitPrice = itemPrice > 0 ? itemPrice : dbProd.price;
           let sku = item.productSku || item.sku || dbProd.sku;
 
           if (item.variantId && dbProd.variants) {
@@ -365,7 +374,10 @@ export async function POST(request: Request) {
           );
 
     // Generate Unique Order Number
-    let newOrderNumber = generateOrderNumber();
+    const year = new Date().getFullYear();
+    let newOrderNumber = isMobileAppOrder
+      ? `PRG-APP-${year}-${Math.floor(1000 + Math.random() * 9000)}`
+      : generateOrderNumber();
     const existingOrderNum = await db.order.findUnique({
       where: { orderNumber: newOrderNumber },
     });
@@ -381,6 +393,10 @@ export async function POST(request: Request) {
       ? PaymentStatus.PENDING
       : PaymentStatus.PAID;
 
+    const recordedPaymentMethod = isCod
+      ? (isMobileAppOrder ? "COD (Mobile App)" : "cod")
+      : (isMobileAppOrder ? `${paymentMethod || "UPI"} (Mobile App)` : (paymentMethod || "razorpay"));
+
     // 4. Atomic Database Transaction
     const newOrder = await db.$transaction(async (tx) => {
       // 4a. Create Order
@@ -390,7 +406,7 @@ export async function POST(request: Request) {
           userId: dbUser.id,
           status: initialOrderStatus,
           paymentStatus: initialPaymentStatus,
-          paymentMethod: isCod ? "cod" : paymentMethod || "razorpay",
+          paymentMethod: recordedPaymentMethod,
           rewardPointsUsed: sanitizedPointsUsed,
           couponCode: validCouponCode,
           couponDiscount,
@@ -621,7 +637,10 @@ export async function POST(request: Request) {
     return NextResponse.json({
       success: true,
       message: "Order created successfully.",
-      data: newOrder,
+      data: {
+        ...newOrder,
+        orderSource: isMobileAppOrder ? "MOBILE_APP" : "WEBSITE",
+      },
     });
   } catch (error: any) {
     return NextResponse.json(

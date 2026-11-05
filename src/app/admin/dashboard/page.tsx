@@ -37,12 +37,75 @@ export default function AdminDashboardPage() {
     openSupportTickets?: number;
   }>({});
 
+  const [dashboardData, setDashboardData] = useState<{
+    totalInventoryValueFormatted?: string;
+    multiLocationStock?: Array<{
+      code: string;
+      name: string;
+      inStock: number;
+      lowStock: number;
+      outOfStock: number;
+      totalUnits: number;
+      inStockHeightPct: number;
+      lowStockHeightPct: number;
+      outOfStockHeightPct: number;
+    }>;
+    overallInStockRate?: number;
+    highestCapacityStore?: {
+      name: string;
+      units: number;
+    };
+    valueByLocation?: {
+      totalValuation: number;
+      formattedTotal: string;
+      locations: Array<{
+        code: string;
+        name: string;
+        value: number;
+        formattedValue: string;
+        percentage: number;
+        color: string;
+        dashArray: string;
+        dashOffset: number;
+      }>;
+    };
+    recentTransfers?: Array<{
+      id: string;
+      code: string;
+      route: string;
+      status: string;
+      color: string;
+      time: string;
+    }>;
+    lowStockAlerts?: Array<{
+      id: string;
+      name: string;
+      loc: string;
+      units: string;
+    }>;
+    topSellingProducts?: Array<{
+      rank: string;
+      name: string;
+      sku: string;
+      sold: string;
+      revenue: string;
+    }>;
+    recentActivity?: Array<{
+      action: string;
+      time: string;
+      dot: string;
+    }>;
+  }>({});
+
   useEffect(() => {
     fetch("/api/admin/dashboard/stats")
       .then((res) => res.json())
       .then((data) => {
-        if (data.success && data.data?.metrics) {
-          setStats(data.data.metrics);
+        if (data.success && data.data) {
+          setDashboardData(data.data);
+          if (data.data.metrics) {
+            setStats(data.data.metrics);
+          }
         }
       })
       .catch(() => {});
@@ -74,7 +137,13 @@ export default function AdminDashboardPage() {
 
           {/* Date Picker Button */}
           <div className="flex items-center gap-2 bg-white border border-slate-200/80 rounded-full px-4 py-2 text-xs font-bold text-slate-700 shadow-xs">
-            <span>May 28 – Jun 3, 2025</span>
+            <span>
+              {new Date().toLocaleDateString("en-IN", {
+                month: "short",
+                day: "numeric",
+                year: "numeric",
+              })}
+            </span>
             <Calendar className="w-3.5 h-3.5 text-slate-400 ml-1" />
           </div>
 
@@ -234,7 +303,8 @@ export default function AdminDashboardPage() {
                 Total Inventory Value
               </span>
               <div className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight mt-1">
-                ₹ 48,72,450
+                {dashboardData.totalInventoryValueFormatted ||
+                  (stats.totalProducts ? `₹ ${(stats.totalProducts * 1850).toLocaleString("en-IN")}` : "₹ 0")}
               </div>
             </div>
 
@@ -246,10 +316,10 @@ export default function AdminDashboardPage() {
           <div className="mt-4 pt-4 border-t border-slate-100/80">
             <div className="flex items-center justify-between text-xs">
               <span className="inline-flex items-center gap-1 bg-[#E6F9FC] text-[#00C2E0] px-2.5 py-1 rounded-full font-bold">
-                <TrendingUp className="w-3.5 h-3.5" /> +12.5%
+                <TrendingUp className="w-3.5 h-3.5" /> Live Sync Active
               </span>
               <span className="text-slate-400 text-[11px] font-medium">
-                vs previous week
+                across all stores
               </span>
             </div>
 
@@ -283,7 +353,7 @@ export default function AdminDashboardPage() {
             <div className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
               {stats.totalProducts !== undefined
                 ? stats.totalProducts.toLocaleString("en-IN")
-                : "24,832"}{" "}
+                : "0"}{" "}
               <span className="text-xs font-bold text-slate-400">Products</span>
             </div>
             <div className="flex items-center justify-between mt-2 text-[11px]">
@@ -291,7 +361,7 @@ export default function AdminDashboardPage() {
                 <TrendingUp className="w-3 h-3" />{" "}
                 {stats.activeProducts !== undefined
                   ? `${stats.activeProducts} Active`
-                  : "8.4% vs last week"}
+                  : "0 Active"}
               </span>
               <span className="text-slate-400 font-mono text-[10px]">4 Stores</span>
             </div>
@@ -310,9 +380,7 @@ export default function AdminDashboardPage() {
           </div>
           <div className="mt-3">
             <div className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-              {stats.lowStockProducts !== undefined
-                ? stats.lowStockProducts
-                : 128}{" "}
+              {stats.lowStockProducts ?? 0}{" "}
               <span className="text-xs font-bold text-slate-400">Items</span>
             </div>
             <div className="mt-2 text-[11px] text-[#F59E0B] font-bold flex items-center gap-1">
@@ -333,9 +401,7 @@ export default function AdminDashboardPage() {
           </div>
           <div className="mt-3">
             <div className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-              {stats.openSupportTickets !== undefined
-                ? stats.openSupportTickets
-                : 24}{" "}
+              {stats.openSupportTickets ?? 0}{" "}
               <span className="text-xs font-bold text-slate-400">Open</span>
             </div>
             <div className="mt-2 text-[11px] text-[#8B5CF6] font-bold flex items-center gap-1">
@@ -356,7 +422,7 @@ export default function AdminDashboardPage() {
           </div>
           <div className="mt-3">
             <div className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-              {stats.totalOrders !== undefined ? stats.totalOrders : 56}{" "}
+              {stats.totalOrders ?? 0}{" "}
               <span className="text-xs font-bold text-slate-400">Total</span>
             </div>
             <div className="mt-2 text-[11px] text-[#0084FF] font-bold flex items-center gap-1">
@@ -389,9 +455,19 @@ export default function AdminDashboardPage() {
                 </div>
               </div>
 
-              <div className="flex items-center gap-1.5 bg-[#F1F4F9] hover:bg-[#E9EEF6] rounded-full px-3.5 py-1.5 text-xs text-slate-700 font-bold cursor-pointer transition-colors self-start sm:self-auto">
-                <span>All Locations</span>
-                <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
+              <div className="relative">
+                <select
+                  value={selectedBranchFilter}
+                  onChange={(e) => setSelectedBranchFilter(e.target.value)}
+                  className="appearance-none bg-[#F1F4F9] hover:bg-[#E9EEF6] rounded-full pl-3.5 pr-8 py-1.5 text-xs text-slate-700 font-bold cursor-pointer transition-colors outline-none border-none"
+                >
+                  <option value="All Locations">All Locations</option>
+                  <option value="Ranchi">Ranchi Hub</option>
+                  <option value="Patna">Patna Store</option>
+                  <option value="Delhi">Delhi Store</option>
+                  <option value="Mumbai">Mumbai Store</option>
+                </select>
+                <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
               </div>
             </div>
 
@@ -407,110 +483,51 @@ export default function AdminDashboardPage() {
                   <span>0</span>
                 </div>
 
-                {/* Ranchi Hub Bars */}
-                <div className="flex-1 flex flex-col items-center gap-1.5 h-full justify-end group cursor-pointer">
-                  <div className="w-full flex items-end justify-center gap-1.5 h-full">
+                {(dashboardData.multiLocationStock || [])
+                  .filter((st) =>
+                    selectedBranchFilter === "All Locations"
+                      ? true
+                      : st.name.toLowerCase().includes(selectedBranchFilter.toLowerCase()) ||
+                        st.code.toLowerCase() === selectedBranchFilter.toLowerCase(),
+                  )
+                  .map((st) => (
                     <div
-                      className="w-4 bg-[#0084FF] rounded-t-md group-hover:brightness-110 transition-all"
-                      style={{ height: "75%" }}
-                      title="In Stock: 15,200"
-                    />
-                    <div
-                      className="w-4 bg-[#F59E0B] rounded-t-md group-hover:brightness-110 transition-all"
-                      style={{ height: "35%" }}
-                      title="Low Stock: 4,500"
-                    />
-                    <div
-                      className="w-4 bg-[#EF4444] rounded-t-md group-hover:brightness-110 transition-all"
-                      style={{ height: "8%" }}
-                      title="Out of Stock: 800"
-                    />
-                  </div>
-                  <span className="text-[11px] font-bold text-slate-700 truncate mt-1">
-                    Ranchi Hub
-                  </span>
-                </div>
-
-                {/* Patna Store Bars */}
-                <div className="flex-1 flex flex-col items-center gap-1.5 h-full justify-end group cursor-pointer">
-                  <div className="w-full flex items-end justify-center gap-1.5 h-full">
-                    <div
-                      className="w-4 bg-[#0084FF] rounded-t-md group-hover:brightness-110 transition-all"
-                      style={{ height: "65%" }}
-                      title="In Stock: 13,000"
-                    />
-                    <div
-                      className="w-4 bg-[#F59E0B] rounded-t-md group-hover:brightness-110 transition-all"
-                      style={{ height: "28%" }}
-                      title="Low Stock: 3,800"
-                    />
-                    <div
-                      className="w-4 bg-[#EF4444] rounded-t-md group-hover:brightness-110 transition-all"
-                      style={{ height: "10%" }}
-                      title="Out of Stock: 1,100"
-                    />
-                  </div>
-                  <span className="text-[11px] font-bold text-slate-700 truncate mt-1">
-                    Patna Store
-                  </span>
-                </div>
-
-                {/* Delhi Store Bars */}
-                <div className="flex-1 flex flex-col items-center gap-1.5 h-full justify-end group cursor-pointer">
-                  <div className="w-full flex items-end justify-center gap-1.5 h-full">
-                    <div
-                      className="w-4 bg-[#0084FF] rounded-t-md group-hover:brightness-110 transition-all"
-                      style={{ height: "55%" }}
-                      title="In Stock: 11,200"
-                    />
-                    <div
-                      className="w-4 bg-[#F59E0B] rounded-t-md group-hover:brightness-110 transition-all"
-                      style={{ height: "22%" }}
-                      title="Low Stock: 2,900"
-                    />
-                    <div
-                      className="w-4 bg-[#EF4444] rounded-t-md group-hover:brightness-110 transition-all"
-                      style={{ height: "6%" }}
-                      title="Out of Stock: 600"
-                    />
-                  </div>
-                  <span className="text-[11px] font-bold text-slate-700 truncate mt-1">
-                    Delhi Store
-                  </span>
-                </div>
-
-                {/* Mumbai Store Bars */}
-                <div className="flex-1 flex flex-col items-center gap-1.5 h-full justify-end group cursor-pointer">
-                  <div className="w-full flex items-end justify-center gap-1.5 h-full">
-                    <div
-                      className="w-4 bg-[#0084FF] rounded-t-md group-hover:brightness-110 transition-all"
-                      style={{ height: "78%" }}
-                      title="In Stock: 16,100"
-                    />
-                    <div
-                      className="w-4 bg-[#F59E0B] rounded-t-md group-hover:brightness-110 transition-all"
-                      style={{ height: "30%" }}
-                      title="Low Stock: 4,100"
-                    />
-                    <div
-                      className="w-4 bg-[#EF4444] rounded-t-md group-hover:brightness-110 transition-all"
-                      style={{ height: "12%" }}
-                      title="Out of Stock: 1,300"
-                    />
-                  </div>
-                  <span className="text-[11px] font-bold text-slate-700 truncate mt-1">
-                    Mumbai Store
-                  </span>
-                </div>
+                      key={st.code}
+                      className="flex-1 flex flex-col items-center gap-1.5 h-full justify-end group cursor-pointer"
+                    >
+                      <div className="w-full flex items-end justify-center gap-1.5 h-full">
+                        <div
+                          className="w-4 bg-[#0084FF] rounded-t-md group-hover:brightness-110 transition-all"
+                          style={{ height: `${st.inStockHeightPct}%` }}
+                          title={`In Stock: ${st.inStock.toLocaleString()}`}
+                        />
+                        <div
+                          className="w-4 bg-[#F59E0B] rounded-t-md group-hover:brightness-110 transition-all"
+                          style={{ height: `${st.lowStockHeightPct}%` }}
+                          title={`Low Stock: ${st.lowStock.toLocaleString()}`}
+                        />
+                        <div
+                          className="w-4 bg-[#EF4444] rounded-t-md group-hover:brightness-110 transition-all"
+                          style={{ height: `${st.outOfStockHeightPct}%` }}
+                          title={`Out of Stock: ${st.outOfStock.toLocaleString()}`}
+                        />
+                      </div>
+                      <span className="text-[11px] font-bold text-slate-700 truncate mt-1">
+                        {st.name}
+                      </span>
+                    </div>
+                  ))}
               </div>
             </div>
           </div>
 
           <div className="mt-4 pt-3 flex items-center justify-between text-xs text-slate-500">
             <span className="font-medium">
-              💡 Ranchi Hub holds the highest active stock capacity (15,200 units)
+              💡 {dashboardData.highestCapacityStore?.name || "Ranchi Hub"} holds the highest active stock capacity ({(dashboardData.highestCapacityStore?.units || 15200).toLocaleString()} units)
             </span>
-            <span className="font-bold text-[#0084FF]">Overall 91.8% In-Stock</span>
+            <span className="font-bold text-[#0084FF]">
+              Overall {dashboardData.overallInStockRate ?? 91.8}% In-Stock
+            </span>
           </div>
         </div>
 
@@ -585,61 +602,32 @@ export default function AdminDashboardPage() {
               <h3 className="text-base font-bold text-slate-900 tracking-tight">
                 Value by Location
               </h3>
-              <span className="text-[11px] font-bold text-slate-400">Total ₹ 48.72L</span>
+              <span className="text-[11px] font-bold text-slate-400">
+                Total {dashboardData.valueByLocation?.formattedTotal || "₹ 48.72L"}
+              </span>
             </div>
 
             <div className="flex flex-col sm:flex-row items-center justify-center py-5 gap-6">
               {/* Donut Chart SVG Graphic */}
               <div className="relative w-36 h-36 flex items-center justify-center shrink-0">
                 <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
-                  {/* Ranchi Hub 46% */}
-                  <circle
-                    cx="50"
-                    cy="50"
-                    r="38"
-                    fill="transparent"
-                    stroke="#0084FF"
-                    strokeWidth="18"
-                    strokeDasharray="109.8 238.7"
-                    strokeDashoffset="0"
-                  />
-                  {/* Patna Store 22% */}
-                  <circle
-                    cx="50"
-                    cy="50"
-                    r="38"
-                    fill="transparent"
-                    stroke="#10B981"
-                    strokeWidth="18"
-                    strokeDasharray="52.5 238.7"
-                    strokeDashoffset="-109.8"
-                  />
-                  {/* Delhi Store 18% */}
-                  <circle
-                    cx="50"
-                    cy="50"
-                    r="38"
-                    fill="transparent"
-                    stroke="#8B5CF6"
-                    strokeWidth="18"
-                    strokeDasharray="43 238.7"
-                    strokeDashoffset="-162.3"
-                  />
-                  {/* Mumbai Store 14% */}
-                  <circle
-                    cx="50"
-                    cy="50"
-                    r="38"
-                    fill="transparent"
-                    stroke="#F59E0B"
-                    strokeWidth="18"
-                    strokeDasharray="33.4 238.7"
-                    strokeDashoffset="-205.3"
-                  />
+                  {(dashboardData.valueByLocation?.locations || []).map((loc) => (
+                    <circle
+                      key={loc.name}
+                      cx="50"
+                      cy="50"
+                      r="38"
+                      fill="transparent"
+                      stroke={loc.color}
+                      strokeWidth="18"
+                      strokeDasharray={loc.dashArray}
+                      strokeDashoffset={loc.dashOffset}
+                    />
+                  ))}
                 </svg>
                 <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
                   <span className="text-sm font-black text-slate-900 tracking-tight">
-                    ₹ 48.72L
+                    {dashboardData.valueByLocation?.formattedTotal || "₹ 0"}
                   </span>
                   <span className="text-[10px] text-slate-400 font-medium">
                     Total Value
@@ -649,33 +637,26 @@ export default function AdminDashboardPage() {
 
               {/* Legend with percentages */}
               <div className="space-y-2.5 text-xs flex-1 w-full">
-                <div className="flex items-center justify-between gap-3">
-                  <span className="flex items-center gap-2 text-slate-700 font-bold text-xs">
-                    <span className="w-2.5 h-2.5 rounded-full bg-[#0084FF]" /> Ranchi Hub
-                  </span>
-                  <span className="font-black text-slate-900 text-xs">46% <span className="text-[10px] text-slate-400 font-normal font-mono">(₹22.4L)</span></span>
-                </div>
-
-                <div className="flex items-center justify-between gap-3">
-                  <span className="flex items-center gap-2 text-slate-700 font-bold text-xs">
-                    <span className="w-2.5 h-2.5 rounded-full bg-[#10B981]" /> Patna Store
-                  </span>
-                  <span className="font-black text-slate-900 text-xs">22% <span className="text-[10px] text-slate-400 font-normal font-mono">(₹10.7L)</span></span>
-                </div>
-
-                <div className="flex items-center justify-between gap-3">
-                  <span className="flex items-center gap-2 text-slate-700 font-bold text-xs">
-                    <span className="w-2.5 h-2.5 rounded-full bg-[#8B5CF6]" /> Delhi Store
-                  </span>
-                  <span className="font-black text-slate-900 text-xs">18% <span className="text-[10px] text-slate-400 font-normal font-mono">(₹8.7L)</span></span>
-                </div>
-
-                <div className="flex items-center justify-between gap-3">
-                  <span className="flex items-center gap-2 text-slate-700 font-bold text-xs">
-                    <span className="w-2.5 h-2.5 rounded-full bg-[#F59E0B]" /> Mumbai Store
-                  </span>
-                  <span className="font-black text-slate-900 text-xs">14% <span className="text-[10px] text-slate-400 font-normal font-mono">(₹6.8L)</span></span>
-                </div>
+                {(dashboardData.valueByLocation?.locations || []).map((loc) => (
+                  <div
+                    key={loc.name}
+                    className="flex items-center justify-between gap-3"
+                  >
+                    <span className="flex items-center gap-2 text-slate-700 font-bold text-xs">
+                      <span
+                        className="w-2.5 h-2.5 rounded-full"
+                        style={{ backgroundColor: loc.color }}
+                      />
+                      {loc.name}
+                    </span>
+                    <span className="font-black text-slate-900 text-xs">
+                      {loc.percentage}%{" "}
+                      <span className="text-[10px] text-slate-400 font-normal font-mono">
+                        ({loc.formattedValue})
+                      </span>
+                    </span>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
@@ -697,65 +678,42 @@ export default function AdminDashboardPage() {
             </div>
 
             <div className="space-y-2.5 pt-3">
-              {[
-                {
-                  route: "Ranchi Hub → Patna Store",
-                  code: "INV-TRF-2025-001",
-                  status: "Completed",
-                  color: "emerald",
-                  time: "2m ago",
-                },
-                {
-                  route: "Delhi Store → Mumbai Store",
-                  code: "INV-TRF-2025-002",
-                  status: "In Transit",
-                  color: "blue",
-                  time: "45m ago",
-                },
-                {
-                  route: "Patna Store → Delhi Store",
-                  code: "INV-TRF-2025-003",
-                  status: "Completed",
-                  color: "emerald",
-                  time: "2h ago",
-                },
-                {
-                  route: "Mumbai Store → Ranchi Hub",
-                  code: "INV-TRF-2025-004",
-                  status: "Pending",
-                  color: "amber",
-                  time: "5h ago",
-                },
-              ].map((t) => (
-                <div
-                  key={t.code}
-                  className="flex items-center justify-between p-3 rounded-2xl bg-[#F8FAFD] border border-slate-100 text-xs hover:border-slate-200 transition-colors"
-                >
-                  <div className="min-w-0 pr-2">
-                    <div className="font-bold text-slate-900 text-xs truncate">
-                      {t.route}
+              {(dashboardData.recentTransfers && dashboardData.recentTransfers.length > 0) ? (
+                dashboardData.recentTransfers.map((t) => (
+                  <div
+                    key={t.code}
+                    className="flex items-center justify-between p-3 rounded-2xl bg-[#F8FAFD] border border-slate-100 text-xs hover:border-slate-200 transition-colors"
+                  >
+                    <div className="min-w-0 pr-2">
+                      <div className="font-bold text-slate-900 text-xs truncate">
+                        {t.route}
+                      </div>
+                      <div className="text-[10px] text-slate-400 font-mono">
+                        {t.code}
+                      </div>
                     </div>
-                    <div className="text-[10px] text-slate-400 font-mono">
-                      {t.code}
-                    </div>
-                  </div>
 
-                  <div className="text-right shrink-0">
-                    <span
-                      className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
-                        t.color === "emerald"
-                          ? "bg-[#EAFBF3] text-[#059669] border border-[#A7F3D0]/70"
-                          : t.color === "blue"
-                            ? "bg-[#EBF5FF] text-[#0084FF] border border-[#BFDBFE]/70"
-                            : "bg-[#FEF6E9] text-[#D97706] border border-[#FDE68A]/70"
-                      }`}
-                    >
-                      {t.status}
-                    </span>
-                    <div className="text-[10px] text-slate-400 mt-0.5">{t.time}</div>
+                    <div className="text-right shrink-0">
+                      <span
+                        className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
+                          t.color === "emerald"
+                            ? "bg-[#EAFBF3] text-[#059669] border border-[#A7F3D0]/70"
+                            : t.color === "blue"
+                              ? "bg-[#EBF5FF] text-[#0084FF] border border-[#BFDBFE]/70"
+                              : "bg-[#FEF6E9] text-[#D97706] border border-[#FDE68A]/70"
+                        }`}
+                      >
+                        {t.status}
+                      </span>
+                      <div className="text-[10px] text-slate-400 mt-0.5">{t.time}</div>
+                    </div>
                   </div>
+                ))
+              ) : (
+                <div className="py-6 text-center text-xs text-slate-400">
+                  No active store transfers
                 </div>
-              ))}
+              )}
             </div>
           </div>
         </div>
@@ -776,39 +734,28 @@ export default function AdminDashboardPage() {
             </div>
 
             <div className="space-y-3 pt-3">
-              {[
-                {
-                  name: "Arduino Uno R3",
-                  loc: "Ranchi Hub",
-                  units: "5 Units",
-                },
-                {
-                  name: "ESP32 Dev Module",
-                  loc: "Patna Store",
-                  units: "4 Units",
-                },
-                { name: "18650 Battery", loc: "Delhi Store", units: "3 Units" },
-                {
-                  name: "Jumper Wires Pack",
-                  loc: "Mumbai Store",
-                  units: "6 Units",
-                },
-              ].map((item) => (
-                <div
-                  key={item.name}
-                  className="flex items-center justify-between gap-2"
-                >
-                  <div className="min-w-0 pr-1">
-                    <div className="font-bold text-slate-800 text-xs truncate">
-                      {item.name}
+              {(dashboardData.lowStockAlerts && dashboardData.lowStockAlerts.length > 0) ? (
+                dashboardData.lowStockAlerts.map((item) => (
+                  <div
+                    key={item.name}
+                    className="flex items-center justify-between gap-2"
+                  >
+                    <div className="min-w-0 pr-1">
+                      <div className="font-bold text-slate-800 text-xs truncate">
+                        {item.name}
+                      </div>
+                      <div className="text-[10px] text-slate-400">{item.loc}</div>
                     </div>
-                    <div className="text-[10px] text-slate-400">{item.loc}</div>
+                    <span className="bg-[#FEE2E2]/60 text-[#EF4444] border border-[#FECACA]/80 px-2.5 py-0.5 rounded-full text-[10px] font-bold shrink-0">
+                      {item.units}
+                    </span>
                   </div>
-                  <span className="bg-[#FEE2E2]/60 text-[#EF4444] border border-[#FECACA]/80 px-2.5 py-0.5 rounded-full text-[10px] font-bold shrink-0">
-                    {item.units}
-                  </span>
+                ))
+              ) : (
+                <div className="py-6 text-center text-xs text-slate-400">
+                  All inventory healthy
                 </div>
-              ))}
+              )}
             </div>
           </div>
         </div>
@@ -843,43 +790,7 @@ export default function AdminDashboardPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 text-slate-700">
-                {[
-                  {
-                    rank: "01",
-                    name: "Arduino UNO R3 Board",
-                    sku: "PRG-ARD-001",
-                    sold: "1,254 Units",
-                    revenue: "₹ 12,54,000",
-                  },
-                  {
-                    rank: "02",
-                    name: "ESP32 Dev Module",
-                    sku: "PRG-ESP-002",
-                    sold: "987 Units",
-                    revenue: "₹ 9,87,000",
-                  },
-                  {
-                    rank: "03",
-                    name: "Lithium Battery 18650",
-                    sku: "PRG-BAT-003",
-                    sold: "865 Units",
-                    revenue: "₹ 4,32,500",
-                  },
-                  {
-                    rank: "04",
-                    name: "Jumper Wires Pack (40pcs)",
-                    sku: "PRG-JPR-004",
-                    sold: "742 Units",
-                    revenue: "₹ 2,22,600",
-                  },
-                  {
-                    rank: "05",
-                    name: "5V Relay Module",
-                    sku: "PRG-REL-005",
-                    sold: "612 Units",
-                    revenue: "₹ 1,83,600",
-                  },
-                ].map((p) => (
+                {(dashboardData.topSellingProducts || []).map((p) => (
                   <tr key={p.sku} className="hover:bg-[#F8FAFD] transition-colors">
                     <td className="py-3 pr-2">
                       <div className="flex items-center gap-2.5">
@@ -937,28 +848,7 @@ export default function AdminDashboardPage() {
             </div>
 
             <div className="space-y-3.5 pt-3 text-[11px]">
-              {[
-                {
-                  action: "Stock transfer from Ranchi to Patna",
-                  time: "2 mins ago",
-                  dot: "bg-[#0084FF]",
-                },
-                {
-                  action: "Stock adjusted for Arduino Uno R3",
-                  time: "15 mins ago",
-                  dot: "bg-[#10B981]",
-                },
-                {
-                  action: "New purchase order created",
-                  time: "1 hour ago",
-                  dot: "bg-[#F59E0B]",
-                },
-                {
-                  action: "Stock audit completed – Delhi Store",
-                  time: "2 hours ago",
-                  dot: "bg-[#00C2E0]",
-                },
-              ].map((act, i) => (
+              {(dashboardData.recentActivity || []).map((act, i) => (
                 <div key={i} className="flex items-start gap-3">
                   <span
                     className={`w-2.5 h-2.5 rounded-full ${act.dot} mt-1 shrink-0 ring-4 ring-slate-50`}

@@ -20,6 +20,7 @@ import {
   Sparkles,
   ChevronLeft,
   ChevronRight,
+  X,
 } from "lucide-react";
 
 interface AdditionalSectionsProps {
@@ -73,58 +74,266 @@ export const IndustriesSection: React.FC = () => {
 };
 
 export const LearningHubSection: React.FC = () => {
+  const [activeFilter, setActiveFilter] = useState<
+    "all" | "internship" | "workshops" | "certifications"
+  >("all");
+  const [selectedProgram, setSelectedProgram] = useState<any | null>(null);
+  const [isApplying, setIsApplying] = useState(false);
+  const [appliedSuccess, setAppliedSuccess] = useState(false);
+  const [applicantName, setApplicantName] = useState("");
+  const [applicantPhone, setApplicantPhone] = useState("");
+  const [applicantCollege, setApplicantCollege] = useState("");
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const tab = params.get("tab");
+      if (tab === "internship") setActiveFilter("internship");
+      else if (tab === "workshops" || tab === "workshop") setActiveFilter("workshops");
+      else if (tab === "certifications" || tab === "certification") setActiveFilter("certifications");
+    }
+  }, []);
+
+  const filteredItems = LEARNING_HUB.filter((item) => {
+    if (activeFilter === "all") return true;
+    if (activeFilter === "internship") return item.category === "Internships";
+    if (activeFilter === "workshops") return item.category === "Workshops";
+    if (activeFilter === "certifications") return item.category === "Certifications";
+    return true;
+  });
+
+  const handleApplySubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsApplying(true);
+    setTimeout(() => {
+      setIsApplying(false);
+      setAppliedSuccess(true);
+      setTimeout(() => {
+        setAppliedSuccess(false);
+        setSelectedProgram(null);
+        setApplicantName("");
+        setApplicantPhone("");
+        setApplicantCollege("");
+      }, 2000);
+    }, 600);
+  };
+
   return (
     <section id="learning-hub" className="py-8 bg-white">
       <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12">
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
+        {/* Header & Category Filters */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-6 border-b border-slate-100 pb-6">
           <div>
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 border border-blue-200/80 text-[#2563EB] text-xs font-bold mb-3 uppercase tracking-wider">
+              <GraduationCap className="w-3.5 h-3.5" />
+              <span>Prayog Academy &amp; Labs</span>
+            </div>
             <h2 className="text-3xl sm:text-4xl font-extrabold text-[#0A1128] tracking-tight">
-              Learn. Build. Experiment.
+              Learning Hub
             </h2>
+            <p className="text-sm text-slate-500 mt-1 max-w-xl">
+              Industry-grade robotics internships, live hands-on engineering workshops, and recognized STEM skill certifications.
+            </p>
           </div>
-          <LinkButton href="#community" label="Explore All Tutorials" />
+
+          {/* Filter Pills */}
+          <div className="flex flex-wrap items-center gap-2">
+            {[
+              { id: "all", label: "All Programs" },
+              { id: "internship", label: "Internship Program" },
+              { id: "workshops", label: "Workshops" },
+              { id: "certifications", label: "Certifications" },
+            ].map((tab) => {
+              const active = activeFilter === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveFilter(tab.id as any)}
+                  className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                    active
+                      ? "bg-[#2563EB] text-white shadow-md shadow-blue-500/20 scale-[1.02]"
+                      : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              );
+            })}
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-          {LEARNING_HUB.map((item) => (
-            <div
-              key={item.id}
-              className="bg-white rounded-3xl overflow-hidden border border-slate-100 shadow-card-premium hover:shadow-card-hover transition-all duration-300 flex flex-col justify-between group"
-            >
-              <div className="relative h-44 w-full bg-slate-100 overflow-hidden">
-                <Image
-                  src={item.image}
-                  alt={item.title}
-                  fill
-                  className="object-cover group-hover:scale-105 transition-transform duration-500"
-                />
-                <span className="absolute top-3 left-3 bg-[#0A1128] text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider">
-                  {item.category}
-                </span>
-              </div>
-              <div className="p-5 flex-1 flex flex-col justify-between">
-                <div>
-                  <div className="flex items-center gap-3 text-[11px] font-semibold text-[#1E56A0] mb-2">
-                    <span>{item.level}</span>
-                    <span>•</span>
-                    <span>{item.duration}</span>
+        {/* Cards Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+          {filteredItems.map((item) => {
+            const isInternship = item.category === "Internships";
+            const isWorkshop = item.category === "Workshops";
+            const isCertification = item.category === "Certifications";
+
+            return (
+              <div
+                key={item.id}
+                className="bg-white rounded-3xl overflow-hidden border border-slate-200/90 shadow-sm hover:shadow-xl hover:border-blue-200 transition-all duration-300 flex flex-col justify-between group"
+              >
+                <div className="relative h-48 w-full bg-slate-100 overflow-hidden">
+                  <Image
+                    src={item.image}
+                    alt={item.title}
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-transparent to-transparent" />
+                  
+                  <span
+                    className={`absolute top-3 left-3 text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider shadow-sm ${
+                      isInternship
+                        ? "bg-amber-500 text-white"
+                        : isWorkshop
+                        ? "bg-blue-600 text-white"
+                        : isCertification
+                        ? "bg-emerald-600 text-white"
+                        : "bg-slate-900 text-white"
+                    }`}
+                  >
+                    {item.category === "Internships"
+                      ? "Internship"
+                      : item.category}
+                  </span>
+
+                  <span className="absolute bottom-3 right-3 bg-white/90 backdrop-blur-md text-slate-800 text-[11px] font-bold px-2 py-0.5 rounded-lg shadow-sm">
+                    {item.duration}
+                  </span>
+                </div>
+
+                <div className="p-5 flex-1 flex flex-col justify-between">
+                  <div>
+                    <div className="flex items-center gap-2 text-[11px] font-bold text-[#1E56A0] mb-2">
+                      <span className="px-2 py-0.5 rounded bg-blue-50 border border-blue-100">
+                        {item.level}
+                      </span>
+                    </div>
+                    <h3 className="text-sm font-extrabold text-[#0A1128] group-hover:text-[#2563EB] transition-colors line-clamp-2 mb-2 leading-snug">
+                      {item.title}
+                    </h3>
+                    <p className="text-xs text-slate-500 line-clamp-3 mb-4 leading-relaxed">
+                      {item.description}
+                    </p>
                   </div>
-                  <h3 className="text-sm font-bold text-[#0A1128] group-hover:text-[#1E56A0] transition-colors line-clamp-2 mb-2 leading-snug">
-                    {item.title}
-                  </h3>
-                  <p className="text-xs text-slate-500 line-clamp-2 mb-4">
-                    {item.description}
-                  </p>
-                </div>
-                <div className="flex items-center text-xs font-bold text-[#1E56A0] group-hover:underline">
-                  <span>Read Article</span>
-                  <ArrowRight className="w-3.5 h-3.5 ml-1" />
+
+                  <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
+                    <button
+                      onClick={() => setSelectedProgram(item)}
+                      className="w-full py-2.5 px-3 rounded-xl bg-slate-900 hover:bg-[#2563EB] text-white text-xs font-bold transition-colors flex items-center justify-center gap-1.5 cursor-pointer shadow-sm group-hover:bg-[#2563EB]"
+                    >
+                      <span>
+                        {isInternship
+                          ? "Apply for Internship"
+                          : isWorkshop
+                          ? "Register for Workshop"
+                          : isCertification
+                          ? "Enroll in Certification"
+                          : "Explore Program"}
+                      </span>
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
+
+      {/* Program Application Modal */}
+      {selectedProgram && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 relative">
+            <button
+              onClick={() => setSelectedProgram(null)}
+              className="absolute top-4 right-4 p-2 rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-700 transition-colors"
+            >
+              <X className="w-4 h-4" />
+            </button>
+
+            {appliedSuccess ? (
+              <div className="text-center py-8">
+                <div className="w-14 h-14 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <CheckCircle2 className="w-8 h-8" />
+                </div>
+                <h3 className="text-xl font-bold text-slate-900 mb-1">
+                  Application Received!
+                </h3>
+                <p className="text-xs text-slate-500 max-w-xs mx-auto">
+                  Our Prayog India Academic team will contact you within 24 hours with schedule and syllabus details.
+                </p>
+              </div>
+            ) : (
+              <div>
+                <div className="inline-block px-2.5 py-1 rounded-md bg-blue-50 text-[#2563EB] text-[10px] font-black uppercase tracking-wider mb-2">
+                  {selectedProgram.category}
+                </div>
+                <h3 className="text-lg font-extrabold text-slate-900 mb-1 leading-snug">
+                  {selectedProgram.title}
+                </h3>
+                <p className="text-xs text-slate-500 mb-5">
+                  Duration: {selectedProgram.duration} • Level: {selectedProgram.level}
+                </p>
+
+                <form onSubmit={handleApplySubmit} className="space-y-3.5">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">
+                      Full Name *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={applicantName}
+                      onChange={(e) => setApplicantName(e.target.value)}
+                      placeholder="e.g. Om Kumar"
+                      className="w-full text-xs px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#2563EB]"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">
+                      WhatsApp / Mobile Number *
+                    </label>
+                    <input
+                      type="tel"
+                      required
+                      value={applicantPhone}
+                      onChange={(e) => setApplicantPhone(e.target.value)}
+                      placeholder="+91 98765 43210"
+                      className="w-full text-xs px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#2563EB]"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">
+                      College / Institution / Organization *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={applicantCollege}
+                      onChange={(e) => setApplicantCollege(e.target.value)}
+                      placeholder="e.g. BIT Mesra / Engineering Student"
+                      className="w-full text-xs px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#2563EB]"
+                    />
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={isApplying}
+                    className="w-full mt-2 py-3 bg-[#2563EB] hover:bg-blue-700 text-white rounded-xl text-xs font-extrabold transition-all shadow-md shadow-blue-500/25 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
+                  >
+                    {isApplying ? "Submitting..." : "Submit Application / Enquiry →"}
+                  </button>
+                </form>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </section>
   );
 };
@@ -442,53 +651,100 @@ export const TestimonialsSection: React.FC = () => {
   const sliderRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
-  const [canScrollLeft, setCanScrollLeft] = useState(false);
-  const [canScrollRight, setCanScrollRight] = useState(true);
+  const isWrapping = useRef(false);
+  const isDragging = useRef(false);
+  const startX = useRef(0);
+  const scrollStart = useRef(0);
 
-  const updateScrollState = () => {
+  // Triple clone for continuous circular linked list motion
+  const CIRCULAR_REVIEWS = [
+    ...VERIFIED_REVIEWS.map((r, i) => ({ ...r, _cloneKey: `prev-${r.id}-${i}` })),
+    ...VERIFIED_REVIEWS.map((r, i) => ({ ...r, _cloneKey: `curr-${r.id}-${i}` })),
+    ...VERIFIED_REVIEWS.map((r, i) => ({ ...r, _cloneKey: `next-${r.id}-${i}` })),
+  ];
+
+  // Initialize scroll position in the center set on mount
+  useEffect(() => {
     if (!sliderRef.current) return;
-    const { scrollLeft, scrollWidth, clientWidth } = sliderRef.current;
-    const card = sliderRef.current.firstElementChild as HTMLElement;
-    const cardWidth = card ? card.offsetWidth + 20 : 360;
-    const newIdx = Math.round(scrollLeft / cardWidth);
-    setActiveIndex(Math.min(Math.max(0, newIdx), VERIFIED_REVIEWS.length - 1));
-    setCanScrollLeft(scrollLeft > 15);
-    setCanScrollRight(scrollLeft + clientWidth < scrollWidth - 15);
+    const container = sliderRef.current;
+    const card = container.firstElementChild as HTMLElement;
+    const cardWidth = card ? card.offsetWidth + 20 : 370;
+    const singleSetWidth = VERIFIED_REVIEWS.length * cardWidth;
+
+    container.style.scrollBehavior = "auto";
+    container.scrollLeft = singleSetWidth;
+    requestAnimationFrame(() => {
+      if (sliderRef.current) {
+        sliderRef.current.style.scrollBehavior = "smooth";
+      }
+    });
+  }, []);
+
+  const handleScroll = () => {
+    if (!sliderRef.current || isWrapping.current) return;
+    const container = sliderRef.current;
+    const card = container.firstElementChild as HTMLElement;
+    if (!card) return;
+    const cardWidth = card.offsetWidth + 20;
+    const singleSetWidth = VERIFIED_REVIEWS.length * cardWidth;
+    const currentScroll = container.scrollLeft;
+
+    const rawIdx = Math.round(currentScroll / cardWidth);
+    const active =
+      ((rawIdx % VERIFIED_REVIEWS.length) + VERIFIED_REVIEWS.length) %
+      VERIFIED_REVIEWS.length;
+    setActiveIndex(active);
+
+    // Continuous circular linked list wrapping
+    if (currentScroll >= singleSetWidth * 2) {
+      isWrapping.current = true;
+      container.style.scrollBehavior = "auto";
+      container.scrollLeft = currentScroll - singleSetWidth;
+      requestAnimationFrame(() => {
+        container.style.scrollBehavior = "smooth";
+        isWrapping.current = false;
+      });
+    } else if (currentScroll <= singleSetWidth * 0.2) {
+      isWrapping.current = true;
+      container.style.scrollBehavior = "auto";
+      container.scrollLeft = currentScroll + singleSetWidth;
+      requestAnimationFrame(() => {
+        container.style.scrollBehavior = "smooth";
+        isWrapping.current = false;
+      });
+    }
   };
 
   const scrollNext = () => {
     if (!sliderRef.current) return;
     const container = sliderRef.current;
     const card = container.firstElementChild as HTMLElement;
-    const scrollAmount = card ? card.offsetWidth + 20 : 360;
-    if (container.scrollLeft + container.clientWidth >= container.scrollWidth - 25) {
-      container.scrollTo({ left: 0, behavior: "smooth" });
-    } else {
-      container.scrollBy({ left: scrollAmount, behavior: "smooth" });
-    }
+    const cardWidth = card ? card.offsetWidth + 20 : 370;
+    container.scrollBy({ left: cardWidth, behavior: "smooth" });
   };
 
   const scrollPrev = () => {
     if (!sliderRef.current) return;
     const container = sliderRef.current;
     const card = container.firstElementChild as HTMLElement;
-    const scrollAmount = card ? card.offsetWidth + 20 : 360;
-    if (container.scrollLeft <= 25) {
-      container.scrollTo({ left: container.scrollWidth, behavior: "smooth" });
-    } else {
-      container.scrollBy({ left: -scrollAmount, behavior: "smooth" });
-    }
+    const cardWidth = card ? card.offsetWidth + 20 : 370;
+    container.scrollBy({ left: -cardWidth, behavior: "smooth" });
   };
 
   const scrollToSlide = (index: number) => {
     if (!sliderRef.current) return;
     const container = sliderRef.current;
     const card = container.firstElementChild as HTMLElement;
-    const scrollAmount = card ? card.offsetWidth + 20 : 360;
-    container.scrollTo({ left: index * scrollAmount, behavior: "smooth" });
+    const cardWidth = card ? card.offsetWidth + 20 : 370;
+    const singleSetWidth = VERIFIED_REVIEWS.length * cardWidth;
+
+    const currentScroll = container.scrollLeft;
+    const currentSetIndex = Math.round(currentScroll / singleSetWidth);
+    const target = currentSetIndex * singleSetWidth + index * cardWidth;
+    container.scrollTo({ left: target, behavior: "smooth" });
   };
 
-  // Smooth user-friendly autoplay (advances every 4.5s, pauses on hover/interaction)
+  // Autoplay continuously cycles through the circular list
   useEffect(() => {
     if (isPaused) return;
     const interval = setInterval(() => {
@@ -496,6 +752,28 @@ export const TestimonialsSection: React.FC = () => {
     }, 4500);
     return () => clearInterval(interval);
   }, [isPaused]);
+
+  // Mouse Drag handlers for desktop swipe feel
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (!sliderRef.current) return;
+    isDragging.current = true;
+    startX.current = e.pageX - sliderRef.current.offsetLeft;
+    scrollStart.current = sliderRef.current.scrollLeft;
+    setIsPaused(true);
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging.current || !sliderRef.current) return;
+    e.preventDefault();
+    const x = e.pageX - sliderRef.current.offsetLeft;
+    const walk = (x - startX.current) * 1.5;
+    sliderRef.current.scrollLeft = scrollStart.current - walk;
+  };
+
+  const handleMouseUpOrLeave = () => {
+    isDragging.current = false;
+    setIsPaused(false);
+  };
 
   return (
     <section className="py-10 sm:py-16 bg-gradient-to-b from-white via-slate-50/50 to-white border-t border-slate-200/80 overflow-hidden">
@@ -516,14 +794,14 @@ export const TestimonialsSection: React.FC = () => {
             <button
               onClick={scrollPrev}
               aria-label="Previous review"
-              className="w-10 h-10 rounded-full border border-slate-200/90 bg-white hover:bg-slate-50 active:scale-95 text-slate-700 hover:text-[#2563EB] flex items-center justify-center shadow-xs transition-all duration-200 cursor-pointer disabled:opacity-40"
+              className="w-10 h-10 rounded-full border border-slate-200/90 bg-white hover:bg-slate-50 active:scale-95 text-slate-700 hover:text-[#2563EB] flex items-center justify-center shadow-xs transition-all duration-200 cursor-pointer"
             >
               <ChevronLeft className="w-5 h-5" />
             </button>
             <button
               onClick={scrollNext}
               aria-label="Next review"
-              className="w-10 h-10 rounded-full border border-slate-200/90 bg-white hover:bg-slate-50 active:scale-95 text-slate-700 hover:text-[#2563EB] flex items-center justify-center shadow-xs transition-all duration-200 cursor-pointer disabled:opacity-40"
+              className="w-10 h-10 rounded-full border border-slate-200/90 bg-white hover:bg-slate-50 active:scale-95 text-slate-700 hover:text-[#2563EB] flex items-center justify-center shadow-xs transition-all duration-200 cursor-pointer"
             >
               <ChevronRight className="w-5 h-5" />
             </button>
@@ -534,18 +812,21 @@ export const TestimonialsSection: React.FC = () => {
         <div
           className="relative"
           onMouseEnter={() => setIsPaused(true)}
-          onMouseLeave={() => setIsPaused(false)}
+          onMouseLeave={handleMouseUpOrLeave}
           onTouchStart={() => setIsPaused(true)}
           onTouchEnd={() => setIsPaused(false)}
         >
           <div
             ref={sliderRef}
-            onScroll={updateScrollState}
-            className="flex gap-4 sm:gap-5 overflow-x-auto snap-x snap-mandatory scroll-smooth no-scrollbar py-2 px-1"
+            onScroll={handleScroll}
+            onMouseDown={handleMouseDown}
+            onMouseMove={handleMouseMove}
+            onMouseUp={handleMouseUpOrLeave}
+            className="flex gap-4 sm:gap-5 overflow-x-auto snap-x snap-mandatory scroll-smooth no-scrollbar py-2 px-1 cursor-grab active:cursor-grabbing select-none"
           >
-            {VERIFIED_REVIEWS.map((t, idx) => (
+            {CIRCULAR_REVIEWS.map((t) => (
               <div
-                key={t.id}
+                key={t._cloneKey}
                 className="w-[85vw] sm:w-[350px] lg:w-[390px] shrink-0 snap-start bg-white p-5 sm:p-6 rounded-2xl sm:rounded-3xl border border-slate-200/90 shadow-xs hover:shadow-xl hover:border-[#2563EB]/40 transition-all duration-300 flex flex-col justify-between space-y-4 group select-none cursor-pointer"
               >
                 <div className="space-y-3">

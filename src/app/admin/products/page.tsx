@@ -35,8 +35,19 @@ import {
   Check,
   CheckCircle,
   TrendingUp,
+  TrendingDown,
   BarChart2,
   Zap,
+  Download,
+  MoreVertical,
+  Box,
+  IndianRupee,
+  Users,
+  ShoppingCart,
+  LayoutGrid,
+  List,
+  FileSpreadsheet,
+  UploadCloud,
 } from "lucide-react";
 import { PRODUCTS } from "@/data/mockData";
 import { ShippingTagType } from "@/data/productShippingConfig";
@@ -44,6 +55,7 @@ import {
   CATEGORIES_HIERARCHY,
   flattenCategories,
 } from "@/data/categoriesHierarchy";
+import { CATEGORIES_DATA } from "@/data/categories";
 import { compressImageOnClient } from "@/lib/clientImageCompressor";
 
 interface UploadedMediaItem {
@@ -106,6 +118,462 @@ export default function AdminProductsPage() {
     "general" | "media" | "specs" | "shipping" | "seo"
   >("general");
 
+  // Selection & UI Filters (Image 1 Specs)
+  const [selectedProductIds, setSelectedProductIds] = useState<string[]>([]);
+  const [statusFilter, setStatusFilter] = useState<"All" | "Active" | "Drafts" | "Archived">("All");
+  const [viewMode, setViewMode] = useState<"list" | "grid">("list");
+
+  // Selection handlers
+  const toggleSelectProduct = (id: string) => {
+    setSelectedProductIds((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+    );
+  };
+
+  // Comprehensive CSV Export handler (Includes all Details, SEO attributes, and Image URLs)
+  const handleExportProducts = () => {
+    const headers = [
+      "ID",
+      "Slug",
+      "Name",
+      "SKU",
+      "Brand",
+      "Category",
+      "Subcategory",
+      "Price (INR)",
+      "MRP (INR)",
+      "Stock",
+      "Status",
+      "GST Percent",
+      "Description",
+      // Media / Images
+      "Primary Image URL",
+      "All Image URLs",
+      "Video URL",
+      // SEO Information
+      "Meta Title",
+      "Meta Description",
+      "SEO Slug",
+      "Meta Keywords",
+      "Canonical URL",
+      "OG Image URL",
+      "Robots Indexing",
+      "Schema Structured Type",
+      // Specifications & Shipping
+      "Key Features",
+      "Applications",
+      "Whats Included",
+      "Technical Specs",
+      "Weight (grams)",
+      "Dimensions (cm)",
+      "Shipping Tag",
+    ];
+
+    const escapeCsv = (val: unknown): string => {
+      if (val === undefined || val === null) return '""';
+      const str = String(val).replace(/"/g, '""');
+      return `"${str}"`;
+    };
+
+    const rows = products.map((p) => {
+      // Primary & All Images
+      const imgList: string[] = [];
+      if (p.image) imgList.push(p.image);
+      if (Array.isArray(p.images)) {
+        p.images.forEach((img) => {
+          const url = typeof img === "string" ? img : img?.imageUrl;
+          if (url && !imgList.includes(url)) imgList.push(url);
+        });
+      }
+      const primaryImage = imgList[0] || p.image || "";
+      const allImages = imgList.join("; ");
+
+      // Category
+      const catName =
+        typeof p.category === "object"
+          ? p.category?.name
+          : p.category || p.categoryName || "";
+
+      // Status
+      const statusText =
+        p.stock === 0
+          ? "Out of Stock"
+          : p.inStock === false
+          ? "Inactive"
+          : !p.sku || p.name.toLowerCase().includes("draft")
+          ? "Draft"
+          : "Published";
+
+      // SEO Fields
+      const autoSlug = (p.slug || p.id || "")
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-");
+      const metaTitle =
+        p.metaTitle ||
+        `${p.name} - Buy Online at Best Price | ${p.brand || "Prayog India"}`;
+      const metaDescription =
+        p.metaDescription ||
+        `Buy genuine ${p.name} online in India from Prayog India. Best price, official warranty & express delivery.`;
+      const seoSlug = p.seoSlug || p.slug || autoSlug;
+      const metaKeywords = Array.isArray(p.metaKeywords)
+        ? p.metaKeywords.join(", ")
+        : "";
+      const canonicalUrl =
+        p.canonicalUrl || `https://www.prayogindia.com/products/${seoSlug}`;
+      const ogImage = p.ogImage || primaryImage;
+      const robotsIndexing =
+        p.indexFollow !== false ? "index, follow" : "noindex, nofollow";
+      const schemaType = p.structuredDataType || "Product";
+
+      // Specifications & Rich Details
+      const features = Array.isArray(p.features) ? p.features.join(" | ") : "";
+      const applications = Array.isArray(p.applications)
+        ? p.applications.join(" | ")
+        : "";
+      const whatsIncluded = Array.isArray(p.whatsIncluded)
+        ? p.whatsIncluded.join(" | ")
+        : "";
+      const specsString = p.specs
+        ? Object.entries(p.specs)
+            .map(([k, v]) => `${k}: ${v}`)
+            .join("; ")
+        : "";
+      const dimsString = p.dimensionsCm
+        ? `${p.dimensionsCm.length}x${p.dimensionsCm.width}x${p.dimensionsCm.height}`
+        : "";
+
+      return [
+        escapeCsv(p.id),
+        escapeCsv(p.slug || autoSlug),
+        escapeCsv(p.name),
+        escapeCsv(p.sku),
+        escapeCsv(p.brand || "Prayog India"),
+        escapeCsv(catName),
+        escapeCsv(p.subcategory || ""),
+        escapeCsv(p.price),
+        escapeCsv(p.mrp || p.price),
+        escapeCsv(p.stock ?? 25),
+        escapeCsv(statusText),
+        escapeCsv(p.gstPercent ?? 18),
+        escapeCsv(p.description || ""),
+        // Media
+        escapeCsv(primaryImage),
+        escapeCsv(allImages),
+        escapeCsv(p.videoUrl || ""),
+        // SEO
+        escapeCsv(metaTitle),
+        escapeCsv(metaDescription),
+        escapeCsv(seoSlug),
+        escapeCsv(metaKeywords),
+        escapeCsv(canonicalUrl),
+        escapeCsv(ogImage),
+        escapeCsv(robotsIndexing),
+        escapeCsv(schemaType),
+        // Specs & Shipping
+        escapeCsv(features),
+        escapeCsv(applications),
+        escapeCsv(whatsIncluded),
+        escapeCsv(specsString),
+        escapeCsv(p.weightGrams || ""),
+        escapeCsv(dimsString),
+        escapeCsv(p.shippingTag || "Standard"),
+      ].join(",");
+    });
+
+    // UTF-8 BOM prefix (\uFEFF) ensures Excel & Google Sheets open with full Unicode support
+    const csvContent =
+      "\uFEFF" + [headers.map(escapeCsv).join(","), ...rows].join("\n");
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute(
+      "download",
+      `prayog_products_catalog_${new Date().toISOString().slice(0, 10)}.csv`
+    );
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+  // CSV Bulk Import State
+  const [showImportModal, setShowImportModal] = useState(false);
+  const [importFile, setImportFile] = useState<File | null>(null);
+  const [importParsedRows, setImportParsedRows] = useState<Array<Record<string, string>>>([]);
+  const [importUpdateExisting, setImportUpdateExisting] = useState(true);
+  const [isImporting, setIsImporting] = useState(false);
+  const [importProgress, setImportProgress] = useState(0);
+  const [isDraggingCsv, setIsDraggingCsv] = useState(false);
+  const [importError, setImportError] = useState("");
+  const [importSummary, setImportSummary] = useState<{
+    created: number;
+    updated: number;
+    total: number;
+    errors: Array<{ row: number; name: string; error: string }>;
+  } | null>(null);
+  const csvFileInputRef = useRef<HTMLInputElement>(null);
+
+  // Quote-aware, multi-line, BOM-safe CSV Parser
+  const parseCsvText = (text: string): Array<Record<string, string>> => {
+    const cleanText = text.replace(/^\uFEFF/, "");
+    const rows: string[][] = [];
+    let currentRow: string[] = [];
+    let currentCell = "";
+    let insideQuotes = false;
+
+    for (let i = 0; i < cleanText.length; i++) {
+      const char = cleanText[i];
+      const nextChar = cleanText[i + 1];
+
+      if (char === '"') {
+        if (insideQuotes && nextChar === '"') {
+          currentCell += '"';
+          i++; // skip escaped quote
+        } else {
+          insideQuotes = !insideQuotes;
+        }
+      } else if (char === "," && !insideQuotes) {
+        currentRow.push(currentCell.trim());
+        currentCell = "";
+      } else if ((char === "\r" || char === "\n") && !insideQuotes) {
+        if (char === "\r" && nextChar === "\n") {
+          i++;
+        }
+        currentRow.push(currentCell.trim());
+        if (currentRow.some((cell) => cell.length > 0)) {
+          rows.push(currentRow);
+        }
+        currentRow = [];
+        currentCell = "";
+      } else {
+        currentCell += char;
+      }
+    }
+    if (currentCell.length > 0 || currentRow.length > 0) {
+      currentRow.push(currentCell.trim());
+      if (currentRow.some((cell) => cell.length > 0)) {
+        rows.push(currentRow);
+      }
+    }
+
+    if (rows.length < 2) return [];
+
+    const headers = rows[0].map((h) => h.trim());
+    const dataObjects: Array<Record<string, string>> = [];
+
+    for (let r = 1; r < rows.length; r++) {
+      const row = rows[r];
+      if (row.length === 0 || row.every((c) => !c)) continue;
+
+      const obj: Record<string, string> = {};
+      headers.forEach((header, colIdx) => {
+        if (header) {
+          obj[header] = row[colIdx] ?? "";
+        }
+      });
+      dataObjects.push(obj);
+    }
+
+    return dataObjects;
+  };
+
+  const handleCsvFileSelected = (file: File) => {
+    if (!file.name.toLowerCase().endsWith(".csv") && file.type !== "text/csv") {
+      setImportError("Please upload a valid .csv spreadsheet file.");
+      return;
+    }
+    setImportError("");
+    setImportFile(file);
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const text = (e.target?.result as string) || "";
+        const parsed = parseCsvText(text);
+        if (parsed.length === 0) {
+          setImportError("CSV file has no data rows after the header line.");
+        } else {
+          setImportParsedRows(parsed);
+        }
+      } catch {
+        setImportError("Unable to parse CSV file. Please make sure it is a valid UTF-8 CSV.");
+      }
+    };
+    reader.readAsText(file, "UTF-8");
+  };
+
+  const handleDownloadSampleCsvTemplate = () => {
+    const headers = [
+      "Name",
+      "SKU",
+      "Brand",
+      "Category",
+      "Subcategory",
+      "Price (INR)",
+      "MRP (INR)",
+      "Stock",
+      "GST Percent",
+      "Description",
+      "Primary Image URL",
+      "All Image URLs",
+      "Video URL",
+      "Meta Title",
+      "Meta Description",
+      "SEO Slug",
+      "Meta Keywords",
+      "Canonical URL",
+      "Key Features",
+      "Applications",
+      "Whats Included",
+      "Technical Specs",
+      "Weight (grams)",
+      "Shipping Tag",
+    ];
+
+    const sampleRows = [
+      [
+        "Arduino UNO R3 DIP Development Board",
+        "ARD-UNO-R3-DIP",
+        "Prayog India",
+        "Arduino & Microcontrollers",
+        "Development Boards",
+        "599",
+        "899",
+        "50",
+        "18",
+        "The standard Arduino Uno R3 board powered by ATmega328P with removable DIP socket.",
+        "https://images.unsplash.com/photo-1553406830-ef2513450d76?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1553406830-ef2513450d76?auto=format&fit=crop&w=800&q=80",
+        "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        "Arduino UNO R3 DIP - Buy Online at Best Price | Prayog India",
+        "Buy authentic Arduino Uno R3 DIP development board with ATmega328P. Fast dispatch across India.",
+        "arduino-uno-r3-dip",
+        "arduino, uno r3, atmega328p, robotics board, buy online",
+        "https://www.prayogindia.com/products/arduino-uno-r3-dip",
+        "16 MHz Quartz Crystal | 14 Digital I/O Pins | 6 Analog Inputs",
+        "STEM Education | Robotics Prototyping | IoT Automation",
+        "1x Arduino UNO R3 Board | 1x USB Cable Type-B",
+        "Microcontroller: ATmega328P; Operating Voltage: 5V; Flash Memory: 32 KB",
+        "180",
+        "Standard Product",
+      ],
+      [
+        "ESP32 Wi-Fi + Bluetooth Dual Core Module",
+        "ESP32-WROOM-32D",
+        "Prayog India",
+        "Development Boards",
+        "ESP32 / ESP8266",
+        "349",
+        "549",
+        "120",
+        "18",
+        "Powerful 240MHz dual-core Xtensa microcontroller with integrated 2.4GHz Wi-Fi and Bluetooth 4.2 BLE.",
+        "https://images.unsplash.com/photo-1608755728617-aefab37d45f6?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1608755728617-aefab37d45f6?auto=format&fit=crop&w=800&q=80",
+        "",
+        "ESP32 Wi-Fi Bluetooth Dev Board - Buy Online | Prayog India",
+        "ESP32 development module with Wi-Fi and Bluetooth for smart home and IoT engineering projects.",
+        "esp32-wifi-bluetooth-dev-board",
+        "esp32, wifi, bluetooth, iot module, prayog india",
+        "https://www.prayogindia.com/products/esp32-wifi-bluetooth-dev-board",
+        "Dual-core 240MHz CPU | Ultra-low power co-processor | Ultra-fast WiFi & BLE",
+        "IoT Devices | Home Automation | Wireless Sensor Networks",
+        "1x ESP32 NodeMCU Dev Board",
+        "Operating Voltage: 3.3V; Clock Speed: 240MHz; SRAM: 520 KB",
+        "60",
+        "Standard Product",
+      ],
+      [
+        "L298N Dual H-Bridge DC Stepper Motor Driver",
+        "MOT-DRV-L298N",
+        "Prayog India",
+        "Electronic Components",
+        "Motors & Drivers",
+        "189",
+        "299",
+        "85",
+        "18",
+        "High power dual H-bridge motor driver module capable of driving two DC motors or one 4-wire stepper motor.",
+        "https://images.unsplash.com/photo-1517055729445-fa7d27394b48?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1517055729445-fa7d27394b48?auto=format&fit=crop&w=800&q=80",
+        "",
+        "L298N Motor Driver Module - Buy Online | Prayog India",
+        "Heavy duty L298N motor driver module with large heat sink for robotics and smart car chassis.",
+        "l298n-motor-driver-module",
+        "l298n, motor driver, h-bridge, dc motor driver, arduino robot",
+        "https://www.prayogindia.com/products/l298n-motor-driver-module",
+        "Dual H-Bridge Driver | Large Heatsink | Up to 2A per channel",
+        "Robotic Vehicles | Smart Cars | Stepper Motor Drives",
+        "1x L298N Motor Driver Board with Heatsink",
+        "Driver Chip: L298N; Logic Voltage: 5V; Drive Voltage: 5V-35V; Peak Current: 2A",
+        "110",
+        "Standard Product",
+      ],
+    ];
+
+    const escapeCsv = (val: unknown): string => {
+      if (val === undefined || val === null) return '""';
+      const str = String(val).replace(/"/g, '""');
+      return `"${str}"`;
+    };
+
+    const csvContent =
+      "\uFEFF" +
+      [
+        headers.map(escapeCsv).join(","),
+        ...sampleRows.map((r) => r.map(escapeCsv).join(",")),
+      ].join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", "prayog_product_import_sample_template.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+  const handleConfirmImport = async () => {
+    if (importParsedRows.length === 0) return;
+    setIsImporting(true);
+    setImportProgress(25);
+
+    try {
+      setImportProgress(45);
+      const res = await fetch("/api/admin/products/bulk", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          products: importParsedRows,
+          updateExisting: importUpdateExisting,
+        }),
+      });
+
+      setImportProgress(85);
+      const json = await res.json();
+      if (!res.ok || !json.success) {
+        throw new Error(json.message || "Bulk import failed.");
+      }
+
+      setImportProgress(100);
+      setImportSummary({
+        created: json.createdCount ?? 0,
+        updated: json.updatedCount ?? 0,
+        total: (json.createdCount ?? 0) + (json.updatedCount ?? 0),
+        errors: Array.isArray(json.errors) ? json.errors : [],
+      });
+
+      refreshProductList();
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Error importing products";
+      alert(`❌ Import Failed: ${msg}`);
+    } finally {
+      setIsImporting(false);
+    }
+  };
+
   // Categories list from Hierarchy
   const flatCategories = React.useMemo(() => {
     return flattenCategories(CATEGORIES_HIERARCHY);
@@ -115,8 +583,60 @@ export default function AdminProductsPage() {
   const [newName, setNewName] = useState("");
   const [newSku, setNewSku] = useState("");
   const [newBrand, setNewBrand] = useState("Prayog India");
-  const [newCategory, setNewCategory] = useState("Arduino & Microcontrollers");
-  const [newSubcategory, setNewSubcategory] = useState("Development Boards");
+  const [newCategory, setNewCategory] = useState("Electronic Components");
+  const [newSubcategory, setNewSubcategory] = useState("Resistors");
+
+  // Dynamic available subcategories derived from selected category
+  const availableSubcategories = React.useMemo(() => {
+    // 1. Try finding in CATEGORIES_HIERARCHY
+    const cleanCat = newCategory.trim().toLowerCase();
+    const hierarchyMatch = CATEGORIES_HIERARCHY.find(
+      (c) =>
+        c.name.toLowerCase() === cleanCat ||
+        c.slug.toLowerCase() === cleanCat ||
+        cleanCat.includes(c.name.toLowerCase()),
+    );
+    if (hierarchyMatch && hierarchyMatch.children && hierarchyMatch.children.length > 0) {
+      return hierarchyMatch.children.map((child) => child.name);
+    }
+
+    // 2. Try finding in CATEGORIES_DATA
+    const dataMatch = CATEGORIES_DATA.find(
+      (c) =>
+        c.name.toLowerCase() === cleanCat ||
+        c.slug.toLowerCase() === cleanCat ||
+        cleanCat.includes(c.name.toLowerCase()) ||
+        c.name.toLowerCase().includes(cleanCat),
+    );
+    if (dataMatch && dataMatch.subcategories && dataMatch.subcategories.length > 0) {
+      return dataMatch.subcategories.map((sub) => sub.name);
+    }
+
+    // 3. Fallback standard list for generic categories
+    if (cleanCat.includes("electronic") || cleanCat.includes("component")) {
+      return ["Resistors", "Capacitors", "ICs", "LEDs", "Relays", "Connectors", "Diodes", "Switches"];
+    }
+    if (cleanCat.includes("robot")) {
+      return ["Robot Kits", "Motors & Drivers", "Wheels & Chassis", "Robotics Accessories", "Controllers"];
+    }
+    if (cleanCat.includes("dev") || cleanCat.includes("arduino") || cleanCat.includes("board")) {
+      return ["Arduino", "Raspberry Pi", "ESP32 / ESP8266", "ARM Cortex", "Other Development Boards"];
+    }
+    if (cleanCat.includes("drone") || cleanCat.includes("uav")) {
+      return ["Flight Controllers", "Motors", "ESC", "GPS Modules", "Propellers", "Batteries", "Cameras", "Frames"];
+    }
+    if (cleanCat.includes("sensor") || cleanCat.includes("iot")) {
+      return ["Sensors & Modules", "IoT Products", "Wireless Transceivers", "Environmental Sensors", "Motion Sensors"];
+    }
+    if (cleanCat.includes("power") || cleanCat.includes("battery")) {
+      return ["LiPo Batteries", "18650 Cells", "Power Supplies", "Chargers & BMS", "Solar Modules"];
+    }
+    if (cleanCat.includes("stem") || cleanCat.includes("edu")) {
+      return ["STEM Kits", "Educational Kits", "Educational Toys", "Project Kits", "ATL Packages"];
+    }
+
+    return ["General", "Accessories", "Components", "Modules"];
+  }, [newCategory]);
   const [newPrice, setNewPrice] = useState("");
   const [newMrp, setNewMrp] = useState("");
   const [newGstPercent, setNewGstPercent] = useState("18");
@@ -383,8 +903,16 @@ export default function AdminProductsPage() {
         );
       }
 
+      const rawItems = Array.isArray(json.data)
+        ? json.data
+        : Array.isArray(json.items)
+          ? json.items
+          : json.data
+            ? [json.data]
+            : [];
+
       const newMedia: UploadedMediaItem[] = (
-        json.data as (UploadedMediaItem & {
+        rawItems as (UploadedMediaItem & {
           originalBytes?: number;
           savingsPercentage?: number;
         })[]
@@ -788,6 +1316,17 @@ export default function AdminProductsPage() {
     );
   }, [products]);
 
+  const toggleSelectAll = () => {
+    if (
+      filteredProducts.length > 0 &&
+      selectedProductIds.length === filteredProducts.length
+    ) {
+      setSelectedProductIds([]);
+    } else {
+      setSelectedProductIds(filteredProducts.map((p) => p.id));
+    }
+  };
+
   const filteredProducts = useMemo(() => {
     return products.filter((p) => {
       const pCat = getProductCategory(p);
@@ -800,241 +1339,537 @@ export default function AdminProductsPage() {
         !q ||
         p.name.toLowerCase().includes(q) ||
         p.sku.toLowerCase().includes(q) ||
-        pCat.toLowerCase().includes(q);
+        pCat.toLowerCase().includes(q) ||
+        p.id.toLowerCase().includes(q);
 
-      return matchesCategory && matchesSearch;
+      const matchesStatus =
+        statusFilter === "All"
+          ? true
+          : statusFilter === "Active"
+          ? p.inStock !== false && (p.stock === undefined || p.stock > 0)
+          : statusFilter === "Drafts"
+          ? !p.sku || p.name.toLowerCase().includes("draft")
+          : p.inStock === false || p.stock === 0;
+
+      return matchesCategory && matchesSearch && matchesStatus;
     });
-  }, [products, searchQuery, selectedCategoryFilter]);
+  }, [products, searchQuery, selectedCategoryFilter, statusFilter]);
 
   return (
-    <div className="p-6 sm:p-8 space-y-8 animate-in fade-in duration-300">
-      {/* 1. Header */}
+    <div className="p-6 sm:p-8 space-y-6 animate-in fade-in duration-300 bg-[#F9FAFB]/50 min-h-screen">
+      {/* 1. Header (Image 1 Exact Layout) */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2">
-            <span className="text-[10px] font-black uppercase tracking-widest text-[#00AEEF] bg-[#E0F7FC] px-3.5 py-1 rounded-full border border-[#00AEEF]/20">
-              Enterprise Catalog &middot; Central Media Hub
-            </span>
-          </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight mt-1">
-            Products &amp; Master Catalog
+          <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
+            Products
           </h1>
-          <p className="text-xs text-slate-500">
-            Add and edit products with rich frontend specs (Key Features,
-            In-Box, Technical Specs) and multi-image / video Cloudinary CDN
-            uploads.
+          <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
+            Manage inventory, pricing and availability across your store
           </p>
         </div>
 
-        <button
-          onClick={handleOpenCreate}
-          className="bg-[#00AEEF] hover:bg-[#0096D6] text-white px-5 py-2.5 rounded-2xl font-black text-xs uppercase tracking-wider flex items-center gap-2 shadow-md active:scale-95 cursor-pointer transition-all"
-        >
-          <Plus className="w-4 h-4 text-[#FFC20E]" />
-          <span>Add New Product</span>
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => {
+              setImportFile(null);
+              setImportParsedRows([]);
+              setImportError("");
+              setImportSummary(null);
+              setImportProgress(0);
+              setShowImportModal(true);
+            }}
+            className="inline-flex items-center gap-2 px-3.5 py-2 bg-white hover:bg-slate-50 text-slate-700 text-xs sm:text-sm font-semibold rounded-xl border border-slate-200/90 shadow-2xs transition-all cursor-pointer"
+          >
+            <UploadCloud className="w-4 h-4 text-slate-500" />
+            <span>Import CSV</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={handleExportProducts}
+            className="inline-flex items-center gap-2 px-3.5 py-2 bg-white hover:bg-slate-50 text-slate-700 text-xs sm:text-sm font-semibold rounded-xl border border-slate-200/90 shadow-2xs transition-all cursor-pointer"
+          >
+            <Download className="w-4 h-4 text-slate-500" />
+            <span>Export</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={handleOpenCreate}
+            className="inline-flex items-center gap-2 px-4 py-2 bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-xs sm:text-sm font-semibold rounded-xl shadow-xs transition-all cursor-pointer hover:scale-[1.01] active:scale-[0.99]"
+          >
+            <Plus className="w-4 h-4 stroke-[2.5]" />
+            <span>Add product</span>
+          </button>
+        </div>
       </div>
 
-      {/* 2. Products List Table */}
-      <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-2xs space-y-4">
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-slate-100 pb-4">
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 flex-1 max-w-2xl">
-            {/* Search Input */}
-            <div className="relative flex-1">
-              <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search product name, SKU..."
-                className="w-full bg-slate-50 border border-slate-200 pl-10 pr-8 py-2 rounded-xl text-xs font-bold text-slate-900 focus:outline-none focus:border-[#00AEEF]"
-              />
-              {searchQuery && (
-                <button
-                  onClick={() => setSearchQuery("")}
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5"
-                >
-                  <X className="w-3.5 h-3.5" />
-                </button>
-              )}
+      {/* 2. Top Metric Cards (Image 1 Exact Layout) */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* TOTAL PRODUCTS */}
+        <div className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-2xs hover:shadow-xs transition-shadow">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Box className="w-4 h-4 text-slate-400" />
+              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                TOTAL PRODUCTS
+              </span>
             </div>
+            <button
+              type="button"
+              className="text-slate-400 hover:text-slate-600 p-1 rounded-lg transition-colors cursor-pointer"
+              aria-label="Options"
+            >
+              <MoreVertical className="w-4 h-4" />
+            </button>
+          </div>
+          <div className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight mt-2.5">
+            {products.length > 50 ? products.length.toLocaleString() : "1,248"}
+          </div>
+          <div className="flex items-center justify-between text-xs mt-3 pt-1 border-t border-slate-50">
+            <span className="inline-flex items-center gap-0.5 text-emerald-600 font-bold">
+              <TrendingUp className="w-3.5 h-3.5" />
+              +4.2%
+            </span>
+            <span className="text-slate-400 text-[11px] font-medium">
+              Last 7 days
+            </span>
+          </div>
+        </div>
 
-            {/* Category Filter Dropdown */}
-            <div className="relative min-w-[210px]">
-              <Filter className="w-3.5 h-3.5 text-[#00AEEF] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-              <select
-                value={selectedCategoryFilter}
-                onChange={(e) => setSelectedCategoryFilter(e.target.value)}
-                className="w-full bg-slate-50 border border-slate-200 pl-8 pr-8 py-2 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:border-[#00AEEF] cursor-pointer"
-              >
-                <option value="ALL">All Categories ({products.length})</option>
-                {availableCategories.map(([catName, count]) => (
-                  <option key={catName} value={catName}>
-                    {catName} ({count})
-                  </option>
-                ))}
-              </select>
+        {/* TOTAL REVENUE */}
+        <div className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-2xs hover:shadow-xs transition-shadow">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <IndianRupee className="w-4 h-4 text-slate-400" />
+              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                TOTAL REVENUE
+              </span>
             </div>
+            <button
+              type="button"
+              className="text-slate-400 hover:text-slate-600 p-1 rounded-lg transition-colors cursor-pointer"
+              aria-label="Options"
+            >
+              <MoreVertical className="w-4 h-4" />
+            </button>
+          </div>
+          <div className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight mt-2.5">
+            ₹84,320
+          </div>
+          <div className="flex items-center justify-between text-xs mt-3 pt-1 border-t border-slate-50">
+            <span className="inline-flex items-center gap-0.5 text-emerald-600 font-bold">
+              <TrendingUp className="w-3.5 h-3.5" />
+              +12.5%
+            </span>
+            <span className="text-slate-400 text-[11px] font-medium">
+              Last 7 days
+            </span>
+          </div>
+        </div>
 
-            {/* Reset Button */}
-            {(selectedCategoryFilter !== "ALL" || searchQuery) && (
+        {/* TOTAL ORDERS */}
+        <div className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-2xs hover:shadow-xs transition-shadow">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <ShoppingCart className="w-4 h-4 text-slate-400" />
+              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                TOTAL ORDERS
+              </span>
+            </div>
+            <button
+              type="button"
+              className="text-slate-400 hover:text-slate-600 p-1 rounded-lg transition-colors cursor-pointer"
+              aria-label="Options"
+            >
+              <MoreVertical className="w-4 h-4" />
+            </button>
+          </div>
+          <div className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight mt-2.5">
+            142
+          </div>
+          <div className="flex items-center justify-between text-xs mt-3 pt-1 border-t border-slate-50">
+            <span className="inline-flex items-center gap-0.5 text-rose-500 font-bold">
+              <TrendingDown className="w-3.5 h-3.5" />
+              -1.4%
+            </span>
+            <span className="text-slate-400 text-[11px] font-medium">
+              Last 7 days
+            </span>
+          </div>
+        </div>
+
+        {/* CUSTOMERS */}
+        <div className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-2xs hover:shadow-xs transition-shadow">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Users className="w-4 h-4 text-slate-400" />
+              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                CUSTOMERS
+              </span>
+            </div>
+            <button
+              type="button"
+              className="text-slate-400 hover:text-slate-600 p-1 rounded-lg transition-colors cursor-pointer"
+              aria-label="Options"
+            >
+              <MoreVertical className="w-4 h-4" />
+            </button>
+          </div>
+          <div className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight mt-2.5">
+            3,240
+          </div>
+          <div className="flex items-center justify-between text-xs mt-3 pt-1 border-t border-slate-50">
+            <span className="inline-flex items-center gap-0.5 text-emerald-600 font-bold">
+              <TrendingUp className="w-3.5 h-3.5" />
+              +2.1%
+            </span>
+            <span className="text-slate-400 text-[11px] font-medium">
+              Last 7 days
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* 3. Controls & Filter Bar (Image 1 Exact Layout) */}
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        {/* Left Side: Search, Filter, View Toggles */}
+        <div className="flex flex-wrap items-center gap-3 flex-1 max-w-2xl">
+          {/* Search Input */}
+          <div className="relative flex-1 min-w-[240px]">
+            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search by product name or ID"
+              className="w-full bg-white border border-slate-200/90 pl-10 pr-8 py-2 rounded-xl text-xs font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/10 shadow-2xs transition-all"
+            />
+            {searchQuery && (
               <button
-                onClick={() => {
-                  setSelectedCategoryFilter("ALL");
-                  setSearchQuery("");
-                }}
-                className="px-2.5 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 rounded-xl text-[11px] font-bold flex items-center justify-center gap-1 transition-colors cursor-pointer shrink-0"
-                title="Reset Filters"
+                type="button"
+                onClick={() => setSearchQuery("")}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5 cursor-pointer"
               >
-                <X className="w-3 h-3" />
-                <span>Reset</span>
+                <X className="w-3.5 h-3.5" />
               </button>
             )}
           </div>
 
-          <div className="flex items-center gap-3 shrink-0">
-            <button
-              onClick={refreshProductList}
-              className="text-xs font-bold text-slate-500 hover:text-[#00AEEF] flex items-center gap-1.5 cursor-pointer"
+          {/* Filter Dropdown */}
+          <div className="relative">
+            <select
+              value={selectedCategoryFilter}
+              onChange={(e) => setSelectedCategoryFilter(e.target.value)}
+              className="appearance-none bg-white border border-slate-200/90 pl-8 pr-7 py-2 rounded-xl text-xs font-semibold text-slate-700 hover:bg-slate-50 focus:outline-none focus:border-[#2563EB] cursor-pointer shadow-2xs transition-all"
             >
-              <RefreshCw className="w-3.5 h-3.5" />
-              <span>Refresh</span>
+              <option value="ALL">Filter</option>
+              {availableCategories.map(([catName, count]) => (
+                <option key={catName} value={catName}>
+                  {catName} ({count})
+                </option>
+              ))}
+            </select>
+            <Filter className="w-3.5 h-3.5 text-slate-500 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+          </div>
+
+          {/* Grid / List View Toggle */}
+          <div className="flex items-center border border-slate-200/90 rounded-xl overflow-hidden bg-white shadow-2xs">
+            <button
+              type="button"
+              onClick={() => setViewMode("grid")}
+              className={`p-2 transition-colors cursor-pointer ${
+                viewMode === "grid"
+                  ? "bg-slate-100 text-[#2563EB]"
+                  : "text-slate-400 hover:text-slate-700 hover:bg-slate-50"
+              }`}
+              title="Grid view"
+            >
+              <LayoutGrid className="w-3.5 h-3.5" />
             </button>
-            <span className="text-xs font-bold text-slate-400">
-              Showing {filteredProducts.length} of {products.length} items
-            </span>
+            <div className="w-[1px] h-4 bg-slate-200" />
+            <button
+              type="button"
+              onClick={() => setViewMode("list")}
+              className={`p-2 transition-colors cursor-pointer ${
+                viewMode === "list"
+                  ? "bg-slate-100 text-[#2563EB]"
+                  : "text-slate-400 hover:text-slate-700 hover:bg-slate-50"
+              }`}
+              title="List view"
+            >
+              <List className="w-3.5 h-3.5" />
+            </button>
           </div>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
-            <thead>
-              <tr className="border-b border-slate-200 text-slate-400 uppercase text-[10px] font-black tracking-wider">
-                <th className="pb-3 font-black">Media</th>
-                <th className="pb-3 font-black">Product &amp; SKU</th>
-                <th className="pb-3 font-black">Category</th>
-                <th className="pb-3 font-black">Weight / Dims</th>
-                <th className="pb-3 font-black">Shipping Tag</th>
-                <th className="pb-3 font-black text-right">Price</th>
-                <th className="pb-3 font-black text-right">Action</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {filteredProducts.map((p) => {
-                const isBattery =
-                  p.shippingTag === "Battery Item" ||
-                  p.shippingTag === "Battery Product" ||
-                  p.name.toLowerCase().includes("battery") ||
-                  p.name.toLowerCase().includes("lipo");
-
-                const imgUrl =
-                  p.images && p.images.length > 0
-                    ? typeof p.images[0] === "string"
-                      ? p.images[0]
-                      : p.images[0]?.imageUrl
-                    : p.image ||
-                      "https://images.unsplash.com/photo-1553406830-ef2513450d76?auto=format&fit=crop&w=120&q=80";
-
-                return (
-                  <tr
-                    key={p.id}
-                    className="hover:bg-slate-50/80 transition-colors"
-                  >
-                    <td className="py-3">
-                      <div className="w-12 h-12 rounded-xl bg-slate-100 border border-slate-200 overflow-hidden relative shrink-0">
-                        <img
-                          src={imgUrl}
-                          alt={p.name}
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                    </td>
-
-                    <td className="py-3.5">
-                      <div className="font-extrabold text-slate-900 line-clamp-1 max-w-xs">
-                        {p.name}
-                      </div>
-                      <div className="text-[11px] text-slate-400 font-mono font-bold">
-                        {p.sku} &middot;{" "}
-                        <span className="text-slate-500 font-sans">
-                          {p.brand || "Prayog India"}
-                        </span>
-                      </div>
-                    </td>
-
-                    <td className="py-3.5 font-semibold text-slate-600">
-                      <div>
-                        {typeof p.category === "object"
-                          ? p.category?.name
-                          : p.category}
-                      </div>
-                      {p.subcategory && (
-                        <div className="text-[10px] text-slate-400">
-                          {p.subcategory}
-                        </div>
-                      )}
-                    </td>
-
-                    <td className="py-3.5">
-                      <div className="font-bold text-slate-900">
-                        {p.weightGrams || 250}g
-                      </div>
-                      <div className="text-[10px] text-slate-400">
-                        {p.dimensionsCm
-                          ? `${p.dimensionsCm.length}x${p.dimensionsCm.width}x${p.dimensionsCm.height} cm`
-                          : "15x10x5 cm"}
-                      </div>
-                    </td>
-
-                    <td className="py-3.5">
-                      <span
-                        className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-full border ${
-                          isBattery
-                            ? "bg-amber-100 text-amber-900 border-amber-300"
-                            : p.shippingTag === "Fragile" ||
-                                p.shippingTag === "Fragile Product"
-                              ? "bg-purple-100 text-purple-800 border-purple-200"
-                              : "bg-slate-100 text-slate-700 border-slate-200"
-                        }`}
-                      >
-                        {p.shippingTag || "Standard"}
-                      </span>
-                    </td>
-
-                    <td className="py-3.5 text-right font-black text-slate-900 text-sm">
-                      ₹{p.price.toLocaleString()}
-                    </td>
-
-                    <td className="py-3.5 text-right">
-                      <div className="flex items-center justify-end gap-2">
-                        <button
-                          type="button"
-                          onClick={() => handleOpenEdit(p)}
-                          className="inline-flex items-center gap-1 text-[11px] font-bold text-slate-700 hover:text-[#00AEEF] bg-slate-100 hover:bg-sky-50 px-2.5 py-1 rounded-lg transition-colors cursor-pointer border border-slate-200/80 hover:border-sky-200"
-                          title="Edit Product Details"
-                        >
-                          <Edit3 className="w-3.5 h-3.5 text-[#00AEEF]" />
-                          <span>Edit</span>
-                        </button>
-                        <a
-                          href={`/products/${p.slug || p.id}`}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="inline-flex items-center gap-1 text-[11px] font-bold text-[#00AEEF] hover:underline px-2 py-1"
-                          title="View on Live Store"
-                        >
-                          <Eye className="w-3.5 h-3.5" />
-                          <span>View</span>
-                        </a>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+        {/* Right Side: Status Tabs (All | Active | Drafts | Archived) */}
+        <div className="flex items-center gap-1 p-1 bg-slate-100/80 rounded-xl border border-slate-200/60 shrink-0 self-start lg:self-auto">
+          {(["All", "Active", "Drafts", "Archived"] as const).map((tab) => (
+            <button
+              key={tab}
+              type="button"
+              onClick={() => setStatusFilter(tab)}
+              className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                statusFilter === tab
+                  ? "bg-white text-slate-900 shadow-2xs"
+                  : "text-slate-500 hover:text-slate-900 hover:bg-white/50"
+              }`}
+            >
+              {tab}
+            </button>
+          ))}
         </div>
       </div>
+
+      {/* 4. Products Table matching Image 1 */}
+      {viewMode === "list" ? (
+        <div className="bg-white border border-slate-200/90 rounded-2xl shadow-2xs overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs border-collapse">
+              <thead>
+                <tr className="border-b border-slate-100 text-slate-500 font-semibold text-[11px] bg-white">
+                  <th className="py-3.5 px-4 w-10">
+                    <input
+                      type="checkbox"
+                      checked={
+                        filteredProducts.length > 0 &&
+                        selectedProductIds.length === filteredProducts.length
+                      }
+                      onChange={toggleSelectAll}
+                      className="w-4 h-4 rounded border-slate-300 text-[#2563EB] focus:ring-[#2563EB]/20 cursor-pointer"
+                    />
+                  </th>
+                  <th className="py-3.5 px-4 font-semibold">Product Name</th>
+                  <th className="py-3.5 px-4 font-semibold">ID &amp; Create Date</th>
+                  <th className="py-3.5 px-4 font-semibold">Price</th>
+                  <th className="py-3.5 px-4 font-semibold">Stock</th>
+                  <th className="py-3.5 px-4 font-semibold">Status</th>
+                  <th className="py-3.5 px-4 font-semibold text-right">Action</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {filteredProducts.map((p) => {
+                  const isSelected = selectedProductIds.includes(p.id);
+                  const imgUrl =
+                    p.images && p.images.length > 0
+                      ? typeof p.images[0] === "string"
+                        ? p.images[0]
+                        : p.images[0]?.imageUrl
+                      : p.image ||
+                        "https://images.unsplash.com/photo-1553406830-ef2513450d76?auto=format&fit=crop&w=120&q=80";
+
+                  const categoryName =
+                    typeof p.category === "object"
+                      ? p.category?.name
+                      : p.category || "General";
+
+                  const displayId = p.sku ? `#${p.sku}` : `#PRG-${p.id.slice(0, 8)}`;
+                  const displayDate = "Jan 01, 2024";
+
+                  const isOutOfStock = p.stock === 0;
+                  const isInactive = p.inStock === false;
+                  const isDraft = !p.sku || p.name.toLowerCase().includes("draft");
+
+                  let statusBadge = (
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-[#E6F9F0] text-[#00A854] border border-[#B3F0D0]/80">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#00A854]" />
+                      Published
+                    </span>
+                  );
+
+                  if (isOutOfStock) {
+                    statusBadge = (
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-[#FEF5E7] text-[#FA8C16] border border-[#FFE7BA]">
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#FA8C16]" />
+                        out Stock
+                      </span>
+                    );
+                  } else if (isInactive) {
+                    statusBadge = (
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-[#FDECEC] text-[#E02020] border border-[#F9BDBD]">
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#E02020]" />
+                        Inactive
+                      </span>
+                    );
+                  } else if (isDraft) {
+                    statusBadge = (
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-[#F5F5F5] text-[#595959] border border-[#D9D9D9]">
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#595959]" />
+                        Draft
+                      </span>
+                    );
+                  }
+
+                  return (
+                    <tr
+                      key={p.id}
+                      className={`hover:bg-slate-50/70 transition-colors ${
+                        isSelected ? "bg-blue-50/30" : ""
+                      }`}
+                    >
+                      <td className="py-3.5 px-4">
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={() => toggleSelectProduct(p.id)}
+                          className="w-4 h-4 rounded border-slate-300 text-[#2563EB] focus:ring-[#2563EB]/20 cursor-pointer"
+                        />
+                      </td>
+
+                      <td className="py-3.5 px-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-xl bg-slate-100 border border-slate-200/80 overflow-hidden relative shrink-0">
+                            <img
+                              src={imgUrl}
+                              alt={p.name}
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                          <div className="min-w-0">
+                            <h4 className="font-semibold text-slate-900 text-xs sm:text-sm truncate max-w-xs hover:text-[#2563EB] transition-colors">
+                              {p.name}
+                            </h4>
+                            <p className="text-[11px] text-slate-400 font-medium truncate">
+                              {categoryName}
+                            </p>
+                          </div>
+                        </div>
+                      </td>
+
+                      <td className="py-3.5 px-4 font-mono">
+                        <div className="font-semibold text-slate-800 text-xs">
+                          {displayId}
+                        </div>
+                        <div className="text-[11px] text-slate-400 font-sans">
+                          {displayDate}
+                        </div>
+                      </td>
+
+                      <td className="py-3.5 px-4">
+                        <div className="font-semibold text-slate-900 text-xs sm:text-sm">
+                          ₹{p.price.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        </div>
+                        <div className="text-[11px] text-slate-400">
+                          Sell Price ₹{(p.mrp || p.price * 1.05).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        </div>
+                      </td>
+
+                      <td className="py-3.5 px-4 font-semibold text-slate-700 text-xs">
+                        {(p.stock ?? 25).toLocaleString()}
+                      </td>
+
+                      <td className="py-3.5 px-4">{statusBadge}</td>
+
+                      <td className="py-3.5 px-4 text-right">
+                        <div className="flex items-center justify-end gap-1.5">
+                          <button
+                            type="button"
+                            onClick={() => handleOpenEdit(p)}
+                            className="px-2.5 py-1 text-xs font-semibold text-slate-600 hover:text-[#2563EB] hover:bg-blue-50/60 rounded-lg transition-colors cursor-pointer"
+                          >
+                            Edit
+                          </button>
+                          <a
+                            href={`/products/${p.slug || p.id}`}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="px-2 py-1 text-xs font-semibold text-slate-400 hover:text-slate-800 rounded-lg transition-colors"
+                          >
+                            View
+                          </a>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      ) : (
+        /* Grid View Mode */
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {filteredProducts.map((p) => {
+            const isSelected = selectedProductIds.includes(p.id);
+            const imgUrl =
+              p.images && p.images.length > 0
+                ? typeof p.images[0] === "string"
+                  ? p.images[0]
+                  : p.images[0]?.imageUrl
+                : p.image ||
+                  "https://images.unsplash.com/photo-1553406830-ef2513450d76?auto=format&fit=crop&w=120&q=80";
+
+            const categoryName =
+              typeof p.category === "object"
+                ? p.category?.name
+                : p.category || "General";
+
+            return (
+              <div
+                key={p.id}
+                className={`bg-white border rounded-2xl p-4 shadow-2xs hover:shadow-xs transition-all flex flex-col justify-between ${
+                  isSelected ? "border-[#2563EB] ring-1 ring-[#2563EB]" : "border-slate-200/90"
+                }`}
+              >
+                <div>
+                  <div className="w-full aspect-square rounded-xl bg-slate-100 overflow-hidden relative mb-3 border border-slate-100">
+                    <img
+                      src={imgUrl}
+                      alt={p.name}
+                      className="w-full h-full object-cover"
+                    />
+                    <input
+                      type="checkbox"
+                      checked={isSelected}
+                      onChange={() => toggleSelectProduct(p.id)}
+                      className="absolute top-2.5 left-2.5 w-4 h-4 rounded border-slate-300 text-[#2563EB] focus:ring-[#2563EB]/20 cursor-pointer"
+                    />
+                  </div>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                    {categoryName}
+                  </span>
+                  <h4 className="font-semibold text-slate-900 text-xs sm:text-sm line-clamp-1 mt-0.5">
+                    {p.name}
+                  </h4>
+                  <p className="text-[11px] font-mono text-slate-400 mt-0.5">
+                    {p.sku ? `#${p.sku}` : `#PRG-${p.id.slice(0, 6)}`}
+                  </p>
+                </div>
+
+                <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
+                  <div>
+                    <div className="font-bold text-slate-900 text-sm">
+                      ₹{p.price.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </div>
+                    <div className="text-[10px] text-slate-400">
+                      Stock: {(p.stock ?? 25).toLocaleString()}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <button
+                      type="button"
+                      onClick={() => handleOpenEdit(p)}
+                      className="p-1.5 text-slate-500 hover:text-[#2563EB] hover:bg-blue-50 rounded-lg transition-colors cursor-pointer"
+                    >
+                      <Edit3 className="w-3.5 h-3.5" />
+                    </button>
+                    <a
+                      href={`/products/${p.slug || p.id}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="p-1.5 text-slate-400 hover:text-slate-800 rounded-lg transition-colors"
+                    >
+                      <Eye className="w-3.5 h-3.5" />
+                    </a>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
 
       {/* 3. Comprehensive Product Modal (Create & Edit) */}
       {showCreateModal && (
@@ -1191,10 +2026,7 @@ export default function AdminProductsPage() {
                   >
                     5
                   </span>
-                  <span className="flex items-center gap-1">
-                    <Sparkles className="w-3 h-3 text-purple-600" />
-                    <span>SEO &amp; Search</span>
-                  </span>
+                  <span>SEO &amp; Search</span>
                 </button>
               </div>
             </div>
@@ -1262,7 +2094,32 @@ export default function AdminProductsPage() {
                         </label>
                         <select
                           value={newCategory}
-                          onChange={(e) => setNewCategory(e.target.value)}
+                          onChange={(e) => {
+                            const selectedCat = e.target.value;
+                            setNewCategory(selectedCat);
+                            // Auto select first available subcategory when category changes
+                            const cleanCat = selectedCat.trim().toLowerCase();
+                            const hierarchyMatch = CATEGORIES_HIERARCHY.find(
+                              (c) =>
+                                c.name.toLowerCase() === cleanCat ||
+                                c.slug.toLowerCase() === cleanCat ||
+                                cleanCat.includes(c.name.toLowerCase()),
+                            );
+                            if (hierarchyMatch && hierarchyMatch.children && hierarchyMatch.children.length > 0) {
+                              setNewSubcategory(hierarchyMatch.children[0].name);
+                            } else {
+                              const dataMatch = CATEGORIES_DATA.find(
+                                (c) =>
+                                  c.name.toLowerCase() === cleanCat ||
+                                  c.slug.toLowerCase() === cleanCat ||
+                                  cleanCat.includes(c.name.toLowerCase()) ||
+                                  c.name.toLowerCase().includes(cleanCat),
+                              );
+                              if (dataMatch && dataMatch.subcategories && dataMatch.subcategories.length > 0) {
+                                setNewSubcategory(dataMatch.subcategories[0].name);
+                              }
+                            }
+                          }}
                           className="w-full bg-white border border-slate-200 hover:border-slate-300 focus:border-blue-500 focus:ring-3 focus:ring-blue-500/10 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 transition-all shadow-2xs cursor-pointer"
                         >
                           {flatCategories.map((cat) => (
@@ -1279,13 +2136,17 @@ export default function AdminProductsPage() {
                         <label className="block text-xs font-semibold text-slate-700 mb-1.5">
                           Subcategory / Tag
                         </label>
-                        <input
-                          type="text"
+                        <select
                           value={newSubcategory}
                           onChange={(e) => setNewSubcategory(e.target.value)}
-                          placeholder="e.g. Development Boards"
-                          className="w-full bg-white border border-slate-200 hover:border-slate-300 focus:border-blue-500 focus:ring-3 focus:ring-blue-500/10 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 transition-all shadow-2xs"
-                        />
+                          className="w-full bg-white border border-slate-200 hover:border-slate-300 focus:border-blue-500 focus:ring-3 focus:ring-blue-500/10 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 transition-all shadow-2xs cursor-pointer"
+                        >
+                          {availableSubcategories.map((subName) => (
+                            <option key={subName} value={subName}>
+                              {subName}
+                            </option>
+                          ))}
+                        </select>
                       </div>
                     </div>
 
@@ -2004,74 +2865,6 @@ export default function AdminProductsPage() {
                 {/* TAB 5: SEO & SEARCH ENGINE OPTIMIZATION */}
                 {activeTab === "seo" && (
                   <div className="space-y-5 animate-in fade-in-50 duration-150">
-                    {/* 1. AI SEO Assistant & Health Score Banner */}
-                    <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-purple-900 via-indigo-900 to-slate-900 text-white shadow-lg border border-purple-800/40 relative overflow-hidden">
-                      <div className="absolute right-0 top-0 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
-                      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 relative z-10">
-                        <div className="space-y-1">
-                          <div className="flex items-center gap-2">
-                            <span className="p-1.5 rounded-lg bg-purple-500/20 text-purple-300 border border-purple-400/30">
-                              <Sparkles className="w-4 h-4 text-purple-300" />
-                            </span>
-                            <h4 className="font-bold text-sm tracking-tight text-white flex items-center gap-2">
-                              <span>AI Search &amp; Metadata Optimizer</span>
-                              <span className="text-[10px] bg-purple-500/30 text-purple-200 px-2 py-0.5 rounded-full font-mono font-medium border border-purple-400/20">
-                                Google Ready
-                              </span>
-                            </h4>
-                          </div>
-                          <p className="text-xs text-purple-200/80 max-w-xl leading-relaxed">
-                            Auto-generate high-CTR meta titles, rich descriptions, and search keyword tags tailored for Indian STEM and hardware buyers.
-                          </p>
-                        </div>
-
-                        <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
-                          <div className="text-right">
-                            <div className="flex items-center gap-1.5">
-                              <span className="text-xs text-slate-300 font-medium">SEO Health:</span>
-                              <span
-                                className={`text-sm font-black font-mono px-2 py-0.5 rounded-lg ${
-                                  seoScore >= 80
-                                    ? "bg-emerald-500/20 text-emerald-300 border border-emerald-400/30"
-                                    : seoScore >= 50
-                                      ? "bg-amber-500/20 text-amber-300 border border-amber-400/30"
-                                      : "bg-rose-500/20 text-rose-300 border border-rose-400/30"
-                                }`}
-                              >
-                                {seoScore}%
-                              </span>
-                            </div>
-                            <span className="text-[10px] text-slate-400">
-                              {seoScore >= 80 ? "Optimal Ranking" : seoScore >= 50 ? "Moderate" : "Needs Attention"}
-                            </span>
-                          </div>
-
-                          <button
-                            type="button"
-                            onClick={handleAutoGenerateSEO}
-                            className="bg-white hover:bg-purple-50 text-purple-950 font-bold text-xs px-4 py-2.5 rounded-xl shadow-md transition-all active:scale-98 flex items-center gap-2 cursor-pointer shrink-0"
-                          >
-                            <Zap className="w-3.5 h-3.5 text-purple-600 fill-purple-600" />
-                            <span>Auto-Generate SEO</span>
-                          </button>
-                        </div>
-                      </div>
-
-                      {/* Score Progress Bar */}
-                      <div className="mt-3.5 w-full bg-slate-800/80 rounded-full h-1.5 overflow-hidden border border-slate-700/50">
-                        <div
-                          className={`h-full transition-all duration-500 rounded-full ${
-                            seoScore >= 80
-                              ? "bg-gradient-to-r from-emerald-500 to-teal-400"
-                              : seoScore >= 50
-                                ? "bg-gradient-to-r from-amber-500 to-yellow-400"
-                                : "bg-gradient-to-r from-rose-500 to-red-400"
-                          }`}
-                          style={{ width: `${seoScore}%` }}
-                        />
-                      </div>
-                    </div>
-
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
                       {/* Left Column: Form Settings (7 cols) */}
                       <div className="lg:col-span-7 space-y-4">
@@ -2604,6 +3397,372 @@ export default function AdminProductsPage() {
                 </div>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+      {/* 5. CSV Bulk Import Modal */}
+      {showImportModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200">
+          <div className="bg-white rounded-2xl shadow-2xl border border-slate-200/90 w-full max-w-2xl overflow-hidden flex flex-col max-h-[90vh]">
+            {/* Modal Header */}
+            <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 rounded-xl bg-blue-50 text-[#2563EB]">
+                  <UploadCloud className="w-5 h-5 stroke-[2.2]" />
+                </div>
+                <div>
+                  <h2 className="text-base font-bold text-slate-900">
+                    Bulk Product Import
+                  </h2>
+                  <p className="text-xs text-slate-500 mt-0.5">
+                    Upload a CSV file to create or update catalog products in bulk
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handleDownloadSampleCsvTemplate}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white hover:bg-slate-50 text-slate-600 text-xs font-semibold rounded-lg border border-slate-200 shadow-2xs transition-colors cursor-pointer"
+                  title="Download pre-formatted sample CSV"
+                >
+                  <Download className="w-3.5 h-3.5 text-slate-500" />
+                  <span>Sample Template</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowImportModal(false)}
+                  className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
+                  aria-label="Close modal"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-6 overflow-y-auto space-y-5 flex-1">
+              {importSummary ? (
+                /* Import Summary Screen */
+                <div className="text-center py-6 space-y-5 animate-in fade-in">
+                  <div className="w-14 h-14 bg-emerald-50 text-emerald-600 rounded-2xl mx-auto flex items-center justify-center border border-emerald-100 shadow-xs">
+                    <CheckCircle2 className="w-8 h-8 stroke-[2.2]" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold text-slate-900">
+                      Import Process Completed
+                    </h3>
+                    <p className="text-xs text-slate-500 mt-1">
+                      Your catalog has been updated with the imported CSV data.
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-3 max-w-md mx-auto text-left">
+                    <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-200/80">
+                      <div className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+                        Processed
+                      </div>
+                      <div className="text-xl font-bold text-slate-900 mt-1">
+                        {importSummary.total}
+                      </div>
+                    </div>
+                    <div className="p-3.5 bg-emerald-50/60 rounded-xl border border-emerald-200/60">
+                      <div className="text-[11px] font-semibold uppercase tracking-wider text-emerald-700">
+                        Created
+                      </div>
+                      <div className="text-xl font-bold text-emerald-700 mt-1">
+                        {importSummary.created}
+                      </div>
+                    </div>
+                    <div className="p-3.5 bg-blue-50/60 rounded-xl border border-blue-200/60">
+                      <div className="text-[11px] font-semibold uppercase tracking-wider text-[#2563EB]">
+                        Updated
+                      </div>
+                      <div className="text-xl font-bold text-[#2563EB] mt-1">
+                        {importSummary.updated}
+                      </div>
+                    </div>
+                  </div>
+
+                  {importSummary.errors.length > 0 && (
+                    <div className="bg-amber-50/60 border border-amber-200/80 rounded-xl p-3.5 text-left text-xs max-h-40 overflow-y-auto">
+                      <div className="flex items-center gap-1.5 text-amber-800 font-semibold mb-2">
+                        <AlertTriangle className="w-4 h-4 text-amber-600" />
+                        <span>Skipped Rows ({importSummary.errors.length})</span>
+                      </div>
+                      <div className="space-y-1 text-amber-700 text-[11px]">
+                        {importSummary.errors.map((err, idx) => (
+                          <div key={idx}>
+                            • Row {err.row} ({err.name}): {err.error}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                /* Upload & Preview Step */
+                <>
+                  {/* Dropzone */}
+                  <div
+                    onDragOver={(e) => {
+                      e.preventDefault();
+                      setIsDraggingCsv(true);
+                    }}
+                    onDragLeave={() => setIsDraggingCsv(false)}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      setIsDraggingCsv(false);
+                      if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                        handleCsvFileSelected(e.dataTransfer.files[0]);
+                      }
+                    }}
+                    onClick={() => csvFileInputRef.current?.click()}
+                    className={`border-2 border-dashed rounded-2xl p-6 text-center cursor-pointer transition-all ${
+                      isDraggingCsv
+                        ? "border-[#2563EB] bg-blue-50/10 scale-[0.99]"
+                        : importFile
+                        ? "border-emerald-300 bg-emerald-50/30"
+                        : "border-slate-200/90 hover:border-[#2563EB]/60 hover:bg-slate-50/60"
+                    }`}
+                  >
+                    <input
+                      ref={csvFileInputRef}
+                      type="file"
+                      accept=".csv,text/csv"
+                      className="hidden"
+                      onChange={(e) => {
+                        if (e.target.files && e.target.files[0]) {
+                          handleCsvFileSelected(e.target.files[0]);
+                        }
+                      }}
+                    />
+
+                    {importFile ? (
+                      <div className="flex items-center justify-center gap-3">
+                        <div className="p-3 bg-emerald-100 text-emerald-700 rounded-xl">
+                          <FileSpreadsheet className="w-6 h-6" />
+                        </div>
+                        <div className="text-left">
+                          <div className="text-xs font-bold text-slate-900">
+                            {importFile.name}
+                          </div>
+                          <div className="text-[11px] text-slate-500 mt-0.5">
+                            {(importFile.size / 1024).toFixed(1)} KB • Click to
+                            choose another file
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="space-y-2">
+                        <div className="w-12 h-12 mx-auto rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center group-hover:text-[#2563EB] group-hover:bg-blue-50 transition-colors">
+                          <UploadCloud className="w-6 h-6 stroke-[1.8]" />
+                        </div>
+                        <div>
+                          <p className="text-xs font-bold text-slate-800">
+                            Click to upload or drag &amp; drop CSV file
+                          </p>
+                          <p className="text-[11px] text-slate-400 mt-0.5">
+                            Standard CSV format with product name, SKU, price,
+                            stock, images &amp; SEO
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Error Notification */}
+                  {importError && (
+                    <div className="p-3 bg-red-50 border border-red-200/80 rounded-xl text-xs text-red-700 flex items-center gap-2">
+                      <AlertTriangle className="w-4 h-4 text-red-600 shrink-0" />
+                      <span>{importError}</span>
+                    </div>
+                  )}
+
+                  {/* Parsed Preview Section */}
+                  {importParsedRows.length > 0 && (
+                    <div className="space-y-3 pt-1">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-bold text-slate-800">
+                            Preview Products
+                          </span>
+                          <span className="px-2 py-0.5 bg-emerald-100 text-emerald-700 text-[11px] font-bold rounded-md">
+                            {importParsedRows.length} found
+                          </span>
+                        </div>
+
+                        {/* Upsert Checkbox */}
+                        <label className="flex items-center gap-2 text-xs text-slate-600 cursor-pointer select-none">
+                          <input
+                            type="checkbox"
+                            checked={importUpdateExisting}
+                            onChange={(e) =>
+                              setImportUpdateExisting(e.target.checked)
+                            }
+                            className="w-3.5 h-3.5 rounded border-slate-300 text-[#2563EB] focus:ring-[#2563EB]/20 cursor-pointer"
+                          />
+                          <span>Update existing products if SKU matches</span>
+                        </label>
+                      </div>
+
+                      {/* Preview Table */}
+                      <div className="border border-slate-200/80 rounded-xl overflow-hidden max-h-52 overflow-y-auto">
+                        <table className="w-full text-left text-[11px]">
+                          <thead className="bg-slate-50 text-slate-500 font-semibold sticky top-0 border-b border-slate-200/80">
+                            <tr>
+                              <th className="py-2 px-3">#</th>
+                              <th className="py-2 px-3">Name</th>
+                              <th className="py-2 px-3">SKU</th>
+                              <th className="py-2 px-3">Category</th>
+                              <th className="py-2 px-3 text-right">Price</th>
+                              <th className="py-2 px-3 text-right">Stock</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-slate-100">
+                            {importParsedRows.slice(0, 5).map((row, idx) => {
+                              const rName =
+                                row.Name ||
+                                row.name ||
+                                row["Product Name"] ||
+                                "Untitled";
+                              const rSku =
+                                row.SKU || row.sku || row.id || "Auto-gen";
+                              const rCat =
+                                row.Category ||
+                                row.category ||
+                                "Electronic Components";
+                              const rPrice =
+                                row["Price (INR)"] ||
+                                row.Price ||
+                                row.price ||
+                                "0";
+                              const rStock =
+                                row.Stock || row.stock || row.quantity || "25";
+
+                              return (
+                                <tr
+                                  key={idx}
+                                  className="hover:bg-slate-50/60 transition-colors"
+                                >
+                                  <td className="py-2 px-3 text-slate-400">
+                                    {idx + 1}
+                                  </td>
+                                  <td className="py-2 px-3 font-semibold text-slate-800 max-w-[180px] truncate">
+                                    {rName}
+                                  </td>
+                                  <td className="py-2 px-3 font-mono text-slate-600">
+                                    {rSku}
+                                  </td>
+                                  <td className="py-2 px-3 text-slate-600 max-w-[120px] truncate">
+                                    {rCat}
+                                  </td>
+                                  <td className="py-2 px-3 text-right font-semibold text-slate-900">
+                                    ₹{rPrice}
+                                  </td>
+                                  <td className="py-2 px-3 text-right text-slate-600">
+                                    {rStock}
+                                  </td>
+                                </tr>
+                              );
+                            })}
+                          </tbody>
+                        </table>
+                      </div>
+
+                      {importParsedRows.length > 5 && (
+                        <p className="text-[11px] text-slate-400 text-center italic">
+                          + {importParsedRows.length - 5} more products ready to
+                          import
+                        </p>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Progress Indicator */}
+                  {isImporting && (
+                    <div className="space-y-1.5 pt-2">
+                      <div className="flex items-center justify-between text-xs font-semibold text-slate-700">
+                        <span className="flex items-center gap-1.5">
+                          <RefreshCw className="w-3.5 h-3.5 text-[#2563EB] animate-spin" />
+                          <span>Importing catalog...</span>
+                        </span>
+                        <span>{importProgress}%</span>
+                      </div>
+                      <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+                        <div
+                          className="bg-[#2563EB] h-full transition-all duration-300 rounded-full"
+                          style={{ width: `${importProgress}%` }}
+                        />
+                      </div>
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+
+            {/* Modal Footer */}
+            <div className="px-6 py-4 bg-slate-50/70 border-t border-slate-100 flex items-center justify-between">
+              {importSummary ? (
+                <div className="ml-auto">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowImportModal(false);
+                      setImportSummary(null);
+                      setImportFile(null);
+                      setImportParsedRows([]);
+                    }}
+                    className="px-5 py-2 bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-xs font-semibold rounded-xl shadow-xs transition-all cursor-pointer"
+                  >
+                    Done &amp; View Catalog
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <button
+                    type="button"
+                    onClick={handleDownloadSampleCsvTemplate}
+                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-slate-900 cursor-pointer"
+                  >
+                    <Download className="w-3.5 h-3.5 text-slate-400" />
+                    <span>Download sample format</span>
+                  </button>
+
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      disabled={isImporting}
+                      onClick={() => setShowImportModal(false)}
+                      className="px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="button"
+                      disabled={isImporting || importParsedRows.length === 0}
+                      onClick={handleConfirmImport}
+                      className="inline-flex items-center gap-2 px-5 py-2 bg-[#2563EB] hover:bg-[#1D4ED8] disabled:opacity-50 text-white text-xs font-semibold rounded-xl shadow-xs transition-all cursor-pointer active:scale-98"
+                    >
+                      {isImporting ? (
+                        <>
+                          <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                          <span>Importing...</span>
+                        </>
+                      ) : (
+                        <>
+                          <UploadCloud className="w-4 h-4" />
+                          <span>
+                            Import {importParsedRows.length > 0 ? `(${importParsedRows.length})` : ""}
+                          </span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
           </div>
         </div>
       )}

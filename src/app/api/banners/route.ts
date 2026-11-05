@@ -15,12 +15,15 @@ const STORAGE_PATH = path.join(
   "heroBannersStore.json",
 );
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 function getBannersFromDisk(): HeroBanner[] {
   try {
     if (fs.existsSync(STORAGE_PATH)) {
       const raw = fs.readFileSync(STORAGE_PATH, "utf-8");
       const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed) && parsed.length > 0) {
+      if (Array.isArray(parsed)) {
         return parsed;
       }
     }
@@ -40,22 +43,26 @@ function saveBannersToDisk(banners: HeroBanner[]): boolean {
   }
 }
 
-// In-memory cache synced with disk
-let cachedBanners: HeroBanner[] = getBannersFromDisk();
+function getNoCacheHeaders(): Record<string, string> {
+  const headers = getSecurityHeaders();
+  return {
+    ...headers,
+    "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0",
+    Pragma: "no-cache",
+    Expires: "0",
+  };
+}
 
 export async function GET(request: Request) {
-  const headers = getSecurityHeaders();
+  const headers = getNoCacheHeaders();
   const { searchParams } = new URL(request.url);
   const activeOnly = searchParams.get("activeOnly") === "true";
 
-  // Re-read if cache is empty
-  if (!cachedBanners || cachedBanners.length === 0) {
-    cachedBanners = getBannersFromDisk();
-  }
-
+  // Always read fresh from disk — zero stale cache
+  const banners = getBannersFromDisk();
   const list = activeOnly
-    ? cachedBanners.filter((b) => b.isActive)
-    : cachedBanners;
+    ? banners.filter((b) => b.isActive)
+    : banners;
 
   return NextResponse.json(
     {
@@ -67,22 +74,24 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const headers = getSecurityHeaders();
+  const headers = getNoCacheHeaders();
   try {
     const body: Partial<HeroBanner> = await request.json();
+    const currentBanners = getBannersFromDisk();
 
-    if (!body.titlePrefix && !body.badge) {
+    if (!body.titlePrefix && !body.badge && !body.image) {
       return NextResponse.json(
-        { success: false, message: "Title or Badge is required." },
+        { success: false, message: "Banner image or title is required." },
         { status: 400, headers },
       );
     }
 
     const newBanner: HeroBanner = {
       id: body.id || `banner-${Date.now()}`,
-      badge: body.badge?.trim() || "🇮🇳 Prayog India Exclusive",
-      titlePrefix: body.titlePrefix?.trim() || "Build. Learn.",
-      titleHighlight: body.titleHighlight?.trim() || "Innovate.",
+      badge: body.badge?.trim() || "",
+      titlePrefix: body.titlePrefix?.trim() || "",
+      titleHighlight: body.titleHighlight?.trim() || "",
+      subtitle: body.subtitle?.trim() || "",
       description: body.description?.trim() || "",
       primaryButtonText: body.primaryButtonText?.trim() || "Explore Products",
       primaryButtonLink: body.primaryButtonLink?.trim() || "/products",
@@ -98,21 +107,25 @@ export async function POST(request: Request) {
       displayOrder:
         typeof body.displayOrder === "number"
           ? body.displayOrder
-          : cachedBanners.length + 1,
+          : currentBanners.length + 1,
       isActive: typeof body.isActive === "boolean" ? body.isActive : true,
+      showTextOverlay:
+        typeof body.showTextOverlay === "boolean"
+          ? body.showTextOverlay
+          : Boolean(body.titlePrefix && body.titlePrefix.trim() !== "." && body.titlePrefix.trim().length > 1),
       theme: body.theme || "blue-gradient",
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
 
-    cachedBanners.push(newBanner);
-    saveBannersToDisk(cachedBanners);
+    const updatedList = [...currentBanners, newBanner];
+    saveBannersToDisk(updatedList);
 
     return NextResponse.json(
       {
         success: true,
         data: newBanner,
-        all: sortHeroBanners(cachedBanners),
+        all: sortHeroBanners(updatedList),
       },
       { status: 201, headers },
     );
@@ -126,7 +139,7 @@ export async function POST(request: Request) {
 }
 
 export async function PUT(request: Request) {
-  const headers = getSecurityHeaders();
+  const headers = getNoCacheHeaders();
   try {
     const body: Partial<HeroBanner> & { id: string } = await request.json();
 
@@ -137,7 +150,8 @@ export async function PUT(request: Request) {
       );
     }
 
-    const index = cachedBanners.findIndex((b) => b.id === body.id);
+    const currentBanners = getBannersFromDisk();
+    const index = currentBanners.findIndex((b) => b.id === body.id);
     if (index === -1) {
       return NextResponse.json(
         { success: false, message: "Banner not found." },
@@ -145,24 +159,24 @@ export async function PUT(request: Request) {
       );
     }
 
-    cachedBanners[index] = {
-      ...cachedBanners[index],
+    currentBanners[index] = {
+      ...currentBanners[index],
       ...body,
       noteLines: Array.isArray(body.noteLines)
         ? body.noteLines
         : typeof body.noteLines === "string"
         ? (body.noteLines as string).split("\n").filter(Boolean)
-        : cachedBanners[index].noteLines,
+        : currentBanners[index].noteLines,
       updatedAt: new Date().toISOString(),
     };
 
-    saveBannersToDisk(cachedBanners);
+    saveBannersToDisk(currentBanners);
 
     return NextResponse.json(
       {
         success: true,
-        data: cachedBanners[index],
-        all: sortHeroBanners(cachedBanners),
+        data: currentBanners[index],
+        all: sortHeroBanners(currentBanners),
       },
       { headers },
     );
@@ -176,7 +190,7 @@ export async function PUT(request: Request) {
 }
 
 export async function DELETE(request: Request) {
-  const headers = getSecurityHeaders();
+  const headers = getNoCacheHeaders();
   const { searchParams } = new URL(request.url);
   const id = searchParams.get("id");
 
@@ -187,14 +201,15 @@ export async function DELETE(request: Request) {
     );
   }
 
-  cachedBanners = cachedBanners.filter((b) => b.id !== id);
-  saveBannersToDisk(cachedBanners);
+  const currentBanners = getBannersFromDisk();
+  const updatedList = currentBanners.filter((b) => b.id !== id);
+  saveBannersToDisk(updatedList);
 
   return NextResponse.json(
     {
       success: true,
       message: "Banner deleted.",
-      all: sortHeroBanners(cachedBanners),
+      all: sortHeroBanners(updatedList),
     },
     { headers },
   );

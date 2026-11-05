@@ -1,15 +1,19 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import {
   ChevronDown,
   ChevronUp,
   Search,
   RotateCcw,
   Star,
+  Check,
+  X,
+  Tag,
 } from "lucide-react";
 import { CATEGORIES_DATA } from "@/data/categories";
-import { BRANDS_DATA } from "@/data/brands";
+import { BRANDS_DATA, getBrandsForCategory } from "@/data/brands";
+import { PRODUCTS } from "@/data/mockData";
 
 export interface TechnicalSpecFilters {
   voltage?: string | null;
@@ -119,15 +123,35 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
   // Accordion toggle states
   const [priceOpen, setPriceOpen] = useState(true);
   const [catOpen, setCatOpen] = useState(true);
-  const [brandOpen, setBrandOpen] = useState(true);
   const [discountOpen, setDiscountOpen] = useState(false);
   const [ratingOpen, setRatingOpen] = useState(false);
-  const [showAllBrands, setShowAllBrands] = useState(false);
+
+  // Brand Dropdown states
+  const [isBrandDropdownOpen, setIsBrandDropdownOpen] = useState(false);
+  const [brandSearch, setBrandSearch] = useState("");
+  const brandDropdownRef = useRef<HTMLDivElement>(null);
+
+  // Close brand dropdown on outside click
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        brandDropdownRef.current &&
+        !brandDropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsBrandDropdownOpen(false);
+      }
+    }
+    if (isBrandDropdownOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isBrandDropdownOpen]);
 
   // Local price inputs
   const [inputMin, setInputMin] = useState<number>(priceRange[0]);
   const [inputMax, setInputMax] = useState<number>(priceRange[1]);
-  const [brandSearch, setBrandSearch] = useState("");
 
   useEffect(() => {
     setInputMin(priceRange[0]);
@@ -155,31 +179,32 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
       count: c.productCount,
     }));
 
-  // Default brands
-  const brandList =
-    brands ||
-    BRANDS_DATA.map((b) => ({
-      id: b.id,
-      name: b.name,
-      count: b.count,
-    }));
+  // Context-aware Brands filtered by active Category
+  const brandList = useMemo(() => {
+    if (brands && brands.length > 0) {
+      return brands;
+    }
+    return getBrandsForCategory(selectedCategory, PRODUCTS);
+  }, [brands, selectedCategory]);
 
-  const filteredBrands = brandList.filter((b) =>
-    b.name.toLowerCase().includes(brandSearch.toLowerCase()),
-  );
+  const filteredBrands = useMemo(() => {
+    if (!brandSearch.trim()) return brandList;
+    return brandList.filter((b) =>
+      b.name.toLowerCase().includes(brandSearch.toLowerCase().trim()),
+    );
+  }, [brandList, brandSearch]);
 
-  const displayedBrands = showAllBrands
-    ? filteredBrands
-    : filteredBrands.slice(0, 6);
-
-  // 1-Click Price Presets
-  const PRICE_PRESETS: { label: string; range: [number, number] }[] = [
-    { label: "All", range: [minPriceLimit, maxPriceLimit] },
-    { label: "Under ₹1k", range: [0, 1000] },
-    { label: "₹1k - ₹5k", range: [1000, 5000] },
-    { label: "₹5k - ₹20k", range: [5000, 20000] },
-    { label: "₹20k+", range: [20000, maxPriceLimit] },
-  ];
+  // If category changes and currently selected brand is no longer in this category, reset it safely
+  useEffect(() => {
+    if (selectedBrand && brandList.length > 0) {
+      const isAvailable = brandList.some(
+        (b) => b.name.toLowerCase() === selectedBrand.toLowerCase(),
+      );
+      if (!isAvailable) {
+        onSelectBrand(null);
+      }
+    }
+  }, [brandList, selectedBrand, onSelectBrand]);
 
   const handleApplyPrice = () => {
     const cleanMin = Math.max(
@@ -197,12 +222,6 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
     }
   };
 
-  const handlePresetClick = (range: [number, number]) => {
-    setInputMin(range[0]);
-    setInputMax(range[1]);
-    onPriceRangeChange(range);
-  };
-
   // Stock filter toggle handler
   const handleStockToggle = () => {
     if (onStockFilterChange) {
@@ -217,8 +236,6 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
   // Active filters calculation
   const isPriceFiltered =
     priceRange[0] > minPriceLimit || priceRange[1] < maxPriceLimit;
-  const isPresetActive = (r: [number, number]) =>
-    priceRange[0] === r[0] && priceRange[1] === r[1];
 
   const activeFiltersCount =
     (selectedCategory && !hideCategories ? 1 : 0) +
@@ -303,27 +320,6 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
 
         {priceOpen && (
           <div className="space-y-3 pt-0.5">
-            {/* 1-Click Easy Preset Pills */}
-            <div className="flex flex-wrap gap-1.5">
-              {PRICE_PRESETS.map((preset) => {
-                const isSelected = isPresetActive(preset.range);
-                return (
-                  <button
-                    key={preset.label}
-                    type="button"
-                    onClick={() => handlePresetClick(preset.range)}
-                    className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all cursor-pointer border ${
-                      isSelected
-                        ? "bg-[#2563EB] text-white border-[#2563EB] shadow-xs"
-                        : "bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100 hover:text-slate-900"
-                    }`}
-                  >
-                    {preset.label}
-                  </button>
-                );
-              })}
-            </div>
-
             {/* Range Slider Track */}
             <div className="space-y-1">
               <input
@@ -491,80 +487,183 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
         </div>
       )}
 
-      {/* ── 5. BRANDS Section with Compact View ── */}
+      {/* ── 5. BRANDS Section with Category-Aware Dropdown ── */}
       <div className="border-b border-slate-100 pb-4 space-y-2.5">
-        <button
-          type="button"
-          onClick={() => setBrandOpen(!brandOpen)}
-          className="flex items-center justify-between w-full font-bold text-slate-900 text-xs tracking-wider text-left cursor-pointer uppercase select-none"
-        >
-          <span>Brands</span>
-          {brandOpen ? (
-            <ChevronUp className="w-4 h-4 text-slate-400" />
-          ) : (
-            <ChevronDown className="w-4 h-4 text-slate-400" />
-          )}
-        </button>
-
-        {brandOpen && (
-          <div className="space-y-2 pt-0.5">
-            {/* Compact Brand Search (only shown if more than 6 brands) */}
-            {brandList.length > 6 && (
-              <div className="relative">
-                <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
-                <input
-                  type="text"
-                  value={brandSearch}
-                  onChange={(e) => setBrandSearch(e.target.value)}
-                  placeholder="Filter brands..."
-                  className="w-full bg-slate-50 text-xs pl-8 pr-2 py-1.5 rounded-lg border border-slate-200 focus:outline-none focus:border-[#2563EB] focus:bg-white transition-all font-medium"
-                />
-              </div>
+        <div className="flex items-center justify-between">
+          <label className="font-bold text-slate-900 text-xs tracking-wider uppercase select-none flex items-center gap-1.5">
+            <span>Brand</span>
+            {selectedCategory && (
+              <span className="text-[10px] text-slate-400 font-normal lowercase tracking-normal">
+                (in category)
+              </span>
             )}
+          </label>
+          {selectedBrand && (
+            <button
+              type="button"
+              onClick={() => onSelectBrand(null)}
+              className="text-[11px] font-semibold text-[#2563EB] hover:text-[#1D4ED8] transition-colors cursor-pointer"
+            >
+              Reset
+            </button>
+          )}
+        </div>
 
-            {/* Brand Checkboxes List */}
-            <div className="space-y-1 max-h-48 overflow-y-auto pr-1 scrollbar-thin">
-              {displayedBrands.map((b) => (
-                <label
-                  key={b.id}
-                  className="flex items-center justify-between gap-2 cursor-pointer py-1 px-1 hover:bg-slate-50 rounded-md transition-colors group select-none"
+        {/* Dropdown Container */}
+        <div ref={brandDropdownRef} className="relative">
+          {/* Dropdown Trigger Button */}
+          <button
+            type="button"
+            onClick={() => setIsBrandDropdownOpen(!isBrandDropdownOpen)}
+            aria-haspopup="listbox"
+            aria-expanded={isBrandDropdownOpen}
+            className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold border transition-all cursor-pointer bg-white text-left ${
+              isBrandDropdownOpen
+                ? "border-[#2563EB] ring-2 ring-[#2563EB]/10 shadow-xs"
+                : selectedBrand
+                ? "border-[#2563EB]/60 bg-blue-50/20 text-slate-900 shadow-2xs"
+                : "border-slate-200 text-slate-700 hover:border-slate-300 shadow-2xs"
+            }`}
+          >
+            <div className="flex items-center gap-2 truncate pr-2">
+              <Tag
+                className={`w-3.5 h-3.5 shrink-0 ${
+                  selectedBrand ? "text-[#2563EB]" : "text-slate-400"
+                }`}
+              />
+              <span className="truncate">
+                {selectedBrand
+                  ? selectedBrand
+                  : `All Brands (${brandList.length})`}
+              </span>
+            </div>
+            <div className="flex items-center gap-1 shrink-0">
+              {selectedBrand && (
+                <span
+                  role="button"
+                  tabIndex={0}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onSelectBrand(null);
+                  }}
+                  className="p-0.5 rounded-full hover:bg-slate-200 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
+                  title="Clear brand filter"
+                >
+                  <X className="w-3 h-3" />
+                </span>
+              )}
+              <ChevronDown
+                className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${
+                  isBrandDropdownOpen ? "rotate-180 text-[#2563EB]" : ""
+                }`}
+              />
+            </div>
+          </button>
+
+          {/* Floating Dropdown Menu */}
+          {isBrandDropdownOpen && (
+            <div className="absolute left-0 right-0 top-full mt-1.5 z-40 bg-white border border-slate-200/90 rounded-xl shadow-xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+              {/* Optional Search inside dropdown if > 5 brands */}
+              {brandList.length > 5 && (
+                <div className="p-2 border-b border-slate-100 bg-slate-50/60">
+                  <div className="relative">
+                    <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
+                    <input
+                      type="text"
+                      value={brandSearch}
+                      onChange={(e) => setBrandSearch(e.target.value)}
+                      placeholder="Search brands..."
+                      autoFocus
+                      className="w-full pl-8 pr-2 py-1.5 text-xs bg-white border border-slate-200 rounded-lg outline-none focus:border-[#2563EB] text-slate-800 placeholder:text-slate-400 font-medium"
+                    />
+                    {brandSearch && (
+                      <button
+                        type="button"
+                        onClick={() => setBrandSearch("")}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5 cursor-pointer"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Scrollable Brands List */}
+              <div className="max-h-56 overflow-y-auto p-1 space-y-0.5 scrollbar-thin">
+                {/* "All Brands" Default Option */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    onSelectBrand(null);
+                    setIsBrandDropdownOpen(false);
+                    setBrandSearch("");
+                  }}
+                  className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer text-left ${
+                    !selectedBrand
+                      ? "bg-blue-50 text-[#2563EB]"
+                      : "text-slate-700 hover:bg-slate-50 hover:text-slate-900"
+                  }`}
                 >
                   <div className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      checked={selectedBrand === b.name}
-                      onChange={() =>
-                        onSelectBrand(selectedBrand === b.name ? null : b.name)
-                      }
-                      className="w-3.5 h-3.5 rounded border-slate-300 text-[#2563EB] focus:ring-[#2563EB] cursor-pointer"
-                    />
-                    <span className="text-xs font-medium text-slate-700 group-hover:text-slate-900">
-                      {b.name}
+                    <span>All Brands</span>
+                    <span className="text-[10px] text-slate-400 font-normal">
+                      ({brandList.length})
                     </span>
                   </div>
-                  {b.count !== undefined && (
-                    <span className="text-[10px] text-slate-400">
-                      ({b.count})
-                    </span>
+                  {!selectedBrand && (
+                    <Check className="w-3.5 h-3.5 text-[#2563EB]" />
                   )}
-                </label>
-              ))}
-            </div>
+                </button>
 
-            {/* Show More / Less Brands button */}
-            {filteredBrands.length > 6 && (
-              <button
-                type="button"
-                onClick={() => setShowAllBrands(!showAllBrands)}
-                className="text-[11px] font-bold text-[#2563EB] hover:underline cursor-pointer pt-0.5"
-              >
-                {showAllBrands
-                  ? "Show Less"
-                  : `+ ${filteredBrands.length - 6} More Brands`}
-              </button>
-            )}
-          </div>
-        )}
+                {/* Filtered Brands in Category */}
+                {filteredBrands.length === 0 ? (
+                  <div className="px-3 py-3 text-center text-xs text-slate-400">
+                    No brands match &ldquo;{brandSearch}&rdquo;
+                  </div>
+                ) : (
+                  filteredBrands.map((b) => {
+                    const isSelected = selectedBrand === b.name;
+                    return (
+                      <button
+                        key={b.id}
+                        type="button"
+                        onClick={() => {
+                          onSelectBrand(isSelected ? null : b.name);
+                          setIsBrandDropdownOpen(false);
+                          setBrandSearch("");
+                        }}
+                        className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer text-left ${
+                          isSelected
+                            ? "bg-blue-50 text-[#2563EB]"
+                            : "text-slate-700 hover:bg-slate-50 hover:text-slate-900"
+                        }`}
+                      >
+                        <div className="flex items-center gap-1.5 truncate pr-2">
+                          <span className="truncate">{b.name}</span>
+                          {b.count !== undefined && (
+                            <span
+                              className={`text-[10px] font-normal ${
+                                isSelected
+                                  ? "text-[#2563EB]/80"
+                                  : "text-slate-400"
+                              }`}
+                            >
+                              ({b.count})
+                            </span>
+                          )}
+                        </div>
+                        {isSelected && (
+                          <Check className="w-3.5 h-3.5 text-[#2563EB] shrink-0" />
+                        )}
+                      </button>
+                    );
+                  })
+                )}
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* ── 6. DISCOUNT OFFERS (Clean & Collapsible) ── */}

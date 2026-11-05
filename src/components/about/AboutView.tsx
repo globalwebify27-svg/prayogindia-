@@ -37,62 +37,7 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
-
-const INSTITUTIONAL_PARTNERS = [
-  {
-    name: "CISF",
-    fullName: "Central Industrial Security Force",
-    logo: "/images/partners/cisf.png",
-  },
-  {
-    name: "TATA STEEL",
-    fullName: "Tata Steel",
-    logo: "/images/partners/tata-steel.png",
-  },
-  {
-    name: "Indian Air Force",
-    fullName: "Indian Air Force (Bharatiya Vayu Sena)",
-    logo: "/images/partners/indian-air-force.png",
-  },
-  {
-    name: "INDIAN ARMY",
-    fullName: "Indian Army (Bharatiya Sena)",
-    logo: "/images/partners/indian-army.png",
-  },
-  {
-    name: "Indian Navy",
-    fullName: "Indian Navy (Bharatiya Nau Sena)",
-    logo: "/images/partners/indian-navy.png",
-  },
-  {
-    name: "IndianOil",
-    fullName: "Indian Oil Corporation Limited",
-    logo: "/images/partners/indianoil.png",
-  },
-  {
-    name: "PWD Government of West Bengal",
-    fullName: "Public Works Department, Govt. of West Bengal",
-    logo: "/images/partners/pwd-wb.png",
-  },
-  {
-    name: "TATA METALIKS",
-    fullName: "Tata Metaliks",
-    logo: "/images/partners/tata-metaliks.png",
-  },
-  {
-    name: "IIT Kharagpur",
-    fullName: "Indian Institute of Technology Kharagpur",
-    logo: "/images/partners/iit-kharagpur.png",
-  },
-];
-
-const ROW_1_PARTNERS = [...INSTITUTIONAL_PARTNERS, ...INSTITUTIONAL_PARTNERS];
-const ROW_2_PARTNERS = [
-  ...INSTITUTIONAL_PARTNERS.slice(4),
-  ...INSTITUTIONAL_PARTNERS.slice(0, 4),
-  ...INSTITUTIONAL_PARTNERS.slice(4),
-  ...INSTITUTIONAL_PARTNERS.slice(0, 4),
-];
+import { InstitutionalPartnersSection } from "@/components/about/InstitutionalPartnersSlider";
 
 const SHOWCASE_ICONS: Record<ShowcaseIconType, React.ElementType> = {
   users: UsersIcon,
@@ -114,7 +59,6 @@ interface CompliancePolicy {
   icon: React.ElementType;
   iconBg: string;
   gradient: string;
-  description: string;
   keyPoints: string[];
 }
 
@@ -137,8 +81,6 @@ const COMPLIANCE_POLICIES: CompliancePolicy[] = [
     icon: ShieldCheck,
     iconBg: "bg-blue-50 text-[#2563EB] border border-blue-200/70",
     gradient: "from-blue-500 to-indigo-500",
-    description:
-      "By purchasing components or lab services, you agree to our commercial terms. Official POs supersede default retail checkout terms.",
     keyPoints: [
       "Institutional POs & SLAs honored",
       "Transparent commercial & dispatch terms",
@@ -154,8 +96,6 @@ const COMPLIANCE_POLICIES: CompliancePolicy[] = [
     icon: Target,
     iconBg: "bg-amber-50 text-amber-700 border border-amber-200/70",
     gradient: "from-amber-500 to-orange-500",
-    description:
-      "Hardware and drone modules are intended for education and research. Users must observe proper reverse-polarity and voltage protocols.",
     keyPoints: [
       "Reverse-polarity & voltage safety",
       "LiPo battery & drone safety guidelines",
@@ -166,13 +106,11 @@ const COMPLIANCE_POLICIES: CompliancePolicy[] = [
     category: "privacy",
     categoryLabel: "Data Protection",
     title: "Privacy & Data Policy",
-    badge: "Zero Spam • 256-Bit",
+    badge: "256-Bit SSL",
     badgeStyle: "bg-emerald-50 text-emerald-700 border-emerald-200/80",
     icon: Eye,
     iconBg: "bg-emerald-50 text-emerald-700 border border-emerald-200/70",
     gradient: "from-emerald-500 to-teal-500",
-    description:
-      "Customer details and GST info are stored with 256-bit encryption. We never sell data to advertisers, only using it for orders and tracking.",
     keyPoints: [
       "256-bit SSL enterprise encryption",
       "Zero 3rd-party data selling or tracking",
@@ -183,13 +121,11 @@ const COMPLIANCE_POLICIES: CompliancePolicy[] = [
     category: "shipping",
     categoryLabel: "Assurance & Returns",
     title: "Return & Replacement",
-    badge: "7-Day Guarantee",
+    badge: "7-Day Cover",
     badgeStyle: "bg-indigo-50 text-indigo-700 border-indigo-200/80",
     icon: RotateCcw,
     iconBg: "bg-indigo-50 text-indigo-700 border border-indigo-200/70",
     gradient: "from-indigo-500 to-violet-500",
-    description:
-      "Hassle-free 7-day replacement guarantee on hardware with transit damage or defects. Direct refunds are processed within 3-5 business days.",
     keyPoints: [
       "7-Day cover for defects & transit damage",
       "Direct refunds in 3-5 business days",
@@ -205,8 +141,6 @@ const COMPLIANCE_POLICIES: CompliancePolicy[] = [
     icon: Truck,
     iconBg: "bg-cyan-50 text-cyan-700 border border-cyan-200/70",
     gradient: "from-cyan-500 to-blue-500",
-    description:
-      "Orders before 2:00 PM IST dispatch same-day in ESD-safe packaging. Delivery in 2-4 days for metros and 3-6 days pan-India across 19,000+ pincodes.",
     keyPoints: [
       "Same-day cutoff at 2:00 PM IST",
       "19,000+ pincodes via Bluedart/DTDC",
@@ -222,8 +156,6 @@ const COMPLIANCE_POLICIES: CompliancePolicy[] = [
     icon: Cpu,
     iconBg: "bg-purple-50 text-purple-700 border border-purple-200/70",
     gradient: "from-purple-500 to-pink-500",
-    description:
-      "Development boards and lab gear carry standard 6-month or 1-year warranty against failure. Consumables carry DOA replacement cover.",
     keyPoints: [
       "6 to 12-month hardware warranty",
       "DOA instant replacement protection",
@@ -239,8 +171,6 @@ const COMPLIANCE_POLICIES: CompliancePolicy[] = [
     icon: Building2,
     iconBg: "bg-rose-50 text-rose-700 border border-rose-200/70",
     gradient: "from-rose-500 to-red-500",
-    description:
-      "We accept UPI, cards, Net Banking across 50+ banks, and NEFT/RTGS. Colleges and research labs can apply for Net-30 credit against verified POs.",
     keyPoints: [
       "UPI, Net Banking & NEFT/RTGS",
       "Net-30 credit for colleges & R&D labs",
@@ -251,13 +181,11 @@ const COMPLIANCE_POLICIES: CompliancePolicy[] = [
     category: "privacy",
     categoryLabel: "Session & Privacy",
     title: "Cookie & Session Policy",
-    badge: "Zero Ad Trackers",
+    badge: "Zero Trackers",
     badgeStyle: "bg-teal-50 text-teal-700 border-teal-200/80",
     icon: Sparkles,
     iconBg: "bg-teal-50 text-teal-700 border border-teal-200/70",
     gradient: "from-teal-500 to-emerald-500",
-    description:
-      "We use lightweight local storage only for cart retention and user session. We run zero cross-site ad trackers and cookies can be cleared anytime.",
     keyPoints: [
       "Local cart & session storage only",
       "Zero cross-site trackers or ad pixels",
@@ -826,63 +754,8 @@ export const AboutView: React.FC = () => {
           </div>
         </section>
 
-        {/* 7. Institutions & Labs Trust Banner - Styled like Home Page BrandPartners */}
-        <section className="py-5 sm:py-7 bg-white border-y border-slate-200/70 overflow-hidden -mx-4 sm:-mx-6 lg:-mx-8 xl:-mx-10 2xl:-mx-12 px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 space-y-3 sm:space-y-4 text-center">
-          {/* Section Header with Centered Divider (Styled like the reference design) */}
-          <div className="relative flex items-center justify-center">
-            <div className="absolute inset-0 flex items-center" aria-hidden="true">
-              <div className="w-full border-t border-slate-200" />
-            </div>
-            <div className="relative bg-white px-4 sm:px-8">
-              <h2 className="text-xs sm:text-base lg:text-lg font-bold text-slate-900 tracking-tight">
-                Official Institutional &amp; Defense Partners
-              </h2>
-            </div>
-          </div>
-
-          {/* Two-Row Opposing Marquee Tracks (Compact & Sleek) */}
-          <div className="space-y-2.5 sm:space-y-3 py-1">
-            {/* Row 1: Right to Left */}
-            <div className="circular-loop-wrapper">
-              <div className="circular-loop-track-left items-center">
-                {ROW_1_PARTNERS.map((partner, idx) => (
-                  <div
-                    key={`r1-${partner.name}-${idx}`}
-                    title={`${partner.name} (${partner.fullName})`}
-                    className="shrink-0 w-24 sm:w-28 lg:w-32 h-16 sm:h-[70px] lg:h-[74px] bg-white hover:bg-slate-50/50 border border-slate-200/90 hover:border-slate-300 rounded-xl p-1.5 sm:p-2 flex items-center justify-center transition-all duration-300 group cursor-pointer shadow-2xs hover:shadow-sm hover:-translate-y-0.5 select-none"
-                  >
-                    <img
-                      src={partner.logo}
-                      alt={partner.name}
-                      className="w-full h-full object-contain rounded-lg transition-transform duration-300 group-hover:scale-105"
-                      loading="lazy"
-                    />
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Row 2: Left to Right */}
-            <div className="circular-loop-wrapper">
-              <div className="circular-loop-track-right items-center">
-                {ROW_2_PARTNERS.map((partner, idx) => (
-                  <div
-                    key={`r2-${partner.name}-${idx}`}
-                    title={`${partner.name} (${partner.fullName})`}
-                    className="shrink-0 w-24 sm:w-28 lg:w-32 h-16 sm:h-[70px] lg:h-[74px] bg-white hover:bg-slate-50/50 border border-slate-200/90 hover:border-slate-300 rounded-xl p-1.5 sm:p-2 flex items-center justify-center transition-all duration-300 group cursor-pointer shadow-2xs hover:shadow-sm hover:-translate-y-0.5 select-none"
-                  >
-                    <img
-                      src={partner.logo}
-                      alt={partner.name}
-                      className="w-full h-full object-contain rounded-lg transition-transform duration-300 group-hover:scale-105"
-                      loading="lazy"
-                    />
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </section>
+        {/* 7. Institutions & Labs Trust Banner - Infinite Slider */}
+        <InstitutionalPartnersSection />
 
         {/* 8. Institutional Procurement & Contact CTA */}
         <section className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-blue-50/70 via-white to-blue-50/40 border border-blue-200/60 p-8 sm:p-12 shadow-sm">
@@ -944,8 +817,8 @@ export const AboutView: React.FC = () => {
             <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 tracking-tight">
               Customer Trust &amp; Hardware Compliance
             </h2>
-            <p className="text-xs sm:text-sm text-slate-600 font-normal leading-relaxed">
-              Official operating standards, warranty terms, dispatch timelines, and legal disclaimers for Prayog India customers, schools, and institutional partner labs.
+            <p className="text-xs sm:text-sm text-slate-500 font-normal leading-relaxed">
+              Operating standards, warranty terms, and dispatch guidelines for customers and institutional labs.
             </p>
 
             {/* Category Filter Tabs */}
@@ -994,7 +867,7 @@ export const AboutView: React.FC = () => {
                     className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${policy.gradient} opacity-75 group-hover:opacity-100 transition-opacity`}
                   />
 
-                  <div className="space-y-3">
+                  <div className="space-y-2.5">
                     {/* Header */}
                     <div className="flex items-start justify-between gap-2">
                       <div
@@ -1018,15 +891,10 @@ export const AboutView: React.FC = () => {
                         {policy.title}
                       </h3>
                     </div>
-
-                    {/* Description Body */}
-                    <p className="text-xs text-slate-600 leading-relaxed font-normal">
-                      {policy.description}
-                    </p>
                   </div>
 
                   {/* Key Provisions */}
-                  <div className="mt-3.5 pt-2.5 border-t border-slate-100 space-y-1">
+                  <div className="mt-3 pt-2.5 border-t border-slate-100 space-y-1">
                     {policy.keyPoints.map((point, pIdx) => (
                       <div
                         key={pIdx}

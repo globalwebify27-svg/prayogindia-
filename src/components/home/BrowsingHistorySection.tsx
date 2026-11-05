@@ -29,214 +29,6 @@ interface BrowsingHistorySectionProps {
   onQuickView?: (product: Product) => void;
 }
 
-// Curated list of genuine Prayog India products with authentic images and accurate reviews
-const BROWSING_HISTORY_PRODUCTS: Product[] = [
-  {
-    id: "robotic-arm-4dof",
-    slug: "4-dof-acrylic-robotic-arm-manipulator-kit",
-    name: "4-DOF Acrylic Robotic Arm Manipulator Kit with Servos",
-    sku: "PRG-KIT-101",
-    brand: "Prayog India",
-    category: "Robotics & DIY Kits",
-    price: 2499,
-    mrp: 3499,
-    discount: "29% OFF",
-    rating: 4.7,
-    reviews: 145,
-    inStock: true,
-    image: "/images/products/4wd-robot-chassis-kit.jpg",
-    description: "4-degree-of-freedom robotic arm assembly kit with 4x MG996R metal gear servos.",
-    specs: { Servos: "4x MG996R", Reach: "20cm", Payload: "150g" },
-  },
-  {
-    id: "ard-uno-r3",
-    slug: "arduino-uno-r3-official-rev3-board",
-    name: "Arduino UNO R3 Official Rev3 Board (ATmega328P 16MHz DIP)",
-    sku: "PRG-ARD-001",
-    brand: "Arduino",
-    category: "Arduino & Microcontrollers",
-    price: 1499,
-    mrp: 1999,
-    discount: "25% OFF",
-    rating: 4.9,
-    reviews: 342,
-    inStock: true,
-    image: "/images/products/arduino-uno-r3.png",
-    description: "The Arduino UNO R3 standard microcontroller board for mechatronics, robotics, and STEM tinkering.",
-    specs: { Microcontroller: "ATmega328P", Voltage: "5V DC", Clock: "16 MHz" },
-  },
-  {
-    id: "ultrasonic-sensor-hcsr04",
-    slug: "ultrasonic-sensor-hcsr04",
-    name: "HC-SR04 Precision Ultrasonic Distance Sensor Module (2cm - 400cm)",
-    sku: "PRG-SEN-001",
-    brand: "Prayog India",
-    category: "Sensors & Electronic Modules",
-    price: 120,
-    mrp: 199,
-    discount: "40% OFF",
-    rating: 4.8,
-    reviews: 1240,
-    inStock: true,
-    image: "/images/products/ultrasonic-sensor-hcsr04.png",
-    description: "Non-contact ultrasonic ranging module with 3mm high precision accuracy.",
-    specs: { Range: "2cm - 400cm", OperatingVoltage: "5V DC" },
-  },
-  {
-    id: "esp32-devkit-v1",
-    slug: "esp32-devkit-v1",
-    name: "ESP32 DevKit V1 30-Pin Dual-Core Wi-Fi & Bluetooth IoT Board",
-    sku: "PRG-ESP-001",
-    brand: "Espressif",
-    category: "IoT & Wireless Modules",
-    price: 399,
-    mrp: 599,
-    discount: "33% OFF",
-    rating: 4.8,
-    reviews: 620,
-    inStock: true,
-    image: "/images/products/esp32-devkit-v1.jpg",
-    description: "High-performance dual-core 240MHz microcontroller with integrated 802.11b/g/n Wi-Fi and Bluetooth v4.2 BR/EDR.",
-    specs: { Core: "Dual 32-bit LX6", RAM: "520 KB", Wireless: "Wi-Fi + BLE" },
-  },
-  {
-    id: "4wd-robot-chassis",
-    slug: "4wd-smart-robot-car-chassis-kit",
-    name: "4WD Smart Robot Car Chassis Kit with Speed Encoders & Battery Box",
-    sku: "PRG-KIT-101",
-    brand: "Prayog India",
-    category: "Robotics & DIY Kits",
-    price: 899,
-    mrp: 1399,
-    discount: "36% OFF",
-    rating: 4.9,
-    reviews: 410,
-    inStock: true,
-    image: "/images/products/4wd-robot-chassis-kit.jpg",
-    description: "Complete acrylic autonomous mobile robotics car platform with 4 DC TT motors and wheels.",
-    specs: { Motors: "4x TT Gear Motors", Voltage: "3-6V DC" },
-  },
-  {
-    id: "l298n-motor-driver",
-    slug: "l298n-dual-h-bridge-motor-driver",
-    name: "L298N Dual H-Bridge DC & Stepper Motor Driver Controller Module",
-    sku: "PRG-MOT-001",
-    brand: "Prayog India",
-    category: "Motors, Steppers & Drivers",
-    price: 180,
-    mrp: 280,
-    discount: "36% OFF",
-    rating: 4.7,
-    reviews: 890,
-    inStock: true,
-    image: "/images/products/l298n-motor-driver.jpg",
-    description: "Heavy-duty dual H-bridge motor driver module capable of driving up to 2A per channel.",
-    specs: { DriverChip: "L298N", LogicVoltage: "5V", MaxCurrent: "2A per bridge" },
-  },
-  {
-    id: "esp32-cam-ov2640",
-    slug: "esp32-cam-wifi-camera-module",
-    name: "ESP32-CAM WiFi + Bluetooth Board with OV2640 2MP Camera Module",
-    sku: "PRG-ESP-302",
-    brand: "Ai-Thinker",
-    category: "IoT & Wireless Modules",
-    price: 549,
-    mrp: 799,
-    discount: "31% OFF",
-    rating: 4.7,
-    reviews: 780,
-    inStock: true,
-    image: "/images/products/esp32-cam.jpg",
-    description: "Cost-effective vision and AI face recognition board with integrated microSD card slot.",
-    specs: { Camera: "OV2640 2MP", Resolution: "UXGA (1600x1200)", Storage: "TF Card up to 4GB" },
-  },
-  {
-    id: "pixhawk-6c-autopilot",
-    slug: "pixhawk-6c-flight-controller",
-    name: "Pixhawk 6C Autopilot Drone Flight Controller (Triple Redundant IMU)",
-    sku: "PRG-UAV-601",
-    brand: "Holybro",
-    category: "Drones & UAV Parts",
-    price: 18999,
-    mrp: 22499,
-    discount: "16% OFF",
-    rating: 4.9,
-    reviews: 135,
-    inStock: true,
-    image: "/images/products/pixhawk-6c.jpg",
-    description: "Enterprise-grade autonomous drone autopilot system running PX4 and ArduPilot firmware.",
-    specs: { Processor: "STM32H753 480MHz", Sensors: "Triple Redundant IMU", GPS: "M8N/M9N Ready" },
-  },
-  {
-    id: "tt-gear-motor-wheel",
-    slug: "tt-gear-motor-with-wheel-65mm",
-    name: "TT Dual-Shaft DC Gear Motor (1:48) with 65mm High-Grip Rubber Wheel",
-    sku: "PRG-MOT-002",
-    brand: "Prayog India",
-    category: "Motors, Steppers & Drivers",
-    price: 99,
-    mrp: 160,
-    discount: "38% OFF",
-    rating: 4.7,
-    reviews: 1450,
-    inStock: true,
-    image: "/images/products/tt-gear-motor-wheel.png",
-    description: "High torque 1:48 gear ratio DC motor paired with 65mm robot rubber wheel.",
-    specs: { GearRatio: "1:48", OperatingVoltage: "3-6V DC" },
-  },
-  {
-    id: "nema-17-stepper-motor",
-    slug: "nema-17-stepper-motor-high-torque",
-    name: "NEMA 17 High-Torque Bipolar Stepper Motor (42BYGH 1.5A 40mm)",
-    sku: "PRG-MOT-003",
-    brand: "Prayog India",
-    category: "Motors, Steppers & Drivers",
-    price: 650,
-    mrp: 950,
-    discount: "32% OFF",
-    rating: 4.8,
-    reviews: 520,
-    inStock: true,
-    image: "/images/products/nema-17-stepper.jpg",
-    description: "High precision 1.8 degree step angle stepper motor ideal for 3D printers and CNC machines.",
-    specs: { StepAngle: "1.8 deg", HoldingTorque: "40 N.cm", RatedCurrent: "1.5A" },
-  },
-  {
-    id: "soldering-iron-kit-60w",
-    slug: "soldering-iron-kit-temperature-controlled",
-    name: "60W Adjustable Temperature Soldering Iron Kit with 5 Tips & Stand",
-    sku: "PRG-TOOL-001",
-    brand: "Prayog Tools",
-    category: "Robotics & DIY Kits",
-    price: 799,
-    mrp: 1299,
-    discount: "38% OFF",
-    rating: 4.8,
-    reviews: 630,
-    inStock: true,
-    image: "/images/products/soldering-iron-kit.jpg",
-    description: "Ceramic heater core soldering iron with 200°C - 450°C adjustable temperature dial and solder wire.",
-    specs: { Power: "60W", Temperature: "200°C - 450°C", Voltage: "220V AC" },
-  },
-  {
-    id: "3d-printer-hotend-v6",
-    slug: "all-metal-v6-hotend-extruder",
-    name: "All-Metal V6 Hotend Direct/Bowden Extruder for 1.75mm Filament",
-    sku: "PRG-TOOL-002",
-    brand: "Prayog Tools",
-    category: "Robotics & DIY Kits",
-    price: 1199,
-    mrp: 1699,
-    discount: "29% OFF",
-    rating: 4.7,
-    reviews: 290,
-    inStock: true,
-    image: "/images/products/3d-printer-hotend.jpg",
-    description: "High temperature all-metal heatbreak hotend capable of printing PLA, ABS, PETG, and Nylon.",
-    specs: { Filament: "1.75mm", Nozzle: "0.4mm Brass", MaxTemp: "300°C" },
-  },
-];
-
 export const BrowsingHistorySection: React.FC<BrowsingHistorySectionProps> = ({
   title = "Recent View",
   onAddToCart,
@@ -252,45 +44,63 @@ export const BrowsingHistorySection: React.FC<BrowsingHistorySectionProps> = ({
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
   const [addedItemIds, setAddedItemIds] = useState<Record<string, boolean>>({});
-  const [productsList, setProductsList] = useState<Product[]>(BROWSING_HISTORY_PRODUCTS);
+  const [productsList, setProductsList] = useState<Product[]>([]);
 
-  // Sync customer's real-time recently viewed items from localStorage, merged with popular products
+  // Sync customer's real-time recently viewed items from localStorage, merged with live catalog
   useEffect(() => {
-    const loadRecentlyViewed = () => {
-      const recents = getRecentlyViewedProducts();
-      if (recents && recents.length > 0) {
-        const seen = new Set<string>();
-        const merged: Product[] = [];
+    let isMounted = true;
 
-        // 1. Customer's recently viewed products first
+    const loadProducts = async () => {
+      let catalogProducts: Product[] = [];
+      try {
+        const res = await fetch("/api/products?limit=50");
+        const json = await res.json();
+        if (json.success && Array.isArray(json.data)) {
+          catalogProducts = json.data;
+        }
+      } catch {
+        // Fallback
+      }
+
+      if (!isMounted) return;
+
+      const recents = getRecentlyViewedProducts();
+      const seen = new Set<string>();
+      const merged: Product[] = [];
+
+      // 1. Customer's recently viewed products first
+      if (recents && recents.length > 0) {
         for (const p of recents) {
           if (p && p.id && !seen.has(p.id)) {
             seen.add(p.id);
             merged.push(p);
           }
         }
-
-        // 2. Backfill with popular store products
-        for (const p of BROWSING_HISTORY_PRODUCTS) {
-          if (p && p.id && !seen.has(p.id)) {
-            seen.add(p.id);
-            merged.push(p);
-          }
-        }
-
-        setProductsList(merged);
-      } else {
-        setProductsList(BROWSING_HISTORY_PRODUCTS);
       }
+
+      // 2. Backfill with live store catalog products
+      for (const p of catalogProducts) {
+        if (p && p.id && !seen.has(p.id)) {
+          seen.add(p.id);
+          merged.push(p);
+        }
+      }
+
+      setProductsList(merged);
     };
 
-    loadRecentlyViewed();
+    loadProducts();
 
-    window.addEventListener("prayog_recent_products_updated", loadRecentlyViewed);
-    window.addEventListener("storage", loadRecentlyViewed);
+    const handleRecentUpdate = () => {
+      loadProducts();
+    };
+
+    window.addEventListener("prayog_recent_products_updated", handleRecentUpdate);
+    window.addEventListener("storage", handleRecentUpdate);
     return () => {
-      window.removeEventListener("prayog_recent_products_updated", loadRecentlyViewed);
-      window.removeEventListener("storage", loadRecentlyViewed);
+      isMounted = false;
+      window.removeEventListener("prayog_recent_products_updated", handleRecentUpdate);
+      window.removeEventListener("storage", handleRecentUpdate);
     };
   }, []);
 

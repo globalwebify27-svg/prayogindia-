@@ -55,12 +55,6 @@ const NAV_GROUPS = [
     group: "INVENTORY & STOCK",
     items: [
       {
-        label: "+ Add New Product",
-        href: "/admin/products?action=new",
-        icon: Plus,
-        badge: "Create",
-      },
-      {
         label: "Products Catalog",
         href: "/admin/products",
         icon: Package,

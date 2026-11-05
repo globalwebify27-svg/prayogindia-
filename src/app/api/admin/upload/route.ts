@@ -123,7 +123,7 @@ export async function POST(request: Request) {
     return NextResponse.json({
       success: true,
       message: `Successfully converted and compressed ${uploadedResults.length} file(s) into ${targetFormat.toUpperCase()}.`,
-      data: uploadedResults.length === 1 ? uploadedResults[0] : uploadedResults,
+      data: uploadedResults,
       items: uploadedResults,
     });
   } catch (error: unknown) {

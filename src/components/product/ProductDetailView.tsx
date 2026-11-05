@@ -8,9 +8,10 @@ import { ProductGallery } from "@/components/product/ProductGallery";
 import { ProductInformation } from "@/components/product/ProductInformation";
 import { ProductTabsSection } from "@/components/product/ProductTabsSection";
 import { ProductRecommendations } from "@/components/product/ProductRecommendations";
-import { PRODUCTS, Product, ProductVariant } from "@/data/mockData";
+import { PRODUCTS, Product, ProductVariant, getProductStock } from "@/data/mockData";
 import { findMockProduct } from "@/lib/productResolver";
-import { useCartStore, useWishlistStore } from "@/store";
+import { useCartStore, useWishlistStore, useUIStore } from "@/store";
+import { B2BModal } from "@/components/Modals";
 import {
   ShoppingBag,
   ShoppingCart,
@@ -18,9 +19,14 @@ import {
   PackageSearch,
   Check,
   Heart,
+  ExternalLink,
 } from "lucide-react";
 import { AddToCartIcon } from "@/components/icons/AddToCartIcon";
 import { recordProductView } from "@/utils/recentProducts";
+import {
+  ProductPromoBanner,
+  DEFAULT_PRODUCT_PROMO_BANNER,
+} from "@/data/productPromoBannerData";
 
 // Official WhatsApp Vector SVG Icon
 const WhatsAppIcon = ({ className = "w-4 h-4" }: { className?: string }) => (
@@ -101,6 +107,32 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
     s.wishlist.some((p) => p.id === product?.id)
   );
   const [stickyAdded, setStickyAdded] = useState(false);
+  const [b2bOpen, setB2bOpen] = useState(false);
+  const [promoBanner, setPromoBanner] = useState<ProductPromoBanner>(
+    DEFAULT_PRODUCT_PROMO_BANNER
+  );
+
+  // Fetch admin configured product promo banner
+  useEffect(() => {
+    let isMounted = true;
+    const fetchPromoBanner = async () => {
+      try {
+        const res = await fetch(`/api/banners/promo?_t=${Date.now()}`, {
+          cache: "no-store",
+        });
+        const data = await res.json();
+        if (data?.success && data?.data && isMounted) {
+          setPromoBanner(data.data);
+        }
+      } catch (err) {
+        console.error("Failed to load promo banner:", err);
+      }
+    };
+    fetchPromoBanner();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   // Record customer product view in browsing history
   useEffect(() => {
@@ -235,12 +267,64 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
   };
 
   const handleBuyNow = (prod: Product, qty: number = 1) => {
+    const maxStock = getProductStock(prod, selectedVariant);
+    if (qty > maxStock) {
+      useUIStore.getState().showToast({
+        title: `Only ${maxStock} units available.`,
+        type: "error",
+        iconType: "stock-limit",
+        duration: 3000,
+      });
+      return;
+    }
     storeAddToCart(prod, selectedVariant || undefined, qty);
     router.push("/checkout");
   };
 
   const [stickyQuantity, setStickyQuantity] = useState(1);
+  const [isMainCtaVisible, setIsMainCtaVisible] = useState(true);
+
+  useEffect(() => {
+    const target = document.getElementById("main-product-cta");
+    if (!target) return;
+
+    const checkVisibility = () => {
+      const rect = target.getBoundingClientRect();
+      const isVisible = rect.top < window.innerHeight && rect.bottom > 0;
+      setIsMainCtaVisible(isVisible);
+    };
+
+    checkVisibility();
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsMainCtaVisible(entry.isIntersecting);
+      },
+      {
+        threshold: 0.1,
+      }
+    );
+
+    observer.observe(target);
+    window.addEventListener("scroll", checkVisibility, { passive: true });
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("scroll", checkVisibility);
+    };
+  }, [product.id]);
+
   const handleStickyAddToCart = () => {
+    const maxStock = getProductStock(product, selectedVariant);
+    if (stickyQuantity > maxStock) {
+      useUIStore.getState().showToast({
+        title: `Only ${maxStock} units available.`,
+        type: "error",
+        iconType: "stock-limit",
+        duration: 3000,
+      });
+      return;
+    }
     handleAddToCart(product, stickyQuantity);
     setStickyAdded(true);
     setTimeout(() => setStickyAdded(false), 1800);
@@ -294,11 +378,164 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
             isWishlisted={isProductWishlisted}
             quantity={stickyQuantity}
             onQuantityChange={setStickyQuantity}
+            onOpenB2BModal={() => setB2bOpen(true)}
           />
         </div>
       </div>
 
-      {/* ── Lower Section: Horizontal Tabs Container (Overview, Specs, Box, Compatibility, Reviews, FAQ) ── */}
+
+
+      {/* ── Side-by-Side Promotional Cards: Bulk Order + Prayog App Download ── */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 pt-1">
+        {/* Card 1: Bulk Order Box */}
+        <div className="bg-white rounded-3xl p-6 sm:p-7 border border-slate-200/90 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between space-y-4">
+          <div className="space-y-2">
+            <h3 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+              Bulk Order?
+            </h3>
+            <p className="text-sm font-semibold text-slate-600 leading-relaxed">
+              For Best Price Contact on{" "}
+              <a
+                href={`https://wa.me/918709789641?text=${encodeURIComponent(
+                  `Hello Prayog India, I want a bulk price quotation for ${product.name} (SKU: ${product.sku}).`
+                )}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-black text-[#25D366] hover:underline inline-flex items-center gap-1 align-baseline"
+              >
+                <WhatsAppIcon className="w-3.5 h-3.5 fill-[#25D366] shrink-0" />
+                <span>WhatsApp</span>
+              </a>{" "}
+              for bulk discounts!
+            </p>
+            <p className="text-xs text-slate-500 font-medium">
+              Or Fill the Form Below
+            </p>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setB2bOpen(true)}
+            className="w-full py-3.5 px-5 bg-[#005CA9] hover:bg-[#004a88] text-white rounded-2xl font-extrabold text-xs sm:text-sm shadow-md shadow-blue-900/15 transition-all cursor-pointer flex items-center justify-center gap-2 hover:scale-[1.01]"
+          >
+            Submit your Bulk Enquiry Here
+          </button>
+        </div>
+
+        {/* Card 2: Promotional Banner (Configured from Admin with Redirect Link) */}
+        {promoBanner.isActive && (
+          promoBanner.useCustomImage && promoBanner.bannerImageUrl ? (
+            /* Mode 1: Custom Artwork Banner Uploaded by Admin */
+            <a
+              href={promoBanner.redirectUrl || "/download"}
+              target={promoBanner.redirectUrl?.startsWith("http") ? "_blank" : undefined}
+              rel="noopener noreferrer"
+              className="rounded-3xl overflow-hidden border border-slate-200/90 shadow-sm hover:shadow-md transition-all group block relative bg-[#0A1128] min-h-[170px]"
+            >
+              <img
+                src={promoBanner.bannerImageUrl}
+                alt={promoBanner.title || "Special Promotion - Prayog India"}
+                className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-300"
+              />
+              <span className="absolute bottom-3 right-3 bg-[#0A1128]/80 hover:bg-black text-white text-[10px] font-bold px-2.5 py-1 rounded-lg backdrop-blur-md border border-white/20 inline-flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                <span>Open Link</span>
+                <ExternalLink className="w-3 h-3" />
+              </span>
+            </a>
+          ) : (
+            /* Mode 2: Dynamic Interactive Offer / App Banner Card */
+            <div className="bg-gradient-to-br from-[#0A1128] via-[#005CA9] to-[#00AEEF] rounded-3xl p-6 sm:p-7 text-white shadow-md relative overflow-hidden flex flex-col sm:flex-row items-center justify-between gap-6 group border border-cyan-500/20">
+              {/* Subtle grid pattern background */}
+              <div className="absolute inset-0 opacity-15 bg-[radial-gradient(#00F0FF_1px,transparent_1px)] [background-size:16px_16px] pointer-events-none" />
+
+              {/* Left Phone Mockup Graphic - Clickable to redirect */}
+              <a
+                href={promoBanner.redirectUrl || "/download"}
+                target={promoBanner.redirectUrl?.startsWith("http") ? "_blank" : undefined}
+                rel="noopener noreferrer"
+                className="relative w-28 h-40 sm:w-32 sm:h-44 shrink-0 rounded-2xl bg-[#061128]/85 backdrop-blur-md border border-cyan-400/30 p-2 shadow-xl flex flex-col items-center justify-between overflow-hidden transition-transform group-hover:scale-105 cursor-pointer"
+                title={`Redirect to ${promoBanner.redirectUrl || "/download"}`}
+              >
+                <div className="w-12 h-1 bg-white/40 rounded-full" />
+                <div className="w-full flex-1 flex flex-col items-center justify-center text-center p-1">
+                  <span className="text-[10px] font-black tracking-widest uppercase text-[#00AEEF]">
+                    PRAYOG
+                  </span>
+                  <span className="text-xs font-black text-white mt-0.5">
+                    {promoBanner.phoneTitle || "APP 2.0"}
+                  </span>
+                  <span className="text-[9px] bg-[#FFC20E] text-slate-950 font-black px-2 py-0.5 rounded-full mt-2 shadow-2xs">
+                    {promoBanner.phoneBadgeText || "5% OFF"}
+                  </span>
+                </div>
+                <div className="w-8 h-1 bg-white/30 rounded-full" />
+              </a>
+
+              {/* Right Text Content & Download Badges */}
+              <div className="flex-1 text-center sm:text-left space-y-3 z-10">
+                <div>
+                  <a
+                    href={promoBanner.redirectUrl || "/download"}
+                    target={promoBanner.redirectUrl?.startsWith("http") ? "_blank" : undefined}
+                    rel="noopener noreferrer"
+                    className="hover:underline"
+                  >
+                    <h3 className="text-lg sm:text-xl font-black uppercase tracking-wider text-white leading-tight">
+                      {promoBanner.title || "ORDER ON PRAYOG APP"}
+                    </h3>
+                  </a>
+                  <p className="text-[11px] font-bold tracking-widest text-[#00F0FF] uppercase mt-0.5">
+                    {promoBanner.subtitle || "ROBOTICS AT YOUR FINGERTIPS"}
+                  </p>
+                </div>
+
+                {/* Discount Coupon Tag */}
+                <div className="inline-flex items-center gap-1.5 p-1 bg-black/40 rounded-xl border border-cyan-400/30">
+                  <span className="bg-[#FFC20E] text-slate-950 text-[10px] font-black px-2 py-0.5 rounded-lg uppercase shadow-2xs">
+                    {promoBanner.tagText || "GET FLAT 5% OFF"}
+                  </span>
+                  <span className="text-[10px] font-mono font-bold text-cyan-200 px-1.5">
+                    CODE: {promoBanner.couponCode || "PRGAPP"}
+                  </span>
+                </div>
+
+                {/* App Store / Play Store Links / Redirection */}
+                <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 pt-1">
+                  <a
+                    href={promoBanner.googlePlayUrl || promoBanner.redirectUrl || "/download"}
+                    target={promoBanner.googlePlayUrl?.startsWith("http") ? "_blank" : undefined}
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 bg-[#061128] hover:bg-[#0A1A3E] text-white px-3 py-1.5 rounded-xl text-[10px] font-bold border border-cyan-400/30 transition-transform hover:scale-105 cursor-pointer"
+                  >
+                    <span>Google Play</span>
+                  </a>
+                  <a
+                    href={promoBanner.appStoreUrl || promoBanner.redirectUrl || "/download"}
+                    target={promoBanner.appStoreUrl?.startsWith("http") ? "_blank" : undefined}
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 bg-[#061128] hover:bg-[#0A1A3E] text-white px-3 py-1.5 rounded-xl text-[10px] font-bold border border-cyan-400/30 transition-transform hover:scale-105 cursor-pointer"
+                  >
+                    <span>App Store</span>
+                  </a>
+                  {promoBanner.redirectUrl && (
+                    <a
+                      href={promoBanner.redirectUrl}
+                      target={promoBanner.redirectUrl?.startsWith("http") ? "_blank" : undefined}
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 bg-[#FFC20E] hover:bg-[#E5AC0D] text-slate-950 font-black px-3 py-1.5 rounded-xl text-[10px] transition-transform hover:scale-105 cursor-pointer shadow-xs"
+                    >
+                      <span>Explore</span>
+                      <ExternalLink className="w-3 h-3" />
+                    </a>
+                  )}
+                </div>
+              </div>
+            </div>
+          )
+        )}
+      </div>
+
+      {/* ── Lower Section: Horizontal Tabs Container (Description, Specs, Resources, Reviews, FAQ) ── */}
       <ProductTabsSection product={product} />
 
       {/* ── Section: Recommendations & Related Products ── */}
@@ -311,7 +548,11 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
       {/* ── Sticky Bottom Action Bar with Price, Add to Cart & Buy Now ── */}
       <aside
         aria-label="Sticky purchase action bar"
-        className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-xl border-t border-slate-200/90 shadow-[0_-8px_30px_rgba(15,23,42,0.12)] px-2.5 sm:px-6 lg:px-8 xl:px-12 py-2 sm:py-2.5 pb-[max(0.6rem,env(safe-area-inset-bottom))]"
+        className={`fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-xl border-t border-slate-200/90 shadow-[0_-8px_30px_rgba(15,23,42,0.12)] px-2.5 sm:px-6 lg:px-8 xl:px-12 py-2 sm:py-2.5 pb-[max(0.6rem,env(safe-area-inset-bottom))] transition-all duration-300 ease-in-out ${
+          isMainCtaVisible
+            ? "translate-y-full opacity-0 pointer-events-none"
+            : "translate-y-0 opacity-100 pointer-events-auto"
+        }`}
       >
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-2 sm:gap-4">
           {/* Left: Product Thumbnail, Title & Live Price */}
@@ -384,36 +625,37 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
                   </span>
                   <button
                     type="button"
-                    onClick={() => setStickyQuantity((q) => Math.min(50, q + 1))}
-                    disabled={stickyQuantity >= 50}
-                    className="w-7 sm:w-9 h-full flex items-center justify-center text-slate-500 hover:bg-slate-50 disabled:opacity-30 font-bold text-sm cursor-pointer transition-colors"
+                    onClick={() => {
+                      const maxStock = getProductStock(product, selectedVariant);
+                      if (stickyQuantity >= maxStock) {
+                        useUIStore.getState().showToast({
+                          title: `Only ${maxStock} units available.`,
+                          type: "error",
+                          iconType: "stock-limit",
+                          duration: 3000,
+                        });
+                        return;
+                      }
+                      setStickyQuantity((q) => q + 1);
+                    }}
+                    className="w-7 sm:w-9 h-full flex items-center justify-center text-slate-500 hover:bg-slate-50 font-bold text-sm cursor-pointer transition-colors"
                     aria-label="Increase quantity"
                   >
                     +
                   </button>
                 </div>
 
-                {/* Add to Cart Button — Prayog Brand Yellow #FFC20E */}
+                {/* Add to Cart Button (Secondary CTA) */}
                 <button
                   type="button"
                   onClick={handleStickyAddToCart}
-                  className={`h-10 sm:h-11 px-2.5 sm:px-6 rounded-xl font-black text-xs sm:text-sm uppercase tracking-normal sm:tracking-wider flex items-center justify-center gap-1 sm:gap-2 active:scale-95 transition-all cursor-pointer whitespace-nowrap shadow-xs flex-1 sm:flex-initial min-w-0 ${
+                  className={`h-10 sm:h-11 px-3 sm:px-6 rounded-xl font-bold text-xs sm:text-sm uppercase tracking-wider flex items-center justify-center active:scale-95 transition-all cursor-pointer whitespace-nowrap shadow-2xs flex-1 sm:flex-initial min-w-0 ${
                     stickyAdded
                       ? "bg-emerald-600 text-white shadow-emerald-600/20"
-                      : "bg-[#FFC20E] hover:bg-[#E5AC0D] text-slate-950 shadow-amber-500/20"
+                      : "bg-white hover:bg-slate-50 text-slate-900 border border-slate-300 shadow-2xs"
                   }`}
                 >
-                  {stickyAdded ? (
-                    <>
-                      <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[2.5] shrink-0" />
-                      <span>ADDED!</span>
-                    </>
-                  ) : (
-                    <>
-                      <AddToCartIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
-                      <span className="truncate">ADD TO CART</span>
-                    </>
-                  )}
+                  <span className="truncate">{stickyAdded ? "ADDED!" : "ADD TO CART"}</span>
                 </button>
 
                 {/* Buy Now Button — Brand Primary Blue #2563EB */}
@@ -460,6 +702,9 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
           </div>
         </div>
       </aside>
+
+      {/* ── B2B Institutional & Bulk Order Enquiry Modal ── */}
+      <B2BModal isOpen={b2bOpen} onClose={() => setB2bOpen(false)} />
     </div>
   );
 };

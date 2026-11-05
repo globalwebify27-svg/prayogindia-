@@ -14,6 +14,7 @@ import {
   Heart,
 } from "lucide-react";
 import { Product, PRODUCTS } from "@/data/mockData";
+import { isProductInCategory } from "@/lib/categoryMapping";
 import { useCartStore, useWishlistStore, useUIStore } from "@/store";
 import { haptic } from "@/utils/haptics";
 
@@ -686,25 +687,120 @@ export const FeaturedCategories: React.FC<Props> = ({
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
   const [activeTab, setActiveTab] = useState("all");
+  const [liveCatalog, setLiveCatalog] = useState<PopularProduct[]>(POPULAR_PRODUCTS_DATA);
+
+  // Sync with live products added from Admin
+  useEffect(() => {
+    fetch("/api/products?limit=100")
+      .then((res) => res.json())
+      .then((json) => {
+        if (json?.success && Array.isArray(json.data) && json.data.length > 0) {
+          const apiProducts: PopularProduct[] = json.data.map((item: any) => {
+            const primaryImg =
+              item.images?.[0]?.imageUrl ||
+              (Array.isArray(item.images) && typeof item.images[0] === "string"
+                ? item.images[0]
+                : "/placeholder-product.png");
+            const secondaryImg =
+              item.images?.[1]?.imageUrl ||
+              (Array.isArray(item.images) && typeof item.images[1] === "string"
+                ? item.images[1]
+                : primaryImg);
+            const allImages = Array.isArray(item.images)
+              ? item.images.map((im: any) =>
+                  typeof im === "string" ? im : im.imageUrl,
+                )
+              : [primaryImg];
+
+            return {
+              id: item.id,
+              slug: item.slug || item.id,
+              name: item.name,
+              brand:
+                item.brand && item.brand.trim().toLowerCase() !== "prayog india"
+                  ? item.brand
+                  : undefined,
+              category: item.category?.name || item.categoryName || "Robotics & Components",
+              subcategory: item.subcategory,
+              price: item.price,
+              mrp: item.mrp || item.price * 1.2,
+              discount:
+                item.mrp && item.mrp > item.price
+                  ? `${Math.round(((item.mrp - item.price) / item.mrp) * 100)}% OFF`
+                  : "",
+              rating: item.rating ?? 4.8,
+              reviews: item.reviewCount ?? 12,
+              inStock: item.inStock ?? item.stock > 0,
+              image: primaryImg,
+              secondaryImage: secondaryImg,
+              images: allImages,
+              badge: item.badge,
+              description: item.description || "",
+              features: item.features || [],
+              specs: (item.specifications as Record<string, string>) || {},
+            };
+          });
+
+          const existingIds = new Set(POPULAR_PRODUCTS_DATA.map((p) => p.id));
+          const existingSlugs = new Set(
+            POPULAR_PRODUCTS_DATA.map((p) => p.slug).filter(Boolean),
+          );
+          const newDbOnly = apiProducts.filter(
+            (p) =>
+              !existingIds.has(p.id) &&
+              (!p.slug || !existingSlugs.has(p.slug)),
+          );
+          const updatedMock = POPULAR_PRODUCTS_DATA.map((p) => {
+            const match = apiProducts.find(
+              (ap) =>
+                ap.id === p.id ||
+                (ap.slug && p.slug && ap.slug === p.slug),
+            );
+            return match || p;
+          });
+
+          const combined = [...newDbOnly, ...updatedMock];
+          const seenIds = new Set<string>();
+          const uniqueProducts = combined.filter((p) => {
+            if (!p.id || seenIds.has(p.id)) return false;
+            seenIds.add(p.id);
+            return true;
+          });
+
+          setLiveCatalog(uniqueProducts);
+        }
+      })
+      .catch((err) => {
+        console.warn("FeaturedCategories: API fetch error", err);
+      });
+  }, []);
 
   // Filtered popular products based on selected category tab
   const filteredProducts = React.useMemo(() => {
     if (activeTab === "all") {
-      return POPULAR_PRODUCTS_DATA;
+      return liveCatalog;
     }
     const currentTabObj = POPULAR_TABS.find((t) => t.id === activeTab);
-    if (!currentTabObj?.match) {
-      return POPULAR_PRODUCTS_DATA;
+    if (!currentTabObj) {
+      return liveCatalog;
     }
-    const matches = POPULAR_PRODUCTS_DATA.filter((p) =>
-      currentTabObj.match!.some(
-        (cat) =>
-          p.category.toLowerCase().includes(cat.toLowerCase()) ||
-          p.subcategory?.toLowerCase().includes(cat.toLowerCase()),
-      ),
-    );
-    return matches.length > 0 ? matches : POPULAR_PRODUCTS_DATA;
-  }, [activeTab]);
+
+    const matches = liveCatalog.filter((p) => {
+      // Use universal matcher for the tab ID and labels
+      if (
+        isProductInCategory(p, currentTabObj.id) ||
+        isProductInCategory(p, currentTabObj.label)
+      ) {
+        return true;
+      }
+      if (currentTabObj.match) {
+        return currentTabObj.match.some((m) => isProductInCategory(p, m));
+      }
+      return false;
+    });
+
+    return matches.length > 0 ? matches : liveCatalog;
+  }, [activeTab, liveCatalog]);
 
   // Check scroll boundary state for arrows
   const checkScrollState = useCallback(() => {

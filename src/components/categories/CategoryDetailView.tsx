@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { CategoryBreadcrumb } from "@/components/categories/CategoryBreadcrumb";
@@ -15,6 +15,7 @@ import { ActiveFilters } from "@/components/products/ActiveFilters";
 import { ProductEmptyState } from "@/components/products/ProductEmptyState";
 import { CategoryData, CATEGORIES_DATA, matchCategory } from "@/data/categories";
 import { PRODUCTS, Product } from "@/data/mockData";
+import { isProductInCategory } from "@/lib/categoryMapping";
 import {
   ArrowRight,
   ChevronRight,
@@ -39,48 +40,119 @@ export const CategoryDetailView: React.FC<CategoryDetailProps> = ({
     CATEGORIES_DATA.find((c) => matchCategory(c, categorySlug)) ||
     CATEGORIES_DATA[0];
 
+  const [productList, setProductList] = useState<Product[]>(PRODUCTS);
+
+  // Fetch live products from DB/API
+  useEffect(() => {
+    fetch("/api/products?limit=100")
+      .then((res) => res.json())
+      .then((json) => {
+        if (json?.success && Array.isArray(json.data) && json.data.length > 0) {
+          const apiProducts: Product[] = json.data.map((item: any) => {
+            const primaryImg =
+              item.images?.[0]?.imageUrl ||
+              (Array.isArray(item.images) && typeof item.images[0] === "string"
+                ? item.images[0]
+                : "/placeholder-product.png");
+            const allImages = Array.isArray(item.images)
+              ? item.images.map((im: any) =>
+                  typeof im === "string" ? im : im.imageUrl,
+                )
+              : [primaryImg];
+
+            return {
+              id: item.id,
+              slug: item.slug || item.id,
+              name: item.name,
+              brand:
+                item.brand && item.brand.trim().toLowerCase() !== "prayog india"
+                  ? item.brand
+                  : undefined,
+              category: item.category?.name || item.categoryName || "Robotics & Components",
+              subcategory: item.subcategory,
+              price: item.price,
+              mrp: item.mrp || item.price * 1.2,
+              discount:
+                item.mrp && item.mrp > item.price
+                  ? `${Math.round(((item.mrp - item.price) / item.mrp) * 100)}% OFF`
+                  : "",
+              rating: item.rating ?? 4.8,
+              reviews: item.reviewCount ?? 12,
+              inStock: item.inStock ?? item.stock > 0,
+              image: primaryImg,
+              images: allImages,
+              badge: item.badge,
+              description: item.description || "",
+              features: item.features || [],
+              specs: (item.specifications as Record<string, string>) || {},
+            };
+          });
+
+          const existingIds = new Set(PRODUCTS.map((p) => p.id));
+          const existingSlugs = new Set(
+            PRODUCTS.map((p) => p.slug).filter(Boolean),
+          );
+          const newDbOnly = apiProducts.filter(
+            (p) =>
+              !existingIds.has(p.id) &&
+              (!p.slug || !existingSlugs.has(p.slug)),
+          );
+          const updatedMock = PRODUCTS.map((p) => {
+            const match = apiProducts.find(
+              (ap) =>
+                ap.id === p.id ||
+                (ap.slug && p.slug && ap.slug === p.slug),
+            );
+            return match || p;
+          });
+
+          const combined = [...newDbOnly, ...updatedMock];
+          const seenIds = new Set<string>();
+          const uniqueProducts = combined.filter((p) => {
+            if (!p.id || seenIds.has(p.id)) return false;
+            seenIds.add(p.id);
+            return true;
+          });
+
+          setProductList(uniqueProducts);
+        }
+      })
+      .catch((err) => {
+        console.warn("CategoryDetailView: API fetch error", err);
+      });
+  }, []);
+
   // Filter products belonging to this category
   const allCategoryProducts = useMemo(() => {
-    return PRODUCTS.filter((p) => {
-      const catLower = category.name.toLowerCase();
-      const shortLower = (category.shortName || "").toLowerCase();
-      const pCat = p.category.toLowerCase();
-      const pSub = (p.subcategory || "").toLowerCase();
-
+    return productList.filter((p) => {
+      // 1. Check robust category matching
       if (
-        pCat.includes(catLower) ||
-        catLower.includes(pCat) ||
-        (shortLower &&
-          (pCat.includes(shortLower) || shortLower.includes(pCat)))
+        isProductInCategory(p, category.name) ||
+        isProductInCategory(p, category.slug) ||
+        (category.shortName && isProductInCategory(p, category.shortName))
       ) {
         return true;
       }
 
+      // 2. Check alias matches
       if (category.slugAlias) {
         const aliases = Array.isArray(category.slugAlias)
           ? category.slugAlias
           : [category.slugAlias];
-        if (
-          aliases.some(
-            (a) =>
-              pCat.includes(a.replace(/-/g, " ")) ||
-              a.replace(/-/g, " ").includes(pCat)
-          )
-        ) {
+        if (aliases.some((a) => isProductInCategory(p, a))) {
           return true;
         }
       }
 
+      // 3. Check subcategories
       return category.subcategories.some((sub) => {
-        const subLower = sub.name.toLowerCase();
         return (
-          p.name.toLowerCase().includes(subLower) ||
-          pCat.includes(subLower) ||
-          pSub.includes(subLower)
+          isProductInCategory(p, sub.name) ||
+          isProductInCategory(p, sub.slug)
         );
       });
     });
-  }, [category]);
+  }, [category, productList]);
 
   // Filter states
   const [selectedSubcategory, setSelectedSubcategory] = useState<string | null>(
@@ -138,7 +210,12 @@ export const CategoryDetailView: React.FC<CategoryDetailProps> = ({
 
     // Brand filter
     if (selectedBrand) {
-      list = list.filter((p) => p.brand === selectedBrand);
+      const bLower = selectedBrand.toLowerCase();
+      list = list.filter(
+        (p) =>
+          (p.brand || "").toLowerCase().includes(bLower) ||
+          p.name.toLowerCase().includes(bLower),
+      );
     }
 
     // Stock filter
@@ -236,93 +313,66 @@ export const CategoryDetailView: React.FC<CategoryDetailProps> = ({
   };
 
   return (
-    <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 py-2.5 sm:py-6 space-y-3.5 sm:space-y-6 animate-in fade-in duration-300 font-sans">
-      {/* 1. Breadcrumb (Desktop/Tablet) */}
-      <div className="hidden sm:block">
-        <CategoryBreadcrumb
-          items={[
-            { label: "Categories", href: "/categories" },
-            { label: category.name },
-          ]}
-        />
+    <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 py-2.5 sm:py-6 space-y-3.5 sm:space-y-5 animate-in fade-in duration-300 font-sans">
+      {/* 1. Breadcrumb (Home > Products > Category) */}
+      <CategoryBreadcrumb
+        items={[
+          { label: "Products", href: "/products" },
+          { label: category.name },
+        ]}
+      />
+
+      {/* 2. Category Filter Pills Row (Image 1) */}
+      <div
+        className="flex items-center gap-2 overflow-x-auto no-scrollbar scroll-smooth py-1"
+        style={{ scrollbarWidth: "none" }}
+      >
+        <Link
+          href="/products"
+          className="inline-flex items-center px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap bg-white text-slate-700 border border-slate-200/90 hover:bg-slate-50 hover:border-slate-300 shadow-2xs transition-all duration-200 cursor-pointer"
+        >
+          All Products
+        </Link>
+        {[
+          { name: "Robot Kits", slug: "robotics-kits" },
+          { name: "Motors", slug: "motors-drivers" },
+          { name: "Controllers", slug: "development-boards" },
+          { name: "Sensors", slug: "sensors-modules" },
+          { name: "Development Boards", slug: "development-boards" },
+          { name: "Educational & STEM Kits", slug: "educational-stem-kits" },
+          { name: "Accessories", slug: "electronic-components" },
+        ].map((cat) => {
+          const isSelected = matchCategory(category, cat.slug) || category.name.toLowerCase().includes(cat.name.toLowerCase());
+          return (
+            <Link
+              key={cat.name}
+              href={`/categories/${cat.slug}`}
+              className={`inline-flex items-center px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all duration-200 cursor-pointer ${
+                isSelected
+                  ? "bg-[#2563EB] text-white shadow-sm shadow-blue-500/25 scale-[1.02]"
+                  : "bg-white text-slate-700 border border-slate-200/90 hover:bg-slate-50 hover:border-slate-300 shadow-2xs"
+              }`}
+            >
+              <span>{cat.name}</span>
+            </Link>
+          );
+        })}
       </div>
 
-      {/* 2. Mobile Compact Category Header (Direct Focus on Products) */}
-      <div className="sm:hidden flex items-center justify-between pb-1.5 border-b border-slate-100 gap-2">
-        <div className="min-w-0">
-          <h1 className="text-base font-black text-slate-900 tracking-tight truncate">
-            {selectedSubcategory || category.name}
-          </h1>
-          <p className="text-[11px] text-slate-500 font-medium">
-            {filteredProducts.length} Products
-          </p>
-        </div>
-        <button
-          type="button"
-          onClick={() => setMobileFilterOpen(true)}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-bold text-slate-700 bg-slate-50 active:scale-95 shrink-0 shadow-2xs"
-        >
-          <SlidersHorizontal className="w-3.5 h-3.5 text-[#2563EB]" />
-          <span>Filters</span>
-        </button>
-      </div>
-
-      {/* Category Heading for Screen Readers & SEO */}
-      <h1 className="sr-only">{category.name}</h1>
-
-      {/* 3. Mobile Subcategories: Clean Horizontal Scrollable Filter Chips */}
+      {/* 3. Subcategories Grid (Image 2) */}
       {category.subcategories.length > 0 && (
-        <div
-          className="sm:hidden flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 touch-pan-x touch-pan-y"
-          style={{ touchAction: "pan-x pan-y" }}
-        >
-          <button
-            type="button"
-            onClick={() => setSelectedSubcategory(null)}
-            className={`px-3 py-1.5 rounded-full text-xs font-bold shrink-0 transition-all ${
-              selectedSubcategory === null
-                ? "bg-slate-900 text-white shadow-xs"
-                : "bg-slate-100 text-slate-700 border border-slate-200/80"
-            }`}
-          >
-            All
-          </button>
-          {category.subcategories.map((sub) => {
-            const isSelected = selectedSubcategory === sub.name;
-            return (
-              <button
-                key={sub.id}
-                type="button"
-                onClick={() =>
-                  setSelectedSubcategory(isSelected ? null : sub.name)
-                }
-                className={`px-3 py-1.5 rounded-full text-xs font-bold shrink-0 transition-all ${
-                  isSelected
-                    ? "bg-[#2563EB] text-white shadow-xs"
-                    : "bg-white text-slate-700 border border-slate-200"
-                }`}
-              >
-                {sub.name}
-              </button>
-            );
-          })}
-        </div>
-      )}
-
-      {/* 3. Desktop Subcategories Grid */}
-      {category.subcategories.length > 0 && (
-        <div className="hidden sm:block space-y-3">
+        <div className="space-y-3 pt-1 pb-1">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-black text-slate-900 flex items-center gap-2">
-              <Layers className="w-4 h-4 text-[#2563EB]" />
+            <h2 className="text-base sm:text-lg font-black text-slate-900 flex items-center gap-2">
+              <Layers className="w-4 h-4 sm:w-4.5 sm:h-4.5 text-[#2563EB]" />
               <span>Subcategories in {category.name}</span>
             </h2>
-            <span className="text-xs font-bold text-slate-400">
+            <span className="text-xs font-semibold text-slate-400">
               {category.subcategories.length} Subcategories
             </span>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
             {category.subcategories.map((sub) => {
               const isSelected = selectedSubcategory === sub.name;
               return (
@@ -332,30 +382,31 @@ export const CategoryDetailView: React.FC<CategoryDetailProps> = ({
                   onClick={() =>
                     setSelectedSubcategory(isSelected ? null : sub.name)
                   }
-                  className={`group bg-white rounded-xl border p-3 flex items-center gap-3 transition-all text-left cursor-pointer ${
+                  className={`group bg-white rounded-2xl border p-3 sm:p-3.5 flex items-center gap-3 sm:gap-3.5 transition-all text-left cursor-pointer ${
                     isSelected
-                      ? "border-[#2563EB] ring-2 ring-[#2563EB]/20 shadow-sm"
-                      : "border-slate-200 hover:border-[#2563EB] hover:shadow-xs"
+                      ? "border-[#2563EB] ring-2 ring-[#2563EB]/20 bg-blue-50/20 shadow-xs"
+                      : "border-slate-200/90 hover:border-[#2563EB]/70 hover:shadow-xs shadow-2xs"
                   }`}
                 >
-                  <div className="relative w-11 h-11 rounded-lg overflow-hidden shrink-0 bg-slate-50 border border-slate-100">
+                  <div className="relative w-12 h-12 rounded-xl overflow-hidden shrink-0 bg-slate-100 border border-slate-200/80 flex items-center justify-center">
                     <Image
                       src={sub.image}
                       alt={sub.name}
                       fill
-                      className="object-cover group-hover:scale-110 transition-transform"
+                      sizes="48px"
+                      className="object-cover group-hover:scale-105 transition-transform duration-300"
                     />
                   </div>
 
                   <div className="flex-1 min-w-0">
                     <h3
-                      className={`text-xs font-extrabold truncate ${
-                        isSelected ? "text-[#2563EB]" : "text-slate-900"
+                      className={`text-xs sm:text-[13px] font-bold truncate transition-colors ${
+                        isSelected ? "text-[#2563EB]" : "text-slate-900 group-hover:text-[#2563EB]"
                       }`}
                     >
                       {sub.name}
                     </h3>
-                    <p className="text-[10px] text-slate-400 font-semibold">
+                    <p className="text-[10px] sm:text-[11px] text-slate-400 font-medium mt-0.5">
                       {sub.productCount} Products
                     </p>
                   </div>

@@ -26,7 +26,7 @@ export interface ToastData {
   duration?: number;
   product?: Product;
   count?: number;
-  iconType?: "wishlist-add" | "wishlist-remove" | "cart-add" | "default";
+  iconType?: "wishlist-add" | "wishlist-remove" | "cart-add" | "stock-limit" | "default";
 }
 
 interface SuccessToastProps {
@@ -57,13 +57,18 @@ export const SuccessToast: React.FC<SuccessToastProps> = ({
     (toast?.title?.toLowerCase().includes("cart") &&
       toast?.type === "success");
 
-  const isCenterPill = isWishlistAdd || isWishlistRemove || isCartAdd;
+  const isStockLimit =
+    toast?.iconType === "stock-limit" ||
+    toast?.title?.toLowerCase().includes("units available") ||
+    toast?.title?.toLowerCase().includes("only ");
+
+  const isCenterPill = isWishlistAdd || isWishlistRemove || isCartAdd || isStockLimit;
 
   useEffect(() => {
     if (!toast || isPaused) return;
 
     const timeoutDuration =
-      isCenterPill ? 2000 : (toast.duration || 3500);
+      isCenterPill ? 2600 : (toast.duration || 3500);
 
     const timer = setTimeout(() => {
       onCloseRef.current();
@@ -81,35 +86,41 @@ export const SuccessToast: React.FC<SuccessToastProps> = ({
           <aside
             key={toast.id}
             aria-live="polite"
-            className="fixed top-24 left-1/2 -translate-x-1/2 z-50 pointer-events-auto select-none"
+            className="fixed top-6 sm:top-8 left-1/2 -translate-x-1/2 z-[100] pointer-events-auto select-none"
             onClick={onClose}
           >
             <motion.div
-              initial={{ opacity: 0, y: -20, scale: 0.94 }}
+              initial={{ opacity: 0, y: -24, scale: 0.94 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -10, scale: 0.94 }}
-              transition={{ duration: 0.2 }}
-              className="bg-white rounded-2xl shadow-[0_12px_38px_-6px_rgba(0,0,0,0.16),0_4px_16px_rgba(0,0,0,0.06)] border border-slate-100 px-6 py-4 flex items-center gap-3.5 whitespace-nowrap cursor-pointer hover:shadow-md transition-shadow"
+              exit={{ opacity: 0, y: -16, scale: 0.94 }}
+              transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+              className="bg-white rounded-2xl shadow-[0_12px_38px_-6px_rgba(0,0,0,0.16),0_4px_16px_rgba(0,0,0,0.06)] border border-slate-200/90 px-6 py-3.5 flex items-center gap-3.5 whitespace-nowrap cursor-pointer hover:shadow-md transition-shadow"
             >
               <div
-                className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 ${
-                  isWishlistRemove
+                className={`w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center shrink-0 shadow-xs ${
+                  isStockLimit
+                    ? "bg-[#EF4444] text-white"
+                    : isWishlistRemove
                     ? "bg-slate-700 text-white"
                     : "bg-[#10B981] text-white"
                 }`}
               >
-                {isWishlistRemove ? (
+                {isStockLimit ? (
+                  <X className="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[3.5] text-white" />
+                ) : isWishlistRemove ? (
                   <X className="w-3.5 h-3.5 stroke-[3] text-white" />
                 ) : (
                   <Check className="w-3.5 h-3.5 stroke-[3] text-white" />
                 )}
               </div>
-              <span className="text-[14px] sm:text-[15px] font-semibold text-slate-800 tracking-tight">
-                {isWishlistAdd
+              <span className="text-[15px] sm:text-[16px] font-semibold text-slate-900 tracking-tight">
+                {isStockLimit
+                  ? toast.title
+                  : isWishlistAdd
                   ? "Product added to wishlist!"
                   : isWishlistRemove
-                    ? "Product removed from wishlist!"
-                    : "Product added to cart!"}
+                  ? "Product removed from wishlist!"
+                  : "Product added to cart!"}
               </span>
             </motion.div>
           </aside>

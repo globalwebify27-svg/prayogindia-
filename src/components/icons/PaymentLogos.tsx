@@ -49,7 +49,7 @@ export const UPILogo: React.FC<PaymentLogoProps> = ({ className = "h-4 w-auto" }
     {/* Slanted "UPI" typography */}
     <g transform="skewX(-14) translate(30, 21)">
       <text
-        fontFamily="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
+        fontFamily="var(--font-inter), Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
         fontWeight="900"
         fontSize="17.5"
         fill="#1E2A4A"
@@ -74,7 +74,7 @@ export const RuPayLogo: React.FC<PaymentLogoProps> = ({ className = "h-4 w-auto"
     {/* RuPay Text */}
     <g transform="skewX(-11) translate(2, 20.5)">
       <text
-        fontFamily="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
+        fontFamily="var(--font-inter), Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
         fontWeight="900"
         fontSize="18"
         fill="#003B73"
@@ -158,7 +158,7 @@ export const NetBankingLogo: React.FC<PaymentLogoProps> = ({ className = "h-4 w-
     <text
       x="24"
       y="18"
-      fontFamily="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
+      fontFamily="var(--font-inter), Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
       fontWeight="800"
       fontSize="13"
       fill="#1E293B"
@@ -192,7 +192,7 @@ export const RazorpayLogo: React.FC<PaymentLogoProps> = ({ className = "h-4 w-au
     <text
       x="23"
       y="18.5"
-      fontFamily="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
+      fontFamily="var(--font-inter), Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
       fontWeight="800"
       fontSize="14.5"
       fill="#0C2340"
