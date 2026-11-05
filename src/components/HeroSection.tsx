@@ -147,39 +147,6 @@ const TRUST_TAGS = [
       </svg>
     ),
   },
-  {
-    label: "Easy Replacement",
-    subtext: "7-Day Hassle-Free Returns",
-    renderIcon: () => (
-      <svg className="w-5.5 h-5.5 sm:w-6 sm:h-6" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-        {/* Top clockwise arrow */}
-        <path
-          d="M5.5 14C5.5 9.3 9.3 5.5 14 5.5C16.8 5.5 19.3 6.9 20.8 9"
-          stroke="#0284C7"
-          strokeWidth="2.2"
-          strokeLinecap="round"
-        />
-        <path d="M21.5 5V9.5H17" stroke="#0284C7" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
-        {/* Bottom counter-clockwise arrow */}
-        <path
-          d="M22.5 14C22.5 18.7 18.7 22.5 14 22.5C11.2 22.5 8.7 21.1 7.2 19"
-          stroke="#0284C7"
-          strokeWidth="2.2"
-          strokeLinecap="round"
-        />
-        <path d="M6.5 23V18.5H11" stroke="#0284C7" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
-        {/* 3D Isometric orange box in center */}
-        {/* Top face */}
-        <path d="M14 9.5L17.5 11.5L14 13.5L10.5 11.5L14 9.5Z" fill="#FDBA74" stroke="#EA580C" strokeWidth="0.8" />
-        {/* Left face */}
-        <path d="M10.5 11.5L14 13.5V17.5L10.5 15.5V11.5Z" fill="#F97316" stroke="#EA580C" strokeWidth="0.8" />
-        {/* Right face */}
-        <path d="M14 13.5L17.5 11.5V15.5L14 17.5V13.5Z" fill="#EA580C" stroke="#C2410C" strokeWidth="0.8" />
-        {/* Box white tape/seam */}
-        <path d="M14 10.5L14 16.5" stroke="#FFFFFF" strokeWidth="0.7" strokeLinecap="round" />
-      </svg>
-    ),
-  },
 ];
 
 export const HeroSection: React.FC<HeroProps> = ({
