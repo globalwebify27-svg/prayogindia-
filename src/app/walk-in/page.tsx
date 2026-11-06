@@ -374,15 +374,17 @@ export default function WalkInGatewayPage() {
                       </div>
                     </div>
 
-                    {/* Outlined Action Button */}
+                    {/* Action Button: Directions & Visit Store */}
                     <div className="pt-0.5">
-                      <Link
-                        href={`/walk-in/${store.id}`}
+                      <a
+                        href={store.mapUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
                         className="w-full py-2.5 px-3 rounded-full border border-slate-300 hover:border-[#2563EB] hover:bg-blue-50/40 text-slate-800 hover:text-[#2563EB] font-bold text-xs flex items-center justify-center gap-1.5 transition-all shadow-2xs cursor-pointer active:scale-[0.99]"
                       >
-                        <span>View Store Details</span>
-                        <ArrowRight className="w-3.5 h-3.5" />
-                      </Link>
+                        <Navigation className="w-3.5 h-3.5" />
+                        <span>Get Directions &amp; Visit Branch</span>
+                      </a>
                     </div>
                   </div>
                 </div>
@@ -411,11 +413,10 @@ export default function WalkInGatewayPage() {
               </div>
               <div>
                 <h4 className="text-sm font-bold text-slate-900 mb-1">
-                  Select &amp; Launch
+                  Visit the Branch
                 </h4>
                 <p className="text-xs text-slate-600 leading-relaxed">
-                  Choose your physical store location above or on our in-store
-                  touchscreen terminal.
+                  Walk in to our physical store and browse using the authorized in-store tablet stationed at the branch. No website account or online registration required.
                 </p>
               </div>
             </div>

@@ -26,6 +26,18 @@ async function getProduct(rawSlug: string): Promise<Product | null> {
           category: true,
           images: { orderBy: { sortOrder: "asc" } },
           variants: true,
+          storeInventory: {
+            where: {
+              store: {
+                OR: [{ code: "RANCHI" }, { isCentralHub: true }],
+              },
+            },
+            select: {
+              availableQuantity: true,
+              quantity: true,
+              status: true,
+            },
+          },
         },
       });
 
@@ -64,13 +76,64 @@ async function getProduct(rawSlug: string): Promise<Product | null> {
             ? (dbProduct.specifications as Record<string, unknown>)
             : {};
 
+        const rawShipping = (rawSpecs._shipping as Record<string, unknown>) || {};
+        const shippingTag =
+          (rawShipping.shippingTag as string) ||
+          (rawSpecs.shippingTag as string) ||
+          dbProduct.tags?.[0] ||
+          mockFallbackEnriched?.shippingTag ||
+          "Standard Express";
+
+        const hasBatteryTag =
+          shippingTag === "Battery Product" ||
+          shippingTag.toLowerCase().includes("battery") ||
+          (Array.isArray(dbProduct.tags) && dbProduct.tags.some((t: string) => t.toLowerCase().includes("battery")));
+
+        const airFreightAllowed =
+          typeof rawShipping.airFreightAllowed === "boolean"
+            ? rawShipping.airFreightAllowed
+            : typeof rawSpecs.airFreightAllowed === "boolean"
+            ? rawSpecs.airFreightAllowed
+            : typeof (dbProduct as any).airFreightAllowed === "boolean"
+            ? (dbProduct as any).airFreightAllowed
+            : typeof mockFallbackEnriched?.airFreightAllowed === "boolean"
+            ? mockFallbackEnriched.airFreightAllowed
+            : !hasBatteryTag;
+
+        const surfaceFreightAllowed =
+          typeof rawShipping.surfaceFreightAllowed === "boolean"
+            ? rawShipping.surfaceFreightAllowed
+            : typeof rawSpecs.surfaceFreightAllowed === "boolean"
+            ? rawSpecs.surfaceFreightAllowed
+            : typeof (dbProduct as any).surfaceFreightAllowed === "boolean"
+            ? (dbProduct as any).surfaceFreightAllowed
+            : typeof mockFallbackEnriched?.surfaceFreightAllowed === "boolean"
+            ? mockFallbackEnriched.surfaceFreightAllowed
+            : true;
+
+        const localPickupAllowed =
+          typeof rawShipping.localPickupAllowed === "boolean"
+            ? rawShipping.localPickupAllowed
+            : typeof rawSpecs.localPickupAllowed === "boolean"
+            ? rawSpecs.localPickupAllowed
+            : typeof (dbProduct as any).localPickupAllowed === "boolean"
+            ? (dbProduct as any).localPickupAllowed
+            : typeof mockFallbackEnriched?.localPickupAllowed === "boolean"
+            ? mockFallbackEnriched.localPickupAllowed
+            : true;
+
         const seoData = (rawSpecs._seo as Record<string, unknown>) || {};
         const cleanSpecs: Record<string, string> = { ...(mockFallbackEnriched?.specs || {}) };
         for (const [k, v] of Object.entries(rawSpecs)) {
-          if (k !== "_seo" && typeof v === "string") {
+          if (!k.startsWith("_") && typeof v === "string") {
             cleanSpecs[k] = v;
           }
         }
+
+        const ranchiInv = (dbProduct as any).storeInventory?.[0];
+        const effectiveStock =
+          ranchiInv !== undefined ? ranchiInv.availableQuantity : dbProduct.stock;
+        const isAvailable = effectiveStock > 0;
 
         return {
           id: dbProduct.id,
@@ -84,7 +147,8 @@ async function getProduct(rawSlug: string): Promise<Product | null> {
           discount: `${Math.round((((dbProduct.mrp || dbProduct.price * 1.3) - dbProduct.price) / (dbProduct.mrp || dbProduct.price * 1.3)) * 100)}% OFF`,
           rating: dbProduct.rating,
           reviews: dbProduct.reviewCount,
-          inStock: dbProduct.inStock,
+          stock: effectiveStock,
+          inStock: isAvailable,
           image: primaryImage,
           images: imageUrls,
           description:
@@ -99,6 +163,12 @@ async function getProduct(rawSlug: string): Promise<Product | null> {
           whatsIncluded: mockFallbackEnriched?.whatsIncluded || [],
           applications: mockFallbackEnriched?.applications || [],
           documents: mockFallbackEnriched?.documents || [],
+          shippingTag: shippingTag as any,
+          airFreightAllowed,
+          surfaceFreightAllowed,
+          localPickupAllowed,
+          weightGrams: Number(dbProduct.weight) || (rawShipping.weightGrams as number) || mockFallbackEnriched?.weightGrams || 250,
+          dimensionsCm: (rawShipping.dimensionsCm as any) || mockFallbackEnriched?.dimensionsCm || { length: 15, width: 10, height: 5 },
           metaTitle: (seoData.metaTitle as string) || undefined,
           metaDescription: (seoData.metaDescription as string) || undefined,
           metaKeywords: Array.isArray(seoData.metaKeywords) ? (seoData.metaKeywords as string[]) : undefined,
@@ -132,9 +202,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     product?.description ||
     "Buy genuine robotics, STEM kits, and hardware components with fast express shipping from Prayog India.";
 
+  const siteBase = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") || "";
   const canonicalUrl =
     product?.canonicalUrl ||
-    `https://www.prayogindia.com/products/${product?.slug || slug}`;
+    (siteBase ? `${siteBase}/products/${product?.slug || slug}` : `/products/${product?.slug || slug}`);
 
   const ogImageUrl = product?.ogImage || product?.image;
 
@@ -176,6 +247,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function ProductSlugPage({ params }: Props) {
   const { slug } = await params;
   const product = await getProduct(slug);
+  const siteBase = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") || "";
 
   const schemaType = product?.structuredDataType || "Product";
 
@@ -193,7 +265,7 @@ export default async function ProductSlugPage({ params }: Props) {
         },
         offers: {
           "@type": "Offer",
-          url: product.canonicalUrl || `https://www.prayogindia.com/products/${product.slug || slug}`,
+          url: product.canonicalUrl || (siteBase ? `${siteBase}/products/${product.slug || slug}` : `/products/${product.slug || slug}`),
           priceCurrency: "INR",
           price: product.price,
           availability: product.inStock

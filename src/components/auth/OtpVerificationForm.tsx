@@ -11,7 +11,6 @@ import {
   Phone,
   ArrowRight,
   RefreshCw,
-  Sparkles,
   CheckCircle2,
   AlertCircle,
   KeyRound,
@@ -254,7 +253,7 @@ export const OtpVerificationForm: React.FC = () => {
           {/* Brand Header */}
           <div className="text-center space-y-1">
             <div className="flex items-center justify-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-[#2563EB] bg-blue-50 px-3.5 py-1 rounded-full border border-blue-200/60 w-fit mx-auto mb-2">
-              <Sparkles className="w-3 h-3" /> Secure OTP Gateway
+              <ShieldCheck className="w-3 h-3" /> Secure OTP Gateway
             </div>
             <h1 className="text-2xl font-black text-slate-900 tracking-tight">
               {step === "send" ? "Login with Mobile OTP" : "Verify Mobile OTP"}

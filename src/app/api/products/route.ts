@@ -102,7 +102,23 @@ export async function GET(request: Request) {
       const [products, total] = await Promise.all([
         db.product.findMany({
           where,
-          include: { category: true, images: true, variants: true },
+          include: {
+            category: true,
+            images: true,
+            variants: true,
+            storeInventory: {
+              where: {
+                store: {
+                  OR: [{ code: "RANCHI" }, { isCentralHub: true }],
+                },
+              },
+              select: {
+                quantity: true,
+                availableQuantity: true,
+                status: true,
+              },
+            },
+          },
           orderBy,
           skip: (page - 1) * limit,
           take: limit,
@@ -122,16 +138,31 @@ export async function GET(request: Request) {
             )
           : products;
 
+      // Online Storefront Rule: Availability is strictly calculated from Ranchi Main Branch
+      const mappedProducts = filteredProducts.map((p: any) => {
+        const ranchiInv = p.storeInventory?.[0];
+        const effectiveAvailable =
+          ranchiInv !== undefined ? ranchiInv.availableQuantity : p.stock;
+        const isAvailable = effectiveAvailable > 0;
+
+        return {
+          ...p,
+          stock: effectiveAvailable,
+          availableQuantity: effectiveAvailable,
+          inStock: isAvailable,
+        };
+      });
+
       return NextResponse.json({
         success: true,
-        data: filteredProducts,
+        data: mappedProducts,
         pagination: {
           page,
           limit,
-          total: tag === "deals" ? filteredProducts.length : total,
+          total: tag === "deals" ? mappedProducts.length : total,
           totalPages:
             Math.ceil(
-              (tag === "deals" ? filteredProducts.length : total) / limit,
+              (tag === "deals" ? mappedProducts.length : total) / limit,
             ) || 1,
         },
         source: "database",

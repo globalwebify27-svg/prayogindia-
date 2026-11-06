@@ -18,7 +18,6 @@ import {
   LifeBuoy,
   CheckCircle2,
   X,
-  Sparkles,
 } from "lucide-react";
 import { AdminSessionUser } from "@/lib/adminAuth";
 import { AdminNotificationItem } from "@/app/api/admin/notifications/route";
@@ -116,12 +115,6 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({
           onClick={onToggleMobileSidebar}
           className="lg:hidden p-2 text-slate-600 hover:bg-[#F1F4F9] rounded-xl cursor-pointer transition-colors"
           aria-label="Toggle Navigation"
-        >
-          <Menu className="w-5 h-5" />
-        </button>
-        <button
-          onClick={onToggleMobileSidebar}
-          className="hidden lg:flex p-1.5 text-slate-500 hover:text-slate-800 rounded-xl hover:bg-[#F1F4F9] cursor-pointer mr-1 transition-colors"
         >
           <Menu className="w-5 h-5" />
         </button>

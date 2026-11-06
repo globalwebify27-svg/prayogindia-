@@ -20,7 +20,7 @@ import { QuickViewModal } from "@/components/products/QuickViewModal";
 import { PRODUCTS, Product } from "@/data/mockData";
 import { useCartStore, useWishlistStore } from "@/store";
 import { searchProductsFuzzy } from "@/lib/fuzzySearch";
-import { X, Search, Clock, TrendingUp, Sparkles, Tag, ShoppingCart, Loader2 } from "lucide-react";
+import { X, Search, Clock, TrendingUp, Tag, ShoppingCart, Loader2 } from "lucide-react";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useSearchSuggestions } from "@/hooks/useSearchSuggestions";
 import { SearchSuggestionsDropdown } from "@/components/ui/SearchSuggestionsDropdown";

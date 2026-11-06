@@ -14,7 +14,7 @@ import {
   Zap,
   Flame,
   Clock,
-  Sparkles,
+  CheckCircle2,
   Layers,
 } from "lucide-react";
 import { haptic } from "@/utils/haptics";
@@ -205,7 +205,7 @@ export const HeroSpotlightDeal: React.FC<HeroSpotlightDealProps> = ({
                 {activeOffer.discountPercentage}% OFF
               </div>
               <div className="text-[10px] text-emerald-400 font-semibold flex items-center justify-center gap-1">
-                <Sparkles className="w-3 h-3" /> Tested Hardware
+                <CheckCircle2 className="w-3 h-3" /> Tested Hardware
               </div>
             </div>
           </div>

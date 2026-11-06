@@ -33,10 +33,39 @@ export async function GET(request: Request, { params }: Props) {
           take: 4,
         });
 
+        const rawSpecs = dbProduct.specifications && typeof dbProduct.specifications === "object"
+          ? (dbProduct.specifications as Record<string, unknown>)
+          : {};
+        const rawShipping = (rawSpecs._shipping as Record<string, unknown>) || {};
+        const shippingTag = (rawShipping.shippingTag as string) || (rawSpecs.shippingTag as string) || dbProduct.tags?.[0] || "Standard Express";
+        const hasBatteryTag = shippingTag === "Battery Product" || shippingTag.toLowerCase().includes("battery") || (Array.isArray(dbProduct.tags) && dbProduct.tags.some((t: string) => t.toLowerCase().includes("battery")));
+
+        const airFreightAllowed = typeof rawShipping.airFreightAllowed === "boolean"
+          ? rawShipping.airFreightAllowed
+          : typeof rawSpecs.airFreightAllowed === "boolean"
+          ? rawSpecs.airFreightAllowed
+          : !hasBatteryTag;
+
+        const surfaceFreightAllowed = typeof rawShipping.surfaceFreightAllowed === "boolean"
+          ? rawShipping.surfaceFreightAllowed
+          : typeof rawSpecs.surfaceFreightAllowed === "boolean"
+          ? rawSpecs.surfaceFreightAllowed
+          : true;
+
+        const localPickupAllowed = typeof rawShipping.localPickupAllowed === "boolean"
+          ? rawShipping.localPickupAllowed
+          : typeof rawSpecs.localPickupAllowed === "boolean"
+          ? rawSpecs.localPickupAllowed
+          : true;
+
         return NextResponse.json({
           success: true,
           data: {
             ...dbProduct,
+            shippingTag,
+            airFreightAllowed,
+            surfaceFreightAllowed,
+            localPickupAllowed,
             relatedProducts: related,
           },
           source: "database",

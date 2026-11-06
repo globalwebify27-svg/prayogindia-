@@ -13,7 +13,6 @@ import {
   Wifi,
   Code,
   Layers,
-  Sparkles,
 } from "lucide-react";
 import {
   DEFAULT_CATEGORY_SHOWCASE,
@@ -167,7 +166,7 @@ function getBadgeIcon(icon?: string) {
     case "chip":
       return <Layers className="w-3 sm:w-3 lg:w-3.5 lg:h-3.5" />;
     default:
-      return <Sparkles className="w-3 sm:w-3 lg:w-3.5 lg:h-3.5" />;
+      return <Layers className="w-3 sm:w-3 lg:w-3.5 lg:h-3.5" />;
   }
 }
 interface DraggableMarqueeProps {

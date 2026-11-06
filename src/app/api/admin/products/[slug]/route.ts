@@ -129,6 +129,35 @@ export async function PATCH(
           structuredDataType: structuredDataType || existingSeo.structuredDataType || "Product",
         };
 
+        const existingShipping = (existingSpecs._shipping && typeof existingSpecs._shipping === "object")
+          ? (existingSpecs._shipping as Record<string, unknown>)
+          : {};
+
+        const finalShipping = {
+          shippingTag: shippingTag || (updateData.tags ? (updateData.tags as string[])[0] : (existing.tags?.[0] as string)) || (existingShipping.shippingTag as string) || "Standard Product",
+          airFreightAllowed: typeof airFreightAllowed === "boolean"
+            ? airFreightAllowed
+            : (existingShipping.airFreightAllowed !== undefined ? existingShipping.airFreightAllowed : true),
+          surfaceFreightAllowed: typeof surfaceFreightAllowed === "boolean"
+            ? surfaceFreightAllowed
+            : (existingShipping.surfaceFreightAllowed !== undefined ? existingShipping.surfaceFreightAllowed : true),
+          localPickupAllowed: typeof localPickupAllowed === "boolean"
+            ? localPickupAllowed
+            : (existingShipping.localPickupAllowed !== undefined ? existingShipping.localPickupAllowed : true),
+          weightGrams: weightGrams !== undefined ? parseFloat(weightGrams) : (existing.weight || 250),
+          dimensionsCm: dimensionsCm || existingShipping.dimensionsCm || { length: 15, width: 10, height: 5 },
+          isBatteryProduct: Boolean(isBatteryProduct || shippingTag === "Battery Product"),
+          isHazardousItem: Boolean(isHazardousItem),
+          isFragileItem: Boolean(isFragileItem),
+          isDangerousGoods: Boolean(isDangerousGoods),
+        };
+
+        mergedSpecs._shipping = finalShipping;
+        mergedSpecs.airFreightAllowed = finalShipping.airFreightAllowed;
+        mergedSpecs.surfaceFreightAllowed = finalShipping.surfaceFreightAllowed;
+        mergedSpecs.localPickupAllowed = finalShipping.localPickupAllowed;
+        mergedSpecs.shippingTag = finalShipping.shippingTag;
+
         updateData.specifications = mergedSpecs;
 
         // Handle category association if categoryName provided

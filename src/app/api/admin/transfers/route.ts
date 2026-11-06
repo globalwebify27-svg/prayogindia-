@@ -4,6 +4,8 @@ import { getAuthenticatedAdmin } from "@/lib/adminAuth";
 import {
   getStockTransfers,
   transferStockBetweenStores,
+  updateStockTransferStatus,
+  TransferStatus,
 } from "@/lib/inventoryEngine";
 import { StoreId, STORES } from "@/data/storeConfig";
 import { getSecurityHeaders } from "@/lib/security";
@@ -125,6 +127,70 @@ export async function POST(request: Request) {
       {
         success: false,
         message: error.message || "Failed to process stock transfer",
+      },
+      { status: 500, headers },
+    );
+  }
+}
+
+// PATCH /api/admin/transfers - Update transfer status (APPROVE, DISPATCH, RECEIVE, CANCEL)
+export async function PATCH(request: Request) {
+  const headers = getSecurityHeaders();
+  const staff =
+    (await getAuthenticatedStaff()) || (await getAuthenticatedAdmin());
+
+  if (
+    !staff ||
+    (staff.role !== "SUPER_ADMIN" &&
+      staff.role !== "REGIONAL_MANAGER" &&
+      staff.role !== "STORE_MANAGER")
+  ) {
+    return NextResponse.json(
+      {
+        success: false,
+        message: "Forbidden. Admin or Store Manager access required.",
+      },
+      { status: 403, headers },
+    );
+  }
+
+  try {
+    const body = await request.json();
+    const { transferId, status, notes } = body;
+
+    if (!transferId || !status) {
+      return NextResponse.json(
+        { success: false, message: "Missing transferId or status." },
+        { status: 400, headers },
+      );
+    }
+
+    const result = await updateStockTransferStatus({
+      transferId,
+      status: status.toUpperCase() as TransferStatus,
+      userId: staff.id,
+      notes,
+    });
+
+    if (!result.success) {
+      return NextResponse.json(
+        { success: false, message: result.message },
+        { status: 400, headers },
+      );
+    }
+
+    return NextResponse.json(
+      {
+        success: true,
+        message: result.message,
+      },
+      { headers },
+    );
+  } catch (error: any) {
+    return NextResponse.json(
+      {
+        success: false,
+        message: error.message || "Failed to update transfer status",
       },
       { status: 500, headers },
     );

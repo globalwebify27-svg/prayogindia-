@@ -2,7 +2,7 @@
 
 import React from "react";
 import Image from "next/image";
-import { Loader2, ArrowRight, Sparkles, Tag, CheckCircle2, AlertCircle } from "lucide-react";
+import { Loader2, ArrowRight, Tag, CheckCircle2, AlertCircle } from "lucide-react";
 import { SearchSuggestionItem } from "@/hooks/useSearchSuggestions";
 
 interface SearchSuggestionsDropdownProps {

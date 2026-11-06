@@ -13,7 +13,6 @@ import {
   Upload,
   Video,
   X,
-  Sparkles,
   Layers,
   FileText,
   ListPlus,
@@ -1652,13 +1651,13 @@ export default function AdminProductsPage() {
               <tbody className="divide-y divide-slate-100">
                 {filteredProducts.map((p) => {
                   const isSelected = selectedProductIds.includes(p.id);
-                  const imgUrl =
+                  const rawImg =
                     p.images && p.images.length > 0
                       ? typeof p.images[0] === "string"
                         ? p.images[0]
                         : p.images[0]?.imageUrl
-                      : p.image ||
-                        "https://images.unsplash.com/photo-1553406830-ef2513450d76?auto=format&fit=crop&w=120&q=80";
+                      : p.image;
+                  const imgUrl = (rawImg && typeof rawImg === "string" && !rawImg.includes("photo-1553406830-ef2513450d76")) ? rawImg : "";
 
                   const categoryName =
                     typeof p.category === "object"
@@ -1720,12 +1719,16 @@ export default function AdminProductsPage() {
 
                       <td className="py-3.5 px-4">
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-xl bg-slate-100 border border-slate-200/80 overflow-hidden relative shrink-0">
-                            <img
-                              src={imgUrl}
-                              alt={p.name}
-                              className="w-full h-full object-cover"
-                            />
+                          <div className="w-10 h-10 rounded-xl bg-slate-100 border border-slate-200/80 overflow-hidden relative shrink-0 flex items-center justify-center">
+                            {imgUrl ? (
+                              <img
+                                src={imgUrl}
+                                alt={p.name}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <Package className="w-5 h-5 text-slate-300 stroke-[1.5]" />
+                            )}
                           </div>
                           <div className="min-w-0">
                             <h4 className="font-semibold text-slate-900 text-xs sm:text-sm truncate max-w-xs hover:text-[#2563EB] transition-colors">
@@ -1793,13 +1796,13 @@ export default function AdminProductsPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {filteredProducts.map((p) => {
             const isSelected = selectedProductIds.includes(p.id);
-            const imgUrl =
+            const rawImg =
               p.images && p.images.length > 0
                 ? typeof p.images[0] === "string"
                   ? p.images[0]
                   : p.images[0]?.imageUrl
-                : p.image ||
-                  "https://images.unsplash.com/photo-1553406830-ef2513450d76?auto=format&fit=crop&w=120&q=80";
+                : p.image;
+            const imgUrl = (rawImg && typeof rawImg === "string" && !rawImg.includes("photo-1553406830-ef2513450d76")) ? rawImg : "";
 
             const categoryName =
               typeof p.category === "object"
@@ -1814,12 +1817,19 @@ export default function AdminProductsPage() {
                 }`}
               >
                 <div>
-                  <div className="w-full aspect-square rounded-xl bg-slate-100 overflow-hidden relative mb-3 border border-slate-100">
-                    <img
-                      src={imgUrl}
-                      alt={p.name}
-                      className="w-full h-full object-cover"
-                    />
+                  <div className="w-full aspect-square rounded-xl bg-slate-50 overflow-hidden relative mb-3 border border-slate-100 flex items-center justify-center">
+                    {imgUrl ? (
+                      <img
+                        src={imgUrl}
+                        alt={p.name}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="flex flex-col items-center justify-center text-slate-300 gap-1">
+                        <Package className="w-8 h-8 stroke-[1.5]" />
+                        <span className="text-[10px] font-medium text-slate-400">No Image</span>
+                      </div>
+                    )}
                     <input
                       type="checkbox"
                       checked={isSelected}
@@ -3385,7 +3395,7 @@ export default function AdminProductsPage() {
                       </>
                     ) : (
                       <>
-                        <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-300" />
                         <span>
                           {modalMode === "edit"
                             ? "Save Changes"

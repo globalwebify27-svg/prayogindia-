@@ -8,7 +8,6 @@ import {
   Heart,
   User,
   ChevronRight,
-  Sparkles,
   Zap,
   ShoppingBag,
   ShoppingCart,
@@ -1265,7 +1264,6 @@ export default function FlutterPreviewPage() {
               <div className="px-4 mt-3">
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-1.5 text-xs font-black text-slate-900">
-                    <Sparkles className="w-3.5 h-3.5 text-blue-600 fill-blue-600" />
                     <span>Featured Deals</span>
                   </div>
                   <span className="text-[9px] font-extrabold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">
@@ -1450,7 +1448,6 @@ export default function FlutterPreviewPage() {
                 <div className="mt-3">
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-1.5 text-xs font-black text-slate-900">
-                      <Sparkles className="w-3.5 h-3.5 text-emerald-600 fill-emerald-600" />
                       <span>Just Launched in Store</span>
                     </div>
                     <span className="text-[9px] font-bold text-slate-500">
@@ -2161,7 +2158,6 @@ export default function FlutterPreviewPage() {
               <div className="pt-2 pb-6 space-y-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1.5">
-                    <Sparkles className="w-3.5 h-3.5 text-blue-600 fill-blue-600" />
                     <span className="text-xs font-black text-slate-900">
                       Similar & Related Hardware
                     </span>

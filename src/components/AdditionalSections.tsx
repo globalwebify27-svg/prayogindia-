@@ -17,8 +17,7 @@ import {
   FileText,
   Cpu,
   Headphones,
-  Sparkles,
-  ChevronLeft,
+ChevronLeft,
   ChevronRight,
   X,
 } from "lucide-react";

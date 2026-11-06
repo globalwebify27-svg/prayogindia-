@@ -6,7 +6,6 @@ import {
   Ticket,
   Copy,
   Check,
-  Sparkles,
   Info,
   Clock,
   Scissors,
@@ -89,7 +88,6 @@ export const CouponVaultSection: React.FC = () => {
               <div className="p-5 pb-4 space-y-3">
                 <div className="flex items-center justify-between gap-2">
                   <span className="text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full bg-gradient-to-r from-blue-50 to-indigo-100 text-[#2563EB] border border-blue-200 flex items-center gap-1">
-                    <Sparkles className="w-3 h-3" />
                     {coupon.category}
                   </span>
 

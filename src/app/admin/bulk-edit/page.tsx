@@ -13,7 +13,6 @@ import {
   Hash,
   Boxes,
   RefreshCw,
-  Sparkles,
   Save,
   AlertTriangle,
   ArrowRight,
@@ -296,7 +295,6 @@ function BulkEditContent() {
               : "bg-slate-200 text-slate-400 cursor-not-allowed"
           }`}
         >
-          <Sparkles className="w-4 h-4 text-[#FFC20E]" />
           <span>Apply Bulk Operation ({selectedProductIds.length})</span>
         </button>
       </div>

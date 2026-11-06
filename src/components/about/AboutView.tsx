@@ -19,7 +19,6 @@ import {
   BookOpen,
   ShoppingBag,
   ArrowRight,
-  Sparkles,
   Building2,
   CheckCircle2,
   Cpu,
@@ -183,7 +182,7 @@ const COMPLIANCE_POLICIES: CompliancePolicy[] = [
     title: "Cookie & Session Policy",
     badge: "Zero Trackers",
     badgeStyle: "bg-teal-50 text-teal-700 border-teal-200/80",
-    icon: Sparkles,
+    icon: ShieldCheck,
     iconBg: "bg-teal-50 text-teal-700 border border-teal-200/70",
     gradient: "from-teal-500 to-emerald-500",
     keyPoints: [
@@ -384,7 +383,6 @@ export const AboutView: React.FC = () => {
             {/* Left Content */}
             <div className="lg:col-span-7 space-y-6">
               <div className="inline-flex items-center gap-2 bg-blue-50 border border-blue-200/60 text-[#2563EB] text-xs font-black tracking-widest uppercase px-3.5 py-1.5 rounded-full">
-                <Sparkles className="w-3.5 h-3.5 text-[#FFC20E]" />
                 <span>PRAYOG INDIA • THE WORLD OF ROBOTICS</span>
               </div>
 

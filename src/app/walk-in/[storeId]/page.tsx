@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import Image from "next/image";
 import { useParams } from "next/navigation";
 import {
@@ -10,18 +10,32 @@ import {
   Trash2,
   ShoppingCart,
   ChevronRight,
+  ChevronLeft,
   X,
   CheckCircle2,
   Banknote,
   QrCode,
   User,
   ArrowLeft,
+  ArrowRight,
   Package,
   Lock,
   AlertCircle,
   Tablet,
   ShieldCheck,
+  Bot,
+  Cpu,
+  Radio,
+  Cog,
+  Zap,
+  Navigation,
+  Box,
+  GraduationCap,
+  Wrench,
+  LayoutGrid,
+  MapPin,
 } from "lucide-react";
+import { PrayogLogo } from "@/components/PrayogLogo";
 import {
   STORES,
   StoreId,
@@ -32,13 +46,19 @@ import {
   generateSessionId,
   POS_BROADCAST_CHANNEL,
 } from "@/data/storeConfig";
-import { PRODUCTS, Product } from "@/data/mockData";
+import { PRODUCTS, Product, getStoreProductStock } from "@/data/mockData";
 import { QuickViewModal } from "@/components/products/QuickViewModal";
 import { RoboticOrderSuccess } from "@/components/walk-in/RoboticOrderSuccess";
 import { OrderTruckButton } from "@/components/walk-in/OrderTruckButton";
 import { CATEGORIES_DATA, matchCategory } from "@/data/categories";
 import { CATEGORIES_HIERARCHY } from "@/data/categoriesHierarchy";
 import { KioskGridSkeleton } from "@/components/ui/Skeleton";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  DEFAULT_HERO_BANNERS,
+  HeroBanner,
+  sortHeroBanners,
+} from "@/data/heroBannersData";
 
 // ─────────────────────────────────────────────────────
 // Cart item in kiosk state
@@ -50,7 +70,351 @@ interface KioskCartItem {
 
 type KioskView = "browse" | "cart" | "checkout" | "success";
 
+interface CategorySectionDef {
+  id: string;
+  name: string;
+  icon: string;
+  description: string;
+}
+
+const CANONICAL_CATEGORIES: CategorySectionDef[] = [
+  {
+    id: "electronic-components",
+    name: "Electronic Components",
+    icon: "⚡",
+    description: "Resistors, Capacitors, ICs, Relays & Prototyping Essentials",
+  },
+  {
+    id: "development-boards",
+    name: "Development Boards",
+    icon: "🛠️",
+    description: "Arduino Boards, Raspberry Pi, ESP32, and Single Board Computers",
+  },
+  {
+    id: "robotics",
+    name: "Robotics & DIY Kits",
+    icon: "🤖",
+    description: "Robot Chassis, Robotic Arms, Kits & Smart Mechatronics",
+  },
+  {
+    id: "drone-technology",
+    name: "Drone Technology",
+    icon: "🚁",
+    description: "Flight Controllers, ESCs, BLDC Motors & UAV Accessories",
+  },
+  {
+    id: "sensors-iot",
+    name: "Sensors & IoT Modules",
+    icon: "📡",
+    description: "Ultrasonic, LiDAR, Environmental Sensors & Wireless Modules",
+  },
+  {
+    id: "motors-drivers",
+    name: "Motors, Steppers & Drivers",
+    icon: "⚙️",
+    description: "NEMA Steppers, High Torque Servos, DC Motors & Driver Shields",
+  },
+  {
+    id: "batteries-power",
+    name: "Batteries & Power Supplies",
+    icon: "🔋",
+    description: "LiPo Packs, Buck Converters, Battery Management & Power Modules",
+  },
+  {
+    id: "stem-education",
+    name: "Educational & STEM Kits",
+    icon: "🎓",
+    description: "Hands-on School Science Kits, ATL Labs & Tinkering Sets",
+  },
+  {
+    id: "mechanical-hardware",
+    name: "Mechanical & Hardware",
+    icon: "🔩",
+    description: "Frames, 3D Printer Accessories, Standoffs & Brackets",
+  },
+  {
+    id: "industrial-automation",
+    name: "Industrial Automation",
+    icon: "🏭",
+    description: "PLCs, Solid State Relays & Heavy Duty Automation Modules",
+  },
+];
+
+function isProductMatchingCategory(p: Product, categoryName: string): boolean {
+  if (!p || !categoryName) return false;
+  const target = String(categoryName || "").toLowerCase().trim();
+  if (target === "all") return true;
+
+  const rawCat = typeof p.category === "object" ? (p.category as any)?.name : p.category;
+  const pCat = String(rawCat || "").toLowerCase().trim();
+
+  const rawSub = typeof p.subcategory === "object" ? (p.subcategory as any)?.name : p.subcategory;
+  const pSub = String(rawSub || "").toLowerCase().trim();
+
+  const pName = String(p.name || "").toLowerCase();
+  const pSku = String(p.sku || "").toUpperCase();
+
+  // 1. Direct or partial string match
+  if (pCat === target || pSub === target) return true;
+
+  // 2. Electronic Components (Resistors, Capacitors, ICs, Relays, LEDs, Diodes, Connectors)
+  if (
+    target.includes("electronic") ||
+    target.includes("component") ||
+    target === "resistors" ||
+    target === "capacitors"
+  ) {
+    if (
+      pCat.includes("component") ||
+      pCat.includes("resistor") ||
+      pCat.includes("capacitor") ||
+      pCat.includes("relay") ||
+      pCat.includes("diode") ||
+      pCat.includes("transistor") ||
+      /\bics?\b/i.test(pCat) ||
+      /\bleds?\b/i.test(pCat) ||
+      pSub.includes("resistor") ||
+      pSub.includes("capacitor") ||
+      pSub.includes("relay") ||
+      /\bics?\b/i.test(pSub) ||
+      pSku.startsWith("RES") ||
+      pSku.startsWith("CAP") ||
+      pSku.startsWith("CMP") ||
+      pSku.startsWith("REL") ||
+      /\bresistors?\b/i.test(pName) ||
+      /\bcapacitors?\b/i.test(pName)
+    ) {
+      return true;
+    }
+  }
+
+  // 3. Development Boards / Arduino / Raspberry Pi / SBC
+  if (
+    target.includes("development") ||
+    target.includes("dev board") ||
+    target.includes("arduino") ||
+    target.includes("microcontroller") ||
+    target.includes("sbc")
+  ) {
+    if (
+      pCat.includes("arduino") ||
+      pCat.includes("microcontroller") ||
+      pCat.includes("development board") ||
+      pCat.includes("single board") ||
+      pCat.includes("dev board") ||
+      pCat.includes("sbc") ||
+      pCat.includes("raspberry") ||
+      pSub.includes("arduino") ||
+      pSub.includes("raspberry") ||
+      pSku.startsWith("ARD") ||
+      pSku.startsWith("DEV") ||
+      pSku.startsWith("SBC") ||
+      pSku.startsWith("RPI") ||
+      pName.includes("arduino") ||
+      pName.includes("raspberry pi") ||
+      pName.includes("atmega") ||
+      pName.includes("esp32")
+    ) {
+      return true;
+    }
+  }
+
+  // 4. Robotics & DIY Kits
+  if (target.includes("robot") || target.includes("diy kit")) {
+    if (
+      ((pCat.includes("robot") || pCat.includes("diy kit")) &&
+        !pCat.includes("stem")) ||
+      pSub.includes("robot") ||
+      pSku.startsWith("ROB") ||
+      pSku.startsWith("KIT") ||
+      pName.includes("robot") ||
+      pName.includes("chassis") ||
+      pName.includes("arm") ||
+      pName.includes("rover")
+    ) {
+      return true;
+    }
+  }
+
+  // 5. Drone Technology & Aerial Systems
+  if (target.includes("drone") || target.includes("uav")) {
+    if (
+      pCat.includes("drone") ||
+      pCat.includes("uav") ||
+      pSub.includes("drone") ||
+      pSub.includes("flight controller") ||
+      pSub.includes("esc") ||
+      pSub.includes("propeller") ||
+      pSku.startsWith("DRN") ||
+      pSku.startsWith("UAV") ||
+      pName.includes("drone") ||
+      pName.includes("flight controller") ||
+      pName.includes("propeller") ||
+      pName.includes("bldc") ||
+      pName.includes("pixhawk") ||
+      pName.includes("speedybee")
+    ) {
+      return true;
+    }
+  }
+
+  // 6. Sensors & IoT Modules
+  if (
+    target.includes("sensor") ||
+    target.includes("iot") ||
+    target.includes("wireless")
+  ) {
+    if (
+      pCat.includes("sensor") ||
+      pCat.includes("iot") ||
+      pCat.includes("wireless") ||
+      pSub.includes("sensor") ||
+      pSub.includes("iot") ||
+      pSku.startsWith("SEN") ||
+      pSku.startsWith("IOT") ||
+      pName.includes("sensor") ||
+      pName.includes("ultrasonic") ||
+      pName.includes("radar") ||
+      pName.includes("lidar") ||
+      pName.includes("lora")
+    ) {
+      return true;
+    }
+  }
+
+  // 7. Motors, Steppers & Drivers
+  if (
+    target.includes("motor") ||
+    target.includes("stepper") ||
+    target.includes("driver")
+  ) {
+    if (
+      pCat.includes("motor") ||
+      pCat.includes("stepper") ||
+      pCat.includes("driver") ||
+      pSub.includes("motor") ||
+      pSub.includes("driver") ||
+      pSku.startsWith("MOT") ||
+      pName.includes("motor") ||
+      pName.includes("stepper") ||
+      pName.includes("driver") ||
+      pName.includes("servo")
+    ) {
+      return true;
+    }
+  }
+
+  // 8. Batteries & Power
+  if (target.includes("battery") || target.includes("power")) {
+    if (
+      pCat.includes("battery") ||
+      pCat.includes("power") ||
+      pSub.includes("battery") ||
+      pSku.startsWith("BAT") ||
+      pSku.startsWith("PWR") ||
+      pName.includes("battery") ||
+      pName.includes("lipo") ||
+      pName.includes("bms")
+    ) {
+      return true;
+    }
+  }
+
+  // 9. STEM & Educational Kits
+  if (
+    target.includes("stem") ||
+    target.includes("educational") ||
+    target.includes("education")
+  ) {
+    if (
+      pCat.includes("stem") ||
+      pCat.includes("educational") ||
+      pCat.includes("education") ||
+      pSub.includes("stem") ||
+      pSku.startsWith("STM") ||
+      pName.includes("stem") ||
+      pName.includes("science kit")
+    ) {
+      return true;
+    }
+  }
+
+  // 10. Mechanical & Hardware
+  if (
+    target.includes("mechanical") ||
+    target.includes("hardware") ||
+    target.includes("3d")
+  ) {
+    if (
+      pCat.includes("mechanical") ||
+      pCat.includes("hardware") ||
+      pCat.includes("3d") ||
+      pSub.includes("mechanical") ||
+      pSub.includes("hardware") ||
+      pSku.startsWith("MEC") ||
+      pSku.startsWith("HRD")
+    ) {
+      return true;
+    }
+  }
+
+  // 11. Industrial Automation
+  if (target.includes("industrial") || target.includes("automation")) {
+    if (
+      pCat.includes("industrial") ||
+      pCat.includes("automation") ||
+      pSub.includes("automation") ||
+      pSku.startsWith("IND") ||
+      pSku.startsWith("AUT") ||
+      pName.includes("plc")
+    ) {
+      return true;
+    }
+  }
+
+  // Fallback: substring matching
+  return (
+    pCat.includes(target) ||
+    target.includes(pCat) ||
+    (pSub ? pSub.includes(target) || target.includes(pSub) : false)
+  );
+}
+
 const KIOSK_CATEGORIES = ["All", ...CATEGORIES_DATA.map((c) => c.name)];
+
+// ─────────────────────────────────────────────────────
+// Banner Carousel Slide Variants (Matches Website)
+// ─────────────────────────────────────────────────────
+const heroSlideVariants = {
+  enter: (direction: number) => ({
+    x: direction > 0 ? "100%" : "-100%",
+    opacity: 0.85,
+  }),
+  center: {
+    x: 0,
+    opacity: 1,
+  },
+  exit: (direction: number) => ({
+    x: direction > 0 ? "-100%" : "100%",
+    opacity: 0.85,
+  }),
+};
+
+// ─────────────────────────────────────────────────────
+// Mockup Left Sidebar Categories Definition
+// ─────────────────────────────────────────────────────
+const SIDEBAR_CATEGORIES = [
+  { id: "all", name: "All Products", icon: LayoutGrid },
+  { id: "robotics", name: "Robotics Kits", icon: Bot },
+  { id: "arduino", name: "Arduino & Development Boards", icon: Cpu },
+  { id: "sensors", name: "Sensors & Modules", icon: Radio },
+  { id: "motors", name: "Motors & Drivers", icon: Cog },
+  { id: "components", name: "Electronic Components", icon: Zap },
+  { id: "drones", name: "Drones & UAV", icon: Navigation },
+  { id: "3d-printing", name: "3D Printing", icon: Box },
+  { id: "stem", name: "STEM Kits", icon: GraduationCap },
+  { id: "tools", name: "Tools & Accessories", icon: Wrench },
+];
 
 // ─────────────────────────────────────────────────────
 // Kiosk Header
@@ -60,6 +424,8 @@ function KioskHeader({
   cartCount,
   cartTotal,
   view,
+  search,
+  setSearch,
   onCartClick,
   onBack,
   onLock,
@@ -68,83 +434,111 @@ function KioskHeader({
   cartCount: number;
   cartTotal: number;
   view: KioskView;
+  search?: string;
+  setSearch?: (v: string) => void;
   onCartClick: () => void;
   onBack: () => void;
   onLock?: () => void;
 }) {
   const storeData = store;
   const isSuccess = view === "success";
+
+  if (view === "browse") {
+    return (
+      <header className="shrink-0 bg-gradient-to-r from-[#031536] via-[#071F4D] to-[#0A2558] border-b border-blue-950/60 px-4 sm:px-6 py-3 flex items-center justify-between gap-3 sm:gap-6 z-30 shadow-md">
+        {/* Left: Prayog Logo & Tagline */}
+        <div className="flex items-center gap-3 shrink-0">
+          <PrayogLogo dark size="sm" />
+          <span className="hidden xl:inline-block h-5 w-px bg-blue-500/30 ml-1" />
+          <span className="hidden xl:inline-block text-xs text-blue-200/80 font-medium">
+            Build Your Next Big Idea.
+          </span>
+        </div>
+
+        {/* Center: Search input */}
+        <div className="flex-1 max-w-xl mx-2 sm:mx-4">
+          <div className="relative">
+            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <input
+              type="text"
+              value={search || ""}
+              onChange={(e) => setSearch?.(e.target.value)}
+              placeholder="Search products by name or SKU..."
+              className="w-full bg-white text-slate-900 placeholder:text-slate-400 border border-transparent focus:border-blue-400 rounded-xl sm:rounded-2xl pl-10 pr-9 py-2 text-xs sm:text-sm font-medium focus:outline-none shadow-sm transition"
+            />
+            {search && setSearch && (
+              <button
+                onClick={() => setSearch("")}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Right: Store Mode Status Badge + Device Lock */}
+        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+          <div className="bg-[#0B254E] border border-blue-800/50 rounded-xl px-3 py-1.5 flex items-center gap-2 shadow-xs">
+            <span className="text-amber-400 text-xs">📍</span>
+            <span className="text-white font-bold text-xs truncate max-w-[110px] sm:max-w-none">
+              {storeData.shortName}
+            </span>
+            <span className="text-blue-300 text-xs">·</span>
+            <span className="text-blue-200 text-xs font-semibold hidden sm:inline">Store Mode</span>
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
+          </div>
+
+          {onLock && (
+            <button
+              onClick={onLock}
+              title="Lock Kiosk Device (Manager Login Required)"
+              className="p-2 rounded-xl bg-[#0B254E] border border-blue-800/50 hover:bg-blue-900/60 text-blue-200 hover:text-white transition shadow-xs cursor-pointer shrink-0"
+            >
+              <Lock className="w-4 h-4" />
+            </button>
+          )}
+        </div>
+      </header>
+    );
+  }
+
   return (
-    <header className="bg-white border-b border-slate-200 px-4 sm:px-6 py-3 flex items-center justify-between gap-3 sticky top-0 z-30 shadow-sm">
+    <header className="shrink-0 bg-gradient-to-r from-[#031536] via-[#071F4D] to-[#0A2558] border-b border-blue-950/60 px-4 sm:px-6 py-3 flex items-center justify-between gap-3 z-30 shadow-md">
       <div className="flex items-center gap-3 min-w-0">
         {(view === "cart" || view === "checkout") && (
           <button
             onClick={onBack}
-            className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 transition-colors shrink-0"
+            className="p-2 rounded-xl bg-[#0B254E] border border-blue-800/50 hover:bg-blue-900/60 text-white transition-colors shrink-0 cursor-pointer flex items-center gap-1.5 text-xs font-bold"
           >
             <ArrowLeft className="w-4 h-4" />
+            <span className="hidden sm:inline">Back</span>
           </button>
         )}
-        <div
-          className="w-8 h-8 rounded-lg flex items-center justify-center text-white font-black text-sm shadow shrink-0"
-          style={{ background: storeData.accentColor }}
-        >
-          P
-        </div>
-        <div className="min-w-0">
-          <div className="font-black text-slate-900 text-sm truncate">
-            {storeData.shortName}
-          </div>
-          <div className="text-[10px] text-slate-400 font-medium truncate hidden sm:block">
-            {storeData.city}
-          </div>
-        </div>
+        <PrayogLogo dark size="sm" />
+        <span className="hidden sm:inline-block h-4 w-px bg-blue-500/30" />
+        <span className="text-xs text-blue-200 font-bold truncate">
+          {view === "cart"
+            ? "Review In-Store Cart"
+            : view === "checkout"
+            ? "Express Counter Checkout"
+            : "Order Placed"}
+        </span>
       </div>
 
       <div className="flex items-center gap-2">
         {isSuccess && (
-          <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="hidden sm:inline">Order Dispatched</span>
-          </div>
-        )}
-
-        {view === "browse" && (
-          <button
-            onClick={onCartClick}
-            className="relative flex items-center gap-2 text-white font-extrabold text-xs px-4 py-2 rounded-xl shadow-md active:scale-95 transition-all cursor-pointer"
-            style={{
-              background: cartCount > 0 ? storeData.accentColor : "#64748B",
-            }}
-          >
-            <ShoppingCart className="w-4 h-4" />
-            <span className="hidden sm:inline">Cart</span>
-            {cartCount > 0 && (
-              <>
-                <span className="hidden sm:inline">·</span>
-                <span className="hidden sm:inline">
-                  ₹{cartTotal.toLocaleString()}
-                </span>
-                <span className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 text-white text-[10px] font-black rounded-full flex items-center justify-center shadow">
-                  {cartCount}
-                </span>
-              </>
-            )}
-          </button>
-        )}
-
-        {view === "browse" && (
-          <div className="text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-full hidden sm:flex items-center gap-1.5 shrink-0">
-            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-            Staff Online
+          <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 text-xs font-bold">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            <span>Ready for Counter Pickup</span>
           </div>
         )}
 
         {onLock && (
           <button
             onClick={onLock}
-            title="Lock Kiosk Device (Manager Login Required)"
-            className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 transition-colors cursor-pointer shrink-0"
+            title="Lock Kiosk Device"
+            className="p-2 rounded-xl bg-[#0B254E] border border-blue-800/50 hover:bg-blue-900/60 text-blue-200 hover:text-white transition cursor-pointer shrink-0"
           >
             <Lock className="w-4 h-4" />
           </button>
@@ -155,127 +549,134 @@ function KioskHeader({
 }
 
 // ─────────────────────────────────────────────────────
-// Product Card
+// Mockup Matching Product Card
 // ─────────────────────────────────────────────────────
 function ProductCard({
   product,
   quantity,
-  accentColor,
+  availableStock,
   onAdd,
   onRemove,
-  onBuyNow,
   onOpenDetail,
 }: {
   product: Product;
   quantity: number;
-  accentColor: string;
+  availableStock: number;
+  storeName?: string;
+  accentColor?: string;
   onAdd: () => void;
   onRemove: () => void;
-  onBuyNow: () => void;
+  onBuyNow?: () => void;
   onOpenDetail: () => void;
 }) {
+  const isInStock = availableStock > 0;
+  const isLimited = availableStock > 0 && availableStock <= 5;
+
   return (
-    <div className="bg-white rounded-2xl border border-slate-200 hover:border-slate-300 hover:shadow-md transition-all duration-200 flex flex-col overflow-hidden group">
-      {/* Product Image Area - Clickable to View Multiple Images & 360 View */}
-      <div
-        onClick={onOpenDetail}
-        className="relative h-36 sm:h-44 bg-slate-50 overflow-hidden cursor-pointer"
-      >
-        <Image
-          src={product.image}
-          alt={product.name}
-          fill
-          className="object-contain p-3 group-hover:scale-105 transition-transform duration-300"
-        />
-        {!product.inStock && (
-          <div className="absolute inset-0 bg-white/70 flex items-center justify-center">
-            <span className="bg-red-100 text-red-600 text-xs font-black px-3 py-1 rounded-full border border-red-200">
-              Out of Stock
-            </span>
-          </div>
-        )}
-        <div className="absolute top-2 left-2">
-          <span className="bg-slate-900/80 text-white text-[9px] font-mono font-bold px-2 py-0.5 rounded-full">
-            {product.sku}
+    <div className="bg-white rounded-2xl border border-slate-200/80 hover:border-blue-400 hover:shadow-lg transition-all duration-200 flex flex-col p-3.5 relative group">
+      {/* Top SKU + Stock Badge */}
+      <div className="flex items-center justify-between gap-1 mb-1">
+        <span className="text-[10px] font-mono text-slate-400 font-bold truncate max-w-[100px]">
+          {product.sku || ""}
+        </span>
+        {!isInStock ? (
+          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-150 shrink-0">
+            Out of Stock
           </span>
-        </div>
-        {product.discount && (
-          <div className="absolute top-2 right-2">
-            <span className="bg-red-500 text-white text-[9px] font-black px-2 py-0.5 rounded-full">
-              {product.discount}
-            </span>
-          </div>
+        ) : isLimited ? (
+          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-150 shrink-0">
+            Limited Stock
+          </span>
+        ) : (
+          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-150 shrink-0">
+            In Stock
+          </span>
         )}
-        <div className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-slate-900/75 backdrop-blur-xs text-white text-[9px] font-bold px-2 py-0.5 rounded-md flex items-center gap-1 shadow-sm">
-          <span>Photos & 360°</span>
-        </div>
       </div>
 
-      <div className="p-3 flex flex-col flex-1 gap-2">
-        <h3
-          onClick={onOpenDetail}
-          className="text-xs font-extrabold text-slate-900 leading-tight line-clamp-2 cursor-pointer hover:text-[#00AEEF] transition-colors"
-        >
-          {product.name}
-        </h3>
-        <div className="flex items-baseline gap-2 mt-auto">
-          <span className="text-sm font-black text-slate-900">
-            ₹{product.price.toLocaleString()}
-          </span>
-          <span className="text-[11px] text-slate-400 line-through">
+      {/* Product Image Area */}
+      <div
+        onClick={onOpenDetail}
+        className="relative h-36 sm:h-40 w-full flex items-center justify-center p-2 mb-2 cursor-pointer group-hover:scale-105 transition-transform duration-200 overflow-hidden"
+      >
+        {product.image &&
+        typeof product.image === "string" &&
+        product.image.trim().length > 0 &&
+        !product.image.includes("photo-1553406830-ef2513450d76") ? (
+          <Image
+            src={product.image}
+            alt={typeof product.name === "string" ? product.name : "Product"}
+            fill
+            className="object-contain p-2"
+          />
+        ) : (
+          <div className="w-full h-full rounded-2xl bg-slate-50 border border-slate-100 flex flex-col items-center justify-center text-slate-300 gap-1.5">
+            <Package className="w-8 h-8 stroke-[1.5]" />
+            <span className="text-[10px] font-semibold text-slate-400">No Image</span>
+          </div>
+        )}
+      </div>
+
+      {/* Product Title */}
+      <h3
+        onClick={onOpenDetail}
+        title={product.name}
+        className="text-xs sm:text-sm font-bold text-slate-800 line-clamp-2 leading-snug cursor-pointer hover:text-[#0070F3] transition-colors min-h-[2.5rem]"
+      >
+        {product.name}
+      </h3>
+
+      {/* Price row */}
+      <div className="flex items-baseline gap-2 mt-2 mb-3">
+        <span className="text-sm sm:text-base font-black text-[#0070F3]">
+          ₹{product.price.toLocaleString()}
+        </span>
+        {product.mrp && product.mrp > product.price && (
+          <span className="text-xs text-slate-400 line-through font-medium">
             ₹{product.mrp.toLocaleString()}
           </span>
-        </div>
+        )}
+      </div>
 
-        {product.inStock ? (
-          quantity === 0 ? (
-            <div className="grid grid-cols-2 gap-1.5 pt-1">
-              <button
-                onClick={onAdd}
-                className="py-2.5 px-1 rounded-xl font-extrabold text-[11px] text-white transition-all active:scale-95 shadow-sm hover:shadow-md flex items-center justify-center gap-1 cursor-pointer"
-                style={{ background: accentColor }}
-              >
-                <Plus className="w-3 h-3 shrink-0" />
-                <span className="truncate">Add to Cart</span>
-              </button>
-              <button
-                onClick={onBuyNow}
-                className="py-2.5 px-1 rounded-xl font-extrabold text-[11px] bg-slate-900 hover:bg-slate-800 text-white transition-all active:scale-95 shadow-sm hover:shadow-md flex items-center justify-center text-center cursor-pointer"
-              >
-                <span>Buy Now</span>
-              </button>
-            </div>
-          ) : (
-            <div className="grid grid-cols-2 gap-1.5 pt-1">
-              <div className="flex items-center justify-between bg-slate-100 rounded-xl px-1 py-0.5">
-                <button
-                  onClick={onRemove}
-                  className="w-7 h-7 rounded-lg bg-white border border-slate-200 flex items-center justify-center hover:bg-slate-50 transition-colors active:scale-90 cursor-pointer"
-                >
-                  <Minus className="w-3 h-3 text-slate-700" />
-                </button>
-                <span className="font-black text-slate-900 text-xs w-6 text-center">
-                  {quantity}
-                </span>
-                <button
-                  onClick={onAdd}
-                  className="w-7 h-7 rounded-lg flex items-center justify-center text-white transition-colors active:scale-90 cursor-pointer"
-                  style={{ background: accentColor }}
-                >
-                  <Plus className="w-3 h-3" />
-                </button>
-              </div>
-              <button
-                onClick={onBuyNow}
-                className="py-2 px-1 rounded-xl font-extrabold text-[11px] bg-slate-900 hover:bg-slate-800 text-white transition-all active:scale-95 shadow-sm hover:shadow-md flex items-center justify-center text-center cursor-pointer"
-              >
-                <span>Checkout</span>
-              </button>
-            </div>
-          )
+      {/* Action Button */}
+      <div className="mt-auto">
+        {!isInStock ? (
+          <button
+            disabled
+            className="w-full py-2.5 rounded-xl font-bold text-xs bg-slate-100 text-slate-400 cursor-not-allowed text-center"
+          >
+            Out of Stock
+          </button>
+        ) : quantity === 0 ? (
+          <button
+            onClick={onAdd}
+            className="w-full py-2.5 rounded-xl font-bold text-xs bg-[#EBF5FF] hover:bg-[#D8ECFF] text-[#0070F3] flex items-center justify-center gap-1.5 transition-colors active:scale-98 cursor-pointer shadow-2xs"
+          >
+            <ShoppingCart className="w-3.5 h-3.5" />
+            <span>Add to Cart</span>
+          </button>
         ) : (
-          <div className="w-full py-2.5 rounded-xl font-bold text-xs text-slate-400 bg-slate-100 text-center">
-            Unavailable
+          <div className="flex items-center justify-between bg-blue-50 border border-blue-200 rounded-xl px-2 py-1">
+            <button
+              onClick={onRemove}
+              className="w-7 h-7 rounded-lg bg-white text-slate-700 hover:bg-slate-100 flex items-center justify-center font-bold text-sm shadow-xs cursor-pointer transition active:scale-95"
+            >
+              <Minus className="w-3.5 h-3.5" />
+            </button>
+            <span className="font-extrabold text-sm text-[#0070F3]">
+              {quantity}
+            </span>
+            <button
+              onClick={onAdd}
+              disabled={quantity >= availableStock}
+              className={`w-7 h-7 rounded-lg flex items-center justify-center font-bold text-sm shadow-xs transition active:scale-95 ${
+                quantity >= availableStock
+                  ? "bg-slate-200 text-slate-400 cursor-not-allowed"
+                  : "bg-[#0070F3] text-white hover:bg-blue-600 cursor-pointer"
+              }`}
+            >
+              <Plus className="w-3.5 h-3.5" />
+            </button>
           </div>
         )}
       </div>
@@ -305,6 +706,8 @@ export default function StoreKioskPage() {
   const [cart, setCart] = useState<KioskCartItem[]>([]);
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const [productsList, setProductsList] = useState<Product[]>(PRODUCTS);
+  const [loadingProducts, setLoadingProducts] = useState<boolean>(false);
   const [customerName, setCustomerName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
   const [customerEmail, setCustomerEmail] = useState("");
@@ -316,6 +719,19 @@ export default function StoreKioskPage() {
   const [showProductDetail, setShowProductDetail] = useState<Product | null>(
     null,
   );
+  const [showStockPopup, setShowStockPopup] = useState<{
+    visible: boolean;
+    limit: number;
+  }>({ visible: false, limit: 0 });
+  const stockPopupTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const triggerStockLimitPopup = (limit: number) => {
+    setShowStockPopup({ visible: true, limit });
+    if (stockPopupTimeoutRef.current) clearTimeout(stockPopupTimeoutRef.current);
+    stockPopupTimeoutRef.current = setTimeout(() => {
+      setShowStockPopup((p) => ({ ...p, visible: false }));
+    }, 2800);
+  };
 
   const broadcastRef = useRef<BroadcastChannel | null>(null);
 
@@ -391,80 +807,319 @@ export default function StoreKioskPage() {
     }
   };
 
-  // Derived values
-  const filteredProducts = PRODUCTS.filter((p) => {
-    const term = search.trim().toLowerCase();
-    const matchesSearch =
-      term === "" ||
-      p.name.toLowerCase().includes(term) ||
-      p.sku.toLowerCase().includes(term) ||
-      p.category.toLowerCase().includes(term) ||
-      (p.brand && p.brand.toLowerCase().includes(term));
+  // ── Load Real Products from Database API (Synchronizes newly added Admin products) ──
+  useEffect(() => {
+    let isMounted = true;
+    setLoadingProducts(true);
+    fetch("/api/products?limit=250")
+      .then((res) => res.json())
+      .then((json) => {
+        if (!isMounted) return;
+        if (json?.success && Array.isArray(json.data) && json.data.length > 0) {
+          const apiProducts: Product[] = json.data.map((item: any) => {
+            const rawPrimary =
+              item.images?.[0]?.imageUrl ||
+              (Array.isArray(item.images) && typeof item.images[0] === "string"
+                ? item.images[0]
+                : item.image || "");
+            const primaryImg =
+              rawPrimary && typeof rawPrimary === "string" && !rawPrimary.includes("photo-1553406830-ef2513450d76")
+                ? rawPrimary
+                : "";
+            const allImages = Array.isArray(item.images)
+              ? item.images
+                  .map((im: any) => (typeof im === "string" ? im : im.imageUrl))
+                  .filter((url: any) => typeof url === "string" && url.trim().length > 0 && !url.includes("photo-1553406830-ef2513450d76"))
+              : primaryImg ? [primaryImg] : [];
 
-    if (!matchesSearch) return false;
-    if (selectedCategory === "All") return true;
+            const rawCat = item.category;
+            const categoryName =
+              typeof rawCat === "object" && rawCat !== null
+                ? String(rawCat.name || "Robotics & Components")
+                : typeof rawCat === "string" && rawCat.trim()
+                  ? rawCat.trim()
+                  : "Robotics & Components";
 
-    const pCat = p.category.toLowerCase();
-    const pSub = (p.subcategory || "").toLowerCase();
-    const selLower = selectedCategory.toLowerCase();
+            const rawSub = item.subcategory;
+            const subcategoryName =
+              typeof rawSub === "object" && rawSub !== null
+                ? String(rawSub.name || "")
+                : typeof rawSub === "string" && rawSub.trim()
+                  ? rawSub.trim()
+                  : "";
 
-    // 1. Exact category or subcategory match
-    if (
-      pCat === selLower ||
-      pSub === selLower ||
-      pCat.includes(selLower) ||
-      selLower.includes(pCat)
-    ) {
-      return true;
-    }
+            const price = Number(item.price) || 0;
+            const mrp = Number(item.mrp) || Math.round(price * 1.25);
+            const discountPct =
+              mrp > price
+                ? `${Math.round(((mrp - price) / mrp) * 100)}% OFF`
+                : "";
 
-    // 2. Canonical category model match from CATEGORIES_DATA
-    const targetCat = CATEGORIES_DATA.find((c) => matchCategory(c, selLower));
-    if (targetCat) {
-      const catName = targetCat.name.toLowerCase();
-      const shortName = (targetCat.shortName || "").toLowerCase();
-      if (
-        pCat === catName ||
-        pCat === shortName ||
-        pCat.includes(shortName) ||
-        catName.includes(pCat)
-      ) {
-        return true;
-      }
-      const subMatch = targetCat.subcategories.some((sub) => {
-        const subName = sub.name.toLowerCase();
-        return (
-          pCat.includes(subName) ||
-          subName.includes(pCat) ||
-          pSub.includes(subName) ||
-          subName.includes(pSub) ||
-          p.name.toLowerCase().includes(subName)
-        );
+            const rawSpecs =
+              typeof item.specifications === "object" && item.specifications !== null
+                ? item.specifications
+                : typeof item.specs === "object" && item.specs !== null
+                  ? item.specs
+                  : {};
+            const cleanSpecs: Record<string, string> = {};
+            for (const [k, v] of Object.entries(rawSpecs)) {
+              if (!k.startsWith("_") && v !== null && v !== undefined && typeof v !== "object") {
+                cleanSpecs[k] = String(v);
+              }
+            }
+
+            return {
+              id: item.id,
+              slug: item.slug || item.id,
+              name: item.name,
+              sku: item.sku || `SKU-${item.id.slice(0, 6)}`,
+              brand:
+                item.brand && item.brand.trim().toLowerCase() !== "prayog india"
+                  ? item.brand
+                  : undefined,
+              category: categoryName,
+              subcategory: subcategoryName,
+              price,
+              mrp,
+              discount: discountPct,
+              rating: Number(item.rating) || 4.8,
+              reviews: Number(item.reviewCount || item.reviews) || 12,
+              inStock: item.inStock ?? item.stock > 0,
+              stock: typeof item.stock === "number" ? item.stock : 25,
+              image: primaryImg,
+              images: allImages.filter(Boolean),
+              description: item.description || "",
+              features: Array.isArray(item.features) ? item.features : [],
+              applications: Array.isArray(item.applications)
+                ? item.applications
+                : [],
+              whatsIncluded: Array.isArray(item.whatsIncluded)
+                ? item.whatsIncluded
+                : [],
+              specs: cleanSpecs,
+              variants: Array.isArray(item.variants)
+                ? item.variants.map((v: any) => ({
+                    id: v.id || v.sku,
+                    name: v.name,
+                    sku: v.sku,
+                    price: Number(v.price) || price,
+                    mrp: Number(v.mrp) || mrp,
+                    inStock: v.inStock ?? true,
+                    stock: v.stock,
+                  }))
+                : undefined,
+              documents: Array.isArray(item.documents) ? item.documents : [],
+            };
+          });
+
+          // Combine with mock products, prioritizing newly created API products first
+          const existingIds = new Set(apiProducts.map((p) => p.id));
+          const existingSkus = new Set(
+            apiProducts.map((p) => (p.sku || "").toUpperCase()),
+          );
+          const combined = [
+            ...apiProducts,
+            ...PRODUCTS.filter(
+              (mp) =>
+                !existingIds.has(mp.id) &&
+                !existingSkus.has((mp.sku || "").toUpperCase()),
+            ),
+          ];
+
+          setProductsList(combined);
+        }
+      })
+      .catch((err) => {
+        console.error("Failed to load products for walk-in store:", err);
+      })
+      .finally(() => {
+        if (isMounted) setLoadingProducts(false);
       });
-      if (subMatch) return true;
-    }
 
-    // 3. Hierarchical match using CATEGORIES_HIERARCHY
-    const parentNode = CATEGORIES_HIERARCHY.find(
-      (c) => c.name.toLowerCase() === selLower,
-    );
-    if (parentNode) {
-      const parentName = parentNode.name.toLowerCase();
-      if (pCat.includes(parentName) || parentName.includes(pCat)) {
-        return true;
-      }
-      const childMatch = parentNode.children?.some(
-        (ch) =>
-          ch.name.toLowerCase() === pCat ||
-          pCat.includes(ch.name.toLowerCase()) ||
-          (p.subcategory &&
-            ch.name.toLowerCase() === p.subcategory.toLowerCase()),
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  // Group products into category sections
+  const categorizedSections = useMemo(() => {
+    const term = search.trim().toLowerCase();
+    const result: { category: CategorySectionDef; products: Product[] }[] = [];
+    const assignedIds = new Set<string>();
+
+    // Filter products matching search term first
+    const pool = productsList.filter((p) => {
+      if (!term) return true;
+      const rawCat = typeof p.category === "object" ? (p.category as any)?.name : p.category;
+      const pCat = String(rawCat || "").toLowerCase();
+      const pName = String(p.name || "").toLowerCase();
+      const pSku = String(p.sku || "").toLowerCase();
+      const pBrand = String(p.brand || "").toLowerCase();
+      return (
+        pName.includes(term) ||
+        pSku.includes(term) ||
+        pCat.includes(term) ||
+        pBrand.includes(term)
       );
-      if (childMatch) return true;
+    });
+
+    // 1. Group into canonical categories
+    for (const cat of CANONICAL_CATEGORIES) {
+      const matches = pool.filter((p) =>
+        isProductMatchingCategory(p, cat.name),
+      );
+      if (matches.length > 0) {
+        result.push({ category: cat, products: matches });
+        matches.forEach((p) => assignedIds.add(p.id));
+      }
     }
 
-    return false;
-  });
+    // 2. Unassigned products (e.g. newly created custom admin categories)
+    const unassigned = pool.filter((p) => !assignedIds.has(p.id));
+    if (unassigned.length > 0) {
+      const customGroups: Record<string, Product[]> = {};
+      for (const p of unassigned) {
+        const rawCat = typeof p.category === "object" ? (p.category as any)?.name : p.category;
+        const catKey = String(rawCat || "Hardware & Components").trim() || "Hardware & Components";
+        if (!customGroups[catKey]) customGroups[catKey] = [];
+        customGroups[catKey].push(p);
+      }
+      for (const [catName, prods] of Object.entries(customGroups)) {
+        const safeName = String(catName);
+        result.push({
+          category: {
+            id: safeName.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
+            name: safeName,
+            icon: "📦",
+            description: `All ${safeName} items`,
+          },
+          products: prods,
+        });
+      }
+    }
+
+    return result;
+  }, [productsList, search]);
+
+  // ── Hero Banners: Live Synchronized with Website CMS ──
+  const [heroBanners, setHeroBanners] = useState<HeroBanner[]>(DEFAULT_HERO_BANNERS);
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [direction, setDirection] = useState(1);
+  const [isBannerPaused, setIsBannerPaused] = useState(false);
+
+  useEffect(() => {
+    let isMounted = true;
+    async function loadBanners() {
+      try {
+        const res = await fetch(`/api/banners?activeOnly=true&_t=${Date.now()}`, {
+          cache: "no-store",
+          headers: {
+            "Cache-Control": "no-cache",
+            Pragma: "no-cache",
+          },
+        });
+        if (!res.ok) return;
+        const json = await res.json();
+        if (isMounted && json?.success && Array.isArray(json.data) && json.data.length > 0) {
+          setHeroBanners(sortHeroBanners(json.data));
+        }
+      } catch (err) {
+        console.warn("Could not load dynamic banners for kiosk, using defaults:", err);
+      }
+    }
+    loadBanners();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const bannerCount = heroBanners.length;
+
+  const paginate = (newDirection: number) => {
+    setDirection(newDirection);
+    setCurrentSlide((prev) => (prev + newDirection + bannerCount) % bannerCount);
+  };
+
+  const goToSlide = (idx: number) => {
+    if (idx === currentSlide) return;
+    setDirection(idx > currentSlide ? 1 : -1);
+    setCurrentSlide(idx);
+  };
+
+  // Auto-play interval with hover pause
+  useEffect(() => {
+    if (bannerCount <= 1 || isBannerPaused) return;
+    const timer = setInterval(() => {
+      paginate(1);
+    }, 6000);
+    return () => clearInterval(timer);
+  }, [bannerCount, isBannerPaused]);
+
+  // Compute live product counts for standard sidebar categories
+  const sidebarCategoriesWithCounts = useMemo(() => {
+    return SIDEBAR_CATEGORIES.map((cat) => {
+      let count = 0;
+      if (cat.id === "all") {
+        count = productsList.length;
+      } else {
+        count = productsList.filter((p) => isProductMatchingCategory(p, cat.name)).length;
+      }
+      return {
+        ...cat,
+        count,
+      };
+    });
+  }, [productsList]);
+
+  // Compute extra dynamic categories (e.g. custom admin categories like Resistors)
+  const extraCategories = useMemo(() => {
+    const canonicalMatches = new Set<string>();
+    for (const cat of SIDEBAR_CATEGORIES) {
+      if (cat.id !== "all") {
+        for (const p of productsList) {
+          if (isProductMatchingCategory(p, cat.name)) {
+            canonicalMatches.add(p.id);
+          }
+        }
+      }
+    }
+    const unassigned = productsList.filter((p) => !canonicalMatches.has(p.id));
+    const groups: Record<string, number> = {};
+    for (const p of unassigned) {
+      const rawCat = typeof p.category === "object" ? (p.category as any)?.name : p.category;
+      const catKey = String(rawCat || "Other Hardware").trim() || "Other Hardware";
+      groups[catKey] = (groups[catKey] || 0) + 1;
+    }
+    return Object.entries(groups).map(([name, count]) => ({
+      id: name.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
+      name,
+      count,
+    }));
+  }, [productsList]);
+
+  // Derived filtered products (when a specific category or search is active)
+  const filteredProducts = useMemo(() => {
+    const term = search.trim().toLowerCase();
+    return productsList.filter((p) => {
+      const rawCat = typeof p.category === "object" ? (p.category as any)?.name : p.category;
+      const pCat = String(rawCat || "").toLowerCase();
+      const pName = String(p.name || "").toLowerCase();
+      const pSku = String(p.sku || "").toLowerCase();
+      const pBrand = String(p.brand || "").toLowerCase();
+
+      const matchesSearch =
+        term === "" ||
+        pName.includes(term) ||
+        pSku.includes(term) ||
+        pCat.includes(term) ||
+        pBrand.includes(term);
+
+      if (!matchesSearch) return false;
+      if (selectedCategory === "All" || selectedCategory === "All Products") return true;
+
+      return isProductMatchingCategory(p, selectedCategory);
+    });
+  }, [productsList, search, selectedCategory]);
 
   const cartCount = cart.reduce((s, i) => s + i.quantity, 0);
   const subtotal = cart.reduce((s, i) => s + i.product.price * i.quantity, 0);
@@ -474,17 +1129,30 @@ export default function StoreKioskPage() {
   const getQty = (productId: string) =>
     cart.find((i) => i.product.id === productId)?.quantity ?? 0;
 
-  const addToCart = useCallback((product: Product) => {
-    setCart((prev) => {
-      const idx = prev.findIndex((i) => i.product.id === product.id);
-      if (idx >= 0) {
-        const updated = [...prev];
-        updated[idx] = { ...updated[idx], quantity: updated[idx].quantity + 1 };
-        return updated;
+  const addToCart = useCallback(
+    (product: Product, variantId?: string, qty: number = 1) => {
+      const storeStock = getStoreProductStock(product, storeId);
+      if (storeStock <= 0) {
+        triggerStockLimitPopup(0);
+        return;
       }
-      return [...prev, { product, quantity: 1 }];
-    });
-  }, []);
+      setCart((prev) => {
+        const idx = prev.findIndex((i) => i.product.id === product.id);
+        const currentQty = idx >= 0 ? prev[idx].quantity : 0;
+        if (currentQty + qty > storeStock) {
+          triggerStockLimitPopup(storeStock);
+          return prev;
+        }
+        if (idx >= 0) {
+          const updated = [...prev];
+          updated[idx] = { ...updated[idx], quantity: updated[idx].quantity + qty };
+          return updated;
+        }
+        return [...prev, { product, quantity: qty }];
+      });
+    },
+    [storeId],
+  );
 
   const removeFromCart = useCallback((product: Product) => {
     setCart((prev) => {
@@ -579,116 +1247,362 @@ export default function StoreKioskPage() {
 
   // ── RENDER HELPERS ────────────────────────────────
 
-  const renderBrowseView = () => (
-    <div className="flex flex-col flex-1 min-h-0">
-      {/* Search + Category */}
-      <div className="bg-white border-b border-slate-100 px-4 sm:px-6 py-3 space-y-3 sticky top-[57px] z-20">
-        <div className="relative">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-          <input
-            type="text"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search by name or scan SKU..."
-            className="w-full bg-slate-50 border border-slate-200 rounded-2xl pl-10 pr-4 py-2.5 text-sm font-medium text-slate-800 focus:outline-none focus:border-slate-400 transition-colors"
-          />
-          {search && (
-            <button
-              onClick={() => setSearch("")}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          )}
-        </div>
-        <div className="flex gap-2 overflow-x-auto scrollbar-none pb-1 pt-0.5 scroll-smooth">
-          {KIOSK_CATEGORIES.map((cat) => (
-            <button
-              key={cat}
-              onClick={() => setSelectedCategory(cat)}
-              className={`px-3.5 py-1.5 rounded-xl font-bold text-xs whitespace-nowrap transition-all shrink-0 cursor-pointer ${
-                selectedCategory === cat
-                  ? "text-white shadow-md scale-100"
-                  : "bg-slate-100 text-slate-700 hover:bg-slate-200 active:scale-95"
-              }`}
-              style={
-                selectedCategory === cat
-                  ? { background: store.accentColor }
-                  : undefined
-              }
-            >
-              {cat}
-            </button>
-          ))}
-        </div>
-      </div>
+  const renderBrowseView = () => {
+    const activeBanner: HeroBanner =
+      heroBanners[currentSlide] || heroBanners[0] || DEFAULT_HERO_BANNERS[0];
+    const isAllSelected = selectedCategory === "All" || selectedCategory === "All Products";
 
-      {/* Product Grid */}
-      <div className="flex-1 overflow-y-auto">
-        <div className="px-4 sm:px-6 py-4">
-          {filteredProducts.length === 0 ? (
-            <div className="text-center py-20 text-slate-400">
-              <Package className="w-12 h-12 mx-auto mb-3 opacity-40" />
-              <p className="font-bold text-sm">No products found</p>
-              <p className="text-xs mt-1">Try a different search or category</p>
+    const isTextEmpty = (str?: string) =>
+      !str || str.trim() === "" || str.trim() === "." || str.trim() === "-";
+
+    const hasTitleOrDesc =
+      !isTextEmpty(activeBanner.titlePrefix) ||
+      !isTextEmpty(activeBanner.titleHighlight) ||
+      Boolean(activeBanner.subtitle && activeBanner.subtitle.trim().length > 1) ||
+      Boolean(activeBanner.description && !isTextEmpty(activeBanner.description) && activeBanner.description.trim().length > 3);
+
+    const hasButtons =
+      !isTextEmpty(activeBanner.primaryButtonText) ||
+      !isTextEmpty(activeBanner.secondaryButtonText);
+
+    const hasTextOverlay =
+      activeBanner.showTextOverlay === true ||
+      (activeBanner.showTextOverlay !== false && (hasTitleOrDesc || hasButtons));
+
+    return (
+      <div className="flex-1 w-full h-full flex overflow-hidden min-h-0 bg-[#F4F7FB]">
+        {/* ── Left Sidebar Navigation (Fixed in Place / Independent Scroll) ── */}
+        <aside className="w-64 xl:w-72 h-full bg-white border-r border-slate-200/80 shrink-0 flex flex-col justify-between p-3.5 overflow-y-auto select-none">
+          <div className="space-y-1">
+            <div className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 px-3 py-1">
+              Store Categories
             </div>
-          ) : (
-            <>
-              <div className="flex items-center justify-between mb-4">
-                <p className="text-xs font-bold text-slate-500">
-                  {filteredProducts.length} products
-                </p>
-                {cartCount > 0 && (
-                  <button
-                    onClick={() => setView("cart")}
-                    className="flex items-center gap-2 text-xs font-extrabold px-3 py-1.5 rounded-xl text-white shadow-sm active:scale-95 transition-all"
-                    style={{ background: store.accentColor }}
+            {sidebarCategoriesWithCounts.map((cat) => {
+              const isActive =
+                (cat.id === "all" && isAllSelected) ||
+                selectedCategory === cat.name;
+              const IconComp = cat.icon;
+              return (
+                <button
+                  key={cat.id}
+                  onClick={() => {
+                    setSelectedCategory(cat.name);
+                    setSearch("");
+                  }}
+                  className={`w-full py-2.5 px-3 rounded-xl font-semibold text-xs flex items-center justify-between transition cursor-pointer text-left ${
+                    isActive
+                      ? "bg-[#0070F3] text-white shadow-sm"
+                      : "text-slate-700 hover:bg-slate-100/80 hover:text-slate-900"
+                  }`}
+                >
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <IconComp
+                      className={`w-4 h-4 shrink-0 ${
+                        isActive ? "text-white" : "text-slate-500"
+                      }`}
+                    />
+                    <span className="truncate">{cat.name}</span>
+                  </div>
+                  <span
+                    className={`text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0 ml-1.5 ${
+                      isActive
+                        ? "bg-white/20 text-white"
+                        : "bg-slate-100 text-slate-500"
+                    }`}
                   >
-                    <ShoppingCart className="w-3.5 h-3.5" />
-                    {cartCount} items · ₹{subtotal.toLocaleString()}
-                  </button>
-                )}
+                    {cat.count}
+                  </span>
+                </button>
+              );
+            })}
+
+            {/* Extra Dynamic Categories (e.g. custom admin categories like Resistors) */}
+            {extraCategories.length > 0 && (
+              <div className="pt-2 border-t border-slate-150 mt-2 space-y-1">
+                <div className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 px-3 py-1">
+                  More Categories
+                </div>
+                {extraCategories.map((cat) => {
+                  const isActive = selectedCategory === cat.name;
+                  return (
+                    <button
+                      key={cat.id}
+                      onClick={() => {
+                        setSelectedCategory(cat.name);
+                        setSearch("");
+                      }}
+                      className={`w-full py-2 px-3 rounded-xl font-semibold text-xs flex items-center justify-between transition cursor-pointer text-left ${
+                        isActive
+                          ? "bg-[#0070F3] text-white shadow-sm"
+                          : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                      }`}
+                    >
+                      <div className="flex items-center gap-2 min-w-0">
+                        <Package className="w-3.5 h-3.5 shrink-0 text-slate-400" />
+                        <span className="truncate">{cat.name}</span>
+                      </div>
+                      <span
+                        className={`text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0 ml-1.5 ${
+                          isActive
+                            ? "bg-white/20 text-white"
+                            : "bg-slate-100 text-slate-500"
+                        }`}
+                      >
+                        {cat.count}
+                      </span>
+                    </button>
+                  );
+                })}
               </div>
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
-                {filteredProducts.map((p) => (
-                  <ProductCard
-                    key={p.id}
-                    product={p}
-                    quantity={getQty(p.id)}
-                    accentColor={store.accentColor}
-                    onAdd={() => addToCart(p)}
-                    onRemove={() => removeFromCart(p)}
-                    onBuyNow={() => {
-                      addToCart(p);
-                      setView("cart");
-                    }}
-                    onOpenDetail={() => setShowProductDetail(p)}
+            )}
+          </div>
+
+          {/* Bottom Promo Card in Sidebar */}
+          <div className="mt-4 rounded-2xl bg-gradient-to-br from-[#061B40] via-[#0A2E6E] to-[#0051C6] p-4 text-white relative overflow-hidden shadow-sm shrink-0">
+            <div className="relative z-10 max-w-[65%]">
+              <p className="text-xs font-black tracking-tight leading-snug text-white">
+                Explore<br />
+                Innovate<br />
+                <span className="text-blue-300">Create</span>
+              </p>
+            </div>
+            <div className="absolute -right-2 -bottom-2 w-20 h-20 opacity-95 pointer-events-none">
+              <Image
+                src="/products/robot_car_stem_transparent.png"
+                alt="Robot Kit"
+                width={80}
+                height={80}
+                className="object-contain drop-shadow-md"
+              />
+            </div>
+          </div>
+        </aside>
+
+        {/* ── Main Content Area (Independent Scroll for Banners & Products) ── */}
+        <main className="flex-1 h-full min-w-0 overflow-y-auto p-4 sm:p-6 space-y-6">
+          {/* 1. Hero Banner Carousel — Live Synchronized with Website (Compact Height & Zero-Cut Contained Image) */}
+          <div
+            onMouseEnter={() => setIsBannerPaused(true)}
+            onMouseLeave={() => setIsBannerPaused(false)}
+            className="relative w-full rounded-2xl overflow-hidden shadow-sm h-36 sm:h-44 md:h-48 max-h-[200px] flex items-center bg-[#07132B] group select-none"
+            aria-label="Prayog India Featured Robotics Showcase Banner"
+          >
+            {/* Animated Swipeable Carousel Track */}
+            <div className="absolute inset-0 w-full h-full overflow-hidden">
+              <AnimatePresence initial={false} custom={direction} mode="popLayout">
+                <motion.div
+                  key={activeBanner.id || currentSlide}
+                  custom={direction}
+                  variants={heroSlideVariants}
+                  initial="enter"
+                  animate="center"
+                  exit="exit"
+                  transition={{
+                    x: { type: "tween", ease: [0.16, 1, 0.3, 1], duration: 0.75 },
+                    opacity: { duration: 0.4 },
+                  }}
+                  className="absolute inset-0 w-full h-full flex items-center justify-center select-none"
+                >
+                  {/* Ambient Blurred Backdrop (Fills container with matching color gradient without letterbox voids) */}
+                  <img
+                    src={activeBanner.image}
+                    alt=""
+                    aria-hidden="true"
+                    className="absolute inset-0 w-full h-full object-cover blur-xl opacity-75 scale-125 pointer-events-none select-none"
+                    draggable={false}
+                  />
+
+                  {/* 100% Contained Foreground Image — Preserves Full Graphic Edge-to-Edge with Zero Cropping/Cutting */}
+                  <img
+                    src={activeBanner.image}
+                    alt={activeBanner.alt || "Prayog India Banner"}
+                    className="relative z-10 w-full h-full object-contain object-center pointer-events-none select-none drop-shadow-sm"
+                    draggable={false}
+                  />
+
+                  {/* Optional Text Overlay Layer (if configured in CMS) */}
+                  {hasTextOverlay && (
+                    <div className="absolute inset-0 z-20 w-full h-full px-6 sm:px-10 flex items-center bg-gradient-to-r from-black/60 via-black/25 to-transparent">
+                      <div className="max-w-xl text-left space-y-1">
+                        {(activeBanner.titlePrefix || activeBanner.titleHighlight) && (
+                          <h1 className="text-base sm:text-2xl font-extrabold text-white tracking-tight leading-tight">
+                            {activeBanner.titlePrefix}{" "}
+                            {activeBanner.titleHighlight && (
+                              <span className="text-[#FFC20E]">
+                                {activeBanner.titleHighlight}
+                              </span>
+                            )}
+                          </h1>
+                        )}
+                        {activeBanner.subtitle && (
+                          <p className="text-[11px] sm:text-xs font-semibold text-blue-200">
+                            {activeBanner.subtitle}
+                          </p>
+                        )}
+                        {activeBanner.description && !isTextEmpty(activeBanner.description) && (
+                          <p className="text-[11px] text-slate-200 line-clamp-1">
+                            {activeBanner.description}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </motion.div>
+              </AnimatePresence>
+            </div>
+
+            {/* Hover Navigation Arrows */}
+            {bannerCount > 1 && (
+              <>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    paginate(-1);
+                  }}
+                  aria-label="Previous Slide"
+                  className="absolute left-2.5 top-1/2 -translate-y-1/2 z-30 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white/85 hover:bg-white text-slate-800 shadow-md flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all cursor-pointer backdrop-blur-xs active:scale-90"
+                >
+                  <ChevronLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                </button>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    paginate(1);
+                  }}
+                  aria-label="Next Slide"
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 z-30 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white/85 hover:bg-white text-slate-800 shadow-md flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all cursor-pointer backdrop-blur-xs active:scale-90"
+                >
+                  <ChevronRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                </button>
+              </>
+            )}
+
+            {/* Carousel Indicator Dots */}
+            {bannerCount > 1 && (
+              <div className="absolute bottom-2.5 right-3 sm:right-5 flex items-center gap-1 z-30 bg-black/50 backdrop-blur-md px-2 py-0.5 rounded-full border border-white/10 shadow-xs">
+                {heroBanners.map((slide, idx) => (
+                  <button
+                    key={slide.id}
+                    onClick={() => goToSlide(idx)}
+                    className={`transition-all duration-300 rounded-full cursor-pointer ${
+                      currentSlide === idx
+                        ? "w-4 sm:w-5 h-1 sm:h-1.5 bg-[#0070F3]"
+                        : "w-1 sm:w-1.5 h-1 sm:h-1.5 bg-white/50 hover:bg-white/80"
+                    }`}
+                    aria-label={`Slide ${idx + 1}`}
                   />
                 ))}
               </div>
-            </>
-          )}
-        </div>
-      </div>
+            )}
+          </div>
 
-      {/* Sticky Cart Bar */}
-      {cartCount > 0 && (
-        <div className="border-t border-slate-200 bg-white px-4 sm:px-6 py-3 shadow-[0_-4px_20px_rgba(0,0,0,0.06)]">
-          <button
-            onClick={() => setView("cart")}
-            className="w-full py-4 rounded-2xl font-extrabold text-sm text-white flex items-center justify-between px-5 active:scale-[0.99] transition-all shadow-lg"
-            style={{ background: store.accentColor }}
+          {/* 2. Products Section */}
+          <div>
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2.5">
+                <span className="w-1.5 h-5 bg-[#0070F3] rounded-full inline-block" />
+                <h2 className="text-base sm:text-lg font-black text-slate-900 tracking-tight">
+                  {search.trim()
+                    ? `Search Results for "${search}"`
+                    : isAllSelected
+                    ? "Featured Products"
+                    : selectedCategory}
+                </h2>
+                <span className="text-xs font-bold text-slate-400 ml-1">
+                  ({filteredProducts.length})
+                </span>
+              </div>
+
+              {!isAllSelected && (
+                <button
+                  onClick={() => {
+                    setSelectedCategory("All Products");
+                    setSearch("");
+                  }}
+                  className="text-xs font-bold text-[#0070F3] hover:underline flex items-center gap-1 cursor-pointer"
+                >
+                  <span>View All</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
+
+            {/* Product Cards Grid */}
+            {loadingProducts && productsList.length === 0 ? (
+              <KioskGridSkeleton count={8} />
+            ) : filteredProducts.length === 0 ? (
+              <div className="bg-white rounded-2xl border border-slate-200/80 p-12 text-center text-slate-400 shadow-2xs">
+                <Package className="w-12 h-12 mx-auto mb-3 opacity-40" />
+                <p className="font-bold text-sm text-slate-700">No products found</p>
+                <p className="text-xs mt-1">
+                  Try another keyword or select a different category
+                </p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
+                {filteredProducts.map((p) => {
+                  const storeStock = getStoreProductStock(p, storeId);
+                  return (
+                    <ProductCard
+                      key={p.id}
+                      product={p}
+                      quantity={getQty(p.id)}
+                      availableStock={storeStock}
+                      storeName={store.shortName}
+                      accentColor={store.accentColor}
+                      onAdd={() => addToCart(p, undefined, 1)}
+                      onRemove={() => removeFromCart(p)}
+                      onOpenDetail={() => setShowProductDetail(p)}
+                    />
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </main>
+
+        {/* ── Persistent Floating Bottom Cart Bar ── */}
+        {cartCount > 0 && (
+          <aside
+            aria-label="Kiosk Floating Cart"
+            className="fixed bottom-5 right-5 sm:right-8 z-40 bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-2xl shadow-[0_12px_40px_rgba(0,0,0,0.18)] px-5 py-3 flex items-center gap-6 sm:gap-10 transition-all"
           >
-            <span className="flex items-center gap-2">
-              <ShoppingCart className="w-5 h-5" />
-              View Cart ({cartCount} items)
-            </span>
-            <span>₹{subtotal.toLocaleString()} →</span>
-          </button>
-        </div>
-      )}
-    </div>
-  );
+            <div className="flex items-center gap-3">
+              <div className="relative">
+                <ShoppingCart className="w-5 h-5 text-slate-700" />
+                <span className="absolute -top-2 -right-2 bg-rose-500 text-white text-[10px] font-black w-4 h-4 rounded-full flex items-center justify-center shadow-xs">
+                  {cartCount}
+                </span>
+              </div>
+              <div>
+                <span className="font-extrabold text-slate-900 text-sm">My Cart</span>
+                <span className="text-xs text-slate-500 font-medium ml-1.5">
+                  · {cartCount} {cartCount === 1 ? "Item" : "Items"}
+                </span>
+              </div>
+            </div>
+
+            <div className="hidden sm:block text-xs text-slate-500 font-semibold border-l border-slate-200 pl-6">
+              Total Amount:{" "}
+              <span className="font-black text-base text-[#0070F3] ml-1">
+                ₹{grandTotal.toLocaleString()}
+              </span>
+            </div>
+
+            <button
+              onClick={() => setView("cart")}
+              className="bg-[#0070F3] hover:bg-blue-600 active:scale-95 text-white font-extrabold text-xs sm:text-sm px-5 py-2.5 rounded-xl shadow-md flex items-center gap-2 transition cursor-pointer"
+            >
+              <span>View Cart</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
+          </aside>
+        )}
+      </div>
+    );
+  };
 
   const [couponCode, setCouponCode] = useState("");
   const [couponDiscount, setCouponDiscount] = useState(0);
@@ -1287,7 +2201,7 @@ export default function StoreKioskPage() {
   // ── 2. KIOSK UNLOCKED: Customer Shopping Screen ──
   return (
     <div
-      className="min-h-screen bg-slate-100 flex flex-col"
+      className="fixed inset-0 h-screen h-[100dvh] max-h-screen w-screen overflow-hidden bg-slate-100 flex flex-col select-none"
       style={{ "--accent": store.accentColor } as React.CSSProperties}
     >
       <KioskHeader
@@ -1295,12 +2209,14 @@ export default function StoreKioskPage() {
         cartCount={cartCount}
         cartTotal={subtotal}
         view={view}
+        search={search}
+        setSearch={setSearch}
         onCartClick={() => setView("cart")}
         onBack={() => setView(view === "checkout" ? "cart" : "browse")}
         onLock={handleLockKiosk}
       />
 
-      <main className="flex-1 flex flex-col min-h-0 overflow-hidden relative">
+      <div className="flex-1 min-h-0 h-full flex flex-col overflow-hidden relative">
         {renderBrowseView()}
         {view === "cart" && renderCartView()}
         {view === "checkout" && (
@@ -1313,18 +2229,52 @@ export default function StoreKioskPage() {
             {renderSuccessView()}
           </div>
         )}
-      </main>
+      </div>
 
       {/* ── Full Multiple Images, Video & 360° View Modal ── */}
       {showProductDetail && (
         <QuickViewModal
           product={showProductDetail}
+          storeId={storeId}
           onClose={() => setShowProductDetail(null)}
-          onAddToCart={(prod) => {
-            addToCart(prod);
+          onAddToCart={(prod, variantId, qty) => {
+            addToCart(prod, variantId, qty || 1);
+          }}
+          onBuyNow={(prod, variantId, qty) => {
+            addToCart(prod, variantId, qty || 1);
+            setShowProductDetail(null);
+            setView("cart");
           }}
         />
       )}
+
+      {/* ── Top Floating Stock Limit Pill Popup ── */}
+      <AnimatePresence>
+        {showStockPopup.visible && (
+          <aside
+            aria-live="polite"
+            className="fixed top-6 sm:top-8 left-1/2 -translate-x-1/2 z-[100] pointer-events-auto select-none"
+            onClick={() => setShowStockPopup((prev) => ({ ...prev, visible: false }))}
+          >
+            <motion.div
+              initial={{ opacity: 0, y: -24, scale: 0.94 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -16, scale: 0.94 }}
+              transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+              className="bg-white rounded-2xl shadow-[0_12px_38px_-6px_rgba(0,0,0,0.16),0_4px_16px_rgba(0,0,0,0.06)] border border-slate-200/90 px-6 py-3.5 flex items-center gap-3.5 whitespace-nowrap cursor-pointer hover:shadow-md transition-shadow"
+            >
+              <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-[#EF4444] flex items-center justify-center shrink-0 shadow-xs text-white">
+                <X className="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[3.5] text-white" />
+              </div>
+              <span className="text-[14px] sm:text-[15px] font-bold text-slate-900 tracking-tight font-sans">
+                {showStockPopup.limit <= 0
+                  ? `This item is currently out of stock at ${store.shortName}.`
+                  : `Only ${showStockPopup.limit} units available in stock`}
+              </span>
+            </motion.div>
+          </aside>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

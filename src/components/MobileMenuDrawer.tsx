@@ -27,7 +27,6 @@ import {
   Gift,
   Home,
   Bot,
-  Sparkles,
   Plane,
   Store,
   Info,
@@ -225,7 +224,7 @@ export const MobileMenuDrawer: React.FC<MobileMenuDrawerProps> = ({
                       className="w-full flex items-center justify-between px-4 py-3 text-sm font-medium text-slate-700 hover:text-[#2563EB] hover:bg-slate-50/80 transition-colors cursor-pointer group"
                     >
                       <div className="flex items-center gap-3">
-                        <Sparkles className="w-4 h-4 text-slate-400 group-hover:text-[#2563EB] transition-colors" />
+                        <Package className="w-4 h-4 text-slate-400 group-hover:text-[#2563EB] transition-colors" />
                         <span>Popular Services</span>
                       </div>
                       <ChevronDown

@@ -11,7 +11,6 @@ import {
   ArrowRight,
   Check,
   ShoppingBag,
-  Sparkles,
   Zap,
   Tag,
   ShieldCheck,
@@ -75,7 +74,6 @@ export const ComboBundlesSection: React.FC = () => {
               <div className="space-y-3">
                 <div className="flex items-center justify-between gap-2">
                   <span className="text-[10px] font-black uppercase px-2.5 py-1 rounded-full bg-emerald-500 text-white shadow-xs flex items-center gap-1">
-                    <Sparkles className="w-3 h-3" />
                     {bundle.badge}
                   </span>
                   <span className="text-[11px] text-slate-400 font-bold">

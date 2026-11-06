@@ -4,6 +4,7 @@ import { getAuthenticatedAdmin } from "@/lib/adminAuth";
 import { OrderStatus } from "@prisma/client";
 import { recordAuditLog } from "@/lib/auditLogger";
 import { LoyaltyEngine } from "@/lib/loyaltyEngine";
+import { releaseOrderStockOnCancel } from "@/lib/inventoryEngine";
 
 // PATCH /api/admin/orders/[id] - Update Order Status & Courier Tracking Assignment
 export async function PATCH(
@@ -110,6 +111,15 @@ export async function PATCH(
             console.error(
               "[AdminOrderPatch] Loyalty reversal error:",
               loyaltyErr,
+            );
+          }
+
+          try {
+            await releaseOrderStockOnCancel(orderId);
+          } catch (stockErr) {
+            console.error(
+              "[AdminOrderPatch] Stock restock error on cancellation:",
+              stockErr,
             );
           }
         } else if (

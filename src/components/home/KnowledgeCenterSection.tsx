@@ -3,7 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { BookOpen, Clock, ArrowRight, Sparkles, Code, Cpu } from "lucide-react";
+import { BookOpen, Clock, ArrowRight, Code, Cpu } from "lucide-react";
 
 const BLOG_POSTS = [
   {

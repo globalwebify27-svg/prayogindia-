@@ -18,7 +18,6 @@ import {
   Flame,
   Truck,
   FileText,
-  Sparkles,
 } from "lucide-react";
 import { haptic } from "@/utils/haptics";
 

@@ -17,8 +17,7 @@ import {
   ExternalLink,
   Smartphone,
   ShieldCheck,
-  Sparkles,
-  PhoneCall,
+PhoneCall,
 } from "lucide-react";
 
 export interface WhatsAppTemplate {

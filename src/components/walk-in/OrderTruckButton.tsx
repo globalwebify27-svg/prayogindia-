@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState } from "react";
-import "./OrderTruckButton.css";
 
 interface Props {
   defaultText?: string;

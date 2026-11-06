@@ -17,7 +17,6 @@ import {
   Phone,
   Mail,
   ShieldCheck,
-  Sparkles,
 } from "lucide-react";
 
 interface ServiceDetailProps {
@@ -104,7 +103,7 @@ export const ServiceDetailView: React.FC<ServiceDetailProps> = ({ slug }) => {
               <div className="space-y-3">
                 <div className="flex items-center gap-2">
                   <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-[#2563EB] border border-blue-200/60">
-                    <Sparkles className="w-3 h-3 text-[#2563EB]" />
+                    <CheckCircle2 className="w-3 h-3 text-[#2563EB]" />
                     Turnkey Service
                   </span>
                   <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700">

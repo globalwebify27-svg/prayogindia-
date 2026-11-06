@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from "react";
 import {
-  Sparkles,
   Flame,
   Zap,
   Ticket,
@@ -72,7 +71,7 @@ export const OffersHero: React.FC<OffersHeroProps> = ({
               Festival Deals Live
             </span>
             <span className="hidden sm:inline-flex items-center gap-1 bg-white/10 backdrop-blur-md text-slate-300 text-[11px] font-semibold px-3 py-1 rounded-full border border-white/10">
-              <Sparkles className="w-3 h-3 text-[#2563EB]" /> Official Prayog Promotions
+              Official Prayog Promotions
             </span>
           </div>
 

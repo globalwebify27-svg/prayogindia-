@@ -10,7 +10,6 @@ import {
   Eye,
   ArrowUp,
   ArrowDown,
-  Sparkles,
   RefreshCw,
   X,
   ExternalLink,
@@ -535,7 +534,7 @@ export default function AdminHeroBannersPage() {
       <div className="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-2xs space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Sparkles className="w-4 h-4 text-[#0062E0]" />
+            <Eye className="w-4 h-4 text-[#0062E0]" />
             <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
               Live Banner Canvas Preview (How Customers See It)
             </span>

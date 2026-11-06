@@ -4,7 +4,7 @@ import React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { ArrowUpRight, Sparkles } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 import { COLLECTION_ECOSYSTEMS } from "@/data/categories";
 
 export const CategoryCollections: React.FC = () => {
@@ -14,7 +14,7 @@ export const CategoryCollections: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
         <div>
           <span className="inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-[#2563EB] bg-[#EFF6FF] border border-[#2563EB]/20 px-3 py-1 rounded-full">
-            <Sparkles className="w-3 h-3" /> Product Ecosystems
+            Product Ecosystems
           </span>
           <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight mt-2">
             Category Collections

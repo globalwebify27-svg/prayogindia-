@@ -21,7 +21,6 @@ import {
   CheckCircle2,
   MapPin,
   Coins,
-  Sparkles,
   User,
   LogIn,
   RotateCcw,
@@ -333,7 +332,7 @@ export const CartView: React.FC = () => {
             {customerDiscountPercent > 0 && (
               <div className="bg-emerald-50 border border-emerald-200/90 rounded-2xl p-3 sm:p-3.5 flex items-center justify-between gap-2.5 text-xs text-emerald-900">
                 <div className="flex items-center gap-2 min-w-0">
-                  <Sparkles className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <Tag className="w-4 h-4 text-emerald-600 shrink-0" />
                   <span className="font-bold text-[11px] sm:text-xs leading-tight">
                     {currentCustomerType} Privilege: {customerDiscountPercent}% instant discount applied!
                   </span>

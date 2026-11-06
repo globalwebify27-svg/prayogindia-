@@ -37,7 +37,7 @@ import {
   FolderKanban,
   Quote,
   Landmark,
-  Sparkles,
+  LayoutTemplate,
   LayoutGrid,
   Image as ImageIcon,
   Plus,
@@ -98,12 +98,6 @@ const NAV_GROUPS = [
   {
     group: "SALES & OPERATIONS",
     items: [
-      {
-        label: "Order Management",
-        href: "/admin/orders",
-        icon: ShoppingBag,
-        badge: "Live",
-      },
       { label: "Purchases & Suppliers", href: "/admin/purchases", icon: Truck },
       {
         label: "Shipping & Logistics",
@@ -123,12 +117,6 @@ const NAV_GROUPS = [
   {
     group: "FINANCE & REWARDS",
     items: [
-      {
-        label: "Payment Management",
-        href: "/admin/payments",
-        icon: CreditCard,
-        badge: "NEFT/UPI",
-      },
       { label: "Order Profit & Margins", href: "/admin/profit", icon: Lock },
       { label: "Rewards & Loyalty", href: "/admin/rewards", icon: Award },
       { label: "Offers & Coupons", href: "/admin/offers", icon: BadgePercent },
@@ -169,7 +157,7 @@ const NAV_GROUPS = [
       {
         label: "About Showcase",
         href: "/admin/about-showcase",
-        icon: Sparkles,
+        icon: LayoutTemplate,
         badge: "About",
       },
       { label: "Learning Hub", href: "/admin/learning", icon: BookOpen },
@@ -285,34 +273,6 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
         {/* Top Highlighted Navigation Items */}
         <div className="space-y-1.5 pb-2.5 border-b border-[#153573]">
           <Link
-            href="/admin/hub"
-            onClick={onCloseMobile}
-            className={`flex items-center justify-between px-3.5 py-2.5 rounded-2xl text-xs font-bold transition-all duration-150 ${
-              pathname === "/admin/hub"
-                ? "bg-gradient-to-r from-[#0084FF] to-[#006CE6] text-white shadow-lg shadow-[#0084FF]/30 font-black border border-blue-400/50"
-                : "text-white bg-[#102C66] hover:bg-[#153A82] border border-[#1C4694]/70 hover:border-[#2563EB]/60 shadow-xs"
-            }`}
-          >
-            <div className="flex items-center gap-2.5">
-              <Sparkles
-                className={`w-4 h-4 ${
-                  pathname === "/admin/hub" ? "text-white" : "text-amber-400"
-                }`}
-              />
-              <span>Unified Hub (All-in-1)</span>
-            </div>
-            <span
-              className={
-                pathname === "/admin/hub"
-                  ? "bg-white/20 text-white border border-white/30 text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider"
-                  : "bg-[#10B981] text-slate-950 text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider shadow-xs"
-              }
-            >
-              NEW
-            </span>
-          </Link>
-
-          <Link
             href="/admin/dashboard"
             onClick={onCloseMobile}
             className={`flex items-center justify-between px-3.5 py-2.5 rounded-2xl text-xs font-bold transition-all duration-150 ${
@@ -400,21 +360,6 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
               }
             >
               NEFT
-            </span>
-          </Link>
-
-          {/* 3. Add New Product */}
-          <Link
-            href="/admin/products?action=new"
-            onClick={onCloseMobile}
-            className="flex items-center justify-between px-3.5 py-2.5 rounded-2xl text-xs font-bold transition-all duration-150 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white shadow-md shadow-emerald-500/20 active:scale-95 border border-emerald-400/40"
-          >
-            <div className="flex items-center gap-2.5">
-              <Plus className="w-4 h-4 stroke-[3]" />
-              <span className="font-black">+ Add New Product</span>
-            </div>
-            <span className="text-[10px] font-black bg-white/20 border border-white/30 px-2 py-0.5 rounded-full uppercase tracking-wider">
-              CREATE
             </span>
           </Link>
         </div>

@@ -20,7 +20,6 @@ import {
   QrCode,
   Truck,
   RotateCcw,
-  Sparkles,
   Lock,
   ChevronRight,
   ShoppingBag,
@@ -203,7 +202,7 @@ export default function CheckoutFlowPreviewPage() {
                   : "bg-white/10 hover:bg-white/20 text-white"
               }`}
             >
-              ✨ New Customer (First-Time)
+              New Customer (First-Time)
             </button>
             <button
               onClick={() => {
@@ -361,7 +360,7 @@ export default function CheckoutFlowPreviewPage() {
 
                   <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center justify-between text-xs font-bold text-emerald-800">
                     <span className="flex items-center gap-1.5">
-                      <Sparkles className="w-4 h-4 text-emerald-600" />
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600" />
                       Test OTP Code: <strong>1234</strong> (Auto-filled)
                     </span>
                     <button
@@ -508,7 +507,7 @@ export default function CheckoutFlowPreviewPage() {
               <div className="space-y-6">
                 <div>
                   <div className="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-800 text-[11px] font-black px-3 py-1 rounded-full uppercase tracking-wider mb-2">
-                    <Sparkles className="w-3.5 h-3.5 text-emerald-600" /> New Customer Setup
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> New Customer Setup
                   </div>
                   <h1 className="text-2xl font-black text-slate-900 tracking-tight">
                     Complete Your Delivery Details

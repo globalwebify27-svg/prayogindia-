@@ -5,7 +5,7 @@ import { OFFERS_DATA } from "@/data/offersData";
 import { JOB_OPENINGS } from "@/data/companyData";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = "https://prayogindia.com";
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") || "https://prayogindia.com";
 
   const staticRoutes = [
     "",

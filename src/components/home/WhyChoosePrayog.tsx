@@ -11,7 +11,6 @@ import {
   Users,
   ArrowRight,
   Star,
-  Sparkles,
 } from "lucide-react";
 
 // ═══════════════ PURE 3D VECTOR SVG ILLUSTRATIONS FOR ALL 6 CARDS ═══════════════
@@ -673,11 +672,6 @@ export const WhyChoosePrayog: React.FC = () => {
               <div
                 className={`absolute -bottom-8 -right-8 w-44 h-44 rounded-full ${feat.glowColor} blur-2xl opacity-60 group-hover:opacity-100 transition-opacity pointer-events-none`}
               />
-
-              {/* Decorative Mini Sparkles / Dots */}
-              <div className="absolute top-5 right-7 opacity-25 group-hover:opacity-40 transition-opacity pointer-events-none hidden sm:block">
-                <Sparkles className="w-4 h-4 text-slate-400" />
-              </div>
 
               {/* Card Upper Content: Badge + Two-Tone Title + Description */}
               <div className="relative z-10">

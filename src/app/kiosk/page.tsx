@@ -12,7 +12,8 @@ import {
   QrCode,
   CreditCard,
   Banknote,
-  Sparkles,
+  Package,
+  Info,
   X,
   Phone,
   User,
@@ -340,7 +341,7 @@ export default function KioskCatalogPage() {
                       className="w-full h-full object-contain group-hover/img:scale-110 transition-transform duration-500 ease-out"
                     />
                   ) : (
-                    <Sparkles className="w-10 h-10 text-slate-300" />
+                    <Package className="w-10 h-10 text-slate-300" />
                   )}
 
                   {/* 360 View Floating Interactive Badge */}
@@ -550,7 +551,7 @@ export default function KioskCatalogPage() {
                 {/* Staff Instruction Note */}
                 <div className="bg-blue-50 border border-blue-200 p-4 rounded-2xl text-xs text-blue-900 text-center space-y-1">
                   <div className="font-bold text-slate-900 flex items-center justify-center gap-1.5">
-                    <Sparkles className="w-4 h-4 text-[#00AEEF]" /> Please
+                    <Info className="w-4 h-4 text-[#00AEEF]" /> Please
                     Proceed to the Billing Counter
                   </div>
                   <p className="text-[11px] text-slate-600">
@@ -796,7 +797,7 @@ export default function KioskCatalogPage() {
                             : "bg-slate-50 border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-100"
                         }`}
                       >
-                        <Sparkles className="w-5 h-5 text-amber-500" />
+                        <CreditCard className="w-5 h-5 text-amber-500" />
                         <span>SPLIT PAYMENT</span>
                       </button>
                     </div>
@@ -1001,7 +1002,7 @@ export default function KioskCatalogPage() {
                     className="max-h-[85%] max-w-[85%] object-contain drop-shadow-2xl pointer-events-none"
                   />
                 ) : (
-                  <Sparkles className="w-16 h-16 text-slate-300" />
+                  <Package className="w-16 h-16 text-slate-300" />
                 )}
               </div>
 

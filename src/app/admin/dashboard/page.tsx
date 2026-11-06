@@ -18,7 +18,6 @@ import {
   TrendingDown,
   Clock,
   ArrowRight,
-  Sparkles,
   ShieldCheck,
   CheckCircle2,
   CreditCard,
@@ -130,7 +129,6 @@ export default function AdminDashboardPage() {
             href="/admin/hub"
             className="flex items-center gap-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 text-xs font-black px-4 py-2.5 rounded-full shadow-md shadow-amber-500/20 transition-all cursor-pointer"
           >
-            <Sparkles className="w-3.5 h-3.5 text-slate-950" />
             <span>Open All-in-1 Admin Hub</span>
             <ArrowRight className="w-3.5 h-3.5 text-slate-950" />
           </Link>
@@ -260,10 +258,6 @@ export default function AdminDashboardPage() {
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
                   Live Sync Active
                 </span>
-              </div>
-
-              <div className="w-10 h-10 rounded-2xl bg-amber-400/20 border border-amber-400/40 flex items-center justify-center text-amber-300 shrink-0">
-                <Sparkles className="w-5 h-5" />
               </div>
             </div>
 

@@ -505,7 +505,9 @@ export async function POST(request: Request) {
                 quantityAfter: newQty,
                 userId: dbUser.id,
                 referenceId: order.orderNumber,
-                notes: `Online order ${order.orderNumber} fulfillment from central hub`,
+                notes: isMobileAppOrder
+                  ? `[MOBILE_APP] Mobile App order ${order.orderNumber} fulfillment from central hub`
+                  : `[WEBSITE] Website order ${order.orderNumber} fulfillment from central hub`,
               },
             });
           }

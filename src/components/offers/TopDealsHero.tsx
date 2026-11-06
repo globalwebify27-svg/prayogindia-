@@ -8,7 +8,6 @@ import {
   Copy,
   Check,
   Tag,
-  Sparkles,
 } from "lucide-react";
 import { haptic } from "@/utils/haptics";
 

@@ -71,12 +71,7 @@ export async function POST(request: Request) {
             .map((s) => s.trim())
             .filter((s) => s.startsWith("http") || s.startsWith("/"));
         }
-        if (imagesList.length === 0) {
-          imagesList = [
-            "https://images.unsplash.com/photo-1553406830-ef2513450d76?auto=format&fit=crop&w=800&q=80",
-          ];
-        }
-        const primaryImage = imagesList[0];
+        const primaryImage = imagesList.length > 0 ? imagesList[0] : "";
 
         // Video URL
         const videoUrl = String(p.videoUrl || p.Video || p["Video URL"] || "").trim() || undefined;

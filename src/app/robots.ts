@@ -1,6 +1,7 @@
 import { MetadataRoute } from "next";
 
 export default function robots(): MetadataRoute.Robots {
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") || "https://prayogindia.com";
   return {
     rules: {
       userAgent: "*",
@@ -23,6 +24,6 @@ export default function robots(): MetadataRoute.Robots {
         "/api/",
       ],
     },
-    sitemap: "https://prayogindia.com/sitemap.xml",
+    sitemap: `${siteUrl}/sitemap.xml`,
   };
 }

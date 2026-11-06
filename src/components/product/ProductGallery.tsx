@@ -12,6 +12,12 @@ import {
   ChevronRight,
   RotateCcw,
   CheckCircle2,
+  ZoomIn,
+  ZoomOut,
+  Maximize2,
+  X,
+  Move,
+  Compass,
 } from "lucide-react";
 
 interface ProductGalleryProps {
@@ -50,6 +56,19 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
   const [dragOffset, setDragOffset] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
 
+  // ── Zoom Modal State ──
+  const [isZoomOpen, setIsZoomOpen] = useState(false);
+  const [zoomLevel, setZoomLevel] = useState(1);
+  const [zoomPan, setZoomPan] = useState({ x: 0, y: 0 });
+  const [isZoomPanning, setIsZoomPanning] = useState(false);
+  const zoomPanStartRef = useRef({ x: 0, y: 0 });
+
+  // ── 360° Media Interactive State ──
+  const [angle360, setAngle360] = useState(0);
+  const [isAutoRotate360, setIsAutoRotate360] = useState(false);
+  const is360DraggingRef = useRef(false);
+  const start360XRef = useRef(0);
+
   const containerRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const startXRef = useRef(0);
@@ -57,6 +76,15 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
   const currentXRef = useRef(0);
   const isPointerDownRef = useRef(false);
   const isHorizontalSwipeRef = useRef<boolean | null>(null);
+
+  // Auto-rotate 360 loop
+  useEffect(() => {
+    if (!isAutoRotate360 || currentIndex !== media360SlideIndex) return;
+    const interval = setInterval(() => {
+      setAngle360((prev) => (prev + 3) % 360);
+    }, 40);
+    return () => clearInterval(interval);
+  }, [isAutoRotate360, currentIndex, media360SlideIndex]);
 
   // Navigate to slide and pause video if navigating away from it
   const goToSlide = useCallback(
@@ -80,6 +108,32 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
   const nextSlide = useCallback(() => {
     goToSlide(currentIndex + 1);
   }, [currentIndex, goToSlide]);
+
+  // Keyboard navigation for zoom modal
+  useEffect(() => {
+    if (!isZoomOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setIsZoomOpen(false);
+        setZoomLevel(1);
+        setZoomPan({ x: 0, y: 0 });
+      } else if (e.key === "ArrowLeft") {
+        prevSlide();
+      } else if (e.key === "ArrowRight") {
+        nextSlide();
+      } else if (e.key === "+" || e.key === "=") {
+        setZoomLevel((z) => Math.min(3, +(z + 0.5).toFixed(1)));
+      } else if (e.key === "-") {
+        setZoomLevel((z) => {
+          const next = Math.max(1, +(z - 0.5).toFixed(1));
+          if (next === 1) setZoomPan({ x: 0, y: 0 });
+          return next;
+        });
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isZoomOpen, prevSlide, nextSlide]);
 
   // Autoplay video on entering video slide
   useEffect(() => {
@@ -264,16 +318,33 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
               <span>Genuine Hardware</span>
             </div>
           </div>
-          {currentIndex === videoSlideIndex && (
-            <button
-              type="button"
-              onClick={() => goToSlide(0)}
-              className="pointer-events-auto bg-white/95 hover:bg-white text-slate-800 hover:text-[#2563EB] backdrop-blur-xs px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5 shadow-md border border-slate-200 transition-all cursor-pointer"
-            >
-              <ChevronLeft className="w-4 h-4 text-[#2563EB]" />
-              <span>Back to Images</span>
-            </button>
-          )}
+          <div className="flex items-center gap-2 pointer-events-auto">
+            {currentIndex < galleryImages.length && (
+              <button
+                type="button"
+                onClick={() => {
+                  setIsZoomOpen(true);
+                  setZoomLevel(1.5);
+                  setZoomPan({ x: 0, y: 0 });
+                }}
+                className="bg-white/90 hover:bg-white text-slate-700 hover:text-[#005CA9] backdrop-blur-xs px-2.5 py-1 rounded-full text-xs font-bold flex items-center gap-1.5 shadow-xs border border-slate-200 transition-all cursor-pointer"
+                title="Click to zoom image"
+              >
+                <ZoomIn className="w-3.5 h-3.5 text-[#005CA9]" />
+                <span className="hidden sm:inline">Zoom</span>
+              </button>
+            )}
+            {currentIndex === videoSlideIndex && (
+              <button
+                type="button"
+                onClick={() => goToSlide(0)}
+                className="bg-white/95 hover:bg-white text-slate-800 hover:text-[#2563EB] backdrop-blur-xs px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5 shadow-md border border-slate-200 transition-all cursor-pointer"
+              >
+                <ChevronLeft className="w-4 h-4 text-[#2563EB]" />
+                <span>Back to Images</span>
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Unified Slides Track (Smooth CSS Transform with Touch/Drag Support) */}
@@ -296,7 +367,14 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
             {galleryImages.map((img, idx) => (
               <div
                 key={`img-${idx}`}
-                className="min-w-full w-full h-full shrink-0 relative overflow-hidden"
+                className="min-w-full w-full h-full shrink-0 relative overflow-hidden cursor-zoom-in"
+                onClick={() => {
+                  if (!isDragging) {
+                    setIsZoomOpen(true);
+                    setZoomLevel(1.5);
+                    setZoomPan({ x: 0, y: 0 });
+                  }
+                }}
               >
                 <Image
                   src={img}
@@ -342,19 +420,79 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
             {has360 && (
               <div
                 key="360-slide"
-                className="min-w-full w-full h-full shrink-0 relative flex flex-col items-center justify-center gap-3 bg-slate-50/50 p-4"
+                className="min-w-full w-full h-full shrink-0 relative flex flex-col items-center justify-center gap-2 bg-gradient-to-b from-slate-50 to-slate-100 p-4 select-none"
+                onMouseDown={(e) => {
+                  is360DraggingRef.current = true;
+                  start360XRef.current = e.clientX;
+                }}
+                onMouseMove={(e) => {
+                  if (!is360DraggingRef.current) return;
+                  const diff = e.clientX - start360XRef.current;
+                  start360XRef.current = e.clientX;
+                  setAngle360((prev) => (prev - diff * 0.8 + 360) % 360);
+                }}
+                onMouseUp={() => { is360DraggingRef.current = false; }}
+                onMouseLeave={() => { is360DraggingRef.current = false; }}
+                onTouchStart={(e) => {
+                  if (e.touches.length === 1) {
+                    is360DraggingRef.current = true;
+                    start360XRef.current = e.touches[0].clientX;
+                  }
+                }}
+                onTouchMove={(e) => {
+                  if (!is360DraggingRef.current || e.touches.length !== 1) return;
+                  const diff = e.touches[0].clientX - start360XRef.current;
+                  start360XRef.current = e.touches[0].clientX;
+                  setAngle360((prev) => (prev - diff * 0.8 + 360) % 360);
+                }}
+                onTouchEnd={() => { is360DraggingRef.current = false; }}
               >
-                <div className="relative w-full h-48 flex items-center justify-center">
-                  <Image
-                    src={media360[0] || galleryImages[0]}
-                    alt="360 view model"
-                    fill
-                    className="object-contain animate-pulse"
-                  />
+                <div className="relative w-full h-44 sm:h-48 flex items-center justify-center cursor-ew-resize">
+                  {(() => {
+                    const frameIndex = media360.length > 1
+                      ? Math.floor((angle360 / 360) * media360.length) % media360.length
+                      : 0;
+                    const current360Img = media360[frameIndex] || galleryImages[0];
+                    return (
+                      <div
+                        className="relative w-full h-full flex items-center justify-center transition-transform duration-75"
+                        style={{
+                          transform: media360.length <= 1 ? `rotateY(${angle360}deg)` : undefined,
+                          perspective: "800px",
+                        }}
+                      >
+                        <Image
+                          src={current360Img}
+                          alt="360 view model"
+                          fill
+                          className="object-contain pointer-events-none"
+                        />
+                      </div>
+                    );
+                  })()}
                 </div>
-                <div className="flex items-center gap-2 bg-slate-900 text-white px-3.5 py-1.5 rounded-full text-xs font-bold shadow-sm">
-                  <RotateCcw className="w-3.5 h-3.5 text-[#2563EB] animate-spin-slow" />
-                  <span>360° Interactive View Mode</span>
+
+                {/* 360 Controls & Angle Indicator */}
+                <div className="flex items-center gap-2 z-10 pt-1">
+                  <div className="flex items-center gap-1.5 bg-slate-900/90 text-white px-3 py-1 rounded-full text-xs font-bold shadow-xs">
+                    <Compass className="w-3.5 h-3.5 text-cyan-400" />
+                    <span>{Math.round(angle360)}°</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setIsAutoRotate360((v) => !v)}
+                    className={`px-3 py-1 rounded-full text-xs font-bold transition-colors flex items-center gap-1.5 shadow-xs cursor-pointer ${
+                      isAutoRotate360
+                        ? "bg-[#005CA9] text-white"
+                        : "bg-white text-slate-800 border border-slate-200 hover:bg-slate-50"
+                    }`}
+                  >
+                    <RotateCcw className={`w-3 h-3 ${isAutoRotate360 ? "animate-spin" : ""}`} />
+                    <span>{isAutoRotate360 ? "Pause Spin" : "Auto Spin"}</span>
+                  </button>
+                  <span className="text-[10px] text-slate-500 font-semibold hidden sm:inline">
+                    Drag horizontally to inspect 360°
+                  </span>
                 </div>
               </div>
             )}
@@ -451,6 +589,209 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
                 Video
               </span>
             </button>
+          )}
+        </div>
+      )}
+
+      {/* ── High-Resolution Image Zoom Lightbox Modal ── */}
+      {isZoomOpen && currentIndex < galleryImages.length && (
+        <div
+          className="fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-md flex flex-col justify-between animate-in fade-in duration-200"
+          onClick={() => {
+            setIsZoomOpen(false);
+            setZoomLevel(1);
+            setZoomPan({ x: 0, y: 0 });
+          }}
+        >
+          {/* Top Control Bar */}
+          <div
+            className="flex items-center justify-between px-4 sm:px-6 py-3 bg-slate-900/90 border-b border-white/10 text-white z-20"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center gap-3">
+              <span className="text-xs sm:text-sm font-bold text-slate-300">
+                Image {currentIndex + 1} of {galleryImages.length}
+              </span>
+              <span className="text-xs text-slate-400 font-mono hidden md:inline">
+                | {productName}
+              </span>
+            </div>
+
+            {/* Zoom Action Buttons */}
+            <div className="flex items-center gap-2 sm:gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  setZoomLevel((z) => {
+                    const next = Math.max(1, +(z - 0.5).toFixed(1));
+                    if (next === 1) setZoomPan({ x: 0, y: 0 });
+                    return next;
+                  });
+                }}
+                disabled={zoomLevel <= 1}
+                className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 disabled:opacity-40 text-white transition-colors cursor-pointer"
+                title="Zoom Out (-)"
+              >
+                <ZoomOut className="w-4 h-4" />
+              </button>
+
+              <span className="text-xs font-mono font-bold text-cyan-300 w-12 text-center select-none">
+                {Math.round(zoomLevel * 100)}%
+              </span>
+
+              <button
+                type="button"
+                onClick={() => setZoomLevel((z) => Math.min(3, +(z + 0.5).toFixed(1)))}
+                disabled={zoomLevel >= 3}
+                className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 disabled:opacity-40 text-white transition-colors cursor-pointer"
+                title="Zoom In (+)"
+              >
+                <ZoomIn className="w-4 h-4" />
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setZoomLevel(1);
+                  setZoomPan({ x: 0, y: 0 });
+                }}
+                className="px-2.5 py-1 text-xs font-semibold rounded-lg bg-white/10 hover:bg-white/20 text-slate-200 transition-colors cursor-pointer"
+                title="Reset Zoom"
+              >
+                Reset
+              </button>
+
+              <div className="w-px h-5 bg-white/20 mx-1" />
+
+              <button
+                type="button"
+                onClick={() => {
+                  setIsZoomOpen(false);
+                  setZoomLevel(1);
+                  setZoomPan({ x: 0, y: 0 });
+                }}
+                className="p-1.5 rounded-lg bg-white/10 hover:bg-red-600/80 text-white transition-colors cursor-pointer"
+                title="Close (Esc)"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+
+          {/* Main Zoom Viewport */}
+          <div
+            className="flex-1 relative flex items-center justify-center overflow-hidden cursor-grab active:cursor-grabbing p-4"
+            onClick={(e) => e.stopPropagation()}
+            onMouseDown={(e) => {
+              if (zoomLevel <= 1) return;
+              setIsZoomPanning(true);
+              zoomPanStartRef.current = {
+                x: e.clientX - zoomPan.x,
+                y: e.clientY - zoomPan.y,
+              };
+            }}
+            onMouseMove={(e) => {
+              if (!isZoomPanning || zoomLevel <= 1) return;
+              setZoomPan({
+                x: e.clientX - zoomPanStartRef.current.x,
+                y: e.clientY - zoomPanStartRef.current.y,
+              });
+            }}
+            onMouseUp={() => setIsZoomPanning(false)}
+            onMouseLeave={() => setIsZoomPanning(false)}
+            onWheel={(e) => {
+              e.preventDefault();
+              if (e.deltaY < 0) {
+                setZoomLevel((z) => Math.min(3, +(z + 0.25).toFixed(2)));
+              } else {
+                setZoomLevel((z) => {
+                  const next = Math.max(1, +(z - 0.25).toFixed(2));
+                  if (next === 1) setZoomPan({ x: 0, y: 0 });
+                  return next;
+                });
+              }
+            }}
+          >
+            <div
+              className="relative w-full max-w-4xl h-full max-h-[75vh] flex items-center justify-center transition-transform duration-100 ease-out select-none"
+              style={{
+                transform: `scale(${zoomLevel}) translate(${zoomPan.x / zoomLevel}px, ${zoomPan.y / zoomLevel}px)`,
+                cursor: zoomLevel > 1 ? "move" : "default",
+              }}
+            >
+              <img
+                src={galleryImages[currentIndex]}
+                alt={productName}
+                className="max-w-full max-h-full object-contain drop-shadow-2xl pointer-events-none select-none rounded-lg"
+                draggable={false}
+              />
+            </div>
+
+            {/* Navigation Chevrons inside Zoom View */}
+            {galleryImages.length > 1 && (
+              <>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    prevSlide();
+                    setZoomPan({ x: 0, y: 0 });
+                  }}
+                  className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/15 hover:bg-white/30 text-white flex items-center justify-center backdrop-blur-md transition-all cursor-pointer z-30"
+                  aria-label="Previous image"
+                >
+                  <ChevronLeft className="w-6 h-6" />
+                </button>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    nextSlide();
+                    setZoomPan({ x: 0, y: 0 });
+                  }}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/15 hover:bg-white/30 text-white flex items-center justify-center backdrop-blur-md transition-all cursor-pointer z-30"
+                  aria-label="Next image"
+                >
+                  <ChevronRight className="w-6 h-6" />
+                </button>
+              </>
+            )}
+
+            {/* Zoom Hint Overlay */}
+            <div className="absolute bottom-20 left-1/2 -translate-x-1/2 pointer-events-none bg-slate-900/80 text-slate-300 text-[11px] px-3.5 py-1 rounded-full backdrop-blur-md border border-white/10 hidden sm:flex items-center gap-1.5">
+              <Move className="w-3 h-3 text-cyan-400" />
+              <span>Scroll to zoom • Click &amp; drag to pan • Esc to exit</span>
+            </div>
+          </div>
+
+          {/* Bottom Thumbnail Strip in Zoom View */}
+          {galleryImages.length > 1 && (
+            <div
+              className="p-3 bg-slate-900/90 border-t border-white/10 flex items-center justify-center gap-2 overflow-x-auto z-20"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {galleryImages.map((img, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => {
+                    goToSlide(idx);
+                    setZoomPan({ x: 0, y: 0 });
+                  }}
+                  className={`relative w-12 h-12 rounded-lg overflow-hidden shrink-0 border-2 transition-all cursor-pointer bg-white/10 ${
+                    currentIndex === idx
+                      ? "border-cyan-400 ring-2 ring-cyan-400/40"
+                      : "border-white/20 opacity-60 hover:opacity-100"
+                  }`}
+                >
+                  <img
+                    src={img}
+                    alt={`Thumb ${idx + 1}`}
+                    className="w-full h-full object-cover"
+                  />
+                </button>
+              ))}
+            </div>
           )}
         </div>
       )}

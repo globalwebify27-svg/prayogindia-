@@ -2,7 +2,7 @@ import { NextResponse, NextRequest } from "next/server";
 import { db } from "@/lib/db";
 import { getAuthenticatedCustomer } from "@/lib/authUtils";
 import { getSecurityHeaders } from "@/lib/security";
-import { DEFAULT_COMPANY_BANK_DETAILS } from "../bank-details/route";
+import { DEFAULT_COMPANY_BANK_DETAILS } from "@/data/bankDetails";
 
 /**
  * GET /api/payment/status?orderId=...

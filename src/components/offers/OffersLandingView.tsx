@@ -17,7 +17,7 @@ import {
   Search,
   X,
   Tag,
-  Sparkles,
+  CheckCircle2,
   Ticket,
   Copy,
   Check,
@@ -477,7 +477,7 @@ export const OffersLandingView: React.FC = () => {
             <span>18% GST Input Credit</span>
           </div>
           <div className="flex items-center gap-2">
-            <Sparkles className="w-4 h-4 text-purple-500 shrink-0" />
+            <CheckCircle2 className="w-4 h-4 text-purple-500 shrink-0" />
             <span>100% Genuine Parts</span>
           </div>
         </div>

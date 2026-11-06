@@ -6,7 +6,7 @@ import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
-  Sparkles,
+  LayoutTemplate,
   Plus,
   Trash2,
   Edit3,
@@ -323,7 +323,7 @@ export default function AdminAboutShowcasePage() {
         <div>
           <div className="flex items-center gap-2">
             <span className="p-2 rounded-xl bg-blue-50 text-[#2563EB]">
-              <Sparkles className="w-5 h-5" />
+              <LayoutTemplate className="w-5 h-5" />
             </span>
             <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
               About Page Showcase Gallery

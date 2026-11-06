@@ -43,21 +43,21 @@ describe("Product CTA & Sticky Bar Behavior", () => {
     expect(getProductStock(fakeProduct)).toBe(0);
   });
 
-  it("should determine sticky bar display state correctly based on main CTA visibility", () => {
-    // When main CTA is visible on card (user at top):
-    const isMainCtaVisible = true;
-    const stickyBarClasses = isMainCtaVisible
-      ? "translate-y-full opacity-0 pointer-events-none"
-      : "translate-y-0 opacity-100 pointer-events-auto";
+  it("should determine sticky bar display state correctly based on scroll state", () => {
+    // When user is at top or main CTA is visible:
+    const showStickyBar = false;
+    const stickyBarClasses = showStickyBar
+      ? "translate-y-0 opacity-100 pointer-events-auto"
+      : "translate-y-full opacity-0 pointer-events-none";
 
     expect(stickyBarClasses).toContain("translate-y-full");
     expect(stickyBarClasses).toContain("opacity-0");
 
-    // When user scrolls down and main CTA leaves the viewport:
-    const isScrolledPast = false;
-    const scrolledStickyBarClasses = isScrolledPast
-      ? "translate-y-full opacity-0 pointer-events-none"
-      : "translate-y-0 opacity-100 pointer-events-auto";
+    // When user scrolls down past main CTA:
+    const showStickyBarWhenScrolled = true;
+    const scrolledStickyBarClasses = showStickyBarWhenScrolled
+      ? "translate-y-0 opacity-100 pointer-events-auto"
+      : "translate-y-full opacity-0 pointer-events-none";
 
     expect(scrolledStickyBarClasses).toContain("translate-y-0");
     expect(scrolledStickyBarClasses).toContain("opacity-100");

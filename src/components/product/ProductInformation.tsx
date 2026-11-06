@@ -20,6 +20,12 @@ import {
   Zap,
   HelpCircle,
   X,
+  Plane,
+  Store,
+  Clock,
+Info,
+  BatteryCharging,
+  Circle,
 } from "lucide-react";
 import { Product, ProductVariant, getProductStock } from "@/data/mockData";
 import { useUIStore, useCartStore } from "@/store";
@@ -117,7 +123,7 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
     setTopStockPopup({ visible: true, limit });
 
     useUIStore.getState().showToast({
-      title: limit <= 0 ? "This item is currently out of stock." : `Only ${limit} units available.`,
+      title: limit <= 0 ? "This item is currently out of stock." : `Only ${limit} units available in stock`,
       type: "error",
       iconType: "stock-limit",
       duration: 3000,
@@ -155,7 +161,139 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
   >("idle");
   const [deliveryDate, setDeliveryDate] = useState("");
 
-  // Calculate estimated delivery date
+  // Calculate estimated delivery dates
+  const airDeliveryDate = useMemo(() => {
+    const d = new Date();
+    d.setDate(d.getDate() + 2);
+    return d.toLocaleDateString("en-IN", {
+      weekday: "short",
+      month: "short",
+      day: "numeric",
+    });
+  }, []);
+
+  const surfaceDeliveryDate = useMemo(() => {
+    const d = new Date();
+    d.setDate(d.getDate() + 4);
+    return d.toLocaleDateString("en-IN", {
+      weekday: "short",
+      month: "short",
+      day: "numeric",
+    });
+  }, []);
+
+  // Delivery options resolved from Admin configuration
+  const isAirAllowed = product.airFreightAllowed !== false;
+  const isSurfaceAllowed = product.surfaceFreightAllowed !== false;
+  const isLocalPickupAllowed = product.localPickupAllowed !== false;
+  const shippingTag = product.shippingTag || "Standard Express";
+  const isBatteryRestricted = !isAirAllowed || shippingTag.toLowerCase().includes("battery");
+
+  // User selectable delivery mode
+  const defaultDeliveryMode: "air" | "surface" | "pickup" = isAirAllowed
+    ? "air"
+    : isSurfaceAllowed
+    ? "surface"
+    : "pickup";
+
+  const [selectedDeliveryMode, setSelectedDeliveryMode] = useState<"air" | "surface" | "pickup">(defaultDeliveryMode);
+
+  useEffect(() => {
+    setSelectedDeliveryMode(isAirAllowed ? "air" : isSurfaceAllowed ? "surface" : "pickup");
+  }, [product.id, isAirAllowed, isSurfaceAllowed]);
+
+  // Restriction alert modal state
+  interface DeliveryRestrictionAlert {
+    title: string;
+    reason: string;
+    alternativeMode: "air" | "surface" | "pickup";
+    alternativeLabel: string;
+  }
+  const [restrictionModal, setRestrictionModal] = useState<DeliveryRestrictionAlert | null>(null);
+
+  const handleSelectDeliveryMode = (mode: "air" | "surface" | "pickup") => {
+    if (mode === "air") {
+      if (!isAirAllowed) {
+        setRestrictionModal({
+          title: "Air Express Is Not Available on this product",
+          reason: "Air Express shipping is not available for this product due to transport safety regulations. Please choose Land / Road Surface delivery or Local Store Pickup.",
+          alternativeMode: isSurfaceAllowed ? "surface" : "pickup",
+          alternativeLabel: isSurfaceAllowed ? "Land / Road Delivery" : "Store Pickup",
+        });
+
+        useUIStore.getState().showToast({
+          title: "Air Express Is Not Available on this product",
+          message: "Please choose Land / Road delivery or Store Pickup.",
+          type: "error",
+          duration: 3500,
+        });
+        return;
+      }
+      setSelectedDeliveryMode("air");
+      useUIStore.getState().showToast({
+        title: "Selected: By Air Express",
+        message: `Priority air flight dispatch (Est. ${airDeliveryDate})`,
+        type: "info",
+        duration: 2500,
+      });
+      return;
+    }
+
+    if (mode === "surface") {
+      if (!isSurfaceAllowed) {
+        setRestrictionModal({
+          title: "Surface Delivery Is Not Available on this product",
+          reason: "Surface delivery has not been enabled for this product. Please choose Air Express or Local Store Pickup.",
+          alternativeMode: isAirAllowed ? "air" : "pickup",
+          alternativeLabel: isAirAllowed ? "Air Express Delivery" : "Store Pickup",
+        });
+
+        useUIStore.getState().showToast({
+          title: "Surface Delivery Is Not Available on this product",
+          message: "Please choose Air Express or Store Pickup.",
+          type: "error",
+          duration: 3500,
+        });
+        return;
+      }
+      setSelectedDeliveryMode("surface");
+      useUIStore.getState().showToast({
+        title: "Selected: By Land / Road",
+        message: `Pan-India ground logistics (Est. ${surfaceDeliveryDate})`,
+        type: "info",
+        duration: 2500,
+      });
+      return;
+    }
+
+    if (mode === "pickup") {
+      if (!isLocalPickupAllowed) {
+        setRestrictionModal({
+          title: "Store Pickup Is Not Available on this product",
+          reason: "Store pickup is not enabled for this product. This item is fulfilled exclusively via courier shipping to your address.",
+          alternativeMode: isSurfaceAllowed ? "surface" : "air",
+          alternativeLabel: isSurfaceAllowed ? "Land / Road Delivery" : "Air Express",
+        });
+
+        useUIStore.getState().showToast({
+          title: "Store Pickup Is Not Available on this product",
+          message: "Please choose home courier delivery.",
+          type: "error",
+          duration: 3500,
+        });
+        return;
+      }
+      setSelectedDeliveryMode("pickup");
+      useUIStore.getState().showToast({
+        title: "Selected: Store Pickup",
+        message: "Ready for pickup in 2 hours at Ranchi Hub",
+        type: "info",
+        duration: 2500,
+      });
+      return;
+    }
+  };
+
   useEffect(() => {
     const d = new Date();
     d.setDate(d.getDate() + 3);
@@ -540,57 +678,365 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
         </div>
       </div>
 
-      {/* ── 8. Pincode Delivery Checker Box (Highlighted with Red Checkmark in Image 1) ── */}
+      {/* ── 8. Delivery & Dispatch Options (Interactive: User selects By Air, Land/Surface, or Store Pickup) ── */}
       <div className="pt-2">
-        <form
-          onSubmit={handleCheckPincode}
-          className="flex items-center gap-2 p-1.5 bg-slate-50 border border-slate-300 rounded-2xl max-w-lg shadow-2xs"
-        >
-          <Truck className="w-5 h-5 text-slate-400 ml-2 shrink-0" />
-          <input
-            type="text"
-            inputMode="numeric"
-            pattern="[0-9]*"
-            maxLength={6}
-            value={pincode}
-            onChange={(e) => {
-              const val = e.target.value.replace(/\D/g, "");
-              setPincode(val);
-              if (pincodeStatus !== "idle") setPincodeStatus("idle");
-            }}
-            placeholder="Enter Pincode to Check Delivery"
-            className="flex-1 px-3 py-2 bg-transparent text-xs sm:text-sm font-semibold text-slate-800 placeholder-slate-400 focus:outline-none"
-          />
-          {/* Dark Check Button as in Image 1 */}
-          <button
-            type="submit"
-            className="px-6 py-2.5 bg-[#0F172A] hover:bg-[#1E293B] text-white text-xs font-extrabold rounded-xl shadow-xs transition-colors cursor-pointer shrink-0"
-          >
-            Check
-          </button>
-        </form>
+        <div className="rounded-2xl border border-slate-200/90 bg-gradient-to-b from-white to-slate-50/70 p-4 shadow-2xs space-y-3.5">
+          {/* Header */}
+          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-xl bg-blue-50 border border-blue-100/80 flex items-center justify-center text-[#005CA9]">
+                <Truck className="w-4 h-4" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h4 className="text-xs sm:text-sm font-bold text-slate-900 tracking-tight">
+                    Select Delivery Mode
+                  </h4>
+                  {product.shippingTag && (
+                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200">
+                      {product.shippingTag}
+                    </span>
+                  )}
+                </div>
+                <p className="text-[11px] text-slate-500 font-medium">
+                  Choose your preferred transit mode • Direct from Ranchi Hub
+                </p>
+              </div>
+            </div>
 
-        {pincodeStatus === "valid" && (
-          <div className="mt-2.5 p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-800 flex items-start gap-2">
-            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-            <div>
-              <p className="font-bold">
-                Delivery Available for PIN {pincode}!
-              </p>
-              <p className="text-[11px] text-emerald-700 mt-0.5">
-                Estimated Delivery by <strong>{deliveryDate}</strong> • Free
-                Pan-India Express Surface Dispatch from Ranchi Central Hub.
-              </p>
+            <div className="hidden sm:flex items-center gap-1.5 text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200/80">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              Pan-India Dispatch Active
             </div>
           </div>
-        )}
 
-        {pincodeStatus === "invalid" && (
-          <div className="mt-2 p-2.5 rounded-xl bg-red-50 border border-red-200 text-xs text-red-700 flex items-center gap-2">
-            <AlertTriangle className="w-4 h-4 text-red-500 shrink-0" />
-            <span>Please enter a valid 6-digit Indian Postal PIN code.</span>
+          {/* Freight Modes Interactive Selection Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+            {/* 1. By Air Freight */}
+            <button
+              type="button"
+              onClick={() => handleSelectDeliveryMode("air")}
+              className={`p-3 rounded-xl border text-left transition-all flex items-center justify-between cursor-pointer relative ${
+                selectedDeliveryMode === "air" && isAirAllowed
+                  ? "bg-blue-50/60 border-blue-600 ring-2 ring-blue-500/30 shadow-xs"
+                  : isAirAllowed
+                  ? "bg-white border-slate-200 hover:border-blue-300 hover:bg-slate-50/70 shadow-2xs"
+                  : "bg-slate-50/90 border-amber-200/90 hover:border-amber-400 opacity-85"
+              }`}
+            >
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div
+                  className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${
+                    selectedDeliveryMode === "air" && isAirAllowed
+                      ? "bg-blue-600 text-white shadow-xs"
+                      : isAirAllowed
+                      ? "bg-blue-50 text-blue-600 border border-blue-100"
+                      : "bg-slate-200 text-slate-400"
+                  }`}
+                >
+                  <Plane className="w-3.5 h-3.5" />
+                </div>
+                <div className="flex items-center gap-1.5 min-w-0">
+                  <span className="text-xs font-bold text-slate-900">By Air</span>
+                  {!isAirAllowed && (
+                    <span className="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 border border-amber-200">
+                      Restricted
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              {/* Selection / Warning Indicator */}
+              <div className="shrink-0 ml-1">
+                {selectedDeliveryMode === "air" && isAirAllowed ? (
+                  <CheckCircle2 className="w-4 h-4 text-blue-600 fill-blue-50" />
+                ) : isAirAllowed ? (
+                  <Circle className="w-4 h-4 text-slate-300" />
+                ) : (
+                  <span title="Click to view restriction alert">
+                    <AlertTriangle className="w-4 h-4 text-amber-600" />
+                  </span>
+                )}
+              </div>
+            </button>
+
+            {/* 2. By Land / Road (Surface Cargo) */}
+            <button
+              type="button"
+              onClick={() => handleSelectDeliveryMode("surface")}
+              className={`p-3 rounded-xl border text-left transition-all flex items-center justify-between cursor-pointer relative ${
+                selectedDeliveryMode === "surface" && isSurfaceAllowed
+                  ? "bg-emerald-50/60 border-emerald-600 ring-2 ring-emerald-500/30 shadow-xs"
+                  : isSurfaceAllowed
+                  ? "bg-white border-slate-200 hover:border-emerald-300 hover:bg-slate-50/70 shadow-2xs"
+                  : "bg-slate-50/90 border-slate-200/80 opacity-70"
+              }`}
+            >
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div
+                  className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${
+                    selectedDeliveryMode === "surface" && isSurfaceAllowed
+                      ? "bg-emerald-600 text-white shadow-xs"
+                      : isSurfaceAllowed
+                      ? "bg-emerald-50 text-emerald-700 border border-emerald-100"
+                      : "bg-slate-200 text-slate-400"
+                  }`}
+                >
+                  <Truck className="w-3.5 h-3.5" />
+                </div>
+                <div className="flex items-center gap-1.5 min-w-0">
+                  <span className="text-xs font-bold text-slate-900">By Land / Road</span>
+                  {!isSurfaceAllowed && (
+                    <span className="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded bg-slate-100 text-slate-600">
+                      Unavailable
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              {/* Selection Indicator */}
+              <div className="shrink-0 ml-1">
+                {selectedDeliveryMode === "surface" && isSurfaceAllowed ? (
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 fill-emerald-50" />
+                ) : isSurfaceAllowed ? (
+                  <Circle className="w-4 h-4 text-slate-300" />
+                ) : (
+                  <AlertTriangle className="w-4 h-4 text-slate-400" />
+                )}
+              </div>
+            </button>
+
+            {/* 3. Local Store Pickup */}
+            <button
+              type="button"
+              onClick={() => handleSelectDeliveryMode("pickup")}
+              className={`p-3 rounded-xl border text-left transition-all flex items-center justify-between cursor-pointer relative ${
+                selectedDeliveryMode === "pickup" && isLocalPickupAllowed
+                  ? "bg-purple-50/60 border-purple-600 ring-2 ring-purple-500/30 shadow-xs"
+                  : isLocalPickupAllowed
+                  ? "bg-white border-slate-200 hover:border-purple-300 hover:bg-slate-50/70 shadow-2xs"
+                  : "bg-slate-50/90 border-slate-200/80 opacity-70"
+              }`}
+            >
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div
+                  className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${
+                    selectedDeliveryMode === "pickup" && isLocalPickupAllowed
+                      ? "bg-purple-600 text-white shadow-xs"
+                      : isLocalPickupAllowed
+                      ? "bg-purple-50 text-purple-700 border border-purple-100"
+                      : "bg-slate-200 text-slate-400"
+                  }`}
+                >
+                  <Store className="w-3.5 h-3.5" />
+                </div>
+                <div className="flex items-center gap-1.5 min-w-0">
+                  <span className="text-xs font-bold text-slate-900">Store Pickup</span>
+                  {!isLocalPickupAllowed && (
+                    <span className="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded bg-slate-100 text-slate-600">
+                      Unavailable
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              {/* Selection Indicator */}
+              <div className="shrink-0 ml-1">
+                {selectedDeliveryMode === "pickup" && isLocalPickupAllowed ? (
+                  <CheckCircle2 className="w-4 h-4 text-purple-600 fill-purple-50" />
+                ) : isLocalPickupAllowed ? (
+                  <Circle className="w-4 h-4 text-slate-300" />
+                ) : (
+                  <AlertTriangle className="w-4 h-4 text-slate-400" />
+                )}
+              </div>
+            </button>
           </div>
-        )}
+
+          {/* Active Selection Summary Banner */}
+          <div className="p-2.5 rounded-xl bg-slate-100/80 border border-slate-200/80 flex items-center justify-between text-xs">
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-black uppercase tracking-wider text-slate-500">
+                Selected Mode:
+              </span>
+              {selectedDeliveryMode === "air" && (
+                <span className="font-bold text-blue-700 flex items-center gap-1.5">
+                  <Plane className="w-3.5 h-3.5 text-blue-600" />
+                  Priority Air Flight Dispatch (Est. Arrival: {airDeliveryDate})
+                </span>
+              )}
+              {selectedDeliveryMode === "surface" && (
+                <span className="font-bold text-emerald-800 flex items-center gap-1.5">
+                  <Truck className="w-3.5 h-3.5 text-emerald-600" />
+                  Land / Road Surface Cargo (Est. Arrival: {surfaceDeliveryDate})
+                </span>
+              )}
+              {selectedDeliveryMode === "pickup" && (
+                <span className="font-bold text-purple-800 flex items-center gap-1.5">
+                  <Store className="w-3.5 h-3.5 text-purple-600" />
+                  Local Store Pickup (Ready in 2 Hours at Ranchi Hub)
+                </span>
+              )}
+            </div>
+            <span className="text-[10px] text-slate-500 hidden sm:inline font-medium">
+              Click any card above to switch
+            </span>
+          </div>
+
+          {/* Integrated Pincode Checker */}
+          <div className="pt-1">
+            <form
+              onSubmit={handleCheckPincode}
+              className="flex items-center gap-2 p-1.5 bg-white border border-slate-300 rounded-xl shadow-2xs focus-within:border-[#2563EB] focus-within:ring-2 focus-within:ring-blue-100 transition-all"
+            >
+              <Truck className="w-4 h-4 text-slate-400 ml-2.5 shrink-0" />
+              <input
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                maxLength={6}
+                value={pincode}
+                onChange={(e) => {
+                  const val = e.target.value.replace(/\D/g, "");
+                  setPincode(val);
+                  if (pincodeStatus !== "idle") setPincodeStatus("idle");
+                }}
+                placeholder="Enter 6-digit Pincode to check delivery dates"
+                className="flex-1 px-2 py-1.5 bg-transparent text-xs sm:text-sm font-semibold text-slate-800 placeholder-slate-400 focus:outline-none"
+              />
+              <button
+                type="submit"
+                className="px-5 py-2 bg-[#0F172A] hover:bg-[#1E293B] active:bg-[#020617] text-white text-xs font-bold rounded-lg shadow-xs transition-colors cursor-pointer shrink-0"
+              >
+                Check
+              </button>
+            </form>
+
+            {pincodeStatus === "valid" && (
+              <div className="mt-2.5 p-3 rounded-xl bg-emerald-50/90 border border-emerald-200 text-xs text-emerald-900 space-y-1.5 animate-in fade-in duration-200">
+                <div className="flex items-center gap-1.5 font-bold text-emerald-800">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <span>Delivery Available for PIN {pincode}</span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1 text-[11px]">
+                  {isAirAllowed && (
+                    <div className={`p-2 rounded-lg border flex items-center gap-2 transition-all ${
+                      selectedDeliveryMode === "air"
+                        ? "bg-white border-blue-400 font-semibold text-blue-900 shadow-2xs"
+                        : "bg-white/80 border-emerald-100"
+                    }`}>
+                      <Plane className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                      <span><strong>By Air:</strong> Est. {airDeliveryDate} (Express)</span>
+                    </div>
+                  )}
+                  {isSurfaceAllowed && (
+                    <div className={`p-2 rounded-lg border flex items-center gap-2 transition-all ${
+                      selectedDeliveryMode === "surface"
+                        ? "bg-white border-emerald-400 font-semibold text-emerald-900 shadow-2xs"
+                        : "bg-white/80 border-emerald-100"
+                    }`}>
+                      <Truck className="w-3.5 h-3.5 text-emerald-700 shrink-0" />
+                      <span><strong>By Land:</strong> Est. {surfaceDeliveryDate} (Free Standard)</span>
+                    </div>
+                  )}
+                  {isLocalPickupAllowed && (
+                    <div className={`p-2 rounded-lg border flex items-center gap-2 sm:col-span-2 transition-all ${
+                      selectedDeliveryMode === "pickup"
+                        ? "bg-white border-purple-400 font-semibold text-purple-900 shadow-2xs"
+                        : "bg-white/80 border-emerald-100"
+                    }`}>
+                      <Store className="w-3.5 h-3.5 text-purple-600 shrink-0" />
+                      <span><strong>Store Pickup:</strong> Ready today at Ranchi Store Counter</span>
+                    </div>
+                  )}
+                </div>
+                {!isAirAllowed && (
+                  <p className="text-[10px] text-amber-800 bg-amber-50 p-2 rounded-lg border border-amber-200 mt-1 flex items-start gap-1.5">
+                    <AlertCircle className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
+                    <span>
+                      Air cargo is restricted for this product ({shippingTag}). It will be safely dispatched via insured express road transport.
+                    </span>
+                  </p>
+                )}
+              </div>
+            )}
+
+            {pincodeStatus === "invalid" && (
+              <div className="mt-2 p-2.5 rounded-xl bg-red-50 border border-red-200 text-xs text-red-700 flex items-center gap-2">
+                <AlertTriangle className="w-4 h-4 text-red-500 shrink-0" />
+                <span>Please enter a valid 6-digit Indian Postal PIN code.</span>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* ── Admin Delivery Restriction Alert Modal (Short & Professional) ── */}
+        <AnimatePresence>
+          {restrictionModal && (
+            <div
+              className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/50 backdrop-blur-xs animate-in fade-in duration-150"
+              onClick={() => setRestrictionModal(null)}
+            >
+              <motion.div
+                initial={{ opacity: 0, scale: 0.96, y: 8 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.96, y: 8 }}
+                transition={{ duration: 0.15 }}
+                onClick={(e) => e.stopPropagation()}
+                className="bg-white rounded-2xl border border-slate-200/90 shadow-2xl max-w-sm sm:max-w-md w-full p-5 space-y-4"
+              >
+                {/* Header with Title and Close */}
+                <div className="flex items-start gap-3.5">
+                  <div className="w-10 h-10 rounded-xl bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-600 shrink-0">
+                    <AlertTriangle className="w-5 h-5 stroke-[2.2]" />
+                  </div>
+                  <div className="flex-1 min-w-0 pr-1">
+                    <h3 className="text-sm sm:text-base font-bold text-slate-900 leading-snug">
+                      {restrictionModal.title}
+                    </h3>
+                    <p className="text-xs text-slate-600 leading-relaxed mt-1.5 font-normal">
+                      {restrictionModal.reason}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setRestrictionModal(null)}
+                    className="p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer shrink-0"
+                    aria-label="Close dialog"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+
+                {/* Actions */}
+                <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+                  <button
+                    type="button"
+                    onClick={() => setRestrictionModal(null)}
+                    className="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl transition-all cursor-pointer"
+                  >
+                    Close
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedDeliveryMode(restrictionModal.alternativeMode);
+                      setRestrictionModal(null);
+                      useUIStore.getState().showToast({
+                        title: `Switched to ${restrictionModal.alternativeLabel}`,
+                        type: "success",
+                        duration: 2500,
+                      });
+                    }}
+                    className="px-4 py-2 bg-[#005CA9] hover:bg-[#004B8A] active:bg-[#003867] text-white text-xs font-bold rounded-xl transition-all cursor-pointer shadow-xs"
+                  >
+                    Switch to {restrictionModal.alternativeLabel}
+                  </button>
+                </div>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
       </div>
 
       {/* ── 9. Trust Badges Row ── */}
@@ -720,7 +1166,7 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
               <span className="text-[15px] sm:text-[16px] font-semibold text-slate-900 tracking-tight font-sans">
                 {topStockPopup.limit <= 0
                   ? "This item is currently out of stock."
-                  : `Only ${topStockPopup.limit} units available.`}
+                  : `Only ${topStockPopup.limit} units available in stock`}
               </span>
             </motion.div>
           </aside>

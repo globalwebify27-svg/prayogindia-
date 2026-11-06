@@ -16,7 +16,6 @@ import {
   AlertCircle,
   RefreshCw,
   X,
-  Sparkles,
   Save,
   ImageIcon,
   RotateCcw,
@@ -85,7 +84,7 @@ function getBadgeIcon(icon?: string) {
     case "chip":
       return <Layers className="w-4 h-4" />;
     default:
-      return <Sparkles className="w-4 h-4" />;
+      return <Layers className="w-4 h-4" />;
   }
 }
 

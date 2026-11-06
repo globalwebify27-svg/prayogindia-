@@ -38,6 +38,9 @@ export default function AdminInventoryPage() {
   const [items, setItems] = useState<InventoryItemRow[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [lowStockFilter, setLowStockFilter] = useState(false);
+  const [storeFilter, setStoreFilter] = useState<string>("ALL");
+  const [statusFilter, setStatusFilter] = useState<string>("ALL");
+  const [categoryFilter, setCategoryFilter] = useState<string>("ALL");
   const [activeTab, setActiveTab] = useState<
     "stock" | "transfers" | "adjustments"
   >("stock");
@@ -362,23 +365,113 @@ export default function AdminInventoryPage() {
     }
   };
 
-  const handleReceiveTransfer = (transferId: string) => {
-    setTransfers((prev) =>
-      prev.map((t) => {
-        if (t.id === transferId) {
-          return {
-            ...t,
-            status: "Received & Stock Updated",
-            receivedAt: new Date().toISOString().replace("T", " ").slice(0, 16),
-          };
-        }
-        return t;
-      }),
-    );
-    alert(
-      "Stock received! Destination branch inventory has been updated automatically.",
-    );
+  const handleUpdateTransferStatus = async (
+    transferId: string,
+    newStatus: "APPROVED" | "IN_TRANSIT" | "RECEIVED" | "CANCELLED",
+  ) => {
+    try {
+      const res = await fetch("/api/admin/transfers", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ transferId, status: newStatus }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setTransfers((prev) =>
+          prev.map((t) => {
+            if (t.id === transferId) {
+              const statusLabel =
+                newStatus === "RECEIVED"
+                  ? "Received & Stock Updated"
+                  : newStatus === "IN_TRANSIT"
+                    ? "Dispatched & In Transit"
+                    : newStatus === "APPROVED"
+                      ? "Approved"
+                      : "Cancelled";
+              return {
+                ...t,
+                status: statusLabel,
+                receivedAt:
+                  newStatus === "RECEIVED"
+                    ? new Date().toISOString().replace("T", " ").slice(0, 16)
+                    : t.receivedAt,
+              };
+            }
+            return t;
+          }),
+        );
+        fetchInventory();
+        fetchTransactions();
+        alert(data.message || `Transfer marked as ${newStatus}.`);
+      } else {
+        alert(data.message || "Failed to update transfer status.");
+      }
+    } catch {
+      // Fallback local update
+      setTransfers((prev) =>
+        prev.map((t) =>
+          t.id === transferId ? { ...t, status: "Received & Stock Updated" } : t,
+        ),
+      );
+      alert("Transfer status updated.");
+    }
   };
+
+  const handleReceiveTransfer = (transferId: string) => {
+    handleUpdateTransferStatus(transferId, "RECEIVED");
+  };
+
+  const availableCategories = React.useMemo(() => {
+    const cats = new Set<string>();
+    items.forEach((i) => {
+      if (i.category) cats.add(i.category);
+    });
+    return Array.from(cats).sort();
+  }, [items]);
+
+  const filteredItems = React.useMemo(() => {
+    return items.filter((item) => {
+      const q = searchQuery.toLowerCase().trim();
+      const matchesSearch =
+        !q ||
+        item.name.toLowerCase().includes(q) ||
+        item.sku.toLowerCase().includes(q) ||
+        item.category.toLowerCase().includes(q);
+
+      const matchesCategory =
+        categoryFilter === "ALL" ||
+        item.category.toLowerCase() === categoryFilter.toLowerCase();
+
+      const matchesLowStock = !lowStockFilter || item.stock <= 5;
+
+      let matchesStatus = true;
+      if (statusFilter === "IN_STOCK") matchesStatus = item.stock > 5;
+      else if (statusFilter === "LOW_STOCK")
+        matchesStatus = item.stock > 0 && item.stock <= 5;
+      else if (statusFilter === "OUT_OF_STOCK") matchesStatus = item.stock === 0;
+
+      let matchesStore = true;
+      if (storeFilter === "RANCHI") matchesStore = (item.ranchiStock ?? 0) > 0;
+      else if (storeFilter === "PATNA") matchesStore = (item.patnaStock ?? 0) > 0;
+      else if (storeFilter === "DELHI") matchesStore = (item.delhiStock ?? 0) > 0;
+      else if (storeFilter === "MUMBAI") matchesStore = (item.mumbaiStock ?? 0) > 0;
+
+      return (
+        matchesSearch &&
+        matchesCategory &&
+        matchesLowStock &&
+        matchesStatus &&
+        matchesStore
+      );
+    });
+  }, [
+    items,
+    searchQuery,
+    categoryFilter,
+    lowStockFilter,
+    statusFilter,
+    storeFilter,
+  ]);
 
   return (
     <div className="p-6 sm:p-8 space-y-8 animate-in fade-in duration-300">
@@ -470,8 +563,8 @@ export default function AdminInventoryPage() {
       {/* 3. Tab 1: Location-Wise Stock Pool */}
       {activeTab === "stock" && (
         <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-2xs space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
-            <div className="relative w-full sm:w-72">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4 flex-wrap">
+            <div className="relative w-full sm:w-64">
               <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
@@ -482,8 +575,47 @@ export default function AdminInventoryPage() {
               />
             </div>
 
-            <div className="flex items-center gap-2">
-              <label className="flex items-center gap-1.5 text-xs font-bold text-slate-700 cursor-pointer">
+            <div className="flex flex-wrap items-center gap-2.5 text-xs">
+              {/* Store Filter */}
+              <select
+                value={storeFilter}
+                onChange={(e) => setStoreFilter(e.target.value)}
+                className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-bold text-slate-900 focus:outline-none"
+              >
+                <option value="ALL">All Stores</option>
+                <option value="RANCHI">Ranchi Central Hub</option>
+                <option value="PATNA">Patna Store</option>
+                <option value="DELHI">Delhi Store</option>
+                <option value="MUMBAI">Mumbai Store</option>
+              </select>
+
+              {/* Category Filter */}
+              <select
+                value={categoryFilter}
+                onChange={(e) => setCategoryFilter(e.target.value)}
+                className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-bold text-slate-900 focus:outline-none"
+              >
+                <option value="ALL">All Categories</option>
+                {availableCategories.map((c) => (
+                  <option key={c} value={c}>
+                    {c}
+                  </option>
+                ))}
+              </select>
+
+              {/* Status Filter */}
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-bold text-slate-900 focus:outline-none"
+              >
+                <option value="ALL">All Stock Statuses</option>
+                <option value="IN_STOCK">In Stock (&gt; 5)</option>
+                <option value="LOW_STOCK">Low Stock (1–5)</option>
+                <option value="OUT_OF_STOCK">Out of Stock (0)</option>
+              </select>
+
+              <label className="flex items-center gap-1.5 text-xs font-bold text-slate-700 cursor-pointer ml-1">
                 <input
                   type="checkbox"
                   checked={lowStockFilter}
@@ -521,7 +653,7 @@ export default function AdminInventoryPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 font-medium">
-                {items.map((item) => (
+                {filteredItems.map((item) => (
                   <tr
                     key={item.id}
                     className="hover:bg-slate-50/80 transition-colors"

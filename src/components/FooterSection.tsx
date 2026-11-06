@@ -573,9 +573,7 @@ export const FooterSection: React.FC = () => {
               <div className="flex items-center gap-2">
                 {/* Facebook */}
                 <a
-                  href="https://facebook.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  href="#"
                   aria-label="Facebook"
                   className="w-7 h-7 rounded-full bg-[#1877F2] hover:bg-[#166fe5] text-white flex items-center justify-center transition-all hover:scale-110 shadow-xs"
                 >
@@ -586,9 +584,7 @@ export const FooterSection: React.FC = () => {
 
                 {/* Instagram */}
                 <a
-                  href="https://instagram.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  href="#"
                   aria-label="Instagram"
                   className="w-7 h-7 rounded-full bg-gradient-to-tr from-[#f09433] via-[#dc2743] to-[#bc1888] text-white flex items-center justify-center transition-all hover:scale-110 shadow-xs"
                 >
@@ -599,9 +595,7 @@ export const FooterSection: React.FC = () => {
 
                 {/* YouTube */}
                 <a
-                  href="https://youtube.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  href="#"
                   aria-label="YouTube"
                   className="w-7 h-7 rounded-full bg-[#FF0000] hover:bg-[#d90000] text-white flex items-center justify-center transition-all hover:scale-110 shadow-xs"
                 >
@@ -612,9 +606,7 @@ export const FooterSection: React.FC = () => {
 
                 {/* LinkedIn */}
                 <a
-                  href="https://linkedin.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  href="#"
                   aria-label="LinkedIn"
                   className="w-7 h-7 rounded-full bg-[#0077b5] hover:bg-[#005582] text-white flex items-center justify-center transition-all hover:scale-110 shadow-xs"
                 >

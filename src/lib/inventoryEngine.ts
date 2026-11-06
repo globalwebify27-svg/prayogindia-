@@ -62,12 +62,23 @@ export interface InventoryTransactionRecord {
   createdAt: string;
 }
 
+export type TransferStatus =
+  | "REQUESTED"
+  | "APPROVED"
+  | "DISPATCHED"
+  | "IN_TRANSIT"
+  | "RECEIVED"
+  | "REJECTED"
+  | "CANCELLED"
+  | "COMPLETED"
+  | "PENDING";
+
 export interface StockTransferRecord {
   id: string;
   transferNumber: string;
   sourceStoreId: StoreId;
   destinationStoreId: StoreId;
-  status: "PENDING" | "IN_TRANSIT" | "COMPLETED" | "CANCELLED";
+  status: TransferStatus;
   items: Array<{
     productId: string;
     productName: string;
@@ -496,7 +507,12 @@ export async function deductStoreInventory(params: {
           userId: userId ?? null,
           deviceId: dbDevice,
           referenceId: orderId ?? null,
-          notes: `${orderSource} order deduction of ${quantity} units`,
+          notes:
+            orderSource === "WALK_IN"
+              ? `[WALK_IN: ${targetStore.toUpperCase()}] Store Walk-in sale deduction of ${quantity} units`
+              : orderSource === "MOBILE_APP"
+                ? `[MOBILE_APP] Mobile App order deduction of ${quantity} units from Central Hub`
+                : `[WEBSITE] Website order deduction of ${quantity} units from Central Hub`,
         },
       });
     } catch (txErr) {
@@ -898,6 +914,376 @@ export async function transferStockBetweenStores(params: {
 }
 
 /**
+ * Multi-Stage Stock Transfer Status Transitions:
+ * REQUESTED -> APPROVED (reserves stock at source) -> DISPATCHED / IN_TRANSIT (deducts from source, tracks in transit) -> RECEIVED (adds to destination) -> CANCELLED/REJECTED (releases source reservation)
+ */
+export async function updateStockTransferStatus(params: {
+  transferId: string;
+  status: TransferStatus;
+  userId?: string;
+  notes?: string;
+}): Promise<{ success: boolean; message: string; transfer?: StockTransferRecord }> {
+  const { transferId, status, userId, notes } = params;
+
+  try {
+    const transfer = await db.stockTransfer.findUnique({
+      where: { id: transferId },
+      include: {
+        items: { include: { product: { select: { name: true, sku: true } } } },
+        sourceStore: true,
+        destinationStore: true,
+      },
+    });
+
+    if (!transfer) {
+      return { success: false, message: "Stock transfer record not found." };
+    }
+
+    const currentStatus = transfer.status as TransferStatus;
+    const sourceDbId = transfer.sourceStoreId;
+    const destDbId = transfer.destinationStoreId;
+
+    if (currentStatus === status) {
+      return { success: true, message: `Transfer already in status ${status}.` };
+    }
+
+    if (currentStatus === "COMPLETED" || currentStatus === "RECEIVED") {
+      return { success: false, message: "Cannot modify an already received or completed transfer." };
+    }
+
+    // 1. APPROVE: Reserve stock at source store
+    if (status === "APPROVED") {
+      for (const item of transfer.items) {
+        const srcInv = await db.storeInventory.findUnique({
+          where: { storeId_productId: { storeId: sourceDbId, productId: item.productId } },
+        });
+        const avail = srcInv?.availableQuantity ?? 0;
+        if (avail < item.quantity) {
+          return {
+            success: false,
+            message: `Insufficient available stock in ${transfer.sourceStore.name} to approve transfer for ${item.product.name}. Available: ${avail}, Needed: ${item.quantity}.`,
+          };
+        }
+      }
+
+      await db.$transaction(async (tx) => {
+        for (const item of transfer.items) {
+          const srcInv = await tx.storeInventory.findUnique({
+            where: { storeId_productId: { storeId: sourceDbId, productId: item.productId } },
+          });
+          if (srcInv) {
+            const newReserved = srcInv.reservedQuantity + item.quantity;
+            const newAvailable = Math.max(0, srcInv.quantity - newReserved);
+            await tx.storeInventory.update({
+              where: { id: srcInv.id },
+              data: {
+                reservedQuantity: newReserved,
+                availableQuantity: newAvailable,
+              },
+            });
+            await tx.inventoryTransaction.create({
+              data: {
+                storeId: sourceDbId,
+                productId: item.productId,
+                transactionType: "ADJUSTMENT",
+                quantityBefore: srcInv.quantity,
+                quantityChange: 0,
+                quantityAfter: srcInv.quantity,
+                userId: userId ?? null,
+                referenceId: transfer.transferNumber,
+                notes: `[TRANSFER_RESERVED: ${transfer.transferNumber}] Reserved ${item.quantity} units for transfer to ${transfer.destinationStore.name}`,
+              },
+            });
+          }
+        }
+        await tx.stockTransfer.update({
+          where: { id: transferId },
+          data: {
+            status: "APPROVED",
+            approvedByUserId: userId ?? transfer.approvedByUserId,
+            notes: notes ? `${transfer.notes || ""}\n${notes}`.trim() : transfer.notes,
+          },
+        });
+      });
+
+      return {
+        success: true,
+        message: `Transfer ${transfer.transferNumber} approved. ${transfer.items.reduce((acc, i) => acc + i.quantity, 0)} units reserved at ${transfer.sourceStore.name}.`,
+      };
+    }
+
+    // 2. DISPATCH / IN_TRANSIT: Deduct physical stock from source
+    if (status === "DISPATCHED" || status === "IN_TRANSIT") {
+      await db.$transaction(async (tx) => {
+        for (const item of transfer.items) {
+          const srcInv = await tx.storeInventory.findUnique({
+            where: { storeId_productId: { storeId: sourceDbId, productId: item.productId } },
+          });
+          if (srcInv) {
+            const wasApproved = currentStatus === "APPROVED";
+            const newQty = Math.max(0, srcInv.quantity - item.quantity);
+            const newReserved = wasApproved
+              ? Math.max(0, srcInv.reservedQuantity - item.quantity)
+              : srcInv.reservedQuantity;
+            const newAvailable = Math.max(0, newQty - newReserved);
+
+            await tx.storeInventory.update({
+              where: { id: srcInv.id },
+              data: {
+                quantity: newQty,
+                reservedQuantity: newReserved,
+                availableQuantity: newAvailable,
+                status: computeStatus(newQty, srcInv.lowStockThreshold),
+              },
+            });
+
+            await tx.inventoryTransaction.create({
+              data: {
+                storeId: sourceDbId,
+                productId: item.productId,
+                transactionType: "TRANSFER_OUT",
+                quantityBefore: srcInv.quantity,
+                quantityChange: -item.quantity,
+                quantityAfter: newQty,
+                userId: userId ?? null,
+                referenceId: transfer.transferNumber,
+                notes: `[TRANSFER_DISPATCHED: ${transfer.transferNumber}] Dispatched ${item.quantity} units to ${transfer.destinationStore.name}`,
+              },
+            });
+          }
+        }
+        await tx.stockTransfer.update({
+          where: { id: transferId },
+          data: {
+            status: "IN_TRANSIT",
+            notes: notes ? `${transfer.notes || ""}\n${notes}`.trim() : transfer.notes,
+          },
+        });
+      });
+
+      return {
+        success: true,
+        message: `Transfer ${transfer.transferNumber} dispatched and now In Transit to ${transfer.destinationStore.name}.`,
+      };
+    }
+
+    // 3. RECEIVED: Add stock to destination available inventory
+    if (status === "RECEIVED" || status === "COMPLETED") {
+      const needsSourceDeduction = currentStatus !== "IN_TRANSIT" && currentStatus !== "DISPATCHED";
+
+      await db.$transaction(async (tx) => {
+        if (needsSourceDeduction) {
+          for (const item of transfer.items) {
+            const srcInv = await tx.storeInventory.findUnique({
+              where: { storeId_productId: { storeId: sourceDbId, productId: item.productId } },
+            });
+            if (srcInv) {
+              const newQty = Math.max(0, srcInv.quantity - item.quantity);
+              const newReserved = currentStatus === "APPROVED"
+                ? Math.max(0, srcInv.reservedQuantity - item.quantity)
+                : srcInv.reservedQuantity;
+              await tx.storeInventory.update({
+                where: { id: srcInv.id },
+                data: {
+                  quantity: newQty,
+                  reservedQuantity: newReserved,
+                  availableQuantity: Math.max(0, newQty - newReserved),
+                  status: computeStatus(newQty, srcInv.lowStockThreshold),
+                },
+              });
+              await tx.inventoryTransaction.create({
+                data: {
+                  storeId: sourceDbId,
+                  productId: item.productId,
+                  transactionType: "TRANSFER_OUT",
+                  quantityBefore: srcInv.quantity,
+                  quantityChange: -item.quantity,
+                  quantityAfter: newQty,
+                  userId: userId ?? null,
+                  referenceId: transfer.transferNumber,
+                },
+              });
+            }
+          }
+        }
+
+        // Add to destination
+        for (const item of transfer.items) {
+          const dstInv = await tx.storeInventory.findUnique({
+            where: { storeId_productId: { storeId: destDbId, productId: item.productId } },
+          });
+          const dstQty = (dstInv?.quantity ?? 0) + item.quantity;
+          const dstReserved = dstInv?.reservedQuantity ?? 0;
+          const dstAvailable = Math.max(0, dstQty - dstReserved);
+
+          await tx.storeInventory.upsert({
+            where: { storeId_productId: { storeId: destDbId, productId: item.productId } },
+            update: {
+              quantity: dstQty,
+              availableQuantity: dstAvailable,
+              status: computeStatus(dstQty),
+            },
+            create: {
+              storeId: destDbId,
+              productId: item.productId,
+              quantity: dstQty,
+              availableQuantity: dstQty,
+              reservedQuantity: 0,
+              reorderLevel: 10,
+              lowStockThreshold: 5,
+              status: computeStatus(dstQty),
+            },
+          });
+
+          await tx.inventoryTransaction.create({
+            data: {
+              storeId: destDbId,
+              productId: item.productId,
+              transactionType: "TRANSFER_IN",
+              quantityBefore: dstInv?.quantity ?? 0,
+              quantityChange: item.quantity,
+              quantityAfter: dstQty,
+              userId: userId ?? null,
+              referenceId: transfer.transferNumber,
+              notes: `[TRANSFER_RECEIVED: ${transfer.transferNumber}] Received ${item.quantity} units at ${transfer.destinationStore.name}`,
+            },
+          });
+        }
+
+        await tx.stockTransfer.update({
+          where: { id: transferId },
+          data: {
+            status: "RECEIVED",
+            notes: notes ? `${transfer.notes || ""}\n${notes}`.trim() : transfer.notes,
+          },
+        });
+      });
+
+      return {
+        success: true,
+        message: `Transfer ${transfer.transferNumber} received at ${transfer.destinationStore.name}. Inventory added to available stock.`,
+      };
+    }
+
+    // 4. CANCELLED / REJECTED: Release reservation if was approved
+    if (status === "CANCELLED" || status === "REJECTED") {
+      if (currentStatus === "APPROVED") {
+        await db.$transaction(async (tx) => {
+          for (const item of transfer.items) {
+            const srcInv = await tx.storeInventory.findUnique({
+              where: { storeId_productId: { storeId: sourceDbId, productId: item.productId } },
+            });
+            if (srcInv) {
+              const newReserved = Math.max(0, srcInv.reservedQuantity - item.quantity);
+              await tx.storeInventory.update({
+                where: { id: srcInv.id },
+                data: {
+                  reservedQuantity: newReserved,
+                  availableQuantity: Math.max(0, srcInv.quantity - newReserved),
+                },
+              });
+              await tx.inventoryTransaction.create({
+                data: {
+                  storeId: sourceDbId,
+                  productId: item.productId,
+                  transactionType: "ADJUSTMENT",
+                  quantityBefore: srcInv.quantity,
+                  quantityChange: 0,
+                  quantityAfter: srcInv.quantity,
+                  userId: userId ?? null,
+                  referenceId: transfer.transferNumber,
+                  notes: `[TRANSFER_CANCELLED: ${transfer.transferNumber}] Released reservation of ${item.quantity} units`,
+                },
+              });
+            }
+          }
+          await tx.stockTransfer.update({
+            where: { id: transferId },
+            data: { status, notes: notes ? `${transfer.notes || ""}\n${notes}`.trim() : transfer.notes },
+          });
+        });
+      } else {
+        await db.stockTransfer.update({
+          where: { id: transferId },
+          data: { status, notes: notes ? `${transfer.notes || ""}\n${notes}`.trim() : transfer.notes },
+        });
+      }
+
+      return {
+        success: true,
+        message: `Transfer ${transfer.transferNumber} marked as ${status}.`,
+      };
+    }
+
+    return { success: false, message: `Unsupported status transition to ${status}.` };
+  } catch (err: any) {
+    console.error("[inventoryEngine] updateStockTransferStatus error:", err);
+    return { success: false, message: err.message };
+  }
+}
+
+/**
+ * Release reserved or deducted stock when an order is CANCELLED or RETURNED.
+ * Website/App orders return to Ranchi Central Hub; Walk-in orders return to store.
+ */
+export async function releaseOrderStockOnCancel(orderId: string): Promise<{ success: boolean; message: string }> {
+  try {
+    const order = await db.order.findUnique({
+      where: { id: orderId },
+      include: { items: true },
+    });
+    if (!order || !order.items || order.items.length === 0) {
+      return { success: false, message: "Order or items not found." };
+    }
+
+    const isWalkIn = order.customerType === "WALK_IN";
+    let targetStoreCode: StoreId = "ranchi";
+    if (isWalkIn) {
+      if (order.orderNumber?.includes("PATNA")) targetStoreCode = "patna";
+      else if (order.orderNumber?.includes("DELHI")) targetStoreCode = "delhi";
+      else if (order.orderNumber?.includes("MUMBAI")) targetStoreCode = "mumbai";
+    }
+
+    const storeDbId = await resolveStoreDbId(targetStoreCode);
+    if (!storeDbId) return { success: false, message: "Target store not found." };
+
+    for (const item of order.items) {
+      const inv = await db.storeInventory.findUnique({
+        where: { storeId_productId: { storeId: storeDbId, productId: item.productId } },
+      });
+      if (inv) {
+        const restoredQty = inv.quantity + item.quantity;
+        const restoredAvailable = inv.availableQuantity + item.quantity;
+        await db.storeInventory.update({
+          where: { id: inv.id },
+          data: {
+            quantity: restoredQty,
+            availableQuantity: restoredAvailable,
+            status: computeStatus(restoredQty, inv.lowStockThreshold),
+          },
+        });
+        await db.inventoryTransaction.create({
+          data: {
+            storeId: storeDbId,
+            productId: item.productId,
+            orderId: order.id,
+            transactionType: "RETURN",
+            quantityBefore: inv.quantity,
+            quantityChange: item.quantity,
+            quantityAfter: restoredQty,
+            notes: `[RESTOCK_ON_CANCEL] Restocked ${item.quantity} units from cancelled order #${order.orderNumber}`,
+          },
+        });
+      }
+    }
+    return { success: true, message: `Successfully released stock for order #${order.orderNumber}` };
+  } catch (err: any) {
+    console.error("[inventoryEngine] releaseOrderStockOnCancel error:", err);
+    return { success: false, message: err.message };
+  }
+}
+
+/**
  * Get all Stock Transfers from the database.
  */
 export async function getStockTransfers(): Promise<StockTransferRecord[]> {
@@ -955,13 +1341,14 @@ export async function getStockTransfers(): Promise<StockTransferRecord[]> {
  */
 export async function registerProductInEngine(
   productId: string,
-  initialRanchiStock = 25,
+  initialStock = 0,
+  targetStoreId: StoreId = "ranchi",
 ): Promise<void> {
   const storeIds: StoreId[] = ["ranchi", "patna", "delhi", "mumbai"];
   for (const sid of storeIds) {
     const storeDbId = await resolveStoreDbId(sid);
     if (!storeDbId) continue;
-    const qty = sid === "ranchi" ? initialRanchiStock : 0;
+    const qty = sid === targetStoreId ? initialStock : 0;
     await db.storeInventory.upsert({
       where: { storeId_productId: { storeId: storeDbId, productId } },
       update: {},

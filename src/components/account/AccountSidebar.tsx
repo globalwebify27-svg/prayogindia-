@@ -15,7 +15,6 @@ import {
   LogOut,
   FileText,
   CreditCard,
-  Sparkles,
 } from "lucide-react";
 
 export const AccountSidebar: React.FC = () => {

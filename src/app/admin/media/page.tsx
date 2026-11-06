@@ -16,7 +16,6 @@ import {
   Eye,
   Download,
   ExternalLink,
-  Sparkles,
   CheckCircle2,
   X,
   Layers,
@@ -970,7 +969,7 @@ export default function MediaLibraryPage() {
 
                 {compressionMessage && (
                   <div className="mt-3 p-2 bg-emerald-50 border border-emerald-200 text-emerald-800 text-[11px] font-bold rounded-xl animate-in fade-in flex items-center justify-center gap-1.5">
-                    <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
                     <span>{compressionMessage}</span>
                   </div>
                 )}

@@ -9,7 +9,6 @@ import {
   Gift,
   Tag,
   Award,
-  Sparkles,
 } from "lucide-react";
 
 interface OfferCardData {

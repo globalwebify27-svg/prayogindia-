@@ -18,7 +18,6 @@ import {
   ArrowUpRight,
   ArrowDownLeft,
   ShoppingBag,
-  Sparkles,
 } from "lucide-react";
 
 export const RewardsView: React.FC = () => {

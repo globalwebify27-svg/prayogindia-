@@ -9,7 +9,6 @@ import {
   FileCheck,
   ArrowRight,
   PhoneCall,
-  Sparkles,
 } from "lucide-react";
 
 export const B2BInstitutionalPromoBanner: React.FC = () => {

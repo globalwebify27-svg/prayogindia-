@@ -188,7 +188,9 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
   const currentMrp = selectedVariant?.mrp ?? product.mrp;
 
   const cat = (product.category || "").toLowerCase();
-  const relatedProducts = PRODUCTS.filter(
+
+  // 1. Related Products (Same category / subcategory or explicitly tagged)
+  let relatedProducts = PRODUCTS.filter(
     (p) =>
       p.id !== product.id &&
       (p.category.toLowerCase() === cat ||
@@ -196,65 +198,85 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
         (cat && cat.includes(p.category.toLowerCase())) ||
         product.relatedProductIds?.includes(p.id)),
   ).slice(0, 6);
+  if (relatedProducts.length === 0) {
+    relatedProducts = PRODUCTS.filter((p) => p.id !== product.id).slice(0, 6);
+  }
 
-  const frequentlyBoughtTogether = PRODUCTS.filter((p) =>
+  // 2. Frequently Bought Together (explicit IDs or smart companion hardware)
+  let frequentlyBoughtTogether = PRODUCTS.filter((p) =>
     product.frequentlyBoughtTogetherIds?.includes(p.id),
   ).slice(0, 4);
+  if (frequentlyBoughtTogether.length === 0) {
+    frequentlyBoughtTogether = PRODUCTS.filter(
+      (p) =>
+        p.id !== product.id &&
+        (p.category.includes("Sensor") ||
+          p.category.includes("Electronic") ||
+          p.name.includes("Sensor") ||
+          p.name.includes("Cable") ||
+          p.name.includes("Board")),
+    ).slice(0, 3);
+  }
 
-  const recommendedAccessories = PRODUCTS.filter((p) =>
+  // 3. Recommended Accessories (Cables, power supplies, shields, breadboards)
+  let recommendedAccessories = PRODUCTS.filter((p) =>
     product.recommendedAccessoryIds?.includes(p.id),
-  ).slice(0, 4);
+  ).slice(0, 6);
+  if (recommendedAccessories.length === 0) {
+    recommendedAccessories = PRODUCTS.filter(
+      (p) =>
+        p.id !== product.id &&
+        (p.category.includes("Electronic") ||
+          p.category.includes("Motors") ||
+          p.name.includes("Motor") ||
+          p.name.includes("Sensor") ||
+          p.name.includes("Wire") ||
+          p.name.includes("Cable")),
+    ).slice(0, 5);
+  }
 
-  const similarProducts = PRODUCTS.filter(
+  // 4. Similar Products (Alternative hardware options with comparable pricing/specs)
+  let similarProducts = PRODUCTS.filter(
     (p) =>
       p.id !== product.id &&
-      (p.category.toLowerCase() === cat ||
-        (cat && p.category.toLowerCase().includes(cat)) ||
-        (cat && cat.includes(p.category.toLowerCase()))) &&
-      !relatedProducts.find((r) => r.id === p.id),
-  ).slice(0, 4);
+      !relatedProducts.some((r) => r.id === p.id) &&
+      !frequentlyBoughtTogether.some((f) => f.id === p.id) &&
+      (p.category.toLowerCase() === cat || Math.abs(p.price - product.price) < 1200),
+  ).slice(0, 6);
+  if (similarProducts.length === 0) {
+    similarProducts = PRODUCTS.filter(
+      (p) =>
+        p.id !== product.id &&
+        !relatedProducts.some((r) => r.id === p.id) &&
+        !frequentlyBoughtTogether.some((f) => f.id === p.id),
+    ).slice(0, 5);
+  }
 
   const recoGroups = [
-    ...(frequentlyBoughtTogether.length > 0
-      ? [
-          {
-            id: "fbt",
-            label: "Frequently Bought Together",
-            subtitle: "Pair these for your build.",
-            products: frequentlyBoughtTogether,
-          },
-        ]
-      : []),
-    ...(relatedProducts.length > 0
-      ? [
-          {
-            id: "related",
-            label: "Related Products",
-            subtitle: "From the same category.",
-            products: relatedProducts,
-          },
-        ]
-      : []),
-    ...(similarProducts.length > 0
-      ? [
-          {
-            id: "similar",
-            label: "Similar Products",
-            subtitle: "Comparable hardware alternatives.",
-            products: similarProducts,
-          },
-        ]
-      : []),
-    ...(recommendedAccessories.length > 0
-      ? [
-          {
-            id: "accessories",
-            label: "Recommended Accessories",
-            subtitle: "Essential add-ons for this product.",
-            products: recommendedAccessories,
-          },
-        ]
-      : []),
+    {
+      id: "fbt",
+      label: "Frequently Bought Together",
+      subtitle: "Pair these companion items for your project.",
+      products: frequentlyBoughtTogether,
+    },
+    {
+      id: "related",
+      label: "Related Products",
+      subtitle: "Popular products from the same category.",
+      products: relatedProducts,
+    },
+    {
+      id: "similar",
+      label: "Similar Products",
+      subtitle: "Comparable hardware alternatives.",
+      products: similarProducts,
+    },
+    {
+      id: "accessories",
+      label: "Recommended Accessories",
+      subtitle: "Essential add-ons, cables & expansion shields.",
+      products: recommendedAccessories,
+    },
   ];
 
   const router = useRouter();
@@ -282,35 +304,37 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
   };
 
   const [stickyQuantity, setStickyQuantity] = useState(1);
-  const [isMainCtaVisible, setIsMainCtaVisible] = useState(true);
+  const [showStickyBar, setShowStickyBar] = useState(false);
 
   useEffect(() => {
-    const target = document.getElementById("main-product-cta");
-    if (!target) return;
+    const handleScroll = () => {
+      // 1. When user is at or near the top of the product page, sticky bar is NEVER shown
+      if (typeof window !== "undefined" && window.scrollY < 200) {
+        setShowStickyBar(false);
+        return;
+      }
 
-    const checkVisibility = () => {
+      const target = document.getElementById("main-product-cta");
+      if (!target) {
+        setShowStickyBar(typeof window !== "undefined" && window.scrollY > 600);
+        return;
+      }
+
       const rect = target.getBoundingClientRect();
-      const isVisible = rect.top < window.innerHeight && rect.bottom > 0;
-      setIsMainCtaVisible(isVisible);
+      // The sticky bottom bar should ONLY appear once the user has scrolled past
+      // the main inline CTA buttons (i.e. the buttons have scrolled up and off the screen).
+      // If the inline buttons are visible anywhere in the viewport, sticky bar stays hidden.
+      const hasScrolledPastMainCta = rect.bottom < 80;
+      setShowStickyBar(hasScrolledPastMainCta);
     };
 
-    checkVisibility();
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        setIsMainCtaVisible(entry.isIntersecting);
-      },
-      {
-        threshold: 0.1,
-      }
-    );
-
-    observer.observe(target);
-    window.addEventListener("scroll", checkVisibility, { passive: true });
+    handleScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    window.addEventListener("resize", handleScroll, { passive: true });
 
     return () => {
-      observer.disconnect();
-      window.removeEventListener("scroll", checkVisibility);
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("resize", handleScroll);
     };
   }, [product.id]);
 
@@ -549,9 +573,9 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
       <aside
         aria-label="Sticky purchase action bar"
         className={`fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-xl border-t border-slate-200/90 shadow-[0_-8px_30px_rgba(15,23,42,0.12)] px-2.5 sm:px-6 lg:px-8 xl:px-12 py-2 sm:py-2.5 pb-[max(0.6rem,env(safe-area-inset-bottom))] transition-all duration-300 ease-in-out ${
-          isMainCtaVisible
-            ? "translate-y-full opacity-0 pointer-events-none"
-            : "translate-y-0 opacity-100 pointer-events-auto"
+          showStickyBar
+            ? "translate-y-0 opacity-100 pointer-events-auto"
+            : "translate-y-full opacity-0 pointer-events-none"
         }`}
       >
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-2 sm:gap-4">

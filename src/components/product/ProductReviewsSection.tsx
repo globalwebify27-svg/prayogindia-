@@ -698,7 +698,7 @@ export const ProductReviewsSection: React.FC<ProductReviewsProps> = ({
           </div>
         </div>
 
-        {/* ── Sort + Filter Bar ── */}
+        {/* ── Reviews Count Bar ── */}
         {localReviews.length > 0 && (
           <div className="flex items-center justify-between gap-3 pt-1">
             <span className="text-xs font-semibold text-slate-500">
@@ -708,22 +708,6 @@ export const ProductReviewsSection: React.FC<ProductReviewsProps> = ({
               </strong>{" "}
               of <strong className="text-slate-900">{totalReviews}</strong>
             </span>
-            <div className="flex items-center gap-1.5">
-              <span className="text-xs text-slate-400 font-medium hidden sm:inline">
-                Sort:
-              </span>
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-                className="text-xs font-bold text-slate-800 bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 focus:outline-none focus:border-[#2563EB] cursor-pointer shadow-2xs"
-              >
-                {REVIEW_SORT_OPTIONS.map((opt) => (
-                  <option key={opt} value={opt}>
-                    {opt}
-                  </option>
-                ))}
-              </select>
-            </div>
           </div>
         )}
 
@@ -775,33 +759,6 @@ export const ProductReviewsSection: React.FC<ProductReviewsProps> = ({
               <h3 className="text-base sm:text-lg font-bold text-slate-900">
                 Top reviews from India
               </h3>
-              {totalReviews > 1 && (
-                <div className="flex items-center gap-2">
-                  <span className="text-[11px] text-slate-400 font-semibold hidden sm:inline">
-                    Auto-playing • Swipe or use arrows
-                  </span>
-                  <div className="flex items-center gap-1">
-                    <button
-                      type="button"
-                      onClick={handlePrevReview}
-                      className="w-8 h-8 rounded-full border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 flex items-center justify-center transition-all shadow-2xs hover:scale-105 active:scale-95"
-                      title="Previous review (or swipe right)"
-                      aria-label="Previous review"
-                    >
-                      <ChevronLeft className="w-4 h-4" />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={handleNextReview}
-                      className="w-8 h-8 rounded-full border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 flex items-center justify-center transition-all shadow-2xs hover:scale-105 active:scale-95"
-                      title="Next review (or swipe left)"
-                      aria-label="Next review"
-                    >
-                      <ChevronRight className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
-              )}
             </div>
 
             {/* ── Single Review Carousel Container (Trackpad & Touch Swipe Enabled) ── */}
@@ -1000,26 +957,6 @@ export const ProductReviewsSection: React.FC<ProductReviewsProps> = ({
                       />
                     );
                   })}
-                </div>
-
-                {/* Mini Prev/Next */}
-                <div className="flex items-center gap-1 text-xs">
-                  <button
-                    type="button"
-                    onClick={handlePrevReview}
-                    className="p-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-700 transition-colors"
-                    aria-label="Previous review"
-                  >
-                    <ChevronLeft className="w-3.5 h-3.5" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleNextReview}
-                    className="p-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-700 transition-colors"
-                    aria-label="Next review"
-                  >
-                    <ChevronRight className="w-3.5 h-3.5" />
-                  </button>
                 </div>
               </div>
             )}

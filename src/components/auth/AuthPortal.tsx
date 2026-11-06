@@ -10,7 +10,7 @@ import {
   AlertCircle,
   CheckCircle2,
   Building2,
-  Sparkles,
+  Award,
   Truck,
   ShieldCheck,
   ReceiptText,
@@ -651,7 +651,7 @@ export const AuthPortal: React.FC<AuthPortalProps> = ({
 
                 <div className="flex items-start gap-3">
                   <div className="w-8 h-8 rounded-full bg-amber-50 text-[#FFC20E] flex items-center justify-center shrink-0 mt-0.5">
-                    <Sparkles className="w-4 h-4 text-[#D97706]" />
+                    <Award className="w-4 h-4 text-[#D97706]" />
                   </div>
                   <div>
                     <h4 className="text-xs sm:text-sm font-bold text-slate-900">

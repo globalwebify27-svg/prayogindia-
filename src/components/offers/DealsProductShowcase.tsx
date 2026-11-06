@@ -9,8 +9,7 @@ import {
   Filter,
   Tag,
   ArrowUpDown,
-  Sparkles,
-  Zap,
+Zap,
   X,
   SlidersHorizontal,
 } from "lucide-react";

@@ -175,11 +175,8 @@ export async function POST(request: Request) {
     const parsedStock = parseInt(String(stock || 0), 10);
     const inStock = parsedStock > 0;
 
-    // Primary image is the first one or fallback
-    const primaryImage =
-      images.length > 0
-        ? images[0]
-        : "https://images.unsplash.com/photo-1553406830-ef2513450d76?auto=format&fit=crop&w=800&q=80";
+    // Primary image is the first one if provided, otherwise empty
+    const primaryImage = images.length > 0 ? (images[0] || "").trim() : "";
 
     const finalSeo = {
       metaTitle: metaTitle || `${name} - Buy Online at Best Price | Prayog India`,
@@ -191,9 +188,27 @@ export async function POST(request: Request) {
       structuredDataType: structuredDataType || "Product",
     };
 
+    const finalShipping = {
+      shippingTag: shippingTag || "Standard Product",
+      airFreightAllowed: typeof airFreightAllowed === "boolean" ? airFreightAllowed : (shippingTag !== "Battery Product" && !_isBatteryProduct),
+      surfaceFreightAllowed: typeof surfaceFreightAllowed === "boolean" ? surfaceFreightAllowed : true,
+      localPickupAllowed: typeof _localPickupAllowed === "boolean" ? _localPickupAllowed : true,
+      weightGrams: Number(weightGrams) || 250,
+      dimensionsCm: dimensionsCm || { length: 15, width: 10, height: 5 },
+      isBatteryProduct: Boolean(_isBatteryProduct || shippingTag === "Battery Product"),
+      isHazardousItem: Boolean(_isHazardousItem),
+      isFragileItem: Boolean(_isFragileItem),
+      isDangerousGoods: Boolean(_isDangerousGoods),
+    };
+
     const finalSpecs = {
       ...(typeof specs === "object" && specs !== null ? specs : {}),
       _seo: finalSeo,
+      _shipping: finalShipping,
+      airFreightAllowed: finalShipping.airFreightAllowed,
+      surfaceFreightAllowed: finalShipping.surfaceFreightAllowed,
+      localPickupAllowed: finalShipping.localPickupAllowed,
+      shippingTag: finalShipping.shippingTag,
     };
 
     // Prepare in-memory fallback product object
@@ -212,7 +227,7 @@ export async function POST(request: Request) {
       reviews: 1,
       inStock,
       image: primaryImage,
-      images: images.length > 0 ? images : [primaryImage],
+      images: images.length > 0 ? images : (primaryImage ? [primaryImage] : []),
       videoUrl: videoUrl || undefined,
       description,
       features: Array.isArray(features) ? features : [],
@@ -301,13 +316,17 @@ export async function POST(request: Request) {
           brand,
           categoryId: targetCatId,
           features: Array.isArray(features) ? features : [],
+          tags: [finalShipping.shippingTag],
+          weight: finalShipping.weightGrams,
           specifications: finalSpecs,
           images: {
-            create: images.map((imgUrl: string, idx: number) => ({
-              imageUrl: imgUrl,
-              altText: `${name} Image ${idx + 1}`,
-              sortOrder: idx,
-            })),
+            create: images
+              .filter((imgUrl: string) => typeof imgUrl === "string" && imgUrl.trim().length > 0)
+              .map((imgUrl: string, idx: number) => ({
+                imageUrl: imgUrl.trim(),
+                altText: `${name} Image ${idx + 1}`,
+                sortOrder: idx,
+              })),
           },
         },
         include: {
@@ -316,9 +335,10 @@ export async function POST(request: Request) {
         },
       });
 
-      // Also upsert Central Ranchi store stock in DB if store exists
+      // Register product in inventory engine: opening stock allocated strictly to specified location (or Ranchi Main Branch)
       try {
-        await registerProductInEngine(createdProduct.id, parsedStock);
+        const openingLocation = (body.openingStockLocation || "ranchi").toLowerCase();
+        await registerProductInEngine(createdProduct.id, parsedStock, openingLocation);
       } catch {
         // Non-blocking
       }
