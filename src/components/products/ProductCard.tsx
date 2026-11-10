@@ -11,7 +11,6 @@ import {
   Check,
   Layers,
   Maximize2,
-  ArrowLeftRight,
 } from "lucide-react";
 import { Product } from "@/data/mockData";
 import { useCartStore, useWishlistStore, useUIStore } from "@/store";
@@ -54,7 +53,6 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   const showToast = useUIStore((s) => s.showToast);
 
   const [isAdded, setIsAdded] = useState(false);
-  const [isCompared, setIsCompared] = useState(false);
   const [selectedVariantId, setSelectedVariantId] = useState<
     string | undefined
   >(product.variants?.[0]?.id);
@@ -114,19 +112,6 @@ export const ProductCard: React.FC<ProductCardProps> = ({
     }
   };
 
-  const handleCompare = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    haptic?.light?.();
-
-    setIsCompared(true);
-    showToast({
-      title: "Comparison Added",
-      message: `${product.name} added to comparison list.`,
-      type: "success",
-    });
-    setTimeout(() => setIsCompared(false), 2500);
-  };
 
   return (
     <div
@@ -155,20 +140,6 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             <Maximize2 className="w-3.5 h-3.5 stroke-[2.2]" />
           </button>
 
-          {/* 2. Compare / Swap */}
-          <button
-            type="button"
-            onClick={handleCompare}
-            className={`w-7 h-7 rounded-full bg-white/95 backdrop-blur-xs border shadow-sm flex items-center justify-center active:scale-90 transition-all cursor-pointer ${
-              isCompared
-                ? "border-emerald-400 text-emerald-600 bg-emerald-50"
-                : "border-slate-200/90 text-slate-700 hover:text-[#2563EB] hover:border-blue-300 hover:bg-blue-50/80"
-            }`}
-            title="Compare Product"
-            aria-label="Compare Product"
-          >
-            <ArrowLeftRight className="w-3.5 h-3.5 stroke-[2.2]" />
-          </button>
 
           {/* 3. Wishlist Heart with Reference Tooltip */}
           <div className="relative group/wish">
