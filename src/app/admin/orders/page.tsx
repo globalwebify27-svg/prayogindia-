@@ -125,9 +125,16 @@ export default function AdminOrdersPage() {
           if (mergedLocals.length > 0) {
             const existingOrderNums = new Set(items.map((o: any) => o.orderNumber));
             const missingLocals = mergedLocals.filter((o: any) => !existingOrderNums.has(o.orderNumber));
-            items = [...missingLocals, ...items];
+            items = [...items, ...missingLocals];
           }
         } catch {}
+
+        // Chronologically sort all orders by creation date (newest first)
+        items.sort(
+          (a: any, b: any) =>
+            new Date(b.createdAt || 0).getTime() -
+            new Date(a.createdAt || 0).getTime(),
+        );
 
         setOrders(items);
       })
@@ -247,17 +254,17 @@ export default function AdminOrdersPage() {
             <button
               key={tab.id}
               onClick={() => setChannelFilter(tab.id)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-2xs ${
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-2xs ${
                 active
-                  ? "bg-[#00AEEF] text-white shadow-md shadow-[#00AEEF]/20"
+                  ? "bg-[#00AEEF] text-white shadow-md shadow-[#00AEEF]/20 ring-2 ring-[#00AEEF]/30"
                   : "bg-white hover:bg-slate-50 text-slate-700 border border-slate-200"
               }`}
             >
               <span>{tab.label}</span>
               {tab.count !== undefined && (
                 <span
-                  className={`text-[10px] px-1.5 py-0.5 rounded-full font-extrabold ${
-                    active ? "bg-white/20 text-white" : "bg-slate-100 text-slate-600"
+                  className={`text-[10px] px-2 py-0.5 rounded-full font-black ${
+                    active ? "bg-white/20 text-white" : "bg-slate-100 text-slate-700"
                   }`}
                 >
                   {tab.count}
@@ -266,6 +273,58 @@ export default function AdminOrdersPage() {
             </button>
           );
         })}
+      </div>
+
+      {/* Active Channel Context Banner */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-gradient-to-r from-slate-50 via-sky-50/30 to-slate-50 border border-slate-200/90 rounded-2xl px-4 py-3 shadow-2xs">
+        <div className="flex items-center gap-2.5">
+          <div
+            className={`w-2.5 h-2.5 rounded-full animate-pulse ${
+              channelFilter === "WEBSITE"
+                ? "bg-blue-500 ring-4 ring-blue-100"
+                : channelFilter === "WALK_IN"
+                  ? "bg-emerald-500 ring-4 ring-emerald-100"
+                  : channelFilter === "B2B_QUOTATION"
+                    ? "bg-amber-500 ring-4 ring-amber-100"
+                    : channelFilter === "MOBILE_APP"
+                      ? "bg-purple-500 ring-4 ring-purple-100"
+                      : "bg-[#00AEEF] ring-4 ring-sky-100"
+            }`}
+          />
+          <div>
+            <span className="font-extrabold text-xs text-slate-900 block sm:inline">
+              {channelFilter === "all"
+                ? "Unified Multi-Channel Overview:"
+                : channelFilter === "WEBSITE"
+                  ? "Website Store Fulfillment:"
+                  : channelFilter === "B2B_QUOTATION"
+                    ? "Institutional B2B Desk:"
+                    : channelFilter === "MOBILE_APP"
+                      ? "Mobile App Dispatch:"
+                      : "Store Walk-in POS Desk:"}
+            </span>{" "}
+            <span className="text-xs text-slate-600 font-medium">
+              {channelFilter === "all"
+                ? `Displaying all ${filteredOrders.length} orders across Website, Physical Store POS, Mobile App, and B2B Quotations.`
+                : channelFilter === "WEBSITE"
+                  ? `Displaying ${filteredOrders.length} online orders placed via Prayog Web Store (Desktop & Mobile Web). Physical POS walk-ins are excluded.`
+                  : channelFilter === "B2B_QUOTATION"
+                    ? `Displaying ${filteredOrders.length} institutional bulk orders converted from formal quotes.`
+                    : channelFilter === "MOBILE_APP"
+                      ? `Displaying ${filteredOrders.length} direct orders received via Prayog Mobile App.`
+                      : `Displaying ${filteredOrders.length} counter sale receipts fulfilled at physical branches (Patna, Ranchi, Delhi).`}
+            </span>
+          </div>
+        </div>
+
+        {channelFilter !== "all" && (
+          <button
+            onClick={() => setChannelFilter("all")}
+            className="self-start sm:self-center text-[11px] font-black text-[#00AEEF] hover:underline cursor-pointer shrink-0"
+          >
+            Show All Channels →
+          </button>
+        )}
       </div>
 
       {/* 2. Search & Filter Bar */}
@@ -341,21 +400,38 @@ export default function AdminOrdersPage() {
                           <ShoppingBag className="w-3.5 h-3.5 text-[#00AEEF]" />
                           <span>{ord.orderNumber}</span>
                         </div>
-                        <div className="text-[10px] text-slate-500 font-bold uppercase mt-0.5">
-                          Source:{" "}
-                          <span className="text-[#00AEEF]">
-                            {ordChannel === "B2B_QUOTATION"
-                              ? "📑 B2B Quotation"
-                              : ordChannel === "MOBILE_APP"
-                                ? "📱 Mobile App"
-                                : ordChannel === "WALK_IN"
-                                  ? "🏬 Store Walk-in"
-                                  : "🌐 Website Store"}
-                          </span>
+                        <div className="text-[10px] text-slate-400 font-mono mt-0.5">
+                          {ord.createdAt
+                            ? new Date(ord.createdAt).toLocaleDateString("en-IN", {
+                                day: "2-digit",
+                                month: "short",
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              })
+                            : "Recent Order"}
+                        </div>
+                        <div className="mt-1 flex items-center gap-1.5 flex-wrap">
+                          {ordChannel === "WEBSITE" ? (
+                            <span className="inline-flex items-center gap-1 bg-sky-50 text-[#005CA9] border border-sky-200/90 px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider">
+                              🌐 Website Online
+                            </span>
+                          ) : ordChannel === "WALK_IN" ? (
+                            <span className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-800 border border-emerald-200/90 px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider">
+                              🏬 {ord.orderNumber?.includes("PAT") || ord.shippingAddress?.includes("Patna") ? "Patna Store" : ord.orderNumber?.includes("RAN") || ord.shippingAddress?.includes("Ranchi") ? "Ranchi Hub" : ord.orderNumber?.includes("DEL") || ord.shippingAddress?.includes("Delhi") ? "Delhi Branch" : "Store POS"} Walk-in
+                            </span>
+                          ) : ordChannel === "B2B_QUOTATION" ? (
+                            <span className="inline-flex items-center gap-1 bg-amber-50 text-amber-900 border border-amber-200/90 px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider">
+                              📑 Institutional B2B
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1 bg-purple-50 text-purple-800 border border-purple-200/90 px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider">
+                              📱 Mobile App
+                            </span>
+                          )}
                         </div>
                         {ord.quotation && (
                           <div className="mt-1">
-                            <span className="text-[10px] font-mono font-bold bg-sky-50 text-[#00AEEF] border border-sky-100 px-2 py-0.5 rounded-md">
+                            <span className="text-[10px] font-mono font-bold bg-amber-50 text-amber-900 border border-amber-200 px-2 py-0.5 rounded-md">
                               Quote #{ord.quotation.quoteNumber}
                             </span>
                           </div>
