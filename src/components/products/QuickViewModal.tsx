@@ -3,7 +3,7 @@
 import React, { useState, useRef, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   X,
@@ -50,6 +50,7 @@ const WhatsAppIcon = ({ className = "w-4 h-4" }: { className?: string }) => (
 interface QuickViewModalProps {
   product: Product | null;
   storeId?: StoreId | string;
+  isWalkIn?: boolean;
   onClose: () => void;
   onAddToCart?: (product: Product, variantId?: string, quantity?: number) => void;
   onBuyNow?: (product: Product, variantId?: string, quantity?: number) => void;
@@ -62,6 +63,7 @@ type DetailTab = "specs" | "features" | "box" | "docs";
 export const QuickViewModal: React.FC<QuickViewModalProps> = ({
   product,
   storeId,
+  isWalkIn,
   onClose,
   onAddToCart,
   onBuyNow,
@@ -74,6 +76,7 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({
     <QuickViewModalContent
       product={product}
       storeId={storeId}
+      isWalkIn={isWalkIn}
       onClose={onClose}
       onAddToCart={onAddToCart}
       onBuyNow={onBuyNow}
@@ -86,6 +89,7 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({
 const QuickViewModalContent: React.FC<{
   product: Product;
   storeId?: StoreId | string;
+  isWalkIn?: boolean;
   onClose: () => void;
   onAddToCart?: (product: Product, variantId?: string, quantity?: number) => void;
   onBuyNow?: (product: Product, variantId?: string, quantity?: number) => void;
@@ -94,6 +98,7 @@ const QuickViewModalContent: React.FC<{
 }> = ({
   product,
   storeId = "ranchi",
+  isWalkIn = false,
   onClose,
   onAddToCart,
   onBuyNow,
@@ -101,6 +106,11 @@ const QuickViewModalContent: React.FC<{
   isWishlisted = false,
 }) => {
   const router = useRouter();
+  const pathname = usePathname();
+  const isWalkInMode = Boolean(
+    isWalkIn ||
+    (pathname && (pathname.startsWith("/walk-in") || pathname.startsWith("/store-pos") || pathname.includes("/pos")))
+  );
   const currentStore = STORES[(storeId as StoreId) || "ranchi"] || STORES.ranchi;
 
   // Enrich product from master PRODUCTS catalog to ensure ALL details (specs, features, whatsIncluded, etc.) are present
@@ -545,7 +555,7 @@ const QuickViewModalContent: React.FC<{
               </div>
               <div className="flex items-center gap-1.5 p-2 rounded-xl bg-white border border-slate-200/80 shadow-2xs">
                 <Truck className="w-3.5 h-3.5 text-amber-600 shrink-0" />
-                <span className="truncate">Fast Dispatch</span>
+                <span className="truncate">{isWalkInMode ? "Store Handover" : "Fast Dispatch"}</span>
               </div>
               <div className="flex items-center gap-1.5 p-2 rounded-xl bg-white border border-slate-200/80 shadow-2xs">
                 <RotateCcw className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
@@ -671,8 +681,8 @@ const QuickViewModalContent: React.FC<{
               </div>
             </div>
 
-            {/* Delivery & Dispatch Options (Admin Configured: By Air, Land/Surface, Store Pickup) */}
-            {(() => {
+            {/* Delivery & Dispatch Options (Only for Online Web Store Delivery; Hidden in Physical Store Walk-in) */}
+            {!isWalkInMode && (() => {
               const isAirAllowed = fullProduct.airFreightAllowed !== false;
               const isSurfaceAllowed = fullProduct.surfaceFreightAllowed !== false;
               const isLocalPickupAllowed = fullProduct.localPickupAllowed !== false;
@@ -1173,15 +1183,17 @@ const QuickViewModalContent: React.FC<{
               </div>
             </div>
 
-            {/* View Full Product Page */}
-            <Link
-              href={`/products/${fullProduct.slug || fullProduct.id}`}
-              className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl border border-slate-200 hover:border-slate-300 bg-slate-50 hover:bg-slate-100 text-xs font-bold text-slate-800 transition-colors mt-2"
-              onClick={onClose}
-            >
-              <ExternalLink className="w-3.5 h-3.5 text-[#2563EB]" />
-              <span>View Full Product Page with Reviews & All Details</span>
-            </Link>
+            {/* View Full Product Page (Hidden in Walk-in to prevent escaping kiosk) */}
+            {!isWalkInMode && (
+              <Link
+                href={`/products/${fullProduct.slug || fullProduct.id}`}
+                className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl border border-slate-200 hover:border-slate-300 bg-slate-50 hover:bg-slate-100 text-xs font-bold text-slate-800 transition-colors mt-2"
+                onClick={onClose}
+              >
+                <ExternalLink className="w-3.5 h-3.5 text-[#2563EB]" />
+                <span>View Full Product Page with Reviews & All Details</span>
+              </Link>
+            )}
           </div>
         </div>
       </div>

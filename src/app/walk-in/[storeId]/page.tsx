@@ -1863,9 +1863,9 @@ export default function StoreKioskPage() {
               )}
               <div className="flex justify-between text-[11px]">
                 <span className="text-slate-400">
-                  GST &amp; Express Shipping
+                  GST (18% Included) &amp; Store Pickup
                 </span>
-                <span className="text-emerald-600 font-bold">Included</span>
+                <span className="text-emerald-600 font-bold">Free Handover</span>
               </div>
               <div className="flex justify-between font-black text-base text-slate-900 pt-2 border-t border-slate-100">
                 <span>Total</span>
@@ -2328,6 +2328,7 @@ export default function StoreKioskPage() {
         <QuickViewModal
           product={showProductDetail}
           storeId={storeId}
+          isWalkIn={true}
           onClose={() => setShowProductDetail(null)}
           onAddToCart={(prod, variantId, qty) => {
             addToCart(prod, variantId, qty || 1);
