@@ -48,6 +48,22 @@ export interface StockAdjustmentEntry {
 
 export const INITIAL_STOCK_TRANSFERS: InterStoreTransfer[] = [
   {
+    id: "TRF-2026-5074",
+    transferNumber: "TRF-2026-5074",
+    sourceStoreCode: "RANCHI",
+    sourceStoreName: "Prayog India Central Experience Hub",
+    destinationStoreCode: "PATNA",
+    destinationStoreName: "Prayog India Robotics & STEM Branch",
+    productId: "prod-ard-nano",
+    productName: "Arduino Nano V3 (x9), Arduino Mega (x10)",
+    sku: "PRG-ARD-003",
+    quantity: 19,
+    initiatedBy: "Jay Prakash (Patna Store Manager)",
+    dispatchedAt: "10/11/2026",
+    status: "Draft / Requested",
+    notes: "Urgent replenishment for upcoming STEM robotics workshop in Patna",
+  },
+  {
     id: "trf-9901",
     transferNumber: "TRF-RNC-PAT-001",
     sourceStoreCode: "RANCHI",

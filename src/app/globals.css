@@ -568,3 +568,59 @@ div[data-nextjs-dev-overlay-container] {
     scroll-behavior: auto !important;
   }
 }
+
+/* Print Optimization for Tax Invoices & POS Thermal Receipts */
+@media print {
+  /* Isolate print job so background portal, orders list, layout, and nav are never printed */
+  body > *:not(#invoice-portal-root):not(#bill-print-frame) {
+    display: none !important;
+  }
+
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  #invoice-portal-root {
+    display: block !important;
+    position: static !important;
+    width: 100% !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #ffffff !important;
+  }
+
+  #invoice-portal-root .fixed {
+    position: static !important;
+    background: transparent !important;
+    padding: 0 !important;
+  }
+
+  .no-print,
+  button,
+  header,
+  aside,
+  nav {
+    display: none !important;
+  }
+
+  #printable-bill-document {
+    display: block !important;
+    position: static !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 10px !important;
+    border: none !important;
+    box-shadow: none !important;
+    background: #ffffff !important;
+  }
+
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}

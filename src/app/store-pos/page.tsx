@@ -7,7 +7,7 @@ export default function StorePOSGatePage() {
   const router = useRouter();
 
   useEffect(() => {
-    router.replace("/admin/pos");
+    router.replace("/store/pos");
   }, [router]);
 
   return (

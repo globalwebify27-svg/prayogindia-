@@ -115,8 +115,40 @@ function computeFallbackLiveMetrics() {
     };
   });
 
-  // Recent Live Store Transfers
-  const recentTransfers = [
+  // Recent Live Store Transfers (pull from persistent store transfers first)
+  const globalTransfers: any[] = (globalThis as any)._PRAYOG_STORE_TRANSFERS || [];
+  const mappedGlobalTransfers = globalTransfers.slice(0, 5).map((t) => {
+    const isCompleted = t.status === "COMPLETED" || t.status === "RECEIVED";
+    const isInTransit = t.status === "IN_TRANSIT" || t.status === "DISPATCHED";
+    const isRequested = t.status === "REQUESTED";
+    return {
+      id: t.id,
+      code: t.transferNumber || t.id,
+      route: `${(t.sourceStoreName || t.sourceStoreId || "Hub")
+        .replace("Prayog India ", "")
+        .replace(" Main Branch & Central Hub", " Hub")
+        .replace(" Central Experience Hub", " Hub")} → ${(t.destinationStoreName || t.destinationStoreId || "Branch")
+        .replace("Prayog India ", "")
+        .replace(" Robotics & STEM Branch", " Branch")
+        .replace(" STEM Branch", " Branch")}`,
+      status: isCompleted
+        ? "Completed"
+        : isInTransit
+          ? "In Transit"
+          : isRequested
+            ? "Requested"
+            : "Pending",
+      color: isCompleted ? "emerald" : isInTransit ? "blue" : "amber",
+      time: t.createdAt
+        ? new Date(t.createdAt).toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+          })
+        : "Just now",
+    };
+  });
+
+  const recentTransfers = mappedGlobalTransfers.length > 0 ? mappedGlobalTransfers : [
     {
       id: "trf-1",
       code: "INV-TRF-2026-001",

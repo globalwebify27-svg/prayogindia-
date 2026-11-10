@@ -17,6 +17,11 @@ import {
   ChevronRight,
   TrendingUp,
   LayoutDashboard,
+  ArrowLeftRight,
+  BarChart3,
+  Building2,
+  UserCheck,
+  CreditCard,
 } from "lucide-react";
 import { PrayogLogo } from "@/components/PrayogLogo";
 import { StaffSessionUser } from "@/lib/staffAuth";
@@ -79,31 +84,81 @@ export default function StoreManagerLayout({
     );
   }
 
-  const storeCode =
-    staff?.storeCode ||
-    (staff?.role === "SUPER_ADMIN" ? "ALL STORES" : "STORE");
-  const storeName =
-    staff?.storeName ||
-    (staff?.role === "SUPER_ADMIN"
-      ? "All Branches (Super Admin)"
-      : `${storeCode} Branch`);
+  const storeCode = (staff?.storeCode || "PATNA").toUpperCase();
+  const storeName = staff?.storeName || `${storeCode} Branch`;
 
-  const navItems = [
+  const navSections = [
     {
-      label: "Store Overview",
-      href: "/store/dashboard",
-      icon: LayoutDashboard,
+      title: "Store Operations",
+      items: [
+        {
+          label: "Store Overview",
+          href: "/store/dashboard",
+          icon: LayoutDashboard,
+        },
+        {
+          label: "POS & Billing",
+          href: "/store/pos",
+          icon: CreditCard,
+        },
+        {
+          label: "Branch Orders",
+          href: "/store/orders",
+          icon: ShoppingBag,
+        },
+      ],
     },
-    { label: "Branch Orders", href: "/store/orders", icon: ShoppingBag },
-    { label: "Local Inventory", href: "/store/inventory", icon: Boxes },
-    { label: "Store Devices", href: "/store/devices", icon: Tablet },
-    { label: "POS Terminal", href: "/store-pos", icon: Store, external: true },
+    {
+      title: "Stock & Logistics",
+      items: [
+        {
+          label: "Local Inventory",
+          href: "/store/inventory",
+          icon: Boxes,
+        },
+        {
+          label: "Stock Transfers",
+          href: "/store/transfers",
+          icon: ArrowLeftRight,
+        },
+      ],
+    },
+    {
+      title: "Store Administration",
+      items: [
+        {
+          label: "Store Customers",
+          href: "/store/customers",
+          icon: Users,
+        },
+        {
+          label: "Store Staff",
+          href: "/store/staff",
+          icon: UserCheck,
+        },
+        {
+          label: "Kiosk Tablets",
+          href: "/store/devices",
+          icon: Tablet,
+        },
+        {
+          label: "Reports & Analytics",
+          href: "/store/reports",
+          icon: BarChart3,
+        },
+        {
+          label: "Store Profile",
+          href: "/store/profile",
+          icon: Building2,
+        },
+      ],
+    },
   ];
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans">
-      {/* Top Header Bar */}
-      <header className="bg-white border-b border-slate-200/90 px-4 sm:px-6 py-3 flex items-center justify-between sticky top-0 z-30 shadow-2xs">
+    <div className="h-screen w-screen overflow-hidden bg-slate-50 text-slate-900 flex flex-col font-sans select-none print:h-auto print:w-auto print:overflow-visible">
+      {/* Top Header Bar (Fixed / Pinned at top) */}
+      <header className="shrink-0 bg-white border-b border-slate-200/90 px-4 sm:px-6 py-3 flex items-center justify-between z-30 shadow-2xs no-print">
         <div className="flex items-center gap-4">
           <button
             type="button"
@@ -159,16 +214,39 @@ export default function StoreManagerLayout({
         </div>
       </header>
 
-      <div className="flex flex-1">
-        {/* Sidebar Nav */}
+      {/* Main Container: Left Sidebar & Main Content scroll independently */}
+      <div className="flex flex-1 overflow-hidden relative">
+        {/* Mobile Backdrop Overlay */}
+        {mobileNavOpen && (
+          <div
+            className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-30 md:hidden transition-opacity"
+            onClick={() => setMobileNavOpen(false)}
+          />
+        )}
+
+        {/* Sidebar Nav (Section 1: Dedicated independent scrollable column) */}
         <aside
           className={`
-          fixed md:static inset-y-0 left-0 z-20 w-60 bg-white border-r border-slate-200/90 p-4 flex flex-col justify-between
-          transform transition-transform duration-200 ease-in-out md:translate-x-0 shadow-2xs
-          ${mobileNavOpen ? "translate-x-0 mt-14" : "-translate-x-full md:mt-0"}
-        `}
+            no-print fixed md:static inset-y-0 left-0 z-40 md:z-auto w-64 bg-white border-r border-slate-200/90 p-4 flex flex-col justify-between shrink-0
+            h-full overflow-y-auto overscroll-contain shadow-xl md:shadow-2xs
+            transform transition-transform duration-200 ease-in-out md:translate-x-0
+            [scrollbar-width:thin] [scrollbar-color:#cbd5e1_transparent] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-slate-200 hover:[&::-webkit-scrollbar-thumb]:bg-slate-300
+            ${mobileNavOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}
+          `}
         >
           <div className="space-y-4">
+            {/* Mobile drawer header with close button */}
+            <div className="flex md:hidden items-center justify-between pb-3 border-b border-slate-100 mb-2">
+              <PrayogLogo size="sm" showSubtitle={false} />
+              <button
+                type="button"
+                onClick={() => setMobileNavOpen(false)}
+                className="text-slate-500 hover:text-slate-800 p-1 rounded-lg"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
             {/* Store Scope Badge */}
             <div className="bg-slate-50 border border-slate-200 px-3.5 py-2.5 rounded-xl flex items-center justify-between">
               <div>
@@ -187,36 +265,40 @@ export default function StoreManagerLayout({
             </div>
 
             {/* Navigation Links */}
-            <nav className="space-y-1">
-              <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 px-3 py-1">
-                Store Menu
-              </div>
-              {navItems.map((item) => {
-                const Icon = item.icon;
-                const active =
-                  pathname === item.href ||
-                  (item.href === "/store/dashboard" && pathname === "/store");
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    onClick={() => setMobileNavOpen(false)}
-                    className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all ${
-                      active
-                        ? "bg-[#2563EB] text-white shadow-md shadow-blue-500/20"
-                        : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
-                    }`}
-                  >
-                    <div className="flex items-center gap-2.5">
-                      <Icon className="w-4 h-4" />
-                      <span>{item.label}</span>
-                    </div>
-                    <ChevronRight
-                      className={`w-3.5 h-3.5 ${active ? "opacity-90" : "opacity-30"}`}
-                    />
-                  </Link>
-                );
-              })}
+            <nav className="space-y-4">
+              {navSections.map((sec) => (
+                <div key={sec.title} className="space-y-1">
+                  <div className="text-[10px] font-black uppercase tracking-wider text-slate-400 px-3 py-0.5">
+                    {sec.title}
+                  </div>
+                  {sec.items.map((item) => {
+                    const Icon = item.icon;
+                    const active =
+                      pathname === item.href ||
+                      (item.href === "/store/dashboard" && pathname === "/store");
+                    return (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        onClick={() => setMobileNavOpen(false)}
+                        className={`flex items-center justify-between px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
+                          active
+                            ? "bg-[#2563EB] text-white shadow-md shadow-blue-500/20"
+                            : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+                        }`}
+                      >
+                        <div className="flex items-center gap-2.5">
+                          <Icon className="w-4 h-4" />
+                          <span>{item.label}</span>
+                        </div>
+                        <ChevronRight
+                          className={`w-3.5 h-3.5 ${active ? "opacity-90" : "opacity-30"}`}
+                        />
+                      </Link>
+                    );
+                  })}
+                </div>
+              ))}
             </nav>
           </div>
 
@@ -225,8 +307,8 @@ export default function StoreManagerLayout({
           </div>
         </aside>
 
-        {/* Main Content Area */}
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 bg-slate-50 min-w-0 overflow-y-auto">
+        {/* Main Content Area (Section 2: Dedicated independent scrollable area) */}
+        <main className="flex-1 h-full overflow-y-auto overflow-x-hidden p-4 sm:p-6 lg:p-8 bg-slate-50 min-w-0 overscroll-contain select-text [scrollbar-width:thin] [scrollbar-color:#cbd5e1_transparent] [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-slate-300/70 hover:[&::-webkit-scrollbar-thumb]:bg-slate-400">
           {children}
         </main>
       </div>

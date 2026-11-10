@@ -1245,6 +1245,63 @@ export default function StoreKioskPage() {
         console.warn("Kiosk session save warning:", e);
       }
 
+      // Persist walk-in order to localStorage for Super Admin & Store portals
+      try {
+        if (typeof window !== "undefined") {
+          const walkInOrderRecord = {
+            id: `walk-${Date.now()}`,
+            orderNumber: session.id,
+            user: {
+              name: customerName.trim(),
+              phone: customerPhone.trim(),
+              email: customerEmail.trim() || "walkin.guest@prayogindia.com",
+            },
+            customerName: customerName.trim(),
+            customerPhone: customerPhone.trim(),
+            totalAmount: payableAmount,
+            shippingAddress: `🏬 In-Store Walk-in (${store.shortName})`,
+            status: "DELIVERED",
+            orderSource: "WALK_IN",
+            channelName: "🏬 Store Walk-in POS",
+            paymentMethod: paymentMethod === "CASH" ? "Cash Counter" : "Store Counter UPI",
+            paymentStatus: "PAID",
+            isPaid: true,
+            items: sessionItems.map((si) => ({
+              productName: si.name,
+              name: si.name,
+              quantity: si.quantity,
+              price: si.price,
+              sku: si.sku,
+            })),
+            weightGm: 500,
+            freightMode: "Store Counter Handover",
+            courierProvider: "🏬 In-Store Fulfillment",
+            awbNumber: "Counter Handover",
+            createdAt: new Date().toISOString(),
+          };
+
+          const existingOrders = JSON.parse(
+            localStorage.getItem("prayog_placed_orders") || "[]",
+          );
+          existingOrders.unshift(walkInOrderRecord);
+          localStorage.setItem(
+            "prayog_placed_orders",
+            JSON.stringify(existingOrders),
+          );
+
+          const existingWalkIns = JSON.parse(
+            localStorage.getItem("prayog_walkin_orders") || "[]",
+          );
+          existingWalkIns.unshift(walkInOrderRecord);
+          localStorage.setItem(
+            "prayog_walkin_orders",
+            JSON.stringify(existingWalkIns),
+          );
+        }
+      } catch (e) {
+        console.warn("Local storage walk-in save notice:", e);
+      }
+
       // Broadcast to manager POS (same-browser tabs)
       try {
         broadcastRef.current?.postMessage({ type: "NEW_SESSION", session });

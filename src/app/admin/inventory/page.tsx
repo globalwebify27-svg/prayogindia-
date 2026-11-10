@@ -9,6 +9,7 @@ import {
   Truck,
   X,
   History,
+  Eye,
 } from "lucide-react";
 import {
   INITIAL_STOCK_TRANSFERS,
@@ -52,6 +53,7 @@ export default function AdminInventoryPage() {
   const [adjustments, setAdjustments] = useState<StockAdjustmentEntry[]>(
     INITIAL_STOCK_ADJUSTMENTS,
   );
+  const [selectedInspectTransfer, setSelectedInspectTransfer] = useState<any | null>(null);
 
   // Transfer Wizard Modal State
   const [showTransferModal, setShowTransferModal] = useState(false);
@@ -158,26 +160,80 @@ export default function AdminInventoryPage() {
                 transactionType: string;
                 userId?: string;
                 createdAt: string;
-              }) => ({
-                id: t.id,
-                adjustmentNumber: t.id.toUpperCase(),
-                storeCode: (t.storeId || "RANCHI").toUpperCase(),
-                storeName:
-                  t.storeId === "ranchi"
-                    ? "Ranchi Central Hub"
-                    : `${(t.storeId || "").toUpperCase()} Branch`,
-                productId: t.productId,
-                productName: t.productName || t.productId,
-                sku: t.sku || "",
-                previousStock: t.quantityBefore,
-                adjustmentQuantity: t.quantityChange,
-                newStock: t.quantityAfter,
-                reason: (t.notes ||
-                  t.transactionType) as StockAdjustmentEntry["reason"],
-                adjustedBy: t.userId || "System",
-                timestamp: t.createdAt.replace("T", " ").slice(0, 16),
-                notes: t.notes || "",
-              }),
+              }) => {
+                const isUuid = (str?: string) =>
+                  Boolean(str && /^[0-9a-f]{8}-[0-9a-f]{4}/i.test(str));
+                const shortRef = isUuid(t.id)
+                  ? `ADJ-${t.id.slice(0, 8).toUpperCase()}`
+                  : t.id;
+
+                // Parse human-readable user label
+                let userLabel = t.userId || "System Admin";
+                if (isUuid(userLabel)) {
+                  const n = (t.notes || "").toLowerCase();
+                  if (n.includes("website") || n.includes("online")) {
+                    userLabel = "Online Customer";
+                  } else if (n.includes("pos")) {
+                    userLabel = "Counter POS Desk";
+                  } else {
+                    userLabel = "System Administrator";
+                  }
+                }
+
+                // Parse clean readable reason
+                let cleanReason = t.transactionType || "Inventory Adjustment";
+                const noteLower = (t.notes || "").toLowerCase();
+                if (
+                  noteLower.includes("website") ||
+                  noteLower.includes("online") ||
+                  t.transactionType === "SALE" ||
+                  t.transactionType === "ONLINE_FULFILLMENT"
+                ) {
+                  cleanReason = "Online Order Fulfillment";
+                } else if (
+                  noteLower.includes("restock") ||
+                  noteLower.includes("inward") ||
+                  t.transactionType === "RESTOCK"
+                ) {
+                  cleanReason = "Restock / Inward";
+                } else if (
+                  noteLower.includes("transfer") ||
+                  t.transactionType?.includes("TRANSFER")
+                ) {
+                  cleanReason = "Inter-Store Transfer";
+                } else if (noteLower.includes("damaged")) {
+                  cleanReason = "Damaged Goods";
+                } else if (noteLower.includes("lost")) {
+                  cleanReason = "Lost Stock";
+                } else if (
+                  noteLower.includes("return") ||
+                  t.transactionType === "RETURN"
+                ) {
+                  cleanReason = "Customer Return";
+                } else if (t.transactionType === "ADJUSTMENT") {
+                  cleanReason = "Manual Count Correction";
+                }
+
+                return {
+                  id: t.id,
+                  adjustmentNumber: shortRef,
+                  storeCode: (t.storeId || "RANCHI").toUpperCase(),
+                  storeName:
+                    t.storeId === "ranchi"
+                      ? "Ranchi Central Hub"
+                      : `${(t.storeId || "").toUpperCase()} Store`,
+                  productId: t.productId,
+                  productName: t.productName || t.productId,
+                  sku: t.sku || "",
+                  previousStock: t.quantityBefore,
+                  adjustmentQuantity: t.quantityChange,
+                  newStock: t.quantityAfter,
+                  reason: cleanReason as StockAdjustmentEntry["reason"],
+                  adjustedBy: userLabel,
+                  timestamp: t.createdAt.replace("T", " ").slice(0, 16),
+                  notes: t.notes || "",
+                };
+              },
             ),
           );
         }
@@ -185,12 +241,33 @@ export default function AdminInventoryPage() {
       .catch(() => {});
   };
 
+  const fetchTransfers = async () => {
+    try {
+      const res = await fetch("/api/admin/transfers");
+      const json = await res.json();
+      if (json.success && Array.isArray(json.data) && json.data.length > 0) {
+        setTransfers(json.data);
+      }
+    } catch {}
+  };
+
   useEffect(() => {
     let isMounted = true;
+    if (typeof window !== "undefined") {
+      const tabParam = new URLSearchParams(window.location.search).get("tab");
+      if (
+        tabParam === "transfers" ||
+        tabParam === "adjustments" ||
+        tabParam === "stock"
+      ) {
+        setActiveTab(tabParam as any);
+      }
+    }
     const loadData = async () => {
       if (!isMounted) return;
       fetchInventory();
       fetchTransactions();
+      fetchTransfers();
     };
     loadData();
     return () => {
@@ -755,28 +832,36 @@ export default function AdminInventoryPage() {
                 Active Store-to-Store Stock Transfers
               </h3>
               <p className="text-xs text-slate-500">
-                Track dispatch, transit courier AWB, and receiving store confirmations.
+                Review branch stock requests, approve warehouse dispatches, and track receiving confirmations.
               </p>
             </div>
-            <button
-              onClick={() => setShowTransferModal(true)}
-              className="px-3.5 py-2 bg-[#2563EB] hover:bg-[#1D4ED8] text-white rounded-xl font-semibold text-xs transition-colors cursor-pointer"
-            >
-              + Initiate Transfer
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={fetchTransfers}
+                className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-semibold text-xs transition-colors cursor-pointer"
+              >
+                Refresh
+              </button>
+              <button
+                onClick={() => setShowTransferModal(true)}
+                className="px-3.5 py-2 bg-[#2563EB] hover:bg-[#1D4ED8] text-white rounded-xl font-semibold text-xs transition-colors cursor-pointer"
+              >
+                + Initiate Transfer
+              </button>
+            </div>
           </div>
 
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
+            <table className="w-full text-left text-xs min-w-[980px]">
               <thead>
                 <tr className="border-b border-slate-200 text-slate-400 uppercase text-[10px] font-black tracking-wider">
-                  <th className="pb-3">Transfer Ref #</th>
-                  <th className="pb-3">Product / SKU</th>
-                  <th className="pb-3">Source Hub</th>
-                  <th className="pb-3">Destination Store</th>
-                  <th className="pb-3">Qty</th>
-                  <th className="pb-3">Status</th>
-                  <th className="pb-3 text-right">Actions</th>
+                  <th className="pb-3 pr-4 whitespace-nowrap">Transfer Ref #</th>
+                  <th className="pb-3 pr-4 whitespace-nowrap">Product / Manifest</th>
+                  <th className="pb-3 pr-4 whitespace-nowrap">Source Hub</th>
+                  <th className="pb-3 pr-4 whitespace-nowrap">Destination Store</th>
+                  <th className="pb-3 px-3 text-center whitespace-nowrap">Qty</th>
+                  <th className="pb-3 pr-4 whitespace-nowrap">Status</th>
+                  <th className="pb-3 pl-2 text-right whitespace-nowrap">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -785,55 +870,136 @@ export default function AdminInventoryPage() {
                     key={trf.id}
                     className="hover:bg-slate-50/80 transition-colors"
                   >
-                    <td className="py-3.5">
+                    <td className="py-3.5 pr-4 whitespace-nowrap">
                       <div className="font-mono font-black text-slate-900">
                         {trf.transferNumber}
                       </div>
-                      <div className="text-[10px] text-slate-400">
-                        {trf.dispatchedAt}
+                      <div className="text-[10px] text-slate-400 font-mono mt-0.5">
+                        {trf.dispatchedAt || "10/11/2026"}
                       </div>
                     </td>
 
-                    <td className="py-3.5 font-bold text-slate-900">
-                      <div>{trf.productName}</div>
+                    <td className="py-3.5 pr-4 max-w-xs">
+                      <div
+                        className="font-bold text-slate-900 line-clamp-1"
+                        title={trf.productName}
+                      >
+                        {trf.productName}
+                      </div>
                       <span className="font-mono text-[10px] text-slate-400">
                         {trf.sku}
                       </span>
                     </td>
 
-                    <td className="py-3.5 font-semibold text-slate-700">
+                    <td className="py-3.5 pr-4 font-semibold text-slate-700 whitespace-nowrap">
                       {trf.sourceStoreName}
                     </td>
 
-                    <td className="py-3.5 font-semibold text-slate-700">
+                    <td className="py-3.5 pr-4 font-semibold text-slate-700 whitespace-nowrap">
                       {trf.destinationStoreName}
                     </td>
 
-                    <td className="py-3.5 font-black text-slate-900">
-                      {trf.quantity} Units
-                    </td>
-
-                    <td className="py-3.5">
-                      <span
-                        className={`text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full ${
-                          trf.status === "Received & Stock Updated"
-                            ? "bg-emerald-100 text-emerald-800"
-                            : "bg-blue-100 text-blue-800"
-                        }`}
-                      >
-                        {trf.status}
+                    <td className="py-3.5 px-3 text-center whitespace-nowrap">
+                      <span className="font-black text-slate-900 text-sm">
+                        {trf.quantity}
+                      </span>
+                      <span className="text-[10px] font-medium text-slate-400 ml-1">
+                        Units
                       </span>
                     </td>
 
-                    <td className="py-3.5 text-right">
-                      {trf.status === "Dispatched & In Transit" && (
+                    <td className="py-3.5 pr-4 whitespace-nowrap">
+                      <span
+                        className={`inline-flex items-center gap-1.5 text-[10px] font-black uppercase px-2.5 py-1 rounded-full whitespace-nowrap ${
+                          trf.status === "Received & Stock Updated" ||
+                          (trf as any).rawStatus === "RECEIVED"
+                            ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                            : trf.status === "Dispatched & In Transit" ||
+                                (trf as any).rawStatus === "DISPATCHED" ||
+                                (trf as any).rawStatus === "IN_TRANSIT"
+                              ? "bg-blue-50 text-blue-700 border border-blue-200"
+                              : trf.status === "Cancelled" ||
+                                  (trf as any).rawStatus === "CANCELLED"
+                                ? "bg-rose-50 text-rose-700 border border-rose-200"
+                                : "bg-amber-50 text-amber-700 border border-amber-200"
+                        }`}
+                      >
+                        <span
+                          className={`w-1.5 h-1.5 rounded-full ${
+                            trf.status === "Received & Stock Updated" ||
+                            (trf as any).rawStatus === "RECEIVED"
+                              ? "bg-emerald-500"
+                              : trf.status === "Dispatched & In Transit" ||
+                                  (trf as any).rawStatus === "DISPATCHED" ||
+                                  (trf as any).rawStatus === "IN_TRANSIT"
+                                ? "bg-blue-500"
+                                : trf.status === "Cancelled" ||
+                                    (trf as any).rawStatus === "CANCELLED"
+                                  ? "bg-rose-500"
+                                  : "bg-amber-500 animate-pulse"
+                          }`}
+                        />
+                        {trf.status === "Draft / Requested" ||
+                        (trf as any).rawStatus === "REQUESTED"
+                          ? "Transfer Requested"
+                          : trf.status}
+                      </span>
+                    </td>
+
+                    <td className="py-3.5 pl-2 text-right whitespace-nowrap">
+                      <div className="flex items-center justify-end gap-2 whitespace-nowrap">
                         <button
-                          onClick={() => handleReceiveTransfer(trf.id)}
-                          className="px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-black text-[10px] uppercase tracking-wider cursor-pointer shadow-xs"
+                          onClick={() => setSelectedInspectTransfer(trf)}
+                          className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors cursor-pointer border border-transparent hover:border-blue-100"
+                          title="Inspect Transfer Manifest"
                         >
-                          Confirm Receipt
+                          <Eye className="w-4 h-4" />
                         </button>
-                      )}
+                        {trf.status === "Draft / Requested" ||
+                        (trf as any).rawStatus === "REQUESTED" ? (
+                          <>
+                            <button
+                              onClick={() =>
+                                handleUpdateTransferStatus(trf.id, "IN_TRANSIT")
+                              }
+                              className="px-3 py-1.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white rounded-xl font-bold text-[11px] cursor-pointer shadow-xs transition-colors whitespace-nowrap"
+                            >
+                              Approve & Dispatch
+                            </button>
+                            <button
+                              onClick={() =>
+                                handleUpdateTransferStatus(trf.id, "CANCELLED")
+                              }
+                              className="px-2.5 py-1.5 text-slate-500 hover:text-rose-600 font-bold text-[11px] rounded-xl hover:bg-rose-50 transition-colors cursor-pointer whitespace-nowrap"
+                            >
+                              Reject
+                            </button>
+                          </>
+                        ) : trf.status === "Dispatched & In Transit" ||
+                          (trf as any).rawStatus === "DISPATCHED" ||
+                          (trf as any).rawStatus === "IN_TRANSIT" ? (
+                          <>
+                            <span className="text-[10px] font-bold text-blue-600 bg-blue-50 px-2.5 py-1 rounded-lg border border-blue-100 whitespace-nowrap">
+                              In Transit
+                            </span>
+                            <button
+                              onClick={() => handleReceiveTransfer(trf.id)}
+                              className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-[11px] cursor-pointer shadow-xs transition-colors whitespace-nowrap"
+                            >
+                              Confirm Receipt
+                            </button>
+                          </>
+                        ) : trf.status === "Received & Stock Updated" ||
+                          (trf as any).rawStatus === "RECEIVED" ? (
+                          <span className="text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-100 whitespace-nowrap">
+                            Stocked ✓
+                          </span>
+                        ) : (
+                          <span className="text-[11px] text-slate-400 font-medium whitespace-nowrap">
+                            Closed
+                          </span>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -864,16 +1030,16 @@ export default function AdminInventoryPage() {
           </div>
 
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
+            <table className="w-full text-left text-xs min-w-[980px]">
               <thead>
                 <tr className="border-b border-slate-200 text-slate-400 uppercase text-[10px] font-black tracking-wider">
-                  <th className="pb-3">Audit # &amp; Date</th>
-                  <th className="pb-3">Store Location</th>
-                  <th className="pb-3">Product / SKU</th>
-                  <th className="pb-3">Adjustment Reason</th>
-                  <th className="pb-3">Prev ➔ New</th>
-                  <th className="pb-3">Adjusted By</th>
-                  <th className="pb-3 text-right">Notes</th>
+                  <th className="pb-3 pr-4 whitespace-nowrap">Audit Ref # & Date</th>
+                  <th className="pb-3 pr-4 whitespace-nowrap">Store Hub</th>
+                  <th className="pb-3 pr-4 whitespace-nowrap">Product / SKU</th>
+                  <th className="pb-3 pr-4 whitespace-nowrap">Adjustment Reason</th>
+                  <th className="pb-3 px-3 text-center whitespace-nowrap">Prev ➔ New</th>
+                  <th className="pb-3 pr-4 whitespace-nowrap">Adjusted By</th>
+                  <th className="pb-3 pl-2 text-right whitespace-nowrap">Notes & Reference</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -882,65 +1048,98 @@ export default function AdminInventoryPage() {
                     key={adj.id}
                     className="hover:bg-slate-50/80 transition-colors"
                   >
-                    <td className="py-3.5">
-                      <div className="font-mono font-black text-slate-900">
-                        {adj.adjustmentNumber}
+                    <td className="py-3.5 pr-4 whitespace-nowrap">
+                      <div className="font-mono font-black text-slate-900 flex items-center gap-1.5">
+                        <span className="bg-slate-100 text-slate-800 px-2 py-0.5 rounded text-[11px] font-mono border border-slate-200 font-bold">
+                          {adj.adjustmentNumber}
+                        </span>
                       </div>
-                      <div className="text-[10px] text-slate-400">
+                      <div className="text-[10px] text-slate-400 font-mono mt-0.5">
                         {adj.timestamp}
                       </div>
                     </td>
 
-                    <td className="py-3.5 font-bold text-slate-700">
+                    <td className="py-3.5 pr-4 font-semibold text-slate-700 whitespace-nowrap">
                       {adj.storeName}
                     </td>
 
-                    <td className="py-3.5 font-bold text-slate-900">
-                      <div>{adj.productName}</div>
+                    <td className="py-3.5 pr-4 max-w-xs">
+                      <div
+                        className="font-bold text-slate-900 truncate"
+                        title={adj.productName}
+                      >
+                        {adj.productName}
+                      </div>
                       <span className="font-mono text-[10px] text-slate-400">
                         {adj.sku}
                       </span>
                     </td>
 
-                    <td className="py-3.5">
+                    <td className="py-3.5 pr-4 whitespace-nowrap">
                       <span
-                        className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-md ${
-                          adj.reason === "Damaged goods" ||
-                          adj.reason === "Lost goods"
-                            ? "bg-red-100 text-red-800"
-                            : "bg-emerald-100 text-emerald-800"
+                        className={`inline-flex items-center gap-1.5 text-[10px] font-black uppercase px-2.5 py-1 rounded-full whitespace-nowrap ${
+                          adj.reason?.includes("Damaged") ||
+                          adj.reason?.includes("Lost")
+                            ? "bg-rose-50 text-rose-700 border border-rose-200"
+                            : adj.reason?.includes("Online") ||
+                                adj.reason?.includes("Fulfillment")
+                              ? "bg-blue-50 text-blue-700 border border-blue-200"
+                              : adj.reason?.includes("Restock") ||
+                                  adj.reason?.includes("Inward")
+                                ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                                : adj.reason?.includes("Transfer")
+                                  ? "bg-indigo-50 text-indigo-700 border border-indigo-200"
+                                  : "bg-amber-50 text-amber-700 border border-amber-200"
                         }`}
                       >
+                        <span
+                          className={`w-1.5 h-1.5 rounded-full ${
+                            adj.reason?.includes("Damaged") ||
+                            adj.reason?.includes("Lost")
+                              ? "bg-rose-500"
+                              : adj.reason?.includes("Online")
+                                ? "bg-blue-500"
+                                : adj.reason?.includes("Restock")
+                                  ? "bg-emerald-500"
+                                  : "bg-amber-500"
+                          }`}
+                        />
                         {adj.reason}
                       </span>
                     </td>
 
-                    <td className="py-3.5 font-black text-slate-900">
-                      <span className="text-slate-400 line-through mr-1">
-                        {adj.previousStock}
-                      </span>
-                      <span
-                        className={
-                          adj.adjustmentQuantity < 0
-                            ? "text-red-600"
-                            : "text-emerald-600"
-                        }
-                      >
-                        {adj.adjustmentQuantity > 0
-                          ? `+${adj.adjustmentQuantity}`
-                          : adj.adjustmentQuantity}
-                      </span>
-                      <span className="ml-1 text-slate-900">
-                        ({adj.newStock})
-                      </span>
+                    <td className="py-3.5 px-3 text-center whitespace-nowrap">
+                      <div className="inline-flex items-center gap-1.5 font-mono text-xs bg-slate-50 border border-slate-100 px-2.5 py-1 rounded-xl">
+                        <span className="text-slate-400 font-semibold">
+                          {adj.previousStock}
+                        </span>
+                        <span className="text-slate-300 font-bold">➔</span>
+                        <span className="font-black text-slate-900">
+                          {adj.newStock}
+                        </span>
+                        <span
+                          className={`text-[10px] font-black px-1.5 py-0.2 rounded-md ${
+                            adj.adjustmentQuantity < 0
+                              ? "bg-rose-100 text-rose-700"
+                              : "bg-emerald-100 text-emerald-700"
+                          }`}
+                        >
+                          {adj.adjustmentQuantity > 0
+                            ? `+${adj.adjustmentQuantity}`
+                            : adj.adjustmentQuantity}
+                        </span>
+                      </div>
                     </td>
 
-                    <td className="py-3.5 font-medium text-slate-600">
-                      {adj.adjustedBy}
+                    <td className="py-3.5 pr-4 whitespace-nowrap">
+                      <div className="font-semibold text-slate-700 flex items-center gap-1.5 text-xs">
+                        <span className="w-1.5 h-1.5 rounded-full bg-slate-400" />
+                        <span>{adj.adjustedBy}</span>
+                      </div>
                     </td>
 
                     <td
-                      className="py-3.5 text-right font-medium text-slate-500 max-w-xs truncate"
+                      className="py-3.5 pl-2 text-right font-medium text-slate-500 max-w-sm truncate whitespace-nowrap"
                       title={adj.notes}
                     >
                       {adj.notes || "—"}
@@ -1404,6 +1603,101 @@ export default function AdminInventoryPage() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+      {/* Transfer Inspection Modal */}
+      {selectedInspectTransfer && (
+        <div className="fixed inset-0 z-50 overflow-hidden flex items-center justify-center p-4">
+          <div
+            onClick={() => setSelectedInspectTransfer(null)}
+            className="fixed inset-0 bg-slate-950/70 backdrop-blur-xs animate-in fade-in"
+          />
+
+          <div className="relative max-w-lg w-full bg-white rounded-3xl p-6 sm:p-7 shadow-2xl z-10 space-y-4 text-xs animate-in zoom-in-95">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div>
+                <span className="text-[10px] font-black uppercase text-[#2563EB]">
+                  Transfer Inspection
+                </span>
+                <h3 className="text-base font-black text-slate-900">
+                  {selectedInspectTransfer.transferNumber || selectedInspectTransfer.id}
+                </h3>
+              </div>
+              <button
+                onClick={() => setSelectedInspectTransfer(null)}
+                className="w-7 h-7 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-600 transition-colors cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3 bg-slate-50 p-3 rounded-xl border border-slate-100 text-[11px]">
+              <div>
+                <span className="text-slate-400 font-bold uppercase text-[9px]">Source</span>
+                <div className="font-black text-slate-900">{selectedInspectTransfer.sourceStoreName}</div>
+              </div>
+              <div>
+                <span className="text-slate-400 font-bold uppercase text-[9px]">Destination</span>
+                <div className="font-black text-slate-900">{selectedInspectTransfer.destinationStoreName}</div>
+              </div>
+            </div>
+
+            {/* Manifest Items */}
+            <div className="space-y-1.5">
+              <span className="text-[10px] font-black uppercase text-slate-400">Transfer Manifest</span>
+              <div className="max-h-48 overflow-y-auto divide-y divide-slate-100 border border-slate-100 rounded-xl p-2 bg-white">
+                {selectedInspectTransfer.items && selectedInspectTransfer.items.length > 0 ? (
+                  selectedInspectTransfer.items.map((it: any, idx: number) => (
+                    <div key={idx} className="py-1.5 flex justify-between items-center text-xs">
+                      <div>
+                        <div className="font-bold text-slate-900">{it.name || it.productName}</div>
+                        <div className="text-[10px] text-slate-400 font-mono">SKU: {it.sku}</div>
+                      </div>
+                      <span className="font-mono font-black text-sm text-[#2563EB]">
+                        ×{it.quantity}
+                      </span>
+                    </div>
+                  ))
+                ) : (
+                  <div className="py-2 flex justify-between items-center text-xs">
+                    <div>
+                      <div className="font-bold text-slate-900">{selectedInspectTransfer.productName}</div>
+                      <div className="text-[10px] text-slate-400 font-mono">SKU: {selectedInspectTransfer.sku}</div>
+                    </div>
+                    <span className="font-mono font-black text-sm text-[#2563EB]">
+                      ×{selectedInspectTransfer.quantity}
+                    </span>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {selectedInspectTransfer.notes && (
+              <div className="text-[11px] text-slate-600 bg-amber-50 border border-amber-200/60 p-2.5 rounded-xl">
+                <span className="font-bold text-amber-800">Transfer Note:</span> {selectedInspectTransfer.notes}
+              </div>
+            )}
+
+            <div className="pt-2 flex items-center justify-between border-t border-slate-100">
+              <span className="text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-200">
+                {selectedInspectTransfer.status}
+              </span>
+              {(selectedInspectTransfer.status === "Draft / Requested" ||
+                (selectedInspectTransfer as any).rawStatus === "REQUESTED") && (
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => {
+                      handleUpdateTransferStatus(selectedInspectTransfer.id, "IN_TRANSIT");
+                      setSelectedInspectTransfer(null);
+                    }}
+                    className="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-xs cursor-pointer shadow-xs"
+                  >
+                    Approve & Dispatch
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       )}

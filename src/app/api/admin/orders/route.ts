@@ -40,10 +40,26 @@ export async function GET(request: Request) {
             { customerType: "B2B" },
           ];
         } else if (channel === "WALK_IN") {
-          where.customerType = "WALK_IN";
+          where.OR = [
+            { customerType: "WALK_IN" },
+            { orderNumber: { contains: "POS" } },
+            { orderNumber: { contains: "WALK" } },
+            { orderNumber: { startsWith: "WI-" } },
+            { orderNumber: { startsWith: "ORD-PATNA" } },
+            { orderNumber: { startsWith: "ORD-RANCHI" } },
+            { orderNumber: { startsWith: "ORD-DELHI" } },
+            { shippingAddress: { contains: "Walk-in" } },
+            { shippingAddress: { contains: "Store" } },
+          ];
         } else if (channel === "WEBSITE") {
           where.NOT = [
             { orderNumber: { contains: "APP" } },
+            { orderNumber: { contains: "POS" } },
+            { orderNumber: { contains: "WALK" } },
+            { orderNumber: { startsWith: "WI-" } },
+            { orderNumber: { startsWith: "ORD-PATNA" } },
+            { orderNumber: { startsWith: "ORD-RANCHI" } },
+            { orderNumber: { startsWith: "ORD-DELHI" } },
             { paymentMethod: { contains: "Mobile", mode: "insensitive" } },
             { quotationId: { not: null } },
             { customerType: "B2B" },
@@ -84,7 +100,18 @@ export async function GET(request: Request) {
           (ord as any).channel === "MOBILE_APP";
 
         const isB2B = Boolean(ord.quotationId || ord.customerType === "B2B");
-        const isWalkIn = ord.customerType === "WALK_IN";
+        const isWalkIn =
+          ord.customerType === "WALK_IN" ||
+          ord.orderSource === "WALK_IN" ||
+          (ord as any).channel === "WALK_IN" ||
+          ord.orderNumber?.includes("POS") ||
+          ord.orderNumber?.includes("WALK") ||
+          ord.orderNumber?.startsWith("WI-") ||
+          ord.orderNumber?.startsWith("ORD-PATNA") ||
+          ord.orderNumber?.startsWith("ORD-RANCHI") ||
+          ord.orderNumber?.startsWith("ORD-DELHI") ||
+          ord.shippingAddress?.toLowerCase().includes("walk-in") ||
+          ord.shippingAddress?.toLowerCase().includes("store");
 
         const orderSource = isMobileApp
           ? "MOBILE_APP"
@@ -99,19 +126,19 @@ export async function GET(request: Request) {
           : isB2B
             ? "📑 Institutional B2B Quote"
             : isWalkIn
-              ? "🏬 Store Walk-in"
+              ? "🏬 Store Walk-in POS"
               : "🌐 Prayog Website Store";
 
         return {
           ...ord,
           orderSource,
           channelName,
-          awbNumber: ord.shipment?.trackingNumber || null,
-          courierProvider: ord.shipment?.courierName || "Delhivery Surface",
+          awbNumber: isWalkIn ? "Counter Handover" : ord.shipment?.trackingNumber || null,
+          courierProvider: isWalkIn ? "🏬 In-Store Fulfillment" : ord.shipment?.courierName || "Delhivery Surface",
           weightGm: ord.shipment?.weightKg
             ? Math.round(ord.shipment.weightKg * 1000)
             : 500,
-          freightMode: "Surface Express",
+          freightMode: isWalkIn ? "Store Handover" : "Surface Express",
         };
       });
 
@@ -233,6 +260,93 @@ export async function GET(request: Request) {
         { name: "SG90 Micro Servo Motors (10pcs)", quantity: 1, price: 2000 },
       ],
       createdAt: new Date(Date.now() - 4 * 3600 * 1000).toISOString(),
+    },
+    {
+      id: "ord-walk-3101",
+      orderNumber: "PRG-POS-RANCHI-3101",
+      user: {
+        name: "Abhinav Singh",
+        email: "abhinav.singh@gmail.com",
+        phone: "+91 98351 44210",
+      },
+      customerName: "Abhinav Singh",
+      customerPhone: "+91 98351 44210",
+      totalAmount: 4850,
+      shippingAddress: "🏬 Ranchi Central Hub · In-Store Counter Pickup",
+      status: "DELIVERED",
+      orderSource: "WALK_IN",
+      channelName: "🏬 Store Walk-in POS",
+      paymentMethod: "Store Counter UPI",
+      paymentStatus: "PAID",
+      isPaid: true,
+      awbNumber: "Counter Handover",
+      courierProvider: "🏬 In-Store Fulfillment",
+      freightMode: "Store Handover",
+      weightGm: 450,
+      items: [
+        { name: "Arduino Uno R3 Official Rev3 Board", quantity: 2, price: 1499 },
+        { name: "Tower Pro SG90 9g Micro Servo Motor", quantity: 4, price: 189 },
+        { name: "HC-SR04 Ultrasonic Distance Sensor", quantity: 2, price: 120 },
+      ],
+      createdAt: new Date(Date.now() - 35 * 60 * 1000).toISOString(),
+    },
+    {
+      id: "ord-walk-3102",
+      orderNumber: "PRG-POS-PATNA-3102",
+      user: {
+        name: "Ramesh Sharma",
+        email: "ramesh.patna.stem@gmail.com",
+        phone: "+91 94312 88450",
+      },
+      customerName: "Ramesh Sharma",
+      customerPhone: "+91 94312 88450",
+      totalAmount: 12450,
+      shippingAddress: "🏬 Patna STEM & Robotics Branch · In-Store Counter Pickup",
+      status: "DELIVERED",
+      orderSource: "WALK_IN",
+      channelName: "🏬 Store Walk-in POS",
+      paymentMethod: "Cash Counter",
+      paymentStatus: "PAID",
+      isPaid: true,
+      awbNumber: "Counter Handover",
+      courierProvider: "🏬 In-Store Fulfillment",
+      freightMode: "Store Handover",
+      weightGm: 650,
+      items: [
+        { name: "Raspberry Pi 4 Model B (4GB RAM)", quantity: 1, price: 7850 },
+        { name: "ESP32 Development Board (Wi-Fi + Bluetooth)", quantity: 5, price: 499 },
+        { name: "Raspberry Pi 4 Official Power Supply 15.3W", quantity: 1, price: 950 },
+      ],
+      createdAt: new Date(Date.now() - 2 * 3600 * 1000).toISOString(),
+    },
+    {
+      id: "ord-walk-3103",
+      orderNumber: "PRG-POS-DELHI-3103",
+      user: {
+        name: "Devendra Mehra",
+        email: "d.mehra@delhi-robotics.org",
+        phone: "+91 98110 55219",
+      },
+      customerName: "Devendra Mehra",
+      customerPhone: "+91 98110 55219",
+      totalAmount: 9200,
+      shippingAddress: "🏬 Delhi NCR Innovation Center · In-Store Counter Pickup",
+      status: "DELIVERED",
+      orderSource: "WALK_IN",
+      channelName: "🏬 Store Walk-in POS",
+      paymentMethod: "Store Counter UPI",
+      paymentStatus: "PAID",
+      isPaid: true,
+      awbNumber: "Counter Handover",
+      courierProvider: "🏬 In-Store Fulfillment",
+      freightMode: "Store Handover",
+      weightGm: 1200,
+      items: [
+        { name: "4-DOF Acrylic Robotic Arm Manipulator Kit", quantity: 2, price: 2499 },
+        { name: "12V 2A DC Power Adapter for Arduino", quantity: 2, price: 350 },
+        { name: "L298N Dual H-Bridge Motor Driver Module", quantity: 4, price: 175 },
+      ],
+      createdAt: new Date(Date.now() - 5 * 3600 * 1000).toISOString(),
     },
     ...MOCK_CUSTOMER_ORDERS.map((o) => ({
       ...o,

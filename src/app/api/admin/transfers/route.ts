@@ -18,7 +18,8 @@ export async function GET(request: Request) {
 
   if (
     !staff ||
-    (staff.role !== "SUPER_ADMIN" &&
+    (staff.role !== "ADMIN" &&
+      staff.role !== "SUPER_ADMIN" &&
       staff.role !== "REGIONAL_MANAGER" &&
       staff.role !== "STORE_MANAGER")
   ) {
@@ -31,13 +32,90 @@ export async function GET(request: Request) {
     );
   }
 
-  const transfers = await getStockTransfers();
+  let engineTransfers: any[] = [];
+  try {
+    engineTransfers = await getStockTransfers();
+  } catch {}
+
+  const globalForTransfers = globalThis as unknown as {
+    _PRAYOG_STORE_TRANSFERS: any[] | undefined;
+  };
+  const memTransfers = globalForTransfers._PRAYOG_STORE_TRANSFERS || [];
+
+  // Map memory transfer records to Admin InterStoreTransfer format
+  const formattedMem = memTransfers.map((t) => {
+    const firstItem = t.items?.[0];
+    const totalQty = (t.items || []).reduce(
+      (acc: number, curr: any) => acc + (curr.quantity || 1),
+      0,
+    );
+    const prodNames = (t.items || [])
+      .map((i: any) => `${i.name || i.productName || "Component"} (x${i.quantity || 1})`)
+      .join(", ");
+    const skus = (t.items || [])
+      .map((i: any) => i.sku)
+      .filter(Boolean)
+      .join(", ");
+
+    let adminStatus = "Draft / Requested";
+    const st = (t.status || "").toUpperCase();
+    if (st === "DISPATCHED" || st === "IN_TRANSIT" || st === "DISPATCHED (IN TRANSIT)") {
+      adminStatus = "Dispatched & In Transit";
+    } else if (st === "RECEIVED" || st === "COMPLETED") {
+      adminStatus = "Received & Stock Updated";
+    } else if (st === "APPROVED") {
+      adminStatus = "Approved";
+    } else if (st === "CANCELLED" || st === "REJECTED") {
+      adminStatus = "Cancelled";
+    }
+
+    return {
+      id: t.id,
+      transferNumber: t.transferNumber || t.id,
+      sourceStoreCode: (t.sourceStoreId || "ranchi").toUpperCase(),
+      sourceStoreName: t.sourceStoreName || "Central Warehouse (Ranchi)",
+      destinationStoreCode: (t.destinationStoreId || "patna").toUpperCase(),
+      destinationStoreName: t.destinationStoreName || "Branch Store",
+      productId: firstItem?.productId || "prod-multi",
+      productName: prodNames || firstItem?.name || "Robotics Hardware Kit",
+      sku: skus || firstItem?.sku || "PRG-MULTI-SKU",
+      quantity: totalQty || 1,
+      initiatedBy: t.requestedBy || "Store Manager",
+      approvedBy: t.approvedBy,
+      dispatchedAt: t.createdAt
+        ? new Date(t.createdAt).toLocaleDateString("en-IN", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+          })
+        : undefined,
+      receivedAt: t.receivedAt
+        ? new Date(t.receivedAt).toLocaleDateString("en-IN", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+          })
+        : undefined,
+      status: adminStatus,
+      rawStatus: t.status,
+      items: t.items || [],
+      notes: t.notes || "",
+    };
+  });
+
+  const combined = [...formattedMem, ...engineTransfers];
+  const seenIds = new Set<string>();
+  const unique = combined.filter((t) => {
+    if (!t.id || seenIds.has(t.id)) return false;
+    seenIds.add(t.id);
+    return true;
+  });
 
   return NextResponse.json(
     {
       success: true,
-      total: transfers.length,
-      data: transfers,
+      total: unique.length,
+      data: unique,
     },
     { headers },
   );
@@ -51,7 +129,9 @@ export async function POST(request: Request) {
 
   if (
     !staff ||
-    (staff.role !== "SUPER_ADMIN" && staff.role !== "REGIONAL_MANAGER")
+    (staff.role !== "ADMIN" &&
+      staff.role !== "SUPER_ADMIN" &&
+      staff.role !== "REGIONAL_MANAGER")
   ) {
     return NextResponse.json(
       {
@@ -141,7 +221,8 @@ export async function PATCH(request: Request) {
 
   if (
     !staff ||
-    (staff.role !== "SUPER_ADMIN" &&
+    (staff.role !== "ADMIN" &&
+      staff.role !== "SUPER_ADMIN" &&
       staff.role !== "REGIONAL_MANAGER" &&
       staff.role !== "STORE_MANAGER")
   ) {
@@ -165,24 +246,64 @@ export async function PATCH(request: Request) {
       );
     }
 
-    const result = await updateStockTransferStatus({
-      transferId,
-      status: status.toUpperCase() as TransferStatus,
-      userId: staff.id,
-      notes,
-    });
+    const targetStatus = status.toUpperCase();
+    const normalizedRawStatus =
+      targetStatus === "IN_TRANSIT" || targetStatus === "DISPATCHED"
+        ? "DISPATCHED"
+        : targetStatus === "RECEIVED" || targetStatus === "COMPLETED"
+          ? "RECEIVED"
+          : targetStatus === "APPROVED"
+            ? "APPROVED"
+            : targetStatus === "CANCELLED" || targetStatus === "REJECTED"
+              ? "CANCELLED"
+              : targetStatus;
 
-    if (!result.success) {
+    // 1. Check & update in-memory transfer in globalThis
+    const globalForTransfers = globalThis as unknown as {
+      _PRAYOG_STORE_TRANSFERS: any[] | undefined;
+    };
+    let updatedInMem = false;
+    if (globalForTransfers._PRAYOG_STORE_TRANSFERS) {
+      const idx = globalForTransfers._PRAYOG_STORE_TRANSFERS.findIndex(
+        (t) => t.id === transferId || t.transferNumber === transferId,
+      );
+      if (idx >= 0) {
+        const tr = globalForTransfers._PRAYOG_STORE_TRANSFERS[idx];
+        globalForTransfers._PRAYOG_STORE_TRANSFERS[idx] = {
+          ...tr,
+          status: normalizedRawStatus,
+          approvedBy: staff.name,
+          updatedAt: new Date().toISOString(),
+          ...(normalizedRawStatus === "RECEIVED" ? { receivedAt: new Date().toISOString(), receivedBy: staff.name } : {}),
+          notes: notes ? `${tr.notes || ""} | Admin note: ${notes}` : tr.notes,
+        };
+        updatedInMem = true;
+      }
+    }
+
+    // 2. Also try updating in persistent DB engine if transfer exists in DB
+    let engineSuccess = false;
+    try {
+      const result = await updateStockTransferStatus({
+        transferId,
+        status: normalizedRawStatus as TransferStatus,
+        userId: staff.id,
+        notes,
+      });
+      engineSuccess = result.success;
+    } catch {}
+
+    if (!updatedInMem && !engineSuccess) {
       return NextResponse.json(
-        { success: false, message: result.message },
-        { status: 400, headers },
+        { success: false, message: "Transfer record not found or update failed." },
+        { status: 404, headers },
       );
     }
 
     return NextResponse.json(
       {
         success: true,
-        message: result.message,
+        message: `Transfer ${transferId} updated to ${normalizedRawStatus} successfully.`,
       },
       { headers },
     );

@@ -30,6 +30,66 @@ const ORDER_STATUSES = [
   "CANCELLED",
 ];
 
+type OrderChannelType = "WEBSITE" | "B2B_QUOTATION" | "MOBILE_APP" | "WALK_IN";
+
+/**
+ * Universal channel classification for all Prayog orders.
+ * Accurately routes orders to Website, B2B, Mobile App, or Store Walk-in.
+ */
+function getOrderChannel(ord: any): OrderChannelType {
+  if (!ord) return "WEBSITE";
+
+  const num = (ord.orderNumber || ord.id || "").toUpperCase();
+  const src = (ord.orderSource || ord.source || ord.channel || ord.channelName || "").toUpperCase();
+  const cType = (ord.customerType || "").toUpperCase();
+  const addr = (ord.shippingAddress || "").toUpperCase();
+
+  // 1. Store Walk-in POS Orders (WI- prefixes, store addresses, POS tags, counter walk-ins)
+  if (
+    num.startsWith("WI-") ||
+    num.includes("POS") ||
+    num.startsWith("ORD-PATNA") ||
+    num.startsWith("ORD-RANCHI") ||
+    num.startsWith("ORD-DELHI") ||
+    num.startsWith("ORD-MUMBAI") ||
+    src.includes("WALK") ||
+    src.includes("POS") ||
+    cType === "WALK_IN" ||
+    addr.includes("WALK-IN") ||
+    addr.includes("STORE") ||
+    ord.isLiveWalkIn
+  ) {
+    return "WALK_IN";
+  }
+
+  // 2. Institutional B2B & Quotation Orders
+  if (
+    Boolean(ord.quotationId) ||
+    Boolean(ord.quotation) ||
+    num.startsWith("QUO-") ||
+    num.startsWith("B2B-") ||
+    cType === "B2B" ||
+    src.includes("B2B") ||
+    src.includes("QUOTE") ||
+    src.includes("QUOTATION")
+  ) {
+    return "B2B_QUOTATION";
+  }
+
+  // 3. Mobile App Orders
+  const payMethod = (ord.paymentMethod || "").toUpperCase();
+  if (
+    num.includes("APP") ||
+    src.includes("APP") ||
+    payMethod.includes("MOBILE")
+  ) {
+    return "MOBILE_APP";
+  }
+
+  // 4. Default: Website Online Store Orders
+  return "WEBSITE";
+}
+
 export default function AdminOrdersPage() {
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -49,16 +109,23 @@ export default function AdminOrdersPage() {
       .then((data) => {
         let items: any[] = data.success && data.data?.items ? data.data.items : [];
 
-        // Seamlessly merge locally placed website orders (e.g. from live demo testing)
+        // Seamlessly merge locally placed website and walk-in orders (e.g. from live demo testing)
         try {
           const stored = typeof window !== "undefined" ? localStorage.getItem("prayog_placed_orders") : null;
+          const walkinStored = typeof window !== "undefined" ? localStorage.getItem("prayog_walkin_orders") : null;
+          const mergedLocals: any[] = [];
           if (stored) {
             const parsed = JSON.parse(stored);
-            if (Array.isArray(parsed) && parsed.length > 0) {
-              const existingOrderNums = new Set(items.map((o: any) => o.orderNumber));
-              const missingLocals = parsed.filter((o: any) => !existingOrderNums.has(o.orderNumber));
-              items = [...missingLocals, ...items];
-            }
+            if (Array.isArray(parsed)) mergedLocals.push(...parsed);
+          }
+          if (walkinStored) {
+            const parsedW = JSON.parse(walkinStored);
+            if (Array.isArray(parsedW)) mergedLocals.push(...parsedW);
+          }
+          if (mergedLocals.length > 0) {
+            const existingOrderNums = new Set(items.map((o: any) => o.orderNumber));
+            const missingLocals = mergedLocals.filter((o: any) => !existingOrderNums.has(o.orderNumber));
+            items = [...missingLocals, ...items];
           }
         } catch {}
 
@@ -106,6 +173,8 @@ export default function AdminOrdersPage() {
       ord.user?.email?.toLowerCase().includes(q) ||
       ord.user?.phone?.toLowerCase().includes(q) ||
       ord.user?.companyName?.toLowerCase().includes(q) ||
+      ord.customerName?.toLowerCase().includes(q) ||
+      ord.customerPhone?.toLowerCase().includes(q) ||
       ord.shippingAddress?.toLowerCase().includes(q) ||
       ord.awbNumber?.toLowerCase().includes(q) ||
       ord.courierProvider?.toLowerCase().includes(q) ||
@@ -114,10 +183,11 @@ export default function AdminOrdersPage() {
           (i.productName || i.name)?.toLowerCase().includes(q) ||
           (i.productSku || i.sku)?.toLowerCase().includes(q),
       );
+
+    const ordChannel = getOrderChannel(ord);
     const matchesChannel =
-      channelFilter === "all" ||
-      ord.orderSource === channelFilter ||
-      (channelFilter === "WEBSITE" && (!ord.orderSource || ord.orderSource === "WEBSITE"));
+      channelFilter === "all" || ordChannel === channelFilter;
+
     return matchesSearch && matchesChannel;
   });
 
@@ -145,26 +215,31 @@ export default function AdminOrdersPage() {
       {/* Channel Selector Filter Tabs */}
       <div className="flex flex-wrap items-center gap-2">
         {[
-          { id: "all", label: "All Channels", icon: ShoppingBag },
+          {
+            id: "all",
+            label: "All Channels",
+            icon: ShoppingBag,
+            count: orders.length,
+          },
           {
             id: "WEBSITE",
             label: "🌐 Website Orders (Online)",
-            count: orders.filter((o) => !o.orderSource || o.orderSource === "WEBSITE").length,
+            count: orders.filter((o) => getOrderChannel(o) === "WEBSITE").length,
           },
           {
             id: "B2B_QUOTATION",
             label: "📑 B2B & Quotation Orders",
-            count: orders.filter((o) => o.orderSource === "B2B_QUOTATION" || o.quotationId).length,
+            count: orders.filter((o) => getOrderChannel(o) === "B2B_QUOTATION").length,
           },
           {
             id: "MOBILE_APP",
             label: "📱 Mobile App Orders",
-            count: orders.filter((o) => o.orderSource === "MOBILE_APP").length,
+            count: orders.filter((o) => getOrderChannel(o) === "MOBILE_APP").length,
           },
           {
             id: "WALK_IN",
             label: "🏬 Store Walk-ins",
-            count: orders.filter((o) => o.orderSource === "WALK_IN").length,
+            count: orders.filter((o) => getOrderChannel(o) === "WALK_IN").length,
           },
         ].map((tab) => {
           const active = channelFilter === tab.id;
@@ -253,123 +328,131 @@ export default function AdminOrdersPage() {
                   </td>
                 </tr>
               ) : (
-                filteredOrders.map((ord) => (
-                  <tr
-                    key={ord.id}
-                    className="hover:bg-slate-50/80 transition-colors"
-                  >
-                    {/* Order No & Source */}
-                    <td className="p-4">
-                      <div className="font-mono font-black text-slate-900 flex items-center gap-1.5">
-                        <ShoppingBag className="w-3.5 h-3.5 text-[#00AEEF]" />
-                        <span>{ord.orderNumber}</span>
-                      </div>
-                      <div className="text-[10px] text-slate-500 font-bold uppercase mt-0.5">
-                        Source:{" "}
-                        <span className="text-[#00AEEF]">
-                          {ord.orderSource === "B2B_QUOTATION"
-                            ? "B2B Quotation"
-                            : ord.orderSource === "MOBILE_APP"
-                              ? "📱 Mobile App"
-                              : ord.orderSource || "Website"}
-                        </span>
-                      </div>
-                      {ord.quotation && (
-                        <div className="mt-1">
-                          <span className="text-[10px] font-mono font-bold bg-sky-50 text-[#00AEEF] border border-sky-100 px-2 py-0.5 rounded-md">
-                            Quote #{ord.quotation.quoteNumber}
+                filteredOrders.map((ord) => {
+                  const ordChannel = getOrderChannel(ord);
+                  return (
+                    <tr
+                      key={ord.id}
+                      className="hover:bg-slate-50/80 transition-colors"
+                    >
+                      {/* Order No & Source */}
+                      <td className="p-4">
+                        <div className="font-mono font-black text-slate-900 flex items-center gap-1.5">
+                          <ShoppingBag className="w-3.5 h-3.5 text-[#00AEEF]" />
+                          <span>{ord.orderNumber}</span>
+                        </div>
+                        <div className="text-[10px] text-slate-500 font-bold uppercase mt-0.5">
+                          Source:{" "}
+                          <span className="text-[#00AEEF]">
+                            {ordChannel === "B2B_QUOTATION"
+                              ? "📑 B2B Quotation"
+                              : ordChannel === "MOBILE_APP"
+                                ? "📱 Mobile App"
+                                : ordChannel === "WALK_IN"
+                                  ? "🏬 Store Walk-in"
+                                  : "🌐 Website Store"}
                           </span>
                         </div>
-                      )}
-                    </td>
-
-                    {/* Customer */}
-                    <td className="p-4">
-                      <div className="font-extrabold text-slate-900">
-                        {ord.user?.name}
-                      </div>
-                      <div className="text-[10px] text-slate-400 font-mono">
-                        {ord.user?.phone}
-                      </div>
-                    </td>
-
-                    {/* Total Amount & Payment Status */}
-                    <td className="p-4">
-                      <div className="font-black text-slate-900 text-sm">
-                        ₹{ord.totalAmount?.toLocaleString()}
-                      </div>
-                      <div className="text-[10px] mt-0.5">
-                        {ord.paymentMethod?.toLowerCase().includes("neft") ||
-                        ord.paymentMethod?.toLowerCase().includes("rtgs") ||
-                        ord.paymentMethod?.toLowerCase().includes("bank") ? (
-                          <a
-                            href={`/admin/payments?search=${encodeURIComponent(ord.orderNumber)}`}
-                            className="inline-flex items-center gap-1 font-bold text-[#005CA9] hover:underline"
-                            title="Review in Bank Verification Desk"
-                          >
-                            <span>{ord.paymentMethod}</span>
-                            <span
-                              className={`px-1.5 py-0.2 rounded text-[9px] font-black ${
-                                ord.paymentStatus === "PAID"
-                                  ? "bg-emerald-100 text-emerald-800"
-                                  : "bg-amber-100 text-amber-800"
-                              }`}
-                            >
-                              {ord.paymentStatus === "PAID"
-                                ? "VERIFIED"
-                                : "PENDING UTR"}
+                        {ord.quotation && (
+                          <div className="mt-1">
+                            <span className="text-[10px] font-mono font-bold bg-sky-50 text-[#00AEEF] border border-sky-100 px-2 py-0.5 rounded-md">
+                              Quote #{ord.quotation.quoteNumber}
                             </span>
-                          </a>
+                          </div>
+                        )}
+                      </td>
+
+                      {/* Customer */}
+                      <td className="p-4">
+                        <div className="font-extrabold text-slate-900">
+                          {ord.user?.name || ord.customerName || "Walk-in Guest"}
+                        </div>
+                        <div className="text-[10px] text-slate-400 font-mono">
+                          {ord.user?.phone || ord.customerPhone || "In-Store Counter"}
+                        </div>
+                      </td>
+
+                      {/* Total Amount & Payment Status */}
+                      <td className="p-4">
+                        <div className="font-black text-slate-900 text-sm">
+                          ₹{ord.totalAmount?.toLocaleString()}
+                        </div>
+                        <div className="text-[10px] mt-0.5">
+                          {ord.paymentMethod?.toLowerCase().includes("neft") ||
+                          ord.paymentMethod?.toLowerCase().includes("rtgs") ||
+                          ord.paymentMethod?.toLowerCase().includes("bank") ? (
+                            <a
+                              href={`/admin/payments?search=${encodeURIComponent(ord.orderNumber)}`}
+                              className="inline-flex items-center gap-1 font-bold text-[#005CA9] hover:underline"
+                              title="Review in Bank Verification Desk"
+                            >
+                              <span>{ord.paymentMethod}</span>
+                              <span
+                                className={`px-1.5 py-0.2 rounded text-[9px] font-black ${
+                                  ord.paymentStatus === "PAID"
+                                    ? "bg-emerald-100 text-emerald-800"
+                                    : "bg-amber-100 text-amber-800"
+                                }`}
+                              >
+                                {ord.paymentStatus === "PAID"
+                                  ? "VERIFIED"
+                                  : "PENDING UTR"}
+                              </span>
+                            </a>
+                          ) : (
+                            <span className="text-slate-500 font-medium">
+                              {ord.paymentMethod || "Online"} ·{" "}
+                              {ord.paymentStatus || "PENDING"}
+                            </span>
+                          )}
+                        </div>
+                      </td>
+
+                      {/* Section 31 Weight & Freight Mode */}
+                      <td className="p-4">
+                        <div className="font-bold text-slate-900">
+                          {ord.weightGm || 500} gm
+                        </div>
+                        <div className="flex items-center gap-1 text-[10px] font-black uppercase text-slate-500 mt-0.5">
+                          {ord.freightMode === "Air Freight" ? (
+                            <span className="text-blue-600 flex items-center gap-0.5">
+                              <Plane className="w-3 h-3" /> Air
+                            </span>
+                          ) : (
+                            <span className="text-emerald-700 flex items-center gap-0.5">
+                              <Truck className="w-3 h-3" /> Surface
+                            </span>
+                          )}
+                        </div>
+                      </td>
+
+                      {/* Section 31 Restricted Item YES / NO */}
+                      <td className="p-4">
+                        {ord.hasRestrictedItem ? (
+                          <span className="inline-flex items-center gap-1 bg-amber-100 text-amber-900 border border-amber-300 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase">
+                            <AlertTriangle className="w-3 h-3 text-amber-600" />
+                            <span>YES (Battery)</span>
+                          </span>
                         ) : (
-                          <span className="text-slate-500 font-medium">
-                            {ord.paymentMethod || "Online"} ·{" "}
-                            {ord.paymentStatus || "PENDING"}
+                          <span className="inline-flex items-center gap-1 bg-slate-100 text-slate-700 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase">
+                            <span>NO</span>
                           </span>
                         )}
-                      </div>
-                    </td>
+                      </td>
 
-                    {/* Section 31 Weight & Freight Mode */}
-                    <td className="p-4">
-                      <div className="font-bold text-slate-900">
-                        {ord.weightGm || 500} gm
-                      </div>
-                      <div className="flex items-center gap-1 text-[10px] font-black uppercase text-slate-500 mt-0.5">
-                        {ord.freightMode === "Air Freight" ? (
-                          <span className="text-blue-600 flex items-center gap-0.5">
-                            <Plane className="w-3 h-3" /> Air
-                          </span>
-                        ) : (
-                          <span className="text-emerald-700 flex items-center gap-0.5">
-                            <Truck className="w-3 h-3" /> Surface
-                          </span>
-                        )}
-                      </div>
-                    </td>
-
-                    {/* Section 31 Restricted Item YES / NO */}
-                    <td className="p-4">
-                      {ord.hasRestrictedItem ? (
-                        <span className="inline-flex items-center gap-1 bg-amber-100 text-amber-900 border border-amber-300 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase">
-                          <AlertTriangle className="w-3 h-3 text-amber-600" />
-                          <span>YES (Battery)</span>
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center gap-1 bg-slate-100 text-slate-700 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase">
-                          <span>NO</span>
-                        </span>
-                      )}
-                    </td>
-
-                    {/* Section 31 Courier & AWB */}
-                    <td className="p-4">
-                      <div className="font-extrabold text-slate-900">
-                        {ord.courierProvider}
-                      </div>
-                      <div className="font-mono text-xs font-black text-[#00AEEF]">
-                        {ord.awbNumber || "PENDING AWB"}
-                      </div>
-                    </td>
+                      {/* Section 31 Courier & AWB */}
+                      <td className="p-4">
+                        <div className="font-extrabold text-slate-900">
+                          {ordChannel === "WALK_IN"
+                            ? ord.courierProvider || "🏬 In-Store Counter"
+                            : ord.courierProvider || "Delhivery Surface"}
+                        </div>
+                        <div className="font-mono text-xs font-black text-[#00AEEF]">
+                          {ordChannel === "WALK_IN"
+                            ? ord.awbNumber || "Counter Handover"
+                            : ord.awbNumber || "PENDING AWB"}
+                        </div>
+                      </td>
 
                     {/* Order Status Selector */}
                     <td className="p-4">
@@ -399,9 +482,10 @@ export default function AdminOrdersPage() {
                       </button>
                     </td>
                   </tr>
-                ))
-              )}
-            </tbody>
+                );
+              })
+            )}
+          </tbody>
           </table>
         </div>
       </div>
