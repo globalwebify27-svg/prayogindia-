@@ -413,19 +413,18 @@ const QuickViewModalContent: React.FC<{
     >
       <div className="bg-white rounded-3xl shadow-2xl w-full max-w-5xl h-[90vh] max-h-[740px] flex flex-col animate-in zoom-in-95 duration-200 overflow-hidden">
         {/* ── Modal Header ── */}
-        <div className="flex items-center justify-between px-5 sm:px-6 py-3.5 border-b border-slate-100 bg-white z-20 shrink-0">
-          <div className="pr-4">
-            <span className="text-[10px] font-mono font-black uppercase tracking-wider text-slate-400 flex items-center gap-1.5 flex-wrap">
-              <span>{fullProduct.sku} · {typeof fullProduct.category === "object" ? (fullProduct.category as any)?.name : (fullProduct.category || "Hardware")}</span>
+        <div className="flex items-center justify-between px-5 sm:px-6 py-3 border-b border-slate-100 bg-white z-20 shrink-0">
+          <div className="flex items-center gap-2">
+            <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5 flex-wrap">
+              <span>{fullProduct.sku}</span>
+              <span className="text-slate-300">·</span>
+              <span>{typeof fullProduct.category === "object" ? (fullProduct.category as any)?.name : (fullProduct.category || "Hardware")}</span>
               <span className="text-slate-300">|</span>
-              <span className="text-[#2563EB] flex items-center gap-0.5">
+              <span className="text-[#2563EB] flex items-center gap-1 font-bold">
                 <MapPin className="w-3 h-3 inline" />
                 {currentStore.shortName}
               </span>
             </span>
-            <h2 className="text-sm sm:text-base font-black text-slate-900 line-clamp-1 mt-0.5">
-              {fullProduct.name}
-            </h2>
           </div>
           <div className="flex items-center gap-1.5 shrink-0">
             {onToggleWishlist && (
@@ -594,6 +593,11 @@ const QuickViewModalContent: React.FC<{
                 Verified Authentic
               </span>
             </div>
+
+            {/* Product Title (Displayed Prominently Above the Price) */}
+            <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight leading-snug">
+              {fullProduct.name}
+            </h1>
 
             {/* Rating Row */}
             <div className="flex items-center gap-2 text-xs">
