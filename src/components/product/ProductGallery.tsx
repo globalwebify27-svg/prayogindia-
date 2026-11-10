@@ -12,10 +12,8 @@ import {
   ChevronRight,
   RotateCcw,
   Compass,
-  Search,
   ZoomIn,
   ZoomOut,
-  Maximize2,
   X,
 } from "lucide-react";
 
@@ -65,6 +63,20 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
   // ── Fullscreen Lightbox Modal State ──
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [lightboxZoom, setLightboxZoom] = useState(1);
+
+  const handleContainerMouseEnter = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (isDragging || isPointerDownRef.current || currentIndex >= galleryImages.length) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    if (rect.width > 0 && rect.height > 0) {
+      const x = ((e.clientX - rect.left) / rect.width) * 100;
+      const y = ((e.clientY - rect.top) / rect.height) * 100;
+      setHoverPos({
+        x: Math.max(0, Math.min(100, x)),
+        y: Math.max(0, Math.min(100, y)),
+      });
+      setIsHovering(true);
+    }
+  };
 
   const handleContainerMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     // Only magnify when on static image slides and not dragging
@@ -319,6 +331,7 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
         onTouchEnd={handleTouchEnd}
         onTouchCancel={handleTouchEnd}
         onMouseDown={handleMouseDown}
+        onMouseEnter={handleContainerMouseEnter}
         onMouseMove={handleContainerMouseMove}
         onMouseLeave={handleContainerMouseLeave}
         onWheel={handleWheel}
@@ -331,48 +344,13 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
         className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden bg-slate-100 group flex items-center justify-center shrink-0 select-none touch-pan-y"
         style={{
           cursor:
-            isHovering && !isDragging && currentIndex < galleryImages.length
+            currentIndex < galleryImages.length && !isDragging
               ? MAGNIFIER_CURSOR
               : isDragging
                 ? "grabbing"
                 : "grab",
         }}
       >
-        {/* Floating Top-Right Fullscreen / Zoom Button */}
-        {currentIndex < galleryImages.length && (
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              setIsLightboxOpen(true);
-            }}
-            title="Click to view full screen"
-            className="absolute top-3 right-3 z-20 w-8 h-8 rounded-full bg-white/90 hover:bg-white text-slate-700 hover:text-[#005CA9] shadow-md border border-slate-200/80 backdrop-blur-xs flex items-center justify-center transition-all cursor-pointer opacity-80 group-hover:opacity-100"
-          >
-            <Maximize2 className="w-4 h-4" />
-          </button>
-        )}
-
-        {/* Floating Bottom-Right Magnifier Badge */}
-        {currentIndex < galleryImages.length && !isDragging && (
-          <div
-            className={`absolute bottom-3 right-3 z-20 pointer-events-none flex items-center gap-1.5 px-3 py-1.5 rounded-full transition-all duration-200 select-none shadow-md ${
-              isHovering
-                ? "bg-slate-900/90 text-white backdrop-blur-md border border-white/20 scale-100 opacity-100"
-                : "bg-white/90 text-slate-700 backdrop-blur-md border border-slate-200/80 scale-95 opacity-0 group-hover:opacity-100 group-hover:scale-100"
-            }`}
-          >
-            <Search
-              className={`w-3.5 h-3.5 ${
-                isHovering ? "text-[#00AEEF] animate-pulse" : "text-[#005CA9]"
-              }`}
-            />
-            <span className="text-[11px] font-bold tracking-tight">
-              {isHovering ? "2.5× Magnified · Move to inspect" : "Hover to magnify"}
-            </span>
-          </div>
-        )}
-
         {/* Top Badges & Controls Overlay */}
         {currentIndex === videoSlideIndex && (
           <div className="absolute top-3 right-3 z-20 pointer-events-auto">
