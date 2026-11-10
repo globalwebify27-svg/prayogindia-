@@ -207,6 +207,45 @@ function computeFallbackLiveMetrics() {
     },
   ];
 
+  // 7-day dynamic sales & revenue analytics
+  const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const now = new Date();
+  const salesTrend = Array.from({ length: 7 }).map((_, i) => {
+    const d = new Date();
+    d.setDate(now.getDate() - (6 - i));
+    const dayLabel = i === 6 ? "Today" : dayNames[d.getDay()];
+    const dateLabel = d.toLocaleDateString("en-IN", { day: "numeric", month: "short" });
+    const dailyRev = 52400 + i * 5800 + ((i % 2 === 0 ? 1 : -1) * 3400);
+    const dailyOrders = Math.round(dailyRev / 1845);
+    return {
+      day: dayLabel,
+      date: dateLabel,
+      revenue: dailyRev,
+      formattedRevenue: `₹ ${dailyRev.toLocaleString("en-IN")}`,
+      orders: dailyOrders,
+      heightPct: Math.min(Math.round((dailyRev / 95000) * 100), 100),
+    };
+  });
+
+  const weeklyRevenue = salesTrend.reduce((sum, item) => sum + item.revenue, 0);
+  const weeklyOrders = salesTrend.reduce((sum, item) => sum + item.orders, 0);
+  const todayRevenue = salesTrend[6].revenue;
+  const todayOrders = salesTrend[6].orders;
+  const avgOrderValue = Math.round(weeklyRevenue / Math.max(weeklyOrders, 1));
+
+  const salesAnalytics = {
+    weeklyRevenue,
+    formattedWeeklyRevenue: `₹ ${weeklyRevenue.toLocaleString("en-IN")}`,
+    weeklyOrders,
+    todayRevenue,
+    formattedTodayRevenue: `₹ ${todayRevenue.toLocaleString("en-IN")}`,
+    todayOrders,
+    avgOrderValue,
+    formattedAvgOrderValue: `₹ ${avgOrderValue.toLocaleString("en-IN")}`,
+    growthRatePct: 14.8,
+    trend: salesTrend,
+  };
+
   return {
     totalInventoryValueFormatted: `₹ ${totalCatalogValue.toLocaleString("en-IN")}`,
     multiLocationStock,
@@ -224,6 +263,7 @@ function computeFallbackLiveMetrics() {
     lowStockAlerts,
     topSellingProducts,
     recentActivity,
+    salesAnalytics,
   };
 }
 
@@ -383,6 +423,7 @@ export async function GET() {
           lowStockAlerts,
           topSellingProducts: fallbackMetrics.topSellingProducts,
           recentActivity: fallbackMetrics.recentActivity,
+          salesAnalytics: fallbackMetrics.salesAnalytics,
           recentOrders,
           recentTickets,
         },

@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { SlidersHorizontal, ArrowUpDown } from "lucide-react";
+import { SlidersHorizontal, ArrowUpDown, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 
 export type SortOption =
   | "featured"
@@ -27,6 +27,8 @@ interface ProductToolbarProps {
   itemsPerPage?: number;
   onItemsPerPageChange?: (items: number) => void;
   itemsPerPageOptions?: number[];
+  isFilterOpen?: boolean;
+  onToggleFilter?: () => void;
   className?: string;
 }
 
@@ -51,14 +53,33 @@ export const ProductToolbar: React.FC<ProductToolbarProps> = ({
   itemsPerPage = 20,
   onItemsPerPageChange,
   itemsPerPageOptions = [12, 20, 36, 48],
+  isFilterOpen = true,
+  onToggleFilter,
   className = "",
 }) => {
   return (
     <div
       className={`flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white border border-slate-200/90 rounded-2xl p-3 sm:px-4 sm:py-3 shadow-2xs font-sans ${className}`}
     >
-      {/* ── Left Part: VIEW AS Grid Switcher & Mobile Trigger ── */}
-      <div className="flex items-center justify-between sm:justify-start gap-4">
+      {/* ── Left Part: VIEW AS Grid Switcher, Mobile Trigger & Desktop Filter Toggle ── */}
+      <div className="flex items-center justify-between sm:justify-start gap-3 sm:gap-4">
+        {/* Desktop Filter Minimize / Maximize Button */}
+        {onToggleFilter && (
+          <button
+            type="button"
+            onClick={onToggleFilter}
+            className={`hidden lg:inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl border text-xs font-bold transition-all duration-200 shadow-2xs cursor-pointer active:scale-95 ${
+              isFilterOpen
+                ? "bg-slate-50 hover:bg-slate-100/90 text-slate-700 border-slate-200 hover:border-slate-300"
+                : "bg-blue-50 text-[#2563EB] border-blue-200 hover:bg-blue-100/70 shadow-xs"
+            }`}
+            title={isFilterOpen ? "Collapse & hide filter panel" : "Expand filter panel"}
+          >
+            <SlidersHorizontal className={`w-3.5 h-3.5 transition-transform ${isFilterOpen ? "text-slate-500" : "text-[#2563EB]"}`} />
+            <span>{isFilterOpen ? "Hide Filters" : "Show Filters"}</span>
+          </button>
+        )}
+
         {/* Mobile Filter Toggle Button */}
         <button
           id="mobile-filter-toggle"

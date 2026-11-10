@@ -134,7 +134,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
       className="group bg-white rounded-xl sm:rounded-2xl border border-slate-200/90 p-1.5 sm:p-3 flex flex-col justify-between hover:border-[#2563EB] hover:shadow-lg transition-all duration-300 relative overflow-hidden font-sans h-full"
     >
       {/* ── Top: Product Image with Smooth Hover Swap & Floating Action Icons ── */}
-      <div className="relative aspect-[1/0.88] sm:aspect-square w-full mb-1 sm:mb-2 flex items-center justify-center overflow-hidden rounded-lg sm:rounded-xl bg-slate-50/70 p-1 sm:p-1.5">
+      <div className="relative aspect-[1/0.88] sm:aspect-square w-full mb-1 sm:mb-2 flex items-center justify-center overflow-hidden rounded-lg sm:rounded-xl bg-slate-50/70">
         {/* Discount Badge in Top-Left (if discount > 5%) */}
         {discountPercent > 5 && (
           <div className="absolute top-1.5 left-1.5 sm:top-2 sm:left-2 z-20 bg-[#FF3B30] text-white text-[9px] sm:text-[10px] font-extrabold px-1 sm:px-1.5 py-0.5 rounded-sm sm:rounded-lg shadow-xs pointer-events-none">
@@ -235,7 +235,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
               alt={product.name}
               fill
               sizes="(max-width: 640px) 180px, 280px"
-              className="object-contain p-1 group-hover:scale-105 transition-transform duration-500 ease-out"
+              className="object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
             />
           </div>
 
@@ -250,7 +250,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
                 alt={`${product.name} alternate view`}
                 fill
                 sizes="(max-width: 640px) 180px, 280px"
-                className="object-contain p-1 group-hover:scale-105 transition-transform duration-500 ease-out"
+                className="object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
               />
             </div>
           )}

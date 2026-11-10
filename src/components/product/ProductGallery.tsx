@@ -11,12 +11,6 @@ import {
   ChevronLeft,
   ChevronRight,
   RotateCcw,
-  CheckCircle2,
-  ZoomIn,
-  ZoomOut,
-  Maximize2,
-  X,
-  Move,
   Compass,
 } from "lucide-react";
 
@@ -56,12 +50,31 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
   const [dragOffset, setDragOffset] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
 
-  // ── Zoom Modal State ──
-  const [isZoomOpen, setIsZoomOpen] = useState(false);
-  const [zoomLevel, setZoomLevel] = useState(1);
-  const [zoomPan, setZoomPan] = useState({ x: 0, y: 0 });
-  const [isZoomPanning, setIsZoomPanning] = useState(false);
-  const zoomPanStartRef = useRef({ x: 0, y: 0 });
+  // ── Hover Magnifier State ──
+  const [hoverPos, setHoverPos] = useState({ x: 50, y: 50 });
+  const [isHovering, setIsHovering] = useState(false);
+
+  const handleContainerMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    // Only magnify when on static image slides and not dragging
+    if (isDragging || isPointerDownRef.current || currentIndex >= galleryImages.length) {
+      if (isHovering) setIsHovering(false);
+      return;
+    }
+    const rect = e.currentTarget.getBoundingClientRect();
+    if (rect.width > 0 && rect.height > 0) {
+      const x = ((e.clientX - rect.left) / rect.width) * 100;
+      const y = ((e.clientY - rect.top) / rect.height) * 100;
+      setHoverPos({
+        x: Math.max(0, Math.min(100, x)),
+        y: Math.max(0, Math.min(100, y)),
+      });
+      if (!isHovering) setIsHovering(true);
+    }
+  };
+
+  const handleContainerMouseLeave = () => {
+    setIsHovering(false);
+  };
 
   // ── 360° Media Interactive State ──
   const [angle360, setAngle360] = useState(0);
@@ -97,6 +110,8 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
       setCurrentIndex(safeIdx);
       setDragOffset(0);
       setIsDragging(false);
+      setIsHovering(false);
+      setHoverPos({ x: 50, y: 50 });
     },
     [totalSlides, videoSlideIndex],
   );
@@ -108,32 +123,6 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
   const nextSlide = useCallback(() => {
     goToSlide(currentIndex + 1);
   }, [currentIndex, goToSlide]);
-
-  // Keyboard navigation for zoom modal
-  useEffect(() => {
-    if (!isZoomOpen) return;
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        setIsZoomOpen(false);
-        setZoomLevel(1);
-        setZoomPan({ x: 0, y: 0 });
-      } else if (e.key === "ArrowLeft") {
-        prevSlide();
-      } else if (e.key === "ArrowRight") {
-        nextSlide();
-      } else if (e.key === "+" || e.key === "=") {
-        setZoomLevel((z) => Math.min(3, +(z + 0.5).toFixed(1)));
-      } else if (e.key === "-") {
-        setZoomLevel((z) => {
-          const next = Math.max(1, +(z - 0.5).toFixed(1));
-          if (next === 1) setZoomPan({ x: 0, y: 0 });
-          return next;
-        });
-      }
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isZoomOpen, prevSlide, nextSlide]);
 
   // Autoplay video on entering video slide
   useEffect(() => {
@@ -306,46 +295,29 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
         onTouchEnd={handleTouchEnd}
         onTouchCancel={handleTouchEnd}
         onMouseDown={handleMouseDown}
+        onMouseMove={handleContainerMouseMove}
+        onMouseLeave={handleContainerMouseLeave}
         onWheel={handleWheel}
         onDragStart={(e) => e.preventDefault()}
-        className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden bg-slate-100 border border-slate-200/80 group flex items-center justify-center shrink-0 select-none cursor-grab active:cursor-grabbing touch-pan-y shadow-xs"
+        className={`relative w-full aspect-[4/3] rounded-2xl overflow-hidden bg-slate-100 group flex items-center justify-center shrink-0 select-none touch-pan-y ${
+          isHovering && !isDragging && currentIndex < galleryImages.length
+            ? "cursor-crosshair"
+            : "cursor-grab active:cursor-grabbing"
+        }`}
       >
         {/* Top Badges & Controls Overlay */}
-        <div className="absolute top-3 left-3 right-3 flex items-center justify-between z-20 pointer-events-none">
-          <div className="flex items-center gap-2 pointer-events-auto">
-            <div className="bg-white/90 backdrop-blur-xs text-emerald-700 px-2.5 py-1 rounded-full text-xs font-semibold flex items-center gap-1.5 shadow-2xs select-none border border-emerald-100/60">
-              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-              <span>Genuine Hardware</span>
-            </div>
+        {currentIndex === videoSlideIndex && (
+          <div className="absolute top-3 right-3 z-20 pointer-events-auto">
+            <button
+              type="button"
+              onClick={() => goToSlide(0)}
+              className="bg-white/95 hover:bg-white text-slate-800 hover:text-[#2563EB] backdrop-blur-xs px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5 shadow-md border border-slate-200 transition-all cursor-pointer"
+            >
+              <ChevronLeft className="w-4 h-4 text-[#2563EB]" />
+              <span>Back to Images</span>
+            </button>
           </div>
-          <div className="flex items-center gap-2 pointer-events-auto">
-            {currentIndex < galleryImages.length && (
-              <button
-                type="button"
-                onClick={() => {
-                  setIsZoomOpen(true);
-                  setZoomLevel(1.5);
-                  setZoomPan({ x: 0, y: 0 });
-                }}
-                className="bg-white/90 hover:bg-white text-slate-700 hover:text-[#005CA9] backdrop-blur-xs px-2.5 py-1 rounded-full text-xs font-bold flex items-center gap-1.5 shadow-xs border border-slate-200 transition-all cursor-pointer"
-                title="Click to zoom image"
-              >
-                <ZoomIn className="w-3.5 h-3.5 text-[#005CA9]" />
-                <span className="hidden sm:inline">Zoom</span>
-              </button>
-            )}
-            {currentIndex === videoSlideIndex && (
-              <button
-                type="button"
-                onClick={() => goToSlide(0)}
-                className="bg-white/95 hover:bg-white text-slate-800 hover:text-[#2563EB] backdrop-blur-xs px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5 shadow-md border border-slate-200 transition-all cursor-pointer"
-              >
-                <ChevronLeft className="w-4 h-4 text-[#2563EB]" />
-                <span>Back to Images</span>
-              </button>
-            )}
-          </div>
-        </div>
+        )}
 
         {/* Unified Slides Track (Smooth CSS Transform with Touch/Drag Support) */}
         {totalSlides === 0 ? (
@@ -367,14 +339,7 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
             {galleryImages.map((img, idx) => (
               <div
                 key={`img-${idx}`}
-                className="min-w-full w-full h-full shrink-0 relative overflow-hidden cursor-zoom-in"
-                onClick={() => {
-                  if (!isDragging) {
-                    setIsZoomOpen(true);
-                    setZoomLevel(1.5);
-                    setZoomPan({ x: 0, y: 0 });
-                  }
-                }}
+                className="min-w-full w-full h-full shrink-0 relative overflow-hidden"
               >
                 <Image
                   src={img}
@@ -382,7 +347,20 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
                   fill
                   priority={idx === 0}
                   draggable={false}
-                  className="w-full h-full object-cover pointer-events-none select-none"
+                  sizes="(max-width: 768px) 100vw, 850px"
+                  style={{
+                    transformOrigin:
+                      idx === currentIndex ? `${hoverPos.x}% ${hoverPos.y}%` : "50% 50%",
+                    transform:
+                      isHovering && !isDragging && idx === currentIndex
+                        ? "scale(2.35)"
+                        : "scale(1)",
+                    transition:
+                      isHovering && !isDragging && idx === currentIndex
+                        ? "transform-origin 0.06s cubic-bezier(0.2, 0, 0, 1), transform 0.22s cubic-bezier(0.16, 1, 0.3, 1)"
+                        : "transform 0.3s cubic-bezier(0.16, 1, 0.3, 1)",
+                  }}
+                  className="w-full h-full object-cover pointer-events-none select-none will-change-transform"
                 />
               </div>
             ))}
@@ -589,209 +567,6 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
                 Video
               </span>
             </button>
-          )}
-        </div>
-      )}
-
-      {/* ── High-Resolution Image Zoom Lightbox Modal ── */}
-      {isZoomOpen && currentIndex < galleryImages.length && (
-        <div
-          className="fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-md flex flex-col justify-between animate-in fade-in duration-200"
-          onClick={() => {
-            setIsZoomOpen(false);
-            setZoomLevel(1);
-            setZoomPan({ x: 0, y: 0 });
-          }}
-        >
-          {/* Top Control Bar */}
-          <div
-            className="flex items-center justify-between px-4 sm:px-6 py-3 bg-slate-900/90 border-b border-white/10 text-white z-20"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center gap-3">
-              <span className="text-xs sm:text-sm font-bold text-slate-300">
-                Image {currentIndex + 1} of {galleryImages.length}
-              </span>
-              <span className="text-xs text-slate-400 font-mono hidden md:inline">
-                | {productName}
-              </span>
-            </div>
-
-            {/* Zoom Action Buttons */}
-            <div className="flex items-center gap-2 sm:gap-3">
-              <button
-                type="button"
-                onClick={() => {
-                  setZoomLevel((z) => {
-                    const next = Math.max(1, +(z - 0.5).toFixed(1));
-                    if (next === 1) setZoomPan({ x: 0, y: 0 });
-                    return next;
-                  });
-                }}
-                disabled={zoomLevel <= 1}
-                className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 disabled:opacity-40 text-white transition-colors cursor-pointer"
-                title="Zoom Out (-)"
-              >
-                <ZoomOut className="w-4 h-4" />
-              </button>
-
-              <span className="text-xs font-mono font-bold text-cyan-300 w-12 text-center select-none">
-                {Math.round(zoomLevel * 100)}%
-              </span>
-
-              <button
-                type="button"
-                onClick={() => setZoomLevel((z) => Math.min(3, +(z + 0.5).toFixed(1)))}
-                disabled={zoomLevel >= 3}
-                className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 disabled:opacity-40 text-white transition-colors cursor-pointer"
-                title="Zoom In (+)"
-              >
-                <ZoomIn className="w-4 h-4" />
-              </button>
-
-              <button
-                type="button"
-                onClick={() => {
-                  setZoomLevel(1);
-                  setZoomPan({ x: 0, y: 0 });
-                }}
-                className="px-2.5 py-1 text-xs font-semibold rounded-lg bg-white/10 hover:bg-white/20 text-slate-200 transition-colors cursor-pointer"
-                title="Reset Zoom"
-              >
-                Reset
-              </button>
-
-              <div className="w-px h-5 bg-white/20 mx-1" />
-
-              <button
-                type="button"
-                onClick={() => {
-                  setIsZoomOpen(false);
-                  setZoomLevel(1);
-                  setZoomPan({ x: 0, y: 0 });
-                }}
-                className="p-1.5 rounded-lg bg-white/10 hover:bg-red-600/80 text-white transition-colors cursor-pointer"
-                title="Close (Esc)"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-
-          {/* Main Zoom Viewport */}
-          <div
-            className="flex-1 relative flex items-center justify-center overflow-hidden cursor-grab active:cursor-grabbing p-4"
-            onClick={(e) => e.stopPropagation()}
-            onMouseDown={(e) => {
-              if (zoomLevel <= 1) return;
-              setIsZoomPanning(true);
-              zoomPanStartRef.current = {
-                x: e.clientX - zoomPan.x,
-                y: e.clientY - zoomPan.y,
-              };
-            }}
-            onMouseMove={(e) => {
-              if (!isZoomPanning || zoomLevel <= 1) return;
-              setZoomPan({
-                x: e.clientX - zoomPanStartRef.current.x,
-                y: e.clientY - zoomPanStartRef.current.y,
-              });
-            }}
-            onMouseUp={() => setIsZoomPanning(false)}
-            onMouseLeave={() => setIsZoomPanning(false)}
-            onWheel={(e) => {
-              e.preventDefault();
-              if (e.deltaY < 0) {
-                setZoomLevel((z) => Math.min(3, +(z + 0.25).toFixed(2)));
-              } else {
-                setZoomLevel((z) => {
-                  const next = Math.max(1, +(z - 0.25).toFixed(2));
-                  if (next === 1) setZoomPan({ x: 0, y: 0 });
-                  return next;
-                });
-              }
-            }}
-          >
-            <div
-              className="relative w-full max-w-4xl h-full max-h-[75vh] flex items-center justify-center transition-transform duration-100 ease-out select-none"
-              style={{
-                transform: `scale(${zoomLevel}) translate(${zoomPan.x / zoomLevel}px, ${zoomPan.y / zoomLevel}px)`,
-                cursor: zoomLevel > 1 ? "move" : "default",
-              }}
-            >
-              <img
-                src={galleryImages[currentIndex]}
-                alt={productName}
-                className="max-w-full max-h-full object-contain drop-shadow-2xl pointer-events-none select-none rounded-lg"
-                draggable={false}
-              />
-            </div>
-
-            {/* Navigation Chevrons inside Zoom View */}
-            {galleryImages.length > 1 && (
-              <>
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    prevSlide();
-                    setZoomPan({ x: 0, y: 0 });
-                  }}
-                  className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/15 hover:bg-white/30 text-white flex items-center justify-center backdrop-blur-md transition-all cursor-pointer z-30"
-                  aria-label="Previous image"
-                >
-                  <ChevronLeft className="w-6 h-6" />
-                </button>
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    nextSlide();
-                    setZoomPan({ x: 0, y: 0 });
-                  }}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/15 hover:bg-white/30 text-white flex items-center justify-center backdrop-blur-md transition-all cursor-pointer z-30"
-                  aria-label="Next image"
-                >
-                  <ChevronRight className="w-6 h-6" />
-                </button>
-              </>
-            )}
-
-            {/* Zoom Hint Overlay */}
-            <div className="absolute bottom-20 left-1/2 -translate-x-1/2 pointer-events-none bg-slate-900/80 text-slate-300 text-[11px] px-3.5 py-1 rounded-full backdrop-blur-md border border-white/10 hidden sm:flex items-center gap-1.5">
-              <Move className="w-3 h-3 text-cyan-400" />
-              <span>Scroll to zoom • Click &amp; drag to pan • Esc to exit</span>
-            </div>
-          </div>
-
-          {/* Bottom Thumbnail Strip in Zoom View */}
-          {galleryImages.length > 1 && (
-            <div
-              className="p-3 bg-slate-900/90 border-t border-white/10 flex items-center justify-center gap-2 overflow-x-auto z-20"
-              onClick={(e) => e.stopPropagation()}
-            >
-              {galleryImages.map((img, idx) => (
-                <button
-                  key={idx}
-                  type="button"
-                  onClick={() => {
-                    goToSlide(idx);
-                    setZoomPan({ x: 0, y: 0 });
-                  }}
-                  className={`relative w-12 h-12 rounded-lg overflow-hidden shrink-0 border-2 transition-all cursor-pointer bg-white/10 ${
-                    currentIndex === idx
-                      ? "border-cyan-400 ring-2 ring-cyan-400/40"
-                      : "border-white/20 opacity-60 hover:opacity-100"
-                  }`}
-                >
-                  <img
-                    src={img}
-                    alt={`Thumb ${idx + 1}`}
-                    className="w-full h-full object-cover"
-                  />
-                </button>
-              ))}
-            </div>
           )}
         </div>
       )}

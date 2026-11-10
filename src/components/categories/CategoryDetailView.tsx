@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { motion, AnimatePresence } from "framer-motion";
 import { CategoryBreadcrumb } from "@/components/categories/CategoryBreadcrumb";
 import { ProductCard } from "@/components/products/ProductCard";
 import {
@@ -23,6 +24,8 @@ import {
   X,
   Search,
   SlidersHorizontal,
+  PanelLeftClose,
+  PanelLeftOpen,
 } from "lucide-react";
 import { useStore } from "@/context/StoreContext";
 
@@ -171,6 +174,7 @@ export const CategoryDetailView: React.FC<CategoryDetailProps> = ({
   const [visibleCount, setVisibleCount] = useState<number>(20);
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [isFilterOpen, setIsFilterOpen] = useState(true);
 
   // Stock counts
   const { inStockCount, outOfStockCount } = useMemo(() => {
@@ -304,12 +308,20 @@ export const CategoryDetailView: React.FC<CategoryDetailProps> = ({
     setSearchQuery("");
   };
 
+  const activeFiltersCount =
+    (selectedSubcategory ? 1 : 0) +
+    (selectedBrand ? 1 : 0) +
+    (stockFilter !== "all" ? 1 : 0) +
+    (priceRange[0] > 0 || priceRange[1] < 60000 ? 1 : 0) +
+    (minDiscount ? 1 : 0) +
+    (minRating ? 1 : 0);
+
   const getGridColsClass = () => {
-    if (columns === 1) return "grid grid-cols-1 gap-3 sm:gap-4";
-    if (columns === 2) return "grid grid-cols-2 gap-2.5 sm:gap-4";
+    if (columns === 1) return "grid grid-cols-1 gap-3 sm:gap-5";
+    if (columns === 2) return "grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6";
     if (columns === 3)
-      return "grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-2.5 sm:gap-4";
-    return "grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-2.5 sm:gap-4";
+      return "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-5";
+    return "grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-3.5 sm:gap-4.5";
   };
 
   return (
@@ -446,34 +458,74 @@ export const CategoryDetailView: React.FC<CategoryDetailProps> = ({
             setItemsPerPage(num);
             setVisibleCount(num);
           }}
+          isFilterOpen={isFilterOpen}
+          onToggleFilter={() => setIsFilterOpen((prev) => !prev)}
         />
       </div>
 
       {/* 5. Main Catalog Layout: Left Filter Sidebar + Immediate Products Grid */}
-      <div className="flex flex-col lg:flex-row gap-4 lg:gap-8 items-start">
-        {/* Left Filter Sidebar (Desktop) */}
-        <div className="hidden lg:block w-64 xl:w-72 2xl:w-80 shrink-0 sticky top-24 bg-white border border-slate-200/90 p-5 rounded-2xl shadow-2xs">
-          <ProductFilters
-            hideCategories={true}
-            selectedCategory={category.name}
-            onSelectCategory={() => {}}
-            selectedSubcategory={selectedSubcategory}
-            onSelectSubcategory={setSelectedSubcategory}
-            selectedBrand={selectedBrand}
-            onSelectBrand={setSelectedBrand}
-            stockFilter={stockFilter}
-            onStockFilterChange={setStockFilter}
-            inStockCount={inStockCount}
-            outOfStockCount={outOfStockCount}
-            priceRange={priceRange}
-            onPriceRangeChange={setPriceRange}
-            minDiscount={minDiscount}
-            onMinDiscountChange={setMinDiscount}
-            minRating={minRating}
-            onMinRatingChange={setMinRating}
-            onClearAll={clearAllFilters}
-          />
-        </div>
+      <div className="flex flex-col lg:flex-row gap-4 lg:gap-6 items-start w-full">
+        {/* Left Filter Sidebar (Desktop) — Expandable / Collapsible with Smooth Easing & Zero Screen Shake */}
+        <aside
+          className={`hidden lg:block shrink-0 sticky top-24 bg-white border border-slate-200/90 rounded-2xl shadow-2xs overflow-hidden transition-[width,padding,border-color,box-shadow] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+            isFilterOpen
+              ? "w-64 xl:w-72 2xl:w-80 p-5"
+              : "w-12 py-5 px-1 cursor-pointer hover:border-[#2563EB] hover:shadow-md group active:scale-[0.98]"
+          }`}
+          onClick={!isFilterOpen ? () => setIsFilterOpen(true) : undefined}
+          title={!isFilterOpen ? "Maximize & Open Filters Window" : undefined}
+          aria-label={isFilterOpen ? "Product Filters" : "Open Product Filters"}
+        >
+          <div className="relative w-full">
+            {/* Expanded view */}
+            <div
+              className={`transition-opacity duration-200 ${
+                isFilterOpen ? "opacity-100" : "opacity-0 pointer-events-none absolute top-0 left-0"
+              }`}
+            >
+              <div className="w-56 xl:w-64 2xl:w-72">
+                <ProductFilters
+                  hideCategories={true}
+                  selectedCategory={category.name}
+                  onSelectCategory={() => {}}
+                  selectedSubcategory={selectedSubcategory}
+                  onSelectSubcategory={setSelectedSubcategory}
+                  selectedBrand={selectedBrand}
+                  onSelectBrand={setSelectedBrand}
+                  stockFilter={stockFilter}
+                  onStockFilterChange={setStockFilter}
+                  inStockCount={inStockCount}
+                  outOfStockCount={outOfStockCount}
+                  priceRange={priceRange}
+                  onPriceRangeChange={setPriceRange}
+                  minDiscount={minDiscount}
+                  onMinDiscountChange={setMinDiscount}
+                  minRating={minRating}
+                  onMinRatingChange={setMinRating}
+                  onClearAll={clearAllFilters}
+                  onToggleCollapse={() => setIsFilterOpen(false)}
+                />
+              </div>
+            </div>
+
+            {/* Collapsed rail */}
+            <div
+              className={`flex flex-col items-center justify-center transition-opacity duration-200 select-none ${
+                !isFilterOpen ? "opacity-100 delay-150" : "opacity-0 pointer-events-none absolute top-0 left-0 w-full"
+              }`}
+            >
+              <SlidersHorizontal className="w-4 h-4 text-[#2563EB] group-hover:scale-110 transition-transform mb-3 stroke-[2.2]" />
+              <span className="[writing-mode:vertical-rl] text-xs font-black uppercase tracking-wider text-slate-700 group-hover:text-[#2563EB] rotate-180 py-1 transition-colors">
+                Filters
+              </span>
+              {activeFiltersCount > 0 && (
+                <span className="w-5 h-5 rounded-full bg-[#2563EB] text-white text-[10px] font-black flex items-center justify-center mt-3 shadow-xs">
+                  {activeFiltersCount}
+                </span>
+              )}
+            </div>
+          </div>
+        </aside>
 
         {/* Right Product Grid */}
         <div className="flex-1 min-w-0 space-y-4 sm:space-y-6">

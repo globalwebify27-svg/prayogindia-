@@ -118,7 +118,15 @@ export const ProductDetailsAccordion: React.FC<ProductDetailsTabProps> = ({
               </tr>
             </thead>
             <tbody>
-              {Object.entries(specs).map(([key, val], idx) => (
+              {Object.entries(specs || {})
+                .filter(
+                  ([key, val]) =>
+                    !key.startsWith("_") &&
+                    val !== null &&
+                    val !== undefined &&
+                    typeof val !== "object"
+                )
+                .map(([key, val], idx) => (
                 <tr
                   key={key}
                   className={`${idx % 2 === 0 ? "bg-slate-50/70" : "bg-white"} hover:bg-[#E0F7FC]/50 transition-colors`}

@@ -285,25 +285,6 @@ export const SuccessToast: React.FC<SuccessToastProps> = ({
                 </div>
               </div>
             )}
-
-            {/* Subtle Hairline Auto-Dismiss Timer Bar */}
-            <div className="absolute bottom-0 left-0 right-0 h-[1.5px] bg-slate-100 overflow-hidden">
-              <motion.div
-                initial={{ width: "100%" }}
-                animate={{ width: isPaused ? "100%" : "0%" }}
-                transition={{
-                  duration: isPaused ? 0 : (toast.duration || 3800) / 1000,
-                  ease: "linear",
-                }}
-                className={`h-full ${
-                  toast.type === "error"
-                    ? "bg-rose-500"
-                    : isWishlistRemove
-                      ? "bg-slate-400"
-                      : "bg-gradient-to-r from-rose-500 via-[#2563EB] to-[#1E56A0]"
-                }`}
-              />
-            </div>
           </motion.div>
         </aside>
         )

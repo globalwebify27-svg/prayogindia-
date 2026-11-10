@@ -352,11 +352,20 @@ export const BrowsingHistorySection: React.FC<BrowsingHistorySectionProps> = ({
                     {/* Real Product Specs / Highlights */}
                     {prod.specs && (
                       <div className="specs-container">
-                        {Object.entries(prod.specs).slice(0, 2).map(([key, val]) => (
-                          <span key={key} className="spec-pill" title={`${key}: ${val}`}>
-                            {val}
-                          </span>
-                        ))}
+                        {Object.entries(prod.specs)
+                          .filter(
+                            ([key, val]) =>
+                              !key.startsWith("_") &&
+                              val !== null &&
+                              val !== undefined &&
+                              typeof val !== "object"
+                          )
+                          .slice(0, 2)
+                          .map(([key, val]) => (
+                            <span key={key} className="spec-pill" title={`${key}: ${val}`}>
+                              {String(val)}
+                            </span>
+                          ))}
                       </div>
                     )}
                   </div>

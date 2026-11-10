@@ -16,7 +16,6 @@ import {
   ShieldCheck,
   Tag,
   Truck,
-  Plane,
   AlertTriangle,
   CheckCircle2,
   MapPin,
@@ -514,9 +513,7 @@ export const CartView: React.FC = () => {
                   }`}
                 >
                   <div className="flex items-center justify-between text-xs font-bold text-slate-900">
-                    <span className="flex items-center gap-1">
-                      <Plane className="w-3.5 h-3.5 text-blue-600" /> Air Freight
-                    </span>
+                    <span>Air Freight</span>
                     <span className="text-[10px] text-emerald-600">
                       {hasBatteryOrHazardous ? "Unavailable" : "FREE >₹999"}
                     </span>
@@ -537,9 +534,7 @@ export const CartView: React.FC = () => {
                   }`}
                 >
                   <div className="flex items-center justify-between text-xs font-bold text-slate-900">
-                    <span className="flex items-center gap-1">
-                      <Truck className="w-3.5 h-3.5 text-emerald-600" /> Surface Freight
-                    </span>
+                    <span>Surface Freight</span>
                     <span className="text-[10px] text-emerald-600 font-bold">
                       Standard
                     </span>
@@ -560,9 +555,7 @@ export const CartView: React.FC = () => {
                   }`}
                 >
                   <div className="flex items-center justify-between text-xs font-bold text-slate-900">
-                    <span className="flex items-center gap-1">
-                      <MapPin className="w-3.5 h-3.5 text-purple-600" /> Store Pickup
-                    </span>
+                    <span>Store Pickup</span>
                     <span className="text-[10px] text-emerald-600 font-bold">
                       FREE
                     </span>
@@ -822,20 +815,19 @@ export const CartView: React.FC = () => {
                 Automatic Restriction Applied:
               </span>
               <div className="flex items-center justify-between text-xs py-1 border-b border-slate-200/80">
-                <span className="font-bold text-slate-500 flex items-center gap-1.5">
-                  <Plane className="w-4 h-4 text-slate-400" /> Air Freight:
+                <span className="font-bold text-slate-500">
+                  Air Freight:
                 </span>
                 <span className="font-black text-red-600 bg-red-100 px-2 py-0.5 rounded-full">
-                  ❌ Unavailable
+                  Unavailable
                 </span>
               </div>
               <div className="flex items-center justify-between text-xs py-1">
-                <span className="font-bold text-slate-900 flex items-center gap-1.5">
-                  <Truck className="w-4 h-4 text-emerald-600" /> Surface
-                  Freight:
+                <span className="font-bold text-slate-900">
+                  Surface Freight:
                 </span>
                 <span className="font-black text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full">
-                  ✔ Selected (Safe Transit)
+                  Selected (Safe Transit)
                 </span>
               </div>
             </div>

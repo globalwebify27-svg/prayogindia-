@@ -571,34 +571,51 @@ function ProductCard({
 }) {
   const isInStock = availableStock > 0;
   const isLimited = availableStock > 0 && availableStock <= 5;
+  const discountPercent =
+    product.mrp && product.mrp > product.price
+      ? Math.round(((product.mrp - product.price) / product.mrp) * 100)
+      : 0;
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-200/80 hover:border-blue-400 hover:shadow-lg transition-all duration-200 flex flex-col p-3.5 relative group">
-      {/* Top SKU + Stock Badge */}
-      <div className="flex items-center justify-between gap-1 mb-1">
-        <span className="text-[10px] font-mono text-slate-400 font-bold truncate max-w-[100px]">
-          {product.sku || ""}
-        </span>
-        {!isInStock ? (
-          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-150 shrink-0">
-            Out of Stock
-          </span>
-        ) : isLimited ? (
-          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-150 shrink-0">
-            Limited Stock
-          </span>
-        ) : (
-          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-150 shrink-0">
-            In Stock
-          </span>
-        )}
-      </div>
-
-      {/* Product Image Area */}
+    <div className="bg-white rounded-2xl border border-slate-200/80 hover:border-blue-400 hover:shadow-xl transition-all duration-200 flex flex-col overflow-hidden relative group h-full">
+      {/* Product Image Area - Full Width Edge-to-Edge */}
       <div
         onClick={onOpenDetail}
-        className="relative h-36 sm:h-40 w-full flex items-center justify-center p-2 mb-2 cursor-pointer group-hover:scale-105 transition-transform duration-200 overflow-hidden"
+        className="relative w-full aspect-[4/3] bg-slate-50 overflow-hidden cursor-pointer select-none"
       >
+        {/* Floating Top Badges (SKU & Stock Status) */}
+        <div className="absolute top-2.5 inset-x-2.5 z-10 flex items-center justify-between pointer-events-none gap-1.5">
+          {product.sku ? (
+            <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-md bg-white/90 backdrop-blur-xs text-slate-700 shadow-xs border border-white/60 truncate max-w-[110px]">
+              {product.sku}
+            </span>
+          ) : (
+            <span />
+          )}
+
+          {!isInStock ? (
+            <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-rose-500/95 text-white shadow-xs backdrop-blur-xs border border-rose-400/30 shrink-0">
+              Out of Stock
+            </span>
+          ) : isLimited ? (
+            <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-amber-500/95 text-white shadow-xs backdrop-blur-xs border border-amber-400/30 shrink-0">
+              Limited Stock
+            </span>
+          ) : (
+            <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-emerald-600/95 text-white shadow-xs backdrop-blur-xs border border-emerald-400/30 shrink-0">
+              In Stock
+            </span>
+          )}
+        </div>
+
+        {/* Discount Badge on Bottom-Left if applicable */}
+        {discountPercent > 5 && (
+          <div className="absolute bottom-2 left-2 z-10 px-2 py-0.5 rounded-md bg-rose-600 text-white font-black text-[10px] shadow-xs tracking-tight pointer-events-none">
+            {discountPercent}% OFF
+          </div>
+        )}
+
+        {/* Product Image / Placeholder */}
         {product.image &&
         typeof product.image === "string" &&
         product.image.trim().length > 0 &&
@@ -607,78 +624,84 @@ function ProductCard({
             src={product.image}
             alt={typeof product.name === "string" ? product.name : "Product"}
             fill
-            className="object-contain p-2"
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+            className="object-cover group-hover:scale-105 transition-transform duration-300 ease-out"
           />
         ) : (
-          <div className="w-full h-full rounded-2xl bg-slate-50 border border-slate-100 flex flex-col items-center justify-center text-slate-300 gap-1.5">
-            <Package className="w-8 h-8 stroke-[1.5]" />
-            <span className="text-[10px] font-semibold text-slate-400">No Image</span>
+          <div className="w-full h-full flex flex-col items-center justify-center text-slate-300 gap-1.5 bg-slate-100/70">
+            <Package className="w-9 h-9 stroke-[1.5] text-slate-300" />
+            <span className="text-[11px] font-semibold text-slate-400">No Image</span>
           </div>
         )}
       </div>
 
-      {/* Product Title */}
-      <h3
-        onClick={onOpenDetail}
-        title={product.name}
-        className="text-xs sm:text-sm font-bold text-slate-800 line-clamp-2 leading-snug cursor-pointer hover:text-[#0070F3] transition-colors min-h-[2.5rem]"
-      >
-        {product.name}
-      </h3>
-
-      {/* Price row */}
-      <div className="flex items-baseline gap-2 mt-2 mb-3">
-        <span className="text-sm sm:text-base font-black text-[#0070F3]">
-          ₹{product.price.toLocaleString()}
-        </span>
-        {product.mrp && product.mrp > product.price && (
-          <span className="text-xs text-slate-400 line-through font-medium">
-            ₹{product.mrp.toLocaleString()}
-          </span>
-        )}
-      </div>
-
-      {/* Action Button */}
-      <div className="mt-auto">
-        {!isInStock ? (
-          <button
-            disabled
-            className="w-full py-2.5 rounded-xl font-bold text-xs bg-slate-100 text-slate-400 cursor-not-allowed text-center"
+      {/* Body Content */}
+      <div className="p-3.5 flex flex-col flex-1 justify-between">
+        <div>
+          {/* Product Title */}
+          <h3
+            onClick={onOpenDetail}
+            title={product.name}
+            className="text-xs sm:text-sm font-bold text-slate-800 line-clamp-2 leading-snug cursor-pointer hover:text-[#0070F3] transition-colors min-h-[2.5rem]"
           >
-            Out of Stock
-          </button>
-        ) : quantity === 0 ? (
-          <button
-            onClick={onAdd}
-            className="w-full py-2.5 rounded-xl font-bold text-xs bg-[#EBF5FF] hover:bg-[#D8ECFF] text-[#0070F3] flex items-center justify-center gap-1.5 transition-colors active:scale-98 cursor-pointer shadow-2xs"
-          >
-            <ShoppingCart className="w-3.5 h-3.5" />
-            <span>Add to Cart</span>
-          </button>
-        ) : (
-          <div className="flex items-center justify-between bg-blue-50 border border-blue-200 rounded-xl px-2 py-1">
-            <button
-              onClick={onRemove}
-              className="w-7 h-7 rounded-lg bg-white text-slate-700 hover:bg-slate-100 flex items-center justify-center font-bold text-sm shadow-xs cursor-pointer transition active:scale-95"
-            >
-              <Minus className="w-3.5 h-3.5" />
-            </button>
-            <span className="font-extrabold text-sm text-[#0070F3]">
-              {quantity}
+            {product.name}
+          </h3>
+
+          {/* Price row */}
+          <div className="flex items-baseline gap-2 mt-2 mb-3">
+            <span className="text-base sm:text-lg font-black text-[#0070F3]">
+              ₹{product.price.toLocaleString()}
             </span>
+            {product.mrp && product.mrp > product.price && (
+              <span className="text-xs text-slate-400 line-through font-medium">
+                ₹{product.mrp.toLocaleString()}
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* Action Button */}
+        <div className="mt-auto">
+          {!isInStock ? (
+            <button
+              disabled
+              className="w-full py-2.5 rounded-xl font-bold text-xs bg-slate-100 text-slate-400 cursor-not-allowed text-center"
+            >
+              Out of Stock
+            </button>
+          ) : quantity === 0 ? (
             <button
               onClick={onAdd}
-              disabled={quantity >= availableStock}
-              className={`w-7 h-7 rounded-lg flex items-center justify-center font-bold text-sm shadow-xs transition active:scale-95 ${
-                quantity >= availableStock
-                  ? "bg-slate-200 text-slate-400 cursor-not-allowed"
-                  : "bg-[#0070F3] text-white hover:bg-blue-600 cursor-pointer"
-              }`}
+              className="w-full py-2.5 rounded-xl font-bold text-xs bg-[#EBF5FF] hover:bg-[#D8ECFF] text-[#0070F3] flex items-center justify-center gap-1.5 transition-colors active:scale-98 cursor-pointer shadow-2xs"
             >
-              <Plus className="w-3.5 h-3.5" />
+              <ShoppingCart className="w-3.5 h-3.5" />
+              <span>Add to Cart</span>
             </button>
-          </div>
-        )}
+          ) : (
+            <div className="flex items-center justify-between bg-blue-50 border border-blue-200 rounded-xl px-2 py-1">
+              <button
+                onClick={onRemove}
+                className="w-7 h-7 rounded-lg bg-white text-slate-700 hover:bg-slate-100 flex items-center justify-center font-bold text-sm shadow-xs cursor-pointer transition active:scale-95"
+              >
+                <Minus className="w-3.5 h-3.5" />
+              </button>
+              <span className="font-extrabold text-sm text-[#0070F3]">
+                {quantity}
+              </span>
+              <button
+                onClick={onAdd}
+                disabled={quantity >= availableStock}
+                className={`w-7 h-7 rounded-lg flex items-center justify-center font-bold text-sm shadow-xs transition active:scale-95 ${
+                  quantity >= availableStock
+                    ? "bg-slate-200 text-slate-400 cursor-not-allowed"
+                    : "bg-[#0070F3] text-white hover:bg-blue-600 cursor-pointer"
+                }`}
+              >
+                <Plus className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -1124,7 +1147,12 @@ export default function StoreKioskPage() {
   const cartCount = cart.reduce((s, i) => s + i.quantity, 0);
   const subtotal = cart.reduce((s, i) => s + i.product.price * i.quantity, 0);
   const gstAmount = Math.round(subtotal * 0.18);
-  const grandTotal = subtotal + gstAmount;
+  const [couponCode, setCouponCode] = useState("");
+  const [couponDiscount, setCouponDiscount] = useState(0);
+  const [appliedCoupon, setAppliedCoupon] = useState<string | null>(null);
+
+  const grandTotal = Math.max(0, subtotal - couponDiscount);
+  const finalTotal = grandTotal;
 
   const getQty = (productId: string) =>
     cart.find((i) => i.product.id === productId)?.quantity ?? 0;
@@ -1378,8 +1406,10 @@ export default function StoreKioskPage() {
           </div>
         </aside>
 
-        {/* ── Main Content Area (Independent Scroll for Banners & Products) ── */}
-        <main className="flex-1 h-full min-w-0 overflow-y-auto p-4 sm:p-6 space-y-6">
+        {/* ── Main Section Container with Bottom Cart Bar ── */}
+        <div className="flex-1 h-full min-w-0 relative flex flex-col overflow-hidden">
+          {/* ── Main Content Area (Independent Scroll for Banners & Products) ── */}
+          <main className="flex-1 h-full min-w-0 overflow-y-auto p-4 sm:p-6 pb-28 sm:pb-32 space-y-6">
           {/* 1. Hero Banner Carousel — Live Synchronized with Website (Compact Height & Zero-Cut Contained Image) */}
           <div
             onMouseEnter={() => setIsBannerPaused(true)}
@@ -1563,50 +1593,57 @@ export default function StoreKioskPage() {
           </div>
         </main>
 
-        {/* ── Persistent Floating Bottom Cart Bar ── */}
-        {cartCount > 0 && (
+        {/* ── Persistent Floating Bottom Cart Bar (Shows Only When Items In Cart in Browse View) ── */}
+        {view === "browse" && cartCount > 0 && (
           <aside
             aria-label="Kiosk Floating Cart"
-            className="fixed bottom-5 right-5 sm:right-8 z-40 bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-2xl shadow-[0_12px_40px_rgba(0,0,0,0.18)] px-5 py-3 flex items-center gap-6 sm:gap-10 transition-all"
+            className="absolute bottom-4 inset-x-4 sm:inset-x-6 z-40 bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-2xl shadow-[0_12px_36px_rgba(0,0,0,0.12)] px-5 sm:px-7 py-3 sm:py-3.5 flex items-center justify-between gap-4 transition-all animate-in fade-in slide-in-from-bottom-4 duration-300 ease-out"
           >
-            <div className="flex items-center gap-3">
+            {/* Left: Cart Icon + My Cart & Item Count */}
+            <div className="flex items-center gap-3 shrink-0">
               <div className="relative">
-                <ShoppingCart className="w-5 h-5 text-slate-700" />
-                <span className="absolute -top-2 -right-2 bg-rose-500 text-white text-[10px] font-black w-4 h-4 rounded-full flex items-center justify-center shadow-xs">
+                <ShoppingCart className="w-6 h-6 text-[#0A2558] stroke-[2]" />
+                <span className="absolute -top-2 -right-2.5 bg-[#EF4444] text-white text-[10px] font-black w-4.5 h-4.5 rounded-full flex items-center justify-center shadow-xs ring-2 ring-white">
                   {cartCount}
                 </span>
               </div>
-              <div>
-                <span className="font-extrabold text-slate-900 text-sm">My Cart</span>
-                <span className="text-xs text-slate-500 font-medium ml-1.5">
-                  · {cartCount} {cartCount === 1 ? "Item" : "Items"}
+              <div className="flex flex-col text-left">
+                <span className="font-extrabold text-slate-900 text-sm sm:text-base leading-tight">
+                  My Cart
+                </span>
+                <span className="text-[11px] sm:text-xs text-slate-400 font-medium leading-tight mt-0.5">
+                  {cartCount} {cartCount === 1 ? "Item" : "Items"}
                 </span>
               </div>
             </div>
 
-            <div className="hidden sm:block text-xs text-slate-500 font-semibold border-l border-slate-200 pl-6">
-              Total Amount:{" "}
-              <span className="font-black text-base text-[#0070F3] ml-1">
+            {/* Divider */}
+            <div className="h-8 w-px bg-slate-200 shrink-0 mx-2 sm:mx-4" />
+
+            {/* Center: Total Amount */}
+            <div className="flex flex-col text-left mr-auto">
+              <span className="text-[11px] sm:text-xs text-slate-400 font-medium leading-tight">
+                Total Amount
+              </span>
+              <span className="font-black text-base sm:text-lg text-[#0070F3] leading-tight mt-0.5">
                 ₹{grandTotal.toLocaleString()}
               </span>
             </div>
 
+            {/* Right: View Cart Button */}
             <button
               onClick={() => setView("cart")}
-              className="bg-[#0070F3] hover:bg-blue-600 active:scale-95 text-white font-extrabold text-xs sm:text-sm px-5 py-2.5 rounded-xl shadow-md flex items-center gap-2 transition cursor-pointer"
+              className="bg-[#0070F3] hover:bg-blue-600 active:scale-95 text-white font-bold text-xs sm:text-sm px-6 sm:px-8 py-2.5 sm:py-3 rounded-xl shadow-xs flex items-center gap-2 transition cursor-pointer shrink-0"
             >
               <span>View Cart</span>
-              <ArrowRight className="w-4 h-4" />
+              <ArrowRight className="w-4 h-4 stroke-[2.5]" />
             </button>
           </aside>
         )}
       </div>
+      </div>
     );
   };
-
-  const [couponCode, setCouponCode] = useState("");
-  const [couponDiscount, setCouponDiscount] = useState(0);
-  const [appliedCoupon, setAppliedCoupon] = useState<string | null>(null);
 
   const handleApplyCoupon = () => {
     const code = couponCode.trim().toUpperCase();
@@ -1620,8 +1657,6 @@ export default function StoreKioskPage() {
       alert("Invalid coupon code. Try PRAYOG10 for 10% discount.");
     }
   };
-
-  const finalTotal = Math.max(0, subtotal - couponDiscount);
 
   const renderCartView = () => (
     <div className="fixed inset-0 z-50 overflow-hidden flex justify-end">
@@ -2039,7 +2074,7 @@ export default function StoreKioskPage() {
         )}
 
         {/* Submission Button */}
-        <div className="pt-2 pb-6 flex flex-col items-center justify-center">
+        <div className="pt-3 pb-12 flex flex-col items-center justify-center">
           <OrderTruckButton
             defaultText="Complete Order"
             successText="Order Placed"
@@ -2220,12 +2255,12 @@ export default function StoreKioskPage() {
         {renderBrowseView()}
         {view === "cart" && renderCartView()}
         {view === "checkout" && (
-          <div className="absolute inset-0 bg-slate-100 z-20 flex flex-col">
+          <div className="absolute inset-0 bg-slate-100 z-50 flex flex-col">
             {renderCheckoutView()}
           </div>
         )}
         {view === "success" && (
-          <div className="absolute inset-0 bg-[#E4ECFA] z-30 flex flex-col overflow-y-auto">
+          <div className="absolute inset-0 bg-[#E4ECFA] z-50 flex flex-col overflow-y-auto">
             {renderSuccessView()}
           </div>
         )}

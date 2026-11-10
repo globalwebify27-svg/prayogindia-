@@ -23,6 +23,8 @@ import {
   Calendar,
   Layers,
   ChevronRight,
+  X,
+  ExternalLink,
 } from "lucide-react";
 
 export interface PaymentItem {
@@ -95,10 +97,11 @@ export default function AdminPaymentVerificationPage() {
     totalVerifiedAmount: 0,
   });
 
-  // Action Modals
+  // Action Modals State
   const [selectedPayment, setSelectedPayment] = useState<PaymentItem | null>(
     null,
   );
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [isVerifyModalOpen, setIsVerifyModalOpen] = useState(false);
   const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
   const [adminRemarks, setAdminRemarks] = useState("");
@@ -108,6 +111,47 @@ export default function AdminPaymentVerificationPage() {
     type: "success" | "error";
     text: string;
   } | null>(null);
+
+  // Verification Form State
+  const [inputUtr, setInputUtr] = useState("");
+  const [selectedBankAccount, setSelectedBankAccount] = useState(
+    "SBI Current A/C (40892301982739) - Ranchi Hub",
+  );
+  const [settlementDate, setSettlementDate] = useState(() =>
+    new Date().toISOString().split("T")[0],
+  );
+  const [isAuditConfirmed, setIsAuditConfirmed] = useState(false);
+
+  const openDetailsModal = (pay: PaymentItem) => {
+    setSelectedPayment(pay);
+    setIsDetailsModalOpen(true);
+  };
+
+  const closeDetailsModal = () => {
+    setIsDetailsModalOpen(false);
+    setSelectedPayment(null);
+  };
+
+  const openVerifyModal = (pay: PaymentItem) => {
+    setSelectedPayment(pay);
+    setIsDetailsModalOpen(false);
+    setInputUtr(pay.utrNumber || "");
+    setSelectedBankAccount(
+      "SBI Current A/C (40892301982739) - Ranchi Hub",
+    );
+    setSettlementDate(new Date().toISOString().split("T")[0]);
+    setAdminRemarks("");
+    setIsAuditConfirmed(false);
+    setIsVerifyModalOpen(true);
+  };
+
+  const openRejectModal = (pay: PaymentItem) => {
+    setSelectedPayment(pay);
+    setIsDetailsModalOpen(false);
+    setRejectionReason("");
+    setAdminRemarks("");
+    setIsRejectModalOpen(true);
+  };
 
   const fetchPayments = async () => {
     setLoading(true);
@@ -150,6 +194,20 @@ export default function AdminPaymentVerificationPage() {
 
   const handleApprovePayment = async () => {
     if (!selectedPayment) return;
+    const cleanUtr = inputUtr.trim();
+    if (!cleanUtr) {
+      alert(
+        "Please enter the Bank UTR / Transaction Reference number before approving.",
+      );
+      return;
+    }
+    if (!isAuditConfirmed) {
+      alert(
+        "Please certify fund settlement by ticking the audit confirmation checkbox.",
+      );
+      return;
+    }
+
     setActionLoading(true);
     setFeedbackMessage(null);
 
@@ -159,7 +217,12 @@ export default function AdminPaymentVerificationPage() {
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ remarks: adminRemarks }),
+          body: JSON.stringify({
+            utrNumber: cleanUtr,
+            bankAccount: selectedBankAccount,
+            settlementDate: settlementDate,
+            remarks: adminRemarks.trim(),
+          }),
         },
       );
       const data = await res.json();
@@ -167,10 +230,14 @@ export default function AdminPaymentVerificationPage() {
       if (data.success) {
         setFeedbackMessage({
           type: "success",
-          text: `Payment for Order #${selectedPayment.order?.orderNumber} successfully verified!`,
+          text: `Payment for Order #${selectedPayment.order?.orderNumber} successfully verified & marked as PAID. Tax Invoice generated!`,
         });
         setIsVerifyModalOpen(false);
+        setIsDetailsModalOpen(false);
+        setSelectedPayment(null);
         setAdminRemarks("");
+        setInputUtr("");
+        setIsAuditConfirmed(false);
         fetchPayments();
       } else {
         setFeedbackMessage({
@@ -219,6 +286,8 @@ export default function AdminPaymentVerificationPage() {
           text: `Payment marked as REJECTED. Customer has been notified.`,
         });
         setIsRejectModalOpen(false);
+        setIsDetailsModalOpen(false);
+        setSelectedPayment(null);
         setRejectionReason("");
         setAdminRemarks("");
         fetchPayments();
@@ -603,7 +672,7 @@ export default function AdminPaymentVerificationPage() {
                         <div className="flex items-center justify-end gap-1.5">
                           <button
                             type="button"
-                            onClick={() => setSelectedPayment(pay)}
+                            onClick={() => openDetailsModal(pay)}
                             className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-600 transition-all cursor-pointer"
                             title="View Full Breakdown"
                           >
@@ -614,10 +683,7 @@ export default function AdminPaymentVerificationPage() {
                             <>
                               <button
                                 type="button"
-                                onClick={() => {
-                                  setSelectedPayment(pay);
-                                  setIsVerifyModalOpen(true);
-                                }}
+                                onClick={() => openVerifyModal(pay)}
                                 className="flex items-center gap-1 px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold transition-all shadow-xs cursor-pointer"
                               >
                                 <CheckCircle2 className="w-3.5 h-3.5" />
@@ -625,10 +691,7 @@ export default function AdminPaymentVerificationPage() {
                               </button>
                               <button
                                 type="button"
-                                onClick={() => {
-                                  setSelectedPayment(pay);
-                                  setIsRejectModalOpen(true);
-                                }}
+                                onClick={() => openRejectModal(pay)}
                                 className="flex items-center gap-1 px-2.5 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-lg text-xs font-bold transition-all cursor-pointer"
                               >
                                 <XCircle className="w-3.5 h-3.5" />
@@ -648,9 +711,9 @@ export default function AdminPaymentVerificationPage() {
       </div>
 
       {/* 5. Payment Details Modal */}
-      {selectedPayment && !isVerifyModalOpen && !isRejectModalOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-2xl w-full p-6 space-y-5 max-h-[90vh] overflow-y-auto shadow-2xl animate-in zoom-in-95 duration-150">
+      {isDetailsModalOpen && selectedPayment && (
+        <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-7 space-y-5 max-h-[90vh] overflow-y-auto shadow-2xl border border-slate-100 my-8 animate-in zoom-in-95 duration-150">
             <div className="flex items-center justify-between border-b border-slate-200 pb-3">
               <div>
                 <h3 className="text-lg font-extrabold text-slate-900">
@@ -663,10 +726,11 @@ export default function AdminPaymentVerificationPage() {
                 </p>
               </div>
               <button
-                onClick={() => setSelectedPayment(null)}
-                className="text-slate-400 hover:text-slate-700 p-1.5 rounded-lg cursor-pointer"
+                type="button"
+                onClick={closeDetailsModal}
+                className="text-slate-400 hover:text-slate-700 hover:bg-slate-100 p-1.5 rounded-xl transition-all cursor-pointer"
               >
-                ✕
+                <X className="w-5 h-5" />
               </button>
             </div>
 
@@ -796,8 +860,8 @@ export default function AdminPaymentVerificationPage() {
             <div className="flex items-center justify-end gap-2 border-t border-slate-200 pt-4">
               <button
                 type="button"
-                onClick={() => setSelectedPayment(null)}
-                className="px-4 py-2 text-xs font-bold bg-slate-100 hover:bg-slate-200 rounded-xl cursor-pointer text-slate-700"
+                onClick={closeDetailsModal}
+                className="px-4 py-2 text-xs font-bold bg-slate-100 hover:bg-slate-200 rounded-xl cursor-pointer text-slate-700 transition-colors"
               >
                 Close
               </button>
@@ -806,14 +870,14 @@ export default function AdminPaymentVerificationPage() {
                 <>
                   <button
                     type="button"
-                    onClick={() => setIsRejectModalOpen(true)}
+                    onClick={() => openRejectModal(selectedPayment)}
                     className="px-4 py-2 text-xs font-bold bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-xl cursor-pointer"
                   >
                     Reject Payment
                   </button>
                   <button
                     type="button"
-                    onClick={() => setIsVerifyModalOpen(true)}
+                    onClick={() => openVerifyModal(selectedPayment)}
                     className="px-5 py-2 text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl shadow-md cursor-pointer"
                   >
                     Approve &amp; Confirm Order
@@ -827,55 +891,246 @@ export default function AdminPaymentVerificationPage() {
 
       {/* 6. Approve / Verify Modal */}
       {isVerifyModalOpen && selectedPayment && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-2xl animate-in zoom-in-95 duration-150">
-            <div className="flex items-center gap-3 border-b border-slate-200 pb-3">
-              <div className="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center shrink-0">
-                <CheckCircle2 className="w-6 h-6 text-emerald-600" />
+        <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-white rounded-3xl max-w-xl w-full p-6 sm:p-7 space-y-5 shadow-2xl border border-slate-100 my-8 animate-in zoom-in-95 duration-150 relative">
+            {/* Header */}
+            <div className="flex items-start justify-between border-b border-slate-100 pb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-11 h-11 rounded-2xl bg-emerald-50 border border-emerald-200/80 flex items-center justify-center shrink-0 shadow-2xs">
+                  <ShieldCheck className="w-6 h-6 text-emerald-600" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-base sm:text-lg font-black text-slate-900 tracking-tight">
+                      Approve Bank Transfer
+                    </h3>
+                    <span className="text-[10px] font-bold uppercase tracking-wider bg-emerald-100/70 text-emerald-800 px-2 py-0.5 rounded-full border border-emerald-200">
+                      Finance Desk
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-500 font-medium mt-0.5">
+                    Confirm NEFT / RTGS credit in Prayog India bank statement before releasing order.
+                  </p>
+                </div>
               </div>
-              <div>
-                <h3 className="text-base font-extrabold text-slate-900">
-                  Approve Bank Transfer
-                </h3>
-                <p className="text-xs text-slate-500 font-medium">
-                  Confirm that ₹{selectedPayment.amount.toLocaleString("en-IN")}{" "}
-                  has been credited.
-                </p>
-              </div>
-            </div>
-
-            <div className="bg-emerald-50/70 border border-emerald-200 p-3.5 rounded-xl space-y-1 text-xs text-emerald-900">
-              <p>
-                <strong>Order #:</strong> {selectedPayment.order?.orderNumber}
-              </p>
-              <p>
-                <strong>UTR Reference:</strong>{" "}
-                {selectedPayment.utrNumber || "N/A"}
-              </p>
-              <p>
-                <strong>Total Amount:</strong> ₹
-                {selectedPayment.amount.toLocaleString("en-IN")}
-              </p>
-            </div>
-
-            <div>
-              <label className="text-[11px] font-bold uppercase text-slate-500 block mb-1">
-                Internal Verification Remarks (Optional)
-              </label>
-              <textarea
-                value={adminRemarks}
-                onChange={(e) => setAdminRemarks(e.target.value)}
-                placeholder="e.g. Verified in SBI Main Branch statement on 21-Sept-2026."
-                rows={3}
-                className="w-full text-xs p-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500"
-              />
-            </div>
-
-            <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
               <button
                 type="button"
-                onClick={() => setIsVerifyModalOpen(false)}
-                className="px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-100 rounded-xl cursor-pointer"
+                onClick={() => {
+                  setIsVerifyModalOpen(false);
+                  setSelectedPayment(null);
+                }}
+                className="text-slate-400 hover:text-slate-700 hover:bg-slate-100 p-1.5 rounded-xl transition-all cursor-pointer"
+                disabled={actionLoading}
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Financial Overview Card */}
+            <div className="bg-gradient-to-br from-slate-50 via-slate-50/80 to-emerald-50/40 border border-slate-200/80 rounded-2xl p-4 space-y-3">
+              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200/60 pb-2.5">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                    Order Ref:
+                  </span>
+                  <span className="font-mono font-black text-slate-900 bg-white px-2 py-0.5 rounded-lg border border-slate-200 text-xs">
+                    #{selectedPayment.order?.orderNumber || selectedPayment.orderId}
+                  </span>
+                </div>
+                <div className="text-xs font-semibold text-slate-600 flex items-center gap-1.5">
+                  <Building2 className="w-3.5 h-3.5 text-blue-600" />
+                  <span>
+                    {selectedPayment.order?.user?.companyName ||
+                      selectedPayment.order?.user?.name ||
+                      "Direct Customer"}
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex items-baseline justify-between">
+                <div>
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block">
+                    Verified Credit Amount
+                  </span>
+                  <div className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight mt-0.5">
+                    ₹{selectedPayment.amount.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+                  </div>
+                </div>
+                <div className="text-right">
+                  <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 bg-emerald-100/60 border border-emerald-200 px-2.5 py-1 rounded-full">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                    100% Full Order Value
+                  </span>
+                  {selectedPayment.order?.gstAmount ? (
+                    <span className="block text-[10px] text-slate-400 font-mono mt-0.5">
+                      Incl. ₹{selectedPayment.order.gstAmount.toLocaleString("en-IN")} GST
+                    </span>
+                  ) : null}
+                </div>
+              </div>
+
+              {/* Customer proof link if uploaded */}
+              {selectedPayment.proofUrl && (
+                <div className="pt-2 border-t border-slate-200/60 flex items-center justify-between text-xs">
+                  <span className="text-slate-500 font-medium">Customer Uploaded Deposit Slip:</span>
+                  <a
+                    href={selectedPayment.proofUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 hover:text-blue-700 font-bold flex items-center gap-1"
+                  >
+                    <span>View Counterfoil</span>
+                    <ExternalLink className="w-3.5 h-3.5" />
+                  </a>
+                </div>
+              )}
+            </div>
+
+            {/* Verification Inputs */}
+            <div className="space-y-4">
+              {/* UTR Reference Input */}
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-black uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
+                    <span>Bank UTR / Transaction Reference</span>
+                    <span className="text-rose-500">*</span>
+                  </label>
+                  {selectedPayment.utrNumber && (
+                    <button
+                      type="button"
+                      onClick={() => setInputUtr(selectedPayment.utrNumber!)}
+                      className="text-[11px] font-bold text-[#005CA9] hover:underline cursor-pointer"
+                    >
+                      Use Customer UTR ({selectedPayment.utrNumber})
+                    </button>
+                  )}
+                </div>
+
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={inputUtr}
+                    onChange={(e) => setInputUtr(e.target.value.toUpperCase())}
+                    placeholder="Enter 16 or 22 character UTR (e.g. SBIN202609214481)"
+                    className="w-full text-xs font-mono font-bold tracking-wider uppercase p-3 bg-white border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 shadow-2xs text-slate-900 placeholder:normal-case placeholder:font-sans placeholder:font-normal placeholder:text-slate-400"
+                  />
+                </div>
+
+                {!selectedPayment.utrNumber && (
+                  <p className="text-[11px] text-amber-700 bg-amber-50 border border-amber-200/80 rounded-lg px-2.5 py-1 flex items-center gap-1.5 font-medium">
+                    <AlertTriangle className="w-3.5 h-3.5 shrink-0 text-amber-600" />
+                    <span>Customer did not submit a UTR. Check your SBI statement and enter the matching UTR number.</span>
+                  </p>
+                )}
+              </div>
+
+              {/* Receiving Bank Account & Settlement Date (2 cols) */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="text-[11px] font-black uppercase tracking-wider text-slate-700 block mb-1">
+                    Credited Bank Account
+                  </label>
+                  <select
+                    value={selectedBankAccount}
+                    onChange={(e) => setSelectedBankAccount(e.target.value)}
+                    className="w-full text-xs font-semibold p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-800 cursor-pointer"
+                  >
+                    <option value="SBI Current A/C (40892301982739) - Ranchi Hub">
+                      SBI Current ···2739 (Ranchi Hub)
+                    </option>
+                    <option value="HDFC Bank Current A/C (50200088192019) - Corporate">
+                      HDFC Current ···2019 (Corporate)
+                    </option>
+                    <option value="ICICI Bank Current A/C (004505012398) - B2B Wire">
+                      ICICI Current ···2398 (B2B Wire)
+                    </option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="text-[11px] font-black uppercase tracking-wider text-slate-700 block mb-1">
+                    Settlement / Value Date
+                  </label>
+                  <input
+                    type="date"
+                    value={settlementDate}
+                    onChange={(e) => setSettlementDate(e.target.value)}
+                    className="w-full text-xs font-semibold p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-800"
+                  />
+                </div>
+              </div>
+
+              {/* Internal Verification Remarks */}
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <label className="text-[11px] font-black uppercase tracking-wider text-slate-700 block">
+                    Internal Verification Remarks (Optional)
+                  </label>
+                  <span className="text-[10px] text-slate-400 font-medium">Logged in Audit Trail</span>
+                </div>
+
+                {/* Quick Chips */}
+                <div className="flex flex-wrap gap-1.5 pb-1">
+                  {[
+                    "Verified in SBI NetBanking",
+                    "Matched in Corporate Statement",
+                    "UTR Confirmed with Branch",
+                    "100% Advance Received",
+                  ].map((preset) => (
+                    <button
+                      key={preset}
+                      type="button"
+                      onClick={() =>
+                        setAdminRemarks((prev) =>
+                          prev ? `${prev}. ${preset}` : preset,
+                        )
+                      }
+                      className="text-[10px] font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 px-2 py-0.5 rounded-md transition-colors cursor-pointer"
+                    >
+                      + {preset}
+                    </button>
+                  ))}
+                </div>
+
+                <textarea
+                  value={adminRemarks}
+                  onChange={(e) => setAdminRemarks(e.target.value)}
+                  placeholder="e.g. Verified in SBI NetBanking statement. Amount matches invoice total."
+                  rows={2}
+                  className="w-full text-xs p-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-800 placeholder:text-slate-400"
+                />
+              </div>
+
+              {/* Compliance & Safety Confirmation Checkbox */}
+              <div
+                onClick={() => setIsAuditConfirmed(!isAuditConfirmed)}
+                className={`p-3 rounded-xl border transition-all cursor-pointer flex items-start gap-3 select-none ${
+                  isAuditConfirmed
+                    ? "bg-emerald-50/80 border-emerald-300 text-emerald-950"
+                    : "bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100/80"
+                }`}
+              >
+                <input
+                  type="checkbox"
+                  checked={isAuditConfirmed}
+                  onChange={(e) => setIsAuditConfirmed(e.target.checked)}
+                  className="mt-0.5 w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 border-slate-300 cursor-pointer"
+                />
+                <label className="text-xs font-semibold leading-relaxed cursor-pointer">
+                  I certify that ₹{selectedPayment.amount.toLocaleString("en-IN", { minimumFractionDigits: 2 })} has cleared and settled into Prayog India&apos;s bank account. Authorize tax invoice generation &amp; order dispatch.
+                </label>
+              </div>
+            </div>
+
+            {/* Footer Buttons */}
+            <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
+              <button
+                type="button"
+                onClick={() => {
+                  setIsVerifyModalOpen(false);
+                  setSelectedPayment(null);
+                }}
+                className="px-4 py-2.5 text-xs font-bold text-slate-600 hover:bg-slate-100 rounded-xl cursor-pointer transition-colors"
                 disabled={actionLoading}
               >
                 Cancel
@@ -883,13 +1138,24 @@ export default function AdminPaymentVerificationPage() {
               <button
                 type="button"
                 onClick={handleApprovePayment}
-                disabled={actionLoading}
-                className="px-5 py-2 text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl shadow-md cursor-pointer flex items-center gap-1.5"
+                disabled={actionLoading || !inputUtr.trim() || !isAuditConfirmed}
+                className={`px-6 py-2.5 text-xs font-black rounded-xl shadow-md flex items-center gap-2 transition-all cursor-pointer ${
+                  actionLoading || !inputUtr.trim() || !isAuditConfirmed
+                    ? "bg-slate-200 text-slate-400 cursor-not-allowed shadow-none"
+                    : "bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-600/25 hover:shadow-lg hover:-translate-y-0.5"
+                }`}
               >
-                {actionLoading && (
-                  <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                {actionLoading ? (
+                  <>
+                    <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                    <span>Verifying with Bank...</span>
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle2 className="w-4 h-4" />
+                    <span>Confirm Bank Credit &amp; Mark Paid</span>
+                  </>
                 )}
-                Confirm Bank Credit &amp; Mark Paid
               </button>
             </div>
           </div>
@@ -898,64 +1164,119 @@ export default function AdminPaymentVerificationPage() {
 
       {/* 7. Reject Modal */}
       {isRejectModalOpen && selectedPayment && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-2xl animate-in zoom-in-95 duration-150">
-            <div className="flex items-center gap-3 border-b border-slate-200 pb-3">
-              <div className="w-10 h-10 rounded-xl bg-rose-50 border border-rose-200 flex items-center justify-center shrink-0">
-                <AlertTriangle className="w-6 h-6 text-rose-600" />
+        <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-7 space-y-5 shadow-2xl border border-slate-100 my-8 animate-in zoom-in-95 duration-150 relative">
+            {/* Header */}
+            <div className="flex items-start justify-between border-b border-slate-100 pb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-11 h-11 rounded-2xl bg-rose-50 border border-rose-200/80 flex items-center justify-center shrink-0 shadow-2xs">
+                  <AlertTriangle className="w-6 h-6 text-rose-600" />
+                </div>
+                <div>
+                  <h3 className="text-base sm:text-lg font-black text-slate-900 tracking-tight">
+                    Reject Payment Submission
+                  </h3>
+                  <p className="text-xs text-slate-500 font-medium mt-0.5">
+                    Customer will be notified with instructions to resubmit a valid UTR.
+                  </p>
+                </div>
               </div>
-              <div>
-                <h3 className="text-base font-extrabold text-slate-900">
-                  Reject Payment Submission
-                </h3>
-                <p className="text-xs text-slate-500 font-medium">
-                  Customer will be notified with the reason to resubmit a valid
-                  UTR.
-                </p>
-              </div>
-            </div>
-
-            <div className="bg-rose-50/70 border border-rose-200 p-3.5 rounded-xl space-y-1 text-xs text-rose-900">
-              <p>
-                <strong>Order #:</strong> {selectedPayment.order?.orderNumber}
-              </p>
-              <p>
-                <strong>Submitted UTR:</strong>{" "}
-                {selectedPayment.utrNumber || "N/A"}
-              </p>
-            </div>
-
-            <div>
-              <label className="text-[11px] font-bold uppercase text-slate-700 block mb-1">
-                Rejection Reason (Sent to Customer) *
-              </label>
-              <textarea
-                value={rejectionReason}
-                onChange={(e) => setRejectionReason(e.target.value)}
-                placeholder="e.g. UTR number not found in SBI bank account statement. Please verify and resubmit."
-                rows={3}
-                className="w-full text-xs p-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-500"
-              />
-            </div>
-
-            <div>
-              <label className="text-[11px] font-bold uppercase text-slate-500 block mb-1">
-                Internal Accounts Notes (Optional)
-              </label>
-              <input
-                type="text"
-                value={adminRemarks}
-                onChange={(e) => setAdminRemarks(e.target.value)}
-                placeholder="e.g. Checked with Accounts Officer on 21-Sept."
-                className="w-full text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-400"
-              />
-            </div>
-
-            <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
               <button
                 type="button"
-                onClick={() => setIsRejectModalOpen(false)}
-                className="px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-100 rounded-xl cursor-pointer"
+                onClick={() => {
+                  setIsRejectModalOpen(false);
+                  setSelectedPayment(null);
+                }}
+                className="text-slate-400 hover:text-slate-700 hover:bg-slate-100 p-1.5 rounded-xl transition-all cursor-pointer"
+                disabled={actionLoading}
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Summary Box */}
+            <div className="bg-rose-50/60 border border-rose-200/80 p-3.5 rounded-2xl space-y-1.5 text-xs text-slate-800">
+              <div className="flex justify-between items-center">
+                <span className="text-slate-500 font-medium">Order Reference:</span>
+                <span className="font-mono font-bold text-slate-900">
+                  #{selectedPayment.order?.orderNumber || selectedPayment.orderId}
+                </span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-slate-500 font-medium">Expected Amount:</span>
+                <span className="font-bold text-slate-900">
+                  ₹{selectedPayment.amount.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+                </span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-slate-500 font-medium">Submitted UTR:</span>
+                <span className="font-mono font-bold text-rose-700">
+                  {selectedPayment.utrNumber || "N/A (Missing)"}
+                </span>
+              </div>
+            </div>
+
+            {/* Rejection Reason Form */}
+            <div className="space-y-3.5">
+              <div>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="text-[11px] font-black uppercase tracking-wider text-slate-700 block">
+                    Rejection Reason (Sent to Customer) *
+                  </label>
+                  <span className="text-[10px] text-rose-600 font-semibold">Required</span>
+                </div>
+
+                {/* Preset Chips */}
+                <div className="flex flex-wrap gap-1.5 pb-2">
+                  {[
+                    "UTR not found in SBI bank statement",
+                    "Transferred amount does not match invoice total",
+                    "Invalid or incomplete reference number",
+                    "Transfer bounced or reversed by remitting bank",
+                  ].map((chip) => (
+                    <button
+                      key={chip}
+                      type="button"
+                      onClick={() => setRejectionReason(chip)}
+                      className="text-[10px] font-semibold bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 px-2 py-0.5 rounded-md transition-colors cursor-pointer text-left"
+                    >
+                      + {chip}
+                    </button>
+                  ))}
+                </div>
+
+                <textarea
+                  value={rejectionReason}
+                  onChange={(e) => setRejectionReason(e.target.value)}
+                  placeholder="e.g. UTR number not found in our SBI bank statement. Please verify the 16-digit reference number and resubmit."
+                  rows={3}
+                  className="w-full text-xs p-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-500 text-slate-800"
+                />
+              </div>
+
+              <div>
+                <label className="text-[11px] font-black uppercase tracking-wider text-slate-500 block mb-1">
+                  Internal Accounts Audit Notes (Optional)
+                </label>
+                <input
+                  type="text"
+                  value={adminRemarks}
+                  onChange={(e) => setAdminRemarks(e.target.value)}
+                  placeholder="e.g. Rechecked with Branch Accounts Manager at 2:30 PM."
+                  className="w-full text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-400 text-slate-800"
+                />
+              </div>
+            </div>
+
+            {/* Footer Buttons */}
+            <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
+              <button
+                type="button"
+                onClick={() => {
+                  setIsRejectModalOpen(false);
+                  setSelectedPayment(null);
+                }}
+                className="px-4 py-2.5 text-xs font-bold text-slate-600 hover:bg-slate-100 rounded-xl cursor-pointer transition-colors"
                 disabled={actionLoading}
               >
                 Cancel
@@ -963,8 +1284,12 @@ export default function AdminPaymentVerificationPage() {
               <button
                 type="button"
                 onClick={handleRejectPayment}
-                disabled={actionLoading}
-                className="px-5 py-2 text-xs font-bold bg-rose-600 hover:bg-rose-700 text-white rounded-xl shadow-md cursor-pointer flex items-center gap-1.5"
+                disabled={actionLoading || rejectionReason.trim().length < 5}
+                className={`px-5 py-2.5 text-xs font-black rounded-xl shadow-md flex items-center gap-1.5 transition-all cursor-pointer ${
+                  actionLoading || rejectionReason.trim().length < 5
+                    ? "bg-slate-200 text-slate-400 cursor-not-allowed shadow-none"
+                    : "bg-rose-600 hover:bg-rose-700 text-white shadow-rose-600/25 hover:shadow-lg hover:-translate-y-0.5"
+                }`}
               >
                 {actionLoading && (
                   <RefreshCw className="w-3.5 h-3.5 animate-spin" />

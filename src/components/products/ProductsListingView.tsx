@@ -2,6 +2,7 @@
 
 import React, { useState, useMemo, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
 import { CategoryBreadcrumb } from "@/components/categories/CategoryBreadcrumb";
 import { ProductsHeader } from "@/components/products/ProductsHeader";
 import {
@@ -20,7 +21,7 @@ import { QuickViewModal } from "@/components/products/QuickViewModal";
 import { PRODUCTS, Product } from "@/data/mockData";
 import { useCartStore, useWishlistStore } from "@/store";
 import { searchProductsFuzzy } from "@/lib/fuzzySearch";
-import { X, Search, Clock, TrendingUp, Tag, ShoppingCart, Loader2 } from "lucide-react";
+import { X, Search, Clock, TrendingUp, Tag, ShoppingCart, Loader2, SlidersHorizontal, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useSearchSuggestions } from "@/hooks/useSearchSuggestions";
 import { SearchSuggestionsDropdown } from "@/components/ui/SearchSuggestionsDropdown";
@@ -74,6 +75,7 @@ function ProductsContent() {
   const [sortBy, setSortBy] = useState<SortOption>("featured");
   const [columns, setColumns] = useState<GridColumns>(4);
   const [itemsPerPage, setItemsPerPage] = useState<number>(20);
+  const [isFilterOpen, setIsFilterOpen] = useState(true);
 
   useEffect(() => {
     fetch("/api/products?limit=100")
@@ -374,11 +376,20 @@ function ProductsContent() {
 
   const showSearchSuggest = searchFocused && searchQuery.length === 0;
 
+  const activeFiltersCount =
+    (selectedCategory ? 1 : 0) +
+    (selectedSubcategory ? 1 : 0) +
+    (selectedBrand ? 1 : 0) +
+    (stockFilter !== "all" ? 1 : 0) +
+    (priceRange[0] > 0 || priceRange[1] < 60000 ? 1 : 0) +
+    (minDiscount ? 1 : 0) +
+    (minRating ? 1 : 0);
+
   const getGridColsClass = () => {
-    if (columns === 1) return "grid grid-cols-1 gap-3 sm:gap-4";
-    if (columns === 2) return "grid grid-cols-2 gap-2.5 sm:gap-4";
-    if (columns === 3) return "grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-2.5 sm:gap-4";
-    return "grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-2.5 sm:gap-4";
+    if (columns === 1) return "grid grid-cols-1 gap-3 sm:gap-5";
+    if (columns === 2) return "grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6";
+    if (columns === 3) return "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-5";
+    return "grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-3.5 sm:gap-4.5";
   };
 
 
@@ -528,34 +539,74 @@ function ProductsContent() {
           setItemsPerPage(num);
           setVisibleCount(num);
         }}
+        isFilterOpen={isFilterOpen}
+        onToggleFilter={() => setIsFilterOpen((prev) => !prev)}
       />
 
       {/* Main Content — Sidebar + Grid */}
-      <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 items-start">
-        {/* Left Filter Sidebar (Desktop) */}
-        <div className="hidden lg:block w-64 xl:w-72 2xl:w-80 shrink-0 sticky top-24 bg-white border border-slate-200/90 p-5 rounded-2xl shadow-2xs">
-          <ProductFilters
-            selectedCategory={selectedCategory}
-            onSelectCategory={setSelectedCategory}
-            selectedSubcategory={selectedSubcategory}
-            onSelectSubcategory={setSelectedSubcategory}
-            selectedBrand={selectedBrand}
-            onSelectBrand={setSelectedBrand}
-            stockFilter={stockFilter}
-            onStockFilterChange={setStockFilter}
-            inStockCount={inStockCount}
-            outOfStockCount={outOfStockCount}
-            priceRange={priceRange}
-            onPriceRangeChange={setPriceRange}
-            minDiscount={minDiscount}
-            onMinDiscountChange={setMinDiscount}
-            minRating={minRating}
-            onMinRatingChange={setMinRating}
-            techSpecs={techSpecs}
-            onTechSpecChange={handleTechSpecChange}
-            onClearAll={clearAllFilters}
-          />
-        </div>
+      <div className="flex flex-col lg:flex-row gap-4 lg:gap-6 items-start w-full">
+        {/* Left Filter Sidebar (Desktop) — Expandable / Collapsible with Smooth Easing & Zero Screen Shake */}
+        <aside
+          className={`hidden lg:block shrink-0 sticky top-24 bg-white border border-slate-200/90 rounded-2xl shadow-2xs overflow-hidden transition-[width,padding,border-color,box-shadow] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+            isFilterOpen
+              ? "w-64 xl:w-72 2xl:w-80 p-5"
+              : "w-12 py-5 px-1 cursor-pointer hover:border-[#2563EB] hover:shadow-md group active:scale-[0.98]"
+          }`}
+          onClick={!isFilterOpen ? () => setIsFilterOpen(true) : undefined}
+          title={!isFilterOpen ? "Maximize & Open Filters Window" : undefined}
+          aria-label={isFilterOpen ? "Product Filters" : "Open Product Filters"}
+        >
+          <div className="relative w-full">
+            {/* Expanded view */}
+            <div
+              className={`transition-opacity duration-200 ${
+                isFilterOpen ? "opacity-100" : "opacity-0 pointer-events-none absolute top-0 left-0"
+              }`}
+            >
+              <div className="w-56 xl:w-64 2xl:w-72">
+                <ProductFilters
+                  selectedCategory={selectedCategory}
+                  onSelectCategory={setSelectedCategory}
+                  selectedSubcategory={selectedSubcategory}
+                  onSelectSubcategory={setSelectedSubcategory}
+                  selectedBrand={selectedBrand}
+                  onSelectBrand={setSelectedBrand}
+                  stockFilter={stockFilter}
+                  onStockFilterChange={setStockFilter}
+                  inStockCount={inStockCount}
+                  outOfStockCount={outOfStockCount}
+                  priceRange={priceRange}
+                  onPriceRangeChange={setPriceRange}
+                  minDiscount={minDiscount}
+                  onMinDiscountChange={setMinDiscount}
+                  minRating={minRating}
+                  onMinRatingChange={setMinRating}
+                  techSpecs={techSpecs}
+                  onTechSpecChange={handleTechSpecChange}
+                  onClearAll={clearAllFilters}
+                  onToggleCollapse={() => setIsFilterOpen(false)}
+                />
+              </div>
+            </div>
+
+            {/* Collapsed rail */}
+            <div
+              className={`flex flex-col items-center justify-center transition-opacity duration-200 select-none ${
+                !isFilterOpen ? "opacity-100 delay-150" : "opacity-0 pointer-events-none absolute top-0 left-0 w-full"
+              }`}
+            >
+              <SlidersHorizontal className="w-4 h-4 text-[#2563EB] group-hover:scale-110 transition-transform mb-3 stroke-[2.2]" />
+              <span className="[writing-mode:vertical-rl] text-xs font-black uppercase tracking-wider text-slate-700 group-hover:text-[#2563EB] rotate-180 py-1 transition-colors">
+                Filters
+              </span>
+              {activeFiltersCount > 0 && (
+                <span className="w-5 h-5 rounded-full bg-[#2563EB] text-white text-[10px] font-black flex items-center justify-center mt-3 shadow-xs">
+                  {activeFiltersCount}
+                </span>
+              )}
+            </div>
+          </div>
+        </aside>
 
         {/* Right Product Grid or List */}
         <div className="flex-1 min-w-0 space-y-6">
@@ -571,10 +622,15 @@ function ProductsContent() {
                         ((product.mrp - product.price) / product.mrp) * 100,
                       )
                     : null;
-                const specPills = Object.entries(product.specs ?? {}).slice(
-                  0,
-                  4,
-                );
+                const specPills = Object.entries(product.specs ?? {})
+                  .filter(
+                    ([key, val]) =>
+                      !key.startsWith("_") &&
+                      val !== null &&
+                      val !== undefined &&
+                      typeof val !== "object"
+                  )
+                  .slice(0, 4);
 
                 return (
                   <div
@@ -621,7 +677,7 @@ function ProductsContent() {
                             key={key}
                             className="bg-slate-100 text-slate-600 text-[9px] font-bold px-1.5 py-0.5 rounded truncate"
                           >
-                            {key}: {val}
+                            {key}: {String(val)}
                           </span>
                         ))}
                       </div>

@@ -4,12 +4,14 @@ import React, { useState, useEffect, useRef, useMemo } from "react";
 import {
   ChevronDown,
   ChevronUp,
+  ChevronLeft,
   Search,
   RotateCcw,
   Star,
   Check,
   X,
   Tag,
+  PanelLeftClose,
 } from "lucide-react";
 import { CATEGORIES_DATA } from "@/data/categories";
 import { BRANDS_DATA, getBrandsForCategory } from "@/data/brands";
@@ -85,6 +87,7 @@ export interface ProductFiltersProps {
   // Global actions
   totalActiveCount?: number;
   onClearAll: () => void;
+  onToggleCollapse?: () => void;
   className?: string;
 }
 
@@ -118,6 +121,7 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
   onTechSpecChange,
   totalActiveCount,
   onClearAll,
+  onToggleCollapse,
   className = "",
 }) => {
   // Accordion toggle states
@@ -263,16 +267,33 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
           )}
         </div>
 
-        {hasAnyActiveFilter && (
-          <button
-            type="button"
-            onClick={onClearAll}
-            className="text-[11px] font-bold text-[#2563EB] hover:text-[#1D4ED8] flex items-center gap-1 cursor-pointer transition-colors"
-          >
-            <RotateCcw className="w-3 h-3" />
-            <span>Reset</span>
-          </button>
-        )}
+        <div className="flex items-center gap-1.5">
+          {hasAnyActiveFilter && (
+            <button
+              type="button"
+              onClick={onClearAll}
+              className="text-[11px] font-bold text-[#2563EB] hover:text-[#1D4ED8] flex items-center gap-1 cursor-pointer transition-colors px-1.5 py-0.5 rounded-md hover:bg-blue-50"
+            >
+              <RotateCcw className="w-3 h-3" />
+              <span>Reset</span>
+            </button>
+          )}
+
+          {onToggleCollapse && (
+            <button
+              type="button"
+              onClick={onToggleCollapse}
+              title="Minimize & Collapse Filters Window"
+              className="px-2 py-1 rounded-lg hover:bg-slate-100 text-slate-500 hover:text-slate-800 transition cursor-pointer flex items-center gap-1 group/btn active:scale-95 border border-transparent hover:border-slate-200"
+              aria-label="Minimize Filters"
+            >
+              <ChevronLeft className="w-3.5 h-3.5 group-hover/btn:-translate-x-0.5 transition-transform" />
+              <span className="text-[11px] font-bold text-slate-500 group-hover/btn:text-slate-800">
+                Hide
+              </span>
+            </button>
+          )}
+        </div>
       </div>
 
       {/* ── 2. Modern In-Stock Only Toggle ── */}

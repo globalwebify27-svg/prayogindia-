@@ -20,8 +20,6 @@ import {
   Zap,
   HelpCircle,
   X,
-  Plane,
-  Store,
   Clock,
 Info,
   BatteryCharging,
@@ -230,12 +228,6 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
         return;
       }
       setSelectedDeliveryMode("air");
-      useUIStore.getState().showToast({
-        title: "Selected: By Air Express",
-        message: `Priority air flight dispatch (Est. ${airDeliveryDate})`,
-        type: "info",
-        duration: 2500,
-      });
       return;
     }
 
@@ -257,12 +249,6 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
         return;
       }
       setSelectedDeliveryMode("surface");
-      useUIStore.getState().showToast({
-        title: "Selected: By Land / Road",
-        message: `Pan-India ground logistics (Est. ${surfaceDeliveryDate})`,
-        type: "info",
-        duration: 2500,
-      });
       return;
     }
 
@@ -284,12 +270,6 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
         return;
       }
       setSelectedDeliveryMode("pickup");
-      useUIStore.getState().showToast({
-        title: "Selected: Store Pickup",
-        message: "Ready for pickup in 2 hours at Ranchi Hub",
-        type: "info",
-        duration: 2500,
-      });
       return;
     }
   };
@@ -326,10 +306,12 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
     const tags: string[] = [];
     if (product.category) tags.push(product.category);
     if (product.specs) {
-      const specKeys = Object.keys(product.specs);
+      const specKeys = Object.keys(product.specs).filter(
+        (k) => !k.startsWith("_")
+      );
       for (const key of specKeys.slice(0, 2)) {
         const val = product.specs[key];
-        if (val && val.length < 25) tags.push(val);
+        if (typeof val === "string" && val.length < 25) tags.push(val);
       }
     }
     return tags.slice(0, 3);
@@ -519,12 +501,6 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
       {/* ── 4. Pricing Block ── */}
       <div className="pt-2 pb-1 space-y-1.5">
         <div className="flex flex-wrap items-baseline gap-2.5 sm:gap-3.5">
-          {discountPercentage > 0 && (
-            <span className="text-xl sm:text-2xl font-extrabold text-red-600">
-              -{discountPercentage}%
-            </span>
-          )}
-
           <span className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
             ₹{currentPrice.toLocaleString("en-IN")}
           </span>
@@ -704,10 +680,7 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
               </div>
             </div>
 
-            <div className="hidden sm:flex items-center gap-1.5 text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200/80">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              Pan-India Dispatch Active
-            </div>
+
           </div>
 
           {/* Freight Modes Interactive Selection Grid */}
@@ -724,26 +697,13 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
                   : "bg-slate-50/90 border-amber-200/90 hover:border-amber-400 opacity-85"
               }`}
             >
-              <div className="flex items-center gap-2.5 min-w-0">
-                <div
-                  className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${
-                    selectedDeliveryMode === "air" && isAirAllowed
-                      ? "bg-blue-600 text-white shadow-xs"
-                      : isAirAllowed
-                      ? "bg-blue-50 text-blue-600 border border-blue-100"
-                      : "bg-slate-200 text-slate-400"
-                  }`}
-                >
-                  <Plane className="w-3.5 h-3.5" />
-                </div>
-                <div className="flex items-center gap-1.5 min-w-0">
-                  <span className="text-xs font-bold text-slate-900">By Air</span>
-                  {!isAirAllowed && (
-                    <span className="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 border border-amber-200">
-                      Restricted
-                    </span>
-                  )}
-                </div>
+              <div className="flex items-center gap-1.5 min-w-0">
+                <span className="text-xs font-bold text-slate-900">By Air</span>
+                {!isAirAllowed && (
+                  <span className="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 border border-amber-200">
+                    Restricted
+                  </span>
+                )}
               </div>
 
               {/* Selection / Warning Indicator */}
@@ -772,26 +732,13 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
                   : "bg-slate-50/90 border-slate-200/80 opacity-70"
               }`}
             >
-              <div className="flex items-center gap-2.5 min-w-0">
-                <div
-                  className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${
-                    selectedDeliveryMode === "surface" && isSurfaceAllowed
-                      ? "bg-emerald-600 text-white shadow-xs"
-                      : isSurfaceAllowed
-                      ? "bg-emerald-50 text-emerald-700 border border-emerald-100"
-                      : "bg-slate-200 text-slate-400"
-                  }`}
-                >
-                  <Truck className="w-3.5 h-3.5" />
-                </div>
-                <div className="flex items-center gap-1.5 min-w-0">
-                  <span className="text-xs font-bold text-slate-900">By Land / Road</span>
-                  {!isSurfaceAllowed && (
-                    <span className="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded bg-slate-100 text-slate-600">
-                      Unavailable
-                    </span>
-                  )}
-                </div>
+              <div className="flex items-center gap-1.5 min-w-0">
+                <span className="text-xs font-bold text-slate-900">By Land / Road</span>
+                {!isSurfaceAllowed && (
+                  <span className="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded bg-slate-100 text-slate-600">
+                    Unavailable
+                  </span>
+                )}
               </div>
 
               {/* Selection Indicator */}
@@ -818,26 +765,13 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
                   : "bg-slate-50/90 border-slate-200/80 opacity-70"
               }`}
             >
-              <div className="flex items-center gap-2.5 min-w-0">
-                <div
-                  className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${
-                    selectedDeliveryMode === "pickup" && isLocalPickupAllowed
-                      ? "bg-purple-600 text-white shadow-xs"
-                      : isLocalPickupAllowed
-                      ? "bg-purple-50 text-purple-700 border border-purple-100"
-                      : "bg-slate-200 text-slate-400"
-                  }`}
-                >
-                  <Store className="w-3.5 h-3.5" />
-                </div>
-                <div className="flex items-center gap-1.5 min-w-0">
-                  <span className="text-xs font-bold text-slate-900">Store Pickup</span>
-                  {!isLocalPickupAllowed && (
-                    <span className="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded bg-slate-100 text-slate-600">
-                      Unavailable
-                    </span>
-                  )}
-                </div>
+              <div className="flex items-center gap-1.5 min-w-0">
+                <span className="text-xs font-bold text-slate-900">Store Pickup</span>
+                {!isLocalPickupAllowed && (
+                  <span className="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded bg-slate-100 text-slate-600">
+                    Unavailable
+                  </span>
+                )}
               </div>
 
               {/* Selection Indicator */}
@@ -860,20 +794,17 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
                 Selected Mode:
               </span>
               {selectedDeliveryMode === "air" && (
-                <span className="font-bold text-blue-700 flex items-center gap-1.5">
-                  <Plane className="w-3.5 h-3.5 text-blue-600" />
+                <span className="font-bold text-blue-700">
                   Priority Air Flight Dispatch (Est. Arrival: {airDeliveryDate})
                 </span>
               )}
               {selectedDeliveryMode === "surface" && (
-                <span className="font-bold text-emerald-800 flex items-center gap-1.5">
-                  <Truck className="w-3.5 h-3.5 text-emerald-600" />
+                <span className="font-bold text-emerald-800">
                   Land / Road Surface Cargo (Est. Arrival: {surfaceDeliveryDate})
                 </span>
               )}
               {selectedDeliveryMode === "pickup" && (
-                <span className="font-bold text-purple-800 flex items-center gap-1.5">
-                  <Store className="w-3.5 h-3.5 text-purple-600" />
+                <span className="font-bold text-purple-800">
                   Local Store Pickup (Ready in 2 Hours at Ranchi Hub)
                 </span>
               )}
@@ -925,7 +856,6 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
                         ? "bg-white border-blue-400 font-semibold text-blue-900 shadow-2xs"
                         : "bg-white/80 border-emerald-100"
                     }`}>
-                      <Plane className="w-3.5 h-3.5 text-blue-600 shrink-0" />
                       <span><strong>By Air:</strong> Est. {airDeliveryDate} (Express)</span>
                     </div>
                   )}
@@ -935,7 +865,6 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
                         ? "bg-white border-emerald-400 font-semibold text-emerald-900 shadow-2xs"
                         : "bg-white/80 border-emerald-100"
                     }`}>
-                      <Truck className="w-3.5 h-3.5 text-emerald-700 shrink-0" />
                       <span><strong>By Land:</strong> Est. {surfaceDeliveryDate} (Free Standard)</span>
                     </div>
                   )}
@@ -945,7 +874,6 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
                         ? "bg-white border-purple-400 font-semibold text-purple-900 shadow-2xs"
                         : "bg-white/80 border-emerald-100"
                     }`}>
-                      <Store className="w-3.5 h-3.5 text-purple-600 shrink-0" />
                       <span><strong>Store Pickup:</strong> Ready today at Ranchi Store Counter</span>
                     </div>
                   )}

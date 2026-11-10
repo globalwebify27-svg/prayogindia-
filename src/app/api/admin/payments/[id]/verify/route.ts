@@ -61,16 +61,25 @@ export async function POST(
 
   const { id } = await params;
   const body = await req.json().catch(() => ({}));
-  const adminRemarks =
-    body.remarks?.trim() ||
-    "Bank transfer credit verified in Prayog India SBI Account.";
+  const verifiedUtr = body.utrNumber?.trim() || null;
+  const bankAccount = body.bankAccount?.trim() || "SBI Current A/C (40892301982739)";
+  const userRemarks = body.remarks?.trim() || "";
+  const adminRemarks = userRemarks
+    ? `${userRemarks} [Credited to: ${bankAccount}]`
+    : `Bank transfer credit verified in ${bankAccount}.`;
+  const settlementDate = body.settlementDate ? new Date(body.settlementDate) : new Date();
 
   if (!process.env.DATABASE_URL) {
     return NextResponse.json(
       {
         success: true,
         message: "Payment verified successfully (Mock Mode).",
-        data: { paymentId: id, status: "PAID", verifiedBy: staff.name },
+        data: {
+          paymentId: id,
+          status: "PAID",
+          verifiedBy: staff.name,
+          utrNumber: verifiedUtr || "MOCK-UTR-VERIFIED",
+        },
       },
       { headers },
     );
@@ -116,12 +125,15 @@ export async function POST(
     }
 
     // Atomic Database Transaction
+    const finalUtr = verifiedUtr || payment.utrNumber || null;
     const verificationResult = await db.$transaction(async (tx) => {
       // 1. Update Payment Status to PAID / VERIFIED
       const updatedPayment = await tx.payment.update({
         where: { id: payment.id },
         data: {
           status: "PAID",
+          utrNumber: finalUtr,
+          transactionDate: payment.transactionDate || settlementDate,
           verifiedAt: new Date(),
           verifiedByStaffId: staff.id,
           verifiedByStaffName: staff.name,
@@ -172,7 +184,7 @@ export async function POST(
             shippingCost: order.shippingCost,
             totalAmount: order.totalAmount,
             paymentMethod: payment.method || "NEFT",
-            paymentRef: payment.utrNumber || payment.id,
+            paymentRef: finalUtr || payment.id,
           },
         });
       }
@@ -248,7 +260,7 @@ export async function POST(
         userId: order.userId,
         type: "ORDER_PLACED",
         title: "Payment Verified! 🎉",
-        message: `Your NEFT/RTGS payment of ₹${order.totalAmount.toLocaleString("en-IN")} (UTR: ${payment.utrNumber}) has been verified. Order #${order.orderNumber} is now being processed for dispatch.`,
+        message: `Your NEFT/RTGS payment of ₹${order.totalAmount.toLocaleString("en-IN")} (UTR: ${finalUtr || "N/A"}) has been verified. Order #${order.orderNumber} is now being processed for dispatch.`,
         data: {
           orderId: order.id,
           orderNumber: order.orderNumber,
@@ -267,7 +279,7 @@ export async function POST(
         action: "PAYMENT_VERIFIED",
         entityType: "Payment",
         entityId: payment.id,
-        description: `Staff ${staff.name} (${staff.role}) approved ${payment.method} transfer UTR: ${payment.utrNumber} (₹${payment.amount}) for Order #${order.orderNumber}.`,
+        description: `Staff ${staff.name} (${staff.role}) approved ${payment.method} transfer UTR: ${finalUtr || "N/A"} (₹${payment.amount}) for Order #${order.orderNumber}.`,
         actor: {
           id: staff.id,
           name: staff.name,
@@ -277,6 +289,7 @@ export async function POST(
         previousValue: { status: payment.status },
         newValue: {
           status: "PAID",
+          utrNumber: finalUtr,
           verifiedByStaffId: staff.id,
           verifiedByStaffName: staff.name,
           adminRemarks,

@@ -94,7 +94,27 @@ export default function AdminDashboardPage() {
       time: string;
       dot: string;
     }>;
+    salesAnalytics?: {
+      weeklyRevenue: number;
+      formattedWeeklyRevenue: string;
+      weeklyOrders: number;
+      todayRevenue: number;
+      formattedTodayRevenue: string;
+      todayOrders: number;
+      avgOrderValue: number;
+      formattedAvgOrderValue: string;
+      growthRatePct: number;
+      trend: Array<{
+        day: string;
+        date: string;
+        revenue: number;
+        formattedRevenue: string;
+        orders: number;
+        heightPct: number;
+      }>;
+    };
   }>({});
+
 
   useEffect(() => {
     fetch("/api/admin/dashboard/stats")
@@ -242,50 +262,91 @@ export default function AdminDashboardPage() {
 
       {/* 🍱 BENTO GRID MAIN CONTAINER */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-5 items-stretch">
-        {/* Bento Tile 1: Unified Operations Control Room (Hero Bento Module - 8 Cols) */}
-        <div className="lg:col-span-8 bg-gradient-to-br from-[#0C2556] via-[#10316B] to-[#153D85] text-white rounded-[28px] p-6 sm:p-7 shadow-[0_12px_35px_rgba(12,37,86,0.18)] border border-[#1E488F] relative overflow-hidden flex flex-col justify-between group">
-          {/* Subtle Bento ambient glow effects */}
-          <div className="absolute -right-16 -top-16 w-60 h-60 bg-sky-400/10 rounded-full blur-3xl pointer-events-none" />
-          <div className="absolute right-24 -bottom-20 w-64 h-64 bg-amber-400/10 rounded-full blur-3xl pointer-events-none" />
-
-          <div>
-            <div className="flex items-center justify-between gap-3 mb-4">
-              <div className="flex items-center gap-2">
-                <span className="bg-amber-400 text-slate-950 text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider">
-                  All In One Place
-                </span>
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-white/10 text-emerald-300 border border-white/10 backdrop-blur-xs">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                  Live Sync Active
-                </span>
-              </div>
+        {/* Bento Tile 1: Executive Pulse & Operations Snapshot (Short & Sleek - 8 Cols) */}
+        <div className="lg:col-span-8 bg-white border border-slate-200/90 rounded-[28px] p-6 shadow-[0_8px_30px_rgba(15,35,80,0.04)] hover:shadow-[0_12px_32px_rgba(15,35,80,0.06)] transition-all flex flex-col justify-between relative overflow-hidden group">
+          {/* Top Status Line */}
+          <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="text-xs font-bold text-slate-900 tracking-tight">
+                Operations Health: Optimal
+              </span>
+              <span className="text-slate-300">•</span>
+              <span className="text-xs font-medium text-slate-500">
+                4 Hubs Synced in Real-Time
+              </span>
             </div>
 
-            <h2 className="text-xl sm:text-2xl font-black tracking-tight text-white mb-1.5">
-              Unified Operations Control Room
-            </h2>
-            <p className="text-xs sm:text-sm text-blue-100/80 leading-relaxed max-w-2xl">
-              Access User Details CRM, Live Orders & Invoices, Add New Products, Edit Catalog & Stock, Categories, and Support Tickets in a single tabbed dashboard.
-            </p>
+            <span className="text-[10px] font-bold tracking-wider uppercase text-slate-500 bg-slate-100 px-2.5 py-0.5 rounded-full">
+              Live Summary
+            </span>
           </div>
 
-          <div className="mt-6 pt-5 border-t border-white/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div className="flex items-center gap-3 text-xs text-blue-100/90 font-medium">
-              <span className="flex items-center gap-1.5 bg-white/10 px-3 py-1 rounded-full border border-white/10">
-                🏢 Ranchi Central Hub
+          {/* 3 Core Punchy Metrics */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 py-4 my-auto">
+            {/* Metric 1 */}
+            <div className="space-y-1">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block">
+                Today&apos;s Gross Sales
               </span>
-              <span className="flex items-center gap-1.5 bg-white/10 px-3 py-1 rounded-full border border-white/10">
-                📍 4 Active Branches
+              <div className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+                ₹ 87,200
+              </div>
+              <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-600">
+                <TrendingUp className="w-3.5 h-3.5" /> +14.8% vs yesterday
               </span>
             </div>
 
-            <Link
-              href="/admin/hub"
-              className="inline-flex items-center gap-2 bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs px-5 py-2.5 rounded-full shadow-md shadow-amber-400/25 transition-all cursor-pointer active:scale-95"
-            >
-              <span>Launch Control Room</span>
-              <ArrowRight className="w-4 h-4" />
-            </Link>
+            {/* Metric 2 */}
+            <div className="space-y-1 sm:border-x sm:border-slate-100 sm:px-5">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block">
+                Pending Dispatch
+              </span>
+              <div className="text-2xl sm:text-3xl font-black text-blue-600 tracking-tight">
+                4 Orders
+              </div>
+              <span className="text-[11px] font-medium text-slate-500 block">
+                Ready for Delhivery &amp; BlueDart
+              </span>
+            </div>
+
+            {/* Metric 3 */}
+            <div className="space-y-1 sm:pl-2">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block">
+                Store In-Stock Rate
+              </span>
+              <div className="text-2xl sm:text-3xl font-black text-emerald-600 tracking-tight">
+                98.4%
+              </div>
+              <span className="text-[11px] font-medium text-slate-500 block">
+                0 Critical Stockouts
+              </span>
+            </div>
+          </div>
+
+          {/* Bottom Navigation Row */}
+          <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+            <span className="text-slate-400 font-medium text-[11px]">
+              Direct sync with Website, App, POS, &amp; B2B
+            </span>
+
+            <div className="flex items-center gap-3 font-bold">
+              <Link
+                href="/admin/orders"
+                className="text-blue-600 hover:text-blue-700 flex items-center gap-1 transition-colors"
+              >
+                <span>Fulfillment Desk</span>
+                <ArrowRight className="w-3 h-3" />
+              </Link>
+              <span className="text-slate-200">|</span>
+              <Link
+                href="/admin/hub"
+                className="text-slate-600 hover:text-slate-900 flex items-center gap-1 transition-colors"
+              >
+                <span>Control Hub</span>
+                <ArrowRight className="w-3 h-3" />
+              </Link>
+            </div>
           </div>
         </div>
 

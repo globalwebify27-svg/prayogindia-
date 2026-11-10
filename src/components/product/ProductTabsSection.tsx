@@ -170,7 +170,17 @@ export const ProductTabsSection: React.FC<ProductTabsSectionProps> = ({
         },
       ];
 
-  const specEntries = Object.entries(product.specs || {});
+  const cleanRawSpecs = Object.fromEntries(
+    Object.entries(product.specs || {}).filter(
+      ([key, val]) =>
+        !key.startsWith("_") &&
+        val !== null &&
+        val !== undefined &&
+        typeof val !== "object"
+    )
+  );
+
+  const specEntries = Object.entries(cleanRawSpecs);
 
   // Intelligent fallback specifications if product has minimal specs
   const allSpecs: Record<string, string> = {
@@ -197,7 +207,7 @@ export const ProductTabsSection: React.FC<ProductTabsSectionProps> = ({
     Dimensions: "68.6 mm x 53.4 mm x 15 mm",
     Weight: "25 grams",
     "Origin Country": "Made in India",
-    ...(product.specs || {}),
+    ...cleanRawSpecs,
   };
 
   // Package Includes List (as shown in Image 5)

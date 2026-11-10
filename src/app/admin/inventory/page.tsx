@@ -476,87 +476,103 @@ export default function AdminInventoryPage() {
   return (
     <div className="p-6 sm:p-8 space-y-8 animate-in fade-in duration-300">
       {/* 1. Header with Multi-Store Principle */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5 bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs">
+        <div className="space-y-1.5">
           <div className="flex items-center gap-2">
-            <span className="text-[10px] font-black uppercase tracking-widest text-[#00AEEF] bg-[#E0F7FC] px-3.5 py-1 rounded-full border border-[#00AEEF]/20">
-              Section 37–42 · Multi-Location Inventory &amp; Inter-Store
-              Transfers
+            <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-blue-700 bg-blue-50 px-2.5 py-0.5 rounded-full border border-blue-200/70">
+              <span className="w-1.5 h-1.5 rounded-full bg-blue-600 animate-pulse" />
+              Multi-Location Inventory Engine
+            </span>
+            <span className="text-xs text-slate-400 font-medium hidden sm:inline">
+              • 4 Active Hubs (Ranchi Central, Patna, Delhi, Mumbai)
             </span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight mt-1">
-            Multi-Store Stock &amp; Inventory Engine
+          <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
+            Multi-Store Stock &amp; Inventory Management
           </h1>
-          <p className="text-xs text-slate-500">
-            Ranchi Main Hub acts as central inventory for Website, App, and
-            Ranchi Store. Independent branch stocks in Patna, Delhi, and Mumbai
-            with inter-store transfer pipelines.
+          <p className="text-xs sm:text-sm text-slate-500 max-w-2xl leading-relaxed">
+            Centralized fulfillment from Ranchi Main Hub with real-time stock allocation and inter-branch courier transfer pipelines.
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2.5 shrink-0">
           <button
             onClick={() => handleOpenAddStock()}
-            className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-2xl font-black text-xs uppercase tracking-wider flex items-center gap-1.5 shadow-md active:scale-95 cursor-pointer transition-all"
+            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#2563EB] hover:bg-[#1D4ED8] active:bg-[#1E40AF] text-white text-xs font-semibold shadow-xs hover:shadow-sm transition-all cursor-pointer"
           >
-            <Plus className="w-4 h-4 text-white" />
+            <Plus className="w-4 h-4" />
             <span>Add Stock / Inward</span>
           </button>
 
           <button
             onClick={() => setShowTransferModal(true)}
-            className="bg-[#00AEEF] hover:bg-[#0096D6] text-white px-4 py-2.5 rounded-2xl font-black text-xs uppercase tracking-wider flex items-center gap-1.5 shadow-md active:scale-95 cursor-pointer transition-all"
+            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-white hover:bg-slate-50 text-slate-700 hover:text-slate-900 border border-slate-200 hover:border-slate-300 text-xs font-semibold shadow-2xs transition-all cursor-pointer"
           >
-            <ArrowRightLeft className="w-4 h-4 text-[#FFC20E]" />
+            <ArrowRightLeft className="w-4 h-4 text-slate-500" />
             <span>Store Transfer Wizard</span>
           </button>
 
           <button
             onClick={() => setShowAdjustModal(true)}
-            className="bg-slate-900 hover:bg-slate-800 text-white px-4 py-2.5 rounded-2xl font-black text-xs uppercase tracking-wider flex items-center gap-1.5 shadow-md active:scale-95 cursor-pointer transition-all"
+            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-white hover:bg-slate-50 text-slate-700 hover:text-slate-900 border border-slate-200 hover:border-slate-300 text-xs font-semibold shadow-2xs transition-all cursor-pointer"
           >
-            <History className="w-4 h-4 text-emerald-400" />
+            <History className="w-4 h-4 text-slate-500" />
             <span>Audit Adjustment</span>
           </button>
         </div>
       </div>
 
       {/* 2. Navigation Tabs */}
-      <div className="flex items-center gap-2 border-b border-slate-200 pb-2">
+      <div className="flex items-center gap-1 p-1 bg-slate-100 rounded-xl border border-slate-200/80 w-fit max-w-full overflow-x-auto scrollbar-none">
         <button
           onClick={() => setActiveTab("stock")}
-          className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer ${
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all cursor-pointer shrink-0 ${
             activeTab === "stock"
-              ? "bg-[#00AEEF] text-white shadow-xs"
-              : "text-slate-600 hover:bg-slate-100"
+              ? "bg-white text-slate-900 shadow-xs"
+              : "text-slate-600 hover:text-slate-900 hover:bg-white/60"
           }`}
         >
-          <Boxes className="w-3.5 h-3.5 inline mr-1.5" />
-          Location-Wise Stock Pool
+          <Boxes className={`w-3.5 h-3.5 ${activeTab === "stock" ? "text-blue-600" : "text-slate-400"}`} />
+          <span>Location-Wise Stock Pool</span>
+          <span className={`text-[10px] font-bold px-1.5 py-0.2 rounded-full ${
+            activeTab === "stock" ? "bg-blue-50 text-blue-700" : "bg-slate-200/80 text-slate-600"
+          }`}>
+            {filteredItems.length}
+          </span>
         </button>
 
         <button
           onClick={() => setActiveTab("transfers")}
-          className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer ${
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all cursor-pointer shrink-0 ${
             activeTab === "transfers"
-              ? "bg-[#00AEEF] text-white shadow-xs"
-              : "text-slate-600 hover:bg-slate-100"
+              ? "bg-white text-slate-900 shadow-xs"
+              : "text-slate-600 hover:text-slate-900 hover:bg-white/60"
           }`}
         >
-          <Truck className="w-3.5 h-3.5 inline mr-1.5" />
-          Inter-Store Transfers ({transfers.length})
+          <Truck className={`w-3.5 h-3.5 ${activeTab === "transfers" ? "text-blue-600" : "text-slate-400"}`} />
+          <span>Inter-Store Transfers</span>
+          <span className={`text-[10px] font-bold px-1.5 py-0.2 rounded-full ${
+            activeTab === "transfers" ? "bg-blue-50 text-blue-700" : "bg-slate-200/80 text-slate-600"
+          }`}>
+            {transfers.length}
+          </span>
         </button>
 
         <button
           onClick={() => setActiveTab("adjustments")}
-          className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer ${
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all cursor-pointer shrink-0 ${
             activeTab === "adjustments"
-              ? "bg-[#00AEEF] text-white shadow-xs"
-              : "text-slate-600 hover:bg-slate-100"
+              ? "bg-white text-slate-900 shadow-xs"
+              : "text-slate-600 hover:text-slate-900 hover:bg-white/60"
           }`}
         >
-          <History className="w-3.5 h-3.5 inline mr-1.5" />
-          Stock Adjustment Audit Log ({adjustments.length})
+          <History className={`w-3.5 h-3.5 ${activeTab === "adjustments" ? "text-blue-600" : "text-slate-400"}`} />
+          <span>Stock Adjustment Audit Log</span>
+          <span className={`text-[10px] font-bold px-1.5 py-0.2 rounded-full ${
+            activeTab === "adjustments" ? "bg-blue-50 text-blue-700" : "bg-slate-200/80 text-slate-600"
+          }`}>
+            {adjustments.length}
+          </span>
         </button>
       </div>
 
@@ -630,24 +646,24 @@ export default function AdminInventoryPage() {
           <div className="w-full">
             <table className="w-full text-left text-xs border-collapse table-auto">
               <thead>
-                <tr className="border-b border-slate-200 text-slate-400 uppercase text-[10px] font-black tracking-wider">
-                  <th className="py-3 pr-2 font-black">Product &amp; SKU</th>
-                  <th className="py-3 px-2 font-black text-center whitespace-nowrap bg-blue-50/60 rounded-t-xl text-blue-900">
-                    🏢 Ranchi Hub
+                <tr className="border-b border-slate-200 text-slate-500 uppercase text-[10px] font-bold tracking-wider bg-slate-50/70">
+                  <th className="py-3 px-3 font-bold">Product &amp; SKU</th>
+                  <th className="py-3 px-2 font-bold text-center whitespace-nowrap text-blue-900">
+                    Ranchi Hub (Central)
                   </th>
-                  <th className="py-3 px-2 font-black text-center whitespace-nowrap">
-                    🏬 Patna
+                  <th className="py-3 px-2 font-bold text-center whitespace-nowrap">
+                    Patna Branch
                   </th>
-                  <th className="py-3 px-2 font-black text-center whitespace-nowrap">
-                    🏬 Delhi
+                  <th className="py-3 px-2 font-bold text-center whitespace-nowrap">
+                    Delhi Branch
                   </th>
-                  <th className="py-3 px-2 font-black text-center whitespace-nowrap text-amber-700">
-                    🔒 Reserved
+                  <th className="py-3 px-2 font-bold text-center whitespace-nowrap text-amber-700">
+                    Reserved
                   </th>
-                  <th className="py-3 px-2 font-black text-center whitespace-nowrap bg-emerald-50/60 rounded-t-xl text-emerald-900">
-                    📦 Total
+                  <th className="py-3 px-2 font-bold text-center whitespace-nowrap text-emerald-900">
+                    Total Available
                   </th>
-                  <th className="py-3 pl-2 font-black text-right whitespace-nowrap">
+                  <th className="py-3 px-3 font-bold text-right whitespace-nowrap">
                     Action
                   </th>
                 </tr>
@@ -735,17 +751,16 @@ export default function AdminInventoryPage() {
         <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-2xs space-y-4">
           <div className="flex items-center justify-between border-b border-slate-100 pb-3">
             <div>
-              <h3 className="text-sm font-black text-slate-900 uppercase">
+              <h3 className="text-sm font-bold text-slate-900">
                 Active Store-to-Store Stock Transfers
               </h3>
               <p className="text-xs text-slate-500">
-                Track dispatch, transit courier AWB, and receiving store
-                confirmations.
+                Track dispatch, transit courier AWB, and receiving store confirmations.
               </p>
             </div>
             <button
               onClick={() => setShowTransferModal(true)}
-              className="px-3 py-1.5 bg-[#00AEEF] text-white rounded-xl font-bold text-xs"
+              className="px-3.5 py-2 bg-[#2563EB] hover:bg-[#1D4ED8] text-white rounded-xl font-semibold text-xs transition-colors cursor-pointer"
             >
               + Initiate Transfer
             </button>
@@ -833,17 +848,16 @@ export default function AdminInventoryPage() {
         <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-2xs space-y-4">
           <div className="flex items-center justify-between border-b border-slate-100 pb-3">
             <div>
-              <h3 className="text-sm font-black text-slate-900 uppercase">
-                Section 42 Stock Adjustment Audit Log
+              <h3 className="text-sm font-bold text-slate-900">
+                Stock Adjustment Audit Log
               </h3>
               <p className="text-xs text-slate-500">
-                Every damaged, lost, or corrected unit creates an immutable
-                audit record.
+                Every damaged, lost, or corrected unit creates an immutable audit record.
               </p>
             </div>
             <button
               onClick={() => setShowAdjustModal(true)}
-              className="px-3 py-1.5 bg-slate-900 text-white rounded-xl font-bold text-xs"
+              className="px-3.5 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-semibold text-xs transition-colors cursor-pointer"
             >
               + Record Adjustment
             </button>
@@ -1266,13 +1280,13 @@ export default function AdminInventoryPage() {
                     className="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl font-bold text-slate-900"
                   >
                     <option value="ranchi">
-                      🏢 Ranchi Central Hub (Web + Ranchi)
+                      Ranchi Central Hub (Web + Ranchi)
                     </option>
-                    <option value="patna">🏬 Patna Robotics Branch</option>
+                    <option value="patna">Patna Robotics Branch</option>
                     <option value="delhi">
-                      🏬 Delhi NCR Innovation Center
+                      Delhi NCR Innovation Center
                     </option>
-                    <option value="mumbai">🏬 Mumbai Western Drone Hub</option>
+                    <option value="mumbai">Mumbai Western Drone Hub</option>
                   </select>
                 </div>
 

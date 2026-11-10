@@ -28,8 +28,6 @@ import {
   MapPin,
   Clock,
   Phone,
-  Plane,
-  Store,
   AlertCircle,
   AlertTriangle,
 } from "lucide-react";
@@ -740,7 +738,7 @@ const QuickViewModalContent: React.FC<{
                     <button
                       type="button"
                       onClick={() => handleModeClick("air")}
-                      className={`p-2 rounded-xl border flex flex-col items-center text-center cursor-pointer transition-all ${
+                      className={`p-2.5 rounded-xl border flex flex-col items-center justify-center text-center cursor-pointer transition-all ${
                         quickSelectedMode === "air" && isAirAllowed
                           ? "bg-blue-50 border-blue-500 ring-2 ring-blue-500/20 text-blue-900 shadow-2xs"
                           : isAirAllowed
@@ -748,15 +746,6 @@ const QuickViewModalContent: React.FC<{
                           : "bg-slate-50 border-amber-200 text-slate-400 opacity-75 hover:border-amber-400"
                       }`}
                     >
-                      <Plane
-                        className={`w-4 h-4 mb-1 ${
-                          quickSelectedMode === "air" && isAirAllowed
-                            ? "text-blue-600"
-                            : isAirAllowed
-                            ? "text-blue-500"
-                            : "text-amber-500"
-                        }`}
-                      />
                       <span className="text-[11px] font-bold">By Air</span>
                       {!isAirAllowed && (
                         <span className="text-[9px] text-amber-600 font-semibold">
@@ -768,7 +757,7 @@ const QuickViewModalContent: React.FC<{
                     <button
                       type="button"
                       onClick={() => handleModeClick("surface")}
-                      className={`p-2 rounded-xl border flex flex-col items-center text-center cursor-pointer transition-all ${
+                      className={`p-2.5 rounded-xl border flex flex-col items-center justify-center text-center cursor-pointer transition-all ${
                         quickSelectedMode === "surface" && isSurfaceAllowed
                           ? "bg-emerald-50 border-emerald-500 ring-2 ring-emerald-500/20 text-emerald-900 shadow-2xs"
                           : isSurfaceAllowed
@@ -776,15 +765,6 @@ const QuickViewModalContent: React.FC<{
                           : "bg-slate-50 border-slate-200 text-slate-400 opacity-60"
                       }`}
                     >
-                      <Truck
-                        className={`w-4 h-4 mb-1 ${
-                          quickSelectedMode === "surface" && isSurfaceAllowed
-                            ? "text-emerald-600"
-                            : isSurfaceAllowed
-                            ? "text-emerald-500"
-                            : "text-slate-400"
-                        }`}
-                      />
                       <span className="text-[11px] font-bold">By Land</span>
                       {!isSurfaceAllowed && (
                         <span className="text-[9px] text-slate-400">
@@ -796,7 +776,7 @@ const QuickViewModalContent: React.FC<{
                     <button
                       type="button"
                       onClick={() => handleModeClick("pickup")}
-                      className={`p-2 rounded-xl border flex flex-col items-center text-center cursor-pointer transition-all ${
+                      className={`p-2.5 rounded-xl border flex flex-col items-center justify-center text-center cursor-pointer transition-all ${
                         quickSelectedMode === "pickup" && isLocalPickupAllowed
                           ? "bg-purple-50 border-purple-500 ring-2 ring-purple-500/20 text-purple-900 shadow-2xs"
                           : isLocalPickupAllowed
@@ -804,15 +784,6 @@ const QuickViewModalContent: React.FC<{
                           : "bg-slate-50 border-slate-200 text-slate-400 opacity-60"
                       }`}
                     >
-                      <Store
-                        className={`w-4 h-4 mb-1 ${
-                          quickSelectedMode === "pickup" && isLocalPickupAllowed
-                            ? "text-purple-600"
-                            : isLocalPickupAllowed
-                            ? "text-purple-500"
-                            : "text-slate-400"
-                        }`}
-                      />
                       <span className="text-[11px] font-bold">Pickup</span>
                       {!isLocalPickupAllowed && (
                         <span className="text-[9px] text-slate-400">
@@ -874,10 +845,10 @@ const QuickViewModalContent: React.FC<{
                       </p>
                       <p className="text-slate-600">
                         {quickSelectedMode === "air" && isAirAllowed
-                          ? "⚡ Priority Air Cargo: 1-2 business days"
+                          ? "Priority Air Cargo: 1-2 business days"
                           : quickSelectedMode === "surface"
-                          ? "⚡ Standard Express Surface: 3-5 business days"
-                          : "🏬 Local Store Counter: Ready in 2 hours"}
+                          ? "Standard Express Surface: 3-5 business days"
+                          : "Local Store Counter: Ready in 2 hours"}
                       </p>
                     </div>
                   )}
