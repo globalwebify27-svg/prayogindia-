@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Link from "next/link";
 import {
   Users,
   ShieldCheck,
@@ -1146,9 +1147,19 @@ export default function AdminStaffManagementPage() {
 
                 {role !== "SUPER_ADMIN" && isSuperAdmin && (
                   <div>
-                    <label className="block text-xs font-black uppercase tracking-wider text-slate-700 mb-1">
-                      Assigned Branch <span className="text-rose-500">*</span>
-                    </label>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="block text-xs font-black uppercase tracking-wider text-slate-700">
+                        Assigned Branch <span className="text-rose-500">*</span>
+                      </label>
+                      <Link
+                        href="/admin/stores"
+                        target="_blank"
+                        className="text-[10px] font-bold text-[#005CA9] hover:underline flex items-center gap-0.5"
+                        title="Open Store Branches manager to create a new branch"
+                      >
+                        + Create New Branch
+                      </Link>
+                    </div>
                     <select
                       value={storeId}
                       onChange={(e) => setStoreId(e.target.value)}
