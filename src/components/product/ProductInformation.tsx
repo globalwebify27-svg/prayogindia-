@@ -43,6 +43,62 @@ const WhatsAppIcon = ({ className = "w-4 h-4" }: { className?: string }) => (
   </svg>
 );
 
+// High-Quality Multi-Tone Delivery Truck Vector SVG
+const DeliveryTruckSVG = ({ className = "w-5 h-5" }: { className?: string }) => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+    role="img"
+    aria-label="Delivery"
+  >
+    <rect x="1" y="4" width="13" height="11" rx="1.5" fill="#005CA9" />
+    <path d="M4 7H9.5M3 10H8M4.5 13H7" stroke="white" strokeWidth="1.2" strokeLinecap="round" opacity="0.8" />
+    <path
+      d="M14 8H18.2C18.677 8 19.1345 8.18964 19.472 8.52716L22.472 11.5272C22.8095 11.8647 23 12.3222 23 12.8V15H14V8Z"
+      fill="#00AEEF"
+    />
+    <path
+      d="M15.5 9.5H18.2C18.3989 9.5 18.5896 9.57902 18.7303 9.71967L20.7803 11.7697C20.921 11.9103 21 12.1011 21 12.3V12.5H15.5V9.5Z"
+      fill="white"
+      opacity="0.9"
+    />
+    <rect x="22" y="14" width="1.5" height="1.5" rx="0.5" fill="#FFC20E" />
+    <circle cx="5.5" cy="16.5" r="2.5" fill="#0F172A" />
+    <circle cx="5.5" cy="16.5" r="1" fill="#E2E8F0" />
+    <circle cx="17.5" cy="16.5" r="2.5" fill="#0F172A" />
+    <circle cx="17.5" cy="16.5" r="1" fill="#E2E8F0" />
+  </svg>
+);
+
+// Clean Mode Vector Icons
+const AirPlaneSVG = ({ className = "w-3.5 h-3.5" }: { className?: string }) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z" />
+  </svg>
+);
+
+const RoadFreightSVG = ({ className = "w-3.5 h-3.5" }: { className?: string }) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2" />
+    <path d="M15 18H9" />
+    <path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.62l-3.48-4.35A1 1 0 0 0 17.52 8H14v10Z" />
+    <circle cx="17" cy="18" r="2" />
+    <circle cx="7" cy="18" r="2" />
+  </svg>
+);
+
+const StorePickupSVG = ({ className = "w-3.5 h-3.5" }: { className?: string }) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7" />
+    <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
+    <path d="M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4" />
+    <path d="M2 7h20" />
+    <circle cx="12" cy="7" r="2" />
+  </svg>
+);
+
 interface ProductInfoProps {
   product: Product;
   selectedVariant: ProductVariant | null;
@@ -613,8 +669,8 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
           {/* Header */}
           <div className="flex items-center justify-between gap-2 border-b border-slate-100 pb-2 sm:pb-2.5">
             <div className="flex items-center gap-2">
-              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg sm:rounded-xl bg-blue-50 border border-blue-100/80 flex items-center justify-center text-[#005CA9] shrink-0">
-                <Truck className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-blue-50 to-sky-100/70 border border-blue-200/80 flex items-center justify-center shrink-0 shadow-2xs">
+                <DeliveryTruckSVG className="w-5 h-5" />
               </div>
               <div>
                 <h4 className="text-xs sm:text-sm font-bold text-slate-900 tracking-tight leading-none sm:leading-normal">
@@ -647,8 +703,8 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
                   : "bg-slate-50/90 border-amber-200/90 hover:border-amber-400 opacity-85"
               }`}
             >
-              <div className="flex items-center gap-1 sm:gap-1.5 min-w-0">
-                <Plane className="w-3.5 h-3.5 text-blue-600 sm:hidden shrink-0" />
+              <div className="flex items-center justify-center gap-1 sm:gap-1.5 min-w-0">
+                <AirPlaneSVG className="w-3.5 h-3.5 text-blue-600 shrink-0" />
                 <span className="text-[11px] sm:text-xs font-bold text-slate-900 truncate">
                   By Air
                 </span>
@@ -685,8 +741,8 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
                   : "bg-slate-50/90 border-slate-200/80 opacity-70"
               }`}
             >
-              <div className="flex items-center gap-1 sm:gap-1.5 min-w-0">
-                <Truck className="w-3.5 h-3.5 text-emerald-600 sm:hidden shrink-0" />
+              <div className="flex items-center justify-center gap-1 sm:gap-1.5 min-w-0">
+                <RoadFreightSVG className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
                 <span className="text-[11px] sm:text-xs font-bold text-slate-900 truncate">
                   By Road
                 </span>
@@ -721,10 +777,11 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
                   : "bg-slate-50/90 border-slate-200/80 opacity-70"
               }`}
             >
-              <div className="flex items-center gap-1 sm:gap-1.5 min-w-0">
-                <Store className="w-3.5 h-3.5 text-purple-600 sm:hidden shrink-0" />
+              <div className="flex items-center justify-center gap-1 sm:gap-1.5 min-w-0">
+                <StorePickupSVG className="w-3.5 h-3.5 text-purple-600 shrink-0" />
                 <span className="text-[11px] sm:text-xs font-bold text-slate-900 truncate">
-                  Store Pickup
+                  <span className="inline xs:hidden">Pickup</span>
+                  <span className="hidden xs:inline">Store Pickup</span>
                 </span>
                 {!isLocalPickupAllowed && (
                   <span className="text-[8px] sm:text-[9px] font-bold uppercase px-1 py-0.5 rounded bg-slate-100 text-slate-600">
@@ -764,7 +821,7 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
               )}
               {selectedDeliveryMode === "pickup" && (
                 <span className="font-bold text-purple-800 truncate">
-                  Store Pickup (Ready in 2 Hours)
+                  Store Pickup (Ready in 2h)
                 </span>
               )}
             </div>
@@ -779,7 +836,9 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
               onSubmit={handleCheckPincode}
               className="flex items-center gap-1.5 p-1 sm:p-1.5 bg-white border border-slate-300 rounded-xl shadow-2xs focus-within:border-[#2563EB] focus-within:ring-2 focus-within:ring-blue-100 transition-all"
             >
-              <Truck className="w-3.5 h-3.5 text-slate-400 ml-2 shrink-0" />
+              <div className="ml-2 shrink-0 flex items-center">
+                <DeliveryTruckSVG className="w-4 h-4 opacity-80" />
+              </div>
               <input
                 type="text"
                 inputMode="numeric"
