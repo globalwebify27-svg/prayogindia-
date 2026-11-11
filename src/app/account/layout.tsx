@@ -13,8 +13,7 @@ import {
   FileText,
   User,
   Headphones,
-  Menu,
-  X,
+  ChevronLeft,
   LogOut,
 } from "lucide-react";
 import { useStore } from "@/context/StoreContext";
@@ -55,54 +54,70 @@ export default function AccountLayout({
         </div>
       ) : (
         <div className="w-full max-w-full px-3.5 sm:px-6 lg:px-8 xl:px-10 2xl:px-12">
-          {/* ── Mobile Horizontal Scrollable Navigation Pills ── */}
-          <div className="lg:hidden w-full max-w-full overflow-hidden mb-2 sm:mb-3">
-            <div
-              className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1 px-0.5 touch-pan-x touch-pan-y"
-              style={{ touchAction: "pan-x pan-y" }}
-            >
-              {navTabs.map((tab) => {
-                const Icon = tab.icon;
-                const isActive =
-                  tab.href === "/account"
-                    ? pathname === "/account"
-                    : pathname === tab.href ||
-                      (tab.href !== "/account" && pathname.startsWith(tab.href));
+          {/* ── Mobile Header Bar (Matching Image 2 Reference: "< Account") ── */}
+          {pathname !== "/account" && (
+            <div className="lg:hidden w-full max-w-full mb-3 space-y-2">
+              <div className="flex items-center justify-between pb-1.5 border-b border-slate-200/80">
+                <Link
+                  href="/account"
+                  className="inline-flex items-center gap-1 text-xs font-bold text-slate-800 hover:text-[#2563EB] active:scale-95 transition-all"
+                >
+                  <ChevronLeft className="w-4 h-4 stroke-[2.5]" />
+                  <span>Account</span>
+                </Link>
+                <span className="text-[11px] font-semibold text-slate-400 capitalize">
+                  {navTabs.find((t) => t.href === pathname)?.label || "Dashboard"}
+                </span>
+              </div>
 
-                return (
-                  <Link
-                    key={tab.href}
-                    href={tab.href}
-                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap shrink-0 transition-all ${
-                      isActive
-                        ? "bg-[#2563EB] text-white shadow-xs"
-                        : "bg-white text-slate-600 hover:bg-slate-50 border border-slate-200/70"
-                    }`}
-                  >
-                    <Icon
-                      className={`w-3.5 h-3.5 ${
-                        isActive ? "text-white" : "text-slate-400"
-                      }`}
-                    />
-                    <span>{tab.label}</span>
-                  </Link>
-                );
-              })}
-
-              {/* Mobile Quick Sign Out */}
-              <button
-                type="button"
-                onClick={() => {
-                  logoutUser();
-                  router.push("/login");
-                }}
-                className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-200/60 whitespace-nowrap shrink-0 transition-all cursor-pointer"
+              {/* Horizontal Scrollable Pills on Sub-Pages for Quick Access */}
+              <div
+                className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 px-0.5 touch-pan-x touch-pan-y"
+                style={{ touchAction: "pan-x pan-y" }}
               >
-                <LogOut className="w-3.5 h-3.5" />
-                <span>Logout</span>
-              </button>
+                {navTabs.map((tab) => {
+                  const Icon = tab.icon;
+                  const isActive =
+                    tab.href === "/account"
+                      ? pathname === "/account"
+                      : pathname === tab.href ||
+                        (tab.href !== "/account" && pathname.startsWith(tab.href));
+
+                  return (
+                    <Link
+                      key={tab.href}
+                      href={tab.href}
+                      className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap shrink-0 transition-all ${
+                        isActive
+                          ? "bg-[#2563EB] text-white shadow-xs"
+                          : "bg-white text-slate-600 hover:bg-slate-50 border border-slate-200/70"
+                      }`}
+                    >
+                      <Icon
+                        className={`w-3.5 h-3.5 ${
+                          isActive ? "text-white" : "text-slate-400"
+                        }`}
+                      />
+                      <span>{tab.label}</span>
+                    </Link>
+                  );
+                })}
+
+                {/* Mobile Quick Sign Out */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    logoutUser();
+                    router.push("/login");
+                  }}
+                  className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-200/60 whitespace-nowrap shrink-0 transition-all cursor-pointer"
+                >
+                  <LogOut className="w-3.5 h-3.5" />
+                  <span>Logout</span>
+                </button>
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Desktop 2-Column Unified Container (Matching Image 1 Reference) */}
           <div className="bg-transparent lg:bg-white rounded-none lg:rounded-2xl border-0 lg:border lg:border-slate-200/90 shadow-none lg:shadow-2xs overflow-visible lg:overflow-hidden flex flex-col lg:flex-row lg:h-[calc(100vh-100px)] min-h-0 lg:min-h-[580px] lg:sticky lg:top-[74px]">
