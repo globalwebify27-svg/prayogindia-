@@ -388,21 +388,21 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
   return (
     <div className="space-y-3 sm:space-y-4 text-slate-900">
       {/* ── Product Title & Share Action ── */}
-      <div className="flex items-start justify-between gap-3 pt-1">
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight leading-snug">
+      <div className="flex items-start justify-between gap-3 pt-0.5">
+        <h1 className="text-[17px] sm:text-2xl font-semibold text-slate-800 tracking-normal leading-snug">
           {product.name}
         </h1>
         <button
           type="button"
           onClick={handleShare}
-          className="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 active:bg-slate-300 text-slate-600 flex items-center justify-center shrink-0 transition-colors cursor-pointer mt-0.5"
+          className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 active:bg-slate-300 text-slate-600 flex items-center justify-center shrink-0 transition-colors cursor-pointer mt-0.5"
           title="Share Product"
           aria-label="Share Product"
         >
           {copied ? (
-            <Check className="w-4 h-4 text-emerald-600 stroke-[2.5]" />
+            <Check className="w-3.5 h-3.5 text-emerald-600 stroke-[2.5]" />
           ) : (
-            <Share2 className="w-4 h-4 text-slate-500" />
+            <Share2 className="w-3.5 h-3.5 text-slate-500" />
           )}
         </button>
       </div>
