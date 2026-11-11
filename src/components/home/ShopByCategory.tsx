@@ -269,9 +269,9 @@ export const ShopByCategory: React.FC<Props> = ({ onSelectCategory }) => {
           </div>
         </div>
 
-        {/* Mobile View (< sm): Smooth Horizontal Scroll of Category Cards (Matching Image 1) */}
+        {/* Mobile View (< sm): Smooth Horizontal Scroll of Category Cards (At least 4 cards visible) */}
         <div className="block sm:hidden select-none -mx-3 px-3 pt-0.5 pb-2">
-          <div className="flex gap-2.5 overflow-x-auto no-scrollbar scroll-smooth snap-x snap-mandatory py-1 px-1">
+          <div className="flex gap-1.5 xs:gap-2 overflow-x-auto no-scrollbar scroll-smooth snap-x snap-mandatory py-1 px-0.5">
             {categories.map((cat) => {
               const theme =
                 CARD_THEMES[cat.themeColor || "blue"] || CARD_THEMES.blue;
@@ -286,36 +286,39 @@ export const ShopByCategory: React.FC<Props> = ({ onSelectCategory }) => {
                       onSelectCategory(cat.name);
                     }
                   }}
-                  className={`snap-start w-[138px] xs:w-[146px] shrink-0 rounded-2xl p-2.5 flex flex-col justify-between border shadow-2xs hover:shadow-xs transition-all duration-200 active:scale-[0.98] group cursor-pointer select-none ${theme.bg} ${theme.border}`}
+                  className={`snap-start w-[calc(25%-5px)] min-w-[70px] max-w-[105px] shrink-0 rounded-xl xs:rounded-2xl p-1.5 xs:p-2 flex flex-col justify-between border shadow-2xs hover:shadow-xs transition-all duration-200 active:scale-[0.98] group cursor-pointer select-none ${theme.bg} ${theme.border}`}
                 >
                   {/* Top: Inner Translucent White Container with Product Cutout */}
-                  <div className="relative w-full h-[92px] xs:h-[98px] rounded-xl bg-white/75 backdrop-blur-xs flex items-center justify-center p-2 shadow-2xs border border-white/60 mb-2 overflow-hidden">
+                  <div className="relative w-full h-[52px] xs:h-[62px] rounded-lg xs:rounded-xl bg-white/80 backdrop-blur-xs flex items-center justify-center p-1 shadow-2xs border border-white/60 mb-1 xs:mb-1.5 overflow-hidden">
                     <div className="relative w-full h-full flex items-center justify-center pointer-events-none">
                       <Image
                         src={cat.image}
                         alt={cat.imageAlt || cat.name}
                         fill
-                        sizes="135px"
+                        sizes="80px"
                         className="object-contain drop-shadow-xs transition-transform duration-300 group-hover:scale-108 pointer-events-none select-none"
                       />
                     </div>
                   </div>
 
                   {/* Bottom: Title, Product Count, and Bottom-Right Circular Arrow Button */}
-                  <div className="flex items-end justify-between gap-1.5 mt-auto">
-                    <div className="min-w-0 flex-1">
-                      <h3 className="font-bold text-[12px] xs:text-[13px] text-slate-900 leading-snug line-clamp-2 group-hover:text-[#2563EB] transition-colors">
-                        {cat.name}
-                      </h3>
-                      {cat.productCount && (
-                        <p className="text-[10px] text-slate-500 font-medium mt-0.5 leading-none truncate">
+                  <div className="flex flex-col justify-between flex-1 mt-auto">
+                    <h3 className="font-bold text-[9.5px] xs:text-[10.5px] text-slate-900 leading-tight line-clamp-2 min-h-[22px] flex items-center group-hover:text-[#2563EB] transition-colors">
+                      {cat.name}
+                    </h3>
+
+                    <div className="flex items-center justify-between gap-0.5 mt-1 pt-0.5 border-t border-slate-100/50">
+                      {cat.productCount ? (
+                        <p className="text-[7.5px] xs:text-[8.5px] text-slate-500 font-medium leading-none truncate">
                           {cat.productCount}
                         </p>
+                      ) : (
+                        <span />
                       )}
-                    </div>
 
-                    <div className="w-6.5 h-6.5 xs:w-7 xs:h-7 rounded-full bg-white shadow-xs border border-slate-100 flex items-center justify-center text-slate-800 shrink-0 group-hover:bg-[#2563EB] group-hover:text-white transition-all duration-200">
-                      <ArrowRight className="w-3.5 h-3.5 stroke-[2.5]" />
+                      <div className="w-4.5 h-4.5 xs:w-5 xs:h-5 rounded-full bg-white shadow-2xs border border-slate-100 flex items-center justify-center text-slate-800 shrink-0 group-hover:bg-[#2563EB] group-hover:text-white transition-all duration-200">
+                        <ArrowRight className="w-2.5 h-2.5 xs:w-3 xs:h-3 stroke-[2.5]" />
+                      </div>
                     </div>
                   </div>
                 </Link>
