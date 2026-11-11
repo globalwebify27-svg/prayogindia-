@@ -151,105 +151,125 @@ export const AccountDashboardView: React.FC = () => {
     };
   }, [isLoggedIn]);
 
-  // Mobile Menu List Data matching Robocraze (Images 1 & 2) with Prayog India Features
-  const mobileMenuItems: Array<{
-    label: string;
-    href: string;
-    icon: any;
-    iconColor?: string;
-    badge?: string;
-    badgeColor?: string;
-    isExternal?: boolean;
+  // Mobile Menu List Sections for Easy, Intuitive Flow
+  const mobileMenuSections: Array<{
+    title: string;
+    items: Array<{
+      label: string;
+      href: string;
+      icon: any;
+      iconColor?: string;
+      badge?: string;
+      badgeColor?: string;
+      isExternal?: boolean;
+    }>;
   }> = [
     {
-      label: "Track Your Order",
-      href: "/track-order",
-      icon: Truck,
-      badge: totalOrders > 0 ? `${totalOrders} Orders` : undefined,
+      title: "Orders & Hardware Profile",
+      items: [
+        {
+          label: "Track Your Order",
+          href: "/account/orders",
+          icon: Truck,
+          badge: totalOrders > 0 ? `${totalOrders} Orders` : undefined,
+          badgeColor: "bg-blue-50 text-[#2563EB] border-blue-200/60 font-bold",
+        },
+        {
+          label: "Download invoice",
+          href: "/account/orders",
+          icon: FileText,
+        },
+        {
+          label: "Reward Program",
+          href: "/account/rewards",
+          icon: Award,
+          iconColor: "text-amber-500",
+          badge: `${user?.rewardPoints ?? 1250} Pts`,
+          badgeColor: "bg-amber-50 text-amber-700 border-amber-200/60 font-bold",
+        },
+        {
+          label: "Saved Wishlist",
+          href: "/account/wishlist",
+          icon: Heart,
+          iconColor: "text-rose-500",
+          badge: wishlist?.length ? `${wishlist.length} Items` : undefined,
+          badgeColor: "bg-rose-50 text-rose-700 border-rose-200/60 font-bold",
+        },
+        {
+          label: "Saved Addresses",
+          href: "/account/addresses",
+          icon: MapPin,
+        },
+        {
+          label: "Payment Methods & Net-30",
+          href: "/account/payments",
+          icon: CreditCard,
+        },
+        {
+          label: "My Quotations (B2B)",
+          href: "/account/quotations",
+          icon: Building2,
+        },
+      ],
     },
     {
-      label: "Download invoice",
-      href: "/account/orders",
-      icon: FileText,
+      title: "Help & Customer Support",
+      items: [
+        {
+          label: "WhatsApp Support",
+          href: "https://wa.me/918709789641?text=Hi%20Prayog%20India%2C%20I%20need%20assistance.",
+          icon: WhatsAppIcon,
+          iconColor: "text-[#25D366]",
+          badge: "+91 87097 89641",
+          badgeColor: "bg-emerald-50 text-emerald-700 border-emerald-200/60 font-bold",
+          isExternal: true,
+        },
+        {
+          label: "Raise a Concern",
+          href: "/account/support",
+          icon: ShieldAlert,
+        },
+        {
+          label: "FAQ",
+          href: "/contact",
+          icon: HelpCircle,
+        },
+        {
+          label: "Refund policy",
+          href: "/returns",
+          icon: RotateCcw,
+        },
+        {
+          label: "Shipping",
+          href: "/shipping",
+          icon: Package,
+        },
+      ],
     },
     {
-      label: "Reward Program",
-      href: "/account/rewards",
-      icon: Award,
-      iconColor: "text-amber-500",
-      badge: `${user?.rewardPoints ?? 1250} Pts`,
-      badgeColor: "bg-amber-50 text-amber-700 border-amber-200/60",
-    },
-    {
-      label: "Saved Wishlist",
-      href: "/account/wishlist",
-      icon: Heart,
-      iconColor: "text-rose-500",
-      badge: wishlist?.length ? `${wishlist.length} Items` : undefined,
-    },
-    {
-      label: "Saved Addresses",
-      href: "/account/addresses",
-      icon: MapPin,
-    },
-    {
-      label: "Payment Methods & Net-30",
-      href: "/account/payments",
-      icon: CreditCard,
-    },
-    {
-      label: "My Quotations (B2B)",
-      href: "/account/quotations",
-      icon: Building2,
-    },
-    {
-      label: "FAQ",
-      href: "/contact",
-      icon: HelpCircle,
-    },
-    {
-      label: "Raise a Concern",
-      href: "/account/support",
-      icon: ShieldAlert,
-    },
-    {
-      label: "WhatsApp Support",
-      href: "https://wa.me/918709789641?text=Hi%20Prayog%20India%2C%20I%20need%20assistance.",
-      icon: WhatsAppIcon,
-      iconColor: "text-[#25D366]",
-      badge: "+91 87097 89641",
-      badgeColor: "bg-emerald-50 text-emerald-700 border-emerald-200/60",
-      isExternal: true,
-    },
-    {
-      label: "Refund policy",
-      href: "/returns",
-      icon: RotateCcw,
-    },
-    {
-      label: "Shipping",
-      href: "/shipping",
-      icon: Package,
-    },
-    {
-      label: "Privacy policy",
-      href: "/privacy",
-      icon: ShieldCheck,
-    },
-    {
-      label: "Terms of service",
-      href: "/terms",
-      icon: FileText,
-    },
-    {
-      label: "Warranty & Lab Services",
-      href: "/warranty",
-      icon: Wrench,
-    },
-    {
-      label: "About Us",
-      href: "/about",
-      icon: Building,
+      title: "Company & Policies",
+      items: [
+        {
+          label: "Privacy policy",
+          href: "/privacy",
+          icon: ShieldCheck,
+        },
+        {
+          label: "Terms of service",
+          href: "/terms",
+          icon: FileText,
+        },
+        {
+          label: "Warranty & Lab Services",
+          href: "/warranty",
+          icon: Wrench,
+        },
+        {
+          label: "About Us",
+          href: "/about",
+          icon: Building,
+        },
+      ],
     },
   ];
 
@@ -259,12 +279,12 @@ export const AccountDashboardView: React.FC = () => {
       {/* ── MOBILE VIEW: Robocraze-Style List Menu (Images 1 & 2) ── */}
       {/* ======================================================== */}
       <div className="lg:hidden space-y-4 pb-6">
-        {/* User Profile Header Card (Matching Image 1 Reference) */}
-        <div className="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-2xs space-y-3">
+        {/* User Profile Header Card */}
+        <div className="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-2xs space-y-3.5">
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-3 min-w-0">
               {/* Circular Avatar */}
-              <div className="w-12 h-12 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center font-bold text-base text-slate-800 shrink-0">
+              <div className="w-12 h-12 rounded-full bg-slate-900 text-white flex items-center justify-center font-bold text-base shrink-0 shadow-xs">
                 {isLoggedIn && user?.name ? (
                   user.name
                     .trim()
@@ -274,7 +294,7 @@ export const AccountDashboardView: React.FC = () => {
                     .join("")
                     .toUpperCase()
                 ) : (
-                  <User className="w-6 h-6 text-slate-500" />
+                  <User className="w-6 h-6 text-slate-400" />
                 )}
               </div>
 
@@ -309,38 +329,50 @@ export const AccountDashboardView: React.FC = () => {
             )}
           </div>
 
-          {/* Quick Summary Badges (If logged in) */}
+          {/* Quick-Action Touch Navigation Tiles (If logged in) */}
           {isLoggedIn && (
-            <div className="pt-2.5 border-t border-slate-100 grid grid-cols-4 divide-x divide-slate-100 text-center">
-              <Link href="/account/orders" className="px-1">
-                <span className="text-sm font-extrabold text-slate-900 block">
+            <div className="pt-2 border-t border-slate-100 grid grid-cols-4 gap-2 text-center">
+              <Link
+                href="/account/orders"
+                className="py-2 px-1 rounded-xl bg-slate-50 hover:bg-blue-50/70 border border-slate-200/60 active:scale-95 transition-all block"
+              >
+                <span className="text-sm font-black text-slate-900 block">
                   {ordersLoading ? "..." : totalOrders}
                 </span>
-                <span className="text-[10px] font-medium text-slate-500 block truncate">
+                <span className="text-[10px] font-bold text-slate-500 block truncate mt-0.5">
                   Orders
                 </span>
               </Link>
-              <Link href="/account/wishlist" className="px-1">
-                <span className="text-sm font-extrabold text-slate-900 block">
+              <Link
+                href="/account/wishlist"
+                className="py-2 px-1 rounded-xl bg-slate-50 hover:bg-rose-50/70 border border-slate-200/60 active:scale-95 transition-all block"
+              >
+                <span className="text-sm font-black text-slate-900 block">
                   {wishlist?.length || 0}
                 </span>
-                <span className="text-[10px] font-medium text-slate-500 block truncate">
+                <span className="text-[10px] font-bold text-slate-500 block truncate mt-0.5">
                   Wishlist
                 </span>
               </Link>
-              <Link href="/account/rewards" className="px-1">
-                <span className="text-sm font-extrabold text-amber-600 block">
+              <Link
+                href="/account/rewards"
+                className="py-2 px-1 rounded-xl bg-slate-50 hover:bg-amber-50/70 border border-slate-200/60 active:scale-95 transition-all block"
+              >
+                <span className="text-sm font-black text-amber-600 block">
                   {user?.rewardPoints ?? 1250}
                 </span>
-                <span className="text-[10px] font-medium text-slate-500 block truncate">
+                <span className="text-[10px] font-bold text-slate-500 block truncate mt-0.5">
                   Points
                 </span>
               </Link>
-              <Link href="/account/addresses" className="px-1">
-                <span className="text-sm font-extrabold text-slate-900 block">
+              <Link
+                href="/account/addresses"
+                className="py-2 px-1 rounded-xl bg-slate-50 hover:bg-blue-50/70 border border-slate-200/60 active:scale-95 transition-all block"
+              >
+                <span className="text-sm font-black text-slate-900 block">
                   {savedAddressesCount}
                 </span>
-                <span className="text-[10px] font-medium text-slate-500 block truncate">
+                <span className="text-[10px] font-bold text-slate-500 block truncate mt-0.5">
                   Addresses
                 </span>
               </Link>
@@ -348,58 +380,67 @@ export const AccountDashboardView: React.FC = () => {
           )}
         </div>
 
-        {/* Clean White List Menu (Matching Image 1 & Image 2) */}
-        <div className="bg-white rounded-2xl border border-slate-200/80 divide-y divide-slate-100 shadow-2xs overflow-hidden">
-          {mobileMenuItems.map((item) => {
-            const Icon = item.icon;
-            const content = (
-              <div className="flex items-center justify-between p-3.5 hover:bg-slate-50/80 active:bg-slate-100 transition-colors cursor-pointer group">
-                <div className="flex items-center gap-3 min-w-0">
-                  <Icon
-                    className={`w-5 h-5 shrink-0 ${
-                      item.iconColor || "text-slate-700"
-                    }`}
-                  />
-                  <span className="text-xs sm:text-sm font-semibold text-slate-800 group-hover:text-slate-900 truncate">
-                    {item.label}
-                  </span>
-                </div>
+        {/* Sectioned Clean White List Menus for Seamless Flow */}
+        {mobileMenuSections.map((section) => (
+          <div key={section.title} className="space-y-1.5">
+            <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider px-1">
+              {section.title}
+            </span>
+            <div className="bg-white rounded-2xl border border-slate-200/80 divide-y divide-slate-100 shadow-2xs overflow-hidden">
+              {section.items.map((item) => {
+                const Icon = item.icon;
+                const content = (
+                  <div className="flex items-center justify-between p-3.5 hover:bg-slate-50/80 active:bg-slate-100 transition-colors cursor-pointer group">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <Icon
+                        className={`w-5 h-5 shrink-0 ${
+                          item.iconColor || "text-slate-700"
+                        }`}
+                      />
+                      <span className="text-xs sm:text-sm font-semibold text-slate-800 group-hover:text-slate-900 truncate">
+                        {item.label}
+                      </span>
+                    </div>
 
-                <div className="flex items-center gap-2 shrink-0">
-                  {item.badge && (
-                    <span
-                      className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
-                        item.badgeColor ||
-                        "bg-slate-100 text-slate-600 border-slate-200/60"
-                      }`}
-                    >
-                      {item.badge}
-                    </span>
-                  )}
-                  <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-slate-700 group-hover:translate-x-0.5 transition-transform" />
-                </div>
-              </div>
-            );
+                    <div className="flex items-center gap-2 shrink-0">
+                      {item.badge && (
+                        <span
+                          className={`text-[10px] px-2 py-0.5 rounded-full border ${
+                            item.badgeColor ||
+                            "bg-slate-100 text-slate-600 border-slate-200/60 font-semibold"
+                          }`}
+                        >
+                          {item.badge}
+                        </span>
+                      )}
+                      <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-slate-700 group-hover:translate-x-0.5 transition-transform" />
+                    </div>
+                  </div>
+                );
 
-            return item.isExternal ? (
-              <a
-                key={item.label}
-                href={item.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="block"
-              >
-                {content}
-              </a>
-            ) : (
-              <Link key={item.label} href={item.href} className="block">
-                {content}
-              </Link>
-            );
-          })}
+                return item.isExternal ? (
+                  <a
+                    key={item.label}
+                    href={item.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block"
+                  >
+                    {content}
+                  </a>
+                ) : (
+                  <Link key={item.label} href={item.href} className="block">
+                    {content}
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        ))}
 
-          {/* Logout Button (if logged in) */}
-          {isLoggedIn && (
+        {/* Logout Row Card (if logged in) */}
+        {isLoggedIn && (
+          <div className="bg-white rounded-2xl border border-slate-200/80 shadow-2xs overflow-hidden">
             <button
               type="button"
               onClick={() => {
@@ -416,8 +457,8 @@ export const AccountDashboardView: React.FC = () => {
               </div>
               <ChevronRight className="w-4 h-4 text-rose-300 group-hover:text-rose-500 group-hover:translate-x-0.5 transition-transform" />
             </button>
-          )}
-        </div>
+          </div>
+        )}
 
         {/* Footer Branding (Matching Image 2 Reference) */}
         <div className="py-6 text-center space-y-1 select-none">

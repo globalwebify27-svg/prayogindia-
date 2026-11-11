@@ -41,19 +41,17 @@ export default function AccountLayout({
         <div className="w-full max-w-full px-3.5 sm:px-6 lg:px-8 xl:px-10 2xl:px-12">
           {/* ── Mobile Back Header Bar (Matching Image 2 Reference: "< Account") ── */}
           {pathname !== "/account" && (
-            <div className="lg:hidden w-full max-w-full mb-3">
-              <div className="flex items-center justify-between pb-2 border-b border-slate-200/80">
-                <Link
-                  href="/account"
-                  className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-800 hover:text-[#2563EB] active:scale-95 transition-all"
-                >
-                  <ChevronLeft className="w-4 h-4 stroke-[2.5]" />
-                  <span>Account</span>
-                </Link>
-                <span className="text-[11px] font-semibold text-slate-400">
-                  {pageTitles[pathname] || "Dashboard"}
-                </span>
-              </div>
+            <div className="lg:hidden w-full max-w-full mb-3 bg-white rounded-xl border border-slate-200/80 px-3.5 py-2.5 flex items-center justify-between shadow-2xs">
+              <Link
+                href="/account"
+                className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-900 hover:text-[#2563EB] active:scale-95 transition-all"
+              >
+                <ChevronLeft className="w-4 h-4 stroke-[2.5]" />
+                <span>Back to Account</span>
+              </Link>
+              <span className="text-xs font-extrabold text-[#2563EB]">
+                {pageTitles[pathname] || "Dashboard"}
+              </span>
             </div>
           )}
 

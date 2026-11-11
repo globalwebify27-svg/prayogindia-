@@ -168,19 +168,19 @@ export const OrdersList: React.FC = () => {
 
   return (
     <div className="space-y-3.5 text-slate-900 w-full max-w-full">
-      {/* Clean Header */}
-      <div className="flex items-center justify-between gap-2 pb-2 border-b border-slate-200/80">
-        <div className="min-w-0">
-          <h1 className="text-base sm:text-lg font-black text-slate-900 tracking-tight truncate">
+      {/* Header Info Bar */}
+      <div className="flex items-center justify-between gap-2 pb-1.5 px-0.5">
+        <div>
+          <h1 className="hidden lg:block text-base sm:text-lg font-black text-slate-900 tracking-tight truncate">
             My Orders
           </h1>
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-slate-500 font-medium">
             {orders.length} {orders.length === 1 ? "order placed" : "orders placed"}
           </p>
         </div>
         <Link
           href="/products"
-          className="text-xs font-semibold text-[#2563EB] hover:underline shrink-0"
+          className="text-xs font-bold text-[#2563EB] hover:underline shrink-0"
         >
           Browse Products →
         </Link>
