@@ -20,6 +20,7 @@ import {
   Check,
   Heart,
   ExternalLink,
+  Smartphone,
 } from "lucide-react";
 import { AddToCartIcon } from "@/components/icons/AddToCartIcon";
 import { recordProductView } from "@/utils/recentProducts";
@@ -410,14 +411,14 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
 
 
       {/* ── Side-by-Side Promotional Cards: Bulk Order + Prayog App Download ── */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 pt-1">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-6 pt-1">
         {/* Card 1: Bulk Order Box */}
-        <div className="bg-white rounded-3xl p-6 sm:p-7 border border-slate-200/90 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between space-y-4">
-          <div className="space-y-2">
-            <h3 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+        <div className="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-7 border border-slate-200/90 shadow-2xs hover:shadow-md transition-shadow flex flex-col justify-between space-y-3 sm:space-y-4">
+          <div className="space-y-1.5 sm:space-y-2">
+            <h3 className="text-base sm:text-2xl font-black text-slate-900 tracking-tight">
               Bulk Order?
             </h3>
-            <p className="text-sm font-semibold text-slate-600 leading-relaxed">
+            <p className="text-xs sm:text-sm font-semibold text-slate-600 leading-relaxed">
               For Best Price Contact on{" "}
               <a
                 href={`https://wa.me/918709789641?text=${encodeURIComponent(
@@ -432,7 +433,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
               </a>{" "}
               for bulk discounts!
             </p>
-            <p className="text-xs text-slate-500 font-medium">
+            <p className="text-[11px] sm:text-xs text-slate-500 font-medium">
               Or Fill the Form Below
             </p>
           </div>
@@ -440,7 +441,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
           <button
             type="button"
             onClick={() => setB2bOpen(true)}
-            className="w-full py-3.5 px-5 bg-[#005CA9] hover:bg-[#004a88] text-white rounded-2xl font-extrabold text-xs sm:text-sm shadow-md shadow-blue-900/15 transition-all cursor-pointer flex items-center justify-center gap-2 hover:scale-[1.01]"
+            className="w-full py-2.5 sm:py-3.5 px-4 sm:px-5 bg-[#005CA9] hover:bg-[#004a88] text-white rounded-xl sm:rounded-2xl font-extrabold text-xs sm:text-sm shadow-md shadow-blue-900/15 transition-all cursor-pointer flex items-center justify-center gap-2 hover:scale-[1.01]"
           >
             Submit your Bulk Enquiry Here
           </button>
@@ -454,7 +455,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
               href={promoBanner.redirectUrl || "/download"}
               target={promoBanner.redirectUrl?.startsWith("http") ? "_blank" : undefined}
               rel="noopener noreferrer"
-              className="rounded-3xl overflow-hidden border border-slate-200/90 shadow-sm hover:shadow-md transition-all group block relative bg-[#0A1128] min-h-[170px]"
+              className="rounded-2xl sm:rounded-3xl overflow-hidden border border-slate-200/90 shadow-sm hover:shadow-md transition-all group block relative bg-[#0A1128] min-h-[140px] sm:min-h-[170px]"
             >
               <img
                 src={promoBanner.bannerImageUrl}
@@ -468,93 +469,153 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
             </a>
           ) : (
             /* Mode 2: Dynamic Interactive Offer / App Banner Card */
-            <div className="bg-gradient-to-br from-[#0A1128] via-[#005CA9] to-[#00AEEF] rounded-3xl p-6 sm:p-7 text-white shadow-md relative overflow-hidden flex flex-col sm:flex-row items-center justify-between gap-6 group border border-cyan-500/20">
-              {/* Subtle grid pattern background */}
-              <div className="absolute inset-0 opacity-15 bg-[radial-gradient(#00F0FF_1px,transparent_1px)] [background-size:16px_16px] pointer-events-none" />
+            <>
+              {/* ── MOBILE COMPACT BANNER (Small, Sleek & Professional) ── */}
+              <div className="flex sm:hidden flex-col gap-2.5 p-3.5 bg-gradient-to-br from-[#0A1128] via-[#005CA9] to-[#00AEEF] rounded-2xl text-white shadow-xs relative overflow-hidden border border-cyan-500/30">
+                {/* Subtle radial grid background */}
+                <div className="absolute inset-0 opacity-15 bg-[radial-gradient(#00F0FF_1px,transparent_1px)] [background-size:12px_12px] pointer-events-none" />
 
-              {/* Left Phone Mockup Graphic - Clickable to redirect */}
-              <a
-                href={promoBanner.redirectUrl || "/download"}
-                target={promoBanner.redirectUrl?.startsWith("http") ? "_blank" : undefined}
-                rel="noopener noreferrer"
-                className="relative w-28 h-40 sm:w-32 sm:h-44 shrink-0 rounded-2xl bg-[#061128]/85 backdrop-blur-md border border-cyan-400/30 p-2 shadow-xl flex flex-col items-center justify-between overflow-hidden transition-transform group-hover:scale-105 cursor-pointer"
-                title={`Redirect to ${promoBanner.redirectUrl || "/download"}`}
-              >
-                <div className="w-12 h-1 bg-white/40 rounded-full" />
-                <div className="w-full flex-1 flex flex-col items-center justify-center text-center p-1">
-                  <span className="text-[10px] font-black tracking-widest uppercase text-[#00AEEF]">
-                    PRAYOG
-                  </span>
-                  <span className="text-xs font-black text-white mt-0.5">
-                    {promoBanner.phoneTitle || "APP 2.0"}
-                  </span>
-                  <span className="text-[9px] bg-[#FFC20E] text-slate-950 font-black px-2 py-0.5 rounded-full mt-2 shadow-2xs">
-                    {promoBanner.phoneBadgeText || "5% OFF"}
-                  </span>
-                </div>
-                <div className="w-8 h-1 bg-white/30 rounded-full" />
-              </a>
+                <div className="relative z-10 flex items-center justify-between gap-2.5">
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <div className="w-9 h-9 rounded-xl bg-[#061128]/90 border border-cyan-400/40 p-1 flex flex-col items-center justify-center shrink-0 shadow-2xs">
+                      <Smartphone className="w-3.5 h-3.5 text-cyan-400" />
+                      <span className="text-[6.5px] font-black text-[#FFC20E] tracking-tighter leading-none mt-0.5">
+                        5% OFF
+                      </span>
+                    </div>
+                    <div className="min-w-0">
+                      <h4 className="text-xs font-black uppercase tracking-wider text-white truncate">
+                        {promoBanner.title || "ORDER ON PRAYOG APP"}
+                      </h4>
+                      <p className="text-[10px] text-cyan-200 font-semibold truncate mt-0.5">
+                        Code: <span className="font-mono font-bold text-[#FFC20E]">{promoBanner.couponCode || "PRGAPP"}</span> • {promoBanner.tagText || "5% OFF"}
+                      </p>
+                    </div>
+                  </div>
 
-              {/* Right Text Content & Download Badges */}
-              <div className="flex-1 text-center sm:text-left space-y-3 z-10">
-                <div>
-                  <a
-                    href={promoBanner.redirectUrl || "/download"}
-                    target={promoBanner.redirectUrl?.startsWith("http") ? "_blank" : undefined}
-                    rel="noopener noreferrer"
-                    className="hover:underline"
-                  >
-                    <h3 className="text-lg sm:text-xl font-black uppercase tracking-wider text-white leading-tight">
-                      {promoBanner.title || "ORDER ON PRAYOG APP"}
-                    </h3>
-                  </a>
-                  <p className="text-[11px] font-bold tracking-widest text-[#00F0FF] uppercase mt-0.5">
-                    {promoBanner.subtitle || "ROBOTICS AT YOUR FINGERTIPS"}
-                  </p>
-                </div>
-
-                {/* Discount Coupon Tag */}
-                <div className="inline-flex items-center gap-1.5 p-1 bg-black/40 rounded-xl border border-cyan-400/30">
-                  <span className="bg-[#FFC20E] text-slate-950 text-[10px] font-black px-2 py-0.5 rounded-lg uppercase shadow-2xs">
-                    {promoBanner.tagText || "GET FLAT 5% OFF"}
-                  </span>
-                  <span className="text-[10px] font-mono font-bold text-cyan-200 px-1.5">
-                    CODE: {promoBanner.couponCode || "PRGAPP"}
-                  </span>
-                </div>
-
-                {/* App Store / Play Store Links / Redirection */}
-                <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 pt-1">
-                  <a
-                    href={promoBanner.googlePlayUrl || promoBanner.redirectUrl || "/download"}
-                    target={promoBanner.googlePlayUrl?.startsWith("http") ? "_blank" : undefined}
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 bg-[#061128] hover:bg-[#0A1A3E] text-white px-3 py-1.5 rounded-xl text-[10px] font-bold border border-cyan-400/30 transition-transform hover:scale-105 cursor-pointer"
-                  >
-                    <span>Google Play</span>
-                  </a>
-                  <a
-                    href={promoBanner.appStoreUrl || promoBanner.redirectUrl || "/download"}
-                    target={promoBanner.appStoreUrl?.startsWith("http") ? "_blank" : undefined}
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 bg-[#061128] hover:bg-[#0A1A3E] text-white px-3 py-1.5 rounded-xl text-[10px] font-bold border border-cyan-400/30 transition-transform hover:scale-105 cursor-pointer"
-                  >
-                    <span>App Store</span>
-                  </a>
                   {promoBanner.redirectUrl && (
                     <a
                       href={promoBanner.redirectUrl}
                       target={promoBanner.redirectUrl?.startsWith("http") ? "_blank" : undefined}
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 bg-[#FFC20E] hover:bg-[#E5AC0D] text-slate-950 font-black px-3 py-1.5 rounded-xl text-[10px] transition-transform hover:scale-105 cursor-pointer shadow-xs"
+                      className="inline-flex items-center gap-1 bg-[#FFC20E] hover:bg-[#E5AC0D] text-slate-950 font-black px-2.5 py-1.5 rounded-xl text-[11px] shadow-xs shrink-0 transition-transform active:scale-95 cursor-pointer"
                     >
                       <span>Explore</span>
                       <ExternalLink className="w-3 h-3" />
                     </a>
                   )}
                 </div>
+
+                {/* Quick App Store Pills */}
+                <div className="relative z-10 flex items-center gap-2 pt-1 border-t border-white/10">
+                  <a
+                    href={promoBanner.googlePlayUrl || promoBanner.redirectUrl || "/download"}
+                    target={promoBanner.googlePlayUrl?.startsWith("http") ? "_blank" : undefined}
+                    rel="noopener noreferrer"
+                    className="flex-1 py-1 text-center bg-[#061128]/85 hover:bg-[#0A1A3E] text-white rounded-lg text-[10px] font-bold border border-cyan-400/25 transition-colors cursor-pointer"
+                  >
+                    Google Play
+                  </a>
+                  <a
+                    href={promoBanner.appStoreUrl || promoBanner.redirectUrl || "/download"}
+                    target={promoBanner.appStoreUrl?.startsWith("http") ? "_blank" : undefined}
+                    rel="noopener noreferrer"
+                    className="flex-1 py-1 text-center bg-[#061128]/85 hover:bg-[#0A1A3E] text-white rounded-lg text-[10px] font-bold border border-cyan-400/25 transition-colors cursor-pointer"
+                  >
+                    App Store
+                  </a>
+                </div>
               </div>
-            </div>
+
+              {/* ── DESKTOP VIEW: Full Interactive Offer Card with Phone Mockup ── */}
+              <div className="hidden sm:flex bg-gradient-to-br from-[#0A1128] via-[#005CA9] to-[#00AEEF] rounded-3xl p-6 sm:p-7 text-white shadow-md relative overflow-hidden flex-row items-center justify-between gap-6 group border border-cyan-500/20">
+                {/* Subtle grid pattern background */}
+                <div className="absolute inset-0 opacity-15 bg-[radial-gradient(#00F0FF_1px,transparent_1px)] [background-size:16px_16px] pointer-events-none" />
+
+                {/* Left Phone Mockup Graphic - Clickable to redirect */}
+                <a
+                  href={promoBanner.redirectUrl || "/download"}
+                  target={promoBanner.redirectUrl?.startsWith("http") ? "_blank" : undefined}
+                  rel="noopener noreferrer"
+                  className="relative w-28 h-40 sm:w-32 sm:h-44 shrink-0 rounded-2xl bg-[#061128]/85 backdrop-blur-md border border-cyan-400/30 p-2 shadow-xl flex flex-col items-center justify-between overflow-hidden transition-transform group-hover:scale-105 cursor-pointer"
+                  title={`Redirect to ${promoBanner.redirectUrl || "/download"}`}
+                >
+                  <div className="w-12 h-1 bg-white/40 rounded-full" />
+                  <div className="w-full flex-1 flex flex-col items-center justify-center text-center p-1">
+                    <span className="text-[10px] font-black tracking-widest uppercase text-[#00AEEF]">
+                      PRAYOG
+                    </span>
+                    <span className="text-xs font-black text-white mt-0.5">
+                      {promoBanner.phoneTitle || "APP 2.0"}
+                    </span>
+                    <span className="text-[9px] bg-[#FFC20E] text-slate-950 font-black px-2 py-0.5 rounded-full mt-2 shadow-2xs">
+                      {promoBanner.phoneBadgeText || "5% OFF"}
+                    </span>
+                  </div>
+                  <div className="w-8 h-1 bg-white/30 rounded-full" />
+                </a>
+
+                {/* Right Text Content & Download Badges */}
+                <div className="flex-1 text-left space-y-3 z-10">
+                  <div>
+                    <a
+                      href={promoBanner.redirectUrl || "/download"}
+                      target={promoBanner.redirectUrl?.startsWith("http") ? "_blank" : undefined}
+                      rel="noopener noreferrer"
+                      className="hover:underline"
+                    >
+                      <h3 className="text-lg sm:text-xl font-black uppercase tracking-wider text-white leading-tight">
+                        {promoBanner.title || "ORDER ON PRAYOG APP"}
+                      </h3>
+                    </a>
+                    <p className="text-[11px] font-bold tracking-widest text-[#00F0FF] uppercase mt-0.5">
+                      {promoBanner.subtitle || "ROBOTICS AT YOUR FINGERTIPS"}
+                    </p>
+                  </div>
+
+                  {/* Discount Coupon Tag */}
+                  <div className="inline-flex items-center gap-1.5 p-1 bg-black/40 rounded-xl border border-cyan-400/30">
+                    <span className="bg-[#FFC20E] text-slate-950 text-[10px] font-black px-2 py-0.5 rounded-lg uppercase shadow-2xs">
+                      {promoBanner.tagText || "GET FLAT 5% OFF"}
+                    </span>
+                    <span className="text-[10px] font-mono font-bold text-cyan-200 px-1.5">
+                      CODE: {promoBanner.couponCode || "PRGAPP"}
+                    </span>
+                  </div>
+
+                  {/* App Store / Play Store Links / Redirection */}
+                  <div className="flex flex-wrap items-center justify-start gap-2 pt-1">
+                    <a
+                      href={promoBanner.googlePlayUrl || promoBanner.redirectUrl || "/download"}
+                      target={promoBanner.googlePlayUrl?.startsWith("http") ? "_blank" : undefined}
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 bg-[#061128] hover:bg-[#0A1A3E] text-white px-3 py-1.5 rounded-xl text-[10px] font-bold border border-cyan-400/30 transition-transform hover:scale-105 cursor-pointer"
+                    >
+                      <span>Google Play</span>
+                    </a>
+                    <a
+                      href={promoBanner.appStoreUrl || promoBanner.redirectUrl || "/download"}
+                      target={promoBanner.appStoreUrl?.startsWith("http") ? "_blank" : undefined}
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 bg-[#061128] hover:bg-[#0A1A3E] text-white px-3 py-1.5 rounded-xl text-[10px] font-bold border border-cyan-400/30 transition-transform hover:scale-105 cursor-pointer"
+                    >
+                      <span>App Store</span>
+                    </a>
+                    {promoBanner.redirectUrl && (
+                      <a
+                        href={promoBanner.redirectUrl}
+                        target={promoBanner.redirectUrl?.startsWith("http") ? "_blank" : undefined}
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 bg-[#FFC20E] hover:bg-[#E5AC0D] text-slate-950 font-black px-3 py-1.5 rounded-xl text-[10px] transition-transform hover:scale-105 cursor-pointer shadow-xs"
+                      >
+                        <span>Explore</span>
+                        <ExternalLink className="w-3 h-3" />
+                      </a>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </>
           )
         )}
       </div>
