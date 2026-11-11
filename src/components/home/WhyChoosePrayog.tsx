@@ -480,6 +480,7 @@ interface FeatureItem {
   cardBg: string;
   glowColor: string;
   isPopular?: boolean;
+  Illustration: React.ComponentType<{ className?: string }>;
 }
 
 export const WhyChoosePrayog: React.FC = () => {
@@ -506,6 +507,7 @@ export const WhyChoosePrayog: React.FC = () => {
       cardBorder: "border-amber-200/80 hover:border-amber-400 hover:shadow-amber-500/10",
       cardBg: "bg-gradient-to-br from-white via-white to-amber-50/60",
       glowColor: "bg-amber-200/50",
+      Illustration: GenuineHardware3D,
     },
     {
       id: "2",
@@ -529,6 +531,7 @@ export const WhyChoosePrayog: React.FC = () => {
       cardBorder: "border-blue-200/80 hover:border-blue-400 hover:shadow-blue-500/10",
       cardBg: "bg-gradient-to-br from-white via-white to-sky-50/60",
       glowColor: "bg-sky-200/50",
+      Illustration: DeliveryTruck3D,
     },
     {
       id: "3",
@@ -552,6 +555,7 @@ export const WhyChoosePrayog: React.FC = () => {
       cardBorder: "border-indigo-200/80 hover:border-indigo-400 hover:shadow-indigo-500/10",
       cardBg: "bg-gradient-to-br from-white via-white to-indigo-50/60",
       glowColor: "bg-indigo-200/50",
+      Illustration: TechSupportHeadset3D,
     },
     {
       id: "4",
@@ -575,6 +579,7 @@ export const WhyChoosePrayog: React.FC = () => {
       cardBorder: "border-purple-200/90 hover:border-purple-300 hover:shadow-purple-500/10",
       cardBg: "bg-gradient-to-br from-white via-white to-purple-50/80",
       glowColor: "bg-purple-200/50",
+      Illustration: RobotCar3D,
     },
     {
       id: "5",
@@ -599,6 +604,7 @@ export const WhyChoosePrayog: React.FC = () => {
       cardBg: "bg-gradient-to-br from-white via-amber-50/30 to-orange-50/85",
       glowColor: "bg-amber-300/45",
       isPopular: true,
+      Illustration: Shield3D,
     },
     {
       id: "6",
@@ -622,91 +628,135 @@ export const WhyChoosePrayog: React.FC = () => {
       cardBorder: "border-teal-200/90 hover:border-teal-300 hover:shadow-teal-500/10",
       cardBg: "bg-gradient-to-br from-white via-white to-teal-50/80",
       glowColor: "bg-teal-200/50",
+      Illustration: Drone3D,
     },
   ];
 
   return (
-    <section id="why-choose-prayog" className="relative py-12 sm:py-16 bg-gradient-to-b from-slate-50/60 via-white to-slate-50/60 border-y border-slate-200/80 overflow-hidden">
+    <section id="why-choose-prayog" className="relative py-8 sm:py-16 bg-gradient-to-b from-slate-50/60 via-white to-slate-50/60 border-y border-slate-200/80 overflow-hidden">
       {/* Subtle Ambient Section Highlights */}
       <div className="absolute top-1/4 left-1/10 w-96 h-96 bg-blue-100/25 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-1/4 right-1/10 w-96 h-96 bg-amber-100/25 rounded-full blur-3xl pointer-events-none" />
 
-      <div className="relative z-10 w-full px-3.5 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 space-y-7 sm:space-y-9">
+      <div className="relative z-10 w-full px-3.5 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 space-y-5 sm:space-y-8">
         {/* Section Header */}
-        <div className="text-center max-w-2xl mx-auto space-y-2.5">
-          <div className="flex flex-col items-center gap-2">
-            <span className="bg-blue-50 text-[#005CA9] border border-blue-200 text-xs sm:text-[13px] font-bold px-4 py-1.5 rounded-full uppercase tracking-wider inline-flex items-center justify-center shadow-2xs">
+        <div className="text-center max-w-2xl mx-auto space-y-2">
+          <div className="flex flex-col items-center gap-1.5 sm:gap-2">
+            <span className="bg-blue-50 text-[#005CA9] border border-blue-200 text-[11px] sm:text-[13px] font-bold px-3.5 py-1 sm:px-4 sm:py-1.5 rounded-full uppercase tracking-wider inline-flex items-center justify-center shadow-2xs">
               Why Prayog India
             </span>
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 tracking-tight">
+            <h2 className="text-xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">
               Engineered for Innovation, Built on Trust
             </h2>
           </div>
 
-          <p className="text-xs sm:text-sm text-slate-500 font-normal max-w-xl mx-auto leading-relaxed">
+          <p className="text-[11px] sm:text-sm text-slate-500 font-normal max-w-xl mx-auto leading-relaxed">
             Trusted by makers, robotics innovators, and 500+ academic institutions across India with certified hardware and expert guidance.
           </p>
         </div>
 
-        {/* 6 Themed Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 lg:gap-6">
-          {FEATURES.map((feat, idx) => (
-            <motion.div
-              key={feat.id}
-              initial={{ opacity: 0, y: 14 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.28, delay: idx * 0.04 }}
-              viewport={{ once: true }}
-              whileHover={{ y: -4 }}
-              className={`relative ${feat.cardBg} rounded-[28px] p-6 sm:p-7 border shadow-sm hover:shadow-xl transition-all duration-300 group flex flex-col justify-between overflow-hidden cursor-default min-h-[220px] ${feat.cardBorder}`}
-            >
-              {/* Optional Most Popular Top-Right Ribbon */}
-              {feat.isPopular && (
-                <div className="absolute top-0 right-0 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-[10px] sm:text-[11px] font-extrabold uppercase px-3 py-1.5 rounded-bl-2xl rounded-tr-[26px] shadow-sm flex items-center gap-1 z-20">
-                  <Star className="w-3 h-3 fill-white" />
-                  Most Popular
-                </div>
-              )}
+        {/* Dynamic Cards Grid: Mobile Bento Arrangement (Hero 1 + 2x2 Core + Feature 6) & Desktop 3-Col Grid */}
+        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-4 lg:gap-6">
+          {FEATURES.map((feat, idx) => {
+            const isFullWidthMobile = idx === 0 || idx === 5;
+            const IllustrationComp = feat.Illustration;
 
-              {/* Decorative Subtle Corner Aura */}
-              <div
-                className={`absolute -bottom-8 -right-8 w-44 h-44 rounded-full ${feat.glowColor} blur-2xl opacity-60 group-hover:opacity-100 transition-opacity pointer-events-none`}
-              />
+            return (
+              <motion.div
+                key={feat.id}
+                initial={{ opacity: 0, y: 14 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.28, delay: idx * 0.04 }}
+                viewport={{ once: true }}
+                whileHover={{ y: -4 }}
+                className={`relative ${feat.cardBg} rounded-2xl sm:rounded-[28px] p-3.5 sm:p-6 lg:p-7 border shadow-sm hover:shadow-xl transition-all duration-300 group flex flex-col justify-between overflow-hidden cursor-default min-h-[170px] sm:min-h-[220px] ${
+                  isFullWidthMobile ? "col-span-2 md:col-span-1" : "col-span-1 md:col-span-1"
+                } ${feat.cardBorder}`}
+              >
+                {/* Optional Most Popular Top-Right Ribbon */}
+                {feat.isPopular && (
+                  <div className="absolute top-0 right-0 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-[9px] sm:text-[11px] font-extrabold uppercase px-2 py-1 sm:px-3 sm:py-1.5 rounded-bl-xl sm:rounded-bl-2xl rounded-tr-xl sm:rounded-tr-[26px] shadow-sm flex items-center gap-1 z-20">
+                    <Star className="w-2.5 h-2.5 sm:w-3 sm:h-3 fill-white" />
+                    <span>Popular</span>
+                  </div>
+                )}
 
-              {/* Card Upper Content: Badge + Two-Tone Title + Description */}
-              <div className="relative z-10">
-                {/* Pill Badge */}
-                <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-xl border text-[11px] font-bold shadow-2xs mb-4 ${feat.badge.pillBg} ${feat.badge.border} ${feat.badge.textColor}`}>
-                  {feat.badge.icon("w-3.5 h-3.5 stroke-[2.3]")}
-                  <span>{feat.badge.text}</span>
-                </div>
-
-                {/* Two-Tone Bold Title */}
-                <h3 className="text-xl sm:text-[22px] font-black tracking-tight leading-snug">
-                  <span className="text-slate-900 block">{feat.titleLine1}</span>
-                  <span className={`${feat.titleLine2Color} block`}>{feat.titleLine2}</span>
-                </h3>
-
-                {/* Description */}
-                <p className="text-[13px] text-slate-600 mt-2.5 leading-relaxed font-normal">
-                  {feat.description}
-                </p>
-              </div>
-
-              {/* Bottom Feature Link with Indicator Dot and Circular Action Button */}
-              <div className="relative z-10 mt-6 pt-4 border-t border-slate-100 flex items-center justify-between">
-                <div className="flex items-center gap-2 text-xs font-bold text-slate-700 transition-colors">
-                  <span className={`w-2 h-2 rounded-full ${feat.linkTheme.dotColor}`} />
-                  <span className={feat.linkTheme.hoverText}>{feat.linkText}</span>
-                </div>
+                {/* Decorative Subtle Corner Aura */}
                 <div
-                  className={`w-7 h-7 rounded-full text-white flex items-center justify-center shadow-xs transition-transform duration-200 group-hover:scale-110 group-hover:translate-x-0.5 ${feat.linkTheme.circleBg}`}
-                >
-                  <ArrowRight className="w-3.5 h-3.5 stroke-[2.5]" />
+                  className={`absolute -bottom-8 -right-8 w-44 h-44 rounded-full ${feat.glowColor} blur-2xl opacity-60 group-hover:opacity-100 transition-opacity pointer-events-none`}
+                />
+
+                {/* Card Content */}
+                <div className="relative z-10">
+                  {/* Full-width mobile layout (Hero cards #1 and #6) */}
+                  {isFullWidthMobile ? (
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex-1 min-w-0">
+                        {/* Pill Badge */}
+                        <div
+                          className={`inline-flex items-center gap-1 sm:gap-1.5 px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-lg sm:rounded-xl border text-[10px] sm:text-[11px] font-bold shadow-2xs mb-2 sm:mb-3 ${feat.badge.pillBg} ${feat.badge.border} ${feat.badge.textColor}`}
+                        >
+                          {feat.badge.icon("w-3 h-3 sm:w-3.5 sm:h-3.5 stroke-[2.3]")}
+                          <span>{feat.badge.text}</span>
+                        </div>
+
+                        {/* Two-Tone Bold Title */}
+                        <h3 className="text-base sm:text-xl lg:text-[22px] font-black tracking-tight leading-snug">
+                          <span className="text-slate-900 block sm:inline">{feat.titleLine1} </span>
+                          <span className={`${feat.titleLine2Color} block sm:inline`}>{feat.titleLine2}</span>
+                        </h3>
+
+                        {/* Description */}
+                        <p className="text-[11px] sm:text-[13px] text-slate-600 mt-1 sm:mt-2 leading-relaxed">
+                          {feat.description}
+                        </p>
+                      </div>
+
+                      {/* Right-aligned 3D illustration badge for mobile featured hero cards */}
+                      <div className="shrink-0 w-16 h-16 sm:w-24 sm:h-24 md:hidden flex items-center justify-center -mr-1">
+                        <IllustrationComp className="w-full h-full object-contain drop-shadow-sm" />
+                      </div>
+                    </div>
+                  ) : (
+                    /* 2-column mobile layout for middle cards #2, #3, #4, #5 */
+                    <div>
+                      {/* Pill Badge */}
+                      <div
+                        className={`inline-flex items-center gap-1 sm:gap-1.5 px-2 py-0.5 sm:px-3 sm:py-1 rounded-lg sm:rounded-xl border text-[9.5px] sm:text-[11px] font-bold shadow-2xs mb-2 sm:mb-3.5 ${feat.badge.pillBg} ${feat.badge.border} ${feat.badge.textColor}`}
+                      >
+                        {feat.badge.icon("w-3 h-3 sm:w-3.5 sm:h-3.5 stroke-[2.3]")}
+                        <span>{feat.badge.text}</span>
+                      </div>
+
+                      {/* Two-Tone Bold Title */}
+                      <h3 className="text-[13px] sm:text-base lg:text-[22px] font-black tracking-tight leading-tight sm:leading-snug">
+                        <span className="text-slate-900 block truncate">{feat.titleLine1}</span>
+                        <span className={`${feat.titleLine2Color} block truncate`}>{feat.titleLine2}</span>
+                      </h3>
+
+                      {/* Description */}
+                      <p className="text-[10.5px] sm:text-xs lg:text-[13px] text-slate-600 mt-1 sm:mt-2 line-clamp-2 md:line-clamp-none leading-snug sm:leading-relaxed">
+                        {feat.description}
+                      </p>
+                    </div>
+                  )}
                 </div>
-              </div>
-            </motion.div>
-          ))}
+
+                {/* Bottom Feature Link with Indicator Dot and Circular Action Button */}
+                <div className="relative z-10 mt-3 sm:mt-6 pt-2.5 sm:pt-4 border-t border-slate-100 flex items-center justify-between">
+                  <div className="flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-xs font-bold text-slate-700 transition-colors min-w-0 pr-1">
+                    <span className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full shrink-0 ${feat.linkTheme.dotColor}`} />
+                    <span className={`${feat.linkTheme.hoverText} truncate`}>{feat.linkText}</span>
+                  </div>
+                  <div
+                    className={`w-5 h-5 sm:w-7 sm:h-7 rounded-full text-white flex items-center justify-center shadow-xs shrink-0 transition-transform duration-200 group-hover:scale-110 group-hover:translate-x-0.5 ${feat.linkTheme.circleBg}`}
+                  >
+                    <ArrowRight className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 stroke-[2.5]" />
+                  </div>
+                </div>
+              </motion.div>
+            );
+          })}
         </div>
       </div>
     </section>
