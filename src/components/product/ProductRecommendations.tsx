@@ -223,10 +223,10 @@ const FrequentlyBoughtTogetherSection: React.FC<{
 
   return (
     <>
-      {/* ── MOBILE VIEW: Unified, Clean & Professional Bundle Card ── */}
-      <div className="block sm:hidden bg-white border border-slate-200/90 rounded-2xl p-3.5 shadow-2xs space-y-3">
+      {/* ── MOBILE VIEW: Unified, Clean & Borderless Bundle Section ── */}
+      <div className="block sm:hidden bg-slate-50/80 rounded-2xl p-3.5 space-y-3">
         {/* Header */}
-        <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+        <div className="flex items-center justify-between pb-1">
           <div>
             <div className="flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
@@ -239,14 +239,14 @@ const FrequentlyBoughtTogetherSection: React.FC<{
             </p>
           </div>
           {savings > 0 && (
-            <span className="bg-emerald-50 text-emerald-700 text-[10px] font-black px-2 py-0.5 rounded-full border border-emerald-200 shrink-0">
+            <span className="bg-emerald-100/70 text-emerald-800 text-[10px] font-black px-2 py-0.5 rounded-full shrink-0">
               Save ₹{savings.toLocaleString("en-IN")}
             </span>
           )}
         </div>
 
-        {/* Interactive Compact Item List (No redundant duplicates) */}
-        <div className="space-y-2">
+        {/* Interactive Compact Item List (Clean & Borderless) */}
+        <div className="space-y-1.5">
           {bundleItems.map((prod) => {
             const isSelected = selectedIds.includes(prod.id);
             const isMain = prod.id === mainProduct?.id;
@@ -255,10 +255,10 @@ const FrequentlyBoughtTogetherSection: React.FC<{
               <div
                 key={prod.id}
                 onClick={() => toggleItem(prod.id)}
-                className={`flex items-center gap-2.5 p-2 rounded-xl border transition-all cursor-pointer select-none ${
+                className={`flex items-center gap-2.5 p-2 rounded-xl transition-all cursor-pointer select-none ${
                   isSelected
-                    ? "bg-slate-50/80 border-slate-200"
-                    : "bg-white border-dashed border-slate-200 opacity-55"
+                    ? "bg-white shadow-2xs"
+                    : "opacity-45 hover:bg-white/60"
                 }`}
               >
                 {/* Custom Checkbox */}
@@ -266,14 +266,14 @@ const FrequentlyBoughtTogetherSection: React.FC<{
                   className={`w-5 h-5 rounded-md flex items-center justify-center shrink-0 transition-colors ${
                     isSelected
                       ? "bg-[#2563EB] text-white shadow-2xs"
-                      : "border border-slate-300 bg-white"
+                      : "bg-slate-200/80"
                   }`}
                 >
                   {isSelected && <Check className="w-3.5 h-3.5 stroke-[3]" />}
                 </div>
 
                 {/* Thumbnail */}
-                <div className="relative w-11 h-11 rounded-lg bg-white border border-slate-200/80 overflow-hidden shrink-0">
+                <div className="relative w-11 h-11 rounded-lg bg-white overflow-hidden shrink-0">
                   <Image
                     src={prod.image}
                     alt={prod.name}
@@ -311,7 +311,7 @@ const FrequentlyBoughtTogetherSection: React.FC<{
         </div>
 
         {/* Bottom Bundle Pricing Bar */}
-        <div className="pt-2 border-t border-slate-100 flex items-center justify-between gap-3">
+        <div className="pt-2 flex items-center justify-between gap-3">
           <div>
             <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
               Bundle Total ({selectedItems.length} items)
