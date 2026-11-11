@@ -255,6 +255,12 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
 
   const recoGroups = [
     {
+      id: "similar",
+      label: "Similar Products",
+      subtitle: "Comparable hardware alternatives.",
+      products: similarProducts,
+    },
+    {
       id: "fbt",
       label: "Frequently Bought Together",
       subtitle: "Pair these companion items for your project.",
@@ -265,12 +271,6 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
       label: "Related Products",
       subtitle: "Popular products from the same category.",
       products: relatedProducts,
-    },
-    {
-      id: "similar",
-      label: "Similar Products",
-      subtitle: "Comparable hardware alternatives.",
-      products: similarProducts,
     },
     {
       id: "accessories",

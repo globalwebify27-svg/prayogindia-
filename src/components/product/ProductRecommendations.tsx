@@ -3,17 +3,11 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
-import {
-  Star,
-  Zap,
-  Heart,
-  ChevronRight,
-  Check,
-} from "lucide-react";
+import { ChevronRight, Check } from "lucide-react";
 import { Product } from "@/data/mockData";
-import { useCartStore, useWishlistStore } from "@/store";
+import { useCartStore } from "@/store";
 import { AddToCartIcon } from "@/components/icons/AddToCartIcon";
+import { ProductCard } from "@/components/products/ProductCard";
 
 interface RecommendationGroup {
   id: string;
@@ -27,147 +21,6 @@ interface ProductRecommendationsProps {
   groups: RecommendationGroup[];
   mainProduct?: Product;
 }
-
-// Mini product card for recommendations
-const RecoCard: React.FC<{ product: Product }> = ({ product }) => {
-  const addToCart = useCartStore((s) => s.addToCart);
-  const toggleWishlist = useWishlistStore((s) => s.toggleWishlist);
-  const isWishlisted = useWishlistStore((s) =>
-    s.wishlist.some((p) => p.id === product.id)
-  );
-  const router = useRouter();
-  const [isAdded, setIsAdded] = useState(false);
-
-  const discountPct =
-    product.mrp > product.price
-      ? Math.round(((product.mrp - product.price) / product.mrp) * 100)
-      : null;
-
-  const handleAddToCart = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    addToCart(product, undefined, 1);
-    setIsAdded(true);
-    setTimeout(() => setIsAdded(false), 1500);
-  };
-
-  const handleBuyNow = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    addToCart(product, undefined, 1);
-    router.push("/checkout");
-  };
-
-  const handleToggleWishlist = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    toggleWishlist(product);
-  };
-
-  return (
-    <div className="group bg-white border border-slate-200/90 rounded-2xl overflow-hidden hover:border-[#2563EB]/40 hover:shadow-lg transition-all duration-300 flex flex-col">
-      {/* Image */}
-      <Link
-        href={`/products/${product.slug || product.id}`}
-        className="block relative h-32 sm:h-36 bg-slate-50/80 overflow-hidden"
-      >
-        <Image
-          src={product.image}
-          alt={product.name}
-          fill
-          className="object-contain p-2 group-hover:scale-105 transition-transform duration-300"
-        />
-        {discountPct && (
-          <span className="absolute top-2 left-2 bg-[#FF3B30] text-white text-[8px] font-black px-1.5 py-0.5 rounded-md uppercase">
-            {discountPct}% OFF
-          </span>
-        )}
-        <button
-          type="button"
-          onClick={handleToggleWishlist}
-          className={`absolute top-2 right-2 w-6 h-6 rounded-full flex items-center justify-center shadow transition-colors cursor-pointer z-10 ${
-            isWishlisted
-              ? "bg-red-500 text-white"
-              : "bg-white/90 text-slate-400 hover:text-red-500"
-          }`}
-          aria-label="Wishlist"
-        >
-          <Heart className={`w-3 h-3 ${isWishlisted ? "fill-current" : ""}`} />
-        </button>
-      </Link>
-
-      {/* Info */}
-      <div className="p-2.5 sm:p-3 flex-1 flex flex-col gap-1.5">
-        <span className="text-[8px] font-mono font-bold text-slate-400 uppercase">
-          {product.sku}
-        </span>
-        <Link href={`/products/${product.slug || product.id}`}>
-          <h4 className="text-[11px] font-bold text-slate-900 line-clamp-2 leading-snug group-hover:text-[#2563EB] transition-colors">
-            {product.name}
-          </h4>
-        </Link>
-
-        {/* Rating */}
-        <div className="flex items-center gap-1">
-          <Star className="w-2.5 h-2.5 fill-amber-400 text-amber-400" />
-          <span className="text-[10px] font-bold text-slate-700">
-            {product.rating}
-          </span>
-          <span className="text-[9px] text-slate-400">({product.reviews})</span>
-        </div>
-
-        {/* Price & Action */}
-        <div className="mt-auto pt-1">
-          <div className="flex items-baseline gap-1.5">
-            <span className="text-sm font-extrabold text-slate-900">
-              ₹{product.price.toLocaleString("en-IN")}
-            </span>
-            {product.mrp > product.price && (
-              <span className="text-[10px] text-slate-400 line-through">
-                ₹{product.mrp.toLocaleString("en-IN")}
-              </span>
-            )}
-          </div>
-
-          {product.inStock ? (
-            <div className="flex gap-1 mt-2">
-              <button
-                type="button"
-                onClick={handleAddToCart}
-                className={`flex-1 border text-[9px] font-black py-1.5 rounded-lg transition-all active:scale-95 flex items-center justify-center gap-1 cursor-pointer ${
-                  isAdded
-                    ? "bg-emerald-600 text-white border-emerald-600"
-                    : "border-[#2563EB] text-[#2563EB] hover:bg-[#2563EB] hover:text-white"
-                }`}
-              >
-                {isAdded ? (
-                  <>
-                    <Check className="w-2.5 h-2.5 stroke-[3]" /> ADDED
-                  </>
-                ) : (
-                  <>
-                    <AddToCartIcon className="w-2.5 h-2.5" /> ADD
-                  </>
-                )}
-              </button>
-              <button
-                type="button"
-                onClick={handleBuyNow}
-                className="flex-1 bg-[#2563EB] hover:bg-[#1D4ED8] active:bg-[#1E40AF] text-white text-[9px] font-black py-1.5 rounded-lg transition-colors active:scale-95 flex items-center justify-center gap-1 cursor-pointer shadow-2xs"
-              >
-                <Zap className="w-2.5 h-2.5 fill-[#FFC20E] text-[#FFC20E]" /> BUY
-              </button>
-            </div>
-          ) : (
-            <span className="text-[9px] font-bold text-slate-400 bg-slate-100 px-2 py-1 rounded-lg block text-center mt-2">
-              Out of Stock
-            </span>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-};
 
 // Frequently Bought Together Bundle component
 const FrequentlyBoughtTogetherSection: React.FC<{
@@ -189,14 +42,12 @@ const FrequentlyBoughtTogetherSection: React.FC<{
     return list;
   }, [mainProduct, products]);
 
-  // Selected item IDs (default all checked)
-  const [selectedIds, setSelectedIds] = useState<string[]>(() =>
-    bundleItems.map((p) => p.id),
-  );
+  // Selected item IDs: empty by default (do not auto-select items)
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
   useEffect(() => {
-    setSelectedIds(bundleItems.map((p) => p.id));
-  }, [bundleItems]);
+    setSelectedIds([]);
+  }, [mainProduct?.id]);
 
   const toggleItem = (id: string) => {
     setSelectedIds((prev) =>
@@ -336,7 +187,7 @@ const FrequentlyBoughtTogetherSection: React.FC<{
               bundleAdded
                 ? "bg-emerald-600 text-white"
                 : selectedItems.length === 0
-                ? "bg-slate-200 text-slate-400 cursor-not-allowed"
+                ? "bg-slate-200 text-slate-400 cursor-not-allowed shadow-none"
                 : "bg-[#2563EB] hover:bg-[#1D4ED8] text-white shadow-blue-500/20"
             }`}
           >
@@ -345,6 +196,8 @@ const FrequentlyBoughtTogetherSection: React.FC<{
                 <Check className="w-3.5 h-3.5 stroke-[3]" />
                 <span>Added!</span>
               </>
+            ) : selectedItems.length === 0 ? (
+              <span>Select Items</span>
             ) : (
               <>
                 <AddToCartIcon className="w-3.5 h-3.5 shrink-0" />
@@ -507,6 +360,8 @@ const FrequentlyBoughtTogetherSection: React.FC<{
                 <Check className="w-4 h-4 stroke-[3]" />
                 <span>Bundle Added!</span>
               </>
+            ) : selectedItems.length === 0 ? (
+              <span>Select Items to Bundle</span>
             ) : (
               <>
                 <AddToCartIcon className="w-4 h-4 shrink-0" />
@@ -530,14 +385,39 @@ export const ProductRecommendations: React.FC<ProductRecommendationsProps> = ({
   groups,
   mainProduct,
 }) => {
-  const [activeTab, setActiveTab] = useState(groups[0]?.id ?? "");
-
   const validGroups = groups.filter((g) => g.products.length > 0);
+  const defaultTab =
+    validGroups.find((g) => g.id === "similar")?.id ??
+    validGroups[0]?.id ??
+    "";
+  const [activeTab, setActiveTab] = useState(defaultTab);
+
+  useEffect(() => {
+    if (defaultTab && (!activeTab || !validGroups.some((g) => g.id === activeTab))) {
+      setActiveTab(defaultTab);
+    }
+  }, [defaultTab]);
+
   if (validGroups.length === 0) return null;
 
   const activeGroup =
     validGroups.find((g) => g.id === activeTab) ?? validGroups[0];
   const isFBT = activeGroup.id === "fbt";
+
+  const getMobileLabel = (id: string, fullLabel: string) => {
+    switch (id) {
+      case "similar":
+        return "Similar";
+      case "fbt":
+        return "Bought Together";
+      case "related":
+        return "Related";
+      case "accessories":
+        return "Accessories";
+      default:
+        return fullLabel;
+    }
+  };
 
   return (
     <section className="space-y-4 border-t border-slate-200 pt-8 sm:pt-10">
@@ -573,23 +453,23 @@ export const ProductRecommendations: React.FC<ProductRecommendationsProps> = ({
             <button
               key={group.id}
               onClick={() => setActiveTab(group.id)}
-              className={`shrink-0 px-3.5 sm:px-4 py-2 rounded-xl text-xs font-extrabold transition-all cursor-pointer border flex items-center gap-1.5 whitespace-nowrap ${
+              className={`shrink-0 px-3.5 sm:px-4 py-2 rounded-xl text-xs font-extrabold transition-all cursor-pointer flex items-center gap-1.5 whitespace-nowrap ${
                 isActive
-                  ? "bg-[#0A1128] text-white border-[#0A1128] shadow-sm"
-                  : "bg-white text-slate-700 border-slate-200 hover:border-slate-300 hover:bg-slate-50"
+                  ? "bg-[#0A1128] text-white shadow-sm"
+                  : "bg-slate-100 text-slate-600 hover:bg-slate-200/80 hover:text-slate-900"
               }`}
             >
               <span>
                 <span className="hidden sm:inline">{group.label}</span>
                 <span className="inline sm:hidden">
-                  {group.id === "fbt" ? "Bought Together" : group.label}
+                  {getMobileLabel(group.id, group.label)}
                 </span>
               </span>
               <span
                 className={`text-[10px] font-black px-1.5 py-0.5 rounded-full ${
                   isActive
                     ? "bg-[#FFC20E] text-slate-950"
-                    : "bg-slate-100 text-slate-500"
+                    : "bg-slate-200/70 text-slate-500"
                 }`}
               >
                 {count}
@@ -606,9 +486,9 @@ export const ProductRecommendations: React.FC<ProductRecommendationsProps> = ({
           mainProduct={mainProduct}
         />
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2.5 sm:gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-3.5">
           {activeGroup.products.map((prod) => (
-            <RecoCard key={prod.id} product={prod} />
+            <ProductCard key={prod.id} product={prod} />
           ))}
         </div>
       )}
