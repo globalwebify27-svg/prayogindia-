@@ -439,28 +439,68 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
         )}
       </div>
 
-      {/* ── 4. Pricing Block ── */}
-      <div className="pt-2 pb-1 space-y-1.5">
-        <div className="flex flex-wrap items-baseline gap-2.5 sm:gap-3.5">
-          <span className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-            ₹{currentPrice.toLocaleString("en-IN")}
-          </span>
+      {/* ── 4. Pricing Block & Quantity Capsule Selector (Beside Price, matching reference design) ── */}
+      <div className="pt-2 pb-1 space-y-2">
+        <div className="flex items-center justify-between gap-3">
+          {/* Left: Live Price, MRP & Discount Badge */}
+          <div className="space-y-1">
+            <div className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight leading-none">
+              ₹{currentPrice.toLocaleString("en-IN")}
+            </div>
 
-          {currentMrp > currentPrice && (
-            <span className="text-sm sm:text-base text-slate-400 line-through font-medium">
-              ₹{currentMrp.toLocaleString("en-IN")}
-            </span>
-          )}
+            <div className="flex items-center gap-2">
+              {currentMrp > currentPrice && (
+                <span className="text-xs sm:text-sm text-slate-400 line-through font-medium">
+                  ₹{currentMrp.toLocaleString("en-IN")}
+                </span>
+              )}
 
-          {savings > 0 && (
-            <span className="text-xs font-black uppercase text-emerald-800 bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-200 shadow-2xs">
-              SAVE ₹{savings.toLocaleString("en-IN")}
+              {discountPercentage > 0 && (
+                <span className="text-[11px] sm:text-xs font-black uppercase text-white bg-[#0B0F6B] px-2 py-0.5 rounded-md shadow-2xs">
+                  {discountPercentage}% OFF
+                </span>
+              )}
+
+              {savings > 0 && discountPercentage <= 0 && (
+                <span className="text-[10px] sm:text-xs font-black uppercase text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
+                  SAVE ₹{savings.toLocaleString("en-IN")}
+                </span>
+              )}
+            </div>
+          </div>
+
+          {/* Right: Quantity Capsule Selector (Beside Price) */}
+          <div className="flex items-center border border-slate-200 rounded-full h-10 sm:h-11 bg-white shadow-2xs overflow-hidden shrink-0">
+            <button
+              type="button"
+              onClick={handleDecreaseQuantity}
+              disabled={currentQuantity <= 1}
+              className="w-9 sm:w-10 h-full flex items-center justify-center text-slate-600 hover:text-slate-900 hover:bg-slate-50 disabled:opacity-30 font-bold text-lg cursor-pointer transition-colors"
+              aria-label="Decrease quantity"
+            >
+              −
+            </button>
+            <span className="w-8 sm:w-10 text-center text-sm sm:text-base font-bold text-slate-900 select-none">
+              {currentQuantity}
             </span>
-          )}
+            <button
+              type="button"
+              onClick={handleIncreaseQuantity}
+              className="w-9 sm:w-10 h-full flex items-center justify-center text-[#0B0F6B] hover:bg-slate-50 font-bold text-lg cursor-pointer transition-colors"
+              aria-label="Increase quantity"
+              title={
+                currentQuantity >= availableStock
+                  ? `Available stock limit (${availableStock}) reached`
+                  : "Increase quantity"
+              }
+            >
+              +
+            </button>
+          </div>
         </div>
 
         {/* Tax Note + Price Match Promise */}
-        <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500 font-medium">
+        <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500 font-medium pt-0.5">
           <span>Incl. GST (No Hidden Charges)</span>
           <span className="text-slate-300">•</span>
           <button
@@ -509,82 +549,49 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
         </div>
       )}
 
-      {/* ── 7. Quantity + ADD TO CART + BUY NOW + WISHLIST ── */}
-      <div id="main-product-cta" className="space-y-3 pt-2">
-        <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-          {/* Quantity Box */}
-          <div className="flex items-center gap-2.5">
-            <span className="text-xs sm:text-sm font-bold text-slate-700">Quantity:</span>
-            <div className="flex items-center border border-slate-200 rounded-[12px] h-[48px] sm:h-[54px] bg-white shadow-2xs overflow-hidden">
-              <button
-                type="button"
-                onClick={handleDecreaseQuantity}
-                disabled={currentQuantity <= 1}
-                className="w-10 h-full flex items-center justify-center text-slate-500 hover:text-slate-900 hover:bg-slate-50 disabled:opacity-25 font-bold text-base cursor-pointer transition-colors"
-                aria-label="Decrease quantity"
-              >
-                -
-              </button>
-              <span className="w-10 text-center text-sm font-black text-slate-900 select-none">
-                {currentQuantity}
-              </span>
-              <button
-                type="button"
-                onClick={handleIncreaseQuantity}
-                className="w-10 h-full flex items-center justify-center text-slate-500 hover:text-slate-900 hover:bg-slate-50 font-bold text-base cursor-pointer transition-colors"
-                aria-label="Increase quantity"
-                title={currentQuantity >= availableStock ? `Available stock limit (${availableStock}) reached` : "Increase quantity"}
-              >
-                +
-              </button>
-            </div>
-          </div>
+      {/* ── 7. Desktop CTA (Add to Cart & Buy Now) ── */}
+      <div id="main-product-cta" className="hidden sm:block pt-2">
+        <div className="flex items-center gap-3">
+          {/* Secondary ADD TO CART Button */}
+          {currentStock ? (
+            <button
+              type="button"
+              onClick={handleAddToCartClick}
+              className={`flex-initial min-w-[190px] h-[54px] px-8 rounded-[12px] text-[16px] font-[600] whitespace-nowrap transition-all duration-150 flex items-center justify-center cursor-pointer select-none ${
+                addedAnimation
+                  ? "bg-emerald-600 border-2 border-emerald-600 text-white shadow-sm scale-[1.01]"
+                  : "bg-white hover:bg-slate-50 active:bg-slate-100 text-slate-900 border-2 border-slate-300 hover:border-slate-400 shadow-2xs active:scale-[0.99]"
+              }`}
+            >
+              <span>{addedAnimation ? "Added to Cart!" : "Add to Cart"}</span>
+            </button>
+          ) : (
+            <a
+              href={`https://wa.me/918709789641?text=Hi%20Prayog%20India%2C%20I%20want%20to%20inquire%20about%20availability%20of%20${encodeURIComponent(product.name)}%20(SKU:%20${encodeURIComponent(currentSku)})`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex-initial min-w-[190px] h-[54px] px-8 rounded-[12px] text-[16px] font-[600] text-white bg-emerald-600 hover:bg-emerald-700 shadow-sm shadow-emerald-600/20 whitespace-nowrap transition-all duration-150 flex items-center justify-center cursor-pointer active:scale-[0.99]"
+            >
+              <span>Inquire on WhatsApp</span>
+            </a>
+          )}
 
-          {/* Action Buttons: Hidden on mobile (managed by permanent sticky bottom action bar), inline flex on tablet/desktop */}
-          <div className="hidden sm:flex sm:items-center gap-2.5 sm:gap-3 flex-1 w-auto">
-            {/* Secondary ADD TO CART Button */}
-            {currentStock ? (
-              <button
-                type="button"
-                onClick={handleAddToCartClick}
-                className={`sm:flex-initial sm:min-w-[190px] h-[54px] px-6 sm:px-8 rounded-[12px] text-[16px] font-[600] whitespace-nowrap transition-all duration-150 flex items-center justify-center cursor-pointer select-none ${
-                  addedAnimation
-                    ? "bg-emerald-600 border-2 border-emerald-600 text-white shadow-sm scale-[1.01]"
-                    : "bg-white hover:bg-slate-50 active:bg-slate-100 text-slate-900 border-2 border-slate-300 hover:border-slate-400 shadow-2xs active:scale-[0.99]"
-                }`}
-              >
-                <span>{addedAnimation ? "Added to Cart!" : "Add to Cart"}</span>
-              </button>
-            ) : (
-              <a
-                href={`https://wa.me/918709789641?text=Hi%20Prayog%20India%2C%20I%20want%20to%20inquire%20about%20availability%20of%20${encodeURIComponent(product.name)}%20(SKU:%20${encodeURIComponent(currentSku)})`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="sm:flex-initial sm:min-w-[190px] h-[54px] px-6 sm:px-8 rounded-[12px] text-[16px] font-[600] text-white bg-emerald-600 hover:bg-emerald-700 shadow-sm shadow-emerald-600/20 whitespace-nowrap transition-all duration-150 flex items-center justify-center cursor-pointer active:scale-[0.99]"
-              >
-                <span>Inquire on WhatsApp</span>
-              </a>
-            )}
+          {/* Primary BUY NOW Button */}
+          {currentStock && (
+            <button
+              type="button"
+              onClick={handleBuyNowClick}
+              className="flex-initial min-w-[160px] h-[54px] px-8 rounded-[12px] text-[16px] font-[600] text-white bg-[#2563EB] hover:bg-[#1D4ED8] active:bg-[#1E40AF] shadow-sm hover:shadow whitespace-nowrap transition-all duration-150 flex items-center justify-center cursor-pointer active:scale-[0.99] select-none"
+            >
+              <span>Buy Now</span>
+            </button>
+          )}
 
-            {/* Primary BUY NOW Button */}
-            {currentStock && (
-              <button
-                type="button"
-                onClick={handleBuyNowClick}
-                className="sm:flex-initial sm:min-w-[160px] h-[54px] px-6 sm:px-8 rounded-[12px] text-[16px] font-[600] text-white bg-[#2563EB] hover:bg-[#1D4ED8] active:bg-[#1E40AF] shadow-sm hover:shadow whitespace-nowrap transition-all duration-150 flex items-center justify-center cursor-pointer active:scale-[0.99] select-none"
-              >
-                <span>Buy Now</span>
-              </button>
-            )}
-          </div>
-        </div>
-
-        {/* Add to Wishlist Text Button (Desktop) */}
-        <div className="hidden sm:flex items-center justify-start pt-0.5">
+          {/* Wishlist Button (Desktop) */}
           <button
             type="button"
             onClick={() => onToggleWishlist(product)}
-            className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-600 hover:text-red-600 transition-colors cursor-pointer"
+            className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-600 hover:text-red-600 transition-colors cursor-pointer ml-2"
           >
             <Heart
               className={`w-4 h-4 ${
@@ -592,7 +599,7 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
               }`}
             />
             <span className="uppercase tracking-wider">
-              {isWishlisted ? "Added in Wishlist" : "ADD TO WISHLIST"}
+              {isWishlisted ? "Saved" : "Add to Wishlist"}
             </span>
           </button>
         </div>
