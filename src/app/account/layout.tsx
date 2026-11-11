@@ -1,22 +1,21 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { AccountSidebar } from "@/components/account/AccountSidebar";
-import {
-  LayoutDashboard,
-  ShoppingBag,
-  Heart,
-  MapPin,
-  Award,
-  FileText,
-  User,
-  Headphones,
-  ChevronLeft,
-  LogOut,
-} from "lucide-react";
-import { useStore } from "@/context/StoreContext";
+import { ChevronLeft } from "lucide-react";
+
+const pageTitles: Record<string, string> = {
+  "/account/orders": "My Orders",
+  "/account/wishlist": "Saved Wishlist",
+  "/account/addresses": "Saved Addresses",
+  "/account/payments": "Payment Methods",
+  "/account/rewards": "Reward Points",
+  "/account/quotations": "My Quotations",
+  "/account/profile": "My Profile",
+  "/account/support": "Support Tickets",
+};
 
 export default function AccountLayout({
   children,
@@ -24,9 +23,6 @@ export default function AccountLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
-  const router = useRouter();
-  const { logoutUser } = useStore();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const isAuthPage = [
     "/login",
@@ -34,17 +30,6 @@ export default function AccountLayout({
     "/forgot-password",
     "/verify-otp",
   ].includes(pathname);
-
-  const navTabs = [
-    { label: "Dashboard", href: "/account", icon: LayoutDashboard },
-    { label: "Orders", href: "/account/orders", icon: ShoppingBag },
-    { label: "Wishlist", href: "/account/wishlist", icon: Heart },
-    { label: "Addresses", href: "/account/addresses", icon: MapPin },
-    { label: "Rewards", href: "/account/rewards", icon: Award },
-    { label: "Quotations", href: "/account/quotations", icon: FileText },
-    { label: "Profile", href: "/account/profile", icon: User },
-    { label: "Support", href: "/account/support", icon: Headphones },
-  ];
 
   return (
     <div className="pt-1 sm:pt-1.5 pb-3 lg:pb-4 bg-slate-50/60 min-h-[70vh] overflow-x-hidden">
@@ -54,67 +39,20 @@ export default function AccountLayout({
         </div>
       ) : (
         <div className="w-full max-w-full px-3.5 sm:px-6 lg:px-8 xl:px-10 2xl:px-12">
-          {/* ── Mobile Header Bar (Matching Image 2 Reference: "< Account") ── */}
+          {/* ── Mobile Back Header Bar (Matching Image 2 Reference: "< Account") ── */}
           {pathname !== "/account" && (
-            <div className="lg:hidden w-full max-w-full mb-3 space-y-2">
-              <div className="flex items-center justify-between pb-1.5 border-b border-slate-200/80">
+            <div className="lg:hidden w-full max-w-full mb-3">
+              <div className="flex items-center justify-between pb-2 border-b border-slate-200/80">
                 <Link
                   href="/account"
-                  className="inline-flex items-center gap-1 text-xs font-bold text-slate-800 hover:text-[#2563EB] active:scale-95 transition-all"
+                  className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-800 hover:text-[#2563EB] active:scale-95 transition-all"
                 >
                   <ChevronLeft className="w-4 h-4 stroke-[2.5]" />
                   <span>Account</span>
                 </Link>
-                <span className="text-[11px] font-semibold text-slate-400 capitalize">
-                  {navTabs.find((t) => t.href === pathname)?.label || "Dashboard"}
+                <span className="text-[11px] font-semibold text-slate-400">
+                  {pageTitles[pathname] || "Dashboard"}
                 </span>
-              </div>
-
-              {/* Horizontal Scrollable Pills on Sub-Pages for Quick Access */}
-              <div
-                className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 px-0.5 touch-pan-x touch-pan-y"
-                style={{ touchAction: "pan-x pan-y" }}
-              >
-                {navTabs.map((tab) => {
-                  const Icon = tab.icon;
-                  const isActive =
-                    tab.href === "/account"
-                      ? pathname === "/account"
-                      : pathname === tab.href ||
-                        (tab.href !== "/account" && pathname.startsWith(tab.href));
-
-                  return (
-                    <Link
-                      key={tab.href}
-                      href={tab.href}
-                      className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap shrink-0 transition-all ${
-                        isActive
-                          ? "bg-[#2563EB] text-white shadow-xs"
-                          : "bg-white text-slate-600 hover:bg-slate-50 border border-slate-200/70"
-                      }`}
-                    >
-                      <Icon
-                        className={`w-3.5 h-3.5 ${
-                          isActive ? "text-white" : "text-slate-400"
-                        }`}
-                      />
-                      <span>{tab.label}</span>
-                    </Link>
-                  );
-                })}
-
-                {/* Mobile Quick Sign Out */}
-                <button
-                  type="button"
-                  onClick={() => {
-                    logoutUser();
-                    router.push("/login");
-                  }}
-                  className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-200/60 whitespace-nowrap shrink-0 transition-all cursor-pointer"
-                >
-                  <LogOut className="w-3.5 h-3.5" />
-                  <span>Logout</span>
-                </button>
               </div>
             </div>
           )}
