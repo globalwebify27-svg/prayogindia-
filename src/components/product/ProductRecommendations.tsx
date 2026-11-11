@@ -222,50 +222,58 @@ const FrequentlyBoughtTogetherSection: React.FC<{
   };
 
   return (
-    <div className="bg-slate-50/90 border border-slate-200/90 rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 space-y-4">
-      <div>
-        <h4 className="text-xs sm:text-sm font-black text-slate-900 uppercase tracking-tight">
-          Frequently Bought Together
-        </h4>
-        <p className="text-xs text-slate-500 mt-0.5">
-          Customers who viewed this item frequently bundle it with:
-        </p>
-      </div>
+    <>
+      {/* ── MOBILE VIEW: Unified, Clean & Professional Bundle Card ── */}
+      <div className="block sm:hidden bg-white border border-slate-200/90 rounded-2xl p-3.5 shadow-2xs space-y-3">
+        {/* Header */}
+        <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+          <div>
+            <div className="flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <h4 className="text-xs font-black uppercase tracking-wider text-slate-900">
+                Frequently Bought Together
+              </h4>
+            </div>
+            <p className="text-[10px] text-slate-500 mt-0.5">
+              Compatible companion hardware for your build
+            </p>
+          </div>
+          {savings > 0 && (
+            <span className="bg-emerald-50 text-emerald-700 text-[10px] font-black px-2 py-0.5 rounded-full border border-emerald-200 shrink-0">
+              Save ₹{savings.toLocaleString("en-IN")}
+            </span>
+          )}
+        </div>
 
-      {/* Visual Product Cards Row connected with '+' */}
-      <div className="flex items-center gap-2 sm:gap-3 overflow-x-auto scrollbar-none pb-2 -mx-1 px-1">
-        {bundleItems.map((prod, idx) => {
-          const isSelected = selectedIds.includes(prod.id);
-          const isMain = prod.id === mainProduct?.id;
+        {/* Interactive Compact Item List (No redundant duplicates) */}
+        <div className="space-y-2">
+          {bundleItems.map((prod) => {
+            const isSelected = selectedIds.includes(prod.id);
+            const isMain = prod.id === mainProduct?.id;
 
-          return (
-            <React.Fragment key={prod.id}>
+            return (
               <div
+                key={prod.id}
                 onClick={() => toggleItem(prod.id)}
-                className={`relative flex flex-col items-center gap-1.5 p-2 sm:p-2.5 rounded-2xl border transition-all cursor-pointer select-none shrink-0 w-28 sm:w-32 bg-white ${
+                className={`flex items-center gap-2.5 p-2 rounded-xl border transition-all cursor-pointer select-none ${
                   isSelected
-                    ? "border-slate-300 shadow-xs"
-                    : "border-slate-200 opacity-50 grayscale"
+                    ? "bg-slate-50/80 border-slate-200"
+                    : "bg-white border-dashed border-slate-200 opacity-55"
                 }`}
               >
-                {/* Checkbox badge */}
+                {/* Custom Checkbox */}
                 <div
-                  className={`absolute top-2 left-2 w-5 h-5 rounded-md flex items-center justify-center transition-colors z-10 ${
+                  className={`w-5 h-5 rounded-md flex items-center justify-center shrink-0 transition-colors ${
                     isSelected
-                      ? "bg-[#2563EB] text-white"
-                      : "bg-slate-100 border border-slate-300 text-transparent"
+                      ? "bg-[#2563EB] text-white shadow-2xs"
+                      : "border border-slate-300 bg-white"
                   }`}
                 >
-                  <Check className="w-3.5 h-3.5 stroke-[3]" />
+                  {isSelected && <Check className="w-3.5 h-3.5 stroke-[3]" />}
                 </div>
 
-                {isMain && (
-                  <span className="absolute top-2 right-2 bg-slate-900 text-white text-[8px] font-black px-1.5 py-0.5 rounded-md uppercase tracking-wider z-10">
-                    This Item
-                  </span>
-                )}
-
-                <div className="relative w-20 h-20 sm:w-24 sm:h-24 overflow-hidden mt-1">
+                {/* Thumbnail */}
+                <div className="relative w-11 h-11 rounded-lg bg-white border border-slate-200/80 overflow-hidden shrink-0">
                   <Image
                     src={prod.image}
                     alt={prod.name}
@@ -274,120 +282,247 @@ const FrequentlyBoughtTogetherSection: React.FC<{
                   />
                 </div>
 
-                <span className="text-[10px] sm:text-[11px] font-bold text-slate-800 text-center line-clamp-2 leading-snug w-full">
-                  {prod.name.split("(")[0].trim()}
-                </span>
-
-                <div className="flex items-baseline gap-1 mt-auto">
-                  <span className="text-xs sm:text-sm font-black text-slate-900">
-                    ₹{prod.price.toLocaleString("en-IN")}
-                  </span>
-                  {prod.mrp > prod.price && (
-                    <span className="text-[10px] text-slate-400 line-through">
-                      ₹{prod.mrp.toLocaleString("en-IN")}
+                {/* Details */}
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-1.5">
+                    {isMain && (
+                      <span className="text-[8px] bg-slate-900 text-white font-black px-1.5 py-0.5 rounded uppercase tracking-wider shrink-0">
+                        This Item
+                      </span>
+                    )}
+                    <h5 className="text-xs font-bold text-slate-800 truncate">
+                      {prod.name}
+                    </h5>
+                  </div>
+                  <div className="flex items-baseline gap-1.5 mt-0.5">
+                    <span className="text-xs font-black text-slate-900">
+                      ₹{prod.price.toLocaleString("en-IN")}
                     </span>
-                  )}
+                    {prod.mrp > prod.price && (
+                      <span className="text-[10px] text-slate-400 line-through">
+                        ₹{prod.mrp.toLocaleString("en-IN")}
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
+            );
+          })}
+        </div>
 
-              {idx < bundleItems.length - 1 && (
-                <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-white border border-slate-200 text-slate-400 flex items-center justify-center shrink-0 shadow-2xs font-black text-sm sm:text-base">
-                  +
-                </div>
-              )}
-            </React.Fragment>
-          );
-        })}
-      </div>
-
-      {/* Item Checklist selection */}
-      <div className="space-y-1.5 pt-1 border-t border-slate-200/70 text-xs">
-        {bundleItems.map((prod) => {
-          const isSelected = selectedIds.includes(prod.id);
-          const isMain = prod.id === mainProduct?.id;
-          return (
-            <label
-              key={prod.id}
-              className="flex items-center gap-2 text-slate-700 cursor-pointer select-none hover:text-slate-900"
-            >
-              <input
-                type="checkbox"
-                checked={isSelected}
-                onChange={() => toggleItem(prod.id)}
-                className="w-4 h-4 rounded text-[#2563EB] accent-[#2563EB] cursor-pointer shrink-0"
-              />
-              <span className="line-clamp-1">
-                {isMain && (
-                  <strong className="text-slate-900 font-bold mr-1">
-                    This item:
-                  </strong>
-                )}
-                {prod.name}
-              </span>
-              <span className="font-extrabold text-slate-900 ml-auto shrink-0 pl-2">
-                ₹{prod.price.toLocaleString("en-IN")}
-              </span>
-            </label>
-          );
-        })}
-      </div>
-
-      {/* Bundle Pricing Card & Action Button */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white border border-slate-200 rounded-2xl p-3.5 sm:p-4 shadow-xs">
-        <div className="space-y-0.5">
-          <div className="text-[11px] text-slate-500 font-bold">
-            Bundle Total ({selectedItems.length}{" "}
-            {selectedItems.length === 1 ? "item" : "items"}):
-          </div>
-          <div className="flex items-baseline gap-2 flex-wrap">
-            <span className="text-xl sm:text-2xl font-black text-slate-900">
-              ₹{bundleTotal.toLocaleString("en-IN")}
+        {/* Bottom Bundle Pricing Bar */}
+        <div className="pt-2 border-t border-slate-100 flex items-center justify-between gap-3">
+          <div>
+            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
+              Bundle Total ({selectedItems.length} items)
             </span>
-            {bundleMrp > bundleTotal && (
-              <>
-                <span className="text-xs sm:text-sm text-slate-400 line-through font-semibold">
-                  ₹{bundleMrp.toLocaleString("en-IN")}
+            <div className="flex items-baseline gap-1.5">
+              <span className="text-base font-black text-slate-900">
+                ₹{bundleTotal.toLocaleString("en-IN")}
+              </span>
+              {savings > 0 && (
+                <span className="text-[10px] text-emerald-600 font-bold">
+                  (Save ₹{savings.toLocaleString("en-IN")})
                 </span>
-                <span className="bg-emerald-50 text-emerald-700 text-[10px] font-black px-2 py-0.5 rounded-full border border-emerald-200">
-                  Save ₹{savings.toLocaleString("en-IN")}
+              )}
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={handleAddBundle}
+            disabled={selectedItems.length === 0}
+            className={`px-3.5 py-2 rounded-xl text-xs font-black uppercase tracking-wider flex items-center gap-1.5 shadow-sm transition-all cursor-pointer active:scale-95 shrink-0 ${
+              bundleAdded
+                ? "bg-emerald-600 text-white"
+                : selectedItems.length === 0
+                ? "bg-slate-200 text-slate-400 cursor-not-allowed"
+                : "bg-[#2563EB] hover:bg-[#1D4ED8] text-white shadow-blue-500/20"
+            }`}
+          >
+            {bundleAdded ? (
+              <>
+                <Check className="w-3.5 h-3.5 stroke-[3]" />
+                <span>Added!</span>
+              </>
+            ) : (
+              <>
+                <AddToCartIcon className="w-3.5 h-3.5 shrink-0" />
+                <span>Add Bundle</span>
+              </>
+            )}
+          </button>
+        </div>
+      </div>
+
+      {/* ── DESKTOP VIEW: Full Horizontal Connected Cards + Summary ── */}
+      <div className="hidden sm:block bg-slate-50/90 border border-slate-200/90 rounded-3xl p-5 space-y-4">
+        <div>
+          <h4 className="text-sm font-black text-slate-900 uppercase tracking-tight">
+            Frequently Bought Together
+          </h4>
+          <p className="text-xs text-slate-500 mt-0.5">
+            Customers who viewed this item frequently bundle it with:
+          </p>
+        </div>
+
+        {/* Visual Product Cards Row connected with '+' */}
+        <div className="flex items-center gap-3 overflow-x-auto scrollbar-none pb-2 -mx-1 px-1">
+          {bundleItems.map((prod, idx) => {
+            const isSelected = selectedIds.includes(prod.id);
+            const isMain = prod.id === mainProduct?.id;
+
+            return (
+              <React.Fragment key={prod.id}>
+                <div
+                  onClick={() => toggleItem(prod.id)}
+                  className={`relative flex flex-col items-center gap-1.5 p-2.5 rounded-2xl border transition-all cursor-pointer select-none shrink-0 w-32 bg-white ${
+                    isSelected
+                      ? "border-slate-300 shadow-xs"
+                      : "border-slate-200 opacity-50 grayscale"
+                  }`}
+                >
+                  {/* Checkbox badge */}
+                  <div
+                    className={`absolute top-2 left-2 w-5 h-5 rounded-md flex items-center justify-center transition-colors z-10 ${
+                      isSelected
+                        ? "bg-[#2563EB] text-white"
+                        : "bg-slate-100 border border-slate-300 text-transparent"
+                    }`}
+                  >
+                    <Check className="w-3.5 h-3.5 stroke-[3]" />
+                  </div>
+
+                  {isMain && (
+                    <span className="absolute top-2 right-2 bg-slate-900 text-white text-[8px] font-black px-1.5 py-0.5 rounded-md uppercase tracking-wider z-10">
+                      This Item
+                    </span>
+                  )}
+
+                  <div className="relative w-24 h-24 overflow-hidden mt-1">
+                    <Image
+                      src={prod.image}
+                      alt={prod.name}
+                      fill
+                      className="object-contain p-1"
+                    />
+                  </div>
+
+                  <span className="text-[11px] font-bold text-slate-800 text-center line-clamp-2 leading-snug w-full">
+                    {prod.name.split("(")[0].trim()}
+                  </span>
+
+                  <div className="flex items-baseline gap-1 mt-auto">
+                    <span className="text-sm font-black text-slate-900">
+                      ₹{prod.price.toLocaleString("en-IN")}
+                    </span>
+                    {prod.mrp > prod.price && (
+                      <span className="text-[10px] text-slate-400 line-through">
+                        ₹{prod.mrp.toLocaleString("en-IN")}
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {idx < bundleItems.length - 1 && (
+                  <div className="w-7 h-7 rounded-full bg-white border border-slate-200 text-slate-400 flex items-center justify-center shrink-0 shadow-2xs font-black text-base">
+                    +
+                  </div>
+                )}
+              </React.Fragment>
+            );
+          })}
+        </div>
+
+        {/* Item Checklist selection */}
+        <div className="space-y-1.5 pt-1 border-t border-slate-200/70 text-xs">
+          {bundleItems.map((prod) => {
+            const isSelected = selectedIds.includes(prod.id);
+            const isMain = prod.id === mainProduct?.id;
+            return (
+              <label
+                key={prod.id}
+                className="flex items-center gap-2 text-slate-700 cursor-pointer select-none hover:text-slate-900"
+              >
+                <input
+                  type="checkbox"
+                  checked={isSelected}
+                  onChange={() => toggleItem(prod.id)}
+                  className="w-4 h-4 rounded text-[#2563EB] accent-[#2563EB] cursor-pointer shrink-0"
+                />
+                <span className="line-clamp-1">
+                  {isMain && (
+                    <strong className="text-slate-900 font-bold mr-1">
+                      This item:
+                    </strong>
+                  )}
+                  {prod.name}
+                </span>
+                <span className="font-extrabold text-slate-900 ml-auto shrink-0 pl-2">
+                  ₹{prod.price.toLocaleString("en-IN")}
+                </span>
+              </label>
+            );
+          })}
+        </div>
+
+        {/* Bundle Pricing Card & Action Button */}
+        <div className="flex flex-row items-center justify-between gap-3 bg-white border border-slate-200 rounded-2xl p-4 shadow-xs">
+          <div className="space-y-0.5">
+            <div className="text-[11px] text-slate-500 font-bold">
+              Bundle Total ({selectedItems.length}{" "}
+              {selectedItems.length === 1 ? "item" : "items"}):
+            </div>
+            <div className="flex items-baseline gap-2 flex-wrap">
+              <span className="text-2xl font-black text-slate-900">
+                ₹{bundleTotal.toLocaleString("en-IN")}
+              </span>
+              {bundleMrp > bundleTotal && (
+                <>
+                  <span className="text-sm text-slate-400 line-through font-semibold">
+                    ₹{bundleMrp.toLocaleString("en-IN")}
+                  </span>
+                  <span className="bg-emerald-50 text-emerald-700 text-[10px] font-black px-2 py-0.5 rounded-full border border-emerald-200">
+                    Save ₹{savings.toLocaleString("en-IN")}
+                  </span>
+                </>
+              )}
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={handleAddBundle}
+            disabled={selectedItems.length === 0}
+            className={`h-11 px-5 rounded-xl text-xs font-black uppercase tracking-wider flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-95 whitespace-nowrap ${
+              bundleAdded
+                ? "bg-emerald-600 text-white shadow-emerald-600/20"
+                : selectedItems.length === 0
+                ? "bg-slate-200 text-slate-400 cursor-not-allowed"
+                : "bg-[#2563EB] hover:bg-[#1D4ED8] text-white shadow-md shadow-blue-500/20"
+            }`}
+          >
+            {bundleAdded ? (
+              <>
+                <Check className="w-4 h-4 stroke-[3]" />
+                <span>Bundle Added!</span>
+              </>
+            ) : (
+              <>
+                <AddToCartIcon className="w-4 h-4 shrink-0" />
+                <span>
+                  Add{" "}
+                  {selectedItems.length === bundleItems.length
+                    ? "All " + selectedItems.length
+                    : selectedItems.length}{" "}
+                  to Cart
                 </span>
               </>
             )}
-          </div>
+          </button>
         </div>
-
-        <button
-          type="button"
-          onClick={handleAddBundle}
-          disabled={selectedItems.length === 0}
-          className={`h-11 px-5 rounded-xl text-xs font-black uppercase tracking-wider flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-95 whitespace-nowrap ${
-            bundleAdded
-              ? "bg-emerald-600 text-white shadow-emerald-600/20"
-              : selectedItems.length === 0
-              ? "bg-slate-200 text-slate-400 cursor-not-allowed"
-              : "bg-[#2563EB] hover:bg-[#1D4ED8] text-white shadow-md shadow-blue-500/20"
-          }`}
-        >
-          {bundleAdded ? (
-            <>
-              <Check className="w-4 h-4 stroke-[3]" />
-              <span>Bundle Added!</span>
-            </>
-          ) : (
-            <>
-              <AddToCartIcon className="w-4 h-4 shrink-0" />
-              <span>
-                Add{" "}
-                {selectedItems.length === bundleItems.length
-                  ? "All " + selectedItems.length
-                  : selectedItems.length}{" "}
-                to Cart
-              </span>
-            </>
-          )}
-        </button>
       </div>
-    </div>
+    </>
   );
 };
 
@@ -444,7 +579,12 @@ export const ProductRecommendations: React.FC<ProductRecommendationsProps> = ({
                   : "bg-white text-slate-700 border-slate-200 hover:border-slate-300 hover:bg-slate-50"
               }`}
             >
-              <span>{group.label}</span>
+              <span>
+                <span className="hidden sm:inline">{group.label}</span>
+                <span className="inline sm:hidden">
+                  {group.id === "fbt" ? "Bought Together" : group.label}
+                </span>
+              </span>
               <span
                 className={`text-[10px] font-black px-1.5 py-0.5 rounded-full ${
                   isActive
