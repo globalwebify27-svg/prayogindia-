@@ -187,47 +187,35 @@ export const AddressesView: React.FC<AddressesViewProps> = ({
 
   if (showForm) {
     return (
-      <div className="max-w-4xl mx-auto py-6 px-4 sm:px-6 space-y-6 text-slate-900 animate-in fade-in duration-200">
-        {/* Breadcrumb */}
-        <div className="text-xs text-slate-500 flex items-center gap-2 font-medium">
-          <a href="/account" className="text-slate-600 hover:text-[#2563EB]">
-            Your Account
-          </a>
-          <span>›</span>
+      <div className="bg-white rounded-2xl border border-slate-200/80 p-4 sm:p-7 shadow-2xs space-y-5 text-slate-900 animate-in fade-in duration-200">
+        {/* Header */}
+        <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+          <div>
+            <h1 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight">
+              {editingId ? "Edit Shipping Address" : "Add a new address"}
+            </h1>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Enter delivery details for robotics hardware and lab shipments.
+            </p>
+          </div>
           <button
             type="button"
             onClick={() => setShowForm(false)}
-            className="text-slate-600 hover:text-[#2563EB] cursor-pointer"
+            className="text-xs font-semibold text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-lg transition-colors cursor-pointer"
           >
-            Your Addresses
+            Cancel
           </button>
-          <span>›</span>
-          <span className="text-[#E65100] font-bold">
-            {editingId ? "Edit Address" : "New Address"}
-          </span>
         </div>
 
-        <div className="space-y-1">
-          <h1 className="text-2xl sm:text-3xl font-bold text-slate-900">
-            {editingId ? "Edit address" : "Add a new address"}
-          </h1>
-          <p className="text-xs text-[#2563EB] flex items-center gap-1.5 mt-1 font-medium">
-            <span className="w-4 h-4 rounded-full bg-amber-500 text-white font-bold flex items-center justify-center text-[10px]">
-              P
-            </span>
-            Or find a Prayog collection location near you
-          </p>
-        </div>
-
-        <form
-          onSubmit={handleSubmit}
-          className="space-y-4 text-xs max-w-2xl"
-        >
+        <form onSubmit={handleSubmit} className="space-y-4 text-xs max-w-2xl">
           {/* Autofill Current Location Banner */}
-          <div className="bg-[#EBF8FA] border border-[#BCE9F5] rounded-xl p-3.5 flex items-center justify-between gap-3">
-            <span className="text-xs font-bold text-slate-800">
-              Save time. Autofill your current location.
-            </span>
+          <div className="bg-sky-50 border border-sky-200/70 rounded-xl p-3 flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <MapPin className="w-4 h-4 text-[#2563EB] shrink-0" />
+              <span className="text-xs font-semibold text-slate-800">
+                Save time. Autofill your current location.
+              </span>
+            </div>
             <button
               type="button"
               onClick={() => {
@@ -252,7 +240,7 @@ export const AddressesView: React.FC<AddressesViewProps> = ({
                   );
                 }
               }}
-              className="bg-white hover:bg-slate-50 border border-slate-300 font-bold text-xs px-4 py-1.5 rounded-full text-slate-800 shadow-2xs cursor-pointer transition-all active:scale-95 shrink-0"
+              className="bg-white hover:bg-slate-50 border border-slate-200 font-bold text-xs px-3.5 py-1.5 rounded-lg text-slate-800 shadow-2xs cursor-pointer transition-all active:scale-95 shrink-0"
             >
               Autofill
             </button>
@@ -265,7 +253,7 @@ export const AddressesView: React.FC<AddressesViewProps> = ({
             </label>
             <select
               disabled
-              className="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 font-medium text-slate-800 focus:outline-none cursor-not-allowed"
+              className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 font-medium text-slate-800 focus:outline-none cursor-not-allowed text-xs sm:text-sm"
             >
               <option value="India">India</option>
             </select>
@@ -279,9 +267,10 @@ export const AddressesView: React.FC<AddressesViewProps> = ({
             <input
               type="text"
               required
+              placeholder="e.g. Om Kumar"
               value={form.name}
               onChange={(e) => handleFormChange("name", e.target.value)}
-              className="w-full bg-white border border-slate-300 focus:border-[#2563EB] focus:ring-1 focus:ring-[#2563EB] p-2.5 rounded-lg font-medium text-slate-900 outline-none transition-all"
+              className="w-full bg-white border border-slate-200 focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/15 p-2.5 rounded-xl font-medium text-xs sm:text-sm text-slate-900 outline-none transition-all placeholder:text-slate-400"
             />
           </div>
 
@@ -294,12 +283,13 @@ export const AddressesView: React.FC<AddressesViewProps> = ({
               type="tel"
               required
               maxLength={10}
+              placeholder="10-digit mobile number"
               value={form.phone}
               onChange={(e) => handleFormChange("phone", e.target.value)}
-              className="w-full bg-white border border-slate-300 focus:border-[#2563EB] focus:ring-1 focus:ring-[#2563EB] p-2.5 rounded-lg font-medium text-slate-900 outline-none transition-all"
+              className="w-full bg-white border border-slate-200 focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/15 p-2.5 rounded-xl font-medium text-xs sm:text-sm text-slate-900 outline-none transition-all placeholder:text-slate-400"
             />
             <p className="text-[11px] text-slate-500 mt-1">
-              May be used to assist delivery
+              May be used by Delhivery dispatch agents to assist delivery
             </p>
           </div>
 
@@ -315,7 +305,7 @@ export const AddressesView: React.FC<AddressesViewProps> = ({
               placeholder="6 digits [0-9] PIN code"
               value={form.pincode}
               onChange={(e) => handleFormChange("pincode", e.target.value)}
-              className="w-full bg-white border border-slate-300 focus:border-[#2563EB] focus:ring-1 focus:ring-[#2563EB] p-2.5 rounded-lg font-medium text-slate-900 outline-none transition-all"
+              className="w-full bg-white border border-slate-200 focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/15 p-2.5 rounded-xl font-medium text-xs sm:text-sm text-slate-900 outline-none transition-all placeholder:text-slate-400"
             />
           </div>
 
@@ -327,9 +317,10 @@ export const AddressesView: React.FC<AddressesViewProps> = ({
             <input
               type="text"
               required
+              placeholder="e.g. Lab 4B, Mechatronics Dept, Tech Park"
               value={form.street}
               onChange={(e) => handleFormChange("street", e.target.value)}
-              className="w-full bg-white border border-slate-300 focus:border-[#2563EB] focus:ring-1 focus:ring-[#2563EB] p-2.5 rounded-lg font-medium text-slate-900 outline-none transition-all"
+              className="w-full bg-white border border-slate-200 focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/15 p-2.5 rounded-xl font-medium text-xs sm:text-sm text-slate-900 outline-none transition-all placeholder:text-slate-400"
             />
           </div>
 
@@ -340,20 +331,20 @@ export const AddressesView: React.FC<AddressesViewProps> = ({
             </label>
             <input
               type="text"
-              placeholder=""
-              className="w-full bg-white border border-slate-300 focus:border-[#2563EB] focus:ring-1 focus:ring-[#2563EB] p-2.5 rounded-lg font-medium text-slate-900 outline-none transition-all"
+              placeholder="e.g. Outer Ring Road, Bellandur"
+              className="w-full bg-white border border-slate-200 focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/15 p-2.5 rounded-xl font-medium text-xs sm:text-sm text-slate-900 outline-none transition-all placeholder:text-slate-400"
             />
           </div>
 
           {/* Landmark */}
           <div>
             <label className="block font-bold text-slate-900 mb-1.5">
-              Landmark
+              Landmark (Optional)
             </label>
             <input
               type="text"
-              placeholder="E.g. near apollo hospital"
-              className="w-full bg-white border border-slate-300 focus:border-[#2563EB] focus:ring-1 focus:ring-[#2563EB] p-2.5 rounded-lg font-medium text-slate-900 outline-none transition-all"
+              placeholder="e.g. Near Metro Station Gate 2"
+              className="w-full bg-white border border-slate-200 focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/15 p-2.5 rounded-xl font-medium text-xs sm:text-sm text-slate-900 outline-none transition-all placeholder:text-slate-400"
             />
           </div>
 
@@ -366,9 +357,10 @@ export const AddressesView: React.FC<AddressesViewProps> = ({
               <input
                 type="text"
                 required
+                placeholder="e.g. Bengaluru"
                 value={form.city}
                 onChange={(e) => handleFormChange("city", e.target.value)}
-                className="w-full bg-white border border-slate-300 focus:border-[#2563EB] focus:ring-1 focus:ring-[#2563EB] p-2.5 rounded-lg font-medium text-slate-900 outline-none transition-all"
+                className="w-full bg-white border border-slate-200 focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/15 p-2.5 rounded-xl font-medium text-xs sm:text-sm text-slate-900 outline-none transition-all placeholder:text-slate-400"
               />
             </div>
             <div>
@@ -378,7 +370,7 @@ export const AddressesView: React.FC<AddressesViewProps> = ({
               <select
                 value={form.state}
                 onChange={(e) => handleFormChange("state", e.target.value)}
-                className="w-full bg-white border border-slate-300 focus:border-[#2563EB] focus:ring-1 focus:ring-[#2563EB] p-2.5 rounded-lg font-medium text-slate-900 outline-none transition-all"
+                className="w-full bg-white border border-slate-200 focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/15 p-2.5 rounded-xl font-medium text-xs sm:text-sm text-slate-900 outline-none transition-all"
               >
                 <option value="">Choose a state</option>
                 {[
@@ -435,9 +427,9 @@ export const AddressesView: React.FC<AddressesViewProps> = ({
                   key={t}
                   type="button"
                   onClick={() => handleFormChange("type", t)}
-                  className={`px-4 py-1.5 rounded-full font-bold text-xs transition-colors cursor-pointer ${
+                  className={`px-3.5 py-1.5 rounded-xl font-semibold text-xs transition-all cursor-pointer ${
                     form.type === t
-                      ? "bg-[#2563EB] text-white"
+                      ? "bg-[#2563EB] text-white shadow-xs"
                       : "bg-slate-100 text-slate-700 hover:bg-slate-200"
                   }`}
                 >
@@ -448,30 +440,30 @@ export const AddressesView: React.FC<AddressesViewProps> = ({
           </div>
 
           {/* Default Address Checkbox */}
-          <label className="flex items-center gap-2 text-xs font-semibold text-slate-900 cursor-pointer pt-2">
+          <label className="flex items-center gap-2 text-xs font-semibold text-slate-900 cursor-pointer pt-1">
             <input
               type="checkbox"
               checked={!!form.isDefault}
               onChange={(e) => handleFormChange("isDefault", e.target.checked)}
               className="w-4 h-4 rounded text-[#2563EB] accent-[#2563EB] cursor-pointer"
             />
-            <span>Make this my default address</span>
+            <span>Make this my default shipping address</span>
           </label>
 
           {/* Actions */}
-          <div className="flex items-center gap-4 pt-4">
+          <div className="flex items-center gap-3 pt-3 border-t border-slate-100">
             <button
               type="submit"
               disabled={saving}
-              className="bg-[#2563EB] hover:bg-[#1D4ED8] text-white px-8 py-3 rounded-xl font-bold text-xs shadow-xs active:scale-95 disabled:opacity-50 flex items-center gap-2 cursor-pointer transition-all"
+              className="bg-[#2563EB] hover:bg-[#1D4ED8] text-white px-6 py-2.5 rounded-xl font-bold text-xs shadow-xs active:scale-95 disabled:opacity-50 flex items-center gap-2 cursor-pointer transition-all"
             >
-              {saving && <Loader2 className="w-3 h-3 animate-spin" />}
-              {editingId ? "Save Address" : "Add address"}
+              {saving && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+              <span>{editingId ? "Save Changes" : "Save Address"}</span>
             </button>
             <button
               type="button"
               onClick={() => setShowForm(false)}
-              className="text-slate-600 hover:text-slate-900 font-bold px-4 py-3 cursor-pointer"
+              className="text-slate-600 hover:text-slate-900 font-semibold text-xs px-4 py-2.5 cursor-pointer rounded-xl hover:bg-slate-100 transition-colors"
             >
               Cancel
             </button>
