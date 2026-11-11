@@ -599,14 +599,14 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
             </div>
           </div>
 
-          {/* Action Buttons: 2-column grid on mobile, inline flex on tablet/desktop */}
-          <div className={`${currentStock ? "grid grid-cols-2" : "grid grid-cols-1"} sm:flex sm:items-center gap-2.5 sm:gap-3 flex-1 w-full sm:w-auto`}>
+          {/* Action Buttons: Hidden on mobile (managed by permanent sticky bottom action bar), inline flex on tablet/desktop */}
+          <div className="hidden sm:flex sm:items-center gap-2.5 sm:gap-3 flex-1 w-auto">
             {/* Secondary ADD TO CART Button */}
             {currentStock ? (
               <button
                 type="button"
                 onClick={handleAddToCartClick}
-                className={`w-full sm:w-auto sm:flex-initial sm:min-w-[190px] h-[48px] sm:h-[54px] px-3 sm:px-8 rounded-[12px] text-sm sm:text-[16px] font-[600] whitespace-nowrap transition-all duration-150 flex items-center justify-center cursor-pointer select-none ${
+                className={`sm:flex-initial sm:min-w-[190px] h-[54px] px-6 sm:px-8 rounded-[12px] text-[16px] font-[600] whitespace-nowrap transition-all duration-150 flex items-center justify-center cursor-pointer select-none ${
                   addedAnimation
                     ? "bg-emerald-600 border-2 border-emerald-600 text-white shadow-sm scale-[1.01]"
                     : "bg-white hover:bg-slate-50 active:bg-slate-100 text-slate-900 border-2 border-slate-300 hover:border-slate-400 shadow-2xs active:scale-[0.99]"
@@ -619,7 +619,7 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
                 href={`https://wa.me/918709789641?text=Hi%20Prayog%20India%2C%20I%20want%20to%20inquire%20about%20availability%20of%20${encodeURIComponent(product.name)}%20(SKU:%20${encodeURIComponent(currentSku)})`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full sm:w-auto sm:flex-initial sm:min-w-[190px] h-[48px] sm:h-[54px] px-4 sm:px-8 rounded-[12px] text-sm sm:text-[16px] font-[600] text-white bg-emerald-600 hover:bg-emerald-700 shadow-sm shadow-emerald-600/20 whitespace-nowrap transition-all duration-150 flex items-center justify-center cursor-pointer active:scale-[0.99]"
+                className="sm:flex-initial sm:min-w-[190px] h-[54px] px-6 sm:px-8 rounded-[12px] text-[16px] font-[600] text-white bg-emerald-600 hover:bg-emerald-700 shadow-sm shadow-emerald-600/20 whitespace-nowrap transition-all duration-150 flex items-center justify-center cursor-pointer active:scale-[0.99]"
               >
                 <span>Inquire on WhatsApp</span>
               </a>
@@ -630,7 +630,7 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
               <button
                 type="button"
                 onClick={handleBuyNowClick}
-                className="w-full sm:w-auto sm:flex-initial sm:min-w-[160px] h-[48px] sm:h-[54px] px-3 sm:px-8 rounded-[12px] text-sm sm:text-[16px] font-[600] text-white bg-[#2563EB] hover:bg-[#1D4ED8] active:bg-[#1E40AF] shadow-sm hover:shadow whitespace-nowrap transition-all duration-150 flex items-center justify-center cursor-pointer active:scale-[0.99] select-none"
+                className="sm:flex-initial sm:min-w-[160px] h-[54px] px-6 sm:px-8 rounded-[12px] text-[16px] font-[600] text-white bg-[#2563EB] hover:bg-[#1D4ED8] active:bg-[#1E40AF] shadow-sm hover:shadow whitespace-nowrap transition-all duration-150 flex items-center justify-center cursor-pointer active:scale-[0.99] select-none"
               >
                 <span>Buy Now</span>
               </button>
@@ -638,8 +638,8 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
           </div>
         </div>
 
-        {/* Add to Wishlist Text Button (as in Image 1: "♡ ADD TO WISHLIST") */}
-        <div className="flex items-center justify-start pt-0.5">
+        {/* Add to Wishlist Text Button (Desktop) */}
+        <div className="hidden sm:flex items-center justify-start pt-0.5">
           <button
             type="button"
             onClick={() => onToggleWishlist(product)}
