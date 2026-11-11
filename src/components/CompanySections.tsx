@@ -214,54 +214,55 @@ export const ServicesSection: React.FC<FullSectionsProps> = ({
   ];
 
   return (
-    <section id="services" className="py-10 sm:py-14 bg-white border-t border-slate-200">
-      <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 space-y-8 sm:space-y-10">
+    <section id="services" className="py-6 sm:py-14 bg-white border-t border-slate-200">
+      <div className="w-full px-3.5 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 space-y-4 sm:space-y-10">
         <div className="text-center max-w-5xl mx-auto">
-          <h2 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-slate-900 leading-tight whitespace-nowrap [text-wrap:nowrap]">
-            Specialized Hardware Services & Institutional Lab Design
+          <h2 className="text-base sm:text-2xl lg:text-3xl font-extrabold text-slate-900 leading-tight sm:whitespace-nowrap sm:[text-wrap:nowrap]">
+            Specialized Hardware Services &amp; Institutional Lab Design
           </h2>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-4.5">
+        {/* 2-Column Mobile (2 by 2), 4-Column Desktop Services Grid */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4.5">
           {servicesList.map((srv) => {
             const IconComp = srv.icon;
             return (
               <div
                 key={srv.id}
-                className="bg-slate-50 rounded-2xl border border-slate-200/90 overflow-hidden flex flex-col justify-between hover:shadow-md transition-all group"
+                className="bg-slate-50 rounded-xl sm:rounded-2xl border border-slate-200/90 overflow-hidden flex flex-col justify-between hover:shadow-md transition-all group"
               >
                 <div>
-                  <div className="relative h-32 sm:h-36 w-full overflow-hidden">
+                  <div className="relative h-24 xs:h-28 sm:h-36 w-full overflow-hidden">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={srv.banner}
                       alt={srv.title}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
-                    <div className="absolute top-2.5 left-2.5 bg-white/90 backdrop-blur-md p-1.5 rounded-xl border border-slate-200 text-[#2563EB] shadow-xs">
-                      <IconComp className="w-4 h-4" />
+                    <div className="absolute top-2 left-2 sm:top-2.5 sm:left-2.5 bg-white/90 backdrop-blur-md p-1 sm:p-1.5 rounded-lg sm:rounded-xl border border-slate-200 text-[#2563EB] shadow-xs">
+                      <IconComp className="w-3 h-3 sm:w-4 sm:h-4" />
                     </div>
                   </div>
 
-                  <div className="p-3.5 sm:p-4 space-y-2">
-                    <h3 className="text-sm sm:text-[15px] font-bold text-slate-900 leading-snug line-clamp-1">
+                  <div className="p-2.5 sm:p-4 space-y-1.5 sm:space-y-2">
+                    <h3 className="text-xs sm:text-[15px] font-bold text-slate-900 leading-snug line-clamp-2 min-h-[30px] sm:min-h-0">
                       {srv.title}
                     </h3>
-                    <p className="text-[11px] text-slate-600 leading-relaxed line-clamp-2">
+                    <p className="text-[10px] sm:text-[11px] text-slate-600 leading-relaxed line-clamp-2">
                       {srv.description}
                     </p>
 
                     <div className="space-y-1 pt-1.5 border-t border-slate-200/80">
-                      <span className="text-[10px] font-bold text-slate-900 block uppercase tracking-wider">
+                      <span className="text-[9px] sm:text-[10px] font-bold text-slate-900 block uppercase tracking-wider">
                         Key Features:
                       </span>
-                      <ul className="space-y-1">
+                      <ul className="space-y-0.5 sm:space-y-1">
                         {srv.features.map((feat, i) => (
                           <li
                             key={i}
-                            className="text-[11px] text-slate-600 flex items-center gap-1.5"
+                            className="text-[9.5px] sm:text-[11px] text-slate-600 flex items-center gap-1 sm:gap-1.5"
                           >
-                            <CheckCircle2 className="w-3 h-3 text-[#2563EB] shrink-0" />
+                            <CheckCircle2 className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-[#2563EB] shrink-0" />
                             <span className="truncate">{feat}</span>
                           </li>
                         ))}
@@ -270,21 +271,21 @@ export const ServicesSection: React.FC<FullSectionsProps> = ({
                   </div>
                 </div>
 
-                <div className="p-3.5 sm:p-4 pt-0 flex gap-1.5">
+                <div className="p-2.5 sm:p-4 pt-0 flex gap-1 sm:gap-1.5">
                   <button
                     onClick={onOpenB2BModal}
-                    className="flex-1 bg-[#2563EB] hover:bg-[#1D4ED8] text-white py-2 px-2.5 rounded-xl text-[11px] font-bold transition-colors flex items-center justify-center gap-1 shadow-2xs cursor-pointer active:scale-95"
+                    className="flex-1 bg-[#2563EB] hover:bg-[#1D4ED8] text-white py-1.5 sm:py-2 px-1.5 sm:px-2.5 rounded-lg sm:rounded-xl text-[10px] sm:text-[11px] font-bold transition-colors flex items-center justify-center gap-0.5 sm:gap-1 shadow-2xs cursor-pointer active:scale-95"
                   >
-                    Enquire Now <ArrowUpRight className="w-3.5 h-3.5" />
+                    <span>Enquire</span> <ArrowUpRight className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                   </button>
                   <a
                     href="https://wa.me/918709789641"
                     target="_blank"
                     rel="noreferrer"
-                    className="bg-[#25D366] text-white p-2 rounded-xl hover:bg-[#20ba5a] transition-colors flex items-center justify-center cursor-pointer active:scale-95 shadow-2xs"
+                    className="bg-[#25D366] text-white p-1.5 sm:p-2 rounded-lg sm:rounded-xl hover:bg-[#20ba5a] transition-colors flex items-center justify-center cursor-pointer active:scale-95 shadow-2xs shrink-0"
                     title="WhatsApp Enquiry"
                   >
-                    <MessageSquare className="w-3.5 h-3.5" />
+                    <MessageSquare className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                   </a>
                 </div>
               </div>
