@@ -466,6 +466,33 @@ export default function AdminRelationshipsPage() {
     }
   };
 
+  const handleDeleteCompany = async (companyId: string, companyName: string) => {
+    if (
+      !confirm(
+        `Are you sure you want to permanently delete B2B account "${companyName}"? All contacts, activities, and follow-ups will be removed.`,
+      )
+    ) {
+      return;
+    }
+    try {
+      const res = await fetch(`/api/admin/crm/companies/${companyId}`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
+      if (data.success) {
+        if (selectedCompanyId === companyId) {
+          setSelectedCompanyId(null);
+          setSelectedCompanyProfile(null);
+        }
+        fetchCompanies();
+      } else {
+        alert(data.message || "Failed to delete account");
+      }
+    } catch {
+      alert("Error deleting account");
+    }
+  };
+
   const getStatusBadge = (status: RelationshipStatus) => {
     switch (status) {
       case "ACTIVE_CUSTOMER":
@@ -774,9 +801,27 @@ export default function AdminRelationshipsPage() {
                           </div>
                         </div>
 
-                        <button className="w-9 h-9 rounded-2xl bg-slate-100 hover:bg-[#00AEEF] hover:text-white flex items-center justify-center transition-all cursor-pointer">
-                          <Eye className="w-4 h-4" />
-                        </button>
+                        <div className="flex items-center gap-1.5">
+                          <button
+                            type="button"
+                            onClick={() => openCompanyProfile(comp.id)}
+                            className="w-9 h-9 rounded-2xl bg-slate-100 hover:bg-[#00AEEF] hover:text-white flex items-center justify-center transition-all cursor-pointer"
+                            title="View Account"
+                          >
+                            <Eye className="w-4 h-4" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteCompany(comp.id, comp.name);
+                            }}
+                            className="w-9 h-9 rounded-2xl bg-slate-100 hover:bg-rose-50 text-slate-400 hover:text-rose-600 flex items-center justify-center transition-all cursor-pointer"
+                            title="Delete B2B Account"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
                       </div>
                     </div>
                   );
@@ -823,15 +868,31 @@ export default function AdminRelationshipsPage() {
                         </p>
                       </div>
 
-                      <button
-                        onClick={() => {
-                          setSelectedCompanyId(null);
-                          setSelectedCompanyProfile(null);
-                        }}
-                        className="p-2 text-slate-400 hover:text-slate-700 rounded-full cursor-pointer"
-                      >
-                        ✕
-                      </button>
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() =>
+                            handleDeleteCompany(
+                              selectedCompanyProfile.id,
+                              selectedCompanyProfile.name,
+                            )
+                          }
+                          className="px-3 py-1.5 rounded-xl border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold flex items-center gap-1.5 transition cursor-pointer"
+                          title="Delete this B2B Account"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                          <span>Delete Account</span>
+                        </button>
+                        <button
+                          onClick={() => {
+                            setSelectedCompanyId(null);
+                            setSelectedCompanyProfile(null);
+                          }}
+                          className="p-2 text-slate-400 hover:text-slate-700 rounded-full cursor-pointer"
+                        >
+                          ✕
+                        </button>
+                      </div>
                     </div>
 
                     {/* Quick Status Bar */}

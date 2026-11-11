@@ -273,6 +273,52 @@ export default function QuotationsPage() {
     }
   };
 
+  const handleDeleteQuotation = async (id: string, quoteNumber: string) => {
+    if (!confirm(`Are you sure you want to delete quotation #${quoteNumber}?`)) {
+      return;
+    }
+    try {
+      const res = await fetch(`/api/admin/quotations/${id}`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
+      if (data.success) {
+        if (selectedDoc?.id === id) {
+          setSelectedDoc(null);
+        }
+        fetchQuotations();
+      } else {
+        alert(data.message || "Failed to delete quotation");
+      }
+    } catch {
+      alert("Error deleting quotation");
+    }
+  };
+
+  const handleDeleteAllQuotations = async () => {
+    if (
+      !confirm(
+        "Are you sure you want to permanently delete ALL B2B quotations? This action cannot be undone.",
+      )
+    ) {
+      return;
+    }
+    try {
+      const res = await fetch("/api/admin/quotations", {
+        method: "DELETE",
+      });
+      const data = await res.json();
+      if (data.success) {
+        setSelectedDoc(null);
+        fetchQuotations();
+      } else {
+        alert(data.message || "Failed to clear quotations");
+      }
+    } catch {
+      alert("Error clearing quotations");
+    }
+  };
+
   const calcDocSubtotal = (docItems: QuotationItem[]) => {
     return (docItems || []).reduce((sum, item) => {
       const unit = item.unitPrice || 0;
@@ -803,6 +849,16 @@ export default function QuotationsPage() {
               >
                 <Printer className="w-3.5 h-3.5" /> Export PDF
               </button>
+
+              <button
+                onClick={() =>
+                  handleDeleteQuotation(selectedDoc.id, selectedDoc.quoteNumber)
+                }
+                className="bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold px-3 py-2 rounded-xl flex items-center gap-1 cursor-pointer transition-colors"
+                title="Delete Quotation"
+              >
+                <Trash2 className="w-3.5 h-3.5" /> Delete Quote
+              </button>
             </div>
           </div>
 
@@ -1043,9 +1099,20 @@ export default function QuotationsPage() {
               <h2 className="text-xs font-black uppercase text-slate-900">
                 B2B Quotations Pipeline
               </h2>
-              <span className="text-xs text-slate-400 font-bold">
-                {filteredQuotes.length} records
-              </span>
+              <div className="flex items-center gap-3">
+                <span className="text-xs text-slate-400 font-bold">
+                  {filteredQuotes.length} records
+                </span>
+                {filteredQuotes.length > 0 && (
+                  <button
+                    onClick={handleDeleteAllQuotations}
+                    className="text-xs font-bold text-rose-600 hover:text-rose-700 bg-rose-50 hover:bg-rose-100 px-3 py-1 rounded-xl transition cursor-pointer flex items-center gap-1"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span>Clear All Quotes</span>
+                  </button>
+                )}
+              </div>
             </div>
 
             {loading ? (
@@ -1116,9 +1183,26 @@ export default function QuotationsPage() {
                           {new Date(doc.validUntil).toLocaleDateString("en-IN")}
                         </span>
                       </div>
-                      <button className="w-8 h-8 rounded-xl bg-slate-100 hover:bg-[#00AEEF] hover:text-white flex items-center justify-center transition-colors">
-                        <Eye className="w-4 h-4" />
-                      </button>
+                      <div className="flex items-center gap-1.5">
+                        <button
+                          onClick={() => setSelectedDoc(doc)}
+                          className="w-8 h-8 rounded-xl bg-slate-100 hover:bg-[#00AEEF] hover:text-white flex items-center justify-center transition-colors cursor-pointer"
+                          title="View Quotation"
+                        >
+                          <Eye className="w-4 h-4" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteQuotation(doc.id, doc.quoteNumber);
+                          }}
+                          className="w-8 h-8 rounded-xl bg-slate-100 hover:bg-rose-50 text-slate-400 hover:text-rose-600 flex items-center justify-center transition-colors cursor-pointer"
+                          title="Delete Quotation"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
                     </div>
                   </div>
                 ))}

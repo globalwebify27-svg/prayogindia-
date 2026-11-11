@@ -170,7 +170,7 @@ export const DEFAULT_QUOTATIONS: StoredQuotation[] = [
 let cachedQuotations: StoredQuotation[] | null = null;
 
 export function getStoredQuotations(): StoredQuotation[] {
-  if (cachedQuotations && cachedQuotations.length > 0) {
+  if (cachedQuotations !== null) {
     return cachedQuotations;
   }
 
@@ -178,7 +178,7 @@ export function getStoredQuotations(): StoredQuotation[] {
     if (fs.existsSync(STORAGE_PATH)) {
       const raw = fs.readFileSync(STORAGE_PATH, "utf-8");
       const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed) && parsed.length > 0) {
+      if (Array.isArray(parsed)) {
         cachedQuotations = parsed;
         return parsed;
       }
@@ -187,8 +187,32 @@ export function getStoredQuotations(): StoredQuotation[] {
     console.error("Error reading quotationsStore.json:", err);
   }
 
-  cachedQuotations = [...DEFAULT_QUOTATIONS];
+  cachedQuotations = [];
   return cachedQuotations;
+}
+
+export function clearAllStoredQuotations(): boolean {
+  cachedQuotations = [];
+  try {
+    fs.writeFileSync(STORAGE_PATH, JSON.stringify([], null, 2), "utf-8");
+    return true;
+  } catch (err) {
+    console.error("Error clearing quotationsStore.json:", err);
+    return false;
+  }
+}
+
+export function deleteStoredQuotation(id: string): boolean {
+  const list = getStoredQuotations();
+  const filtered = list.filter((q) => q.id !== id && q.quoteNumber !== id);
+  cachedQuotations = filtered;
+  try {
+    fs.writeFileSync(STORAGE_PATH, JSON.stringify(filtered, null, 2), "utf-8");
+    return true;
+  } catch (err) {
+    console.error("Error deleting quotation from store:", err);
+    return false;
+  }
 }
 
 export function saveStoredQuotation(quote: StoredQuotation): boolean {

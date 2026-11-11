@@ -334,3 +334,50 @@ export async function PATCH(
     );
   }
 }
+
+// DELETE /api/admin/crm/companies/[id] — Delete a B2B company account
+export async function DELETE(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  const headers = getSecurityHeaders();
+  const staff = await getAuthenticatedStaff();
+
+  if (
+    !staff ||
+    (staff.role !== "SUPER_ADMIN" &&
+      staff.role !== "REGIONAL_MANAGER" &&
+      staff.role !== "STORE_MANAGER")
+  ) {
+    return NextResponse.json(
+      { success: false, message: "Forbidden" },
+      { status: 403, headers },
+    );
+  }
+
+  const { id } = await params;
+
+  try {
+    if (process.env.DATABASE_URL) {
+      await db.b2BActivity.deleteMany({ where: { companyId: id } });
+      await db.b2BFollowUp.deleteMany({ where: { companyId: id } });
+      await db.b2BContact.deleteMany({ where: { companyId: id } });
+      await db.b2BCompany.deleteMany({ where: { id } });
+
+      return NextResponse.json(
+        { success: true, message: "B2B account deleted successfully." },
+        { headers },
+      );
+    }
+
+    return NextResponse.json(
+      { success: true, message: "B2B account deleted (Mock Mode)." },
+      { headers },
+    );
+  } catch (error: any) {
+    return NextResponse.json(
+      { success: false, message: error.message || "Failed to delete account" },
+      { status: 500, headers },
+    );
+  }
+}

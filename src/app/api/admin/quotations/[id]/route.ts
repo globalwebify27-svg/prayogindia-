@@ -8,6 +8,7 @@ import {
   getStoredQuotations,
   saveStoredQuotation,
   updateStoredQuotationStatus,
+  deleteStoredQuotation,
 } from "@/data/quotationsStore";
 
 // GET /api/admin/quotations/[id] — Full quotation detail with items, store, revisions, and linked order
@@ -321,6 +322,56 @@ export async function PATCH(
   } catch (error: any) {
     return NextResponse.json(
       { success: false, message: error.message },
+      { status: 500, headers },
+    );
+  }
+}
+
+// DELETE /api/admin/quotations/[id] — Delete a specific quotation
+export async function DELETE(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  const headers = getSecurityHeaders();
+  const staff =
+    (await getAuthenticatedStaff()) || (await getAuthenticatedAdmin());
+
+  if (!staff) {
+    return NextResponse.json(
+      { success: false, message: "Forbidden" },
+      { status: 403, headers },
+    );
+  }
+
+  const { id } = await params;
+
+  try {
+    if (isDatabaseAvailable()) {
+      // Disconnect quotation from any orders first
+      await db.order.updateMany({
+        where: { quotationId: id },
+        data: { quotationId: null },
+      });
+
+      // Delete items and revisions
+      await db.quotationItem.deleteMany({ where: { quotationId: id } });
+      await db.quotationRevision.deleteMany({ where: { quotationId: id } });
+      await db.quotation.deleteMany({
+        where: {
+          OR: [{ id }, { quoteNumber: id }],
+        },
+      });
+    }
+
+    deleteStoredQuotation(id);
+
+    return NextResponse.json(
+      { success: true, message: `Quotation ${id} deleted successfully.` },
+      { headers },
+    );
+  } catch (error: any) {
+    return NextResponse.json(
+      { success: false, message: error.message || "Failed to delete quotation" },
       { status: 500, headers },
     );
   }

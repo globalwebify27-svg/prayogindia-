@@ -6,6 +6,7 @@ import { getSecurityHeaders } from "@/lib/security";
 import {
   getStoredQuotations,
   saveStoredQuotation,
+  clearAllStoredQuotations,
   StoredQuotation,
 } from "@/data/quotationsStore";
 
@@ -364,6 +365,49 @@ export async function POST(request: Request) {
   } catch (error: any) {
     return NextResponse.json(
       { success: false, message: error.message },
+      { status: 500, headers },
+    );
+  }
+}
+
+// DELETE /api/admin/quotations — Delete all quotations or wipe quotes database & cache
+export async function DELETE(request: Request) {
+  const headers = getSecurityHeaders();
+  const staff =
+    (await getAuthenticatedStaff()) || (await getAuthenticatedAdmin());
+
+  if (!staff) {
+    return NextResponse.json(
+      { success: false, message: "Forbidden" },
+      { status: 403, headers },
+    );
+  }
+
+  try {
+    if (isDatabaseAvailable()) {
+      // Unlink quotationId from any orders
+      await db.order.updateMany({
+        where: { quotationId: { not: null } },
+        data: { quotationId: null },
+      });
+
+      await db.quotationItem.deleteMany({});
+      await db.quotationRevision.deleteMany({});
+      await db.quotation.deleteMany({});
+    }
+
+    clearAllStoredQuotations();
+
+    return NextResponse.json(
+      {
+        success: true,
+        message: "All B2B quotations removed successfully.",
+      },
+      { headers },
+    );
+  } catch (error: any) {
+    return NextResponse.json(
+      { success: false, message: error.message || "Failed to remove quotations" },
       { status: 500, headers },
     );
   }
