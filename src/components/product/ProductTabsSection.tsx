@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   Check,
   ChevronRight,
+  ChevronDown,
   FileText,
   Package,
   Layers,
@@ -67,11 +68,31 @@ export const ProductTabsSection: React.FC<ProductTabsSectionProps> = ({
     }
   };
 
+  // Mobile Accordion state matching Image 10 (Key Features, Description, Specifications, Additional Resources, Warranty, Reviews)
+  const [openSections, setOpenSections] = useState<Record<string, boolean>>({
+    features: false,
+    description: false,
+    specifications: false,
+    resources: false,
+    warranty: false,
+    reviews: false,
+  });
+
+  const toggleSection = (sectionKey: string) => {
+    setOpenSections((prev) => ({
+      ...prev,
+      [sectionKey]: !prev[sectionKey],
+    }));
+  };
+
   React.useEffect(() => {
     if (typeof window !== "undefined") {
       const hash = window.location.hash.replace("#", "");
       if (hash === "resources" || hash === "specifications" || hash === "reviews" || hash === "description") {
         setActiveTab(hash as TabType);
+      }
+      if (["features", "description", "specifications", "resources", "warranty", "reviews"].includes(hash)) {
+        setOpenSections((prev) => ({ ...prev, [hash]: true }));
       }
     }
   }, []);
@@ -235,8 +256,9 @@ export const ProductTabsSection: React.FC<ProductTabsSectionProps> = ({
 
   return (
     <div id="product-tabs" className="pt-4 pb-2">
-      {/* ── Tabs Navigation Bar (Exact Match to Image 4: Description | Specifications | Additional Resources) ── */}
-      <div className="border-b border-slate-200">
+      {/* ── DESKTOP VIEW: Tabs Navigation Bar + Tab Pane (hidden on mobile) ── */}
+      <div className="hidden sm:block">
+        <div className="border-b border-slate-200">
         <div className="flex items-center gap-6 sm:gap-10 overflow-x-auto scrollbar-none scroll-smooth">
           {(
             [
@@ -862,6 +884,379 @@ export const ProductTabsSection: React.FC<ProductTabsSectionProps> = ({
         )}
           </motion.div>
         </AnimatePresence>
+      </div>
+      </div>
+
+      {/* ── MOBILE VIEW: Stacked Rounded Card Accordions (Matching Reference Image) ── */}
+      <div className="block sm:hidden space-y-3 pt-2">
+        {/* 1. Key Features Accordion Card */}
+        <div className="bg-white rounded-2xl border border-slate-200/90 shadow-2xs overflow-hidden transition-all">
+          <button
+            type="button"
+            onClick={() => toggleSection("features")}
+            className="w-full flex items-center justify-between p-4 text-left font-bold text-slate-800 text-[15px] cursor-pointer select-none active:bg-slate-50/80"
+          >
+            <span>Key Features</span>
+            <ChevronDown
+              className={`w-5 h-5 text-slate-600 transition-transform duration-200 shrink-0 ${
+                openSections.features ? "rotate-180 text-slate-900" : ""
+              }`}
+            />
+          </button>
+          <AnimatePresence initial={false}>
+            {openSections.features && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.2, ease: "easeInOut" }}
+                className="overflow-hidden"
+              >
+                <div className="px-4 pb-4 pt-1 border-t border-slate-100">
+                  <ul className="space-y-2.5 pt-1">
+                    {featuresList.map((feature, idx) => (
+                      <li
+                        key={idx}
+                        className="flex items-start gap-2.5 text-xs text-slate-700 font-medium"
+                      >
+                        <div className="w-4 h-4 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 mt-0.5">
+                          <Check className="w-3 h-3 stroke-[2.5]" />
+                        </div>
+                        <span className="leading-relaxed">{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
+        {/* 2. Description Accordion Card */}
+        <div className="bg-white rounded-2xl border border-slate-200/90 shadow-2xs overflow-hidden transition-all">
+          <button
+            type="button"
+            onClick={() => toggleSection("description")}
+            className="w-full flex items-center justify-between p-4 text-left font-bold text-slate-800 text-[15px] cursor-pointer select-none active:bg-slate-50/80"
+          >
+            <span>Description</span>
+            <ChevronDown
+              className={`w-5 h-5 text-slate-600 transition-transform duration-200 shrink-0 ${
+                openSections.description ? "rotate-180 text-slate-900" : ""
+              }`}
+            />
+          </button>
+          <AnimatePresence initial={false}>
+            {openSections.description && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.2, ease: "easeInOut" }}
+                className="overflow-hidden"
+              >
+                <div className="px-4 pb-4 pt-1 border-t border-slate-100 space-y-3">
+                  <p className="text-xs text-slate-600 leading-relaxed pt-1">
+                    {product.description ||
+                      `The ${product.name} is a high-performance hardware module designed for advanced robotics, IoT instrumentation, and embedded systems engineering. With robust circuitry, precise telemetry, and plug-and-play prototyping support, it empowers makers, university labs, and industrial automation developers.`}
+                  </p>
+
+                  {/* Package Includes */}
+                  <div className="bg-slate-50/90 p-3.5 rounded-xl border border-slate-200/80 space-y-2">
+                    <h4 className="text-xs font-bold text-slate-900">
+                      Package Includes:
+                    </h4>
+                    <ul className="space-y-1.5 text-xs text-slate-600 font-medium">
+                      {packageIncludesList.map((item, idx) => (
+                        <li key={idx} className="flex items-start gap-2">
+                          <span className="text-slate-400 font-black">•</span>
+                          <span>{item}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  {/* Applications if present */}
+                  {product.applications && product.applications.length > 0 && (
+                    <div className="space-y-2 pt-1">
+                      <h4 className="text-xs font-bold text-slate-900">
+                        Applications:
+                      </h4>
+                      <div className="flex flex-wrap gap-1.5">
+                        {product.applications.map((app, idx) => (
+                          <span
+                            key={idx}
+                            className="bg-blue-50 text-[#005CA9] text-[11px] font-bold px-2.5 py-1 rounded-lg border border-blue-100"
+                          >
+                            {app}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
+        {/* 3. Specifications Accordion Card */}
+        <div className="bg-white rounded-2xl border border-slate-200/90 shadow-2xs overflow-hidden transition-all">
+          <button
+            type="button"
+            onClick={() => toggleSection("specifications")}
+            className="w-full flex items-center justify-between p-4 text-left font-bold text-slate-800 text-[15px] cursor-pointer select-none active:bg-slate-50/80"
+          >
+            <span>Specifications</span>
+            <ChevronDown
+              className={`w-5 h-5 text-slate-600 transition-transform duration-200 shrink-0 ${
+                openSections.specifications ? "rotate-180 text-slate-900" : ""
+              }`}
+            />
+          </button>
+          <AnimatePresence initial={false}>
+            {openSections.specifications && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.2, ease: "easeInOut" }}
+                className="overflow-hidden"
+              >
+                <div className="px-4 pb-4 pt-1 border-t border-slate-100">
+                  <div className="rounded-xl border border-slate-200/90 overflow-hidden text-xs mt-1">
+                    <table className="w-full text-left">
+                      <tbody>
+                        {Object.entries(allSpecs).map(([key, val], idx) => (
+                          <tr
+                            key={key}
+                            className={idx % 2 === 0 ? "bg-slate-50/70" : "bg-white"}
+                          >
+                            <td className="py-2.5 px-3 font-bold text-slate-600 border-b border-slate-100 w-2/5 text-[11px]">
+                              {key}
+                            </td>
+                            <td className="py-2.5 px-3 font-semibold text-slate-900 border-b border-slate-100 text-[11px]">
+                              {val}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
+        {/* 4. Additional Resources Accordion Card */}
+        <div className="bg-white rounded-2xl border border-slate-200/90 shadow-2xs overflow-hidden transition-all">
+          <button
+            type="button"
+            onClick={() => toggleSection("resources")}
+            className="w-full flex items-center justify-between p-4 text-left font-bold text-slate-800 text-[15px] cursor-pointer select-none active:bg-slate-50/80"
+          >
+            <span>Additional Resources</span>
+            <ChevronDown
+              className={`w-5 h-5 text-slate-600 transition-transform duration-200 shrink-0 ${
+                openSections.resources ? "rotate-180 text-slate-900" : ""
+              }`}
+            />
+          </button>
+          <AnimatePresence initial={false}>
+            {openSections.resources && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.2, ease: "easeInOut" }}
+                className="overflow-hidden"
+              >
+                <div className="px-4 pb-4 pt-1 border-t border-slate-100 space-y-2.5">
+                  <div className="pt-1 space-y-2">
+                    {downloadableDocuments.map((doc, idx) => (
+                      <div
+                        key={idx}
+                        className="p-3 bg-slate-50/80 rounded-xl border border-slate-200/80 flex items-center justify-between gap-3"
+                      >
+                        <div className="min-w-0 flex items-center gap-2.5">
+                          <div className="w-8 h-8 rounded-lg bg-blue-50 text-[#005CA9] flex items-center justify-center shrink-0">
+                            <FileText className="w-4 h-4" />
+                          </div>
+                          <div className="min-w-0">
+                            <p className="text-xs font-bold text-slate-800 truncate">
+                              {doc.title}
+                            </p>
+                            <p className="text-[10px] text-slate-500 font-semibold">
+                              {doc.type} {(doc as any).size ? `• ${(doc as any).size}` : ""}
+                            </p>
+                          </div>
+                        </div>
+                        {doc.url && doc.url !== "#" ? (
+                          <a
+                            href={doc.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            download
+                            className="shrink-0 p-2 bg-white hover:bg-slate-100 text-[#005CA9] rounded-lg border border-slate-200 shadow-2xs font-bold text-xs"
+                            title={`Download ${doc.title}`}
+                          >
+                            <Download className="w-3.5 h-3.5" />
+                          </a>
+                        ) : (
+                          <span className="shrink-0 text-[10px] font-bold text-slate-400 bg-slate-100 px-2 py-1 rounded-md">
+                            Included
+                          </span>
+                        )}
+                      </div>
+                    ))}
+
+                    {tutorialVideo && (
+                      <div className="p-3 bg-red-50/50 rounded-xl border border-red-100 flex items-center justify-between gap-3 mt-1">
+                        <div className="min-w-0 flex items-center gap-2.5">
+                          <div className="w-8 h-8 rounded-lg bg-red-500 text-white flex items-center justify-center shrink-0">
+                            <Play className="w-4 h-4 fill-white" />
+                          </div>
+                          <div className="min-w-0">
+                            <p className="text-xs font-bold text-slate-900 truncate">
+                              {tutorialVideo.title}
+                            </p>
+                            <p className="text-[10px] text-slate-500">Video Walkthrough</p>
+                          </div>
+                        </div>
+                        <a
+                          href={tutorialVideo.directUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="shrink-0 px-2.5 py-1.5 bg-red-600 text-white rounded-lg font-bold text-xs flex items-center gap-1 shadow-2xs"
+                        >
+                          <span>Watch</span>
+                          <ExternalLink className="w-3 h-3" />
+                        </a>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
+        {/* 5. Warranty Accordion Card */}
+        <div className="bg-white rounded-2xl border border-slate-200/90 shadow-2xs overflow-hidden transition-all">
+          <button
+            type="button"
+            onClick={() => toggleSection("warranty")}
+            className="w-full flex items-center justify-between p-4 text-left font-bold text-slate-800 text-[15px] cursor-pointer select-none active:bg-slate-50/80"
+          >
+            <span>Warranty</span>
+            <ChevronDown
+              className={`w-5 h-5 text-slate-600 transition-transform duration-200 shrink-0 ${
+                openSections.warranty ? "rotate-180 text-slate-900" : ""
+              }`}
+            />
+          </button>
+          <AnimatePresence initial={false}>
+            {openSections.warranty && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.2, ease: "easeInOut" }}
+                className="overflow-hidden"
+              >
+                <div className="px-4 pb-4 pt-1 border-t border-slate-100">
+                  <div className="space-y-2.5 pt-1">
+                    <div className="p-3 bg-emerald-50/60 rounded-xl border border-emerald-100 flex items-start gap-2.5">
+                      <FileCheck className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                      <div>
+                        <p className="text-xs font-bold text-slate-900">
+                          1-Year Replacement Warranty
+                        </p>
+                        <p className="text-[11px] text-slate-600 mt-0.5 leading-relaxed">
+                          Comprehensive coverage against hardware and manufacturing defects on all Prayog India products.
+                        </p>
+                      </div>
+                    </div>
+                    <div className="p-3 bg-blue-50/60 rounded-xl border border-blue-100 flex items-start gap-2.5">
+                      <Package className="w-4 h-4 text-[#005CA9] shrink-0 mt-0.5" />
+                      <div>
+                        <p className="text-xs font-bold text-slate-900">
+                          7 Days Replacement Support
+                        </p>
+                        <p className="text-[11px] text-slate-600 mt-0.5 leading-relaxed">
+                          Prompt replacement assistance if items are received in transit-damaged or non-working condition.
+                        </p>
+                      </div>
+                    </div>
+                    <div className="p-3 bg-slate-50 rounded-xl border border-slate-200/80 flex items-start gap-2.5">
+                      <Wrench className="w-4 h-4 text-slate-700 shrink-0 mt-0.5" />
+                      <div>
+                        <p className="text-xs font-bold text-slate-900">
+                          100% Genuine Tested Components
+                        </p>
+                        <p className="text-[11px] text-slate-600 mt-0.5 leading-relaxed">
+                          Pre-calibrated and QC-checked before dispatch for robotics and university lab projects.
+                        </p>
+                      </div>
+                    </div>
+                    <div className="p-3 bg-amber-50/60 rounded-xl border border-amber-100 flex items-start gap-2.5">
+                      <FileText className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
+                      <div>
+                        <p className="text-xs font-bold text-slate-900">
+                          Official GST Invoice Provided
+                        </p>
+                        <p className="text-[11px] text-slate-600 mt-0.5 leading-relaxed">
+                          Tax-compliant invoice with GST input tax credit for institutions, labs, and businesses.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
+        {/* 6. Customer Reviews Accordion Card */}
+        <div className="bg-white rounded-2xl border border-slate-200/90 shadow-2xs overflow-hidden transition-all">
+          <button
+            type="button"
+            onClick={() => toggleSection("reviews")}
+            className="w-full flex items-center justify-between p-4 text-left font-bold text-slate-800 text-[15px] cursor-pointer select-none active:bg-slate-50/80"
+          >
+            <span>Customer Reviews ({product.reviews || 12})</span>
+            <ChevronDown
+              className={`w-5 h-5 text-slate-600 transition-transform duration-200 shrink-0 ${
+                openSections.reviews ? "rotate-180 text-slate-900" : ""
+              }`}
+            />
+          </button>
+          <AnimatePresence initial={false}>
+            {openSections.reviews && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.2, ease: "easeInOut" }}
+                className="overflow-hidden"
+              >
+                <div className="px-4 pb-4 pt-1 border-t border-slate-100">
+                  <div className="pt-2">
+                    <ProductReviewsSection
+                      productId={product.id}
+                      productName={product.name}
+                      productSlug={product.slug}
+                      rating={Number(product.rating || 4.9)}
+                      reviewsCount={product.reviews || 12}
+                      reviewItems={product.reviewItems}
+                    />
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
       </div>
     </div>
   );
