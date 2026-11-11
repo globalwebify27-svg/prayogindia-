@@ -11,6 +11,7 @@ import {
   User,
   ArrowRight,
   Package,
+  ChevronRight,
 } from "lucide-react";
 import {
   CustomerOrder,
@@ -165,132 +166,187 @@ export const AccountDashboardView: React.FC = () => {
 
   return (
     <div className="bg-white rounded-2xl sm:rounded-3xl border border-slate-200/90 p-4 sm:p-7 lg:p-8 shadow-2xs space-y-5 sm:space-y-8 text-slate-900">
-      {/* ── Welcome User Banner Header ── */}
-      <div className="bg-gradient-to-br from-slate-50 via-white to-sky-50/20 border border-slate-200/80 rounded-2xl sm:rounded-3xl p-4 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="flex items-center gap-3.5">
-          <div className="w-11 h-11 sm:w-14 sm:h-14 rounded-2xl bg-[#0A1128] text-white flex items-center justify-center font-black text-sm sm:text-base shrink-0 shadow-sm shadow-[#0A1128]/20">
-            {user?.avatarUrl ? (
-              <img
-                src={user.avatarUrl}
-                alt={user.name}
-                className="w-full h-full rounded-2xl object-cover"
-              />
-            ) : (
-              <span>
-                {user?.name
-                  ? user.name
-                      .trim()
-                      .split(/\s+/)
-                      .map((n) => n[0])
-                      .slice(0, 2)
-                      .join("")
-                      .toUpperCase()
-                  : "OK"}
-              </span>
-            )}
+      {/* ── Welcome User Banner with Integrated Stats ── */}
+      <div className="bg-gradient-to-br from-slate-50 via-white to-sky-50/20 border border-slate-200/80 rounded-2xl sm:rounded-3xl p-4 sm:p-6 space-y-4 shadow-2xs">
+        {/* User Profile Info */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-3.5">
+            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-[#0A1128] text-white flex items-center justify-center font-black text-base shrink-0 shadow-sm shadow-[#0A1128]/20">
+              {user?.avatarUrl ? (
+                <img
+                  src={user.avatarUrl}
+                  alt={user.name}
+                  className="w-full h-full rounded-2xl object-cover"
+                />
+              ) : (
+                <span>
+                  {user?.name
+                    ? user.name
+                        .trim()
+                        .split(/\s+/)
+                        .map((n) => n[0])
+                        .slice(0, 2)
+                        .join("")
+                        .toUpperCase()
+                    : "OK"}
+                </span>
+              )}
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-2">
+                <h1 className="text-base sm:text-xl font-extrabold text-slate-900 tracking-tight truncate">
+                  Hello, {user?.name || "Valued Customer"}
+                </h1>
+                <span className="bg-emerald-50 text-emerald-700 text-[10px] font-black px-2 py-0.5 rounded-full border border-emerald-200/70 shrink-0">
+                  Active
+                </span>
+              </div>
+              <p className="text-xs text-slate-500 truncate mt-0.5">
+                {user?.email}
+              </p>
+            </div>
           </div>
-          <div className="min-w-0 flex-1">
-            <h1 className="text-base sm:text-2xl font-extrabold text-slate-900 tracking-tight truncate">
-              Hello, {user?.name || "Valued Customer"}
-            </h1>
-            <p className="text-xs text-slate-500 truncate mt-0.5">
-              {user?.email}
-            </p>
-          </div>
+
+          <Link
+            href="/account/profile"
+            className="bg-white hover:bg-slate-50 text-slate-800 border border-slate-200 px-3.5 py-1.5 rounded-xl text-xs font-bold self-start sm:self-auto shadow-2xs hover:shadow-xs transition-all active:scale-95 inline-flex items-center gap-1.5"
+          >
+            <span>Edit Profile</span>
+          </Link>
         </div>
 
-        <Link
-          href="/account/profile"
-          className="bg-white hover:bg-slate-50 text-slate-800 border border-slate-200 px-4 py-2 rounded-xl text-xs font-bold self-start sm:self-auto shadow-2xs hover:shadow-xs transition-all active:scale-95 inline-flex items-center gap-1.5"
-        >
-          <span>Edit Profile</span>
-        </Link>
-      </div>
-
-      {/* ── 4 Summary Cards Grid (2x2 on Mobile, 4 Cols on Desktop) ── */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
-        {/* Card 1: Orders */}
-        <Link
-          href="/account/orders"
-          className="p-3.5 sm:p-5 rounded-xl sm:rounded-2xl bg-slate-50/70 hover:bg-white border border-slate-200/80 hover:border-[#0A1128] transition-all flex flex-col justify-between group shadow-2xs hover:shadow-xs"
-        >
-          <div className="flex items-center justify-between mb-2">
-            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-white border border-slate-200 flex items-center justify-center text-[#2563EB] group-hover:scale-105 transition-transform shadow-2xs">
-              <ShoppingBag className="w-4 h-4 sm:w-5 sm:h-5" />
-            </div>
-            <ArrowRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-slate-700 group-hover:translate-x-0.5 transition-all opacity-0 group-hover:opacity-100 sm:block hidden" />
-          </div>
-          <div>
-            <span className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight block">
+        {/* ── Seamless Horizontal Stat Strip (Zero bulky cards) ── */}
+        <div className="pt-3 border-t border-slate-200/60 grid grid-cols-4 divide-x divide-slate-200/60 text-center">
+          <Link
+            href="/account/orders"
+            className="px-1 sm:px-2 py-1 hover:bg-white/80 rounded-xl transition group"
+          >
+            <span className="text-lg sm:text-2xl font-black text-slate-900 group-hover:text-[#2563EB] transition-colors block">
               {ordersLoading ? "..." : totalOrders}
             </span>
-            <h4 className="text-[11px] sm:text-xs font-bold text-slate-500 mt-0.5 leading-tight">
-              Total Orders Placed
-            </h4>
-          </div>
-        </Link>
+            <span className="text-[10px] sm:text-xs font-bold text-slate-500 block truncate mt-0.5">
+              Orders
+            </span>
+          </Link>
 
-        {/* Card 2: Wishlist */}
-        <Link
-          href="/wishlist"
-          className="p-3.5 sm:p-5 rounded-xl sm:rounded-2xl bg-slate-50/70 hover:bg-white border border-slate-200/80 hover:border-[#0A1128] transition-all flex flex-col justify-between group shadow-2xs hover:shadow-xs"
-        >
-          <div className="flex items-center justify-between mb-2">
-            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-white border border-slate-200 flex items-center justify-center text-rose-500 group-hover:scale-105 transition-transform shadow-2xs">
-              <Heart className="w-4 h-4 sm:w-5 sm:h-5 fill-rose-50" />
-            </div>
-            <ArrowRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-slate-700 group-hover:translate-x-0.5 transition-all opacity-0 group-hover:opacity-100 sm:block hidden" />
-          </div>
-          <div>
-            <span className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight block">
+          <Link
+            href="/wishlist"
+            className="px-1 sm:px-2 py-1 hover:bg-white/80 rounded-xl transition group"
+          >
+            <span className="text-lg sm:text-2xl font-black text-slate-900 group-hover:text-rose-500 transition-colors block">
               {wishlist?.length || 0}
             </span>
-            <h4 className="text-[11px] sm:text-xs font-bold text-slate-500 mt-0.5 leading-tight">
-              Wishlist Products
-            </h4>
-          </div>
-        </Link>
+            <span className="text-[10px] sm:text-xs font-bold text-slate-500 block truncate mt-0.5">
+              Wishlist
+            </span>
+          </Link>
 
-        {/* Card 3: Reward Points */}
-        <Link
-          href="/account/rewards"
-          className="p-3.5 sm:p-5 rounded-xl sm:rounded-2xl bg-slate-50/70 hover:bg-white border border-slate-200/80 hover:border-[#0A1128] transition-all flex flex-col justify-between group shadow-2xs hover:shadow-xs"
-        >
-          <div className="flex items-center justify-between mb-2">
-            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-white border border-slate-200 flex items-center justify-center text-amber-500 group-hover:scale-105 transition-transform shadow-2xs">
-              <Award className="w-4 h-4 sm:w-5 sm:h-5" />
-            </div>
-            <ArrowRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-slate-700 group-hover:translate-x-0.5 transition-all opacity-0 group-hover:opacity-100 sm:block hidden" />
-          </div>
-          <div>
-            <span className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight block">
+          <Link
+            href="/account/rewards"
+            className="px-1 sm:px-2 py-1 hover:bg-white/80 rounded-xl transition group"
+          >
+            <span className="text-lg sm:text-2xl font-black text-amber-600 block">
               {user?.rewardPoints ?? 1250}
             </span>
-            <h4 className="text-[11px] sm:text-xs font-bold text-slate-500 mt-0.5 leading-tight">
-              Available Reward PTS
-            </h4>
-          </div>
-        </Link>
+            <span className="text-[10px] sm:text-xs font-bold text-slate-500 block truncate mt-0.5">
+              Reward Pts
+            </span>
+          </Link>
 
-        {/* Card 4: Addresses */}
-        <Link
-          href="/account/addresses"
-          className="p-3.5 sm:p-5 rounded-xl sm:rounded-2xl bg-slate-50/70 hover:bg-white border border-slate-200/80 hover:border-[#0A1128] transition-all flex flex-col justify-between group shadow-2xs hover:shadow-xs"
-        >
-          <div className="flex items-center justify-between mb-2">
-            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-white border border-slate-200 flex items-center justify-center text-[#2563EB] group-hover:scale-105 transition-transform shadow-2xs">
-              <MapPin className="w-4 h-4 sm:w-5 sm:h-5" />
-            </div>
-            <ArrowRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-slate-700 group-hover:translate-x-0.5 transition-all opacity-0 group-hover:opacity-100 sm:block hidden" />
-          </div>
-          <div>
-            <span className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight block">
+          <Link
+            href="/account/addresses"
+            className="px-1 sm:px-2 py-1 hover:bg-white/80 rounded-xl transition group"
+          >
+            <span className="text-lg sm:text-2xl font-black text-slate-900 group-hover:text-[#2563EB] transition-colors block">
               {savedAddressesCount}
             </span>
-            <h4 className="text-[11px] sm:text-xs font-bold text-slate-500 mt-0.5 leading-tight">
-              Saved Addresses
-            </h4>
+            <span className="text-[10px] sm:text-xs font-bold text-slate-500 block truncate mt-0.5">
+              Addresses
+            </span>
+          </Link>
+        </div>
+      </div>
+
+      {/* ── Quick Account Shortcuts (Clean Unified List, No Boxy Cards) ── */}
+      <div className="bg-slate-50/60 rounded-2xl p-1 sm:p-2 border border-slate-200/70 divide-y divide-slate-200/50">
+        <Link
+          href="/account/orders"
+          className="flex items-center justify-between p-2.5 sm:p-3 hover:bg-white rounded-xl transition group"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-xl bg-blue-50 text-[#2563EB] flex items-center justify-center shrink-0">
+              <ShoppingBag className="w-4 h-4" />
+            </div>
+            <div>
+              <span className="text-xs sm:text-sm font-bold text-slate-900 block group-hover:text-[#2563EB] transition-colors">
+                Orders & Shipments
+              </span>
+              <span className="text-[10px] sm:text-xs text-slate-500 block">
+                Track deliveries, view invoices, or re-order
+              </span>
+            </div>
           </div>
+          <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-slate-700 group-hover:translate-x-0.5 transition-all shrink-0" />
+        </Link>
+
+        <Link
+          href="/wishlist"
+          className="flex items-center justify-between p-2.5 sm:p-3 hover:bg-white rounded-xl transition group"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-xl bg-rose-50 text-rose-500 flex items-center justify-center shrink-0">
+              <Heart className="w-4 h-4" />
+            </div>
+            <div>
+              <span className="text-xs sm:text-sm font-bold text-slate-900 block group-hover:text-rose-600 transition-colors">
+                Saved Wishlist
+              </span>
+              <span className="text-[10px] sm:text-xs text-slate-500 block">
+                {wishlist?.length || 0} hardware items saved for later
+              </span>
+            </div>
+          </div>
+          <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-slate-700 group-hover:translate-x-0.5 transition-all shrink-0" />
+        </Link>
+
+        <Link
+          href="/account/rewards"
+          className="flex items-center justify-between p-2.5 sm:p-3 hover:bg-white rounded-xl transition group"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-xl bg-amber-50 text-amber-500 flex items-center justify-center shrink-0">
+              <Award className="w-4 h-4" />
+            </div>
+            <div>
+              <span className="text-xs sm:text-sm font-bold text-slate-900 block group-hover:text-amber-600 transition-colors">
+                Prayog Reward Coins
+              </span>
+              <span className="text-[10px] sm:text-xs text-slate-500 block">
+                {user?.rewardPoints ?? 1250} available points to redeem on checkout
+              </span>
+            </div>
+          </div>
+          <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-slate-700 group-hover:translate-x-0.5 transition-all shrink-0" />
+        </Link>
+
+        <Link
+          href="/account/addresses"
+          className="flex items-center justify-between p-2.5 sm:p-3 hover:bg-white rounded-xl transition group"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+              <MapPin className="w-4 h-4" />
+            </div>
+            <div>
+              <span className="text-xs sm:text-sm font-bold text-slate-900 block group-hover:text-emerald-700 transition-colors">
+                Delivery Addresses
+              </span>
+              <span className="text-[10px] sm:text-xs text-slate-500 block">
+                {savedAddressesCount} saved delivery {savedAddressesCount === 1 ? "location" : "locations"}
+              </span>
+            </div>
+          </div>
+          <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-slate-700 group-hover:translate-x-0.5 transition-all shrink-0" />
         </Link>
       </div>
 
