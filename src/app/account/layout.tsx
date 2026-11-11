@@ -105,14 +105,14 @@ export default function AccountLayout({
           </div>
 
           {/* Desktop 2-Column Unified Container (Matching Image 1 Reference) */}
-          <div className="bg-white rounded-2xl border border-slate-200/90 shadow-2xs overflow-hidden flex flex-col lg:flex-row lg:h-[calc(100vh-100px)] min-h-[580px] lg:sticky lg:top-[74px]">
+          <div className="bg-transparent lg:bg-white rounded-none lg:rounded-2xl border-0 lg:border lg:border-slate-200/90 shadow-none lg:shadow-2xs overflow-visible lg:overflow-hidden flex flex-col lg:flex-row lg:h-[calc(100vh-100px)] min-h-0 lg:min-h-[580px] lg:sticky lg:top-[74px]">
             {/* Left Sidebar - Fixed and persistent on desktop */}
             <div className="hidden lg:flex flex-col w-64 xl:w-72 shrink-0 border-r border-slate-200/80 bg-white h-full overflow-hidden">
               <AccountSidebar />
             </div>
 
-            {/* Right Main Content - Independent Smooth Scroll */}
-            <div className="flex-1 min-w-0 bg-[#F8FAFC] p-4 sm:p-6 lg:p-8 lg:h-full lg:overflow-y-auto lg:overscroll-y-contain [scrollbar-width:thin] [scrollbar-color:#cbd5e1_transparent] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-slate-300 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-slate-400">
+            {/* Right Main Content - Zero extra outer boxes on mobile, clean scroll on desktop */}
+            <div className="flex-1 min-w-0 bg-transparent lg:bg-[#F8FAFC] p-0 lg:p-8 lg:h-full lg:overflow-y-auto lg:overscroll-y-contain [scrollbar-width:thin] [scrollbar-color:#cbd5e1_transparent] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-slate-300 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-slate-400">
               {children}
             </div>
           </div>

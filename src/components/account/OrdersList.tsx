@@ -205,7 +205,7 @@ export const OrdersList: React.FC = () => {
           </Link>
         </div>
       ) : (
-        <div className="space-y-3 sm:space-y-3.5">
+        <div className="bg-white rounded-2xl border border-slate-200/80 divide-y divide-slate-100 shadow-2xs overflow-hidden">
           {orders.map((ord) => {
             const isDelivered =
               ord.status?.toLowerCase().includes("delivered") ||
@@ -218,14 +218,14 @@ export const OrdersList: React.FC = () => {
               <div
                 key={ord.id}
                 onClick={() => router.push(`/account/orders/${ord.id}`)}
-                className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/80 hover:border-slate-300 shadow-2xs hover:shadow-xs transition-all space-y-3.5 block group cursor-pointer"
+                className="p-3 sm:p-4 hover:bg-slate-50/70 transition-colors block group cursor-pointer"
               >
                 {/* Top Row: Status Icon + Status Text + Amount/Date + Arrow */}
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2.5">
                     {/* Status Circular Icon matching Image 1 green badge */}
                     <div
-                      className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center shrink-0 ${
+                      className={`w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center shrink-0 ${
                         isDelivered
                           ? "bg-emerald-100 text-emerald-600"
                           : isShipped
@@ -234,19 +234,19 @@ export const OrdersList: React.FC = () => {
                       }`}
                     >
                       {isDelivered ? (
-                        <CheckCircle2 className="w-4 h-4" />
+                        <CheckCircle2 className="w-3.5 h-3.5" />
                       ) : isShipped ? (
-                        <Truck className="w-4 h-4" />
+                        <Truck className="w-3.5 h-3.5" />
                       ) : (
-                        <Package className="w-4 h-4" />
+                        <Package className="w-3.5 h-3.5" />
                       )}
                     </div>
 
                     <div>
-                      <h4 className="text-xs sm:text-sm font-black text-slate-900 tracking-tight">
+                      <h4 className="text-xs sm:text-sm font-bold text-slate-900 tracking-tight">
                         {isDelivered ? "Order arrived" : ord.status}
                       </h4>
-                      <p className="text-[11px] sm:text-xs text-slate-500 font-medium mt-0.5">
+                      <p className="text-[11px] text-slate-500 font-medium">
                         ₹{ord.totalAmount.toLocaleString("en-IN")} • {ord.date}
                       </p>
                     </div>
@@ -255,20 +255,20 @@ export const OrdersList: React.FC = () => {
                   <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-slate-700 group-hover:translate-x-0.5 transition-all shrink-0" />
                 </div>
 
-                {/* Bottom Row: Product Thumbnails matching Image 1 */}
+                {/* Bottom Row: Product Thumbnails */}
                 {ord.items && ord.items.length > 0 && (
-                  <div className="flex items-center gap-2.5 overflow-x-auto scrollbar-none pt-0.5">
+                  <div className="flex items-center gap-2 overflow-x-auto scrollbar-none pt-2 sm:pt-2.5 pl-8.5">
                     {ord.items.map((item, idx) => (
                       <div
                         key={idx}
-                        className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl bg-slate-50/80 border border-slate-100 p-1.5 flex items-center justify-center shrink-0 relative overflow-hidden"
+                        className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg bg-slate-50 border border-slate-100 p-1 flex items-center justify-center shrink-0 relative overflow-hidden"
                         title={item.name}
                       >
                         <Image
                           src={item.image}
                           alt={item.name}
                           fill
-                          className="object-contain p-1"
+                          className="object-contain p-0.5"
                         />
                       </div>
                     ))}

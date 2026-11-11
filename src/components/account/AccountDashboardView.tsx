@@ -195,12 +195,12 @@ export const AccountDashboardView: React.FC = () => {
   }
 
   return (
-    <div className="space-y-4 sm:space-y-5 text-slate-900 w-full max-w-full">
-      {/* ── Mobile-Only User Overview Banner & Stats ── */}
-      <div className="lg:hidden bg-gradient-to-br from-slate-50 via-white to-sky-50/20 border border-slate-200/80 rounded-2xl p-4 space-y-3.5 shadow-2xs">
+    <div className="space-y-3 sm:space-y-4 text-slate-900 w-full max-w-full">
+      {/* ── Mobile-Only User Overview Card ── */}
+      <div className="lg:hidden bg-white border border-slate-200/80 rounded-2xl p-3.5 space-y-3 shadow-2xs">
         <div className="flex items-center justify-between gap-3">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#0A1128] text-white flex items-center justify-center font-black text-sm shrink-0">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="w-9 h-9 rounded-full bg-[#0A1128] text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-xs">
               {user?.name
                 ? user.name
                     .trim()
@@ -209,140 +209,155 @@ export const AccountDashboardView: React.FC = () => {
                     .slice(0, 2)
                     .join("")
                     .toUpperCase()
-                : "OK"}
+                : "T"}
             </div>
             <div className="min-w-0">
-              <h1 className="text-sm font-extrabold text-slate-900 truncate">
-                Hello, {user?.name || "Valued Customer"}
+              <h1 className="text-xs sm:text-sm font-bold text-slate-900 truncate">
+                Hello, {user?.name || "Customer"}
               </h1>
               <p className="text-[11px] text-slate-500 truncate">
-                {user?.email}
+                {user?.email || "+91 87097 89641"}
               </p>
             </div>
           </div>
           <Link
             href="/account/profile"
-            className="bg-white text-slate-700 border border-slate-200 px-3 py-1 rounded-lg text-[11px] font-bold shadow-2xs"
+            className="bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200/70 px-2.5 py-1 rounded-lg text-[11px] font-bold shadow-2xs shrink-0 transition-colors"
           >
             Edit
           </Link>
         </div>
 
         {/* Stats Strip */}
-        <div className="pt-2.5 border-t border-slate-200/60 grid grid-cols-4 divide-x divide-slate-200/60 text-center">
+        <div className="pt-2 border-t border-slate-100 grid grid-cols-4 divide-x divide-slate-100 text-center">
           <Link href="/account/orders" className="px-1">
-            <span className="text-base font-black text-slate-900 block">
+            <span className="text-sm font-extrabold text-slate-900 block">
               {ordersLoading ? "..." : totalOrders}
             </span>
-            <span className="text-[10px] font-bold text-slate-500 block truncate">
+            <span className="text-[10px] font-medium text-slate-500 block truncate">
               Orders
             </span>
           </Link>
           <Link href="/account/wishlist" className="px-1">
-            <span className="text-base font-black text-slate-900 block">
+            <span className="text-sm font-extrabold text-slate-900 block">
               {wishlist?.length || 0}
             </span>
-            <span className="text-[10px] font-bold text-slate-500 block truncate">
+            <span className="text-[10px] font-medium text-slate-500 block truncate">
               Wishlist
             </span>
           </Link>
           <Link href="/account/rewards" className="px-1">
-            <span className="text-base font-black text-amber-600 block">
+            <span className="text-sm font-extrabold text-amber-600 block">
               {user?.rewardPoints ?? 1250}
             </span>
-            <span className="text-[10px] font-bold text-slate-500 block truncate">
+            <span className="text-[10px] font-medium text-slate-500 block truncate">
               Points
             </span>
           </Link>
           <Link href="/account/addresses" className="px-1">
-            <span className="text-base font-black text-slate-900 block">
+            <span className="text-sm font-extrabold text-slate-900 block">
               {savedAddressesCount}
             </span>
-            <span className="text-[10px] font-bold text-slate-500 block truncate">
+            <span className="text-[10px] font-medium text-slate-500 block truncate">
               Address
             </span>
           </Link>
         </div>
       </div>
 
-      {/* ── Order Cards (Matching Image 1 Reference with Prayog Data) ── */}
-      <div className="space-y-3 sm:space-y-3.5">
+      {/* ── Unified Orders Section (Zero Cluttered Multi-Cards) ── */}
+      <div className="space-y-2">
+        <div className="flex items-center justify-between px-0.5">
+          <h2 className="text-xs sm:text-sm font-bold text-slate-800">
+            Recent Orders
+          </h2>
+          <Link
+            href="/account/orders"
+            className="text-[11px] font-bold text-[#2563EB] hover:underline flex items-center gap-0.5"
+          >
+            <span>View all</span>
+            <ChevronRight className="w-3.5 h-3.5" />
+          </Link>
+        </div>
+
         {ordersLoading ? (
           <div className="p-8 text-center text-xs text-slate-400 bg-white rounded-2xl border border-slate-200/80 animate-pulse">
             Loading recent orders...
           </div>
         ) : orders.length > 0 ? (
-          orders.map((ord) => {
-            const isDelivered =
-              ord.status?.toLowerCase().includes("delivered") ||
-              ord.status?.toLowerCase().includes("arrived");
-            const isShipped =
-              ord.status?.toLowerCase().includes("shipped") ||
-              ord.status?.toLowerCase().includes("out for delivery");
+          <div className="bg-white rounded-2xl border border-slate-200/80 divide-y divide-slate-100 shadow-2xs overflow-hidden">
+            {orders.map((ord) => {
+              const isDelivered =
+                ord.status?.toLowerCase().includes("delivered") ||
+                ord.status?.toLowerCase().includes("arrived");
+              const isShipped =
+                ord.status?.toLowerCase().includes("shipped") ||
+                ord.status?.toLowerCase().includes("out for delivery");
 
-            return (
-              <Link
-                key={ord.id}
-                href={`/account/orders/${ord.id}`}
-                className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/80 hover:border-slate-300 shadow-2xs hover:shadow-xs transition-all space-y-3.5 block group cursor-pointer"
-              >
-                {/* Top Row: Status Icon + Status Text + Amount/Date + Arrow */}
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    {/* Status Circular Icon matching Image 1 green badge */}
-                    <div
-                      className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center shrink-0 ${
-                        isDelivered
-                          ? "bg-emerald-100 text-emerald-600"
-                          : isShipped
-                          ? "bg-sky-100 text-[#0086B8]"
-                          : "bg-amber-100 text-amber-600"
-                      }`}
-                    >
-                      {isDelivered ? (
-                        <Check className="w-4 h-4 stroke-[3]" />
-                      ) : isShipped ? (
-                        <Truck className="w-4 h-4" />
-                      ) : (
-                        <Package className="w-4 h-4" />
-                      )}
-                    </div>
-
-                    <div>
-                      <h4 className="text-xs sm:text-sm font-black text-slate-900 tracking-tight">
-                        {isDelivered ? "Order arrived" : ord.status}
-                      </h4>
-                      <p className="text-[11px] sm:text-xs text-slate-500 font-medium mt-0.5">
-                        ₹{ord.totalAmount.toLocaleString("en-IN")} • {ord.date}
-                      </p>
-                    </div>
-                  </div>
-
-                  <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-slate-700 group-hover:translate-x-0.5 transition-all shrink-0" />
-                </div>
-
-                {/* Bottom Row: Product Thumbnails matching Image 1 */}
-                {ord.items && ord.items.length > 0 && (
-                  <div className="flex items-center gap-2.5 overflow-x-auto scrollbar-none pt-0.5">
-                    {ord.items.map((item, idx) => (
+              return (
+                <Link
+                  key={ord.id}
+                  href={`/account/orders/${ord.id}`}
+                  className="p-3 sm:p-4 hover:bg-slate-50/70 transition-colors block group cursor-pointer"
+                >
+                  {/* Top Row: Status Icon + Status Text + Amount/Date + Arrow */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2.5">
+                      {/* Circular Status Icon */}
                       <div
-                        key={idx}
-                        className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl bg-slate-50/80 border border-slate-100 p-1.5 flex items-center justify-center shrink-0 relative overflow-hidden"
-                        title={item.name}
+                        className={`w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center shrink-0 ${
+                          isDelivered
+                            ? "bg-emerald-100 text-emerald-600"
+                            : isShipped
+                            ? "bg-sky-100 text-[#0086B8]"
+                            : "bg-amber-100 text-amber-600"
+                        }`}
                       >
-                        <Image
-                          src={item.image}
-                          alt={item.name}
-                          fill
-                          className="object-contain p-1"
-                        />
+                        {isDelivered ? (
+                          <Check className="w-3.5 h-3.5 stroke-[3]" />
+                        ) : isShipped ? (
+                          <Truck className="w-3.5 h-3.5" />
+                        ) : (
+                          <Package className="w-3.5 h-3.5" />
+                        )}
                       </div>
-                    ))}
+
+                      <div>
+                        <h4 className="text-xs sm:text-sm font-bold text-slate-900 tracking-tight">
+                          {isDelivered ? "Order arrived" : ord.status}
+                        </h4>
+                        <p className="text-[11px] text-slate-500 font-medium">
+                          ₹{ord.totalAmount.toLocaleString("en-IN")} • {ord.date}
+                        </p>
+                      </div>
+                    </div>
+
+                    <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-slate-700 group-hover:translate-x-0.5 transition-all shrink-0" />
                   </div>
-                )}
-              </Link>
-            );
-          })
+
+                  {/* Product Thumbnails: compact, clean row */}
+                  {ord.items && ord.items.length > 0 && (
+                    <div className="flex items-center gap-2 overflow-x-auto scrollbar-none pt-2 sm:pt-2.5 pl-8.5">
+                      {ord.items.map((item, idx) => (
+                        <div
+                          key={idx}
+                          className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg bg-slate-50 border border-slate-100 p-1 flex items-center justify-center shrink-0 relative overflow-hidden"
+                          title={item.name}
+                        >
+                          <Image
+                            src={item.image}
+                            alt={item.name}
+                            fill
+                            className="object-contain p-0.5"
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </Link>
+              );
+            })}
+          </div>
         ) : (
           <div className="p-8 text-center bg-white border border-slate-200/80 rounded-2xl space-y-3">
             <Package className="w-10 h-10 text-slate-300 mx-auto" />

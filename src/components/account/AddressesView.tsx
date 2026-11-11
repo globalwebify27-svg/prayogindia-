@@ -482,7 +482,7 @@ export const AddressesView: React.FC<AddressesViewProps> = ({
   }
 
   return (
-    <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-2xs space-y-6 text-slate-900">
+    <div className="bg-white rounded-2xl border border-slate-200/80 p-4 sm:p-7 shadow-2xs space-y-5 text-slate-900">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-xl font-extrabold text-slate-900 tracking-tight">
