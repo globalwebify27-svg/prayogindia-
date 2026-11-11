@@ -68,21 +68,11 @@ export const ProductTabsSection: React.FC<ProductTabsSectionProps> = ({
     }
   };
 
-  // Mobile Accordion state matching Image 10 (Key Features, Description, Specifications, Additional Resources, Warranty, Reviews)
-  const [openSections, setOpenSections] = useState<Record<string, boolean>>({
-    features: false,
-    description: false,
-    specifications: false,
-    resources: false,
-    warranty: false,
-    reviews: false,
-  });
+  // Single active accordion on mobile: opening one smoothly collapses any other
+  const [activeAccordion, setActiveAccordion] = useState<string | null>(null);
 
   const toggleSection = (sectionKey: string) => {
-    setOpenSections((prev) => ({
-      ...prev,
-      [sectionKey]: !prev[sectionKey],
-    }));
+    setActiveAccordion((prev) => (prev === sectionKey ? null : sectionKey));
   };
 
   React.useEffect(() => {
@@ -92,7 +82,7 @@ export const ProductTabsSection: React.FC<ProductTabsSectionProps> = ({
         setActiveTab(hash as TabType);
       }
       if (["features", "description", "specifications", "resources", "warranty", "reviews"].includes(hash)) {
-        setOpenSections((prev) => ({ ...prev, [hash]: true }));
+        setActiveAccordion(hash);
       }
     }
   }, []);
@@ -890,26 +880,46 @@ export const ProductTabsSection: React.FC<ProductTabsSectionProps> = ({
       {/* ── MOBILE VIEW: Stacked Rounded Card Accordions (Matching Reference Image) ── */}
       <div className="block sm:hidden space-y-3 pt-2">
         {/* 1. Key Features Accordion Card */}
-        <div className="bg-white rounded-2xl border border-slate-200/90 shadow-2xs overflow-hidden transition-all">
+        <div
+          className={`bg-white rounded-2xl border transition-all duration-200 overflow-hidden ${
+            activeAccordion === "features"
+              ? "border-[#005CA9]/60 shadow-xs"
+              : "border-slate-200/90 shadow-2xs hover:border-slate-300"
+          }`}
+        >
           <button
             type="button"
             onClick={() => toggleSection("features")}
-            className="w-full flex items-center justify-between p-4 text-left font-bold text-slate-800 text-[15px] cursor-pointer select-none active:bg-slate-50/80"
+            className="w-full flex items-center justify-between p-4 text-left font-bold text-slate-800 text-[15px] cursor-pointer select-none active:bg-slate-50/80 transition-colors"
           >
             <span>Key Features</span>
             <ChevronDown
-              className={`w-5 h-5 text-slate-600 transition-transform duration-200 shrink-0 ${
-                openSections.features ? "rotate-180 text-slate-900" : ""
+              className={`w-5 h-5 text-slate-600 transition-transform duration-300 ease-out shrink-0 ${
+                activeAccordion === "features" ? "rotate-180 text-slate-900" : ""
               }`}
             />
           </button>
           <AnimatePresence initial={false}>
-            {openSections.features && (
+            {activeAccordion === "features" && (
               <motion.div
+                key="mobile-features"
                 initial={{ height: 0, opacity: 0 }}
-                animate={{ height: "auto", opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                transition={{ duration: 0.2, ease: "easeInOut" }}
+                animate={{
+                  height: "auto",
+                  opacity: 1,
+                  transition: {
+                    height: { duration: 0.32, ease: [0.25, 0.1, 0.25, 1.0] },
+                    opacity: { duration: 0.2, delay: 0.04 },
+                  },
+                }}
+                exit={{
+                  height: 0,
+                  opacity: 0,
+                  transition: {
+                    height: { duration: 0.24, ease: [0.25, 0.1, 0.25, 1.0] },
+                    opacity: { duration: 0.12 },
+                  },
+                }}
                 className="overflow-hidden"
               >
                 <div className="px-4 pb-4 pt-1 border-t border-slate-100">
@@ -933,26 +943,46 @@ export const ProductTabsSection: React.FC<ProductTabsSectionProps> = ({
         </div>
 
         {/* 2. Description Accordion Card */}
-        <div className="bg-white rounded-2xl border border-slate-200/90 shadow-2xs overflow-hidden transition-all">
+        <div
+          className={`bg-white rounded-2xl border transition-all duration-200 overflow-hidden ${
+            activeAccordion === "description"
+              ? "border-[#005CA9]/60 shadow-xs"
+              : "border-slate-200/90 shadow-2xs hover:border-slate-300"
+          }`}
+        >
           <button
             type="button"
             onClick={() => toggleSection("description")}
-            className="w-full flex items-center justify-between p-4 text-left font-bold text-slate-800 text-[15px] cursor-pointer select-none active:bg-slate-50/80"
+            className="w-full flex items-center justify-between p-4 text-left font-bold text-slate-800 text-[15px] cursor-pointer select-none active:bg-slate-50/80 transition-colors"
           >
             <span>Description</span>
             <ChevronDown
-              className={`w-5 h-5 text-slate-600 transition-transform duration-200 shrink-0 ${
-                openSections.description ? "rotate-180 text-slate-900" : ""
+              className={`w-5 h-5 text-slate-600 transition-transform duration-300 ease-out shrink-0 ${
+                activeAccordion === "description" ? "rotate-180 text-slate-900" : ""
               }`}
             />
           </button>
           <AnimatePresence initial={false}>
-            {openSections.description && (
+            {activeAccordion === "description" && (
               <motion.div
+                key="mobile-description"
                 initial={{ height: 0, opacity: 0 }}
-                animate={{ height: "auto", opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                transition={{ duration: 0.2, ease: "easeInOut" }}
+                animate={{
+                  height: "auto",
+                  opacity: 1,
+                  transition: {
+                    height: { duration: 0.32, ease: [0.25, 0.1, 0.25, 1.0] },
+                    opacity: { duration: 0.2, delay: 0.04 },
+                  },
+                }}
+                exit={{
+                  height: 0,
+                  opacity: 0,
+                  transition: {
+                    height: { duration: 0.24, ease: [0.25, 0.1, 0.25, 1.0] },
+                    opacity: { duration: 0.12 },
+                  },
+                }}
                 className="overflow-hidden"
               >
                 <div className="px-4 pb-4 pt-1 border-t border-slate-100 space-y-3">
@@ -1001,26 +1031,46 @@ export const ProductTabsSection: React.FC<ProductTabsSectionProps> = ({
         </div>
 
         {/* 3. Specifications Accordion Card */}
-        <div className="bg-white rounded-2xl border border-slate-200/90 shadow-2xs overflow-hidden transition-all">
+        <div
+          className={`bg-white rounded-2xl border transition-all duration-200 overflow-hidden ${
+            activeAccordion === "specifications"
+              ? "border-[#005CA9]/60 shadow-xs"
+              : "border-slate-200/90 shadow-2xs hover:border-slate-300"
+          }`}
+        >
           <button
             type="button"
             onClick={() => toggleSection("specifications")}
-            className="w-full flex items-center justify-between p-4 text-left font-bold text-slate-800 text-[15px] cursor-pointer select-none active:bg-slate-50/80"
+            className="w-full flex items-center justify-between p-4 text-left font-bold text-slate-800 text-[15px] cursor-pointer select-none active:bg-slate-50/80 transition-colors"
           >
             <span>Specifications</span>
             <ChevronDown
-              className={`w-5 h-5 text-slate-600 transition-transform duration-200 shrink-0 ${
-                openSections.specifications ? "rotate-180 text-slate-900" : ""
+              className={`w-5 h-5 text-slate-600 transition-transform duration-300 ease-out shrink-0 ${
+                activeAccordion === "specifications" ? "rotate-180 text-slate-900" : ""
               }`}
             />
           </button>
           <AnimatePresence initial={false}>
-            {openSections.specifications && (
+            {activeAccordion === "specifications" && (
               <motion.div
+                key="mobile-specifications"
                 initial={{ height: 0, opacity: 0 }}
-                animate={{ height: "auto", opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                transition={{ duration: 0.2, ease: "easeInOut" }}
+                animate={{
+                  height: "auto",
+                  opacity: 1,
+                  transition: {
+                    height: { duration: 0.32, ease: [0.25, 0.1, 0.25, 1.0] },
+                    opacity: { duration: 0.2, delay: 0.04 },
+                  },
+                }}
+                exit={{
+                  height: 0,
+                  opacity: 0,
+                  transition: {
+                    height: { duration: 0.24, ease: [0.25, 0.1, 0.25, 1.0] },
+                    opacity: { duration: 0.12 },
+                  },
+                }}
                 className="overflow-hidden"
               >
                 <div className="px-4 pb-4 pt-1 border-t border-slate-100">
@@ -1050,26 +1100,46 @@ export const ProductTabsSection: React.FC<ProductTabsSectionProps> = ({
         </div>
 
         {/* 4. Additional Resources Accordion Card */}
-        <div className="bg-white rounded-2xl border border-slate-200/90 shadow-2xs overflow-hidden transition-all">
+        <div
+          className={`bg-white rounded-2xl border transition-all duration-200 overflow-hidden ${
+            activeAccordion === "resources"
+              ? "border-[#005CA9]/60 shadow-xs"
+              : "border-slate-200/90 shadow-2xs hover:border-slate-300"
+          }`}
+        >
           <button
             type="button"
             onClick={() => toggleSection("resources")}
-            className="w-full flex items-center justify-between p-4 text-left font-bold text-slate-800 text-[15px] cursor-pointer select-none active:bg-slate-50/80"
+            className="w-full flex items-center justify-between p-4 text-left font-bold text-slate-800 text-[15px] cursor-pointer select-none active:bg-slate-50/80 transition-colors"
           >
             <span>Additional Resources</span>
             <ChevronDown
-              className={`w-5 h-5 text-slate-600 transition-transform duration-200 shrink-0 ${
-                openSections.resources ? "rotate-180 text-slate-900" : ""
+              className={`w-5 h-5 text-slate-600 transition-transform duration-300 ease-out shrink-0 ${
+                activeAccordion === "resources" ? "rotate-180 text-slate-900" : ""
               }`}
             />
           </button>
           <AnimatePresence initial={false}>
-            {openSections.resources && (
+            {activeAccordion === "resources" && (
               <motion.div
+                key="mobile-resources"
                 initial={{ height: 0, opacity: 0 }}
-                animate={{ height: "auto", opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                transition={{ duration: 0.2, ease: "easeInOut" }}
+                animate={{
+                  height: "auto",
+                  opacity: 1,
+                  transition: {
+                    height: { duration: 0.32, ease: [0.25, 0.1, 0.25, 1.0] },
+                    opacity: { duration: 0.2, delay: 0.04 },
+                  },
+                }}
+                exit={{
+                  height: 0,
+                  opacity: 0,
+                  transition: {
+                    height: { duration: 0.24, ease: [0.25, 0.1, 0.25, 1.0] },
+                    opacity: { duration: 0.12 },
+                  },
+                }}
                 className="overflow-hidden"
               >
                 <div className="px-4 pb-4 pt-1 border-t border-slate-100 space-y-2.5">
@@ -1143,26 +1213,46 @@ export const ProductTabsSection: React.FC<ProductTabsSectionProps> = ({
         </div>
 
         {/* 5. Warranty Accordion Card */}
-        <div className="bg-white rounded-2xl border border-slate-200/90 shadow-2xs overflow-hidden transition-all">
+        <div
+          className={`bg-white rounded-2xl border transition-all duration-200 overflow-hidden ${
+            activeAccordion === "warranty"
+              ? "border-[#005CA9]/60 shadow-xs"
+              : "border-slate-200/90 shadow-2xs hover:border-slate-300"
+          }`}
+        >
           <button
             type="button"
             onClick={() => toggleSection("warranty")}
-            className="w-full flex items-center justify-between p-4 text-left font-bold text-slate-800 text-[15px] cursor-pointer select-none active:bg-slate-50/80"
+            className="w-full flex items-center justify-between p-4 text-left font-bold text-slate-800 text-[15px] cursor-pointer select-none active:bg-slate-50/80 transition-colors"
           >
             <span>Warranty</span>
             <ChevronDown
-              className={`w-5 h-5 text-slate-600 transition-transform duration-200 shrink-0 ${
-                openSections.warranty ? "rotate-180 text-slate-900" : ""
+              className={`w-5 h-5 text-slate-600 transition-transform duration-300 ease-out shrink-0 ${
+                activeAccordion === "warranty" ? "rotate-180 text-slate-900" : ""
               }`}
             />
           </button>
           <AnimatePresence initial={false}>
-            {openSections.warranty && (
+            {activeAccordion === "warranty" && (
               <motion.div
+                key="mobile-warranty"
                 initial={{ height: 0, opacity: 0 }}
-                animate={{ height: "auto", opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                transition={{ duration: 0.2, ease: "easeInOut" }}
+                animate={{
+                  height: "auto",
+                  opacity: 1,
+                  transition: {
+                    height: { duration: 0.32, ease: [0.25, 0.1, 0.25, 1.0] },
+                    opacity: { duration: 0.2, delay: 0.04 },
+                  },
+                }}
+                exit={{
+                  height: 0,
+                  opacity: 0,
+                  transition: {
+                    height: { duration: 0.24, ease: [0.25, 0.1, 0.25, 1.0] },
+                    opacity: { duration: 0.12 },
+                  },
+                }}
                 className="overflow-hidden"
               >
                 <div className="px-4 pb-4 pt-1 border-t border-slate-100">
@@ -1219,26 +1309,46 @@ export const ProductTabsSection: React.FC<ProductTabsSectionProps> = ({
         </div>
 
         {/* 6. Customer Reviews Accordion Card */}
-        <div className="bg-white rounded-2xl border border-slate-200/90 shadow-2xs overflow-hidden transition-all">
+        <div
+          className={`bg-white rounded-2xl border transition-all duration-200 overflow-hidden ${
+            activeAccordion === "reviews"
+              ? "border-[#005CA9]/60 shadow-xs"
+              : "border-slate-200/90 shadow-2xs hover:border-slate-300"
+          }`}
+        >
           <button
             type="button"
             onClick={() => toggleSection("reviews")}
-            className="w-full flex items-center justify-between p-4 text-left font-bold text-slate-800 text-[15px] cursor-pointer select-none active:bg-slate-50/80"
+            className="w-full flex items-center justify-between p-4 text-left font-bold text-slate-800 text-[15px] cursor-pointer select-none active:bg-slate-50/80 transition-colors"
           >
             <span>Customer Reviews ({product.reviews || 12})</span>
             <ChevronDown
-              className={`w-5 h-5 text-slate-600 transition-transform duration-200 shrink-0 ${
-                openSections.reviews ? "rotate-180 text-slate-900" : ""
+              className={`w-5 h-5 text-slate-600 transition-transform duration-300 ease-out shrink-0 ${
+                activeAccordion === "reviews" ? "rotate-180 text-slate-900" : ""
               }`}
             />
           </button>
           <AnimatePresence initial={false}>
-            {openSections.reviews && (
+            {activeAccordion === "reviews" && (
               <motion.div
+                key="mobile-reviews"
                 initial={{ height: 0, opacity: 0 }}
-                animate={{ height: "auto", opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                transition={{ duration: 0.2, ease: "easeInOut" }}
+                animate={{
+                  height: "auto",
+                  opacity: 1,
+                  transition: {
+                    height: { duration: 0.32, ease: [0.25, 0.1, 0.25, 1.0] },
+                    opacity: { duration: 0.2, delay: 0.04 },
+                  },
+                }}
+                exit={{
+                  height: 0,
+                  opacity: 0,
+                  transition: {
+                    height: { duration: 0.24, ease: [0.25, 0.1, 0.25, 1.0] },
+                    opacity: { duration: 0.12 },
+                  },
+                }}
                 className="overflow-hidden"
               >
                 <div className="px-4 pb-4 pt-1 border-t border-slate-100">
