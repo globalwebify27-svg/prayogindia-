@@ -459,7 +459,7 @@ export const ShopByCategory: React.FC<Props> = ({ onSelectCategory }) => {
   const bottomRow = categories.slice(4, 8);
 
   return (
-    <section className="pt-2 sm:pt-3.5 pb-4 sm:pb-6 bg-white touch-pan-y" style={{ touchAction: "pan-y" }}>
+    <section className="pt-3 sm:pt-4 pb-4 sm:pb-6 bg-white touch-pan-y" style={{ touchAction: "pan-y" }}>
       <div className="w-full px-3 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 space-y-1.5 sm:space-y-2 lg:space-y-2.5 touch-pan-y">
         {/* Section Header */}
         <div className="flex items-center justify-between pb-1">

@@ -154,7 +154,7 @@ export const HeroSection: React.FC<HeroProps> = ({
   };
 
   return (
-    <div className="w-full select-none">
+    <div className="w-full select-none border-b border-slate-200">
       {/* 1. Hero Showcase Banner (Full width edge-to-edge, click anywhere opens products page) */}
       <section
         onMouseEnter={() => setIsPaused(true)}
