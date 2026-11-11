@@ -39,7 +39,7 @@ export default function AccountLayout({
   const navTabs = [
     { label: "Dashboard", href: "/account", icon: LayoutDashboard },
     { label: "Orders", href: "/account/orders", icon: ShoppingBag },
-    { label: "Wishlist", href: "/wishlist", icon: Heart },
+    { label: "Wishlist", href: "/account/wishlist", icon: Heart },
     { label: "Addresses", href: "/account/addresses", icon: MapPin },
     { label: "Rewards", href: "/account/rewards", icon: Award },
     { label: "Quotations", href: "/account/quotations", icon: FileText },

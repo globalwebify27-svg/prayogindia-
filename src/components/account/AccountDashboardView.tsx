@@ -238,7 +238,7 @@ export const AccountDashboardView: React.FC = () => {
               Orders
             </span>
           </Link>
-          <Link href="/wishlist" className="px-1">
+          <Link href="/account/wishlist" className="px-1">
             <span className="text-base font-black text-slate-900 block">
               {wishlist?.length || 0}
             </span>

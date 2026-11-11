@@ -333,7 +333,13 @@ const WishlistRow: React.FC<{
 };
 
 // ── MAIN WISHLIST VIEW ────────────────────────────────────────────
-export const WishlistView: React.FC = () => {
+export interface WishlistViewProps {
+  embedded?: boolean;
+}
+
+export const WishlistView: React.FC<WishlistViewProps> = ({
+  embedded = false,
+}) => {
   const { wishlist, toggleWishlist, addToCart, moveToCart } = useStore();
 
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -448,11 +454,23 @@ export const WishlistView: React.FC = () => {
     const recommended = PRODUCTS.slice(0, 4);
 
     return (
-      <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 py-6 sm:py-10 space-y-8 animate-in fade-in duration-300">
-        <CategoryBreadcrumb items={[{ label: "My Wishlist" }]} />
+      <div
+        className={
+          embedded
+            ? "space-y-6 animate-in fade-in duration-300 w-full"
+            : "w-full px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 py-6 sm:py-10 space-y-8 animate-in fade-in duration-300"
+        }
+      >
+        {!embedded && <CategoryBreadcrumb items={[{ label: "My Wishlist" }]} />}
 
-        {/* Clean, Simple & Beautiful Empty State (Zero Enclosing Boxes) */}
-        <div className="py-8 sm:py-12 text-center max-w-md mx-auto space-y-3.5">
+        {/* Clean, Simple & Beautiful Empty State */}
+        <div
+          className={
+            embedded
+              ? "bg-white rounded-2xl border border-slate-200/80 p-8 sm:p-12 text-center max-w-2xl mx-auto space-y-3.5 shadow-2xs"
+              : "py-8 sm:py-12 text-center max-w-md mx-auto space-y-3.5"
+          }
+        >
           <div className="w-16 h-16 rounded-full bg-rose-50 text-rose-500 flex items-center justify-center mx-auto shadow-2xs">
             <Heart className="w-8 h-8 stroke-[1.75]" />
           </div>
@@ -573,9 +591,15 @@ export const WishlistView: React.FC = () => {
   }
 
   return (
-    <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 py-6 space-y-6 animate-in fade-in duration-300">
+    <div
+      className={
+        embedded
+          ? "space-y-6 animate-in fade-in duration-300 w-full"
+          : "w-full px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 py-6 space-y-6 animate-in fade-in duration-300"
+      }
+    >
       {/* Breadcrumb */}
-      <CategoryBreadcrumb items={[{ label: "My Wishlist" }]} />
+      {!embedded && <CategoryBreadcrumb items={[{ label: "My Wishlist" }]} />}
 
       {/* ── Page Header ── */}
       <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
