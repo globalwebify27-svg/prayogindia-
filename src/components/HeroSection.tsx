@@ -155,11 +155,11 @@ export const HeroSection: React.FC<HeroProps> = ({
 
   return (
     <div className="w-full select-none border-b border-slate-200">
-      {/* 1. Hero Showcase Banner (Full width edge-to-edge, click anywhere opens products page) */}
+      {/* 1. Hero Showcase Banner (Full width edge-to-edge, exact 1920:642 aspect ratio so full banner is always 100% visible without any cropping) */}
       <section
         onMouseEnter={() => setIsPaused(true)}
         onMouseLeave={() => setIsPaused(false)}
-        className="relative w-full rounded-none overflow-hidden aspect-[2/1] sm:aspect-[2.6/1] md:aspect-[3.2/1] lg:aspect-[3.5/1] xl:aspect-[3.8/1] min-h-[150px] sm:min-h-[220px] max-h-[520px] flex items-center bg-slate-950 group"
+        className="relative w-full rounded-none overflow-hidden aspect-[1920/642] flex items-center bg-slate-950 group"
         aria-label="Prayog India Featured Robotics Showcase Banner"
       >
         {/* Swipeable Animated Carousel Track */}
@@ -207,7 +207,7 @@ export const HeroSection: React.FC<HeroProps> = ({
               className="absolute inset-0 w-full h-full flex items-center cursor-pointer select-none touch-pan-y"
               title={`Click to open ${activeSlide.primaryButtonText || "Products"}`}
             >
-              {/* Full-Bleed Background Image */}
+              {/* Full-Bleed Background Image (Exact 1920x642 aspect preserves entire banner without cropping) */}
               <img
                 src={activeSlide.image}
                 alt={activeSlide.alt || "Prayog Banner"}
@@ -215,28 +215,19 @@ export const HeroSection: React.FC<HeroProps> = ({
                 draggable={false}
               />
 
-              {/* Only render HTML Content Layer if hasTextOverlay is enabled */}
+              {/* Only render HTML Content Layer on desktop/tablets if hasTextOverlay is enabled (on mobile, banner is shown 100% full and clean) */}
               {hasTextOverlay && (
-                <div className="relative z-10 w-full h-full max-w-7xl mx-auto px-4 sm:px-10 lg:px-14 flex items-center pointer-events-auto">
-                  {/* Subtle mobile background scrim for clean readability against any graphic */}
-                  <div
-                    className={`absolute inset-0 pointer-events-none md:hidden ${
-                      activeSlide.theme === "dark-slate"
-                        ? "bg-gradient-to-r from-slate-950/85 via-slate-950/50 to-transparent"
-                        : "bg-gradient-to-r from-white/90 via-white/55 to-transparent"
-                    }`}
-                  />
-
-                  <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-3 sm:gap-6 lg:gap-8 items-center py-2 sm:py-4 relative z-10">
+                <div className="hidden sm:flex relative z-10 w-full h-full max-w-7xl mx-auto px-6 sm:px-10 lg:px-14 items-center pointer-events-auto">
+                  <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-8 items-center py-2 sm:py-4 relative z-10">
                     {/* 7 Columns: Text Content */}
-                    <div className="lg:col-span-7 flex flex-col justify-center text-left space-y-1.5 sm:space-y-3 lg:space-y-4 max-w-[85%] sm:max-w-none">
+                    <div className="lg:col-span-7 flex flex-col justify-center text-left space-y-2 sm:space-y-3 lg:space-y-4">
                       {/* 1. Main Headline First (~3x body text size) */}
                       {(activeSlide.titlePrefix || activeSlide.titleHighlight) && (
                         <motion.h1
                           initial={prefersReducedMotion ? false : { opacity: 0, y: 14 }}
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ duration: 0.35, ease: "easeOut" }}
-                          className="text-base sm:text-3xl lg:text-[44px] font-extrabold tracking-tight leading-tight sm:leading-[1.12] text-slate-950 font-sans"
+                          className="text-2xl sm:text-3xl lg:text-[44px] font-extrabold tracking-tight leading-tight text-slate-950 font-sans"
                         >
                           {activeSlide.titlePrefix}{" "}
                           {activeSlide.titleHighlight && (
@@ -260,7 +251,7 @@ export const HeroSection: React.FC<HeroProps> = ({
                       >
                         {/* Subtitle with Separators */}
                         {activeSlide.subtitle && (
-                          <div className="flex flex-wrap items-center gap-1 sm:gap-2 text-[11px] sm:text-xs md:text-sm font-bold text-slate-700 tracking-wide">
+                          <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 text-xs sm:text-sm font-bold text-slate-700 tracking-wide">
                             {activeSlide.subtitle
                               .split("|")
                               .map((p) => p.trim())
@@ -286,7 +277,7 @@ export const HeroSection: React.FC<HeroProps> = ({
 
                         {/* Description */}
                         {activeSlide.description && !isTextEmpty(activeSlide.description) && (
-                          <p className="text-slate-600 text-[10px] sm:text-xs md:text-sm leading-relaxed max-w-xl line-clamp-2 sm:line-clamp-3">
+                          <p className="text-slate-600 text-xs sm:text-sm leading-relaxed max-w-xl line-clamp-2 sm:line-clamp-3">
                             {activeSlide.description}
                           </p>
                         )}
@@ -301,7 +292,7 @@ export const HeroSection: React.FC<HeroProps> = ({
                           delay: prefersReducedMotion ? 0 : 0.16,
                           ease: "easeOut",
                         }}
-                        className="flex flex-wrap items-center gap-2 sm:gap-3 pt-0.5 sm:pt-1 z-20"
+                        className="flex flex-wrap items-center gap-2 sm:gap-3 pt-1 z-20"
                       >
                         {activeSlide.primaryButtonText && (
                           <button
@@ -310,10 +301,10 @@ export const HeroSection: React.FC<HeroProps> = ({
                               e.stopPropagation();
                               handlePrimaryClick();
                             }}
-                            className="bg-[#2563EB] hover:bg-[#1D4ED8] active:scale-[0.98] text-white font-bold px-3 py-1.5 sm:px-6 sm:py-2.5 lg:px-8 lg:py-3 rounded-lg sm:rounded-xl text-[10px] sm:text-xs lg:text-sm uppercase tracking-wider transition-all duration-150 flex items-center gap-1.5 sm:gap-2 shadow-sm hover:shadow-md cursor-pointer select-none group"
+                            className="bg-[#2563EB] hover:bg-[#1D4ED8] active:scale-[0.98] text-white font-bold px-5 sm:px-6 lg:px-8 py-2 sm:py-2.5 lg:py-3 rounded-xl text-xs sm:text-sm uppercase tracking-wider transition-all duration-150 flex items-center gap-2 shadow-sm hover:shadow-md cursor-pointer select-none group"
                           >
                             <span>{activeSlide.primaryButtonText}</span>
-                            <ArrowRight className="w-3 h-3 sm:w-3.5 sm:h-3.5 stroke-[2.5] text-white transition-transform group-hover:translate-x-0.5" />
+                            <ArrowRight className="w-3.5 h-3.5 stroke-[2.5] text-white transition-transform group-hover:translate-x-0.5" />
                           </button>
                         )}
 
@@ -324,7 +315,7 @@ export const HeroSection: React.FC<HeroProps> = ({
                               e.stopPropagation();
                               handleSecondaryClick();
                             }}
-                            className="bg-white hover:bg-slate-50 active:scale-[0.98] text-slate-800 font-semibold px-2.5 py-1.5 sm:px-5 sm:py-2.5 lg:px-7 lg:py-3 rounded-lg sm:rounded-xl text-[10px] sm:text-xs lg:text-sm border border-slate-200/90 hover:border-slate-300 transition-all duration-150 flex items-center gap-1.5 sm:gap-2 shadow-2xs cursor-pointer select-none"
+                            className="bg-white hover:bg-slate-50 active:scale-[0.98] text-slate-800 font-semibold px-4 sm:px-5 lg:px-7 py-2 sm:py-2.5 lg:py-3 rounded-xl text-xs sm:text-sm border border-slate-200/90 hover:border-slate-300 transition-all duration-150 flex items-center gap-2 shadow-2xs cursor-pointer select-none"
                           >
                             <span>{activeSlide.secondaryButtonText}</span>
                           </button>
