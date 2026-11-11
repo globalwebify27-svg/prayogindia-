@@ -357,7 +357,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
   const isInStock = selectedVariant ? selectedVariant.inStock : product.inStock;
 
   return (
-    <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 py-2 sm:py-3 space-y-4 sm:space-y-5 animate-in fade-in duration-300 pb-4 sm:pb-6">
+    <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 py-2 sm:py-3 space-y-4 sm:space-y-5 animate-in fade-in duration-300 pb-24 sm:pb-6">
       {/* ── Breadcrumb ── */}
       <CategoryBreadcrumb
         items={[
@@ -569,20 +569,79 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
         </div>
       )}
 
-      {/* ── Sticky Bottom Action Bar with Price, Add to Cart & Buy Now ── */}
+      {/* ── Sticky Bottom Action Bar: Always docked on Mobile (matching reference), conditional on Desktop ── */}
       <aside
         aria-label="Sticky purchase action bar"
-        className={`fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-xl border-t border-slate-200/90 shadow-[0_-8px_30px_rgba(15,23,42,0.12)] px-2.5 sm:px-6 lg:px-8 xl:px-12 py-2 sm:py-2.5 pb-[max(0.6rem,env(safe-area-inset-bottom))] transition-all duration-300 ease-in-out ${
+        className={`fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-xl border-t border-slate-200/90 shadow-[0_-4px_20px_rgba(15,23,42,0.08)] px-3 sm:px-6 lg:px-8 xl:px-12 py-2 sm:py-2.5 pb-[max(0.6rem,env(safe-area-inset-bottom))] transition-all duration-300 ease-in-out translate-y-0 opacity-100 pointer-events-auto ${
           showStickyBar
-            ? "translate-y-0 opacity-100 pointer-events-auto"
-            : "translate-y-full opacity-0 pointer-events-none"
+            ? "sm:translate-y-0 sm:opacity-100 sm:pointer-events-auto"
+            : "sm:translate-y-full sm:opacity-0 sm:pointer-events-none"
         }`}
       >
-        <div className="max-w-7xl mx-auto flex items-center justify-between gap-2 sm:gap-4">
+        {/* ── MOBILE VIEW: [ ♡ ] [ Buy Now ] [ Add To Cart ] (matching reference image) ── */}
+        <div className="flex sm:hidden items-center gap-2.5 w-full">
+          {/* 1. Wishlist Button */}
+          <button
+            type="button"
+            onClick={() => handleToggleWishlist(product)}
+            className={`w-12 h-12 rounded-xl border flex items-center justify-center shrink-0 transition-all cursor-pointer shadow-2xs active:scale-95 ${
+              isProductWishlisted
+                ? "bg-red-50 border-red-200 text-red-500"
+                : "bg-slate-50 border-slate-200 text-slate-600 hover:text-red-500"
+            }`}
+            title={isProductWishlisted ? "In Wishlist" : "Add to Wishlist"}
+            aria-label={isProductWishlisted ? "In Wishlist" : "Add to Wishlist"}
+          >
+            <Heart
+              className={`w-5 h-5 ${isProductWishlisted ? "fill-red-500 text-red-500" : ""}`}
+            />
+          </button>
+
+          {isInStock ? (
+            <>
+              {/* 2. Buy Now Button (Soft neutral pill) */}
+              <button
+                type="button"
+                onClick={() => handleBuyNow(product, stickyQuantity)}
+                className="flex-1 h-12 rounded-xl bg-slate-100 hover:bg-slate-200 active:bg-slate-300 text-slate-900 font-bold text-sm tracking-wide flex items-center justify-center transition-all cursor-pointer shadow-2xs active:scale-[0.98] select-none"
+              >
+                <span>Buy Now</span>
+              </button>
+
+              {/* 3. Add To Cart Button (Deep Royal Navy Blue) */}
+              <button
+                type="button"
+                onClick={handleStickyAddToCart}
+                className={`flex-1 h-12 rounded-xl font-bold text-sm tracking-wide flex items-center justify-center transition-all cursor-pointer shadow-sm active:scale-[0.98] select-none ${
+                  stickyAdded
+                    ? "bg-emerald-600 text-white shadow-emerald-600/20"
+                    : "bg-[#0B0F6B] hover:bg-[#080B52] active:bg-[#050738] text-white"
+                }`}
+              >
+                <span>{stickyAdded ? "Added!" : "Add To Cart"}</span>
+              </button>
+            </>
+          ) : (
+            <a
+              href={`https://wa.me/918709789641?text=${encodeURIComponent(
+                `Hello Prayog India Team, I want to inquire about ${product.name} (SKU: ${product.sku || product.id}) which is currently out of stock.`
+              )}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex-1 h-12 bg-[#25D366] hover:bg-[#20bd5a] text-white rounded-xl font-bold text-sm flex items-center justify-center gap-2 active:scale-[0.98] shadow-md shadow-[#25D366]/20"
+            >
+              <WhatsAppIcon className="w-4 h-4 fill-white shrink-0" />
+              <span>Out of Stock — Inquire</span>
+            </a>
+          )}
+        </div>
+
+        {/* ── DESKTOP VIEW: Preserves Thumbnail, Title, Price, Quantity counter, and Actions ── */}
+        <div className="hidden sm:flex max-w-7xl mx-auto items-center justify-between gap-2 sm:gap-4 w-full">
           {/* Left: Product Thumbnail, Title & Live Price */}
           <div className="flex items-center gap-2 sm:gap-4 shrink-0 min-w-0">
-            {/* Thumbnail (Tablet & Desktop) */}
-            <div className="hidden sm:flex relative w-12 h-12 rounded-xl bg-slate-50 border border-slate-200 overflow-hidden shrink-0 items-center justify-center p-1">
+            {/* Thumbnail */}
+            <div className="flex relative w-12 h-12 rounded-xl bg-slate-50 border border-slate-200 overflow-hidden shrink-0 items-center justify-center p-1">
               <img
                 src={galleryImages[0] || product.image}
                 alt={product.name}
@@ -633,8 +692,8 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
           <div className="flex items-center gap-1.5 sm:gap-3 flex-1 sm:flex-initial justify-end min-w-0">
             {isInStock ? (
               <>
-                {/* Quantity Selector: [ - 1 + ] (Tablet & Desktop) */}
-                <div className="hidden sm:flex items-center border border-slate-200 rounded-xl h-10 sm:h-11 bg-white shrink-0 overflow-hidden shadow-2xs">
+                {/* Quantity Selector: [ - 1 + ] */}
+                <div className="flex items-center border border-slate-200 rounded-xl h-10 sm:h-11 bg-white shrink-0 overflow-hidden shadow-2xs">
                   <button
                     type="button"
                     onClick={() => setStickyQuantity((q) => Math.max(1, q - 1))}
@@ -691,11 +750,11 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
                   <span className="truncate">BUY NOW</span>
                 </button>
 
-                {/* Wishlist Button (Tablet & Desktop) */}
+                {/* Wishlist Button */}
                 <button
                   type="button"
                   onClick={() => handleToggleWishlist(product)}
-                  className={`hidden sm:flex h-10 sm:h-11 w-10 sm:w-11 rounded-xl border items-center justify-center shrink-0 transition-all cursor-pointer ${
+                  className={`flex h-10 sm:h-11 w-10 sm:w-11 rounded-xl border items-center justify-center shrink-0 transition-all cursor-pointer ${
                     isProductWishlisted
                       ? "bg-red-50 border-red-200 text-red-500"
                       : "bg-white border-slate-200 hover:border-slate-300 text-slate-400 hover:text-red-500"
