@@ -24,6 +24,8 @@ import {
 Info,
   BatteryCharging,
   Circle,
+  Plane,
+  Store,
 } from "lucide-react";
 import { Product, ProductVariant, getProductStock } from "@/data/mockData";
 import { useUIStore, useCartStore } from "@/store";
@@ -605,60 +607,60 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
         </div>
       </div>
 
-      {/* ── 8. Delivery & Dispatch Options (Interactive: User selects By Air, Land/Surface, or Store Pickup) ── */}
+      {/* ── 8. Delivery & Dispatch Options (Interactive: Compact Mobile & Full Desktop) ── */}
       <div className="pt-2">
-        <div className="rounded-2xl border border-slate-200/90 bg-gradient-to-b from-white to-slate-50/70 p-4 shadow-2xs space-y-3.5">
+        <div className="rounded-2xl border border-slate-200/90 bg-gradient-to-b from-white to-slate-50/70 p-3 sm:p-4 shadow-2xs space-y-2 sm:space-y-3.5">
           {/* Header */}
-          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
+          <div className="flex items-center justify-between gap-2 border-b border-slate-100 pb-2 sm:pb-2.5">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-xl bg-blue-50 border border-blue-100/80 flex items-center justify-center text-[#005CA9]">
-                <Truck className="w-4 h-4" />
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg sm:rounded-xl bg-blue-50 border border-blue-100/80 flex items-center justify-center text-[#005CA9] shrink-0">
+                <Truck className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               </div>
               <div>
-                <div className="flex items-center gap-2">
-                  <h4 className="text-xs sm:text-sm font-bold text-slate-900 tracking-tight">
-                    Select Delivery Mode
-                  </h4>
-                  {product.shippingTag && (
-                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200">
-                      {product.shippingTag}
-                    </span>
-                  )}
-                </div>
-                <p className="text-[11px] text-slate-500 font-medium">
+                <h4 className="text-xs sm:text-sm font-bold text-slate-900 tracking-tight leading-none sm:leading-normal">
+                  Select Delivery Mode
+                </h4>
+                <p className="text-[10px] sm:text-[11px] text-slate-500 font-medium hidden sm:block">
                   Choose your preferred transit mode • Direct from Ranchi Hub
                 </p>
               </div>
             </div>
 
-
+            {product.shippingTag && (
+              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200 shrink-0">
+                {product.shippingTag}
+              </span>
+            )}
           </div>
 
-          {/* Freight Modes Interactive Selection Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+          {/* Freight Modes Interactive Selection Grid (3-column compact pill cards on mobile to save vertical space) */}
+          <div className="grid grid-cols-3 gap-1.5 sm:gap-2.5">
             {/* 1. By Air Freight */}
             <button
               type="button"
               onClick={() => handleSelectDeliveryMode("air")}
-              className={`p-3 rounded-xl border text-left transition-all flex items-center justify-between cursor-pointer relative ${
+              className={`py-2 px-1.5 sm:p-3 rounded-xl border text-center sm:text-left transition-all flex flex-col sm:flex-row items-center sm:justify-between gap-1 cursor-pointer relative ${
                 selectedDeliveryMode === "air" && isAirAllowed
-                  ? "bg-blue-50/60 border-blue-600 ring-2 ring-blue-500/30 shadow-xs"
+                  ? "bg-blue-50/80 border-blue-600 ring-1 sm:ring-2 ring-blue-500/30 shadow-xs"
                   : isAirAllowed
                   ? "bg-white border-slate-200 hover:border-blue-300 hover:bg-slate-50/70 shadow-2xs"
                   : "bg-slate-50/90 border-amber-200/90 hover:border-amber-400 opacity-85"
               }`}
             >
-              <div className="flex items-center gap-1.5 min-w-0">
-                <span className="text-xs font-bold text-slate-900">By Air</span>
+              <div className="flex items-center gap-1 sm:gap-1.5 min-w-0">
+                <Plane className="w-3.5 h-3.5 text-blue-600 sm:hidden shrink-0" />
+                <span className="text-[11px] sm:text-xs font-bold text-slate-900 truncate">
+                  By Air
+                </span>
                 {!isAirAllowed && (
-                  <span className="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 border border-amber-200">
+                  <span className="text-[8px] sm:text-[9px] font-bold uppercase px-1 py-0.5 rounded bg-amber-100 text-amber-800 border border-amber-200">
                     Restricted
                   </span>
                 )}
               </div>
 
               {/* Selection / Warning Indicator */}
-              <div className="shrink-0 ml-1">
+              <div className="shrink-0 ml-1 hidden sm:block">
                 {selectedDeliveryMode === "air" && isAirAllowed ? (
                   <CheckCircle2 className="w-4 h-4 text-blue-600 fill-blue-50" />
                 ) : isAirAllowed ? (
@@ -675,25 +677,28 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
             <button
               type="button"
               onClick={() => handleSelectDeliveryMode("surface")}
-              className={`p-3 rounded-xl border text-left transition-all flex items-center justify-between cursor-pointer relative ${
+              className={`py-2 px-1.5 sm:p-3 rounded-xl border text-center sm:text-left transition-all flex flex-col sm:flex-row items-center sm:justify-between gap-1 cursor-pointer relative ${
                 selectedDeliveryMode === "surface" && isSurfaceAllowed
-                  ? "bg-emerald-50/60 border-emerald-600 ring-2 ring-emerald-500/30 shadow-xs"
+                  ? "bg-emerald-50/80 border-emerald-600 ring-1 sm:ring-2 ring-emerald-500/30 shadow-xs"
                   : isSurfaceAllowed
                   ? "bg-white border-slate-200 hover:border-emerald-300 hover:bg-slate-50/70 shadow-2xs"
                   : "bg-slate-50/90 border-slate-200/80 opacity-70"
               }`}
             >
-              <div className="flex items-center gap-1.5 min-w-0">
-                <span className="text-xs font-bold text-slate-900">By Land / Road</span>
+              <div className="flex items-center gap-1 sm:gap-1.5 min-w-0">
+                <Truck className="w-3.5 h-3.5 text-emerald-600 sm:hidden shrink-0" />
+                <span className="text-[11px] sm:text-xs font-bold text-slate-900 truncate">
+                  By Road
+                </span>
                 {!isSurfaceAllowed && (
-                  <span className="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded bg-slate-100 text-slate-600">
-                    Unavailable
+                  <span className="text-[8px] sm:text-[9px] font-bold uppercase px-1 py-0.5 rounded bg-slate-100 text-slate-600">
+                    N/A
                   </span>
                 )}
               </div>
 
               {/* Selection Indicator */}
-              <div className="shrink-0 ml-1">
+              <div className="shrink-0 ml-1 hidden sm:block">
                 {selectedDeliveryMode === "surface" && isSurfaceAllowed ? (
                   <CheckCircle2 className="w-4 h-4 text-emerald-600 fill-emerald-50" />
                 ) : isSurfaceAllowed ? (
@@ -708,25 +713,28 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
             <button
               type="button"
               onClick={() => handleSelectDeliveryMode("pickup")}
-              className={`p-3 rounded-xl border text-left transition-all flex items-center justify-between cursor-pointer relative ${
+              className={`py-2 px-1.5 sm:p-3 rounded-xl border text-center sm:text-left transition-all flex flex-col sm:flex-row items-center sm:justify-between gap-1 cursor-pointer relative ${
                 selectedDeliveryMode === "pickup" && isLocalPickupAllowed
-                  ? "bg-purple-50/60 border-purple-600 ring-2 ring-purple-500/30 shadow-xs"
+                  ? "bg-purple-50/80 border-purple-600 ring-1 sm:ring-2 ring-purple-500/30 shadow-xs"
                   : isLocalPickupAllowed
                   ? "bg-white border-slate-200 hover:border-purple-300 hover:bg-slate-50/70 shadow-2xs"
                   : "bg-slate-50/90 border-slate-200/80 opacity-70"
               }`}
             >
-              <div className="flex items-center gap-1.5 min-w-0">
-                <span className="text-xs font-bold text-slate-900">Store Pickup</span>
+              <div className="flex items-center gap-1 sm:gap-1.5 min-w-0">
+                <Store className="w-3.5 h-3.5 text-purple-600 sm:hidden shrink-0" />
+                <span className="text-[11px] sm:text-xs font-bold text-slate-900 truncate">
+                  Store Pickup
+                </span>
                 {!isLocalPickupAllowed && (
-                  <span className="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded bg-slate-100 text-slate-600">
-                    Unavailable
+                  <span className="text-[8px] sm:text-[9px] font-bold uppercase px-1 py-0.5 rounded bg-slate-100 text-slate-600">
+                    N/A
                   </span>
                 )}
               </div>
 
               {/* Selection Indicator */}
-              <div className="shrink-0 ml-1">
+              <div className="shrink-0 ml-1 hidden sm:block">
                 {selectedDeliveryMode === "pickup" && isLocalPickupAllowed ? (
                   <CheckCircle2 className="w-4 h-4 text-purple-600 fill-purple-50" />
                 ) : isLocalPickupAllowed ? (
@@ -739,39 +747,39 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
           </div>
 
           {/* Active Selection Summary Banner */}
-          <div className="p-2.5 rounded-xl bg-slate-100/80 border border-slate-200/80 flex items-center justify-between text-xs">
-            <div className="flex items-center gap-2">
-              <span className="text-[10px] font-black uppercase tracking-wider text-slate-500">
-                Selected Mode:
+          <div className="px-2.5 py-1.5 sm:p-2.5 rounded-lg sm:rounded-xl bg-slate-100/80 border border-slate-200/80 flex items-center justify-between text-[11px] sm:text-xs">
+            <div className="flex items-center gap-1.5 sm:gap-2 truncate">
+              <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-wider text-slate-500 shrink-0">
+                Est. Arrival:
               </span>
               {selectedDeliveryMode === "air" && (
-                <span className="font-bold text-blue-700">
-                  Priority Air Flight Dispatch (Est. Arrival: {airDeliveryDate})
+                <span className="font-bold text-blue-700 truncate">
+                  Air Flight ({airDeliveryDate})
                 </span>
               )}
               {selectedDeliveryMode === "surface" && (
-                <span className="font-bold text-emerald-800">
-                  Land / Road Surface Cargo (Est. Arrival: {surfaceDeliveryDate})
+                <span className="font-bold text-emerald-800 truncate">
+                  Road Cargo ({surfaceDeliveryDate})
                 </span>
               )}
               {selectedDeliveryMode === "pickup" && (
-                <span className="font-bold text-purple-800">
-                  Local Store Pickup (Ready in 2 Hours at Ranchi Hub)
+                <span className="font-bold text-purple-800 truncate">
+                  Store Pickup (Ready in 2 Hours)
                 </span>
               )}
             </div>
-            <span className="text-[10px] text-slate-500 hidden sm:inline font-medium">
-              Click any card above to switch
+            <span className="text-[10px] text-slate-500 hidden sm:inline font-medium shrink-0 ml-2">
+              Click above to switch
             </span>
           </div>
 
           {/* Integrated Pincode Checker */}
-          <div className="pt-1">
+          <div className="pt-0.5">
             <form
               onSubmit={handleCheckPincode}
-              className="flex items-center gap-2 p-1.5 bg-white border border-slate-300 rounded-xl shadow-2xs focus-within:border-[#2563EB] focus-within:ring-2 focus-within:ring-blue-100 transition-all"
+              className="flex items-center gap-1.5 p-1 sm:p-1.5 bg-white border border-slate-300 rounded-xl shadow-2xs focus-within:border-[#2563EB] focus-within:ring-2 focus-within:ring-blue-100 transition-all"
             >
-              <Truck className="w-4 h-4 text-slate-400 ml-2.5 shrink-0" />
+              <Truck className="w-3.5 h-3.5 text-slate-400 ml-2 shrink-0" />
               <input
                 type="text"
                 inputMode="numeric"
@@ -783,12 +791,12 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
                   setPincode(val);
                   if (pincodeStatus !== "idle") setPincodeStatus("idle");
                 }}
-                placeholder="Enter 6-digit Pincode to check delivery dates"
-                className="flex-1 px-2 py-1.5 bg-transparent text-xs sm:text-sm font-semibold text-slate-800 placeholder-slate-400 focus:outline-none"
+                placeholder="Enter 6-digit Pincode"
+                className="flex-1 px-1.5 py-1 bg-transparent text-xs sm:text-sm font-semibold text-slate-800 placeholder-slate-400 focus:outline-none min-w-0"
               />
               <button
                 type="submit"
-                className="px-5 py-2 bg-[#0F172A] hover:bg-[#1E293B] active:bg-[#020617] text-white text-xs font-bold rounded-lg shadow-xs transition-colors cursor-pointer shrink-0"
+                className="px-3.5 sm:px-5 py-1.5 sm:py-2 bg-[#0F172A] hover:bg-[#1E293B] active:bg-[#020617] text-white text-xs font-bold rounded-lg shadow-xs transition-colors cursor-pointer shrink-0"
               >
                 Check
               </button>
