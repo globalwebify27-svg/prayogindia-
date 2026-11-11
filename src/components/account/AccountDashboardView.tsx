@@ -175,11 +175,6 @@ export const AccountDashboardView: React.FC = () => {
           badgeColor: "bg-blue-50 text-[#2563EB] border-blue-200/60 font-bold",
         },
         {
-          label: "Download invoice",
-          href: "/account/orders?action=invoice",
-          icon: FileText,
-        },
-        {
           label: "Reward Program",
           href: "/account/rewards",
           icon: Award,
