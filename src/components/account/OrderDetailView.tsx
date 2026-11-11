@@ -21,11 +21,54 @@ import {
   ShieldCheck,
   CreditCard,
   PhoneCall,
-DollarSign,
+  DollarSign,
   AlertCircle,
   Star,
   Loader2,
+  Download,
+  Printer,
 } from "lucide-react";
+import {
+  ProfessionalBillModal,
+  BillOrder,
+} from "@/components/invoice/ProfessionalBillModal";
+
+function customerOrderToBillOrder(ord: CustomerOrder): BillOrder {
+  const subtotal = ord.subtotal || Math.round(ord.totalAmount / 1.18);
+  const tax = ord.gstAmount || Math.round(ord.totalAmount - subtotal);
+  return {
+    id: ord.id,
+    orderNumber: ord.orderNumber,
+    invoiceNo: `INV-2024-${ord.orderNumber.replace(/[^0-9]/g, "").slice(-4) || "8841"}`,
+    billNo: ord.orderNumber,
+    date: ord.date || new Date().toLocaleDateString("en-IN"),
+    createdAt: ord.date,
+    customerName: "Tux (Prayog Customer)",
+    customerPhone: "+91 87097 89641",
+    customerEmail: "tuxgaming003@gmail.com",
+    shippingAddress: ord.shippingAddress,
+    customerGstin: "20AAECP1234F1Z5",
+    paymentMode: "UPI / NetBanking",
+    items: (ord.items || []).map((item) => ({
+      id: item.id,
+      name: item.name,
+      sku: item.sku,
+      quantity: item.quantity,
+      price: item.price,
+      rate: item.price,
+      unitPrice: item.price,
+      total: item.price * item.quantity,
+    })),
+    subtotal,
+    tax,
+    total: ord.totalAmount,
+    totalAmount: ord.totalAmount,
+    discount: ord.discountAmount || 0,
+    storeCode: "RANCHI",
+    storeName: "Prayog India Ranchi Hub",
+    status: ord.status,
+  };
+}
 
 interface OrderDetailProps {
   orderId: string;
@@ -73,6 +116,7 @@ export const OrderDetailView: React.FC<OrderDetailProps> = ({ orderId }) => {
   const [submittingReview, setSubmittingReview] = useState(false);
   const [reviewSuccess, setReviewSuccess] = useState<string | null>(null);
   const [reviewError, setReviewError] = useState<string | null>(null);
+  const [showInvoiceModal, setShowInvoiceModal] = useState(false);
 
   // Fetch live order details from /api/orders/[id]
   useEffect(() => {
@@ -374,25 +418,37 @@ export const OrderDetailView: React.FC<OrderDetailProps> = ({ orderId }) => {
             </p>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <button
+              type="button"
+              onClick={() => setShowInvoiceModal(true)}
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-blue-50 hover:bg-blue-100 border border-blue-200/90 text-[#2563EB] text-xs font-bold transition-all shadow-2xs active:scale-95 cursor-pointer"
+              title="View and download GST Tax Invoice"
+            >
+              <Download className="w-3.5 h-3.5 text-[#2563EB]" />
+              <span>Download Invoice</span>
+            </button>
+
+            <button
+              type="button"
               onClick={() =>
                 window.open(
                   `/api/invoices/${order.id}?format=html&print=true`,
                   "_blank",
                 )
               }
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 hover:border-slate-300 bg-white hover:bg-slate-50 text-xs font-semibold text-slate-700 transition-colors cursor-pointer shadow-2xs"
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 hover:border-slate-300 bg-white hover:bg-slate-50 text-xs font-semibold text-slate-700 transition-colors cursor-pointer shadow-2xs"
+              title="Print Tax Invoice / Save as PDF in new tab"
             >
-              <FileText className="w-3.5 h-3.5 text-slate-500" />
-              <span>Download Invoice</span>
+              <Printer className="w-3.5 h-3.5 text-slate-500" />
+              <span className="hidden sm:inline">Print / PDF</span>
             </button>
 
             <a
               href={`https://wa.me/918709789641?text=${encodeURIComponent(`Hi Prayog India, I need help with my Order #${order.orderNumber}.`)}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-emerald-200 bg-emerald-50 hover:bg-emerald-100 text-xs font-semibold text-emerald-700 transition-colors shadow-2xs"
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-emerald-200 bg-emerald-50 hover:bg-emerald-100 text-xs font-semibold text-emerald-700 transition-colors shadow-2xs"
             >
               <span>WhatsApp Support</span>
             </a>
@@ -591,12 +647,45 @@ export const OrderDetailView: React.FC<OrderDetailProps> = ({ orderId }) => {
               <span className="text-[#2563EB]">₹{order.totalAmount.toLocaleString("en-IN")}</span>
             </div>
           </div>
+
+          {/* Official GST Tax Invoice Card */}
+          <div className="pt-2 border-t border-slate-100 mt-2">
+            <div className="flex items-center justify-between p-2.5 rounded-xl bg-blue-50/70 border border-blue-200/60">
+              <div className="flex items-center gap-2">
+                <div className="w-7 h-7 rounded-lg bg-blue-100 text-[#2563EB] flex items-center justify-center shrink-0">
+                  <FileText className="w-3.5 h-3.5" />
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-slate-900 leading-tight">Tax Invoice (GST)</p>
+                  <p className="text-[10px] text-slate-500">Includes 18% ITC breakdown</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowInvoiceModal(true)}
+                className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-[11px] font-bold shadow-2xs cursor-pointer transition-all active:scale-95"
+              >
+                <Download className="w-3 h-3" />
+                <span>Download</span>
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
       {/* 5. Customer Order Actions */}
       <div className="pt-2">
         <div className="flex flex-wrap items-center gap-2">
+          {/* Download Tax Invoice Action */}
+          <button
+            type="button"
+            onClick={() => setShowInvoiceModal(true)}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-blue-200 bg-blue-50 hover:bg-blue-100 text-[#2563EB] text-xs font-bold transition-all shadow-2xs active:scale-95 cursor-pointer"
+          >
+            <Download className="w-3.5 h-3.5 text-[#2563EB]" />
+            <span>Download Invoice</span>
+          </button>
+
           {/* Reorder Action */}
           <button
             onClick={handleReorder}
@@ -831,6 +920,13 @@ export const OrderDetailView: React.FC<OrderDetailProps> = ({ orderId }) => {
             )}
           </div>
         </div>
+      )}
+      {/* 8. Professional Bill & Tax Invoice Modal */}
+      {showInvoiceModal && (
+        <ProfessionalBillModal
+          order={customerOrderToBillOrder(order)}
+          onClose={() => setShowInvoiceModal(false)}
+        />
       )}
     </div>
   );

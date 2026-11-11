@@ -16,7 +16,49 @@ import {
   Package,
   ChevronRight,
   MapPin,
+  Download,
 } from "lucide-react";
+import {
+  ProfessionalBillModal,
+  BillOrder,
+} from "@/components/invoice/ProfessionalBillModal";
+
+function customerOrderToBillOrder(ord: CustomerOrder): BillOrder {
+  const subtotal = ord.subtotal || Math.round(ord.totalAmount / 1.18);
+  const tax = ord.gstAmount || Math.round(ord.totalAmount - subtotal);
+  return {
+    id: ord.id,
+    orderNumber: ord.orderNumber,
+    invoiceNo: `INV-2024-${ord.orderNumber.replace(/[^0-9]/g, "").slice(-4) || "8841"}`,
+    billNo: ord.orderNumber,
+    date: ord.date || new Date().toLocaleDateString("en-IN"),
+    createdAt: ord.date,
+    customerName: "Tux (Prayog Customer)",
+    customerPhone: "+91 87097 89641",
+    customerEmail: "tuxgaming003@gmail.com",
+    shippingAddress: ord.shippingAddress,
+    customerGstin: "20AAECP1234F1Z5",
+    paymentMode: "UPI / NetBanking",
+    items: (ord.items || []).map((item) => ({
+      id: item.id,
+      name: item.name,
+      sku: item.sku,
+      quantity: item.quantity,
+      price: item.price,
+      rate: item.price,
+      unitPrice: item.price,
+      total: item.price * item.quantity,
+    })),
+    subtotal,
+    tax,
+    total: ord.totalAmount,
+    totalAmount: ord.totalAmount,
+    discount: ord.discountAmount || 0,
+    storeCode: "RANCHI",
+    storeName: "Prayog India Ranchi Hub",
+    status: ord.status,
+  };
+}
 
 function formatStatus(status: string): CustomerOrder["status"] {
   switch (status) {
@@ -71,6 +113,17 @@ export const OrdersList: React.FC = () => {
   const router = useRouter();
   const [orders, setOrders] = useState<CustomerOrder[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedInvoiceOrder, setSelectedInvoiceOrder] = useState<CustomerOrder | null>(null);
+  const [isInvoiceAction, setIsInvoiceAction] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("action") === "invoice") {
+        setIsInvoiceAction(true);
+      }
+    }
+  }, []);
 
   useEffect(() => {
     async function loadOrders() {
@@ -186,6 +239,25 @@ export const OrdersList: React.FC = () => {
         </Link>
       </div>
 
+      {/* Invoice Mode Guidance Banner */}
+      {isInvoiceAction && (
+        <div className="bg-sky-50 border border-sky-200/80 rounded-xl p-3 flex items-center justify-between gap-3 text-xs text-slate-700 animate-in fade-in">
+          <div className="flex items-center gap-2">
+            <FileText className="w-4 h-4 text-[#2563EB] shrink-0" />
+            <span>
+              <strong>Download Invoices:</strong> Tap <strong>Invoice</strong> on any order below or click into the order to download your official GST invoice.
+            </span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setIsInvoiceAction(false)}
+            className="text-slate-400 hover:text-slate-600 text-xs font-bold p-1 cursor-pointer"
+          >
+            ✕
+          </button>
+        </div>
+      )}
+
       {loading ? (
         <div className="p-8 text-center text-xs text-slate-400 bg-white rounded-2xl border border-slate-200/80 animate-pulse">
           Loading your orders...
@@ -252,7 +324,21 @@ export const OrdersList: React.FC = () => {
                     </div>
                   </div>
 
-                  <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-slate-700 group-hover:translate-x-0.5 transition-all shrink-0" />
+                  <div className="flex items-center gap-2 shrink-0">
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedInvoiceOrder(ord);
+                      }}
+                      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-slate-200/90 hover:border-blue-300 bg-white hover:bg-blue-50 text-slate-700 hover:text-[#2563EB] text-xs font-semibold transition-all shadow-2xs cursor-pointer active:scale-95"
+                      title="Download GST Tax Invoice"
+                    >
+                      <FileText className="w-3.5 h-3.5 text-[#2563EB]" />
+                      <span>Invoice</span>
+                    </button>
+                    <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-slate-700 group-hover:translate-x-0.5 transition-all shrink-0" />
+                  </div>
                 </div>
 
                 {/* Bottom Row: Product Thumbnails */}
@@ -278,6 +364,14 @@ export const OrdersList: React.FC = () => {
             );
           })}
         </div>
+      )}
+
+      {/* Bill & Tax Invoice Modal */}
+      {selectedInvoiceOrder && (
+        <ProfessionalBillModal
+          order={customerOrderToBillOrder(selectedInvoiceOrder)}
+          onClose={() => setSelectedInvoiceOrder(null)}
+        />
       )}
     </div>
   );

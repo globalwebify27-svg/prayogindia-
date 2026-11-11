@@ -42,6 +42,9 @@ export interface BillOrder {
   customerName?: string;
   customerPhone?: string;
   customerEmail?: string;
+  customerAddress?: string;
+  shippingAddress?: string;
+  customerGstin?: string;
   storeCode?: string;
   storeLocation?: string;
   storeName?: string;
@@ -53,6 +56,7 @@ export interface BillOrder {
   totalAmount?: number;
   total?: number;
   subtotal?: number;
+  tax?: number;
   discount?: number;
   discountPercent?: number;
   receivedAmount?: number;

@@ -176,7 +176,7 @@ export const AccountDashboardView: React.FC = () => {
         },
         {
           label: "Download invoice",
-          href: "/account/orders",
+          href: "/account/orders?action=invoice",
           icon: FileText,
         },
         {
