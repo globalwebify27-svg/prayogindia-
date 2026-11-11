@@ -147,6 +147,56 @@ const THEMES: Record<
   },
 };
 
+const MOBILE_THEMES: Record<
+  string,
+  {
+    bg: string;
+    border: string;
+    shadow: string;
+  }
+> = {
+  blue: {
+    bg: "bg-gradient-to-b from-blue-50/95 via-blue-50/60 to-blue-100/40",
+    border: "border-blue-200/70",
+    shadow: "shadow-[0_2px_8px_-2px_rgba(37,99,235,0.12)]",
+  },
+  teal: {
+    bg: "bg-gradient-to-b from-teal-50/95 via-teal-50/60 to-teal-100/40",
+    border: "border-teal-200/70",
+    shadow: "shadow-[0_2px_8px_-2px_rgba(13,148,136,0.12)]",
+  },
+  purple: {
+    bg: "bg-gradient-to-b from-purple-50/95 via-purple-50/60 to-purple-100/40",
+    border: "border-purple-200/70",
+    shadow: "shadow-[0_2px_8px_-2px_rgba(147,51,234,0.12)]",
+  },
+  amber: {
+    bg: "bg-gradient-to-b from-amber-50/95 via-amber-50/60 to-amber-100/40",
+    border: "border-amber-200/70",
+    shadow: "shadow-[0_2px_8px_-2px_rgba(217,119,6,0.12)]",
+  },
+  indigo: {
+    bg: "bg-gradient-to-b from-indigo-50/95 via-indigo-50/60 to-indigo-100/40",
+    border: "border-indigo-200/70",
+    shadow: "shadow-[0_2px_8px_-2px_rgba(79,70,229,0.12)]",
+  },
+  emerald: {
+    bg: "bg-gradient-to-b from-emerald-50/95 via-emerald-50/60 to-emerald-100/40",
+    border: "border-emerald-200/70",
+    shadow: "shadow-[0_2px_8px_-2px_rgba(5,150,105,0.12)]",
+  },
+  rose: {
+    bg: "bg-gradient-to-b from-rose-50/95 via-rose-50/60 to-rose-100/40",
+    border: "border-rose-200/70",
+    shadow: "shadow-[0_2px_8px_-2px_rgba(225,29,72,0.12)]",
+  },
+  cyan: {
+    bg: "bg-gradient-to-b from-sky-50/95 via-sky-50/60 to-sky-100/40",
+    border: "border-sky-200/70",
+    shadow: "shadow-[0_2px_8px_-2px_rgba(2,132,199,0.12)]",
+  },
+};
+
 function getBadgeIcon(icon?: string) {
   switch (icon) {
     case "robot":
@@ -169,259 +219,6 @@ function getBadgeIcon(icon?: string) {
       return <Layers className="w-3 sm:w-3 lg:w-3.5 lg:h-3.5" />;
   }
 }
-interface DraggableMarqueeProps {
-  items: CategoryCardItem[];
-  direction: "left" | "right";
-  onSelectCategory?: (category: string) => void;
-  speed?: number;
-  rowId: string;
-}
-
-const DraggableContinuousMarquee: React.FC<DraggableMarqueeProps> = ({
-  items,
-  direction,
-  onSelectCategory,
-  speed = 34,
-  rowId,
-}) => {
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const isHoveredRef = useRef(false);
-  const isDraggingRef = useRef(false);
-  const startXRef = useRef(0);
-  const startScrollLeftRef = useRef(0);
-  const hasMovedRef = useRef(false);
-  const rafIdRef = useRef<number | null>(null);
-  const resumeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-
-  const getMetrics = () => {
-    const container = scrollRef.current;
-    if (!container || items.length === 0) return { cardWidth: 185, singleSetWidth: 740 };
-    const card = container.querySelector<HTMLElement>("[data-marquee-card]");
-    const cardWidth = card ? card.offsetWidth + 10 : 185;
-    return { cardWidth, singleSetWidth: items.length * cardWidth };
-  };
-
-  // Initial scroll setup so we have runway in both directions
-  useEffect(() => {
-    const container = scrollRef.current;
-    if (!container || items.length === 0) return;
-    const { singleSetWidth } = getMetrics();
-    if (container.scrollLeft === 0) {
-      container.scrollLeft = direction === "right" ? singleSetWidth * 2 : singleSetWidth;
-    }
-  }, [items.length, direction]);
-
-  // Continuous frame-rate independent animation loop
-  useEffect(() => {
-    const container = scrollRef.current;
-    if (!container || items.length === 0) return;
-
-    let lastTime = performance.now();
-
-    const animate = (currentTime: number) => {
-      const deltaTime = Math.min(currentTime - lastTime, 50);
-      lastTime = currentTime;
-
-      if (!isHoveredRef.current && !isDraggingRef.current && container) {
-        const { singleSetWidth } = getMetrics();
-        const deltaPixels = (speed * deltaTime) / 1000;
-
-        if (direction === "left") {
-          container.scrollLeft += deltaPixels;
-          // Circular Linked List infinite wrap
-          if (container.scrollLeft >= singleSetWidth * 2.5) {
-            container.scrollLeft -= singleSetWidth;
-          }
-        } else {
-          container.scrollLeft -= deltaPixels;
-          // Circular Linked List infinite wrap
-          if (container.scrollLeft <= singleSetWidth * 0.5) {
-            container.scrollLeft += singleSetWidth;
-          }
-        }
-      }
-
-      rafIdRef.current = requestAnimationFrame(animate);
-    };
-
-    rafIdRef.current = requestAnimationFrame(animate);
-
-    return () => {
-      if (rafIdRef.current) cancelAnimationFrame(rafIdRef.current);
-      if (resumeTimeoutRef.current) clearTimeout(resumeTimeoutRef.current);
-    };
-  }, [items.length, direction, speed]);
-
-  // Boundary check during manual dragging so user can drag indefinitely
-  const checkCircularBoundary = () => {
-    const container = scrollRef.current;
-    if (!container || items.length === 0) return;
-    const { singleSetWidth } = getMetrics();
-
-    if (container.scrollLeft >= singleSetWidth * 2.8) {
-      container.scrollLeft -= singleSetWidth;
-      startScrollLeftRef.current -= singleSetWidth;
-    } else if (container.scrollLeft <= singleSetWidth * 0.2) {
-      container.scrollLeft += singleSetWidth;
-      startScrollLeftRef.current += singleSetWidth;
-    }
-  };
-
-  // Mouse Drag Handlers
-  const handleMouseDown = (e: React.MouseEvent) => {
-    const container = scrollRef.current;
-    if (!container) return;
-    isDraggingRef.current = true;
-    hasMovedRef.current = false;
-    startXRef.current = e.pageX;
-    startScrollLeftRef.current = container.scrollLeft;
-  };
-
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (!isDraggingRef.current) return;
-    const container = scrollRef.current;
-    if (!container) return;
-    const delta = e.pageX - startXRef.current;
-    if (Math.abs(delta) > 4) {
-      hasMovedRef.current = true;
-    }
-    container.scrollLeft = startScrollLeftRef.current - delta;
-    checkCircularBoundary();
-  };
-
-  const handleMouseUp = () => {
-    if (!isDraggingRef.current) return;
-    isDraggingRef.current = false;
-    if (resumeTimeoutRef.current) clearTimeout(resumeTimeoutRef.current);
-    resumeTimeoutRef.current = setTimeout(() => {
-      isDraggingRef.current = false;
-    }, 1200);
-  };
-
-  // Touch Handlers
-  const handleTouchStart = (e: React.TouchEvent) => {
-    const container = scrollRef.current;
-    if (!container) return;
-    isDraggingRef.current = true;
-    hasMovedRef.current = false;
-    startXRef.current = e.touches[0].pageX;
-    startScrollLeftRef.current = container.scrollLeft;
-  };
-
-  const handleTouchMove = (e: React.TouchEvent) => {
-    const container = scrollRef.current;
-    if (!container || !isDraggingRef.current) return;
-    const delta = e.touches[0].pageX - startXRef.current;
-    if (Math.abs(delta) > 5) {
-      hasMovedRef.current = true;
-    }
-    container.scrollLeft = startScrollLeftRef.current - delta;
-    checkCircularBoundary();
-  };
-
-  const handleTouchEnd = () => {
-    if (resumeTimeoutRef.current) clearTimeout(resumeTimeoutRef.current);
-    resumeTimeoutRef.current = setTimeout(() => {
-      isDraggingRef.current = false;
-    }, 1600);
-  };
-
-  return (
-    <div
-      className="relative overflow-hidden w-full select-none cursor-grab active:cursor-grabbing"
-      style={{
-        maskImage:
-          "linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%)",
-        WebkitMaskImage:
-          "linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%)",
-      }}
-      onMouseEnter={() => {
-        isHoveredRef.current = true;
-      }}
-      onMouseLeave={() => {
-        isHoveredRef.current = false;
-        handleMouseUp();
-      }}
-      onMouseDown={handleMouseDown}
-      onMouseMove={handleMouseMove}
-      onMouseUp={handleMouseUp}
-      onTouchStart={handleTouchStart}
-      onTouchMove={handleTouchMove}
-      onTouchEnd={handleTouchEnd}
-    >
-      <div
-        ref={scrollRef}
-        className="flex gap-2.5 overflow-x-hidden no-scrollbar py-0.5"
-        style={{
-          scrollBehavior: "auto",
-          touchAction: "pan-y",
-          WebkitOverflowScrolling: "touch",
-        }}
-      >
-        {[0, 1, 2, 3].flatMap((loopIdx) =>
-          items.map((cat, idx) => {
-            const theme = THEMES[cat.themeColor || "blue"] || THEMES.blue;
-            const uniqueKey = `${cat.id}-${rowId}-loop-${loopIdx}-${idx}`;
-
-            return (
-              <Link
-                key={uniqueKey}
-                href={cat.href}
-                data-marquee-card="true"
-                draggable={false}
-                onClick={(e) => {
-                  if (hasMovedRef.current) {
-                    e.preventDefault();
-                    return;
-                  }
-                  if (onSelectCategory) {
-                    e.preventDefault();
-                    onSelectCategory(cat.name);
-                  }
-                }}
-                className={`relative flex items-center gap-2 px-2.5 py-1 rounded-xl border shadow-2xs hover:shadow-xs transition-shadow duration-200 w-[172px] h-[48px] shrink-0 group select-none pointer-events-auto ${
-                  theme.mobileBg ||
-                  "bg-gradient-to-r from-blue-50/70 via-slate-50/50 to-white border-blue-100/70"
-                }`}
-              >
-                {/* Left: Product Cutout Image */}
-                <div className="relative w-8.5 h-8.5 shrink-0 flex items-center justify-center pointer-events-none">
-                  <Image
-                    src={cat.image}
-                    alt={cat.imageAlt || cat.name}
-                    fill
-                    draggable={false}
-                    sizes="36px"
-                    className="object-contain drop-shadow-xs group-hover:scale-108 transition-transform duration-300 pointer-events-none select-none"
-                    style={
-                      {
-                        pointerEvents: "none",
-                        userSelect: "none",
-                        WebkitUserDrag: "none",
-                      } as React.CSSProperties
-                    }
-                  />
-                </div>
-
-                {/* Center: Title & Product Count */}
-                <div className="flex-1 min-w-0 pointer-events-none">
-                  <h3 className="font-bold text-[11px] text-slate-900 tracking-tight leading-tight truncate group-hover:text-[#2563EB] transition-colors">
-                    {cat.name}
-                  </h3>
-                  {cat.productCount && (
-                    <p className="text-[9px] font-medium text-slate-400 mt-0.5 leading-none truncate">
-                      {cat.productCount}
-                    </p>
-                  )}
-                </div>
-              </Link>
-            );
-          })
-        )}
-      </div>
-    </div>
-  );
-};
 
 export const ShopByCategory: React.FC<Props> = ({ onSelectCategory }) => {
   const [categories, setCategories] = useState<CategoryCardItem[]>(
@@ -480,27 +277,55 @@ export const ShopByCategory: React.FC<Props> = ({ onSelectCategory }) => {
           </div>
         </div>
 
-        {/* Mobile View (< sm): Continuous Smooth Circular Linked-List Marquee with Mouse & Touch Drag */}
-        <div className="block sm:hidden space-y-2.5 select-none">
-          {/* Row 1: Right-to-Left Continuous Smooth Circular Linked List */}
-          <DraggableContinuousMarquee
-            items={topRow}
-            direction="left"
-            speed={32}
-            rowId="top"
-            onSelectCategory={onSelectCategory}
-          />
+        {/* Mobile View (< sm): Clean, Unique App-Style Squircle Category Grid */}
+        <div className="block sm:hidden select-none pt-1 pb-1.5">
+          <div className="grid grid-cols-4 gap-x-2 gap-y-3.5">
+            {categories.slice(0, 8).map((cat) => {
+              const theme =
+                MOBILE_THEMES[cat.themeColor || "blue"] || MOBILE_THEMES.blue;
 
-          {/* Row 2: Left-to-Right Continuous Smooth Circular Linked List */}
-          {bottomRow.length > 0 && (
-            <DraggableContinuousMarquee
-              items={bottomRow}
-              direction="right"
-              speed={32}
-              rowId="bottom"
-              onSelectCategory={onSelectCategory}
-            />
-          )}
+              return (
+                <Link
+                  key={`mobile-cat-${cat.id}`}
+                  href={cat.href}
+                  onClick={(e) => {
+                    if (onSelectCategory) {
+                      e.preventDefault();
+                      onSelectCategory(cat.name);
+                    }
+                  }}
+                  className="flex flex-col items-center group cursor-pointer text-center select-none"
+                >
+                  {/* Top: Soft Pastel Squircle with 3D Component Cutout */}
+                  <div
+                    className={`relative w-[60px] h-[60px] rounded-2xl flex items-center justify-center border transition-all duration-200 active:scale-90 group-hover:scale-105 ${theme.bg} ${theme.border} ${theme.shadow}`}
+                  >
+                    <div className="relative w-10 h-10 flex items-center justify-center pointer-events-none">
+                      <Image
+                        src={cat.image}
+                        alt={cat.imageAlt || cat.name}
+                        fill
+                        sizes="48px"
+                        className="object-contain drop-shadow-xs transition-transform duration-300 group-hover:scale-110 pointer-events-none select-none"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Bottom: Crisp Category Title & Product Count */}
+                  <div className="w-full mt-1.5 px-0.5 flex flex-col items-center pointer-events-none">
+                    <span className="text-[10.5px] font-semibold text-slate-800 leading-tight text-center line-clamp-2 min-h-[26px] flex items-center justify-center group-hover:text-[#2563EB] transition-colors">
+                      {cat.name}
+                    </span>
+                    {cat.productCount && (
+                      <span className="text-[8.5px] font-medium text-slate-400 mt-0.5 leading-none">
+                        {cat.productCount}
+                      </span>
+                    )}
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
         </div>
 
         {/* Desktop View (>= sm): Grid Layout */}
