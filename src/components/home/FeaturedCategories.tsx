@@ -808,10 +808,10 @@ export const FeaturedCategories: React.FC<Props> = ({
   };
 
   return (
-    <section className="pt-3 sm:pt-6 pb-6 sm:pb-8 lg:py-10 bg-white select-none">
-      <div className="w-full px-3.5 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 space-y-3 sm:space-y-6">
+    <section className="pt-0.5 sm:pt-6 pb-4 sm:pb-8 lg:py-10 bg-white select-none">
+      <div className="w-full px-3.5 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 space-y-1.5 sm:space-y-6">
         {/* Section Header: Title + Subtitle on Left, Category Tabs on Right */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between border-b border-slate-100 pb-2 sm:pb-3 gap-2 sm:gap-3">
+        <div className="flex flex-col md:flex-row md:items-end justify-between border-b border-slate-100 pb-1.5 sm:pb-3 gap-1.5 sm:gap-3">
           <div className="flex items-center gap-3">
             <div>
               <div className="flex items-center gap-2.5">

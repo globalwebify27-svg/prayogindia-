@@ -247,13 +247,13 @@ export const ShopByCategory: React.FC<Props> = ({ onSelectCategory }) => {
   const bottomRow = categories.slice(4, 8);
 
   return (
-    <section className="pt-3 sm:pt-4 pb-4 sm:pb-6 bg-white touch-pan-y" style={{ touchAction: "pan-y" }}>
-      <div className="w-full px-3 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 space-y-1.5 sm:space-y-2 lg:space-y-2.5 touch-pan-y">
+    <section className="pt-1.5 sm:pt-4 pb-0.5 sm:pb-6 bg-white touch-pan-y" style={{ touchAction: "pan-y" }}>
+      <div className="w-full px-3 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 space-y-1 sm:space-y-2 lg:space-y-2.5 touch-pan-y">
         {/* Section Header */}
-        <div className="flex items-center justify-between pb-1">
-          <div className="flex items-center gap-2">
-            <span className="w-1 h-4 sm:h-5 bg-[#2563EB] rounded-full inline-block" />
-            <h2 className="text-base sm:text-xl lg:text-2xl font-bold text-slate-900 tracking-tight">
+        <div className="flex items-center justify-between pb-0 sm:pb-1">
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            <span className="w-1 h-3.5 sm:h-5 bg-[#2563EB] rounded-full inline-block" />
+            <h2 className="text-sm sm:text-xl lg:text-2xl font-bold text-slate-900 tracking-tight">
               Shop by Category
             </h2>
           </div>
@@ -269,9 +269,9 @@ export const ShopByCategory: React.FC<Props> = ({ onSelectCategory }) => {
           </div>
         </div>
 
-        {/* Mobile View (< sm): Smooth Horizontal Scroll of Category Cards (At least 4 cards visible) */}
-        <div className="block sm:hidden select-none -mx-3 px-3 pt-0.5 pb-2">
-          <div className="flex gap-1.5 xs:gap-2 overflow-x-auto no-scrollbar scroll-smooth snap-x snap-mandatory py-1 px-0.5">
+        {/* Mobile View (< sm): Smooth Horizontal Scroll of Category Cards (At least 4 cards visible, compact spacing) */}
+        <div className="block sm:hidden select-none -mx-3 px-3 pt-0 pb-0.5">
+          <div className="flex gap-1.5 xs:gap-2 overflow-x-auto no-scrollbar scroll-smooth snap-x snap-mandatory py-0.5 px-0.5">
             {categories.map((cat) => {
               const theme =
                 CARD_THEMES[cat.themeColor || "blue"] || CARD_THEMES.blue;
@@ -286,10 +286,10 @@ export const ShopByCategory: React.FC<Props> = ({ onSelectCategory }) => {
                       onSelectCategory(cat.name);
                     }
                   }}
-                  className={`snap-start w-[calc(25%-5px)] min-w-[70px] max-w-[105px] shrink-0 rounded-xl xs:rounded-2xl p-1.5 xs:p-2 flex flex-col justify-between border shadow-2xs hover:shadow-xs transition-all duration-200 active:scale-[0.98] group cursor-pointer select-none ${theme.bg} ${theme.border}`}
+                  className={`snap-start w-[calc(25%-5px)] min-w-[70px] max-w-[105px] shrink-0 rounded-xl xs:rounded-2xl p-1.5 xs:p-2 flex flex-col border shadow-2xs hover:shadow-xs transition-all duration-200 active:scale-[0.98] group cursor-pointer select-none ${theme.bg} ${theme.border}`}
                 >
                   {/* Top: Inner Translucent White Container with Product Cutout */}
-                  <div className="relative w-full h-[52px] xs:h-[62px] rounded-lg xs:rounded-xl bg-white/80 backdrop-blur-xs flex items-center justify-center p-1 shadow-2xs border border-white/60 mb-1 xs:mb-1.5 overflow-hidden">
+                  <div className="relative w-full h-[48px] xs:h-[58px] rounded-lg xs:rounded-xl bg-white/80 backdrop-blur-xs flex items-center justify-center p-1 shadow-2xs border border-white/60 mb-1 overflow-hidden">
                     <div className="relative w-full h-full flex items-center justify-center pointer-events-none">
                       <Image
                         src={cat.image}
@@ -302,21 +302,21 @@ export const ShopByCategory: React.FC<Props> = ({ onSelectCategory }) => {
                   </div>
 
                   {/* Bottom: Title, Product Count, and Bottom-Right Circular Arrow Button */}
-                  <div className="flex flex-col justify-between flex-1 mt-auto">
-                    <h3 className="font-bold text-[9.5px] xs:text-[10.5px] text-slate-900 leading-tight line-clamp-2 min-h-[22px] flex items-center group-hover:text-[#2563EB] transition-colors">
+                  <div className="flex flex-col justify-between flex-1">
+                    <h3 className="font-bold text-[9.5px] xs:text-[10.5px] text-slate-900 leading-tight line-clamp-2 group-hover:text-[#2563EB] transition-colors">
                       {cat.name}
                     </h3>
 
                     <div className="flex items-center justify-between gap-0.5 mt-1 pt-0.5 border-t border-slate-100/50">
                       {cat.productCount ? (
                         <p className="text-[7.5px] xs:text-[8.5px] text-slate-500 font-medium leading-none truncate">
-                          {cat.productCount}
+                          {cat.productCount.replace("Products", "").trim() + " items"}
                         </p>
                       ) : (
                         <span />
                       )}
 
-                      <div className="w-4.5 h-4.5 xs:w-5 xs:h-5 rounded-full bg-white shadow-2xs border border-slate-100 flex items-center justify-center text-slate-800 shrink-0 group-hover:bg-[#2563EB] group-hover:text-white transition-all duration-200">
+                      <div className="w-4 h-4 xs:w-4.5 xs:h-4.5 rounded-full bg-white shadow-2xs border border-slate-100 flex items-center justify-center text-slate-800 shrink-0 group-hover:bg-[#2563EB] group-hover:text-white transition-all duration-200">
                         <ArrowRight className="w-2.5 h-2.5 xs:w-3 xs:h-3 stroke-[2.5]" />
                       </div>
                     </div>
