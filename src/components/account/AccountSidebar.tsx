@@ -39,73 +39,63 @@ export const AccountSidebar: React.FC = () => {
   ];
 
   return (
-    <aside className="bg-white rounded-3xl border border-slate-200/90 p-4 sm:p-5 shadow-2xs space-y-4">
-      {/* User Header in Sidebar */}
-      <div className="p-3 bg-slate-50/70 rounded-2xl border border-slate-100 flex items-center gap-3">
-        <div className="w-10 h-10 rounded-xl bg-[#0A1128] text-white flex items-center justify-center font-extrabold text-xs shrink-0 shadow-2xs">
-          {user?.name
-            ? user.name
-                .trim()
-                .split(/\s+/)
-                .map((n) => n[0])
-                .slice(0, 2)
-                .join("")
-                .toUpperCase()
-            : "OK"}
-        </div>
-        <div className="min-w-0 flex-1">
-          <h4 className="text-xs font-extrabold text-slate-900 truncate">
-            {user?.name || "Customer"}
-          </h4>
-          <span className="text-[10px] text-slate-500 truncate block">
-            {user?.email || "customer@prayog.in"}
+    <aside className="w-full h-full flex flex-col justify-between bg-white select-none">
+      <div>
+        {/* User Header in Sidebar (Matching Image 1: Phone / User Identifier) */}
+        <div className="p-4 sm:p-5 border-b border-slate-100">
+          <span className="text-xs sm:text-sm font-extrabold text-slate-900 tracking-tight block truncate">
+            {user?.phone || "+91 87097 89641"}
+          </span>
+          <span className="text-[11px] text-slate-400 block truncate mt-0.5">
+            {user?.name ? `${user.name} • Prayog Customer` : user?.email || "customer@prayog.in"}
           </span>
         </div>
+
+        {/* Sidebar Links matching Image 1: Clean vertical list with icons */}
+        <nav className="py-2">
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            const isActive =
+              item.href === "/account"
+                ? pathname === "/account"
+                : pathname === item.href ||
+                  (item.href !== "/account" && pathname.startsWith(item.href));
+
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`flex items-center gap-3 px-5 py-3 text-xs font-semibold transition-all border-l-3 ${
+                  isActive
+                    ? "bg-slate-50 text-[#0A1128] font-extrabold border-l-[#0A1128]"
+                    : "text-slate-600 hover:bg-slate-50/70 hover:text-slate-900 border-l-transparent"
+                }`}
+              >
+                <Icon
+                  className={`w-4 h-4 shrink-0 ${
+                    isActive ? "text-[#0A1128]" : "text-slate-400"
+                  }`}
+                />
+                <span className="truncate">{item.label}</span>
+              </Link>
+            );
+          })}
+        </nav>
       </div>
 
-      {/* Sidebar Links */}
-      <nav className="space-y-1">
-        {navItems.map((item) => {
-          const Icon = item.icon;
-          const isActive =
-            item.href === "/account"
-              ? pathname === "/account"
-              : pathname === item.href ||
-                (item.href !== "/account" && pathname.startsWith(item.href));
-
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-bold transition-all ${
-                isActive
-                  ? "bg-[#0A1128] text-white shadow-xs"
-                  : "text-slate-700 hover:bg-slate-50 hover:text-slate-900"
-              }`}
-            >
-              <Icon
-                className={`w-4 h-4 ${
-                  isActive ? "text-[#FFC20E]" : "text-slate-400"
-                }`}
-              />
-              <span>{item.label}</span>
-            </Link>
-          );
-        })}
-
-        <div className="border-t border-slate-100 my-1 pt-1" />
-
+      {/* Logout button at bottom */}
+      <div className="p-3 border-t border-slate-100">
         <button
           onClick={() => {
             logoutUser();
             router.push("/login");
           }}
-          className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-bold text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
+          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
         >
-          <LogOut className="w-4 h-4 text-red-500" />
-          <span>Sign Out</span>
+          <LogOut className="w-4 h-4 text-red-500 shrink-0" />
+          <span>Logout</span>
         </button>
-      </nav>
+      </div>
     </aside>
   );
 };

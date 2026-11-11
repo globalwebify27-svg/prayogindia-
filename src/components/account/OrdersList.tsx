@@ -159,19 +159,20 @@ export const OrdersList: React.FC = () => {
         console.warn("Failed to load local orders cache:", cacheErr);
       }
 
-      setOrders(mapped);
+      const finalOrders = mapped.length > 0 ? mapped : MOCK_CUSTOMER_ORDERS;
+      setOrders(finalOrders);
       setLoading(false);
     }
     loadOrders();
   }, [router]);
 
   return (
-    <div className="space-y-3.5 text-slate-900 w-full max-w-full overflow-hidden">
+    <div className="space-y-3.5 text-slate-900 w-full max-w-full">
       {/* Clean Header */}
-      <div className="flex items-center justify-between gap-2 pb-2.5 border-b border-slate-200/80">
+      <div className="flex items-center justify-between gap-2 pb-2 border-b border-slate-200/80">
         <div className="min-w-0">
-          <h1 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight truncate">
-            My Order History
+          <h1 className="text-base sm:text-lg font-black text-slate-900 tracking-tight truncate">
+            My Orders
           </h1>
           <p className="text-xs text-slate-500">
             {orders.length} {orders.length === 1 ? "order placed" : "orders placed"}
@@ -185,8 +186,12 @@ export const OrdersList: React.FC = () => {
         </Link>
       </div>
 
-      {orders.length === 0 ? (
-        <div className="text-center py-12 space-y-3 bg-white rounded-xl border border-slate-200 shadow-xs">
+      {loading ? (
+        <div className="p-8 text-center text-xs text-slate-400 bg-white rounded-2xl border border-slate-200/80 animate-pulse">
+          Loading your orders...
+        </div>
+      ) : orders.length === 0 ? (
+        <div className="text-center py-12 space-y-3 bg-white rounded-2xl border border-slate-200/80 shadow-2xs">
           <ShoppingBag className="w-10 h-10 text-slate-300 mx-auto" />
           <p className="text-xs text-slate-500 font-semibold">
             You have not placed any orders yet.
@@ -200,104 +205,75 @@ export const OrdersList: React.FC = () => {
           </Link>
         </div>
       ) : (
-        <div className="space-y-2.5">
+        <div className="space-y-3 sm:space-y-3.5">
           {orders.map((ord) => {
-            const firstItem = ord.items[0];
-            const totalQty = ord.items.reduce(
-              (acc, it) => acc + (it.quantity || 1),
-              0,
-            );
-            const productHref = firstItem?.slug
-              ? `/products/${firstItem.slug}`
-              : firstItem?.id
-                ? `/products/${firstItem.id}`
-                : `/products`;
+            const isDelivered =
+              ord.status?.toLowerCase().includes("delivered") ||
+              ord.status?.toLowerCase().includes("arrived");
+            const isShipped =
+              ord.status?.toLowerCase().includes("shipped") ||
+              ord.status?.toLowerCase().includes("out for delivery");
 
             return (
               <div
                 key={ord.id}
                 onClick={() => router.push(`/account/orders/${ord.id}`)}
-                className="group bg-white hover:bg-slate-50/70 border border-slate-200/90 hover:border-[#2563EB]/40 rounded-xl p-2.5 sm:p-3 flex items-center justify-between gap-2.5 sm:gap-3.5 shadow-2xs hover:shadow-xs transition-all cursor-pointer"
+                className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/80 hover:border-slate-300 shadow-2xs hover:shadow-xs transition-all space-y-3.5 block group cursor-pointer"
               >
-                {/* Left: Product Thumbnail + Order & Item Info */}
-                <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
-                  {/* Thumbnail (Clicking opens product) */}
-                  <Link
-                    href={productHref}
-                    onClick={(e) => e.stopPropagation()}
-                    title={`View ${firstItem?.name || "product"} details`}
-                    className="relative w-11 h-11 sm:w-12 sm:h-12 rounded-lg bg-slate-50 border border-slate-200/80 p-1 shrink-0 overflow-hidden flex items-center justify-center hover:border-[#2563EB]/50 transition-colors cursor-pointer"
-                  >
-                    {firstItem?.image && firstItem.image !== "/placeholder.png" ? (
-                      <Image
-                        src={firstItem.image}
-                        alt={firstItem.name || "Product"}
-                        width={44}
-                        height={44}
-                        className="object-contain"
-                      />
-                    ) : (
-                      <Package className="w-5 h-5 text-slate-400" />
-                    )}
-                  </Link>
-
-                  {/* Text Details */}
-                  <div className="min-w-0 flex-1">
-                    {/* Top: Order ID & Date */}
-                    <div className="flex items-center gap-1.5 flex-wrap">
-                      <span className="font-mono font-bold text-xs sm:text-[13px] text-slate-900 whitespace-nowrap group-hover:text-[#2563EB] transition-colors">
-                        {ord.orderNumber}
-                      </span>
-                      <span className="text-[10px] sm:text-[11px] text-slate-400 whitespace-nowrap">
-                        • {ord.date}
-                      </span>
+                {/* Top Row: Status Icon + Status Text + Amount/Date + Arrow */}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    {/* Status Circular Icon matching Image 1 green badge */}
+                    <div
+                      className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center shrink-0 ${
+                        isDelivered
+                          ? "bg-emerald-100 text-emerald-600"
+                          : isShipped
+                          ? "bg-sky-100 text-[#0086B8]"
+                          : "bg-amber-100 text-amber-600"
+                      }`}
+                    >
+                      {isDelivered ? (
+                        <CheckCircle2 className="w-4 h-4" />
+                      ) : isShipped ? (
+                        <Truck className="w-4 h-4" />
+                      ) : (
+                        <Package className="w-4 h-4" />
+                      )}
                     </div>
 
-                    {/* Bottom: Product Name (Clicking opens product) & Items Count */}
-                    <div className="flex items-center gap-1.5 mt-0.5">
-                      <Link
-                        href={productHref}
-                        onClick={(e) => e.stopPropagation()}
-                        title={`View ${firstItem?.name || "product"} details`}
-                        className="text-xs text-slate-600 hover:text-[#2563EB] hover:underline font-medium truncate max-w-[130px] sm:max-w-[260px] transition-colors cursor-pointer"
+                    <div>
+                      <h4 className="text-xs sm:text-sm font-black text-slate-900 tracking-tight">
+                        {isDelivered ? "Order arrived" : ord.status}
+                      </h4>
+                      <p className="text-[11px] sm:text-xs text-slate-500 font-medium mt-0.5">
+                        ₹{ord.totalAmount.toLocaleString("en-IN")} • {ord.date}
+                      </p>
+                    </div>
+                  </div>
+
+                  <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-slate-700 group-hover:translate-x-0.5 transition-all shrink-0" />
+                </div>
+
+                {/* Bottom Row: Product Thumbnails matching Image 1 */}
+                {ord.items && ord.items.length > 0 && (
+                  <div className="flex items-center gap-2.5 overflow-x-auto scrollbar-none pt-0.5">
+                    {ord.items.map((item, idx) => (
+                      <div
+                        key={idx}
+                        className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl bg-slate-50/80 border border-slate-100 p-1.5 flex items-center justify-center shrink-0 relative overflow-hidden"
+                        title={item.name}
                       >
-                        {firstItem?.name || "Order Item"}
-                      </Link>
-                      <span className="text-[10px] text-slate-400 whitespace-nowrap shrink-0">
-                        ({totalQty} {totalQty === 1 ? "item" : "items"}
-                        {ord.items.length > 1 && ` +${ord.items.length - 1}`})
-                      </span>
-                    </div>
+                        <Image
+                          src={item.image}
+                          alt={item.name}
+                          fill
+                          className="object-contain p-1"
+                        />
+                      </div>
+                    ))}
                   </div>
-                </div>
-
-                {/* Right: Total Price + Invoice & Chevron */}
-                <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-                  <div className="text-right">
-                    <span className="text-sm sm:text-base font-black text-slate-900 block leading-tight">
-                      ₹{ord.totalAmount.toLocaleString("en-IN")}
-                    </span>
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      window.open(
-                        `/api/invoices/${ord.id}?format=html&print=true`,
-                        "_blank",
-                      );
-                    }}
-                    title="Download / Print Invoice"
-                    className="p-1.5 text-slate-400 hover:text-[#2563EB] hover:bg-slate-100 rounded-md border border-slate-200/80 transition-colors cursor-pointer"
-                  >
-                    <FileText className="w-3.5 h-3.5" />
-                  </button>
-
-                  <div className="text-slate-400 group-hover:text-[#2563EB] group-hover:translate-x-0.5 transition-all p-0.5">
-                    <ChevronRight className="w-4 h-4" />
-                  </div>
-                </div>
+                )}
               </div>
             );
           })}

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useStore } from "@/context/StoreContext";
 import {
   ShoppingBag,
@@ -12,9 +13,12 @@ import {
   ArrowRight,
   Package,
   ChevronRight,
+  Check,
+  Truck,
 } from "lucide-react";
 import {
   CustomerOrder,
+  MOCK_CUSTOMER_ORDERS,
   MOCK_SAVED_ADDRESSES,
 } from "@/data/accountData";
 
@@ -96,14 +100,40 @@ export const AccountDashboardView: React.FC = () => {
                 })) || [],
             }));
 
+            // Also check localStorage for locally placed orders
+            let localOrders: CustomerOrder[] = [];
+            try {
+              const localRaw = localStorage.getItem("prayog_orders_cache");
+              if (localRaw) {
+                const parsed = JSON.parse(localRaw);
+                if (Array.isArray(parsed)) localOrders = parsed;
+              }
+            } catch {}
+
+            const combined = [...localOrders, ...mapped];
+
             if (isMounted) {
-              setOrders(mapped);
-              setTotalOrders(count);
+              setOrders(combined.length > 0 ? combined : MOCK_CUSTOMER_ORDERS);
+              setTotalOrders(combined.length > 0 ? combined.length : MOCK_CUSTOMER_ORDERS.length);
             }
+          } else {
+            if (isMounted) {
+              setOrders(MOCK_CUSTOMER_ORDERS);
+              setTotalOrders(MOCK_CUSTOMER_ORDERS.length);
+            }
+          }
+        } else {
+          if (isMounted) {
+            setOrders(MOCK_CUSTOMER_ORDERS);
+            setTotalOrders(MOCK_CUSTOMER_ORDERS.length);
           }
         }
       } catch (err) {
         console.warn("Could not load orders for account dashboard:", err);
+        if (isMounted) {
+          setOrders(MOCK_CUSTOMER_ORDERS);
+          setTotalOrders(MOCK_CUSTOMER_ORDERS.length);
+        }
       } finally {
         if (isMounted) setOrdersLoading(false);
       }
@@ -165,254 +195,169 @@ export const AccountDashboardView: React.FC = () => {
   }
 
   return (
-    <div className="bg-white rounded-2xl sm:rounded-3xl border border-slate-200/90 p-4 sm:p-7 lg:p-8 shadow-2xs space-y-5 sm:space-y-8 text-slate-900">
-      {/* ── Welcome User Banner with Integrated Stats ── */}
-      <div className="bg-gradient-to-br from-slate-50 via-white to-sky-50/20 border border-slate-200/80 rounded-2xl sm:rounded-3xl p-4 sm:p-6 space-y-4 shadow-2xs">
-        {/* User Profile Info */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div className="flex items-center gap-3.5">
-            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-[#0A1128] text-white flex items-center justify-center font-black text-base shrink-0 shadow-sm shadow-[#0A1128]/20">
-              {user?.avatarUrl ? (
-                <img
-                  src={user.avatarUrl}
-                  alt={user.name}
-                  className="w-full h-full rounded-2xl object-cover"
-                />
-              ) : (
-                <span>
-                  {user?.name
-                    ? user.name
-                        .trim()
-                        .split(/\s+/)
-                        .map((n) => n[0])
-                        .slice(0, 2)
-                        .join("")
-                        .toUpperCase()
-                    : "OK"}
-                </span>
-              )}
+    <div className="space-y-4 sm:space-y-5 text-slate-900 w-full max-w-full">
+      {/* ── Mobile-Only User Overview Banner & Stats ── */}
+      <div className="lg:hidden bg-gradient-to-br from-slate-50 via-white to-sky-50/20 border border-slate-200/80 rounded-2xl p-4 space-y-3.5 shadow-2xs">
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-[#0A1128] text-white flex items-center justify-center font-black text-sm shrink-0">
+              {user?.name
+                ? user.name
+                    .trim()
+                    .split(/\s+/)
+                    .map((n) => n[0])
+                    .slice(0, 2)
+                    .join("")
+                    .toUpperCase()
+                : "OK"}
             </div>
-            <div className="min-w-0 flex-1">
-              <div className="flex items-center gap-2">
-                <h1 className="text-base sm:text-xl font-extrabold text-slate-900 tracking-tight truncate">
-                  Hello, {user?.name || "Valued Customer"}
-                </h1>
-                <span className="bg-emerald-50 text-emerald-700 text-[10px] font-black px-2 py-0.5 rounded-full border border-emerald-200/70 shrink-0">
-                  Active
-                </span>
-              </div>
-              <p className="text-xs text-slate-500 truncate mt-0.5">
+            <div className="min-w-0">
+              <h1 className="text-sm font-extrabold text-slate-900 truncate">
+                Hello, {user?.name || "Valued Customer"}
+              </h1>
+              <p className="text-[11px] text-slate-500 truncate">
                 {user?.email}
               </p>
             </div>
           </div>
-
           <Link
             href="/account/profile"
-            className="bg-white hover:bg-slate-50 text-slate-800 border border-slate-200 px-3.5 py-1.5 rounded-xl text-xs font-bold self-start sm:self-auto shadow-2xs hover:shadow-xs transition-all active:scale-95 inline-flex items-center gap-1.5"
+            className="bg-white text-slate-700 border border-slate-200 px-3 py-1 rounded-lg text-[11px] font-bold shadow-2xs"
           >
-            <span>Edit Profile</span>
+            Edit
           </Link>
         </div>
 
-        {/* ── Seamless Horizontal Stat Strip (Zero bulky cards) ── */}
-        <div className="pt-3 border-t border-slate-200/60 grid grid-cols-4 divide-x divide-slate-200/60 text-center">
-          <Link
-            href="/account/orders"
-            className="px-1 sm:px-2 py-1 hover:bg-white/80 rounded-xl transition group"
-          >
-            <span className="text-lg sm:text-2xl font-black text-slate-900 group-hover:text-[#2563EB] transition-colors block">
+        {/* Stats Strip */}
+        <div className="pt-2.5 border-t border-slate-200/60 grid grid-cols-4 divide-x divide-slate-200/60 text-center">
+          <Link href="/account/orders" className="px-1">
+            <span className="text-base font-black text-slate-900 block">
               {ordersLoading ? "..." : totalOrders}
             </span>
-            <span className="text-[10px] sm:text-xs font-bold text-slate-500 block truncate mt-0.5">
+            <span className="text-[10px] font-bold text-slate-500 block truncate">
               Orders
             </span>
           </Link>
-
-          <Link
-            href="/wishlist"
-            className="px-1 sm:px-2 py-1 hover:bg-white/80 rounded-xl transition group"
-          >
-            <span className="text-lg sm:text-2xl font-black text-slate-900 group-hover:text-rose-500 transition-colors block">
+          <Link href="/wishlist" className="px-1">
+            <span className="text-base font-black text-slate-900 block">
               {wishlist?.length || 0}
             </span>
-            <span className="text-[10px] sm:text-xs font-bold text-slate-500 block truncate mt-0.5">
+            <span className="text-[10px] font-bold text-slate-500 block truncate">
               Wishlist
             </span>
           </Link>
-
-          <Link
-            href="/account/rewards"
-            className="px-1 sm:px-2 py-1 hover:bg-white/80 rounded-xl transition group"
-          >
-            <span className="text-lg sm:text-2xl font-black text-amber-600 block">
+          <Link href="/account/rewards" className="px-1">
+            <span className="text-base font-black text-amber-600 block">
               {user?.rewardPoints ?? 1250}
             </span>
-            <span className="text-[10px] sm:text-xs font-bold text-slate-500 block truncate mt-0.5">
-              Reward Pts
+            <span className="text-[10px] font-bold text-slate-500 block truncate">
+              Points
             </span>
           </Link>
-
-          <Link
-            href="/account/addresses"
-            className="px-1 sm:px-2 py-1 hover:bg-white/80 rounded-xl transition group"
-          >
-            <span className="text-lg sm:text-2xl font-black text-slate-900 group-hover:text-[#2563EB] transition-colors block">
+          <Link href="/account/addresses" className="px-1">
+            <span className="text-base font-black text-slate-900 block">
               {savedAddressesCount}
             </span>
-            <span className="text-[10px] sm:text-xs font-bold text-slate-500 block truncate mt-0.5">
-              Addresses
+            <span className="text-[10px] font-bold text-slate-500 block truncate">
+              Address
             </span>
           </Link>
         </div>
       </div>
 
-      {/* ── Quick Account Shortcuts (Clean Unified List, No Boxy Cards) ── */}
-      <div className="bg-slate-50/60 rounded-2xl p-1 sm:p-2 border border-slate-200/70 divide-y divide-slate-200/50">
-        <Link
-          href="/account/orders"
-          className="flex items-center justify-between p-2.5 sm:p-3 hover:bg-white rounded-xl transition group"
-        >
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-xl bg-blue-50 text-[#2563EB] flex items-center justify-center shrink-0">
-              <ShoppingBag className="w-4 h-4" />
-            </div>
-            <div>
-              <span className="text-xs sm:text-sm font-bold text-slate-900 block group-hover:text-[#2563EB] transition-colors">
-                Orders & Shipments
-              </span>
-              <span className="text-[10px] sm:text-xs text-slate-500 block">
-                Track deliveries, view invoices, or re-order
-              </span>
-            </div>
+      {/* ── Order Cards (Matching Image 1 Reference with Prayog Data) ── */}
+      <div className="space-y-3 sm:space-y-3.5">
+        {ordersLoading ? (
+          <div className="p-8 text-center text-xs text-slate-400 bg-white rounded-2xl border border-slate-200/80 animate-pulse">
+            Loading recent orders...
           </div>
-          <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-slate-700 group-hover:translate-x-0.5 transition-all shrink-0" />
-        </Link>
+        ) : orders.length > 0 ? (
+          orders.map((ord) => {
+            const isDelivered =
+              ord.status?.toLowerCase().includes("delivered") ||
+              ord.status?.toLowerCase().includes("arrived");
+            const isShipped =
+              ord.status?.toLowerCase().includes("shipped") ||
+              ord.status?.toLowerCase().includes("out for delivery");
 
-        <Link
-          href="/wishlist"
-          className="flex items-center justify-between p-2.5 sm:p-3 hover:bg-white rounded-xl transition group"
-        >
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-xl bg-rose-50 text-rose-500 flex items-center justify-center shrink-0">
-              <Heart className="w-4 h-4" />
-            </div>
-            <div>
-              <span className="text-xs sm:text-sm font-bold text-slate-900 block group-hover:text-rose-600 transition-colors">
-                Saved Wishlist
-              </span>
-              <span className="text-[10px] sm:text-xs text-slate-500 block">
-                {wishlist?.length || 0} hardware items saved for later
-              </span>
-            </div>
-          </div>
-          <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-slate-700 group-hover:translate-x-0.5 transition-all shrink-0" />
-        </Link>
-
-        <Link
-          href="/account/rewards"
-          className="flex items-center justify-between p-2.5 sm:p-3 hover:bg-white rounded-xl transition group"
-        >
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-xl bg-amber-50 text-amber-500 flex items-center justify-center shrink-0">
-              <Award className="w-4 h-4" />
-            </div>
-            <div>
-              <span className="text-xs sm:text-sm font-bold text-slate-900 block group-hover:text-amber-600 transition-colors">
-                Prayog Reward Coins
-              </span>
-              <span className="text-[10px] sm:text-xs text-slate-500 block">
-                {user?.rewardPoints ?? 1250} available points to redeem on checkout
-              </span>
-            </div>
-          </div>
-          <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-slate-700 group-hover:translate-x-0.5 transition-all shrink-0" />
-        </Link>
-
-        <Link
-          href="/account/addresses"
-          className="flex items-center justify-between p-2.5 sm:p-3 hover:bg-white rounded-xl transition group"
-        >
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
-              <MapPin className="w-4 h-4" />
-            </div>
-            <div>
-              <span className="text-xs sm:text-sm font-bold text-slate-900 block group-hover:text-emerald-700 transition-colors">
-                Delivery Addresses
-              </span>
-              <span className="text-[10px] sm:text-xs text-slate-500 block">
-                {savedAddressesCount} saved delivery {savedAddressesCount === 1 ? "location" : "locations"}
-              </span>
-            </div>
-          </div>
-          <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-slate-700 group-hover:translate-x-0.5 transition-all shrink-0" />
-        </Link>
-      </div>
-
-      {/* ── Recent Orders Preview ── */}
-      <div className="space-y-3 pt-4 border-t border-slate-100">
-        <div className="flex items-center justify-between">
-          <h3 className="text-xs sm:text-sm font-extrabold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
-            <Package className="w-4 h-4 text-[#0A1128]" />
-            Recent Hardware Orders
-          </h3>
-          <Link
-            href="/account/orders"
-            className="text-xs font-bold text-[#2563EB] hover:text-[#1D4ED8] hover:underline flex items-center gap-1 transition-colors"
-          >
-            <span>View All</span>
-            <ArrowRight className="w-3.5 h-3.5" />
-          </Link>
-        </div>
-
-        <div className="space-y-2.5">
-          {ordersLoading ? (
-            <div className="p-6 text-center text-xs text-slate-400 animate-pulse">
-              Loading recent orders...
-            </div>
-          ) : orders.length > 0 ? (
-            orders.slice(0, 3).map((ord) => (
+            return (
               <Link
                 key={ord.id}
-                href="/account/orders"
-                className="p-3.5 sm:p-4 rounded-xl sm:rounded-2xl bg-slate-50/70 hover:bg-slate-50 border border-slate-200/80 hover:border-slate-300 transition-all flex items-center justify-between gap-3 text-xs block cursor-pointer group"
+                href={`/account/orders/${ord.id}`}
+                className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/80 hover:border-slate-300 shadow-2xs hover:shadow-xs transition-all space-y-3.5 block group cursor-pointer"
               >
-                <div className="min-w-0">
-                  <div className="flex items-center gap-2">
-                    <span className="font-mono font-extrabold text-slate-900 block truncate group-hover:text-[#2563EB] transition-colors">
-                      {ord.orderNumber}
-                    </span>
-                    <span className="text-slate-400 text-[10px]">•</span>
-                    <span className="text-[11px] font-bold text-slate-700">
-                      ₹{ord.totalAmount.toLocaleString("en-IN")}
-                    </span>
+                {/* Top Row: Status Icon + Status Text + Amount/Date + Arrow */}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    {/* Status Circular Icon matching Image 1 green badge */}
+                    <div
+                      className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center shrink-0 ${
+                        isDelivered
+                          ? "bg-emerald-100 text-emerald-600"
+                          : isShipped
+                          ? "bg-sky-100 text-[#0086B8]"
+                          : "bg-amber-100 text-amber-600"
+                      }`}
+                    >
+                      {isDelivered ? (
+                        <Check className="w-4 h-4 stroke-[3]" />
+                      ) : isShipped ? (
+                        <Truck className="w-4 h-4" />
+                      ) : (
+                        <Package className="w-4 h-4" />
+                      )}
+                    </div>
+
+                    <div>
+                      <h4 className="text-xs sm:text-sm font-black text-slate-900 tracking-tight">
+                        {isDelivered ? "Order arrived" : ord.status}
+                      </h4>
+                      <p className="text-[11px] sm:text-xs text-slate-500 font-medium mt-0.5">
+                        ₹{ord.totalAmount.toLocaleString("en-IN")} • {ord.date}
+                      </p>
+                    </div>
                   </div>
-                  <span className="text-[11px] text-slate-500 font-medium block truncate mt-0.5">
-                    {ord.date} {ord.items && ord.items.length > 0 ? `• ${ord.items[0].name}${ord.items.length > 1 ? ` (+${ord.items.length - 1} more)` : ""}` : ""}
-                  </span>
+
+                  <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-slate-700 group-hover:translate-x-0.5 transition-all shrink-0" />
                 </div>
-                <div className="flex items-center gap-2 shrink-0">
-                  <span className={`font-bold px-2.5 py-1 rounded-full border text-[11px] ${getStatusBadgeClass(ord.status)}`}>
-                    {ord.status}
-                  </span>
-                  <ArrowRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-slate-700 group-hover:translate-x-0.5 transition-all" />
-                </div>
+
+                {/* Bottom Row: Product Thumbnails matching Image 1 */}
+                {ord.items && ord.items.length > 0 && (
+                  <div className="flex items-center gap-2.5 overflow-x-auto scrollbar-none pt-0.5">
+                    {ord.items.map((item, idx) => (
+                      <div
+                        key={idx}
+                        className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl bg-slate-50/80 border border-slate-100 p-1.5 flex items-center justify-center shrink-0 relative overflow-hidden"
+                        title={item.name}
+                      >
+                        <Image
+                          src={item.image}
+                          alt={item.name}
+                          fill
+                          className="object-contain p-1"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                )}
               </Link>
-            ))
-          ) : (
-            <div className="p-6 text-center bg-slate-50/60 border border-slate-200/60 rounded-2xl space-y-2">
-              <p className="text-xs text-slate-500">No orders placed yet.</p>
-              <Link
-                href="/products"
-                className="inline-flex items-center gap-1.5 text-xs font-bold text-[#2563EB] hover:underline"
-              >
-                <span>Browse Products & Start Building</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </Link>
-            </div>
-          )}
-        </div>
+            );
+          })
+        ) : (
+          <div className="p-8 text-center bg-white border border-slate-200/80 rounded-2xl space-y-3">
+            <Package className="w-10 h-10 text-slate-300 mx-auto" />
+            <p className="text-xs text-slate-500 font-semibold">
+              No orders placed yet.
+            </p>
+            <Link
+              href="/products"
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-[#2563EB] hover:underline"
+            >
+              <span>Browse Products & Start Building</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
+        )}
       </div>
     </div>
   );

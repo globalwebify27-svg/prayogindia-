@@ -104,13 +104,17 @@ export default function AccountLayout({
             </div>
           </div>
 
-          {/* Desktop 2-Column Layout */}
-          <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 items-start">
-            <div className="hidden lg:block w-64 xl:w-72 2xl:w-80 shrink-0 sticky top-20">
+          {/* Desktop 2-Column Unified Container (Matching Image 1 Reference) */}
+          <div className="bg-white rounded-2xl border border-slate-200/90 shadow-2xs overflow-hidden flex flex-col lg:flex-row min-h-[640px]">
+            {/* Left Sidebar */}
+            <div className="hidden lg:block w-64 xl:w-72 shrink-0 border-r border-slate-200/80 bg-white">
               <AccountSidebar />
             </div>
 
-            <div className="flex-1 min-w-0">{children}</div>
+            {/* Right Main Content */}
+            <div className="flex-1 min-w-0 bg-[#F8FAFC] p-4 sm:p-6 lg:p-8 overflow-y-auto">
+              {children}
+            </div>
           </div>
         </div>
       )}
