@@ -323,7 +323,7 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
 
   return (
     <div className="flex flex-col w-full space-y-3">
-      {/* ── Main Media Canvas ── */}
+      {/* ── Main Media Canvas (Full bleed edge-to-edge on mobile, rounded card on tablet/desktop) ── */}
       <div
         ref={containerRef}
         onTouchStart={handleTouchStart}
@@ -341,7 +341,7 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
             setIsLightboxOpen(true);
           }
         }}
-        className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden bg-slate-100 group flex items-center justify-center shrink-0 select-none touch-pan-y"
+        className="relative w-[calc(100%+2rem)] sm:w-full -mx-4 sm:mx-0 aspect-[4/3] rounded-none sm:rounded-2xl overflow-hidden bg-slate-100 border-b border-slate-200/60 sm:border-b-0 group flex items-center justify-center shrink-0 select-none touch-pan-y"
         style={{
           cursor:
             currentIndex < galleryImages.length && !isDragging
@@ -362,6 +362,27 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
               <ChevronLeft className="w-4 h-4 text-[#2563EB]" />
               <span>Back to Images</span>
             </button>
+          </div>
+        )}
+
+        {/* Mobile Slide Counter Badge */}
+        {totalSlides > 1 && (
+          <div className="absolute bottom-3 right-3 sm:hidden bg-slate-900/70 text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full backdrop-blur-xs z-20 pointer-events-none">
+            {currentIndex + 1} / {totalSlides}
+          </div>
+        )}
+
+        {/* Mobile Pagination Indicator Dots */}
+        {totalSlides > 1 && totalSlides <= 8 && (
+          <div className="absolute bottom-2.5 left-1/2 -translate-x-1/2 flex items-center gap-1.5 z-20 sm:hidden pointer-events-none">
+            {Array.from({ length: totalSlides }).map((_, i) => (
+              <span
+                key={i}
+                className={`h-1.5 rounded-full transition-all duration-300 ${
+                  currentIndex === i ? "w-4 bg-[#005CA9]" : "w-1.5 bg-slate-400/60"
+                }`}
+              />
+            ))}
           </div>
         )}
 
