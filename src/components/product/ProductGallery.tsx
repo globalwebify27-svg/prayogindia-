@@ -12,13 +12,7 @@ import {
   ChevronRight,
   RotateCcw,
   Compass,
-  ZoomIn,
-  ZoomOut,
-  X,
 } from "lucide-react";
-
-// Crisp high-DPI Prayog blue & white glass magnifying cursor with lens glare (fallback to native zoom-in)
-const MAGNIFIER_CURSOR = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32' fill='none'%3E%3Ccircle cx='13' cy='13' r='8.5' stroke='%23005CA9' stroke-width='2.4' fill='rgba(0,174,239,0.15)'/%3E%3Ccircle cx='13' cy='13' r='6.5' stroke='white' stroke-width='1.2'/%3E%3Ccircle cx='10.5' cy='10.5' r='2' fill='white' opacity='0.85'/%3E%3Cpath d='M19.5 19.5L27 27' stroke='%23005CA9' stroke-width='3.2' stroke-linecap='round'/%3E%3Cpath d='M19.5 19.5L27 27' stroke='white' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E") 13 13, zoom-in`;
 
 interface ProductGalleryProps {
   images: string[];
@@ -59,10 +53,6 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
   // ── Hover Magnifier State ──
   const [hoverPos, setHoverPos] = useState({ x: 50, y: 50 });
   const [isHovering, setIsHovering] = useState(false);
-
-  // ── Fullscreen Lightbox Modal State ──
-  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
-  const [lightboxZoom, setLightboxZoom] = useState(1);
 
   const handleContainerMouseEnter = (e: React.MouseEvent<HTMLDivElement>) => {
     if (isDragging || isPointerDownRef.current || currentIndex >= galleryImages.length) return;
@@ -156,18 +146,6 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
       });
     }
   }, [currentIndex, videoSlideIndex]);
-
-  // Keyboard navigation for Lightbox Modal
-  useEffect(() => {
-    if (!isLightboxOpen) return;
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setIsLightboxOpen(false);
-      if (e.key === "ArrowLeft") prevSlide();
-      if (e.key === "ArrowRight") nextSlide();
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isLightboxOpen, prevSlide, nextSlide]);
 
   // ── Touch Gesture Handlers (Mobile & Tablet) ──
   const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
@@ -336,19 +314,13 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
         onMouseLeave={handleContainerMouseLeave}
         onWheel={handleWheel}
         onDragStart={(e) => e.preventDefault()}
-        onClick={() => {
-          if (!isDragging && currentIndex < galleryImages.length) {
-            setIsLightboxOpen(true);
-          }
-        }}
         className="relative w-[calc(100%+2rem)] sm:w-full -mx-4 sm:mx-0 aspect-[4/3] rounded-none sm:rounded-2xl overflow-hidden bg-slate-100 border-b border-slate-200/60 sm:border-b-0 group flex items-center justify-center shrink-0 select-none touch-pan-y"
         style={{
-          cursor:
-            currentIndex < galleryImages.length && !isDragging
-              ? MAGNIFIER_CURSOR
-              : isDragging
-                ? "grabbing"
-                : "grab",
+          cursor: isDragging
+            ? "grabbing"
+            : totalSlides > 1
+              ? "grab"
+              : "default",
         }}
       >
         {/* Top Badges & Controls Overlay */}
@@ -634,161 +606,6 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
                 Video
               </span>
             </button>
-          )}
-        </div>
-      )}
-
-      {/* ── High-Resolution Lightbox Modal with Zoom Controls ── */}
-      {isLightboxOpen && (
-        <div
-          className="fixed inset-0 z-[120] bg-slate-950/95 backdrop-blur-md flex flex-col items-center justify-between p-4 sm:p-6 animate-in fade-in duration-200 select-none"
-          onClick={() => {
-            setIsLightboxOpen(false);
-            setLightboxZoom(1);
-          }}
-        >
-          {/* Top Control Bar */}
-          <div
-            className="w-full max-w-6xl flex items-center justify-between text-white pb-3 border-b border-white/10"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center gap-3">
-              <span className="font-extrabold text-sm sm:text-base text-white tracking-tight">
-                {productName}
-              </span>
-              {galleryImages.length > 0 && (
-                <span className="text-xs text-white/60 font-mono">
-                  ({currentIndex + 1} of {galleryImages.length})
-                </span>
-              )}
-            </div>
-
-            <div className="flex items-center gap-2">
-              {/* Zoom Buttons */}
-              <div className="flex items-center bg-white/10 rounded-full border border-white/20 p-0.5">
-                <button
-                  type="button"
-                  onClick={() => setLightboxZoom((z) => Math.max(1, +(z - 0.5).toFixed(1)))}
-                  className="p-1.5 hover:bg-white/20 rounded-full text-white transition cursor-pointer"
-                  title="Zoom Out"
-                >
-                  <ZoomOut className="w-4 h-4" />
-                </button>
-                <span className="text-xs font-mono font-bold px-2.5 text-white">
-                  {lightboxZoom}×
-                </span>
-                <button
-                  type="button"
-                  onClick={() => setLightboxZoom((z) => Math.min(4, +(z + 0.5).toFixed(1)))}
-                  className="p-1.5 hover:bg-white/20 rounded-full text-white transition cursor-pointer"
-                  title="Zoom In"
-                >
-                  <ZoomIn className="w-4 h-4" />
-                </button>
-              </div>
-
-              {/* Reset Zoom */}
-              {lightboxZoom > 1 && (
-                <button
-                  type="button"
-                  onClick={() => setLightboxZoom(1)}
-                  className="px-2.5 py-1 text-xs font-bold text-white/80 hover:text-white bg-white/10 hover:bg-white/20 rounded-full border border-white/20 transition cursor-pointer"
-                >
-                  Reset
-                </button>
-              )}
-
-              {/* Close Button */}
-              <button
-                type="button"
-                onClick={() => {
-                  setIsLightboxOpen(false);
-                  setLightboxZoom(1);
-                }}
-                className="w-9 h-9 rounded-full bg-white/10 hover:bg-rose-600 text-white flex items-center justify-center transition border border-white/20 cursor-pointer ml-1"
-                title="Close (Esc)"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-          </div>
-
-          {/* Main Stage */}
-          <div
-            className="relative flex-1 w-full max-w-5xl flex items-center justify-center overflow-hidden my-4"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div
-              className="relative w-full h-full max-h-[75vh] flex items-center justify-center transition-transform duration-200"
-              style={{ transform: `scale(${lightboxZoom})` }}
-            >
-              {galleryImages[currentIndex] && (
-                <Image
-                  src={galleryImages[currentIndex]}
-                  alt={`${productName} full preview`}
-                  fill
-                  className="object-contain"
-                  sizes="100vw"
-                  priority
-                />
-              )}
-            </div>
-
-            {/* Prev / Next Buttons */}
-            {galleryImages.length > 1 && (
-              <>
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    prevSlide();
-                    setLightboxZoom(1);
-                  }}
-                  className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-black/40 hover:bg-black/70 text-white flex items-center justify-center backdrop-blur-md border border-white/20 transition cursor-pointer"
-                  aria-label="Previous Image"
-                >
-                  <ChevronLeft className="w-6 h-6" />
-                </button>
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    nextSlide();
-                    setLightboxZoom(1);
-                  }}
-                  className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-black/40 hover:bg-black/70 text-white flex items-center justify-center backdrop-blur-md border border-white/20 transition cursor-pointer"
-                  aria-label="Next Image"
-                >
-                  <ChevronRight className="w-6 h-6" />
-                </button>
-              </>
-            )}
-          </div>
-
-          {/* Bottom Thumbnails Strip */}
-          {galleryImages.length > 1 && (
-            <div
-              className="flex items-center gap-2 overflow-x-auto max-w-3xl p-1.5 bg-black/40 backdrop-blur-md rounded-2xl border border-white/15"
-              onClick={(e) => e.stopPropagation()}
-            >
-              {galleryImages.map((img, i) => (
-                <button
-                  key={i}
-                  type="button"
-                  onClick={() => {
-                    setCurrentIndex(i);
-                    setLightboxZoom(1);
-                  }}
-                  className={`relative w-12 h-12 sm:w-14 sm:h-14 rounded-xl overflow-hidden border-2 transition cursor-pointer shrink-0 ${
-                    currentIndex === i
-                      ? "border-[#00AEEF] scale-105 shadow-md ring-2 ring-sky-400/30"
-                      : "border-white/20 opacity-60 hover:opacity-100"
-                  }`}
-                >
-                  <Image src={img} alt={`thumb-${i}`} fill className="object-cover" />
-                </button>
-              ))}
-            </div>
           )}
         </div>
       )}
