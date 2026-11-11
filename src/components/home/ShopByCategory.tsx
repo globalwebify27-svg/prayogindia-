@@ -147,53 +147,44 @@ const THEMES: Record<
   },
 };
 
-const MOBILE_THEMES: Record<
+const CARD_THEMES: Record<
   string,
   {
     bg: string;
     border: string;
-    shadow: string;
   }
 > = {
   blue: {
-    bg: "bg-gradient-to-b from-blue-50/95 via-blue-50/60 to-blue-100/40",
-    border: "border-blue-200/70",
-    shadow: "shadow-[0_2px_8px_-2px_rgba(37,99,235,0.12)]",
+    bg: "bg-gradient-to-b from-[#EEF6FF] via-[#F4F9FF] to-[#DBEAFE]/45",
+    border: "border-blue-200/90",
   },
   teal: {
-    bg: "bg-gradient-to-b from-teal-50/95 via-teal-50/60 to-teal-100/40",
-    border: "border-teal-200/70",
-    shadow: "shadow-[0_2px_8px_-2px_rgba(13,148,136,0.12)]",
+    bg: "bg-gradient-to-b from-[#F0FDF4] via-[#F6FEF9] to-[#DCFCE7]/55",
+    border: "border-emerald-200/90",
   },
   purple: {
-    bg: "bg-gradient-to-b from-purple-50/95 via-purple-50/60 to-purple-100/40",
-    border: "border-purple-200/70",
-    shadow: "shadow-[0_2px_8px_-2px_rgba(147,51,234,0.12)]",
+    bg: "bg-gradient-to-b from-[#FAF5FF] via-[#FBF7FF] to-[#EDE9FE]/50",
+    border: "border-purple-200/90",
   },
   amber: {
-    bg: "bg-gradient-to-b from-amber-50/95 via-amber-50/60 to-amber-100/40",
-    border: "border-amber-200/70",
-    shadow: "shadow-[0_2px_8px_-2px_rgba(217,119,6,0.12)]",
+    bg: "bg-gradient-to-b from-[#FFFBEB] via-[#FFFDF5] to-[#FEF3C7]/60",
+    border: "border-amber-200/90",
   },
   indigo: {
-    bg: "bg-gradient-to-b from-indigo-50/95 via-indigo-50/60 to-indigo-100/40",
-    border: "border-indigo-200/70",
-    shadow: "shadow-[0_2px_8px_-2px_rgba(79,70,229,0.12)]",
+    bg: "bg-gradient-to-b from-[#EEF2FF] via-[#F5F7FF] to-[#E0E7FF]/50",
+    border: "border-indigo-200/90",
   },
   emerald: {
-    bg: "bg-gradient-to-b from-emerald-50/95 via-emerald-50/60 to-emerald-100/40",
-    border: "border-emerald-200/70",
-    shadow: "shadow-[0_2px_8px_-2px_rgba(5,150,105,0.12)]",
+    bg: "bg-gradient-to-b from-[#F0FDF4] via-[#F6FEF9] to-[#DCFCE7]/55",
+    border: "border-emerald-200/90",
   },
   rose: {
-    bg: "bg-gradient-to-b from-rose-50/95 via-rose-50/60 to-rose-100/40",
-    border: "border-rose-200/70",
-    shadow: "shadow-[0_2px_8px_-2px_rgba(225,29,72,0.12)]",
+    bg: "bg-gradient-to-b from-[#FFF1F2] via-[#FFF7F7] to-[#FFE4E6]/50",
+    border: "border-rose-200/90",
   },
   cyan: {
-    bg: "bg-gradient-to-b from-sky-50/95 via-sky-50/60 to-sky-100/40",
-    border: "border-sky-200/70",
-    shadow: "shadow-[0_2px_8px_-2px_rgba(2,132,199,0.12)]",
+    bg: "bg-gradient-to-b from-[#F0F9FF] via-[#F6FBFF] to-[#E0F2FE]/55",
+    border: "border-sky-200/90",
   },
 };
 
@@ -261,6 +252,7 @@ export const ShopByCategory: React.FC<Props> = ({ onSelectCategory }) => {
         {/* Section Header */}
         <div className="flex items-center justify-between pb-1">
           <div className="flex items-center gap-2">
+            <span className="w-1 h-4 sm:h-5 bg-[#2563EB] rounded-full inline-block" />
             <h2 className="text-base sm:text-xl lg:text-2xl font-bold text-slate-900 tracking-tight">
               Shop by Category
             </h2>
@@ -277,16 +269,16 @@ export const ShopByCategory: React.FC<Props> = ({ onSelectCategory }) => {
           </div>
         </div>
 
-        {/* Mobile View (< sm): Clean, Unique App-Style Squircle Category Grid */}
-        <div className="block sm:hidden select-none pt-1 pb-1.5">
-          <div className="grid grid-cols-4 gap-x-2 gap-y-3.5">
-            {categories.slice(0, 8).map((cat) => {
+        {/* Mobile View (< sm): Smooth Horizontal Scroll of Category Cards (Matching Image 1) */}
+        <div className="block sm:hidden select-none -mx-3 px-3 pt-0.5 pb-2">
+          <div className="flex gap-2.5 overflow-x-auto no-scrollbar scroll-smooth snap-x snap-mandatory py-1 px-1">
+            {categories.map((cat) => {
               const theme =
-                MOBILE_THEMES[cat.themeColor || "blue"] || MOBILE_THEMES.blue;
+                CARD_THEMES[cat.themeColor || "blue"] || CARD_THEMES.blue;
 
               return (
                 <Link
-                  key={`mobile-cat-${cat.id}`}
+                  key={`mobile-cat-card-${cat.id}`}
                   href={cat.href}
                   onClick={(e) => {
                     if (onSelectCategory) {
@@ -294,33 +286,37 @@ export const ShopByCategory: React.FC<Props> = ({ onSelectCategory }) => {
                       onSelectCategory(cat.name);
                     }
                   }}
-                  className="flex flex-col items-center group cursor-pointer text-center select-none"
+                  className={`snap-start w-[138px] xs:w-[146px] shrink-0 rounded-2xl p-2.5 flex flex-col justify-between border shadow-2xs hover:shadow-xs transition-all duration-200 active:scale-[0.98] group cursor-pointer select-none ${theme.bg} ${theme.border}`}
                 >
-                  {/* Top: Soft Pastel Squircle with 3D Component Cutout */}
-                  <div
-                    className={`relative w-[60px] h-[60px] rounded-2xl flex items-center justify-center border transition-all duration-200 active:scale-90 group-hover:scale-105 ${theme.bg} ${theme.border} ${theme.shadow}`}
-                  >
-                    <div className="relative w-10 h-10 flex items-center justify-center pointer-events-none">
+                  {/* Top: Inner Translucent White Container with Product Cutout */}
+                  <div className="relative w-full h-[92px] xs:h-[98px] rounded-xl bg-white/75 backdrop-blur-xs flex items-center justify-center p-2 shadow-2xs border border-white/60 mb-2 overflow-hidden">
+                    <div className="relative w-full h-full flex items-center justify-center pointer-events-none">
                       <Image
                         src={cat.image}
                         alt={cat.imageAlt || cat.name}
                         fill
-                        sizes="48px"
-                        className="object-contain drop-shadow-xs transition-transform duration-300 group-hover:scale-110 pointer-events-none select-none"
+                        sizes="135px"
+                        className="object-contain drop-shadow-xs transition-transform duration-300 group-hover:scale-108 pointer-events-none select-none"
                       />
                     </div>
                   </div>
 
-                  {/* Bottom: Crisp Category Title & Product Count */}
-                  <div className="w-full mt-1.5 px-0.5 flex flex-col items-center pointer-events-none">
-                    <span className="text-[10.5px] font-semibold text-slate-800 leading-tight text-center line-clamp-2 min-h-[26px] flex items-center justify-center group-hover:text-[#2563EB] transition-colors">
-                      {cat.name}
-                    </span>
-                    {cat.productCount && (
-                      <span className="text-[8.5px] font-medium text-slate-400 mt-0.5 leading-none">
-                        {cat.productCount}
-                      </span>
-                    )}
+                  {/* Bottom: Title, Product Count, and Bottom-Right Circular Arrow Button */}
+                  <div className="flex items-end justify-between gap-1.5 mt-auto">
+                    <div className="min-w-0 flex-1">
+                      <h3 className="font-bold text-[12px] xs:text-[13px] text-slate-900 leading-snug line-clamp-2 group-hover:text-[#2563EB] transition-colors">
+                        {cat.name}
+                      </h3>
+                      {cat.productCount && (
+                        <p className="text-[10px] text-slate-500 font-medium mt-0.5 leading-none truncate">
+                          {cat.productCount}
+                        </p>
+                      )}
+                    </div>
+
+                    <div className="w-6.5 h-6.5 xs:w-7 xs:h-7 rounded-full bg-white shadow-xs border border-slate-100 flex items-center justify-center text-slate-800 shrink-0 group-hover:bg-[#2563EB] group-hover:text-white transition-all duration-200">
+                      <ArrowRight className="w-3.5 h-3.5 stroke-[2.5]" />
+                    </div>
                   </div>
                 </Link>
               );
