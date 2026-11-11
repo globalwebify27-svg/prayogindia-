@@ -40,9 +40,9 @@ export const AccountSidebar: React.FC = () => {
 
   return (
     <aside className="w-full h-full flex flex-col justify-between bg-white select-none">
-      <div>
+      <div className="flex-1 min-h-0 flex flex-col overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {/* User Header in Sidebar (Matching Image 1: Phone / User Identifier) */}
-        <div className="p-4 sm:p-5 border-b border-slate-100">
+        <div className="p-4 sm:p-5 border-b border-slate-100 shrink-0">
           <span className="text-xs sm:text-sm font-extrabold text-slate-900 tracking-tight block truncate">
             {user?.phone || "+91 87097 89641"}
           </span>
@@ -52,7 +52,7 @@ export const AccountSidebar: React.FC = () => {
         </div>
 
         {/* Sidebar Links matching Image 1: Clean vertical list with icons */}
-        <nav className="py-2">
+        <nav className="py-2 flex-1">
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive =
@@ -84,7 +84,7 @@ export const AccountSidebar: React.FC = () => {
       </div>
 
       {/* Logout button at bottom */}
-      <div className="p-3 border-t border-slate-100">
+      <div className="p-3 border-t border-slate-100 shrink-0">
         <button
           onClick={() => {
             logoutUser();

@@ -48,7 +48,7 @@ export default function AccountLayout({
   ];
 
   return (
-    <div className="pt-1 sm:pt-1.5 pb-8 sm:pb-12 bg-slate-50/60 min-h-[70vh] overflow-x-hidden">
+    <div className="pt-1 sm:pt-1.5 pb-3 lg:pb-4 bg-slate-50/60 min-h-[70vh] overflow-x-hidden">
       {isAuthPage ? (
         <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 py-4 sm:py-8">
           {children}
@@ -105,14 +105,14 @@ export default function AccountLayout({
           </div>
 
           {/* Desktop 2-Column Unified Container (Matching Image 1 Reference) */}
-          <div className="bg-white rounded-2xl border border-slate-200/90 shadow-2xs overflow-hidden flex flex-col lg:flex-row min-h-[640px]">
-            {/* Left Sidebar */}
-            <div className="hidden lg:block w-64 xl:w-72 shrink-0 border-r border-slate-200/80 bg-white">
+          <div className="bg-white rounded-2xl border border-slate-200/90 shadow-2xs overflow-hidden flex flex-col lg:flex-row lg:h-[calc(100vh-100px)] min-h-[580px] lg:sticky lg:top-[74px]">
+            {/* Left Sidebar - Fixed and persistent on desktop */}
+            <div className="hidden lg:flex flex-col w-64 xl:w-72 shrink-0 border-r border-slate-200/80 bg-white h-full overflow-hidden">
               <AccountSidebar />
             </div>
 
-            {/* Right Main Content */}
-            <div className="flex-1 min-w-0 bg-[#F8FAFC] p-4 sm:p-6 lg:p-8 overflow-y-auto">
+            {/* Right Main Content - Independent Smooth Scroll */}
+            <div className="flex-1 min-w-0 bg-[#F8FAFC] p-4 sm:p-6 lg:p-8 lg:h-full lg:overflow-y-auto lg:overscroll-y-contain [scrollbar-width:thin] [scrollbar-color:#cbd5e1_transparent] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-slate-300 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-slate-400">
               {children}
             </div>
           </div>
