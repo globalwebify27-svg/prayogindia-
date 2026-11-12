@@ -191,7 +191,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                     src="/images/empty-cart-robot.png"
                     alt="Your Cart is Empty"
                     fill
-                    className="object-contain"
+                    className="object-contain mix-blend-multiply"
                     priority
                   />
                 </div>

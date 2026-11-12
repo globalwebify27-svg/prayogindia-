@@ -1009,7 +1009,7 @@ export const CheckoutView: React.FC = () => {
                             alt={item.product.name}
                             width={40}
                             height={40}
-                            className="object-contain"
+                            className="object-contain mix-blend-multiply"
                           />
                         ) : (
                           <Package className="w-4 h-4 text-slate-400" />
@@ -1137,7 +1137,7 @@ export const CheckoutView: React.FC = () => {
             src="/images/empty-cart-robot.png"
             alt="Your Cart is Empty"
             fill
-            className="object-contain"
+            className="object-contain mix-blend-multiply"
             priority
           />
         </div>

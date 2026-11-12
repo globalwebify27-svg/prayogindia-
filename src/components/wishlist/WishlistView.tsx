@@ -470,7 +470,7 @@ export const WishlistView: React.FC<WishlistViewProps> = ({
               src="/images/empty-wishlist-robot.png"
               alt="Your Wishlist is Empty"
               fill
-              className="object-contain"
+              className="object-contain mix-blend-multiply"
               priority
             />
           </div>
