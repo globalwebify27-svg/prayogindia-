@@ -244,10 +244,6 @@ export const AccountDashboardView: React.FC = () => {
       o.status?.toLowerCase().includes("delivered") ||
       o.status?.toLowerCase().includes("arrived"),
   ).length;
-  const totalSpentAmount = orders.reduce(
-    (sum, o) => sum + (o.totalAmount || 0),
-    0,
-  );
 
   // User display name
   const displayName =
@@ -348,9 +344,9 @@ export const AccountDashboardView: React.FC = () => {
       </div>
 
       {/* ======================================================== */}
-      {/* 2. STATS ROW: 4 REAL METRIC CARDS                        */}
+      {/* 2. STATS ROW: 3 REAL METRIC CARDS                        */}
       {/* ======================================================== */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3">
         {/* 1. Total Orders */}
         <Link
           href="/account/orders"
@@ -416,29 +412,6 @@ export const AccountDashboardView: React.FC = () => {
             </div>
           </div>
           <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-slate-50 group-hover:bg-purple-50 text-slate-400 group-hover:text-purple-600 flex items-center justify-center shrink-0 transition-colors">
-            <ChevronRight className="w-3.5 h-3.5" />
-          </div>
-        </Link>
-
-        {/* 4. Total Spent */}
-        <Link
-          href="/account/orders"
-          className="bg-white rounded-xl sm:rounded-2xl p-3 sm:p-3.5 border border-slate-100 shadow-xs hover:shadow-sm transition-all flex items-center justify-between group"
-        >
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
-              <Wallet className="w-4.5 h-4.5 sm:w-5 sm:h-5" />
-            </div>
-            <div>
-              <span className="text-base sm:text-xl font-black text-slate-900 block leading-tight">
-                ₹{totalSpentAmount.toLocaleString("en-IN")}
-              </span>
-              <span className="text-[10px] sm:text-xs font-semibold text-slate-500 block truncate">
-                Total Spent
-              </span>
-            </div>
-          </div>
-          <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-slate-50 group-hover:bg-amber-50 text-slate-400 group-hover:text-amber-600 flex items-center justify-center shrink-0 transition-colors">
             <ChevronRight className="w-3.5 h-3.5" />
           </div>
         </Link>
