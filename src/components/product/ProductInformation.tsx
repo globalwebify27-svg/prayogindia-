@@ -262,10 +262,9 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
     if (mode === "air") {
       if (!isAirAllowed) {
         useUIStore.getState().showToast({
-          title: "Air Express Is Not Available on this product",
-          message: "Air shipping is restricted for this product. Please choose Land / Road delivery or Store Pickup.",
+          title: "Air Express is not available on this product.",
           type: "error",
-          duration: 4000,
+          duration: 3500,
         });
         return;
       }
@@ -276,10 +275,9 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
     if (mode === "surface") {
       if (!isSurfaceAllowed) {
         useUIStore.getState().showToast({
-          title: "Surface Delivery Is Not Available on this product",
-          message: "Please choose Air Express or Local Store Pickup.",
+          title: "Surface Delivery is not available on this product.",
           type: "error",
-          duration: 4000,
+          duration: 3500,
         });
         return;
       }
@@ -290,10 +288,9 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
     if (mode === "pickup") {
       if (!isLocalPickupAllowed) {
         useUIStore.getState().showToast({
-          title: "Store Pickup Is Not Available on this product",
-          message: "This item is fulfilled exclusively via courier shipping to your address.",
+          title: "Store Pickup is not available on this product.",
           type: "error",
-          duration: 4000,
+          duration: 3500,
         });
         return;
       }

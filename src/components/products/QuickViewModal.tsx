@@ -694,38 +694,26 @@ const QuickViewModalContent: React.FC<{
 
               const handleModeClick = (mode: "air" | "surface" | "pickup") => {
                 if (mode === "air" && !isAirAllowed) {
-                  const isBattery = shippingTag.toLowerCase().includes("battery");
-                  const msg = isBattery
-                    ? `Air delivery is restricted by administration for this product because it contains batteries/hazardous materials under aviation IATA safety regulations.`
-                    : `Air delivery has not been enabled for this product by the administrator.`;
-                  setQuickRestrictionAlert(msg);
                   useUIStore.getState().showToast({
-                    title: "Air Delivery Not Available",
-                    message: msg,
+                    title: "Air Express is not available on this product.",
                     type: "error",
-                    duration: 4000,
+                    duration: 3500,
                   });
                   return;
                 }
                 if (mode === "surface" && !isSurfaceAllowed) {
-                  const msg = `Surface road delivery has not been enabled for this product by the administrator.`;
-                  setQuickRestrictionAlert(msg);
                   useUIStore.getState().showToast({
-                    title: "Surface Delivery Restricted",
-                    message: msg,
+                    title: "Surface Delivery is not available on this product.",
                     type: "error",
-                    duration: 4000,
+                    duration: 3500,
                   });
                   return;
                 }
                 if (mode === "pickup" && !isLocalPickupAllowed) {
-                  const msg = `Local store pickup is not enabled for this product by the administrator.`;
-                  setQuickRestrictionAlert(msg);
                   useUIStore.getState().showToast({
-                    title: "Store Pickup Unavailable",
-                    message: msg,
+                    title: "Store Pickup is not available on this product.",
                     type: "error",
-                    duration: 4000,
+                    duration: 3500,
                   });
                   return;
                 }
