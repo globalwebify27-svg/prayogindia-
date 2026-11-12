@@ -155,11 +155,11 @@ export const HeroSection: React.FC<HeroProps> = ({
 
   return (
     <div className="w-full select-none border-b border-slate-200">
-      {/* 1. Hero Showcase Banner (Full width edge-to-edge, exact 1920:642 aspect ratio so full banner is always 100% visible without any cropping) */}
+      {/* 1. Hero Showcase Banner (Full width edge-to-edge, compact & balanced banner height) */}
       <section
         onMouseEnter={() => setIsPaused(true)}
         onMouseLeave={() => setIsPaused(false)}
-        className="relative w-full rounded-none overflow-hidden aspect-[1920/642] flex items-center bg-slate-950 group"
+        className="relative w-full rounded-none overflow-hidden aspect-[1920/600] sm:aspect-[1920/520] max-h-[430px] flex items-center bg-slate-950 group"
         aria-label="Prayog India Featured Robotics Showcase Banner"
       >
         {/* Swipeable Animated Carousel Track */}
