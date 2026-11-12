@@ -206,7 +206,7 @@ export const ProfileForm: React.FC = () => {
   };
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-200/80 p-4 sm:p-7 shadow-2xs space-y-5 text-slate-900 relative">
+    <div className="w-full lg:w-1/2 bg-white rounded-2xl border border-slate-200/80 p-4 sm:p-7 shadow-2xs space-y-5 text-slate-900 relative">
       <div>
         <h2 className="text-xl font-bold text-slate-900 tracking-tight">
           My Profile
