@@ -272,7 +272,6 @@ export const ProfileForm: React.FC = () => {
                 maxLength={14}
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
-                placeholder="e.g. +91 98765 43210"
                 className={`w-full bg-slate-50 text-slate-900 pl-10 pr-4 py-2.5 rounded-xl border font-semibold transition-colors ${
                   isPhoneChanged
                     ? "border-amber-400 ring-2 ring-amber-400/20 bg-amber-50/30"
@@ -327,7 +326,6 @@ export const ProfileForm: React.FC = () => {
                   type="text"
                   value={companyName}
                   onChange={(e) => setCompanyName(e.target.value)}
-                  placeholder="e.g. Prayog Tech Labs Pvt Ltd"
                   className="w-full bg-slate-50 text-slate-900 pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none font-semibold"
                 />
               </div>
@@ -344,7 +342,6 @@ export const ProfileForm: React.FC = () => {
                   maxLength={15}
                   value={gstin}
                   onChange={(e) => setGstin(e.target.value)}
-                  placeholder="e.g. 29ABCDE1234F1Z5"
                   className="w-full bg-slate-50 text-slate-900 pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none font-mono font-semibold uppercase"
                 />
               </div>
