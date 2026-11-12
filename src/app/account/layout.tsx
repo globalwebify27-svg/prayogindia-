@@ -30,7 +30,7 @@ export default function AccountLayout({
   ].includes(pathname);
 
   return (
-    <div className="bg-[#F4F7FC] min-h-[calc(100vh-64px)] pt-0 pb-4 overflow-x-hidden">
+    <div className="bg-[#F4F7FC] min-h-[calc(100vh-64px)] pt-0 pb-4 overflow-x-clip">
       {isAuthPage ? (
         <div className="w-full px-3.5 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 py-3 sm:py-6">
           {children}
