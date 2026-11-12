@@ -207,7 +207,7 @@ export const ProfileForm: React.FC = () => {
   };
 
   return (
-    <div className="w-full bg-white rounded-2xl border border-slate-200/80 p-5 sm:p-7 shadow-2xs space-y-5 text-slate-900 relative">
+    <div className="w-full lg:w-1/2 bg-white rounded-2xl border border-slate-200/80 p-5 sm:p-7 shadow-2xs space-y-5 text-slate-900 relative">
       <div>
         <h2 className="text-xl font-bold text-slate-900 tracking-tight">
           My Profile
@@ -354,14 +354,7 @@ export const ProfileForm: React.FC = () => {
         </div>
 
         {/* Footer Actions */}
-        <div className="pt-5 border-t border-slate-100 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3.5">
-          <div className="flex items-center gap-2 text-slate-400 text-[11px]">
-            <ShieldCheck className="w-4 h-4 text-emerald-500 shrink-0" />
-            <span className="font-medium">
-              Profile details are verified and stored securely
-            </span>
-          </div>
-
+        <div className="pt-5 border-t border-slate-100 flex flex-col sm:flex-row items-start sm:items-center gap-3.5">
           <button
             type="submit"
             disabled={saving}
@@ -383,6 +376,13 @@ export const ProfileForm: React.FC = () => {
               </>
             )}
           </button>
+
+          <div className="flex items-center gap-2 text-slate-400 text-[11px]">
+            <ShieldCheck className="w-4 h-4 text-emerald-500 shrink-0" />
+            <span className="font-medium">
+              Profile details are verified and stored securely
+            </span>
+          </div>
         </div>
       </form>
 
