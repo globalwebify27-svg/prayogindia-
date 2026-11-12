@@ -464,13 +464,7 @@ export const WishlistView: React.FC<WishlistViewProps> = ({
         {!embedded && <CategoryBreadcrumb items={[{ label: "My Wishlist" }]} />}
 
         {/* Clean, Simple & Beautiful Empty State */}
-        <div
-          className={
-            embedded
-              ? "bg-white rounded-2xl border border-slate-200/80 p-8 sm:p-12 text-center max-w-2xl mx-auto space-y-3.5 shadow-2xs"
-              : "py-8 sm:py-12 text-center max-w-md mx-auto space-y-3.5"
-          }
-        >
+        <div className="py-6 sm:py-10 text-center max-w-2xl mx-auto space-y-3.5">
           <div className="relative w-48 h-32 sm:w-56 sm:h-38 mx-auto -mb-1">
             <Image
               src="/images/empty-wishlist-robot.png"
