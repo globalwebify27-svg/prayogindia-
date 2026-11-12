@@ -11,15 +11,9 @@ import {
   Layers,
   Star,
   Download,
-  Code,
-  Cpu,
-  BookOpen,
   Play,
   ExternalLink,
-  Video,
-  Copy,
   Wrench,
-  Terminal,
   FileCheck,
 } from "lucide-react";
 
@@ -55,16 +49,6 @@ export const ProductTabsSection: React.FC<ProductTabsSectionProps> = ({
   defaultTab,
 }) => {
   const [activeTab, setActiveTab] = useState<TabType>(defaultTab || "description");
-  const [resourceView, setResourceView] = useState<"datasheet" | "video">("datasheet");
-  const [copiedLink, setCopiedLink] = useState(false);
-
-  const handleCopyLink = (url: string) => {
-    if (typeof navigator !== "undefined" && navigator.clipboard) {
-      navigator.clipboard.writeText(url);
-      setCopiedLink(true);
-      setTimeout(() => setCopiedLink(false), 2200);
-    }
-  };
 
   // Single active accordion on mobile: opening one smoothly collapses any other
   const [activeAccordion, setActiveAccordion] = useState<string | null>(null);
@@ -351,278 +335,83 @@ export const ProductTabsSection: React.FC<ProductTabsSectionProps> = ({
           </div>
         )}
 
-        {/* 3. DATASHEETS, MANUALS & DOWNLOADABLE DOCUMENTS TAB */}
+        {/* 3. ADDITIONAL RESOURCES TAB (Only PDF & YouTube Link) */}
         {activeTab === "resources" && (
-          <div className="space-y-6 max-w-4xl">
-            {/* Header + Sub-Tab Toggle */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
-              <div>
-                <h3 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-                  Additional Resources
-                </h3>
-                <p className="text-xs sm:text-sm text-slate-500">
-                  Official Prayog India engineering PDF datasheet and YouTube video walkthrough.
-                </p>
+          <div className="space-y-4 max-w-3xl">
+            <h3 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
+              Additional Resources
+            </h3>
+
+            <div className="space-y-3 pt-1">
+              {/* 1. PDF Datasheet */}
+              <div className="bg-white border border-slate-200/90 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-2xs hover:shadow-xs transition-shadow">
+                <div className="flex items-center gap-3.5 min-w-0">
+                  <div className="w-10 h-10 rounded-xl bg-blue-50 border border-blue-200/80 text-[#005CA9] flex items-center justify-center shrink-0 shadow-2xs">
+                    <FileText className="w-5 h-5" />
+                  </div>
+                  <div className="min-w-0">
+                    <h4 className="text-sm sm:text-base font-bold text-slate-900 truncate">
+                      {product.name} Datasheet (PDF)
+                    </h4>
+                    <p className="text-xs text-slate-500 mt-0.5">
+                      Official technical specifications &amp; pinout reference
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 shrink-0">
+                  <a
+                    href={datasheetUrl || `https://prayogindia.in/docs/${product.sku || product.id}-datasheet.pdf`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 px-4 py-2 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-xl border border-slate-200 shadow-2xs transition-colors cursor-pointer"
+                  >
+                    <ExternalLink className="w-3.5 h-3.5 text-slate-500" />
+                    <span>Open in Browser</span>
+                  </a>
+                  <a
+                    href={datasheetUrl || `https://prayogindia.in/docs/${product.sku || product.id}-datasheet.pdf`}
+                    download
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#005CA9] hover:bg-[#004B8A] text-white text-xs font-semibold rounded-xl shadow-xs transition-colors cursor-pointer"
+                  >
+                    <Download className="w-3.5 h-3.5" />
+                    <span>Download PDF</span>
+                  </a>
+                </div>
               </div>
 
-              {/* Sub-Tabs: PDF Datasheet | YouTube Video */}
-              <div className="flex items-center gap-1 p-1 bg-slate-100 rounded-2xl shrink-0 border border-slate-200/80 overflow-x-auto scrollbar-none">
-                <button
-                  type="button"
-                  onClick={() => setResourceView("datasheet")}
-                  className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-extrabold transition-all cursor-pointer whitespace-nowrap ${
-                    resourceView === "datasheet"
-                      ? "bg-white text-slate-900 shadow-2xs"
-                      : "text-slate-600 hover:text-slate-900"
-                  }`}
-                >
-                  <FileText className="w-3.5 h-3.5 text-[#005CA9]" />
-                  <span>PDF Datasheet</span>
-                </button>
+              {/* 2. YouTube Link */}
+              <div className="bg-white border border-slate-200/90 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-2xs hover:shadow-xs transition-shadow">
+                <div className="flex items-center gap-3.5 min-w-0">
+                  <div className="w-10 h-10 rounded-xl bg-red-50 border border-red-200/80 text-[#FF0000] flex items-center justify-center shrink-0 shadow-2xs">
+                    <YouTubeIcon className="w-5 h-5" />
+                  </div>
+                  <div className="min-w-0">
+                    <h4 className="text-sm sm:text-base font-bold text-slate-900 truncate">
+                      {tutorialVideo?.title || `${product.name} Video Tutorial`}
+                    </h4>
+                    <p className="text-xs text-slate-500 mt-0.5">
+                      Hardware setup, pinout wiring &amp; demonstration
+                    </p>
+                  </div>
+                </div>
 
-                <button
-                  type="button"
-                  onClick={() => setResourceView("video")}
-                  className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-extrabold transition-all cursor-pointer whitespace-nowrap ${
-                    resourceView === "video"
-                      ? "bg-white text-slate-900 shadow-2xs"
-                      : "text-slate-600 hover:text-slate-900"
-                  }`}
-                >
-                  <YouTubeIcon className="w-3.5 h-3.5 text-[#FF0000]" />
-                  <span>YouTube Video</span>
-                </button>
+                <div className="flex items-center gap-2 shrink-0">
+                  <a
+                    href={tutorialVideo?.directUrl || product.videoUrl || `https://www.youtube.com/results?search_query=${encodeURIComponent("Prayog India " + product.name)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#FF0000] hover:bg-[#D90000] text-white text-xs font-semibold rounded-xl shadow-xs transition-colors cursor-pointer"
+                  >
+                    <Play className="w-3.5 h-3.5 fill-current" />
+                    <span>Watch on YouTube</span>
+                    <ExternalLink className="w-3.5 h-3.5 opacity-90" />
+                  </a>
+                </div>
               </div>
             </div>
-
-            {/* ── Sub-View 1: Official PDF Datasheet ── */}
-            {resourceView === "datasheet" && (
-              <div className="bg-white border border-slate-200 rounded-3xl p-5 sm:p-7 shadow-xs space-y-5">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                  <div className="flex items-center gap-3">
-                    <div className="w-11 h-11 rounded-2xl bg-blue-50 border border-blue-200/90 flex items-center justify-center text-[#005CA9] shrink-0 shadow-2xs">
-                      <FileText className="w-6 h-6" />
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="bg-blue-50 text-[#005CA9] font-bold px-2 py-0.5 rounded-full text-[10px] uppercase tracking-wider border border-blue-200">
-                          Official PDF Datasheet
-                        </span>
-                        <span className="text-[11px] font-semibold text-slate-400">
-                          Rev 2.4 • Verified Engineering Doc
-                        </span>
-                      </div>
-                      <h4 className="text-base sm:text-lg font-extrabold text-slate-900 mt-0.5">
-                        {product.name} — Technical Reference Datasheet &amp; Pinout
-                      </h4>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-2 shrink-0">
-                    <a
-                      href={datasheetUrl || "#"}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 bg-white hover:bg-slate-50 text-slate-700 font-extrabold text-xs sm:text-sm rounded-xl border border-slate-200 shadow-2xs transition-colors cursor-pointer"
-                    >
-                      <ExternalLink className="w-3.5 h-3.5 text-slate-500" />
-                      <span>Open in Browser</span>
-                    </a>
-                    <a
-                      href={datasheetUrl || "#"}
-                      download
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-[#005CA9] hover:bg-[#004a88] text-white font-extrabold text-xs sm:text-sm rounded-xl shadow-xs transition-all hover:scale-[1.02] cursor-pointer"
-                    >
-                      <Download className="w-4 h-4" />
-                      <span>Download PDF</span>
-                    </a>
-                  </div>
-                </div>
-
-                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                  Official engineering datasheet including absolute electrical maximum ratings, logic voltage levels, GPIO pinout definitions, dimensional blueprints, and power consumption benchmarks for <span className="font-bold text-slate-800">{product.name}</span>.
-                </p>
-
-                {/* Direct Link Box with Copy Button */}
-                <div className="bg-slate-50/90 border border-slate-200/90 rounded-2xl p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                  <div className="flex items-center gap-2.5 min-w-0">
-                    <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider shrink-0">
-                      Datasheet Source:
-                    </span>
-                    <span className="font-mono text-xs sm:text-sm text-blue-600 underline truncate font-semibold">
-                      {datasheetUrl || `https://prayogindia.in/docs/${product.sku || product.id}-datasheet.pdf`}
-                    </span>
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={() => handleCopyLink(datasheetUrl || `https://prayogindia.in/docs/${product.sku || product.id}-datasheet.pdf`)}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white hover:bg-slate-100 text-slate-700 text-xs font-bold rounded-lg border border-slate-200 shadow-2xs transition-colors cursor-pointer self-end sm:self-auto"
-                  >
-                    {copiedLink ? (
-                      <>
-                        <Check className="w-3.5 h-3.5 text-emerald-600" />
-                        <span className="text-emerald-600 font-bold">Copied!</span>
-                      </>
-                    ) : (
-                      <>
-                        <Copy className="w-3.5 h-3.5 text-slate-500" />
-                        <span>Copy Link</span>
-                      </>
-                    )}
-                  </button>
-                </div>
-
-                {/* Highlights Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
-                  <div className="p-3.5 bg-slate-50/80 rounded-2xl border border-slate-200/70 flex items-start gap-2.5">
-                    <Cpu className="w-4 h-4 text-[#005CA9] shrink-0 mt-0.5" />
-                    <div>
-                      <p className="text-xs font-bold text-slate-800">Electrical Tolerances</p>
-                      <p className="text-[11px] text-slate-500 mt-0.5">Operating &amp; maximum supply limits</p>
-                    </div>
-                  </div>
-                  <div className="p-3.5 bg-slate-50/80 rounded-2xl border border-slate-200/70 flex items-start gap-2.5">
-                    <FileText className="w-4 h-4 text-purple-600 shrink-0 mt-0.5" />
-                    <div>
-                      <p className="text-xs font-bold text-slate-800">Pin Mapping Matrix</p>
-                      <p className="text-[11px] text-slate-500 mt-0.5">GPIO, UART, SPI &amp; I2C pin layout</p>
-                    </div>
-                  </div>
-                  <div className="p-3.5 bg-slate-50/80 rounded-2xl border border-slate-200/70 flex items-start gap-2.5">
-                    <Layers className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                    <div>
-                      <p className="text-xs font-bold text-slate-800">Mechanical Drawings</p>
-                      <p className="text-[11px] text-slate-500 mt-0.5">Dimensions, pitch &amp; mounting holes</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* ── Sub-View 2: Product Video Tutorial & Walkthrough ── */}
-            {resourceView === "video" && (
-              tutorialVideo ? (
-                <div className="bg-white border border-slate-200 rounded-3xl p-5 sm:p-7 shadow-xs space-y-5">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                    <div className="flex items-center gap-3">
-                      <div className="w-11 h-11 rounded-2xl bg-red-50 border border-red-200/90 flex items-center justify-center text-[#FF0000] shrink-0 shadow-2xs">
-                        <YouTubeIcon className="w-6 h-6" />
-                      </div>
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <span className="bg-red-50 text-red-600 font-bold px-2 py-0.5 rounded-full text-[10px] uppercase tracking-wider border border-red-200">
-                            Official YouTube Tutorial
-                          </span>
-                          <span className="text-[11px] font-semibold text-slate-400">
-                            Step-by-Step
-                          </span>
-                        </div>
-                        <h4 className="text-base sm:text-lg font-extrabold text-slate-900 mt-0.5">
-                          {tutorialVideo.title}
-                        </h4>
-                      </div>
-                    </div>
-
-                    <a
-                      href={tutorialVideo.directUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-[#FF0000] hover:bg-[#D90000] text-white font-extrabold text-xs sm:text-sm rounded-xl shadow-xs transition-all hover:scale-[1.02] shrink-0 cursor-pointer"
-                    >
-                      <Play className="w-4 h-4 fill-current" />
-                      <span>Watch on YouTube</span>
-                      <ExternalLink className="w-3.5 h-3.5 opacity-90" />
-                    </a>
-                  </div>
-
-                  <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                    Step-by-step pinout setup, library installation, hardware circuit wiring, and working sample code demonstration for <span className="font-bold text-slate-800">{product.name}</span> on YouTube.
-                  </p>
-
-                  <div className="bg-slate-50/90 border border-slate-200/90 rounded-2xl p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                    <div className="flex items-center gap-2.5 min-w-0">
-                      <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider shrink-0">
-                        YouTube Link:
-                      </span>
-                      <a
-                        href={tutorialVideo.directUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="font-mono text-xs sm:text-sm text-blue-600 hover:text-blue-700 underline truncate font-semibold transition-colors"
-                        title={tutorialVideo.directUrl}
-                      >
-                        {tutorialVideo.directUrl}
-                      </a>
-                    </div>
-
-                    <button
-                      type="button"
-                      onClick={() => handleCopyLink(tutorialVideo.directUrl)}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white hover:bg-slate-100 text-slate-700 text-xs font-bold rounded-lg border border-slate-200 shadow-2xs transition-colors cursor-pointer self-end sm:self-auto"
-                    >
-                      {copiedLink ? (
-                        <>
-                          <Check className="w-3.5 h-3.5 text-emerald-600" />
-                          <span className="text-emerald-600 font-bold">Copied!</span>
-                        </>
-                      ) : (
-                        <>
-                          <Copy className="w-3.5 h-3.5 text-slate-500" />
-                          <span>Copy Link</span>
-                        </>
-                      )}
-                    </button>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
-                    <div className="p-3 bg-slate-50/70 rounded-xl border border-slate-100 flex items-start gap-2.5">
-                      <Cpu className="w-4 h-4 text-cyan-600 shrink-0 mt-0.5" />
-                      <div>
-                        <p className="text-xs font-bold text-slate-800">Pinouts &amp; Wiring</p>
-                        <p className="text-[11px] text-slate-500 mt-0.5">GPIO connections and voltage rails</p>
-                      </div>
-                    </div>
-                    <div className="p-3 bg-slate-50/70 rounded-xl border border-slate-100 flex items-start gap-2.5">
-                      <Code className="w-4 h-4 text-purple-600 shrink-0 mt-0.5" />
-                      <div>
-                        <p className="text-xs font-bold text-slate-800">IDE &amp; Library Setup</p>
-                        <p className="text-[11px] text-slate-500 mt-0.5">Arduino &amp; MicroPython libraries</p>
-                      </div>
-                    </div>
-                    <div className="p-3 bg-slate-50/70 rounded-xl border border-slate-100 flex items-start gap-2.5">
-                      <BookOpen className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                      <div>
-                        <p className="text-xs font-bold text-slate-800">Sample Code Demo</p>
-                        <p className="text-[11px] text-slate-500 mt-0.5">Tested sketches and project circuits</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <div className="bg-white border border-dashed border-slate-200 rounded-3xl p-8 text-center space-y-3">
-                  <div className="w-12 h-12 rounded-2xl bg-red-50 text-red-500 flex items-center justify-center mx-auto shadow-2xs">
-                    <YouTubeIcon className="w-6 h-6" />
-                  </div>
-                  <h4 className="text-base font-bold text-slate-800">
-                    Product Video Tutorial
-                  </h4>
-                  <p className="text-xs text-slate-500 max-w-sm mx-auto">
-                    Video walkthrough demonstration is being prepared by our engineering team for this model.
-                  </p>
-                  <button
-                    type="button"
-                    onClick={() => setResourceView("datasheet")}
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl text-xs font-bold transition-all cursor-pointer mt-2"
-                  >
-                    <FileText className="w-4 h-4 text-[#005CA9]" />
-                    <span>View PDF Datasheet Instead</span>
-                  </button>
-                </div>
-              )
-            )}
           </div>
         )}
 
