@@ -254,7 +254,7 @@ export const ProductTabsSection: React.FC<ProductTabsSectionProps> = ({
             [
               { id: "description", label: "Description" },
               { id: "specifications", label: "Specifications" },
-              { id: "resources", label: "Datasheets & Manuals" },
+              { id: "resources", label: "Additional Resources" },
               {
                 id: "reviews",
                 label: `Customer Reviews (${product.reviews || 12})`,
@@ -411,7 +411,7 @@ export const ProductTabsSection: React.FC<ProductTabsSectionProps> = ({
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
               <div>
                 <h3 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-                  Datasheets, Manuals &amp; Technical Documents
+                  Additional Resources
                 </h3>
                 <p className="text-xs sm:text-sm text-slate-500">
                   Official Prayog India engineering schematics, pinout references, user manuals, and video walkthroughs.
