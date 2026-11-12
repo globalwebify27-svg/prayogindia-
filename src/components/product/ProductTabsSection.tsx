@@ -257,7 +257,7 @@ export const ProductTabsSection: React.FC<ProductTabsSectionProps> = ({
               { id: "resources", label: "Additional Resources" },
               {
                 id: "reviews",
-                label: `Customer Reviews (${product.reviews || 12})`,
+                label: "Customer Reviews",
               },
             ] as const
           ).map((tab) => {
@@ -1321,7 +1321,7 @@ export const ProductTabsSection: React.FC<ProductTabsSectionProps> = ({
             onClick={() => toggleSection("reviews")}
             className="w-full flex items-center justify-between p-4 text-left font-bold text-slate-800 text-[15px] cursor-pointer select-none active:bg-slate-50/80 transition-colors"
           >
-            <span>Customer Reviews ({product.reviews || 12})</span>
+            <span>Customer Reviews</span>
             <ChevronDown
               className={`w-5 h-5 text-slate-600 transition-transform duration-300 ease-out shrink-0 ${
                 activeAccordion === "reviews" ? "rotate-180 text-slate-900" : ""
