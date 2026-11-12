@@ -21,8 +21,10 @@ import {
   XCircle,
   Zap,
   LogOut,
+  Wallet,
 } from "lucide-react";
 import { CustomerOrder } from "@/data/accountData";
+import { PRODUCTS } from "@/data/mockData";
 
 const WhatsAppIcon: React.FC<{ className?: string }> = ({
   className = "w-5 h-5",
@@ -53,6 +55,34 @@ function formatStatus(status: string): CustomerOrder["status"] {
     default:
       return (status?.replace(/_/g, " ") as any) || "Order Placed";
   }
+}
+
+function getProductThumbnail(item?: { id?: string; name?: string; image?: string; sku?: string }) {
+  if (item?.image && item.image !== "/placeholder.png" && !item.image.includes("placeholder")) {
+    return item.image;
+  }
+  if (item?.name) {
+    const query = item.name.toLowerCase().trim();
+    const matched = PRODUCTS.find(
+      (p) =>
+        p.name.toLowerCase().includes(query) ||
+        query.includes(p.name.toLowerCase()) ||
+        (item.sku && p.sku && p.sku.toLowerCase() === item.sku.toLowerCase()) ||
+        (item.id && p.id === item.id)
+    );
+    if (matched && matched.image) {
+      return matched.image;
+    }
+  }
+  const n = (item?.name || "").toLowerCase();
+  if (n.includes("uno") || n.includes("arduino")) return "/images/products/arduino-uno-r3.png";
+  if (n.includes("pi") || n.includes("raspberry")) return "/images/products/raspberry-pi-5.png";
+  if (n.includes("sensor") || n.includes("ultrasonic")) return "/images/products/ultrasonic-sensor-hcsr04.png";
+  if (n.includes("motor") || n.includes("driver")) return "/images/products/l298n-motor-driver.jpg";
+  if (n.includes("chassis") || n.includes("robot")) return "/images/products/4wd-robot-chassis-kit.jpg";
+  if (n.includes("esp32")) return "/images/products/esp32-devkit-v1.png";
+
+  return "/images/products/arduino-uno-r3.png";
 }
 
 export const AccountDashboardView: React.FC = () => {
@@ -116,31 +146,61 @@ export const AccountDashboardView: React.FC = () => {
             const existingOrderNums = new Set(mapped.map((o) => o.orderNumber));
             const localOrders: CustomerOrder[] = parsed
               .filter((o: any) => !existingOrderNums.has(o.orderNumber))
-              .map((o: any) => ({
-                id: o.id || o.orderNumber,
-                orderNumber: o.orderNumber,
-                date: o.createdAt
-                  ? new Date(o.createdAt).toLocaleDateString("en-IN", {
-                      day: "numeric",
-                      month: "short",
-                      year: "numeric",
-                    })
-                  : "Today",
-                totalAmount: o.totalAmount || 0,
-                subtotal: o.subtotal || o.totalAmount || 0,
-                status: formatStatus(o.status || "ORDER_PLACED"),
-                itemsCount: o.items?.length || 1,
-                shippingAddress: o.shippingAddress || "",
-                items:
-                  o.items?.map((item: any) => ({
-                    id: item.id || item.productId || "item-1",
-                    name: item.name || item.productName || "Hardware Component",
-                    sku: item.sku || item.productSku || "PRG-SKU",
-                    quantity: item.quantity || 1,
-                    price: item.price || 0,
-                    image: item.image || "/placeholder.png",
-                  })) || [],
-              }));
+              .map((o: any) => {
+                const rawItems = o.items || [];
+                const resolvedItems =
+                  rawItems.length > 0
+                    ? rawItems.map((item: any, idx: number) => {
+                        const itemName =
+                          item.name || item.productName || "Arduino UNO R3 Official Rev3 Board";
+                        const matchedProd = PRODUCTS.find(
+                          (p) =>
+                            p.name.toLowerCase() === itemName.toLowerCase() ||
+                            p.id === (item.id || item.productId)
+                        );
+                        return {
+                          id: item.id || item.productId || matchedProd?.id || `item-${idx + 1}`,
+                          name: itemName,
+                          sku: item.sku || item.productSku || matchedProd?.sku || "PRG-ARD-001",
+                          slug: item.slug || matchedProd?.slug || "arduino-uno-r3-official-rev3-board",
+                          quantity: item.quantity || 1,
+                          price: item.price || matchedProd?.price || (o.totalAmount || 1200),
+                          image:
+                            item.image ||
+                            matchedProd?.image ||
+                            getProductThumbnail({ name: itemName, sku: item.sku }),
+                        };
+                      })
+                    : [
+                        {
+                          id: "item-default",
+                          name: "Arduino UNO R3 Official Rev3 Board (ATmega328P)",
+                          sku: "PRG-ARD-001",
+                          slug: "arduino-uno-r3-official-rev3-board",
+                          quantity: 1,
+                          price: o.totalAmount || 1200,
+                          image: "/images/products/arduino-uno-r3.png",
+                        },
+                      ];
+
+                return {
+                  id: o.id || o.orderNumber,
+                  orderNumber: o.orderNumber,
+                  date: o.createdAt
+                    ? new Date(o.createdAt).toLocaleDateString("en-IN", {
+                        day: "numeric",
+                        month: "short",
+                        year: "numeric",
+                      })
+                    : "Today",
+                  totalAmount: o.totalAmount || 0,
+                  subtotal: o.subtotal || o.totalAmount || 0,
+                  status: formatStatus(o.status || "ORDER_PLACED"),
+                  itemsCount: resolvedItems.length,
+                  shippingAddress: o.shippingAddress || "",
+                  items: resolvedItems,
+                };
+              });
             mapped = [...localOrders, ...mapped];
           }
         }
@@ -184,6 +244,10 @@ export const AccountDashboardView: React.FC = () => {
       o.status?.toLowerCase().includes("delivered") ||
       o.status?.toLowerCase().includes("arrived"),
   ).length;
+  const totalSpentAmount = orders.reduce(
+    (sum, o) => sum + (o.totalAmount || 0),
+    0,
+  );
 
   // User display name
   const displayName =
@@ -284,9 +348,9 @@ export const AccountDashboardView: React.FC = () => {
       </div>
 
       {/* ======================================================== */}
-      {/* 2. STATS ROW: 3 REAL METRIC CARDS                       */}
+      {/* 2. STATS ROW: 4 REAL METRIC CARDS                        */}
       {/* ======================================================== */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3">
         {/* 1. Total Orders */}
         <Link
           href="/account/orders"
@@ -355,6 +419,29 @@ export const AccountDashboardView: React.FC = () => {
             <ChevronRight className="w-3.5 h-3.5" />
           </div>
         </Link>
+
+        {/* 4. Total Spent */}
+        <Link
+          href="/account/orders"
+          className="bg-white rounded-xl sm:rounded-2xl p-3 sm:p-3.5 border border-slate-100 shadow-xs hover:shadow-sm transition-all flex items-center justify-between group"
+        >
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
+              <Wallet className="w-4.5 h-4.5 sm:w-5 sm:h-5" />
+            </div>
+            <div>
+              <span className="text-base sm:text-xl font-black text-slate-900 block leading-tight">
+                ₹{totalSpentAmount.toLocaleString("en-IN")}
+              </span>
+              <span className="text-[10px] sm:text-xs font-semibold text-slate-500 block truncate">
+                Total Spent
+              </span>
+            </div>
+          </div>
+          <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-slate-50 group-hover:bg-amber-50 text-slate-400 group-hover:text-amber-600 flex items-center justify-center shrink-0 transition-colors">
+            <ChevronRight className="w-3.5 h-3.5" />
+          </div>
+        </Link>
       </div>
 
       {/* ======================================================== */}
@@ -401,87 +488,98 @@ export const AccountDashboardView: React.FC = () => {
                 const isCancelled =
                   ord.status?.toLowerCase().includes("cancelled");
 
+                const firstItem = ord.items?.[0] || {
+                  name: "Arduino UNO R3 Official Rev3 Board (ATmega328P)",
+                  image: "/images/products/arduino-uno-r3.png",
+                  quantity: 1,
+                  price: ord.totalAmount,
+                };
+                const itemThumb = getProductThumbnail(firstItem);
+                const extraItemsCount = (ord.items?.length || 1) - 1;
+
                 return (
                   <div
                     key={ord.id}
-                    className="py-2.5 sm:py-3 first:pt-1 last:pb-1 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 hover:bg-slate-50/60 px-2 rounded-xl transition-colors"
+                    className="py-3 first:pt-1 last:pb-1 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-slate-50/70 p-2 sm:px-3 rounded-2xl transition-colors group"
                   >
-                    {/* Left: Product Thumbnails + Order details */}
-                    <div className="flex items-center gap-2.5">
-                      {/* Thumbnails */}
-                      <div className="flex items-center -space-x-2 shrink-0">
-                        {ord.items && ord.items.length > 0 ? (
-                          ord.items.slice(0, 2).map((item, idx) => (
-                            <div
-                              key={idx}
-                              className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-slate-50 border border-slate-200/80 p-0.5 flex items-center justify-center relative overflow-hidden shadow-2xs"
-                              title={item.name}
-                            >
-                              <Image
-                                src={item.image}
-                                alt={item.name}
-                                fill
-                                className="object-contain p-0.5"
-                              />
-                            </div>
-                          ))
-                        ) : (
-                          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-slate-50 border border-slate-200/80 p-0.5 flex items-center justify-center relative">
-                            <Package className="w-4 h-4 text-slate-400" />
-                          </div>
-                        )}
+                    {/* Left: Product Thumbnail + Title + Order Number & Date */}
+                    <div className="flex items-center gap-3 min-w-0 flex-1">
+                      <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-slate-50 border border-slate-200/80 p-1 flex items-center justify-center relative overflow-hidden shrink-0 shadow-2xs">
+                        <Image
+                          src={itemThumb}
+                          alt={firstItem.name}
+                          fill
+                          sizes="56px"
+                          className="object-contain p-1"
+                        />
                       </div>
 
-                      <div>
-                        <span className="text-xs sm:text-sm font-bold text-slate-900 block tracking-tight">
-                          #{ord.orderNumber}
-                        </span>
-                        <span className="text-[10px] sm:text-[11px] text-slate-400 font-medium block mt-0.5">
-                          {ord.date}
-                        </span>
+                      <div className="min-w-0 flex-1 space-y-0.5">
+                        <Link
+                          href={`/account/orders/${ord.id}`}
+                          className="text-xs sm:text-sm font-bold text-slate-900 group-hover:text-[#2563EB] line-clamp-1 tracking-tight transition-colors block"
+                        >
+                          {firstItem.name}
+                        </Link>
+
+                        <div className="flex flex-wrap items-center gap-x-2 text-[11px] text-slate-400 font-medium">
+                          <span className="font-mono text-slate-600 font-bold">
+                            #{ord.orderNumber}
+                          </span>
+                          <span>•</span>
+                          <span>{ord.date}</span>
+                          {extraItemsCount > 0 && (
+                            <>
+                              <span>•</span>
+                              <span className="text-[#2563EB] font-bold">
+                                +{extraItemsCount} more {extraItemsCount === 1 ? "item" : "items"}
+                              </span>
+                            </>
+                          )}
+                        </div>
                       </div>
                     </div>
 
                     {/* Right: Status Pill + Amount + View Details */}
-                    <div className="flex items-center justify-between sm:justify-end gap-2.5 sm:gap-4">
+                    <div className="flex items-center justify-between sm:justify-end gap-3 sm:gap-4 shrink-0 pl-15 sm:pl-0">
                       {/* Status Pill */}
                       {isDelivered && (
-                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200/60 shrink-0">
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200/70 shrink-0">
                           <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                          Delivered
+                          <span>Delivered</span>
                         </span>
                       )}
                       {isShipped && (
-                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-blue-50 text-[#2563EB] border border-blue-200/60 shrink-0">
-                          <Truck className="w-3 h-3" />
-                          Shipped
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-sky-50 text-sky-700 border border-sky-200/70 shrink-0">
+                          <span className="w-1.5 h-1.5 rounded-full bg-sky-500" />
+                          <span>Shipped</span>
                         </span>
                       )}
                       {isProcessing && (
-                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-50 text-amber-700 border border-amber-200/60 shrink-0">
-                          <Clock className="w-3 h-3" />
-                          Processing
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-50 text-amber-700 border border-amber-200/70 shrink-0">
+                          <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+                          <span>Processing</span>
                         </span>
                       )}
                       {isCancelled && (
-                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-slate-100 text-slate-600 border border-slate-200/60 shrink-0">
-                          <XCircle className="w-3 h-3" />
-                          Cancelled
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-rose-50 text-rose-700 border border-rose-200/70 shrink-0">
+                          <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
+                          <span>Cancelled</span>
                         </span>
                       )}
 
-                      {/* Price */}
-                      <span className="text-xs sm:text-sm font-black text-slate-900 min-w-[65px] text-right">
+                      {/* Total Amount */}
+                      <span className="font-extrabold text-xs sm:text-sm text-slate-900 min-w-[70px] text-right">
                         ₹{ord.totalAmount.toLocaleString("en-IN")}
                       </span>
 
-                      {/* View Details Button */}
+                      {/* View Details Link */}
                       <Link
                         href={`/account/orders/${ord.id}`}
-                        className="text-xs font-bold text-[#2563EB] hover:text-blue-700 bg-blue-50/70 hover:bg-blue-50 px-2.5 py-1.5 rounded-lg transition-colors flex items-center gap-1 shrink-0"
+                        className="text-xs font-bold text-[#2563EB] hover:text-[#1D4ED8] flex items-center gap-0.5 shrink-0"
                       >
-                        <span>View Details</span>
-                        <ArrowRight className="w-3 h-3" />
+                        <span>View</span>
+                        <ChevronRight className="w-3.5 h-3.5" />
                       </Link>
                     </div>
                   </div>
