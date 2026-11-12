@@ -471,8 +471,14 @@ export const WishlistView: React.FC<WishlistViewProps> = ({
               : "py-8 sm:py-12 text-center max-w-md mx-auto space-y-3.5"
           }
         >
-          <div className="w-16 h-16 rounded-full bg-rose-50 text-rose-500 flex items-center justify-center mx-auto shadow-2xs">
-            <Heart className="w-8 h-8 stroke-[1.75]" />
+          <div className="relative w-48 h-32 sm:w-56 sm:h-38 mx-auto -mb-1">
+            <Image
+              src="/images/empty-wishlist-robot.png"
+              alt="Your Wishlist is Empty"
+              fill
+              className="object-contain"
+              priority
+            />
           </div>
 
           <div className="space-y-1">
