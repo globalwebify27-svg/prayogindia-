@@ -17,7 +17,18 @@ import {
   X,
   Loader2,
   Send,
+  Trash2,
+  Link2,
+  ExternalLink,
 } from "lucide-react";
+
+interface QuotationProductItem {
+  id: string;
+  name: string;
+  link: string;
+  quantity: string;
+  targetPrice: string;
+}
 
 export default function CustomerQuotationsPage() {
   const { user } = useStore();
@@ -41,10 +52,38 @@ export default function CustomerQuotationsPage() {
     user?.phone?.replace(/\D/g, "").slice(-10) || "",
   );
   const [newInstitutionType, setNewInstitutionType] = useState("ATL School");
-  const [newProductName, setNewProductName] = useState("");
-  const [newQuantity, setNewQuantity] = useState("10");
-  const [newTargetPrice, setNewTargetPrice] = useState("");
+  const [quoteProducts, setQuoteProducts] = useState<QuotationProductItem[]>([
+    { id: "1", name: "", link: "", quantity: "10", targetPrice: "" },
+  ]);
   const [newNotes, setNewNotes] = useState("");
+
+  const handleAddProduct = () => {
+    setQuoteProducts((prev) => [
+      ...prev,
+      {
+        id: `prod-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+        name: "",
+        link: "",
+        quantity: "1",
+        targetPrice: "",
+      },
+    ]);
+  };
+
+  const handleRemoveProduct = (id: string) => {
+    if (quoteProducts.length <= 1) return;
+    setQuoteProducts((prev) => prev.filter((p) => p.id !== id));
+  };
+
+  const handleUpdateProduct = (
+    id: string,
+    field: keyof QuotationProductItem,
+    value: string,
+  ) => {
+    setQuoteProducts((prev) =>
+      prev.map((p) => (p.id === id ? { ...p, [field]: value } : p)),
+    );
+  };
 
   useEffect(() => {
     if (user) {
@@ -100,36 +139,59 @@ export default function CustomerQuotationsPage() {
 
   const handleCreateQuotation = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newCompanyName.trim() || !newCustomerName.trim() || !newProductName.trim()) {
-      alert("Please fill in company name, contact name, and requirement.");
+    const validProducts = quoteProducts.filter((p) => p.name.trim().length > 0);
+    if (!newCompanyName.trim() || !newCustomerName.trim() || validProducts.length === 0) {
+      alert("Please fill in company name, contact person, and at least one product requirement.");
       return;
     }
 
     setSubmittingQuote(true);
     try {
+      const itemsPayload = validProducts.map((p) => ({
+        productName: p.name.trim(),
+        productLink: p.link.trim() || undefined,
+        quantity: Math.max(1, parseInt(p.quantity, 10) || 1),
+        unitPrice:
+          p.targetPrice && Number(p.targetPrice) > 0
+            ? Number(p.targetPrice)
+            : undefined,
+      }));
+
+      const linksList = validProducts
+        .filter((p) => p.link.trim().length > 0)
+        .map(
+          (p, idx) =>
+            `${idx + 1}. ${p.name.trim()} (${p.quantity}x): ${p.link.trim()}`,
+        )
+        .join("\n");
+
+      const combinedNotes = [
+        newNotes.trim(),
+        linksList ? `Product Reference Links:\n${linksList}` : "",
+      ]
+        .filter(Boolean)
+        .join("\n\n");
+
       const res = await fetch("/api/quotations/request", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           companyName: newCompanyName.trim(),
           customerName: newCustomerName.trim(),
-          customerEmail: newCustomerEmail.trim() || user?.email || "customer@prayog.in",
+          customerEmail:
+            newCustomerEmail.trim() || user?.email || "customer@prayog.in",
           customerPhone: newCustomerPhone.trim() || "9876543210",
           institutionType: newInstitutionType,
-          notes: newNotes.trim() || undefined,
-          items: [
-            {
-              productName: newProductName.trim(),
-              quantity: Number(newQuantity) || 1,
-              unitPrice: newTargetPrice ? Number(newTargetPrice) : undefined,
-            },
-          ],
+          notes: combinedNotes || undefined,
+          items: itemsPayload,
         }),
       });
       const data = await res.json();
       if (data.success) {
         setShowNewQuoteModal(false);
-        setNewProductName("");
+        setQuoteProducts([
+          { id: "1", name: "", link: "", quantity: "10", targetPrice: "" },
+        ]);
         setNewNotes("");
         fetchQuotations();
       } else {
@@ -344,8 +406,19 @@ export default function CustomerQuotationsPage() {
                       key={item.id}
                       className="p-3 bg-slate-50 rounded-2xl border border-slate-100 text-xs"
                     >
-                      <div className="font-bold text-slate-800 truncate">
-                        {item.productName}
+                      <div className="font-bold text-slate-800 flex items-center justify-between gap-1.5">
+                        <span className="truncate">{item.productName}</span>
+                        {item.productLink && (
+                          <a
+                            href={item.productLink}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-[#2563EB] hover:text-blue-700 shrink-0 p-0.5 rounded hover:bg-blue-50 transition-colors"
+                            title="Open product link"
+                          >
+                            <ExternalLink className="w-3 h-3" />
+                          </a>
+                        )}
                       </div>
                       <div className="flex justify-between text-slate-500 text-[11px] mt-1">
                         <span>
@@ -531,49 +604,156 @@ export default function CustomerQuotationsPage() {
                   />
                 </div>
 
-                {/* Product / Requirement */}
-                <div>
-                  <label className="block font-bold text-slate-700 mb-1.5">
-                    Product / Component Requirement <span className="text-rose-500">*</span>
-                  </label>
-                  <textarea
-                    rows={2}
-                    required
-                    placeholder="e.g. 50x Arduino Uno R3, 20x Raspberry Pi 5 8GB, 100x Ultrasonic Sensors..."
-                    value={newProductName}
-                    onChange={(e) => setNewProductName(e.target.value)}
-                    className="w-full p-3 bg-slate-50/70 hover:bg-slate-50 focus:bg-white border border-slate-200 focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/15 rounded-xl font-medium text-slate-900 outline-none transition-all resize-none"
-                  />
-                </div>
+                {/* ── Multiple Products / Requirements Section ── */}
+                <div className="space-y-3 pt-1">
+                  <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+                    <div>
+                      <label className="block font-bold text-slate-800 text-sm">
+                        Products &amp; Components <span className="text-rose-500">*</span>
+                      </label>
+                      <p className="text-[11px] text-slate-500 font-normal">
+                        Add one or multiple products with required quantity and optional product links.
+                      </p>
+                    </div>
 
-                {/* Quantity & Target Unit Price */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                  <div>
-                    <label className="block font-bold text-slate-700 mb-1.5">
-                      Quantity <span className="text-rose-500">*</span>
-                    </label>
-                    <input
-                      type="number"
-                      min="1"
-                      required
-                      placeholder="10"
-                      value={newQuantity}
-                      onChange={(e) => setNewQuantity(e.target.value)}
-                      className="w-full px-3.5 py-2.5 bg-slate-50/70 hover:bg-slate-50 focus:bg-white border border-slate-200 focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/15 rounded-xl font-medium text-slate-900 outline-none transition-all"
-                    />
+                    <button
+                      type="button"
+                      onClick={handleAddProduct}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-50 hover:bg-blue-100 text-[#2563EB] text-xs font-bold transition-all active:scale-95 cursor-pointer shadow-2xs shrink-0"
+                    >
+                      <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+                      <span>Add Product</span>
+                    </button>
                   </div>
-                  <div>
-                    <label className="block font-bold text-slate-700 mb-1.5">
-                      Target Unit Price (Optional ₹)
-                    </label>
-                    <input
-                      type="number"
-                      placeholder="e.g. 450"
-                      value={newTargetPrice}
-                      onChange={(e) => setNewTargetPrice(e.target.value)}
-                      className="w-full px-3.5 py-2.5 bg-slate-50/70 hover:bg-slate-50 focus:bg-white border border-slate-200 focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/15 rounded-xl font-medium text-slate-900 outline-none transition-all"
-                    />
+
+                  <div className="space-y-3 max-h-[340px] overflow-y-auto pr-1">
+                    {quoteProducts.map((prod, index) => (
+                      <div
+                        key={prod.id}
+                        className="bg-slate-50/80 hover:bg-slate-50 border border-slate-200/90 rounded-2xl p-3 sm:p-3.5 space-y-2.5 transition-colors relative"
+                      >
+                        {/* Item Top Bar */}
+                        <div className="flex items-center justify-between">
+                          <span className="inline-flex items-center gap-1.5 text-xs font-extrabold text-[#0A233F]">
+                            <span className="w-5 h-5 rounded-full bg-[#0A233F] text-white text-[10px] font-bold flex items-center justify-center">
+                              {index + 1}
+                            </span>
+                            <span>Product Item #{index + 1}</span>
+                          </span>
+
+                          {quoteProducts.length > 1 && (
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveProduct(prod.id)}
+                              className="text-xs font-semibold text-rose-500 hover:text-rose-700 hover:bg-rose-50 px-2 py-1 rounded-lg transition-colors flex items-center gap-1 cursor-pointer"
+                              title="Remove this product"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                              <span className="hidden sm:inline">Remove</span>
+                            </button>
+                          )}
+                        </div>
+
+                        {/* Product Name Input */}
+                        <div>
+                          <label className="block text-xs font-bold text-slate-700 mb-1">
+                            Product Name / Specification <span className="text-rose-500">*</span>
+                          </label>
+                          <input
+                            type="text"
+                            required
+                            placeholder="e.g. Arduino Uno R3, Raspberry Pi 5 8GB, Ultrasonic Sensor HC-SR04..."
+                            value={prod.name}
+                            onChange={(e) =>
+                              handleUpdateProduct(prod.id, "name", e.target.value)
+                            }
+                            className="w-full px-3 py-2 bg-white border border-slate-200 focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/15 rounded-xl font-medium text-xs sm:text-sm text-slate-900 outline-none transition-all"
+                          />
+                        </div>
+
+                        {/* Product Link + Quantity & Target Price Grid */}
+                        <div className="grid grid-cols-1 sm:grid-cols-12 gap-2.5">
+                          {/* Product Link (Optional) */}
+                          <div className="sm:col-span-6">
+                            <label className="block text-xs font-bold text-slate-700 mb-1">
+                              Product Link / URL{" "}
+                              <span className="text-slate-400 font-normal">
+                                (Optional)
+                              </span>
+                            </label>
+                            <div className="flex items-center bg-white border border-slate-200 focus-within:border-[#2563EB] focus-within:ring-2 focus-within:ring-[#2563EB]/15 rounded-xl overflow-hidden px-2.5 py-1.5 transition-all">
+                              <Link2 className="w-3.5 h-3.5 text-slate-400 shrink-0 mr-1.5" />
+                              <input
+                                type="url"
+                                placeholder="https://prayogindia.com/products/..."
+                                value={prod.link}
+                                onChange={(e) =>
+                                  handleUpdateProduct(prod.id, "link", e.target.value)
+                                }
+                                className="w-full bg-transparent font-medium text-xs text-slate-900 placeholder:text-slate-400 outline-none"
+                              />
+                            </div>
+                          </div>
+
+                          {/* Quantity */}
+                          <div className="sm:col-span-3">
+                            <label className="block text-xs font-bold text-slate-700 mb-1">
+                              Quantity <span className="text-rose-500">*</span>
+                            </label>
+                            <input
+                              type="number"
+                              min="1"
+                              required
+                              placeholder="10"
+                              value={prod.quantity}
+                              onChange={(e) =>
+                                handleUpdateProduct(
+                                  prod.id,
+                                  "quantity",
+                                  e.target.value,
+                                )
+                              }
+                              className="w-full px-3 py-1.5 bg-white border border-slate-200 focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/15 rounded-xl font-medium text-xs sm:text-sm text-slate-900 outline-none transition-all text-center sm:text-left"
+                            />
+                          </div>
+
+                          {/* Target Unit Price (Optional) */}
+                          <div className="sm:col-span-3">
+                            <label className="block text-xs font-bold text-slate-700 mb-1 truncate">
+                              Target ₹{" "}
+                              <span className="text-slate-400 font-normal">
+                                (Opt)
+                              </span>
+                            </label>
+                            <input
+                              type="number"
+                              min="0"
+                              placeholder="e.g. 450"
+                              value={prod.targetPrice}
+                              onChange={(e) =>
+                                handleUpdateProduct(
+                                  prod.id,
+                                  "targetPrice",
+                                  e.target.value,
+                                )
+                              }
+                              className="w-full px-3 py-1.5 bg-white border border-slate-200 focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/15 rounded-xl font-medium text-xs sm:text-sm text-slate-900 outline-none transition-all"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    ))}
                   </div>
+
+                  {/* Add another product dashed button */}
+                  <button
+                    type="button"
+                    onClick={handleAddProduct}
+                    className="w-full py-2 border-2 border-dashed border-slate-200 hover:border-[#2563EB] hover:bg-blue-50/50 rounded-xl text-xs font-bold text-slate-600 hover:text-[#2563EB] transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>+ Add Another Product</span>
+                  </button>
                 </div>
 
                 {/* Notes */}
@@ -666,7 +846,20 @@ export default function CustomerQuotationsPage() {
                     {selectedQuote.items?.map((item: any) => (
                       <tr key={item.id}>
                         <td className="p-3">
-                          <div className="font-bold">{item.productName}</div>
+                          <div className="font-bold flex items-center gap-2">
+                            <span>{item.productName}</span>
+                            {item.productLink && (
+                              <a
+                                href={item.productLink}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-1 text-[10px] font-bold text-[#2563EB] hover:underline bg-blue-50 px-2 py-0.5 rounded-full"
+                              >
+                                <ExternalLink className="w-2.5 h-2.5" />
+                                <span>Link</span>
+                              </a>
+                            )}
+                          </div>
                           <div className="text-[11px] text-slate-400 font-mono">
                             {item.productSku}
                           </div>

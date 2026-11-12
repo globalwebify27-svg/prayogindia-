@@ -292,6 +292,7 @@ export async function POST(request: Request) {
     return {
       id: `itm-${Date.now()}-${idx}`,
       productName: itm.productName || "Custom Robotics / STEM Component",
+      productLink: itm.productLink || undefined,
       productSku: itm.productSku || "PRG-CUSTOM",
       unitPrice: price,
       quantity: qty,

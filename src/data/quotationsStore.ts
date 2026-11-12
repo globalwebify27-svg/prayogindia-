@@ -7,6 +7,7 @@ export interface StoredQuotationItem {
   variantId?: string | null;
   productName: string;
   productSku: string;
+  productLink?: string;
   unitPrice: number;
   quantity: number;
   discountPct: number;

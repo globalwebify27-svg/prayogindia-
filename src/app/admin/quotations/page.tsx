@@ -22,6 +22,7 @@ import {
   XCircle,
   AlertCircle,
   ShoppingBag,
+  ExternalLink,
 } from "lucide-react";
 import { PRODUCTS, Product } from "@/data/mockData";
 import { STORES } from "@/data/storeConfig";
@@ -44,6 +45,7 @@ export interface QuotationItem {
   productId?: string;
   productName: string;
   productSku: string;
+  productLink?: string;
   unitPrice: number;
   quantity: number;
   discountPct: number;
@@ -953,7 +955,20 @@ export default function QuotationsPage() {
                     <tr key={idx}>
                       <td className="p-3 text-slate-400">{idx + 1}</td>
                       <td className="p-3 font-bold text-slate-900">
-                        {item.productName}
+                        <div className="flex items-center gap-2">
+                          <span>{item.productName}</span>
+                          {item.productLink && (
+                            <a
+                              href={item.productLink}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1 text-[10px] font-bold text-[#00AEEF] hover:underline bg-blue-50 px-2 py-0.5 rounded-full"
+                            >
+                              <ExternalLink className="w-2.5 h-2.5" />
+                              <span>Link</span>
+                            </a>
+                          )}
+                        </div>
                       </td>
                       <td className="p-3 font-mono text-slate-500">
                         {item.productSku}
