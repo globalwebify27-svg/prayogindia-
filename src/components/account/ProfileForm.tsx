@@ -9,6 +9,7 @@ import {
   Building,
   FileText,
   ShieldCheck,
+  Check,
   CheckCircle2,
   Loader2,
   AlertCircle,
@@ -206,7 +207,7 @@ export const ProfileForm: React.FC = () => {
   };
 
   return (
-    <div className="w-full lg:w-1/2 bg-white rounded-2xl border border-slate-200/80 p-4 sm:p-7 shadow-2xs space-y-5 text-slate-900 relative">
+    <div className="w-full bg-white rounded-2xl border border-slate-200/80 p-5 sm:p-7 shadow-2xs space-y-5 text-slate-900 relative">
       <div>
         <h2 className="text-xl font-bold text-slate-900 tracking-tight">
           My Profile
@@ -366,16 +367,37 @@ export const ProfileForm: React.FC = () => {
           </div>
         </div>
 
-        <button
-          type="submit"
-          disabled={saving}
-          className="bg-[#2563EB] hover:bg-[#1D4ED8] disabled:opacity-50 text-white px-6 py-3 rounded-xl font-extrabold text-xs uppercase tracking-wider transition-colors shadow-md shadow-blue-500/20 flex items-center gap-2 cursor-pointer"
-        >
-          {saving && <Loader2 className="w-4 h-4 animate-spin" />}
-          {isPhoneChanged
-            ? "Verify New Number & Save Changes"
-            : "Save Profile Changes"}
-        </button>
+        {/* Footer Actions */}
+        <div className="pt-5 border-t border-slate-100 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3.5">
+          <div className="flex items-center gap-2 text-slate-400 text-[11px]">
+            <ShieldCheck className="w-4 h-4 text-emerald-500 shrink-0" />
+            <span className="font-medium">
+              Profile details are verified and stored securely
+            </span>
+          </div>
+
+          <button
+            type="submit"
+            disabled={saving}
+            className="inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-[#0A1128] hover:bg-slate-800 active:scale-[0.98] text-white text-xs font-bold rounded-xl transition-all duration-150 shadow-xs hover:shadow-sm disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+          >
+            {saving ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin text-white" />
+                <span>Saving Changes...</span>
+              </>
+            ) : (
+              <>
+                <Check className="w-4 h-4 text-emerald-400" />
+                <span>
+                  {isPhoneChanged
+                    ? "Verify Number & Save"
+                    : "Save Profile Changes"}
+                </span>
+              </>
+            )}
+          </button>
+        </div>
       </form>
 
       {/* Re-verify Phone Number OTP Modal */}
@@ -483,7 +505,7 @@ export const ProfileForm: React.FC = () => {
                 <button
                   type="submit"
                   disabled={otpLoading || otpDigits.join("").length !== 6}
-                  className="bg-[#2563EB] hover:bg-[#1D4ED8] disabled:opacity-50 text-white px-5 py-2.5 rounded-xl font-black uppercase tracking-wider shadow-md shadow-blue-500/20 flex items-center gap-2 cursor-pointer"
+                  className="bg-[#0A1128] hover:bg-slate-800 active:scale-[0.98] disabled:opacity-50 text-white px-5 py-2.5 rounded-xl font-bold text-xs shadow-xs flex items-center gap-2 cursor-pointer transition-all"
                 >
                   {otpLoading ? (
                     <>
