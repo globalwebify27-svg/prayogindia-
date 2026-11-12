@@ -1,9 +1,19 @@
 "use client";
 
-import React, { useState } from "react";
-import { X, Search, Star, ShoppingBag, Eye, Heart, Loader2 } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import {
+  X,
+  Search,
+  ShoppingBag,
+  Loader2,
+  Plus,
+  Trash2,
+  Link2,
+  CheckCircle2,
+} from "lucide-react";
 import { PRODUCTS, Product } from "@/data/mockData";
 import { useSearchSuggestions } from "@/hooks/useSearchSuggestions";
+import { useAuth } from "@/store";
 
 interface SearchModalProps {
   isOpen: boolean;
@@ -137,79 +147,158 @@ export const SearchModal: React.FC<SearchModalProps> = ({
 
 export { QuickViewModal } from "@/components/products/QuickViewModal";
 
+interface QuotationProductItem {
+  id: string;
+  name: string;
+  link: string;
+  quantity: string;
+  targetPrice: string;
+}
+
 interface B2BModalProps {
   isOpen: boolean;
   onClose: () => void;
+  initialProduct?: {
+    name?: string;
+    link?: string;
+  };
 }
 
-export const B2BModal: React.FC<B2BModalProps> = ({ isOpen, onClose }) => {
+export const B2BModal: React.FC<B2BModalProps> = ({
+  isOpen,
+  onClose,
+  initialProduct,
+}) => {
+  const user = useAuth((s) => s.user);
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [quoteNumber, setQuoteNumber] = useState("");
 
-  const [formData, setFormData] = useState({
-    fullName: "",
-    email: "",
-    phone: "",
-    institutionName: "",
-    gstin: "",
-    institutionType: "Corporate",
-    requirements: "",
-    deliveryAddress: "",
-    items: [{ productName: "", quantity: 1 }],
-  });
+  const [institutionType, setInstitutionType] = useState("ATL School");
+  const [companyName, setCompanyName] = useState("");
+  const [customerName, setCustomerName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
+  const [notes, setNotes] = useState("");
+  const [products, setProducts] = useState<QuotationProductItem[]>([
+    { id: "1", name: "", link: "", quantity: "10", targetPrice: "" },
+  ]);
+
+  // Sync user info and initial product when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      setSubmitted(false);
+      setError("");
+      if (user) {
+        if (user.companyName) setCompanyName(user.companyName);
+        if (user.name) setCustomerName(user.name);
+        if (user.email) setEmail(user.email);
+        if (user.phone) setPhone(user.phone.replace(/\D/g, "").slice(-10));
+      }
+      if (initialProduct?.name) {
+        setProducts([
+          {
+            id: "1",
+            name: initialProduct.name,
+            link: initialProduct.link || "",
+            quantity: "10",
+            targetPrice: "",
+          },
+        ]);
+      }
+    }
+  }, [isOpen, user, initialProduct]);
+
+  // Lock background scroll when open
+  useEffect(() => {
+    if (isOpen) {
+      const originalOverflow = document.body.style.overflow;
+      document.body.style.overflow = "hidden";
+      return () => {
+        document.body.style.overflow = originalOverflow;
+      };
+    }
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
-  const handleAddItem = () => {
-    setFormData((prev) => ({
+  const handleAddProduct = () => {
+    setProducts((prev) => [
       ...prev,
-      items: [...prev.items, { productName: "", quantity: 1 }],
-    }));
+      {
+        id: `prod-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+        name: "",
+        link: "",
+        quantity: "1",
+        targetPrice: "",
+      },
+    ]);
   };
 
-  const handleRemoveItem = (index: number) => {
-    setFormData((prev) => ({
-      ...prev,
-      items: prev.items.filter((_, i) => i !== index),
-    }));
+  const handleRemoveProduct = (id: string) => {
+    if (products.length <= 1) return;
+    setProducts((prev) => prev.filter((p) => p.id !== id));
+  };
+
+  const handleUpdateProduct = (
+    id: string,
+    field: keyof QuotationProductItem,
+    value: string,
+  ) => {
+    setProducts((prev) =>
+      prev.map((p) => (p.id === id ? { ...p, [field]: value } : p)),
+    );
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const validProducts = products.filter((p) => p.name.trim().length > 0);
+    if (!companyName.trim() || !customerName.trim() || validProducts.length === 0) {
+      setError("Please fill in company name, contact person, and at least one product requirement.");
+      return;
+    }
+
     setLoading(true);
     setError("");
 
     try {
-      // Build items array from either structured items or textarea requirements
-      let formattedItems = formData.items.filter(
-        (i) => i.productName.trim().length > 0,
-      );
-      if (formattedItems.length === 0) {
-        formattedItems = [
-          {
-            productName:
-              formData.requirements.slice(0, 120) ||
-              "B2B Hardware / Component Requirement",
-            quantity: 1,
-          },
-        ];
-      }
+      const itemsPayload = validProducts.map((p) => ({
+        productName: p.name.trim(),
+        productLink: p.link.trim() || undefined,
+        quantity: Math.max(1, parseInt(p.quantity, 10) || 1),
+        unitPrice:
+          p.targetPrice && Number(p.targetPrice) > 0
+            ? Number(p.targetPrice)
+            : undefined,
+      }));
+
+      const linksList = validProducts
+        .filter((p) => p.link.trim().length > 0)
+        .map(
+          (p, idx) =>
+            `${idx + 1}. ${p.name.trim()} (${p.quantity}x): ${p.link.trim()}`,
+        )
+        .join("\n");
+
+      const combinedNotes = [
+        notes.trim(),
+        linksList ? `Product Reference Links:\n${linksList}` : "",
+      ]
+        .filter(Boolean)
+        .join("\n\n");
 
       const res = await fetch("/api/quotations/request", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          companyName: formData.institutionName,
-          customerName: formData.fullName,
-          customerEmail: formData.email,
-          customerPhone: formData.phone || "+91 98000 00000",
-          gstin: formData.gstin || null,
-          institutionType: formData.institutionType,
-          shippingAddress: formData.deliveryAddress,
-          notes: formData.requirements,
-          items: formattedItems,
+          companyName: companyName.trim(),
+          customerName: customerName.trim(),
+          customerEmail: email.trim() || user?.email || "customer@prayog.in",
+          customerPhone: phone.trim() || "9876543210",
+          institutionType,
+          notes: combinedNotes || undefined,
+          items: itemsPayload,
         }),
       });
 
@@ -218,242 +307,361 @@ export const B2BModal: React.FC<B2BModalProps> = ({ isOpen, onClose }) => {
         setQuoteNumber(data.data?.quoteNumber || "PRG-QT");
         setSubmitted(true);
       } else {
-        setError(data.message || "Failed to submit quote request.");
+        setError(data.message || "Failed to submit quotation request.");
       }
     } catch {
-      setError("Network error. Please try again.");
+      setError("Network error submitting quotation. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-50 overflow-y-auto overscroll-contain flex items-center justify-center p-3 sm:p-4">
       <div
         onClick={onClose}
-        className="fixed inset-0 bg-slate-950/60 backdrop-blur-xs animate-in fade-in"
+        className="fixed inset-0 bg-slate-950/60 backdrop-blur-xs animate-in fade-in duration-200"
       />
 
-      <div className="relative w-full max-w-xl bg-white rounded-3xl shadow-2xl border border-slate-100 p-6 sm:p-8 z-10 animate-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto">
-        <button
-          onClick={onClose}
-          className="absolute top-6 right-6 p-2 rounded-full text-slate-400 hover:text-slate-800"
-        >
-          <X className="w-5 h-5" />
-        </button>
+      <div className="relative w-full max-w-xl bg-white rounded-3xl shadow-2xl border border-slate-100 overflow-hidden z-10 max-h-[92vh] flex flex-col animate-in zoom-in-95 duration-200">
+        {/* Header */}
+        <div className="px-6 sm:px-8 pt-6 pb-4 border-b border-slate-100 flex items-start justify-between">
+          <div>
+            <h3 className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight">
+              Request a Quotation
+            </h3>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Submit your bulk or institutional hardware requirement.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="p-1.5 text-slate-400 hover:text-slate-700 rounded-xl hover:bg-slate-100 transition-colors cursor-pointer"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
 
         {submitted ? (
-          <div className="text-center py-8 space-y-4">
-            <div className="w-12 h-12 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto text-xl font-bold border border-emerald-100">
-              ✓
+          <div className="p-8 text-center space-y-4">
+            <div className="w-14 h-14 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto text-2xl font-bold border border-emerald-100 shadow-2xs">
+              <CheckCircle2 className="w-8 h-8" />
             </div>
-            <h3 className="text-lg font-bold text-slate-900">
+            <h3 className="text-xl font-bold text-slate-900">
               Quotation Request Received
             </h3>
-            <p className="text-xs font-mono font-bold text-[#2563EB] bg-blue-50 border border-blue-200/60 px-3 py-1 rounded-full inline-block">
+            <p className="text-xs font-mono font-bold text-[#2563EB] bg-blue-50 border border-blue-200/60 px-3.5 py-1.5 rounded-full inline-block">
               Quote Ref: {quoteNumber}
             </p>
-            <p className="text-xs text-slate-500 max-w-xs mx-auto">
-              We’ve received your requirement and will share a formal proposal shortly.
+            <p className="text-xs text-slate-500 max-w-sm mx-auto leading-relaxed">
+              We’ve received your institutional requirement and our team will share a formal proposal with special B2B pricing shortly.
             </p>
-            <button
-              onClick={() => {
-                setSubmitted(false);
-                onClose();
-              }}
-              className="bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-xs font-bold px-6 py-2.5 rounded-xl cursor-pointer transition-colors shadow-md shadow-blue-500/20"
-            >
-              Done
-            </button>
+            <div className="pt-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setSubmitted(false);
+                  onClose();
+                }}
+                className="bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-xs font-bold px-8 py-2.5 rounded-xl cursor-pointer transition-all shadow-md shadow-blue-500/20 active:scale-95"
+              >
+                Done
+              </button>
+            </div>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="space-y-4 text-xs">
-            <div>
-              <h2 className="text-lg font-bold text-slate-900 tracking-tight">
-                Request a Quotation
-              </h2>
-              <p className="text-xs text-slate-500 mt-0.5">
-                Institutional and bulk hardware pricing.
-              </p>
-            </div>
+          <form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0">
+            <div className="flex-1 overflow-y-auto overscroll-contain p-6 sm:p-8 space-y-4 text-xs">
+              {error && (
+                <div className="p-3 bg-rose-50 border border-rose-200 text-rose-700 text-xs rounded-xl font-medium">
+                  {error}
+                </div>
+              )}
 
-            {error && (
-              <div className="p-3 bg-rose-50 border border-rose-200 text-rose-700 text-xs rounded-xl font-medium">
-                {error}
-              </div>
-            )}
-
-            <div className="space-y-3">
               {/* Institution Type Chips */}
-              <div className="flex flex-wrap gap-2">
-                {[
-                  "School / ATL",
-                  "College / Univ",
-                  "Corporate",
-                  "Research Lab",
-                  "Maker / Bulk",
-                ].map((type) => {
-                  const isSelected = formData.institutionType === type;
-                  return (
-                    <button
-                      key={type}
-                      type="button"
-                      onClick={() => setFormData({ ...formData, institutionType: type })}
-                      className={`px-3 py-1 rounded-full font-bold text-xs transition-all cursor-pointer ${
-                        isSelected
-                          ? "bg-[#2563EB] text-white shadow-2xs"
-                          : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                      }`}
-                    >
-                      {type}
-                    </button>
-                  );
-                })}
+              <div>
+                <label className="block font-bold text-slate-700 mb-2">
+                  Institution Type
+                </label>
+                <div className="flex flex-wrap gap-2">
+                  {[
+                    "ATL School",
+                    "University / College",
+                    "Corporate / R&D",
+                    "Research Lab",
+                    "Maker / Bulk",
+                  ].map((type) => {
+                    const isSelected = institutionType === type;
+                    return (
+                      <button
+                        key={type}
+                        type="button"
+                        onClick={() => setInstitutionType(type)}
+                        className={`px-3.5 py-1.5 rounded-full font-bold text-xs transition-all cursor-pointer ${
+                          isSelected
+                            ? "bg-[#2563EB] text-white shadow-2xs"
+                            : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                        }`}
+                      >
+                        {type}
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {/* Organization / Lab Name */}
+              <div>
+                <label className="block font-bold text-slate-700 mb-1.5">
+                  Organization / School / Lab Name <span className="text-rose-500">*</span>
+                </label>
                 <input
-                  required
                   type="text"
-                  placeholder="Contact Name *"
-                  value={formData.fullName}
-                  onChange={(e) =>
-                    setFormData({ ...formData, fullName: e.target.value })
-                  }
-                  className="w-full bg-slate-50/70 hover:bg-slate-50 focus:bg-white p-2.5 rounded-xl border border-slate-200 focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/15 outline-none transition-all font-medium text-slate-900"
-                />
-                <input
                   required
+                  placeholder="e.g. DPS Robotics Lab, IIT Bombay ATL Lab"
+                  value={companyName}
+                  onChange={(e) => setCompanyName(e.target.value)}
+                  className="w-full px-3.5 py-2.5 bg-slate-50/70 hover:bg-slate-50 focus:bg-white border border-slate-200 focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/15 rounded-xl font-medium text-slate-900 outline-none transition-all"
+                />
+              </div>
+
+              {/* Contact Person & Mobile Number */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1.5">
+                    Contact Person Name <span className="text-rose-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Full Name"
+                    value={customerName}
+                    onChange={(e) => setCustomerName(e.target.value)}
+                    className="w-full px-3.5 py-2.5 bg-slate-50/70 hover:bg-slate-50 focus:bg-white border border-slate-200 focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/15 rounded-xl font-medium text-slate-900 outline-none transition-all"
+                  />
+                </div>
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1.5">
+                    Mobile Number <span className="text-rose-500">*</span>
+                  </label>
+                  <div className="flex rounded-xl border border-slate-200 overflow-hidden focus-within:border-[#2563EB] focus-within:ring-2 focus-within:ring-[#2563EB]/15 transition-all">
+                    <span className="bg-slate-100 text-slate-500 font-bold px-3 py-2.5 border-r border-slate-200 flex items-center select-none text-xs">
+                      +91
+                    </span>
+                    <input
+                      type="tel"
+                      maxLength={10}
+                      required
+                      placeholder="9876543210"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value.replace(/\D/g, ""))}
+                      className="w-full px-3.5 py-2.5 bg-slate-50/70 hover:bg-slate-50 focus:bg-white font-medium text-slate-900 outline-none transition-all"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Email Address */}
+              <div>
+                <label className="block font-bold text-slate-700 mb-1.5">
+                  Email Address <span className="text-rose-500">*</span>
+                </label>
+                <input
                   type="email"
-                  placeholder="Email Address *"
-                  value={formData.email}
-                  onChange={(e) =>
-                    setFormData({ ...formData, email: e.target.value })
-                  }
-                  className="w-full bg-slate-50/70 hover:bg-slate-50 focus:bg-white p-2.5 rounded-xl border border-slate-200 focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/15 outline-none transition-all font-medium text-slate-900"
+                  required
+                  placeholder="contact@example.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full px-3.5 py-2.5 bg-slate-50/70 hover:bg-slate-50 focus:bg-white border border-slate-200 focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/15 rounded-xl font-medium text-slate-900 outline-none transition-all"
                 />
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <input
-                  required
-                  type="tel"
-                  placeholder="Phone Number *"
-                  value={formData.phone}
-                  onChange={(e) =>
-                    setFormData({ ...formData, phone: e.target.value })
-                  }
-                  className="w-full bg-slate-50/70 hover:bg-slate-50 focus:bg-white p-2.5 rounded-xl border border-slate-200 focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/15 outline-none transition-all font-medium text-slate-900"
-                />
-                <input
-                  required
-                  type="text"
-                  placeholder="Organization / School Name *"
-                  value={formData.institutionName}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      institutionName: e.target.value,
-                    })
-                  }
-                  className="w-full bg-slate-50/70 hover:bg-slate-50 focus:bg-white p-2.5 rounded-xl border border-slate-200 focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/15 outline-none transition-all font-medium text-slate-900"
-                />
-              </div>
+              {/* Products & Components */}
+              <div className="space-y-3 pt-1">
+                <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+                  <div>
+                    <label className="block font-bold text-slate-800 text-sm">
+                      Products &amp; Components <span className="text-rose-500">*</span>
+                    </label>
+                    <p className="text-[11px] text-slate-500 font-normal">
+                      Add one or multiple products with required quantity and optional product links.
+                    </p>
+                  </div>
 
-              <input
-                type="text"
-                placeholder="GSTIN (Optional)"
-                value={formData.gstin}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    gstin: e.target.value.toUpperCase(),
-                  })
-                }
-                className="w-full bg-slate-50/70 hover:bg-slate-50 focus:bg-white p-2.5 rounded-xl border border-slate-200 focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/15 outline-none transition-all uppercase font-medium text-slate-900"
-              />
-
-              {/* Product items list */}
-              <div className="border border-slate-200 rounded-2xl p-3 bg-slate-50/40 space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="font-bold text-slate-700">
-                    Products &amp; Quantities
-                  </span>
                   <button
                     type="button"
-                    onClick={handleAddItem}
-                    className="text-[11px] font-bold text-[#2563EB] hover:underline cursor-pointer"
+                    onClick={handleAddProduct}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-50 hover:bg-blue-100 text-[#2563EB] text-xs font-bold transition-all active:scale-95 cursor-pointer shadow-2xs shrink-0"
                   >
-                    + Add Item
+                    <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+                    <span>Add Product</span>
                   </button>
                 </div>
 
-                {formData.items.map((item, idx) => (
-                  <div key={idx} className="flex items-center gap-2">
-                    <input
-                      type="text"
-                      placeholder="e.g. Arduino Uno R3, Raspberry Pi 5..."
-                      value={item.productName}
-                      onChange={(e) => {
-                        const next = [...formData.items];
-                        next[idx].productName = e.target.value;
-                        setFormData({ ...formData, items: next });
-                      }}
-                      className="flex-1 bg-white p-2 rounded-xl border border-slate-200 text-xs font-medium text-slate-900 focus:border-[#2563EB] outline-none"
-                    />
-                    <input
-                      type="number"
-                      min={1}
-                      placeholder="Qty"
-                      value={item.quantity}
-                      onChange={(e) => {
-                        const next = [...formData.items];
-                        next[idx].quantity = parseInt(e.target.value, 10) || 1;
-                        setFormData({ ...formData, items: next });
-                      }}
-                      className="w-16 bg-white p-2 rounded-xl border border-slate-200 text-xs text-center font-bold text-slate-900 focus:border-[#2563EB] outline-none"
-                    />
-                    {formData.items.length > 1 && (
-                      <button
-                        type="button"
-                        onClick={() => handleRemoveItem(idx)}
-                        className="text-slate-400 hover:text-rose-500 p-1 cursor-pointer"
-                      >
-                        ✕
-                      </button>
-                    )}
-                  </div>
-                ))}
+                <div className="space-y-3 max-h-[340px] overflow-y-auto pr-1">
+                  {products.map((prod, index) => (
+                    <div
+                      key={prod.id}
+                      className="bg-slate-50/80 hover:bg-slate-50 border border-slate-200/90 rounded-2xl p-3 sm:p-3.5 space-y-2.5 transition-colors relative"
+                    >
+                      {/* Item Top Bar */}
+                      <div className="flex items-center justify-between">
+                        <span className="inline-flex items-center gap-1.5 text-xs font-extrabold text-[#0A233F]">
+                          <span className="w-5 h-5 rounded-full bg-[#0A233F] text-white text-[10px] font-bold flex items-center justify-center">
+                            {index + 1}
+                          </span>
+                          <span>Product Item #{index + 1}</span>
+                        </span>
+
+                        {products.length > 1 && (
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveProduct(prod.id)}
+                            className="text-xs font-semibold text-rose-500 hover:text-rose-700 hover:bg-rose-50 px-2 py-1 rounded-lg transition-colors flex items-center gap-1 cursor-pointer"
+                            title="Remove this product"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                            <span className="hidden sm:inline">Remove</span>
+                          </button>
+                        )}
+                      </div>
+
+                      {/* Product Name Input */}
+                      <div>
+                        <label className="block text-xs font-bold text-slate-700 mb-1">
+                          Product Name / Specification <span className="text-rose-500">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          placeholder="e.g. Arduino Uno R3, Raspberry Pi 5 8GB, Ultrasonic Sensor HC-SR04..."
+                          value={prod.name}
+                          onChange={(e) =>
+                            handleUpdateProduct(prod.id, "name", e.target.value)
+                          }
+                          className="w-full px-3 py-2 bg-white border border-slate-200 focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/15 rounded-xl font-medium text-xs sm:text-sm text-slate-900 outline-none transition-all"
+                        />
+                      </div>
+
+                      {/* Product Link + Quantity & Target Price Grid */}
+                      <div className="grid grid-cols-1 sm:grid-cols-12 gap-2.5">
+                        {/* Product Link (Optional) */}
+                        <div className="sm:col-span-6">
+                          <label className="block text-xs font-bold text-slate-700 mb-1">
+                            Product Link / URL{" "}
+                            <span className="text-slate-400 font-normal">
+                              (Optional)
+                            </span>
+                          </label>
+                          <div className="flex items-center bg-white border border-slate-200 focus-within:border-[#2563EB] focus-within:ring-2 focus-within:ring-[#2563EB]/15 rounded-xl overflow-hidden px-2.5 py-1.5 transition-all">
+                            <Link2 className="w-3.5 h-3.5 text-slate-400 shrink-0 mr-1.5" />
+                            <input
+                              type="url"
+                              placeholder="https://prayogindia.com/products/..."
+                              value={prod.link}
+                              onChange={(e) =>
+                                handleUpdateProduct(prod.id, "link", e.target.value)
+                              }
+                              className="w-full bg-transparent font-medium text-xs text-slate-900 placeholder:text-slate-400 outline-none"
+                            />
+                          </div>
+                        </div>
+
+                        {/* Quantity */}
+                        <div className="sm:col-span-3">
+                          <label className="block text-xs font-bold text-slate-700 mb-1">
+                            Quantity <span className="text-rose-500">*</span>
+                          </label>
+                          <input
+                            type="number"
+                            min="1"
+                            required
+                            placeholder="10"
+                            value={prod.quantity}
+                            onChange={(e) =>
+                              handleUpdateProduct(
+                                prod.id,
+                                "quantity",
+                                e.target.value,
+                              )
+                            }
+                            className="w-full px-3 py-1.5 bg-white border border-slate-200 focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/15 rounded-xl font-medium text-xs sm:text-sm text-slate-900 outline-none transition-all text-center sm:text-left"
+                          />
+                        </div>
+
+                        {/* Target Unit Price (Optional) */}
+                        <div className="sm:col-span-3">
+                          <label className="block text-xs font-bold text-slate-700 mb-1 truncate">
+                            Target ₹{" "}
+                            <span className="text-slate-400 font-normal">
+                              (Opt)
+                            </span>
+                          </label>
+                          <input
+                            type="number"
+                            min="0"
+                            placeholder="e.g. 450"
+                            value={prod.targetPrice}
+                            onChange={(e) =>
+                              handleUpdateProduct(
+                                prod.id,
+                                "targetPrice",
+                                e.target.value,
+                              )
+                            }
+                            className="w-full px-3 py-1.5 bg-white border border-slate-200 focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/15 rounded-xl font-medium text-xs sm:text-sm text-slate-900 outline-none transition-all"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Add another product dashed button */}
+                <button
+                  type="button"
+                  onClick={handleAddProduct}
+                  className="w-full py-2 border-2 border-dashed border-slate-200 hover:border-[#2563EB] hover:bg-blue-50/50 rounded-xl text-xs font-bold text-slate-600 hover:text-[#2563EB] transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>+ Add Another Product</span>
+                </button>
               </div>
 
-              <textarea
-                rows={2}
-                placeholder="Additional notes / timeline requirements (Optional)..."
-                value={formData.requirements}
-                onChange={(e) =>
-                  setFormData({ ...formData, requirements: e.target.value })
-                }
-                className="w-full bg-slate-50/70 hover:bg-slate-50 focus:bg-white p-2.5 rounded-xl border border-slate-200 focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/15 outline-none transition-all resize-none font-medium text-slate-900"
-              />
-
-              <input
-                type="text"
-                placeholder="Delivery City / Address (Optional)"
-                value={formData.deliveryAddress}
-                onChange={(e) =>
-                  setFormData({ ...formData, deliveryAddress: e.target.value })
-                }
-                className="w-full bg-slate-50/70 hover:bg-slate-50 focus:bg-white p-2.5 rounded-xl border border-slate-200 focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/15 outline-none transition-all font-medium text-slate-900"
-              />
+              {/* Notes */}
+              <div>
+                <label className="block font-bold text-slate-700 mb-1.5">
+                  Additional Notes / Specifications (Optional)
+                </label>
+                <textarea
+                  rows={2}
+                  placeholder="Specific delivery timelines, GST invoicing details, or brand preferences..."
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  className="w-full p-3 bg-slate-50/70 hover:bg-slate-50 focus:bg-white border border-slate-200 focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/15 rounded-xl font-medium text-slate-900 outline-none transition-all resize-none"
+                />
+              </div>
             </div>
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-[#2563EB] hover:bg-[#1D4ED8] disabled:opacity-50 text-white py-3 rounded-xl text-xs font-bold shadow-md shadow-blue-500/20 cursor-pointer transition-all active:scale-95"
-            >
-              {loading ? "Submitting..." : "Submit Request"}
-            </button>
+            {/* Footer Actions */}
+            <div className="px-6 sm:px-8 py-4 border-t border-slate-100 flex items-center justify-end gap-3 bg-slate-50/50">
+              <button
+                type="button"
+                onClick={onClose}
+                className="px-4 py-2 font-bold text-xs text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={loading}
+                className="bg-[#2563EB] hover:bg-[#1D4ED8] text-white px-6 py-2.5 rounded-xl font-bold text-xs shadow-2xs active:scale-95 disabled:opacity-50 flex items-center gap-2 cursor-pointer transition-all"
+              >
+                {loading && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                <span>Submit Request</span>
+              </button>
+            </div>
           </form>
         )}
       </div>
