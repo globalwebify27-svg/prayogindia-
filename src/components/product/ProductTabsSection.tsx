@@ -18,8 +18,6 @@ import {
   ExternalLink,
   Video,
   Copy,
-  Book,
-  FolderDown,
   Wrench,
   Terminal,
   FileCheck,
@@ -57,7 +55,7 @@ export const ProductTabsSection: React.FC<ProductTabsSectionProps> = ({
   defaultTab,
 }) => {
   const [activeTab, setActiveTab] = useState<TabType>(defaultTab || "description");
-  const [resourceView, setResourceView] = useState<"datasheet" | "manual" | "downloads" | "video">("datasheet");
+  const [resourceView, setResourceView] = useState<"datasheet" | "video">("datasheet");
   const [copiedLink, setCopiedLink] = useState(false);
 
   const handleCopyLink = (url: string) => {
@@ -129,57 +127,6 @@ export const ProductTabsSection: React.FC<ProductTabsSectionProps> = ({
       (d.type.toUpperCase() === "PDF" || d.title.toLowerCase().includes("datasheet"))
   );
   const datasheetUrl = datasheetDoc?.url || "";
-
-  // User Manual URL resolver
-  const manualDoc = product.documents?.find(
-    (d) =>
-      d.url &&
-      d.url !== "#" &&
-      !d.url.includes("dummy.pdf") &&
-      (d.title.toLowerCase().includes("manual") || d.title.toLowerCase().includes("guide"))
-  );
-  const manualUrl = manualDoc?.url || datasheetUrl || "";
-
-  // Downloadable documents library
-  const downloadableDocuments = (product.documents && product.documents.filter((d) => d.url && d.url !== "#").length > 0)
-    ? product.documents
-    : [
-        {
-          title: `${product.name} Official Engineering Datasheet`,
-          type: "PDF",
-          size: "2.4 MB",
-          url: datasheetUrl || "#",
-          description: "Full electrical ratings, absolute logic tolerances, and mechanical blueprints.",
-        },
-        {
-          title: `${product.name} User Manual & Quick Start Guide`,
-          type: "PDF",
-          size: "3.2 MB",
-          url: manualUrl || "#",
-          description: "Step-by-step pinout setup, driver installation, and circuit precautions.",
-        },
-        {
-          title: `${product.name} Hardware Blueprint & Pinout Poster`,
-          type: "PDF",
-          size: "1.1 MB",
-          url: datasheetUrl || "#",
-          description: "Color-coded GPIO pinout diagram for breadboard and PCB prototyping.",
-        },
-        {
-          title: "3D CAD Model (STEP & STL Format)",
-          type: "CAD / ZIP",
-          size: "4.8 MB",
-          url: "#",
-          description: "Dimensional 3D models for 3D printing custom chassis enclosures and mounts.",
-        },
-        {
-          title: "Sample Software Drivers & Firmware Code Bundle",
-          type: "ZIP",
-          size: "820 KB",
-          url: "#",
-          description: "Tested Arduino (.ino) sketches, MicroPython modules, and ROS2 telemetry nodes.",
-        },
-      ];
 
   const cleanRawSpecs = Object.fromEntries(
     Object.entries(product.specs || {}).filter(
@@ -414,62 +361,36 @@ export const ProductTabsSection: React.FC<ProductTabsSectionProps> = ({
                   Additional Resources
                 </h3>
                 <p className="text-xs sm:text-sm text-slate-500">
-                  Official Prayog India engineering schematics, pinout references, user manuals, and video walkthroughs.
+                  Official Prayog India engineering PDF datasheet and YouTube video walkthrough.
                 </p>
               </div>
 
-              {/* Sub-Tabs: Datasheet | Manual | Downloadable Documents | Product Video */}
+              {/* Sub-Tabs: PDF Datasheet | YouTube Video */}
               <div className="flex items-center gap-1 p-1 bg-slate-100 rounded-2xl shrink-0 border border-slate-200/80 overflow-x-auto scrollbar-none">
                 <button
                   type="button"
                   onClick={() => setResourceView("datasheet")}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-extrabold transition-all cursor-pointer whitespace-nowrap ${
+                  className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-extrabold transition-all cursor-pointer whitespace-nowrap ${
                     resourceView === "datasheet"
                       ? "bg-white text-slate-900 shadow-2xs"
                       : "text-slate-600 hover:text-slate-900"
                   }`}
                 >
                   <FileText className="w-3.5 h-3.5 text-[#005CA9]" />
-                  <span>Datasheet</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setResourceView("manual")}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-extrabold transition-all cursor-pointer whitespace-nowrap ${
-                    resourceView === "manual"
-                      ? "bg-white text-slate-900 shadow-2xs"
-                      : "text-slate-600 hover:text-slate-900"
-                  }`}
-                >
-                  <Book className="w-3.5 h-3.5 text-indigo-600" />
-                  <span>User Manual</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setResourceView("downloads")}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-extrabold transition-all cursor-pointer whitespace-nowrap ${
-                    resourceView === "downloads"
-                      ? "bg-white text-slate-900 shadow-2xs"
-                      : "text-slate-600 hover:text-slate-900"
-                  }`}
-                >
-                  <FolderDown className="w-3.5 h-3.5 text-emerald-600" />
-                  <span>Downloads ({downloadableDocuments.length})</span>
+                  <span>PDF Datasheet</span>
                 </button>
 
                 <button
                   type="button"
                   onClick={() => setResourceView("video")}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-extrabold transition-all cursor-pointer whitespace-nowrap ${
+                  className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-extrabold transition-all cursor-pointer whitespace-nowrap ${
                     resourceView === "video"
                       ? "bg-white text-slate-900 shadow-2xs"
                       : "text-slate-600 hover:text-slate-900"
                   }`}
                 >
                   <YouTubeIcon className="w-3.5 h-3.5 text-[#FF0000]" />
-                  <span>Product Video</span>
+                  <span>YouTube Video</span>
                 </button>
               </div>
             </div>
@@ -581,161 +502,7 @@ export const ProductTabsSection: React.FC<ProductTabsSectionProps> = ({
               </div>
             )}
 
-            {/* ── Sub-View 2: Official User Manual & Quick Start Guide ── */}
-            {resourceView === "manual" && (
-              <div className="bg-white border border-slate-200 rounded-3xl p-5 sm:p-7 shadow-xs space-y-6">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                  <div className="flex items-center gap-3">
-                    <div className="w-11 h-11 rounded-2xl bg-indigo-50 border border-indigo-200/90 flex items-center justify-center text-indigo-700 shrink-0 shadow-2xs">
-                      <Book className="w-6 h-6" />
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="bg-indigo-50 text-indigo-700 font-bold px-2 py-0.5 rounded-full text-[10px] uppercase tracking-wider border border-indigo-200">
-                          Official User Manual
-                        </span>
-                        <span className="text-[11px] font-semibold text-slate-400">
-                          Quick Start &amp; Setup Guide
-                        </span>
-                      </div>
-                      <h4 className="text-base sm:text-lg font-extrabold text-slate-900 mt-0.5">
-                        {product.name} — Hardware Setup &amp; Programming Manual
-                      </h4>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-2 shrink-0">
-                    <a
-                      href={manualUrl || datasheetUrl || "#"}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-xs sm:text-sm rounded-xl shadow-xs transition-all hover:scale-[1.02] cursor-pointer"
-                    >
-                      <Download className="w-4 h-4" />
-                      <span>Download Manual (PDF)</span>
-                    </a>
-                  </div>
-                </div>
-
-                {/* Step-by-Step Hardware Guide Cards */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-1">
-                  <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">
-                    <div className="w-7 h-7 rounded-xl bg-indigo-100 text-indigo-800 font-black text-xs flex items-center justify-center">
-                      1
-                    </div>
-                    <h5 className="text-xs font-bold text-slate-900">
-                      Power &amp; Voltage Setup
-                    </h5>
-                    <p className="text-[11px] text-slate-600 leading-relaxed">
-                      Connect regulated 5V DC via USB or Vin pins. Ensure correct polarity to safeguard against reverse voltage damage.
-                    </p>
-                  </div>
-
-                  <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">
-                    <div className="w-7 h-7 rounded-xl bg-indigo-100 text-indigo-800 font-black text-xs flex items-center justify-center">
-                      2
-                    </div>
-                    <h5 className="text-xs font-bold text-slate-900">
-                      Driver &amp; IDE Setup
-                    </h5>
-                    <p className="text-[11px] text-slate-600 leading-relaxed">
-                      Install the CP2102/CH340 USB driver if needed. In Arduino IDE or Thonny, select the correct board profile and COM port.
-                    </p>
-                  </div>
-
-                  <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">
-                    <div className="w-7 h-7 rounded-xl bg-indigo-100 text-indigo-800 font-black text-xs flex items-center justify-center">
-                      3
-                    </div>
-                    <h5 className="text-xs font-bold text-slate-900">
-                      First Test Run &amp; Verification
-                    </h5>
-                    <p className="text-[11px] text-slate-600 leading-relaxed">
-                      Upload the basic Blink or Telemetry sample sketch to verify communication and onboard status LEDs.
-                    </p>
-                  </div>
-                </div>
-
-                {/* Handling & Safety Note */}
-                <div className="p-4 rounded-2xl bg-amber-50/80 border border-amber-200 text-xs text-amber-900 flex items-start gap-3">
-                  <Wrench className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
-                  <p className="leading-relaxed">
-                    <strong>ESD Precautions:</strong> Handle by board edges to avoid electrostatic discharge on sensitive CMOS chips. Do not short GPIO pins directly to ground while powered.
-                  </p>
-                </div>
-              </div>
-            )}
-
-            {/* ── Sub-View 3: Complete Downloadable Documents Library ── */}
-            {resourceView === "downloads" && (
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <h4 className="text-sm sm:text-base font-extrabold text-slate-900">
-                    Official Product Downloads &amp; Engineering Files
-                  </h4>
-                  <span className="text-xs font-bold text-slate-500">
-                    All files virus scanned &amp; verified
-                  </span>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                  {downloadableDocuments.map((doc, idx) => (
-                    <div
-                      key={idx}
-                      className="bg-white border border-slate-200 hover:border-[#005CA9]/50 rounded-2xl p-4 sm:p-5 flex flex-col justify-between gap-3 shadow-2xs hover:shadow-sm transition-all group"
-                    >
-                      <div className="flex items-start gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center text-[#005CA9] group-hover:scale-105 transition-transform shrink-0">
-                          {doc.type.includes("PDF") ? (
-                            <FileText className="w-5 h-5" />
-                          ) : doc.type.includes("CAD") ? (
-                            <Layers className="w-5 h-5 text-purple-600" />
-                          ) : (
-                            <Code className="w-5 h-5 text-emerald-600" />
-                          )}
-                        </div>
-
-                        <div className="min-w-0 flex-1">
-                          <div className="flex items-center gap-2">
-                            <span className="text-[10px] font-black uppercase tracking-wider text-slate-600 bg-slate-100 px-2 py-0.5 rounded-md border border-slate-200">
-                              {doc.type}
-                            </span>
-                            {(doc as any).size && (
-                              <span className="text-[10px] font-semibold text-slate-400">
-                                {(doc as any).size}
-                              </span>
-                            )}
-                          </div>
-                          <h5 className="text-xs sm:text-sm font-bold text-slate-900 mt-1 line-clamp-1 group-hover:text-[#005CA9] transition-colors">
-                            {doc.title}
-                          </h5>
-                          {(doc as any).description && (
-                            <p className="text-[11px] text-slate-500 mt-1 line-clamp-2 leading-relaxed">
-                              {(doc as any).description}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-
-                      <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
-                        <a
-                          href={doc.url || "#"}
-                          download
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-[#005CA9] hover:bg-[#004a88] text-white text-xs font-bold rounded-xl transition-all shadow-xs cursor-pointer"
-                        >
-                          <Download className="w-3.5 h-3.5" />
-                          <span>Download</span>
-                        </a>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* ── Sub-View 4: Product Video Tutorial & Walkthrough ── */}
+            {/* ── Sub-View 2: Product Video Tutorial & Walkthrough ── */}
             {resourceView === "video" && (
               tutorialVideo ? (
                 <div className="bg-white border border-slate-200 rounded-3xl p-5 sm:p-7 shadow-xs space-y-5">
@@ -1144,43 +911,33 @@ export const ProductTabsSection: React.FC<ProductTabsSectionProps> = ({
               >
                 <div className="px-4 pb-4 pt-1 border-t border-slate-100 space-y-2.5">
                   <div className="pt-1 space-y-2">
-                    {downloadableDocuments.map((doc, idx) => (
-                      <div
-                        key={idx}
-                        className="p-3 bg-slate-50/80 rounded-xl border border-slate-200/80 flex items-center justify-between gap-3"
-                      >
-                        <div className="min-w-0 flex items-center gap-2.5">
-                          <div className="w-8 h-8 rounded-lg bg-blue-50 text-[#005CA9] flex items-center justify-center shrink-0">
-                            <FileText className="w-4 h-4" />
-                          </div>
-                          <div className="min-w-0">
-                            <p className="text-xs font-bold text-slate-800 truncate">
-                              {doc.title}
-                            </p>
-                            <p className="text-[10px] text-slate-500 font-semibold">
-                              {doc.type} {(doc as any).size ? `• ${(doc as any).size}` : ""}
-                            </p>
-                          </div>
+                    {/* 1. Official PDF Datasheet */}
+                    <div className="p-3 bg-slate-50/80 rounded-xl border border-slate-200/80 flex items-center justify-between gap-3">
+                      <div className="min-w-0 flex items-center gap-2.5">
+                        <div className="w-8 h-8 rounded-lg bg-blue-50 text-[#005CA9] flex items-center justify-center shrink-0">
+                          <FileText className="w-4 h-4" />
                         </div>
-                        {doc.url && doc.url !== "#" ? (
-                          <a
-                            href={doc.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            download
-                            className="shrink-0 p-2 bg-white hover:bg-slate-100 text-[#005CA9] rounded-lg border border-slate-200 shadow-2xs font-bold text-xs"
-                            title={`Download ${doc.title}`}
-                          >
-                            <Download className="w-3.5 h-3.5" />
-                          </a>
-                        ) : (
-                          <span className="shrink-0 text-[10px] font-bold text-slate-400 bg-slate-100 px-2 py-1 rounded-md">
-                            Included
-                          </span>
-                        )}
+                        <div className="min-w-0">
+                          <p className="text-xs font-bold text-slate-800 truncate">
+                            {product.name} — Official PDF Datasheet
+                          </p>
+                          <p className="text-[10px] text-slate-500 font-semibold">
+                            PDF Document • Technical Reference
+                          </p>
+                        </div>
                       </div>
-                    ))}
+                      <a
+                        href={datasheetUrl || `https://prayogindia.in/docs/${product.sku || product.id}-datasheet.pdf`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="shrink-0 px-3 py-1.5 bg-[#005CA9] hover:bg-[#004a88] text-white rounded-lg font-bold text-xs flex items-center gap-1 shadow-2xs"
+                      >
+                        <Download className="w-3.5 h-3.5" />
+                        <span>PDF</span>
+                      </a>
+                    </div>
 
+                    {/* 2. YouTube Video */}
                     {tutorialVideo && (
                       <div className="p-3 bg-red-50/50 rounded-xl border border-red-100 flex items-center justify-between gap-3 mt-1">
                         <div className="min-w-0 flex items-center gap-2.5">
@@ -1191,14 +948,14 @@ export const ProductTabsSection: React.FC<ProductTabsSectionProps> = ({
                             <p className="text-xs font-bold text-slate-900 truncate">
                               {tutorialVideo.title}
                             </p>
-                            <p className="text-[10px] text-slate-500">Video Walkthrough</p>
+                            <p className="text-[10px] text-slate-500">YouTube Video Walkthrough</p>
                           </div>
                         </div>
                         <a
                           href={tutorialVideo.directUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="shrink-0 px-2.5 py-1.5 bg-red-600 text-white rounded-lg font-bold text-xs flex items-center gap-1 shadow-2xs"
+                          className="shrink-0 px-2.5 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg font-bold text-xs flex items-center gap-1 shadow-2xs"
                         >
                           <span>Watch</span>
                           <ExternalLink className="w-3 h-3" />
