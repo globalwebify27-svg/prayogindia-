@@ -37,6 +37,7 @@ import {
   X,
   Info,
   SlidersHorizontal,
+  ExternalLink,
 } from "lucide-react";
 import { PRODUCTS, Product } from "@/data/mockData";
 import { STORES } from "@/data/storeConfig";
@@ -194,6 +195,44 @@ function buildInitialMap(): RelationshipMap {
     };
   });
   return map;
+}
+
+function renderTextWithLinks(text?: string | null) {
+  if (!text) return null;
+  const urlRegex = /(https?:\/\/[^\s]+|www\.[^\s]+)/g;
+  const parts = text.split(urlRegex);
+
+  return parts.map((part, index) => {
+    if (part.match(urlRegex)) {
+      let cleanUrl = part;
+      let trailingPunct = "";
+      const punctMatch = part.match(/[.,;:!?)]+$/);
+      if (punctMatch) {
+        trailingPunct = punctMatch[0];
+        cleanUrl = part.slice(0, -trailingPunct.length);
+      }
+      const href = cleanUrl.startsWith("http")
+        ? cleanUrl
+        : `https://${cleanUrl}`;
+
+      return (
+        <React.Fragment key={index}>
+          <a
+            href={href}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={(e) => e.stopPropagation()}
+            className="inline-flex items-center gap-1 font-bold text-[#00AEEF] hover:text-[#0086c0] hover:underline underline-offset-2 break-all bg-sky-50 hover:bg-sky-100 border border-sky-200/60 px-1.5 py-0.5 rounded-md transition-colors align-middle"
+          >
+            <span>{cleanUrl}</span>
+            <ExternalLink className="w-3 h-3 shrink-0 stroke-[2.5]" />
+          </a>
+          {trailingPunct}
+        </React.Fragment>
+      );
+    }
+    return part;
+  });
 }
 
 // ────────────────────────────────────────────────────────────────
@@ -1092,9 +1131,9 @@ export default function AdminRelationshipsPage() {
                             <span className="font-bold text-slate-600 uppercase text-[10px]">
                               Account Notes &amp; Scope:
                             </span>
-                            <p className="bg-slate-50 p-3 rounded-2xl border border-slate-100 text-slate-700 leading-relaxed">
-                              {selectedCompanyProfile.notes}
-                            </p>
+                            <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100 text-slate-700 leading-relaxed whitespace-pre-line break-words">
+                              {renderTextWithLinks(selectedCompanyProfile.notes)}
+                            </div>
                           </div>
                         )}
                       </div>
@@ -1300,9 +1339,9 @@ export default function AdminRelationshipsPage() {
                                   </span>
                                 </div>
                                 {act.description && (
-                                  <p className="text-slate-600 bg-slate-50 p-2.5 rounded-xl border border-slate-100">
-                                    {act.description}
-                                  </p>
+                                  <div className="text-slate-600 bg-slate-50 p-2.5 rounded-xl border border-slate-100 whitespace-pre-line break-words">
+                                    {renderTextWithLinks(act.description)}
+                                  </div>
                                 )}
                               </div>
                             ),
@@ -1355,9 +1394,9 @@ export default function AdminRelationshipsPage() {
                                     {fu.assignedStaff?.name || "Sales Manager"}
                                   </div>
                                   {fu.notes && (
-                                    <p className="text-slate-600 italic mt-1">
-                                      {fu.notes}
-                                    </p>
+                                    <div className="text-slate-600 italic mt-1 whitespace-pre-line break-words">
+                                      {renderTextWithLinks(fu.notes)}
+                                    </div>
                                   )}
                                 </div>
 
