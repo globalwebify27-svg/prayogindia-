@@ -10,7 +10,6 @@ import {
   ShoppingBag,
   Heart,
   MapPin,
-  Award,
   Headphones,
   LogOut,
   FileText,
@@ -27,7 +26,6 @@ export const AccountSidebar: React.FC = () => {
     { label: "My Orders", href: "/account/orders", icon: ShoppingBag },
     { label: "Saved Wishlist", href: "/account/wishlist", icon: Heart },
     { label: "Saved Addresses", href: "/account/addresses", icon: MapPin },
-    { label: "Reward Points", href: "/account/rewards", icon: Award },
     {
       label: "My Quotations (B2B)",
       href: "/account/quotations",

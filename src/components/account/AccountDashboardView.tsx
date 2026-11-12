@@ -8,7 +8,6 @@ import { useStore } from "@/context/StoreContext";
 import {
   ShoppingBag,
   Heart,
-  Award,
   MapPin,
   User,
   ArrowRight,
@@ -174,14 +173,6 @@ export const AccountDashboardView: React.FC = () => {
           badgeColor: "bg-blue-50 text-[#2563EB] border-blue-200/60 font-bold",
         },
         {
-          label: "Reward Program",
-          href: "/account/rewards",
-          icon: Award,
-          iconColor: "text-amber-500",
-          badge: `${user?.rewardPoints ?? 1250} Pts`,
-          badgeColor: "bg-amber-50 text-amber-700 border-amber-200/60 font-bold",
-        },
-        {
           label: "Saved Wishlist",
           href: "/account/wishlist",
           icon: Heart,
@@ -320,7 +311,7 @@ export const AccountDashboardView: React.FC = () => {
 
           {/* Quick-Action Touch Navigation Tiles (If logged in) */}
           {isLoggedIn && (
-            <div className="pt-2 border-t border-slate-100 grid grid-cols-4 gap-2 text-center">
+            <div className="pt-2 border-t border-slate-100 grid grid-cols-3 gap-2 text-center">
               <Link
                 href="/account/orders"
                 className="py-2 px-1 rounded-xl bg-slate-50 hover:bg-blue-50/70 border border-slate-200/60 active:scale-95 transition-all block"
@@ -341,17 +332,6 @@ export const AccountDashboardView: React.FC = () => {
                 </span>
                 <span className="text-[10px] font-bold text-slate-500 block truncate mt-0.5">
                   Wishlist
-                </span>
-              </Link>
-              <Link
-                href="/account/rewards"
-                className="py-2 px-1 rounded-xl bg-slate-50 hover:bg-amber-50/70 border border-slate-200/60 active:scale-95 transition-all block"
-              >
-                <span className="text-sm font-black text-amber-600 block">
-                  {user?.rewardPoints ?? 1250}
-                </span>
-                <span className="text-[10px] font-bold text-slate-500 block truncate mt-0.5">
-                  Points
                 </span>
               </Link>
               <Link

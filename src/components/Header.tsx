@@ -1182,15 +1182,6 @@ export const Header: React.FC<HeaderProps> = ({
                             <span>Support Tickets</span>
                           </Link>
 
-                          <Link
-                            href="/account/rewards"
-                            onClick={() => setAccountDropdownOpen(false)}
-                            className="w-full text-left px-3 py-2 hover:bg-slate-50 hover:text-[#2563EB] rounded-xl transition-colors flex items-center gap-2.5 font-medium text-slate-700 group"
-                          >
-                            <Coins className="w-4 h-4 text-amber-500 group-hover:text-[#2563EB]" />
-                            <span>Reward Points</span>
-                          </Link>
-
                           <div className="border-t border-slate-100 my-1 pt-1" />
 
                           <button
