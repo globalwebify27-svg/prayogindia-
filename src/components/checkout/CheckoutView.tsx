@@ -1132,8 +1132,14 @@ export const CheckoutView: React.FC = () => {
   if (cart.length === 0) {
     return (
       <div className="max-w-md mx-auto py-20 text-center space-y-4">
-        <div className="w-16 h-16 rounded-2xl bg-blue-50 text-[#2563EB] flex items-center justify-center mx-auto border border-[#2563EB]/20">
-          <ShoppingBag className="w-8 h-8" />
+        <div className="relative w-48 h-36 mx-auto -mb-1">
+          <Image
+            src="/images/empty-cart-robot.png"
+            alt="Your Cart is Empty"
+            fill
+            className="object-contain"
+            priority
+          />
         </div>
         <h1 className="text-2xl font-black text-slate-900">
           Your Cart is Empty

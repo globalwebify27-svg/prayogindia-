@@ -243,8 +243,14 @@ export const CartView: React.FC = () => {
       {/* 3. Empty State */}
       {cart.length === 0 ? (
         <div className="py-24 text-center bg-gradient-to-br from-slate-50 to-white rounded-3xl border border-slate-200 space-y-4 max-w-lg mx-auto my-8">
-          <div className="w-20 h-20 rounded-3xl bg-blue-50 text-[#2563EB] flex items-center justify-center mx-auto border border-blue-200/60 shadow-sm">
-            <ShoppingBag className="w-10 h-10" />
+          <div className="relative w-52 h-40 sm:w-64 sm:h-48 mx-auto -mb-1">
+            <Image
+              src="/images/empty-cart-robot.png"
+              alt="Your Cart is Empty"
+              fill
+              className="object-contain"
+              priority
+            />
           </div>
           <div className="space-y-1">
             <h2 className="text-2xl font-black text-slate-900">

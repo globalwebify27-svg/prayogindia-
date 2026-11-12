@@ -185,12 +185,15 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
 
             {items.length === 0 ? (
               <div className="text-center py-10 px-2 space-y-5 animate-in fade-in duration-300">
-                {/* Brand Themed Illustration Squircle */}
-                <div className="relative w-24 h-24 mx-auto">
-                  <div className="absolute inset-0 bg-blue-500/15 rounded-3xl blur-xl" />
-                  <div className="relative w-24 h-24 rounded-3xl bg-gradient-to-br from-blue-50 via-sky-50 to-[#D4E4F7]/60 border-2 border-blue-200/90 flex items-center justify-center shadow-sm">
-                    <ShoppingBag className="w-11 h-11 text-[#2563EB] stroke-[1.8]" />
-                  </div>
+                {/* 3D Robot Empty Cart Illustration */}
+                <div className="relative w-44 h-36 mx-auto -mb-1">
+                  <Image
+                    src="/images/empty-cart-robot.png"
+                    alt="Your Cart is Empty"
+                    fill
+                    className="object-contain"
+                    priority
+                  />
                 </div>
 
                 {/* Main Copy */}
