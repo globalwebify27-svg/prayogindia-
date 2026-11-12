@@ -443,7 +443,7 @@ export default function AdminProductsPage() {
         "The standard Arduino Uno R3 board powered by ATmega328P with removable DIP socket.",
         "https://images.unsplash.com/photo-1553406830-ef2513450d76?auto=format&fit=crop&w=800&q=80",
         "https://images.unsplash.com/photo-1553406830-ef2513450d76?auto=format&fit=crop&w=800&q=80",
-        "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        "",
         "Arduino UNO R3 DIP - Buy Online at Best Price | Prayog India",
         "Buy authentic Arduino Uno R3 DIP development board with ATmega328P. Fast dispatch across India.",
         "arduino-uno-r3-dip",

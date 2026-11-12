@@ -183,18 +183,7 @@ const QuickViewModalContent: React.FC<{
         ? product.documents
         : masterProduct?.documents && masterProduct.documents.length > 0
         ? masterProduct.documents
-        : [
-            {
-              title: `${product.name} Official Technical Datasheet`,
-              type: "PDF",
-              url: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
-            },
-            {
-              title: "Pinout Diagram & Electrical Schematics",
-              type: "PDF",
-              url: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
-            },
-          ],
+        : [],
   };
 
   const [selectedVariantId, setSelectedVariantId] = useState<string | undefined>(

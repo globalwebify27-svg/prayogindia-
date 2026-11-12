@@ -342,76 +342,86 @@ export const ProductTabsSection: React.FC<ProductTabsSectionProps> = ({
               Additional Resources
             </h3>
 
-            <div className="space-y-3 pt-1">
-              {/* 1. PDF Datasheet */}
-              <div className="bg-white border border-slate-200/90 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-2xs hover:shadow-xs transition-shadow">
-                <div className="flex items-center gap-3.5 min-w-0">
-                  <div className="w-10 h-10 rounded-xl bg-blue-50 border border-blue-200/80 text-[#005CA9] flex items-center justify-center shrink-0 shadow-2xs">
-                    <FileText className="w-5 h-5" />
-                  </div>
-                  <div className="min-w-0">
-                    <h4 className="text-sm sm:text-base font-bold text-slate-900 truncate">
-                      {product.name} Datasheet (PDF)
-                    </h4>
-                    <p className="text-xs text-slate-500 mt-0.5">
-                      Official technical specifications &amp; pinout reference
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2 shrink-0">
-                  <a
-                    href={datasheetUrl || `https://prayogindia.in/docs/${product.sku || product.id}-datasheet.pdf`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 px-4 py-2 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-xl border border-slate-200 shadow-2xs transition-colors cursor-pointer"
-                  >
-                    <ExternalLink className="w-3.5 h-3.5 text-slate-500" />
-                    <span>Open in Browser</span>
-                  </a>
-                  <a
-                    href={datasheetUrl || `https://prayogindia.in/docs/${product.sku || product.id}-datasheet.pdf`}
-                    download
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#005CA9] hover:bg-[#004B8A] text-white text-xs font-semibold rounded-xl shadow-xs transition-colors cursor-pointer"
-                  >
-                    <Download className="w-3.5 h-3.5" />
-                    <span>Download PDF</span>
-                  </a>
-                </div>
+            {!datasheetUrl && !tutorialVideo?.directUrl ? (
+              <div className="p-8 text-center bg-slate-50 border border-slate-200 rounded-2xl text-slate-500 text-sm">
+                No additional resources available for this product yet.
               </div>
+            ) : (
+              <div className="space-y-3 pt-1">
+                {/* 1. PDF Datasheet */}
+                {datasheetUrl && (
+                  <div className="bg-white border border-slate-200/90 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-2xs hover:shadow-xs transition-shadow">
+                    <div className="flex items-center gap-3.5 min-w-0">
+                      <div className="w-10 h-10 rounded-xl bg-blue-50 border border-blue-200/80 text-[#005CA9] flex items-center justify-center shrink-0 shadow-2xs">
+                        <FileText className="w-5 h-5" />
+                      </div>
+                      <div className="min-w-0">
+                        <h4 className="text-sm sm:text-base font-bold text-slate-900 truncate">
+                          {product.name} Datasheet (PDF)
+                        </h4>
+                        <p className="text-xs text-slate-500 mt-0.5">
+                          Official technical specifications &amp; pinout reference
+                        </p>
+                      </div>
+                    </div>
 
-              {/* 2. YouTube Link */}
-              <div className="bg-white border border-slate-200/90 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-2xs hover:shadow-xs transition-shadow">
-                <div className="flex items-center gap-3.5 min-w-0">
-                  <div className="w-10 h-10 rounded-xl bg-red-50 border border-red-200/80 text-[#FF0000] flex items-center justify-center shrink-0 shadow-2xs">
-                    <YouTubeIcon className="w-5 h-5" />
+                    <div className="flex items-center gap-2 shrink-0">
+                      <a
+                        href={datasheetUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 px-4 py-2 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-xl border border-slate-200 shadow-2xs transition-colors cursor-pointer"
+                      >
+                        <ExternalLink className="w-3.5 h-3.5 text-slate-500" />
+                        <span>Open in Browser</span>
+                      </a>
+                      <a
+                        href={datasheetUrl}
+                        download
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#005CA9] hover:bg-[#004B8A] text-white text-xs font-semibold rounded-xl shadow-xs transition-colors cursor-pointer"
+                      >
+                        <Download className="w-3.5 h-3.5" />
+                        <span>Download PDF</span>
+                      </a>
+                    </div>
                   </div>
-                  <div className="min-w-0">
-                    <h4 className="text-sm sm:text-base font-bold text-slate-900 truncate">
-                      {tutorialVideo?.title || `${product.name} Video Tutorial`}
-                    </h4>
-                    <p className="text-xs text-slate-500 mt-0.5">
-                      Hardware setup, pinout wiring &amp; demonstration
-                    </p>
-                  </div>
-                </div>
+                )}
 
-                <div className="flex items-center gap-2 shrink-0">
-                  <a
-                    href={tutorialVideo?.directUrl || product.videoUrl || `https://www.youtube.com/results?search_query=${encodeURIComponent("Prayog India " + product.name)}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#FF0000] hover:bg-[#D90000] text-white text-xs font-semibold rounded-xl shadow-xs transition-colors cursor-pointer"
-                  >
-                    <Play className="w-3.5 h-3.5 fill-current" />
-                    <span>Watch on YouTube</span>
-                    <ExternalLink className="w-3.5 h-3.5 opacity-90" />
-                  </a>
-                </div>
+                {/* 2. YouTube Link */}
+                {tutorialVideo?.directUrl && (
+                  <div className="bg-white border border-slate-200/90 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-2xs hover:shadow-xs transition-shadow">
+                    <div className="flex items-center gap-3.5 min-w-0">
+                      <div className="w-10 h-10 rounded-xl bg-red-50 border border-red-200/80 text-[#FF0000] flex items-center justify-center shrink-0 shadow-2xs">
+                        <YouTubeIcon className="w-5 h-5" />
+                      </div>
+                      <div className="min-w-0">
+                        <h4 className="text-sm sm:text-base font-bold text-slate-900 truncate">
+                          {tutorialVideo.title || `${product.name} Video Tutorial`}
+                        </h4>
+                        <p className="text-xs text-slate-500 mt-0.5">
+                          Hardware setup, pinout wiring &amp; demonstration
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2 shrink-0">
+                      <a
+                        href={tutorialVideo.directUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#FF0000] hover:bg-[#D90000] text-white text-xs font-semibold rounded-xl shadow-xs transition-colors cursor-pointer"
+                      >
+                        <Play className="w-3.5 h-3.5 fill-current" />
+                        <span>Watch on YouTube</span>
+                        <ExternalLink className="w-3.5 h-3.5 opacity-90" />
+                      </a>
+                    </div>
+                  </div>
+                )}
               </div>
-            </div>
+            )}
           </div>
         )}
 
@@ -699,59 +709,67 @@ export const ProductTabsSection: React.FC<ProductTabsSectionProps> = ({
                 className="overflow-hidden"
               >
                 <div className="px-4 pb-4 pt-1 border-t border-slate-100 space-y-2.5">
-                  <div className="pt-1 space-y-2">
-                    {/* 1. Official PDF Datasheet */}
-                    <div className="p-3 bg-slate-50/80 rounded-xl border border-slate-200/80 flex items-center justify-between gap-3">
-                      <div className="min-w-0 flex items-center gap-2.5">
-                        <div className="w-8 h-8 rounded-lg bg-blue-50 text-[#005CA9] flex items-center justify-center shrink-0">
-                          <FileText className="w-4 h-4" />
+                  {!datasheetUrl && !tutorialVideo?.directUrl ? (
+                    <p className="text-xs text-slate-500 py-3 text-center">
+                      No additional resources available for this product yet.
+                    </p>
+                  ) : (
+                    <div className="pt-1 space-y-2">
+                      {/* 1. Official PDF Datasheet */}
+                      {datasheetUrl && (
+                        <div className="p-3 bg-slate-50/80 rounded-xl border border-slate-200/80 flex items-center justify-between gap-3">
+                          <div className="min-w-0 flex items-center gap-2.5">
+                            <div className="w-8 h-8 rounded-lg bg-blue-50 text-[#005CA9] flex items-center justify-center shrink-0">
+                              <FileText className="w-4 h-4" />
+                            </div>
+                            <div className="min-w-0">
+                              <p className="text-xs font-bold text-slate-800 truncate">
+                                {product.name} — Official PDF Datasheet
+                              </p>
+                              <p className="text-[10px] text-slate-500 font-semibold">
+                                PDF Document • Technical Reference
+                              </p>
+                            </div>
+                          </div>
+                          <a
+                            href={datasheetUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="shrink-0 px-3 py-1.5 bg-[#005CA9] hover:bg-[#004a88] text-white rounded-lg font-bold text-xs flex items-center gap-1 shadow-2xs"
+                          >
+                            <Download className="w-3.5 h-3.5" />
+                            <span>PDF</span>
+                          </a>
                         </div>
-                        <div className="min-w-0">
-                          <p className="text-xs font-bold text-slate-800 truncate">
-                            {product.name} — Official PDF Datasheet
-                          </p>
-                          <p className="text-[10px] text-slate-500 font-semibold">
-                            PDF Document • Technical Reference
-                          </p>
-                        </div>
-                      </div>
-                      <a
-                        href={datasheetUrl || `https://prayogindia.in/docs/${product.sku || product.id}-datasheet.pdf`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="shrink-0 px-3 py-1.5 bg-[#005CA9] hover:bg-[#004a88] text-white rounded-lg font-bold text-xs flex items-center gap-1 shadow-2xs"
-                      >
-                        <Download className="w-3.5 h-3.5" />
-                        <span>PDF</span>
-                      </a>
-                    </div>
+                      )}
 
-                    {/* 2. YouTube Video */}
-                    {tutorialVideo && (
-                      <div className="p-3 bg-red-50/50 rounded-xl border border-red-100 flex items-center justify-between gap-3 mt-1">
-                        <div className="min-w-0 flex items-center gap-2.5">
-                          <div className="w-8 h-8 rounded-lg bg-red-500 text-white flex items-center justify-center shrink-0">
-                            <Play className="w-4 h-4 fill-white" />
+                      {/* 2. YouTube Video */}
+                      {tutorialVideo?.directUrl && (
+                        <div className="p-3 bg-red-50/50 rounded-xl border border-red-100 flex items-center justify-between gap-3 mt-1">
+                          <div className="min-w-0 flex items-center gap-2.5">
+                            <div className="w-8 h-8 rounded-lg bg-red-500 text-white flex items-center justify-center shrink-0">
+                              <Play className="w-4 h-4 fill-white" />
+                            </div>
+                            <div className="min-w-0">
+                              <p className="text-xs font-bold text-slate-900 truncate">
+                                {tutorialVideo.title}
+                              </p>
+                              <p className="text-[10px] text-slate-500">YouTube Video Walkthrough</p>
+                            </div>
                           </div>
-                          <div className="min-w-0">
-                            <p className="text-xs font-bold text-slate-900 truncate">
-                              {tutorialVideo.title}
-                            </p>
-                            <p className="text-[10px] text-slate-500">YouTube Video Walkthrough</p>
-                          </div>
+                          <a
+                            href={tutorialVideo.directUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="shrink-0 px-2.5 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg font-bold text-xs flex items-center gap-1 shadow-2xs"
+                          >
+                            <span>Watch</span>
+                            <ExternalLink className="w-3 h-3" />
+                          </a>
                         </div>
-                        <a
-                          href={tutorialVideo.directUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="shrink-0 px-2.5 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg font-bold text-xs flex items-center gap-1 shadow-2xs"
-                        >
-                          <span>Watch</span>
-                          <ExternalLink className="w-3 h-3" />
-                        </a>
-                      </div>
-                    )}
-                  </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               </motion.div>
             )}
