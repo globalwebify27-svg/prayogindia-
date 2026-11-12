@@ -44,6 +44,18 @@ export default function CustomerQuotationsPage() {
 
   // New Quotation Request Modal State
   const [showNewQuoteModal, setShowNewQuoteModal] = useState(false);
+
+  // Lock background body scroll whenever any quotation modal is open
+  const isAnyModalOpen = Boolean(showNewQuoteModal || selectedQuote || actionModal);
+  useEffect(() => {
+    if (isAnyModalOpen) {
+      const originalOverflow = document.body.style.overflow;
+      document.body.style.overflow = "hidden";
+      return () => {
+        document.body.style.overflow = originalOverflow;
+      };
+    }
+  }, [isAnyModalOpen]);
   const [submittingQuote, setSubmittingQuote] = useState(false);
   const [newCompanyName, setNewCompanyName] = useState(user?.companyName || "");
   const [newCustomerName, setNewCustomerName] = useState(user?.name || "");
@@ -477,7 +489,7 @@ export default function CustomerQuotationsPage() {
 
       {/* New Quotation Request Modal */}
       {showNewQuoteModal && (
-        <div className="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-3 sm:p-4">
+        <div className="fixed inset-0 z-50 overflow-y-auto overscroll-contain flex items-center justify-center p-3 sm:p-4">
           <div
             onClick={() => setShowNewQuoteModal(false)}
             className="fixed inset-0 bg-slate-950/60 backdrop-blur-xs animate-in fade-in duration-200"
@@ -505,7 +517,7 @@ export default function CustomerQuotationsPage() {
 
             {/* Form */}
             <form onSubmit={handleCreateQuotation} className="flex flex-col flex-1 min-h-0">
-              <div className="flex-1 overflow-y-auto p-6 sm:p-8 space-y-4 text-xs">
+              <div className="flex-1 overflow-y-auto overscroll-contain p-6 sm:p-8 space-y-4 text-xs">
                 {/* Institution Type Chips */}
                 <div>
                   <label className="block font-bold text-slate-700 mb-2">
@@ -798,13 +810,13 @@ export default function CustomerQuotationsPage() {
 
       {/* Slide-over / Modal Detail View */}
       {selectedQuote && (
-        <div className="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 overflow-y-auto overscroll-contain flex items-center justify-center p-4">
           <div
             onClick={() => setSelectedQuote(null)}
             className="fixed inset-0 bg-slate-950/60 backdrop-blur-xs animate-in fade-in"
           />
 
-          <div className="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl border border-slate-100 p-6 sm:p-8 z-10 max-h-[90vh] overflow-y-auto space-y-6">
+          <div className="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl border border-slate-100 p-6 sm:p-8 z-10 max-h-[90vh] overflow-y-auto overscroll-contain space-y-6">
             <div className="flex items-start justify-between border-b border-slate-100 pb-4">
               <div>
                 <span className="text-[10px] font-mono uppercase bg-slate-100 text-slate-700 px-2.5 py-0.5 rounded-full font-bold">
@@ -997,7 +1009,7 @@ export default function CustomerQuotationsPage() {
 
       {/* Action confirmation dialog */}
       {actionModal && (
-        <div className="fixed inset-0 z-60 overflow-y-auto flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-60 overflow-y-auto overscroll-contain flex items-center justify-center p-4">
           <div
             onClick={() => setActionModal(null)}
             className="fixed inset-0 bg-slate-950/70 backdrop-blur-xs"
