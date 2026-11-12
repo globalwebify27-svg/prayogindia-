@@ -346,26 +346,26 @@ export const AccountDashboardView: React.FC = () => {
       {/* ======================================================== */}
       {/* 2. STATS ROW: 3 REAL METRIC CARDS                        */}
       {/* ======================================================== */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3">
+      <div className="grid grid-cols-3 gap-2 sm:gap-3">
         {/* 1. Total Orders */}
         <Link
           href="/account/orders"
-          className="bg-white rounded-xl sm:rounded-2xl p-3 sm:p-3.5 border border-slate-100 shadow-xs hover:shadow-sm transition-all flex items-center justify-between group"
+          className="bg-white rounded-xl sm:rounded-2xl p-2 sm:p-3.5 border border-slate-100 shadow-xs hover:shadow-sm transition-all flex flex-col sm:flex-row items-center sm:justify-between text-center sm:text-left gap-1 sm:gap-2.5 group active:scale-[0.98]"
         >
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-blue-50 text-[#2563EB] flex items-center justify-center shrink-0">
-              <ShoppingBag className="w-4.5 h-4.5 sm:w-5 sm:h-5" />
+          <div className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2.5 min-w-0 w-full sm:w-auto">
+            <div className="w-7 h-7 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-blue-50 text-[#2563EB] flex items-center justify-center shrink-0">
+              <ShoppingBag className="w-3.5 h-3.5 sm:w-5 sm:h-5" />
             </div>
-            <div>
-              <span className="text-base sm:text-xl font-black text-slate-900 block leading-tight">
+            <div className="min-w-0 w-full sm:w-auto">
+              <span className="text-sm sm:text-xl font-black text-slate-900 block leading-tight">
                 {totalOrdersCount}
               </span>
-              <span className="text-[10px] sm:text-xs font-semibold text-slate-500 block truncate">
+              <span className="text-[10px] sm:text-xs font-semibold text-slate-500 block truncate mt-0.5 sm:mt-0">
                 Total Orders
               </span>
             </div>
           </div>
-          <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-slate-50 group-hover:bg-blue-50 text-slate-400 group-hover:text-[#2563EB] flex items-center justify-center shrink-0 transition-colors">
+          <div className="hidden sm:flex w-7 h-7 rounded-full bg-slate-50 group-hover:bg-blue-50 text-slate-400 group-hover:text-[#2563EB] items-center justify-center shrink-0 transition-colors">
             <ChevronRight className="w-3.5 h-3.5" />
           </div>
         </Link>
@@ -373,22 +373,22 @@ export const AccountDashboardView: React.FC = () => {
         {/* 2. Active Orders */}
         <Link
           href="/account/orders"
-          className="bg-white rounded-xl sm:rounded-2xl p-3 sm:p-3.5 border border-slate-100 shadow-xs hover:shadow-sm transition-all flex items-center justify-between group"
+          className="bg-white rounded-xl sm:rounded-2xl p-2 sm:p-3.5 border border-slate-100 shadow-xs hover:shadow-sm transition-all flex flex-col sm:flex-row items-center sm:justify-between text-center sm:text-left gap-1 sm:gap-2.5 group active:scale-[0.98]"
         >
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
-              <Truck className="w-4.5 h-4.5 sm:w-5 sm:h-5" />
+          <div className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2.5 min-w-0 w-full sm:w-auto">
+            <div className="w-7 h-7 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+              <Truck className="w-3.5 h-3.5 sm:w-5 sm:h-5" />
             </div>
-            <div>
-              <span className="text-base sm:text-xl font-black text-slate-900 block leading-tight">
+            <div className="min-w-0 w-full sm:w-auto">
+              <span className="text-sm sm:text-xl font-black text-slate-900 block leading-tight">
                 {activeOrdersCount}
               </span>
-              <span className="text-[10px] sm:text-xs font-semibold text-slate-500 block truncate">
+              <span className="text-[10px] sm:text-xs font-semibold text-slate-500 block truncate mt-0.5 sm:mt-0">
                 Active Orders
               </span>
             </div>
           </div>
-          <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-slate-50 group-hover:bg-emerald-50 text-slate-400 group-hover:text-emerald-600 flex items-center justify-center shrink-0 transition-colors">
+          <div className="hidden sm:flex w-7 h-7 rounded-full bg-slate-50 group-hover:bg-emerald-50 text-slate-400 group-hover:text-emerald-600 items-center justify-center shrink-0 transition-colors">
             <ChevronRight className="w-3.5 h-3.5" />
           </div>
         </Link>
@@ -396,22 +396,22 @@ export const AccountDashboardView: React.FC = () => {
         {/* 3. Delivered Orders */}
         <Link
           href="/account/orders"
-          className="bg-white rounded-xl sm:rounded-2xl p-3 sm:p-3.5 border border-slate-100 shadow-xs hover:shadow-sm transition-all flex items-center justify-between group"
+          className="bg-white rounded-xl sm:rounded-2xl p-2 sm:p-3.5 border border-slate-100 shadow-xs hover:shadow-sm transition-all flex flex-col sm:flex-row items-center sm:justify-between text-center sm:text-left gap-1 sm:gap-2.5 group active:scale-[0.98]"
         >
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center shrink-0">
-              <CheckCircle2 className="w-4.5 h-4.5 sm:w-5 sm:h-5" />
+          <div className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2.5 min-w-0 w-full sm:w-auto">
+            <div className="w-7 h-7 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center shrink-0">
+              <CheckCircle2 className="w-3.5 h-3.5 sm:w-5 sm:h-5" />
             </div>
-            <div>
-              <span className="text-base sm:text-xl font-black text-slate-900 block leading-tight">
+            <div className="min-w-0 w-full sm:w-auto">
+              <span className="text-sm sm:text-xl font-black text-slate-900 block leading-tight">
                 {deliveredOrdersCount}
               </span>
-              <span className="text-[10px] sm:text-xs font-semibold text-slate-500 block truncate">
-                Delivered Orders
+              <span className="text-[10px] sm:text-xs font-semibold text-slate-500 block truncate mt-0.5 sm:mt-0">
+                Delivered
               </span>
             </div>
           </div>
-          <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-slate-50 group-hover:bg-purple-50 text-slate-400 group-hover:text-purple-600 flex items-center justify-center shrink-0 transition-colors">
+          <div className="hidden sm:flex w-7 h-7 rounded-full bg-slate-50 group-hover:bg-purple-50 text-slate-400 group-hover:text-purple-600 items-center justify-center shrink-0 transition-colors">
             <ChevronRight className="w-3.5 h-3.5" />
           </div>
         </Link>
@@ -514,7 +514,7 @@ export const AccountDashboardView: React.FC = () => {
                     </div>
 
                     {/* Right: Status Pill + Amount + View Details */}
-                    <div className="flex items-center justify-between sm:justify-end gap-3 sm:gap-4 shrink-0 pl-15 sm:pl-0">
+                    <div className="flex items-center justify-between sm:justify-end gap-2.5 sm:gap-4 shrink-0 pt-1.5 sm:pt-0 border-t border-slate-100/80 sm:border-0">
                       {/* Status Pill */}
                       {isDelivered && (
                         <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200/70 shrink-0">
@@ -541,19 +541,21 @@ export const AccountDashboardView: React.FC = () => {
                         </span>
                       )}
 
-                      {/* Total Amount */}
-                      <span className="font-extrabold text-xs sm:text-sm text-slate-900 min-w-[70px] text-right">
-                        ₹{ord.totalAmount.toLocaleString("en-IN")}
-                      </span>
+                      <div className="flex items-center gap-2.5 sm:gap-3 shrink-0">
+                        {/* Total Amount */}
+                        <span className="font-extrabold text-xs sm:text-sm text-slate-900">
+                          ₹{ord.totalAmount.toLocaleString("en-IN")}
+                        </span>
 
-                      {/* View Details Link */}
-                      <Link
-                        href={`/account/orders/${ord.id}`}
-                        className="text-xs font-bold text-[#2563EB] hover:text-[#1D4ED8] flex items-center gap-0.5 shrink-0"
-                      >
-                        <span>View</span>
-                        <ChevronRight className="w-3.5 h-3.5" />
-                      </Link>
+                        {/* View Details Link */}
+                        <Link
+                          href={`/account/orders/${ord.id}`}
+                          className="text-xs font-bold text-[#2563EB] hover:text-[#1D4ED8] flex items-center gap-0.5 shrink-0 bg-blue-50/80 hover:bg-blue-100 sm:bg-transparent px-2 py-0.5 sm:p-0 rounded-lg transition-colors"
+                        >
+                          <span>View</span>
+                          <ChevronRight className="w-3.5 h-3.5" />
+                        </Link>
+                      </div>
                     </div>
                   </div>
                 );

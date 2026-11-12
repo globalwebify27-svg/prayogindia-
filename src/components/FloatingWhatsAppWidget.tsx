@@ -47,7 +47,7 @@ export const FloatingWhatsAppWidget: React.FC = () => {
             midX < screenWidth / 2 ? margin : screenWidth - iconSize - margin;
           const topBound = margin + 55;
           const bottomBound = hasStickyBottomBar
-            ? screenHeight - iconSize - 76 - margin
+            ? screenHeight - iconSize - 88 - margin
             : screenHeight - iconSize - margin;
           setMobilePos({
             x: snappedX,
@@ -244,7 +244,7 @@ export const FloatingWhatsAppWidget: React.FC = () => {
           mobilePos
             ? ""
             : hasStickyBottomBar
-            ? "bottom-[76px] right-3"
+            ? "bottom-[88px] right-3"
             : "bottom-4 right-3"
         }`}
       >
