@@ -258,30 +258,14 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
     setSelectedDeliveryMode(isAirAllowed ? "air" : isSurfaceAllowed ? "surface" : "pickup");
   }, [product.id, isAirAllowed, isSurfaceAllowed]);
 
-  // Restriction alert modal state
-  interface DeliveryRestrictionAlert {
-    title: string;
-    reason: string;
-    alternativeMode: "air" | "surface" | "pickup";
-    alternativeLabel: string;
-  }
-  const [restrictionModal, setRestrictionModal] = useState<DeliveryRestrictionAlert | null>(null);
-
   const handleSelectDeliveryMode = (mode: "air" | "surface" | "pickup") => {
     if (mode === "air") {
       if (!isAirAllowed) {
-        setRestrictionModal({
-          title: "Air Express Is Not Available on this product",
-          reason: "Air Express shipping is not available for this product due to transport safety regulations. Please choose Land / Road Surface delivery or Local Store Pickup.",
-          alternativeMode: isSurfaceAllowed ? "surface" : "pickup",
-          alternativeLabel: isSurfaceAllowed ? "Land / Road Delivery" : "Store Pickup",
-        });
-
         useUIStore.getState().showToast({
           title: "Air Express Is Not Available on this product",
-          message: "Please choose Land / Road delivery or Store Pickup.",
+          message: "Air shipping is restricted for this product. Please choose Land / Road delivery or Store Pickup.",
           type: "error",
-          duration: 3500,
+          duration: 4000,
         });
         return;
       }
@@ -291,18 +275,11 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
 
     if (mode === "surface") {
       if (!isSurfaceAllowed) {
-        setRestrictionModal({
-          title: "Surface Delivery Is Not Available on this product",
-          reason: "Surface delivery has not been enabled for this product. Please choose Air Express or Local Store Pickup.",
-          alternativeMode: isAirAllowed ? "air" : "pickup",
-          alternativeLabel: isAirAllowed ? "Air Express Delivery" : "Store Pickup",
-        });
-
         useUIStore.getState().showToast({
           title: "Surface Delivery Is Not Available on this product",
-          message: "Please choose Air Express or Store Pickup.",
+          message: "Please choose Air Express or Local Store Pickup.",
           type: "error",
-          duration: 3500,
+          duration: 4000,
         });
         return;
       }
@@ -312,18 +289,11 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
 
     if (mode === "pickup") {
       if (!isLocalPickupAllowed) {
-        setRestrictionModal({
-          title: "Store Pickup Is Not Available on this product",
-          reason: "Store pickup is not enabled for this product. This item is fulfilled exclusively via courier shipping to your address.",
-          alternativeMode: isSurfaceAllowed ? "surface" : "air",
-          alternativeLabel: isSurfaceAllowed ? "Land / Road Delivery" : "Air Express",
-        });
-
         useUIStore.getState().showToast({
           title: "Store Pickup Is Not Available on this product",
-          message: "Please choose home courier delivery.",
+          message: "This item is fulfilled exclusively via courier shipping to your address.",
           type: "error",
-          duration: 3500,
+          duration: 4000,
         });
         return;
       }
@@ -916,73 +886,7 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
           </div>
         </div>
 
-        {/* ── Admin Delivery Restriction Alert Modal (Short & Professional) ── */}
-        <AnimatePresence>
-          {restrictionModal && (
-            <div
-              className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/50 backdrop-blur-xs animate-in fade-in duration-150"
-              onClick={() => setRestrictionModal(null)}
-            >
-              <motion.div
-                initial={{ opacity: 0, scale: 0.96, y: 8 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.96, y: 8 }}
-                transition={{ duration: 0.15 }}
-                onClick={(e) => e.stopPropagation()}
-                className="bg-white rounded-2xl border border-slate-200/90 shadow-2xl max-w-sm sm:max-w-md w-full p-5 space-y-4"
-              >
-                {/* Header with Title and Close */}
-                <div className="flex items-start gap-3.5">
-                  <div className="w-10 h-10 rounded-xl bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-600 shrink-0">
-                    <AlertTriangle className="w-5 h-5 stroke-[2.2]" />
-                  </div>
-                  <div className="flex-1 min-w-0 pr-1">
-                    <h3 className="text-sm sm:text-base font-bold text-slate-900 leading-snug">
-                      {restrictionModal.title}
-                    </h3>
-                    <p className="text-xs text-slate-600 leading-relaxed mt-1.5 font-normal">
-                      {restrictionModal.reason}
-                    </p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => setRestrictionModal(null)}
-                    className="p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer shrink-0"
-                    aria-label="Close dialog"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
-                </div>
 
-                {/* Actions */}
-                <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
-                  <button
-                    type="button"
-                    onClick={() => setRestrictionModal(null)}
-                    className="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl transition-all cursor-pointer"
-                  >
-                    Close
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setSelectedDeliveryMode(restrictionModal.alternativeMode);
-                      setRestrictionModal(null);
-                      useUIStore.getState().showToast({
-                        title: `Switched to ${restrictionModal.alternativeLabel}`,
-                        type: "success",
-                        duration: 2500,
-                      });
-                    }}
-                    className="px-4 py-2 bg-[#005CA9] hover:bg-[#004B8A] active:bg-[#003867] text-white text-xs font-bold rounded-xl transition-all cursor-pointer shadow-xs"
-                  >
-                    Switch to {restrictionModal.alternativeLabel}
-                  </button>
-                </div>
-              </motion.div>
-            </div>
-          )}
-        </AnimatePresence>
       </div>
 
       {/* ── 9. Trust Badges Row ── */}
