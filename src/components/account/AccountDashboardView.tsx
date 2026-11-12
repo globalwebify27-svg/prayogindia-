@@ -329,6 +329,28 @@ export const AccountDashboardView: React.FC = () => {
           <p className="text-[11px] sm:text-xs text-slate-500 font-medium mt-1">
             Here&apos;s your account overview and recent activity.
           </p>
+
+          {/* Mobile-only compact stats badges inside banner (no separate cards) */}
+          {totalOrdersCount > 0 && (
+            <div className="sm:hidden flex flex-wrap items-center gap-2 mt-2.5">
+              <Link
+                href="/account/orders"
+                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-white text-[#2563EB] border border-blue-200/70 shadow-2xs active:scale-95 transition-all"
+              >
+                <ShoppingBag className="w-3 h-3" />
+                <span>{totalOrdersCount} Total Orders</span>
+              </Link>
+              {activeOrdersCount > 0 && (
+                <Link
+                  href="/account/orders"
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200/70 shadow-2xs active:scale-95 transition-all"
+                >
+                  <Truck className="w-3 h-3" />
+                  <span>{activeOrdersCount} Active</span>
+                </Link>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Right Skyline Panorama */}
@@ -344,9 +366,9 @@ export const AccountDashboardView: React.FC = () => {
       </div>
 
       {/* ======================================================== */}
-      {/* 2. STATS ROW: 3 REAL METRIC CARDS                        */}
+      {/* 2. STATS ROW: 3 REAL METRIC CARDS (Desktop & Tablet only) */}
       {/* ======================================================== */}
-      <div className="grid grid-cols-3 gap-2 sm:gap-3">
+      <div className="hidden sm:grid sm:grid-cols-3 gap-2.5 sm:gap-3">
         {/* 1. Total Orders */}
         <Link
           href="/account/orders"
@@ -586,8 +608,8 @@ export const AccountDashboardView: React.FC = () => {
           )}
         </div>
 
-        {/* ── RIGHT COLUMN: QUICK ACTIONS & NEED HELP (col-span-4) ── */}
-        <div className="lg:col-span-4 space-y-3.5 sm:space-y-4">
+        {/* ── RIGHT COLUMN: QUICK ACTIONS & NEED HELP (Desktop only, hidden on mobile to avoid redundant cards) ── */}
+        <div className="hidden lg:block lg:col-span-4 space-y-3.5 sm:space-y-4">
           {/* Card A: Quick Actions */}
           <div className="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-5 border border-slate-100 shadow-xs space-y-3">
             <h3 className="text-sm sm:text-base font-extrabold text-slate-900 flex items-center gap-1.5 tracking-tight">
