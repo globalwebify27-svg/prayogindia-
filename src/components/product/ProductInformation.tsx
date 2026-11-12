@@ -582,10 +582,10 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
             <button
               type="button"
               onClick={handleAddToCartClick}
-              className={`flex-initial min-w-[190px] h-[54px] px-8 rounded-[12px] text-[16px] font-[600] whitespace-nowrap transition-all duration-150 flex items-center justify-center cursor-pointer select-none ${
+              className={`flex-initial min-w-[140px] h-11 px-6 rounded-xl text-[15px] font-semibold whitespace-nowrap transition-all duration-200 ease-out flex items-center justify-center cursor-pointer select-none ${
                 addedAnimation
-                  ? "bg-emerald-600 border-2 border-emerald-600 text-white shadow-sm scale-[1.01]"
-                  : "bg-white hover:bg-slate-50 active:bg-slate-100 text-slate-900 border-2 border-slate-300 hover:border-slate-400 shadow-2xs active:scale-[0.99]"
+                  ? "bg-emerald-600 border border-emerald-600 text-white shadow-xs scale-[1.01]"
+                  : "bg-white hover:bg-slate-50 active:bg-slate-100 text-slate-900 border border-slate-300 hover:border-slate-400 shadow-2xs active:scale-[0.98]"
               }`}
             >
               <span>{addedAnimation ? "Added to Cart!" : "Add to Cart"}</span>
@@ -595,7 +595,7 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
               href={`https://wa.me/918709789641?text=Hi%20Prayog%20India%2C%20I%20want%20to%20inquire%20about%20availability%20of%20${encodeURIComponent(product.name)}%20(SKU:%20${encodeURIComponent(currentSku)})`}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex-initial min-w-[190px] h-[54px] px-8 rounded-[12px] text-[16px] font-[600] text-white bg-emerald-600 hover:bg-emerald-700 shadow-sm shadow-emerald-600/20 whitespace-nowrap transition-all duration-150 flex items-center justify-center cursor-pointer active:scale-[0.99]"
+              className="flex-initial min-w-[150px] h-11 px-6 rounded-xl text-[15px] font-semibold text-white bg-emerald-600 hover:bg-emerald-700 shadow-xs shadow-emerald-600/20 whitespace-nowrap transition-all duration-200 ease-out flex items-center justify-center cursor-pointer active:scale-[0.98]"
             >
               <span>Inquire on WhatsApp</span>
             </a>
@@ -606,7 +606,7 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
             <button
               type="button"
               onClick={handleBuyNowClick}
-              className="flex-initial min-w-[160px] h-[54px] px-8 rounded-[12px] text-[16px] font-[600] text-white bg-[#2563EB] hover:bg-[#1D4ED8] active:bg-[#1E40AF] shadow-sm hover:shadow whitespace-nowrap transition-all duration-150 flex items-center justify-center cursor-pointer active:scale-[0.99] select-none"
+              className="flex-initial min-w-[130px] h-11 px-6 rounded-xl text-[15px] font-semibold text-white bg-[#2563EB] hover:bg-[#1D4ED8] active:bg-[#1E40AF] shadow-xs hover:shadow-sm whitespace-nowrap transition-all duration-200 ease-out flex items-center justify-center cursor-pointer active:scale-[0.98] select-none"
             >
               <span>Buy Now</span>
             </button>
@@ -616,7 +616,7 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
           <button
             type="button"
             onClick={() => onToggleWishlist(product)}
-            className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-600 hover:text-red-600 transition-colors cursor-pointer ml-2"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-red-600 transition-colors cursor-pointer ml-1.5"
           >
             <Heart
               className={`w-4 h-4 ${
