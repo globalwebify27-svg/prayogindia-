@@ -233,21 +233,6 @@ export const ProfileForm: React.FC = () => {
       )}
 
       <form onSubmit={handleInitiateSubmit} className="space-y-6 text-xs">
-        {/* System Customer Type Tier */}
-        <div className="p-4 bg-slate-50 border border-slate-200 rounded-2xl flex items-center justify-between">
-          <div>
-            <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 block">
-              System Customer Tier
-            </span>
-            <span className="text-sm font-extrabold text-[#2563EB]">
-              {user?.customerType || "B2C Customer"}
-            </span>
-          </div>
-          <span className="bg-blue-50 text-[#2563EB] text-[10px] font-black uppercase px-2.5 py-1 rounded-md border border-blue-200/60">
-            Verified Account
-          </span>
-        </div>
-
         {/* Contact Information Group */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-1">
