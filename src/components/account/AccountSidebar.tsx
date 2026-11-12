@@ -14,7 +14,6 @@ import {
   Headphones,
   LogOut,
   FileText,
-  CreditCard,
 } from "lucide-react";
 
 export const AccountSidebar: React.FC = () => {
@@ -28,7 +27,6 @@ export const AccountSidebar: React.FC = () => {
     { label: "My Orders", href: "/account/orders", icon: ShoppingBag },
     { label: "Saved Wishlist", href: "/account/wishlist", icon: Heart },
     { label: "Saved Addresses", href: "/account/addresses", icon: MapPin },
-    { label: "Payment Methods", href: "/account/payments", icon: CreditCard },
     { label: "Reward Points", href: "/account/rewards", icon: Award },
     {
       label: "My Quotations (B2B)",

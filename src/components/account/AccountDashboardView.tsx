@@ -17,7 +17,6 @@ import {
   Check,
   Truck,
   FileText,
-  CreditCard,
   Building2,
   HelpCircle,
   Headphones,
@@ -194,11 +193,6 @@ export const AccountDashboardView: React.FC = () => {
           label: "Saved Addresses",
           href: "/account/addresses",
           icon: MapPin,
-        },
-        {
-          label: "Payment Methods & Net-30",
-          href: "/account/payments",
-          icon: CreditCard,
         },
         {
           label: "My Quotations (B2B)",
