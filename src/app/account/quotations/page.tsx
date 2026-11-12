@@ -558,7 +558,7 @@ export default function CustomerQuotationsPage() {
                   <input
                     type="text"
                     required
-                    placeholder="e.g. DPS Robotics Lab, IIT Bombay ATL Lab"
+                    placeholder="Organization or School Name"
                     value={newCompanyName}
                     onChange={(e) => setNewCompanyName(e.target.value)}
                     className="w-full px-3.5 py-2.5 bg-slate-50/70 hover:bg-slate-50 focus:bg-white border border-slate-200 focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/15 rounded-xl font-medium text-slate-900 outline-none transition-all"
@@ -574,7 +574,7 @@ export default function CustomerQuotationsPage() {
                     <input
                       type="text"
                       required
-                      placeholder="Full Name"
+                      placeholder="Your Name"
                       value={newCustomerName}
                       onChange={(e) => setNewCustomerName(e.target.value)}
                       className="w-full px-3.5 py-2.5 bg-slate-50/70 hover:bg-slate-50 focus:bg-white border border-slate-200 focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/15 rounded-xl font-medium text-slate-900 outline-none transition-all"
@@ -592,7 +592,7 @@ export default function CustomerQuotationsPage() {
                         type="tel"
                         maxLength={10}
                         required
-                        placeholder="9876543210"
+                        placeholder="Mobile Number"
                         value={newCustomerPhone}
                         onChange={(e) => setNewCustomerPhone(e.target.value.replace(/\D/g, ""))}
                         className="w-full px-3.5 py-2.5 bg-slate-50/70 hover:bg-slate-50 focus:bg-white font-medium text-slate-900 outline-none transition-all"
@@ -609,7 +609,7 @@ export default function CustomerQuotationsPage() {
                   <input
                     type="email"
                     required
-                    placeholder="contact@example.com"
+                    placeholder="Email Address"
                     value={newCustomerEmail}
                     onChange={(e) => setNewCustomerEmail(e.target.value)}
                     className="w-full px-3.5 py-2.5 bg-slate-50/70 hover:bg-slate-50 focus:bg-white border border-slate-200 focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/15 rounded-xl font-medium text-slate-900 outline-none transition-all"
@@ -674,7 +674,7 @@ export default function CustomerQuotationsPage() {
                           <input
                             type="text"
                             required
-                            placeholder="e.g. Arduino Uno R3, Raspberry Pi 5 8GB, Ultrasonic Sensor HC-SR04..."
+                            placeholder="Product Name or Requirement"
                             value={prod.name}
                             onChange={(e) =>
                               handleUpdateProduct(prod.id, "name", e.target.value)
@@ -697,7 +697,7 @@ export default function CustomerQuotationsPage() {
                               <Link2 className="w-3.5 h-3.5 text-slate-400 shrink-0 mr-1.5" />
                               <input
                                 type="url"
-                                placeholder="https://prayogindia.com/products/..."
+                                placeholder="Product link (optional)"
                                 value={prod.link}
                                 onChange={(e) =>
                                   handleUpdateProduct(prod.id, "link", e.target.value)
@@ -716,7 +716,7 @@ export default function CustomerQuotationsPage() {
                               type="number"
                               min="1"
                               required
-                              placeholder="10"
+                              placeholder="Qty"
                               value={prod.quantity}
                               onChange={(e) =>
                                 handleUpdateProduct(
@@ -740,7 +740,7 @@ export default function CustomerQuotationsPage() {
                             <input
                               type="number"
                               min="0"
-                              placeholder="e.g. 450"
+                              placeholder="Target price"
                               value={prod.targetPrice}
                               onChange={(e) =>
                                 handleUpdateProduct(
@@ -775,7 +775,7 @@ export default function CustomerQuotationsPage() {
                   </label>
                   <textarea
                     rows={2}
-                    placeholder="Specific delivery timelines, GST invoicing details, or brand preferences..."
+                    placeholder="Any additional notes or requirements..."
                     value={newNotes}
                     onChange={(e) => setNewNotes(e.target.value)}
                     className="w-full p-3 bg-slate-50/70 hover:bg-slate-50 focus:bg-white border border-slate-200 focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/15 rounded-xl font-medium text-slate-900 outline-none transition-all resize-none"
