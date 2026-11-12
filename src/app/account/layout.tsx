@@ -30,13 +30,13 @@ export default function AccountLayout({
   ].includes(pathname);
 
   return (
-    <div className="bg-[#F4F7FC] min-h-[calc(100vh-64px)] pt-0 pb-4 overflow-x-clip">
+    <div className="bg-[#F4F7FC] min-h-[calc(100vh-64px)] pt-2.5 sm:pt-3 pb-5 overflow-x-clip">
       {isAuthPage ? (
         <div className="w-full px-3.5 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 py-3 sm:py-6">
           {children}
         </div>
       ) : (
-        <div className="w-full px-3.5 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 pt-0">
+        <div className="w-full px-3.5 sm:px-6 lg:px-8 xl:px-10 2xl:px-12">
           {/* ── Mobile Back Header Bar for subpages ── */}
           {pathname !== "/account" && (
             <div className="lg:hidden w-full mb-2 bg-white rounded-xl border border-slate-200/80 px-3.5 py-2 flex items-center justify-between shadow-2xs">
@@ -54,9 +54,9 @@ export default function AccountLayout({
           )}
 
           {/* ── Desktop & Tablet 2-Column Dashboard Layout ── */}
-          <div className="flex flex-col lg:flex-row items-start gap-4 lg:gap-5 pt-0">
+          <div className="flex flex-col lg:flex-row items-start gap-4 lg:gap-5">
             {/* Left Sidebar Column - Sticky on Desktop */}
-            <div className="hidden lg:block w-56 xl:w-64 shrink-0 sticky top-[56px]">
+            <div className="hidden lg:block w-56 xl:w-64 shrink-0 sticky top-[64px]">
               <AccountSidebar />
             </div>
 
