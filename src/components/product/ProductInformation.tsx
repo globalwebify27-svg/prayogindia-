@@ -524,17 +524,9 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
           </div>
         </div>
 
-        {/* Tax Note + Price Match Promise */}
+        {/* Tax Note */}
         <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500 font-medium pt-0.5">
           <span>Incl. GST (No Hidden Charges)</span>
-          <span className="text-slate-300">•</span>
-          <button
-            type="button"
-            onClick={() => setIsPriceMatchOpen(true)}
-            className="text-[#2563EB] hover:underline font-bold transition-colors cursor-pointer"
-          >
-            Found a better price?
-          </button>
         </div>
       </div>
 

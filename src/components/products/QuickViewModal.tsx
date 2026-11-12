@@ -656,13 +656,6 @@ const QuickViewModalContent: React.FC<{
                 <span className="text-slate-500 font-medium">
                   Incl. GST (No Hidden Charges)
                 </span>
-                <Link
-                  href={`/products/${fullProduct.slug || fullProduct.id}`}
-                  onClick={onClose}
-                  className="font-bold text-slate-900 underline hover:text-[#2563EB] transition-colors"
-                >
-                  Found a better price?
-                </Link>
               </div>
 
               {/* Availability Status & Location Inventory Badge */}
