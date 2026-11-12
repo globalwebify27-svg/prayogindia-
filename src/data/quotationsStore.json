@@ -1,1 +1,53 @@
-[]
+[
+  {
+    "id": "0197275e-f56e-4950-a4be-f4f9a6b55c4f",
+    "quoteNumber": "PRG-QT-2026-6159",
+    "userId": "736b11e0-4aa1-4386-8b3c-a85b068def36",
+    "storeId": "c6f8803c-80d1-4282-8268-075b7b24d465",
+    "institutionType": "University / College",
+    "companyName": "fjjds",
+    "customerName": "Tux",
+    "customerEmail": "tuxgaming003@gmail.com",
+    "customerPhone": "0000000000",
+    "gstin": null,
+    "billingAddress": null,
+    "shippingAddress": null,
+    "status": "REQUESTED",
+    "validUntil": "2026-12-12T09:33:57.528Z",
+    "subtotal": 2400,
+    "discountAmount": 0,
+    "taxRate": 18,
+    "taxAmount": 432,
+    "shippingCharge": 0,
+    "grandTotal": 2832,
+    "notes": "Product Reference Links:\n1. abc (10x): http://localhost:3000/products/test-2",
+    "terms": "1. Quotation valid for 30 days from date of issue.\n2. Official GST invoice provided upon dispatch.\n3. Standard Prayog India OEM replacement warranty applies.",
+    "adminNotes": null,
+    "customerFeedback": null,
+    "convertedAt": null,
+    "createdByStaffId": null,
+    "createdAt": "2026-11-12T09:33:57.530Z",
+    "updatedAt": "2026-11-12T09:33:57.530Z",
+    "items": [
+      {
+        "id": "970f59ac-76ec-4e64-a9f5-b231fb868442",
+        "quotationId": "0197275e-f56e-4950-a4be-f4f9a6b55c4f",
+        "productId": null,
+        "variantId": null,
+        "productName": "abc",
+        "productSku": "PRG-CUSTOM",
+        "quantity": 10,
+        "unitPrice": 240,
+        "discountPct": 0,
+        "taxRate": 18,
+        "total": 2400,
+        "createdAt": "2026-11-12T09:33:57.530Z"
+      }
+    ],
+    "store": {
+      "id": "c6f8803c-80d1-4282-8268-075b7b24d465",
+      "name": "Prayog India Ranchi Main Branch & Central Hub",
+      "code": "RANCHI"
+    }
+  }
+]
