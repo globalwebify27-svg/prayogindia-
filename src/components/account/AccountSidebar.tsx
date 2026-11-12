@@ -45,10 +45,10 @@ export const AccountSidebar: React.FC = () => {
         </div>
         <div className="min-w-0 flex-1">
           <h3 className="text-sm font-bold text-white tracking-tight truncate">
-            {user?.name || "Om Kumar"}
+            {user?.name || (user?.email ? user.email.split("@")[0] : "My Account")}
           </h3>
           <p className="text-xs text-slate-400 font-normal truncate mt-0.5">
-            {user?.email || "om@example.com"}
+            {user?.email || user?.phone || "Signed In"}
           </p>
         </div>
       </div>

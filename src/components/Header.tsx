@@ -1114,10 +1114,10 @@ export const Header: React.FC<HeaderProps> = ({
                             </div>
                             <div className="min-w-0 flex-1">
                               <div className="text-sm font-bold text-slate-900 truncate">
-                                {user.name || "Om Kumar"}
+                                {user.name || (user.email ? user.email.split("@")[0] : "Member")}
                               </div>
                               <div className="text-[11px] text-slate-400 truncate">
-                                {user.email || "user@prayogindia.com"}
+                                {user.email || user.phone || "customer@prayogindia.com"}
                               </div>
                               <div className="mt-1 inline-flex items-center gap-1.5 text-[10px] bg-amber-50 text-amber-800 font-bold px-2 py-0.5 rounded-md border border-amber-200/80">
                                 <Coins className="w-3.5 h-3.5 text-amber-600 shrink-0" />

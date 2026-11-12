@@ -10,13 +10,11 @@ import {
   ShoppingCart,
   Heart,
   MapPin,
-  User,
   ArrowRight,
   Package,
   ChevronRight,
   CheckCircle2,
   Truck,
-  FileText,
   Building2,
   Headphones,
   Wallet,
@@ -25,10 +23,7 @@ import {
   Zap,
   LogOut,
 } from "lucide-react";
-import {
-  CustomerOrder,
-  MOCK_CUSTOMER_ORDERS,
-} from "@/data/accountData";
+import { CustomerOrder } from "@/data/accountData";
 
 const WhatsAppIcon: React.FC<{ className?: string }> = ({
   className = "w-5 h-5",
@@ -54,6 +49,8 @@ function formatStatus(status: string): CustomerOrder["status"] {
       return "Out for Delivery";
     case "DELIVERED":
       return "Delivered";
+    case "CANCELLED":
+      return "Cancelled";
     default:
       return (status?.replace(/_/g, " ") as any) || "Order Placed";
   }
@@ -70,16 +67,16 @@ export const AccountDashboardView: React.FC = () => {
     let isMounted = true;
 
     async function loadDashboardData() {
+      let mapped: CustomerOrder[] = [];
+
       // 1. Fetch Orders from API
       try {
-        const res = await fetch("/api/orders?limit=5");
+        const res = await fetch("/api/orders?limit=10");
         if (res.ok) {
           const json = await res.json();
           if (json.success && json.data) {
             const items = json.data.items || [];
-            const count =
-              typeof json.data.total === "number" ? json.data.total : items.length;
-            const mapped: CustomerOrder[] = items.map((o: any) => ({
+            mapped = items.map((o: any) => ({
               id: o.id,
               orderNumber: o.orderNumber,
               date: new Date(o.createdAt).toLocaleDateString("en-IN", {
@@ -102,23 +99,59 @@ export const AccountDashboardView: React.FC = () => {
                     item.product?.images?.[0]?.imageUrl || "/placeholder.png",
                 })) || [],
             }));
-
-            if (isMounted) {
-              setOrders(mapped.length > 0 ? mapped : MOCK_CUSTOMER_ORDERS);
-              setTotalOrders(count > 0 ? count : MOCK_CUSTOMER_ORDERS.length);
-              setOrdersLoading(false);
-            }
-            return;
           }
         }
       } catch (err) {
         console.warn("Could not load API orders for dashboard:", err);
       }
 
-      // Fallback to mock data
+      // 2. Merge locally placed orders from browser cache (if any)
+      try {
+        const stored =
+          typeof window !== "undefined"
+            ? localStorage.getItem("prayog_placed_orders")
+            : null;
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            const existingOrderNums = new Set(mapped.map((o) => o.orderNumber));
+            const localOrders: CustomerOrder[] = parsed
+              .filter((o: any) => !existingOrderNums.has(o.orderNumber))
+              .map((o: any) => ({
+                id: o.id || o.orderNumber,
+                orderNumber: o.orderNumber,
+                date: o.createdAt
+                  ? new Date(o.createdAt).toLocaleDateString("en-IN", {
+                      day: "numeric",
+                      month: "short",
+                      year: "numeric",
+                    })
+                  : "Today",
+                totalAmount: o.totalAmount || 0,
+                subtotal: o.subtotal || o.totalAmount || 0,
+                status: formatStatus(o.status || "ORDER_PLACED"),
+                itemsCount: o.items?.length || 1,
+                shippingAddress: o.shippingAddress || "",
+                items:
+                  o.items?.map((item: any) => ({
+                    id: item.id || item.productId || "item-1",
+                    name: item.name || item.productName || "Hardware Component",
+                    sku: item.sku || item.productSku || "PRG-SKU",
+                    quantity: item.quantity || 1,
+                    price: item.price || 0,
+                    image: item.image || "/placeholder.png",
+                  })) || [],
+              }));
+            mapped = [...localOrders, ...mapped];
+          }
+        }
+      } catch (cacheErr) {
+        console.warn("Failed to load local orders cache:", cacheErr);
+      }
+
       if (isMounted) {
-        setOrders(MOCK_CUSTOMER_ORDERS);
-        setTotalOrders(MOCK_CUSTOMER_ORDERS.length);
+        setOrders(mapped);
+        setTotalOrders(mapped.length);
         setOrdersLoading(false);
       }
     }
@@ -126,8 +159,8 @@ export const AccountDashboardView: React.FC = () => {
     if (isLoggedIn) {
       loadDashboardData();
     } else {
-      setOrders(MOCK_CUSTOMER_ORDERS);
-      setTotalOrders(MOCK_CUSTOMER_ORDERS.length);
+      setOrders([]);
+      setTotalOrders(0);
       setOrdersLoading(false);
     }
 
@@ -136,24 +169,29 @@ export const AccountDashboardView: React.FC = () => {
     };
   }, [isLoggedIn]);
 
-  // Derived Statistics matching the mockup
-  const displayOrders = orders.length > 0 ? orders : MOCK_CUSTOMER_ORDERS;
-  const totalOrdersCount = totalOrders > 0 ? totalOrders : 12;
-  const activeOrdersCount =
-    displayOrders.filter(
-      (o) =>
-        o.status?.toLowerCase().includes("shipped") ||
-        o.status?.toLowerCase().includes("processing") ||
-        o.status?.toLowerCase().includes("out for delivery"),
-    ).length || 2;
-  const deliveredOrdersCount =
-    displayOrders.filter(
-      (o) =>
-        o.status?.toLowerCase().includes("delivered") ||
-        o.status?.toLowerCase().includes("arrived"),
-    ).length || 10;
-  const totalSpent =
-    displayOrders.reduce((sum, o) => sum + (o.totalAmount || 0), 0) || 24850;
+  // Derived real Statistics strictly from real orders
+  const totalOrdersCount = totalOrders;
+  const activeOrdersCount = orders.filter(
+    (o) =>
+      o.status?.toLowerCase().includes("shipped") ||
+      o.status?.toLowerCase().includes("processing") ||
+      o.status?.toLowerCase().includes("out for delivery") ||
+      o.status?.toLowerCase().includes("packed") ||
+      o.status?.toLowerCase().includes("placed") ||
+      o.status?.toLowerCase().includes("confirmed"),
+  ).length;
+  const deliveredOrdersCount = orders.filter(
+    (o) =>
+      o.status?.toLowerCase().includes("delivered") ||
+      o.status?.toLowerCase().includes("arrived"),
+  ).length;
+  const totalSpent = orders
+    .filter((o) => !o.status?.toLowerCase().includes("cancelled"))
+    .reduce((sum, o) => sum + (o.totalAmount || 0), 0);
+
+  // User display name
+  const displayName =
+    user?.name || (user?.email ? user.email.split("@")[0] : "Customer");
 
   // Mobile navigation list
   const mobileMenuSections: Array<{
@@ -220,16 +258,16 @@ export const AccountDashboardView: React.FC = () => {
   return (
     <div className="space-y-6 animate-in fade-in duration-200">
       {/* ======================================================== */}
-      {/* 1. TOP WELCOME HERO BANNER (Matches Image 1 Reference)  */}
+      {/* 1. TOP WELCOME HERO BANNER                              */}
       {/* ======================================================== */}
       <div className="bg-gradient-to-r from-[#EBF3FE] via-[#E2EEFD] to-[#D5E6FC] rounded-3xl p-6 sm:p-8 border border-blue-100/60 shadow-xs relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-6">
         {/* Left Copy */}
         <div className="relative z-10 max-w-lg">
           <span className="text-base sm:text-lg font-bold text-slate-700 tracking-tight block">
-            Welcome Back,
+            {isLoggedIn ? "Welcome Back," : "Welcome,"}
           </span>
           <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-[#0A1128] tracking-tight mt-0.5 flex items-center gap-2">
-            <span>{user?.name || "Om Kumar"}!</span>
+            <span>{displayName}!</span>
             <span className="text-2xl sm:text-3xl">👋</span>
           </h1>
           <p className="text-xs sm:text-sm text-slate-500 font-medium mt-2">
@@ -250,7 +288,7 @@ export const AccountDashboardView: React.FC = () => {
       </div>
 
       {/* ======================================================== */}
-      {/* 2. STATS ROW: 4 CLEAN METRIC CARDS (Matches Image 1)    */}
+      {/* 2. STATS ROW: 4 REAL METRIC CARDS                       */}
       {/* ======================================================== */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {/* 1. Total Orders */}
@@ -355,13 +393,15 @@ export const AccountDashboardView: React.FC = () => {
               <ShoppingCart className="w-4 h-4 text-slate-700" />
               <span>Recent Orders</span>
             </h2>
-            <Link
-              href="/account/orders"
-              className="text-xs font-bold text-[#2563EB] hover:underline flex items-center gap-1"
-            >
-              <span>View All Orders</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </Link>
+            {orders.length > 0 && (
+              <Link
+                href="/account/orders"
+                className="text-xs font-bold text-[#2563EB] hover:underline flex items-center gap-1"
+              >
+                <span>View All Orders</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            )}
           </div>
 
           {/* Orders Rows */}
@@ -369,9 +409,9 @@ export const AccountDashboardView: React.FC = () => {
             <div className="p-8 text-center text-xs text-slate-400 animate-pulse">
               Loading recent orders...
             </div>
-          ) : (
+          ) : orders.length > 0 ? (
             <div className="divide-y divide-slate-100">
-              {displayOrders.slice(0, 4).map((ord) => {
+              {orders.slice(0, 4).map((ord) => {
                 const isDelivered =
                   ord.status?.toLowerCase().includes("delivered") ||
                   ord.status?.toLowerCase().includes("arrived");
@@ -471,6 +511,28 @@ export const AccountDashboardView: React.FC = () => {
                   </div>
                 );
               })}
+            </div>
+          ) : (
+            /* Clean Dynamic Empty State when customer has 0 orders */
+            <div className="py-12 px-4 text-center space-y-3">
+              <div className="w-12 h-12 rounded-2xl bg-blue-50 text-[#2563EB] flex items-center justify-center mx-auto">
+                <ShoppingBag className="w-6 h-6" />
+              </div>
+              <div>
+                <h4 className="text-sm font-bold text-slate-800">
+                  No orders placed yet
+                </h4>
+                <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
+                  When you place an order, its live tracking, status, and invoices will appear here.
+                </p>
+              </div>
+              <Link
+                href="/shop"
+                className="inline-flex items-center gap-1.5 bg-[#0A1128] hover:bg-slate-800 text-white text-xs font-bold px-4 py-2 rounded-xl transition-all shadow-xs"
+              >
+                <span>Explore Products</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
             </div>
           )}
         </div>

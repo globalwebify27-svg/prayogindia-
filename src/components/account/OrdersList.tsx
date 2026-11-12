@@ -212,7 +212,7 @@ export const OrdersList: React.FC = () => {
         console.warn("Failed to load local orders cache:", cacheErr);
       }
 
-      const finalOrders = mapped.length > 0 ? mapped : MOCK_CUSTOMER_ORDERS;
+      const finalOrders = mapped;
       setOrders(finalOrders);
       setLoading(false);
     }

@@ -101,7 +101,7 @@ export const OrderDetailView: React.FC<OrderDetailProps> = ({ orderId }) => {
   const router = useRouter();
   const { addToCart } = useStore();
 
-  const [orders, setOrders] = useState<CustomerOrder[]>(MOCK_CUSTOMER_ORDERS);
+  const [orders, setOrders] = useState<CustomerOrder[]>([]);
   const [liveOrder, setLiveOrder] = useState<CustomerOrder | null>(null);
   const [loading, setLoading] = useState(true);
 
