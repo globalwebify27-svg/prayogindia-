@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import {
   FileText,
   Plus,
@@ -23,6 +23,10 @@ import {
   AlertCircle,
   ShoppingBag,
   ExternalLink,
+  Phone,
+  Mail,
+  MessageSquare,
+  Bell,
 } from "lucide-react";
 import { PRODUCTS, Product } from "@/data/mockData";
 import { STORES } from "@/data/storeConfig";
@@ -348,6 +352,22 @@ export default function QuotationsPage() {
     );
   });
 
+  const requestedCount = useMemo(
+    () => quotations.filter((q) => q.status === "REQUESTED").length,
+    [quotations],
+  );
+  const sentCount = useMemo(
+    () => quotations.filter((q) => q.status === "SENT").length,
+    [quotations],
+  );
+  const acceptedCount = useMemo(
+    () =>
+      quotations.filter(
+        (q) => q.status === "ACCEPTED" || q.status === "CONVERTED",
+      ).length,
+    [quotations],
+  );
+
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
       {/* Top Header */}
@@ -357,11 +377,10 @@ export default function QuotationsPage() {
             B2B Quotations &amp; Institutional Proposals
           </span>
           <h1 className="text-2xl font-black text-white mt-1">
-            B2B Quotations Management Desk
+            B2B Enquiries &amp; Quotations Desk
           </h1>
           <p className="text-xs text-slate-400">
-            Lifecycle: Request Quote → B2B Pricing → Send Quote → Customer
-            Negotiation / Acceptance → Convert to Order
+            Dedicated portal for incoming institutional B2B queries, quotation requests, custom lab pricing, and order conversions.
           </p>
         </div>
 
@@ -375,6 +394,106 @@ export default function QuotationsPage() {
           <Plus className="w-4 h-4" />
           <span>Generate New Quotation</span>
         </button>
+      </div>
+
+      {/* KPI Cards */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        <div
+          onClick={() => setStatusFilter("all")}
+          className={`p-4 sm:p-5 rounded-2xl border transition-all cursor-pointer shadow-2xs ${
+            statusFilter === "all"
+              ? "bg-white border-[#00AEEF] ring-2 ring-[#00AEEF]/20"
+              : "bg-white border-slate-200 hover:border-slate-300"
+          }`}
+        >
+          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+            Total B2B Enquiries
+          </span>
+          <div className="text-2xl sm:text-3xl font-black text-slate-900 mt-1">
+            {quotations.length}
+          </div>
+        </div>
+
+        <div
+          onClick={() => setStatusFilter("REQUESTED")}
+          className={`p-4 sm:p-5 rounded-2xl border transition-all cursor-pointer shadow-2xs ${
+            statusFilter === "REQUESTED"
+              ? "bg-amber-500 text-white border-amber-600 ring-2 ring-amber-400/40"
+              : "bg-white border-slate-200 hover:border-amber-400"
+          }`}
+        >
+          <div className="flex items-center justify-between">
+            <span
+              className={`text-[11px] font-bold uppercase tracking-wider ${
+                statusFilter === "REQUESTED" ? "text-amber-100" : "text-amber-600"
+              }`}
+            >
+              🔔 New User Inquiries
+            </span>
+            {requestedCount > 0 && (
+              <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping" />
+            )}
+          </div>
+          <div
+            className={`text-2xl sm:text-3xl font-black mt-1 ${
+              statusFilter === "REQUESTED" ? "text-white" : "text-amber-600"
+            }`}
+          >
+            {requestedCount}
+          </div>
+        </div>
+
+        <div
+          onClick={() => setStatusFilter("SENT")}
+          className={`p-4 sm:p-5 rounded-2xl border transition-all cursor-pointer shadow-2xs ${
+            statusFilter === "SENT"
+              ? "bg-blue-600 text-white border-blue-700 ring-2 ring-blue-400/40"
+              : "bg-white border-slate-200 hover:border-blue-400"
+          }`}
+        >
+          <span
+            className={`text-[11px] font-bold uppercase tracking-wider ${
+              statusFilter === "SENT" ? "text-blue-100" : "text-blue-600"
+            }`}
+          >
+            Proposals Sent
+          </span>
+          <div
+            className={`text-2xl sm:text-3xl font-black mt-1 ${
+              statusFilter === "SENT" ? "text-white" : "text-blue-600"
+            }`}
+          >
+            {sentCount}
+          </div>
+        </div>
+
+        <div
+          onClick={() => setStatusFilter("ACCEPTED")}
+          className={`p-4 sm:p-5 rounded-2xl border transition-all cursor-pointer shadow-2xs ${
+            statusFilter === "ACCEPTED" || statusFilter === "CONVERTED"
+              ? "bg-emerald-600 text-white border-emerald-700 ring-2 ring-emerald-400/40"
+              : "bg-white border-slate-200 hover:border-emerald-400"
+          }`}
+        >
+          <span
+            className={`text-[11px] font-bold uppercase tracking-wider ${
+              statusFilter === "ACCEPTED" || statusFilter === "CONVERTED"
+                ? "text-emerald-100"
+                : "text-emerald-600"
+            }`}
+          >
+            Won / Converted Orders
+          </span>
+          <div
+            className={`text-2xl sm:text-3xl font-black mt-1 ${
+              statusFilter === "ACCEPTED" || statusFilter === "CONVERTED"
+                ? "text-white"
+                : "text-emerald-600"
+            }`}
+          >
+            {acceptedCount}
+          </div>
+        </div>
       </div>
 
       {/* Main Content Area */}
@@ -1060,6 +1179,56 @@ export default function QuotationsPage() {
       ) : (
         /* Quotations List & Filters */
         <div className="space-y-4">
+          {/* Quick Stage Filter Tabs */}
+          <div className="flex flex-wrap items-center gap-2">
+            {[
+              { id: "all", label: "All Enquiries & Quotes", count: quotations.length },
+              {
+                id: "REQUESTED",
+                label: "🔔 New Customer Enquiries",
+                count: requestedCount,
+                isHot: requestedCount > 0,
+              },
+              { id: "SENT", label: "Sent to Customer", count: sentCount },
+              { id: "ACCEPTED", label: "Accepted Quotes", count: acceptedCount },
+              {
+                id: "CONVERTED",
+                label: "Converted Orders",
+                count: quotations.filter((q) => q.status === "CONVERTED").length,
+              },
+            ].map((tab) => {
+              const active = statusFilter === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setStatusFilter(tab.id)}
+                  className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-2xs ${
+                    active
+                      ? tab.isHot
+                        ? "bg-amber-500 text-white shadow-md shadow-amber-500/20 ring-2 ring-amber-400"
+                        : "bg-[#00AEEF] text-white shadow-md shadow-[#00AEEF]/20 ring-2 ring-[#00AEEF]/30"
+                      : tab.isHot
+                        ? "bg-amber-50 text-amber-800 border border-amber-200 hover:bg-amber-100"
+                        : "bg-white hover:bg-slate-50 text-slate-700 border border-slate-200"
+                  }`}
+                >
+                  <span>{tab.label}</span>
+                  <span
+                    className={`text-[10px] px-2 py-0.5 rounded-full font-black ${
+                      active
+                        ? "bg-white/20 text-white"
+                        : tab.isHot
+                          ? "bg-amber-200 text-amber-900"
+                          : "bg-slate-100 text-slate-700"
+                    }`}
+                  >
+                    {tab.count}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+
           <div className="bg-white p-4 rounded-3xl border border-slate-200 shadow-2xs flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="relative w-full sm:w-80">
               <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
@@ -1079,7 +1248,7 @@ export default function QuotationsPage() {
                 className="bg-slate-50 border border-slate-200 p-2 rounded-xl text-xs font-bold text-slate-700"
               >
                 <option value="all">All Statuses</option>
-                <option value="REQUESTED">Requested (New)</option>
+                <option value="REQUESTED">Requested (New Enquiry)</option>
                 <option value="DRAFT">Draft</option>
                 <option value="SENT">Sent to Customer</option>
                 <option value="NEGOTIATION">Changes Requested</option>
@@ -1112,7 +1281,7 @@ export default function QuotationsPage() {
           <div className="bg-white rounded-3xl border border-slate-200 shadow-xs overflow-hidden">
             <div className="p-4 border-b border-slate-100 flex items-center justify-between">
               <h2 className="text-xs font-black uppercase text-slate-900">
-                B2B Quotations Pipeline
+                B2B Enquiries &amp; Quotations Pipeline
               </h2>
               <div className="flex items-center gap-3">
                 <span className="text-xs text-slate-400 font-bold">
@@ -1138,7 +1307,7 @@ export default function QuotationsPage() {
               <div className="p-12 text-center space-y-2">
                 <FileText className="w-8 h-8 text-slate-300 mx-auto" />
                 <div className="text-xs font-bold text-slate-500">
-                  No quotations found
+                  No quotations or enquiries found
                 </div>
               </div>
             ) : (
@@ -1147,27 +1316,37 @@ export default function QuotationsPage() {
                   <div
                     key={doc.id}
                     onClick={() => setSelectedDoc(doc)}
-                    className="p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 hover:bg-slate-50 transition-colors cursor-pointer"
+                    className={`p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-colors cursor-pointer ${
+                      doc.status === "REQUESTED"
+                        ? "bg-amber-50/60 hover:bg-amber-50 border-l-4 border-amber-500"
+                        : "hover:bg-slate-50"
+                    }`}
                   >
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2">
+                    <div className="space-y-1.5 max-w-2xl">
+                      <div className="flex flex-wrap items-center gap-2">
                         <span className="font-mono font-black text-slate-900 text-xs">
                           {doc.quoteNumber}
                         </span>
-                        <span
-                          className={`text-[9px] font-black uppercase px-2.5 py-0.5 rounded-full ${
-                            doc.status === "ACCEPTED" ||
-                            doc.status === "CONVERTED"
-                              ? "bg-emerald-100 text-emerald-800"
-                              : doc.status === "NEGOTIATION"
-                                ? "bg-amber-100 text-amber-800"
-                                : doc.status === "SENT"
-                                  ? "bg-blue-100 text-blue-800"
-                                  : "bg-slate-100 text-slate-700"
-                          }`}
-                        >
-                          {doc.status}
-                        </span>
+                        {doc.status === "REQUESTED" ? (
+                          <span className="text-[9px] font-black uppercase px-2.5 py-0.5 rounded-full bg-amber-500 text-white shadow-2xs inline-flex items-center gap-1">
+                            🔔 New Customer Enquiry
+                          </span>
+                        ) : (
+                          <span
+                            className={`text-[9px] font-black uppercase px-2.5 py-0.5 rounded-full ${
+                              doc.status === "ACCEPTED" ||
+                              doc.status === "CONVERTED"
+                                ? "bg-emerald-100 text-emerald-800"
+                                : doc.status === "NEGOTIATION"
+                                  ? "bg-amber-100 text-amber-800"
+                                  : doc.status === "SENT"
+                                    ? "bg-blue-100 text-blue-800"
+                                    : "bg-slate-100 text-slate-700"
+                            }`}
+                          >
+                            {doc.status}
+                          </span>
+                        )}
                         <span className="text-[9px] font-bold uppercase bg-slate-100 text-slate-600 px-2 py-0.5 rounded-md border border-slate-200">
                           {doc.institutionType || "Corporate"}
                         </span>
@@ -1182,12 +1361,48 @@ export default function QuotationsPage() {
                         {doc.companyName}
                       </h3>
                       <p className="text-xs text-slate-500">
-                        {doc.items?.length || 0} hardware lines • Attn:{" "}
-                        {doc.customerName} ({doc.customerPhone})
+                        {doc.items?.length || 0} hardware items • Attn:{" "}
+                        <span className="font-semibold text-slate-700">
+                          {doc.customerName}
+                        </span>{" "}
+                        ({doc.customerPhone})
                       </p>
+
+                      {doc.notes && (
+                        <div className="text-[11px] text-slate-600 bg-white/80 border border-slate-200/70 p-2 rounded-lg line-clamp-2">
+                          <strong className="text-slate-800">Requirements / Notes:</strong>{" "}
+                          {doc.notes}
+                        </div>
+                      )}
+
+                      {/* Direct Quick Contact Shortcuts */}
+                      <div className="flex items-center gap-2 pt-0.5">
+                        {doc.customerPhone && (
+                          <a
+                            href={`https://wa.me/${doc.customerPhone.replace(/\D/g, "")}?text=${encodeURIComponent(`Hello ${doc.customerName}, regarding your B2B quotation request #${doc.quoteNumber} from Prayog India.`)}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={(e) => e.stopPropagation()}
+                            className="inline-flex items-center gap-1 text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded-md hover:bg-emerald-100"
+                          >
+                            <MessageSquare className="w-3 h-3 text-emerald-600" />
+                            <span>WhatsApp</span>
+                          </a>
+                        )}
+                        {doc.customerEmail && (
+                          <a
+                            href={`mailto:${doc.customerEmail}?subject=${encodeURIComponent(`Prayog India B2B Quotation - ${doc.quoteNumber}`)}`}
+                            onClick={(e) => e.stopPropagation()}
+                            className="inline-flex items-center gap-1 text-[10px] font-bold bg-sky-50 text-[#005CA9] border border-sky-200 px-2 py-0.5 rounded-md hover:bg-sky-100"
+                          >
+                            <Mail className="w-3 h-3 text-[#00AEEF]" />
+                            <span>Email</span>
+                          </a>
+                        )}
+                      </div>
                     </div>
 
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-4 self-end sm:self-center shrink-0">
                       <div className="text-right">
                         <span className="text-sm font-black text-slate-900 block font-mono">
                           ₹
@@ -1201,10 +1416,13 @@ export default function QuotationsPage() {
                       <div className="flex items-center gap-1.5">
                         <button
                           onClick={() => setSelectedDoc(doc)}
-                          className="w-8 h-8 rounded-xl bg-slate-100 hover:bg-[#00AEEF] hover:text-white flex items-center justify-center transition-colors cursor-pointer"
-                          title="View Quotation"
+                          className="px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-[#00AEEF] text-white text-xs font-bold flex items-center gap-1 transition-colors cursor-pointer"
+                          title="View / Process Quotation"
                         >
-                          <Eye className="w-4 h-4" />
+                          <Eye className="w-3.5 h-3.5" />
+                          <span className="hidden sm:inline">
+                            {doc.status === "REQUESTED" ? "Review Query" : "View"}
+                          </span>
                         </button>
                         <button
                           type="button"

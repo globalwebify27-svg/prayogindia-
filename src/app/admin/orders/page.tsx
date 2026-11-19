@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useMemo, useRef } from "react";
+import Link from "next/link";
 import { getOrderTimestamp } from "@/data/accountData";
 import {
   ShoppingBag,
@@ -19,6 +20,8 @@ import {
   Printer,
   ChevronRight,
   ShieldCheck,
+  Quote,
+  ArrowRight,
 } from "lucide-react";
 
 const ORDER_STATUSES = [
@@ -32,11 +35,12 @@ const ORDER_STATUSES = [
   "CANCELLED",
 ];
 
-type OrderChannelType = "WEBSITE" | "B2B_QUOTATION" | "MOBILE_APP" | "WALK_IN";
+type OrderChannelType = "WEBSITE" | "MOBILE_APP" | "WALK_IN";
 
 /**
- * Universal channel classification for all Prayog orders.
- * Accurately routes orders to Website, B2B, Mobile App, or Store Walk-in.
+ * Universal channel classification for all Prayog sales orders.
+ * Accurately routes orders to Website Online, Mobile App, or Store Walk-in POS.
+ * (Note: B2B quotation inquiries are handled separately in the dedicated B2B Quotations Desk).
  */
 function getOrderChannel(ord: any): OrderChannelType {
   if (!ord) return "WEBSITE";
@@ -64,21 +68,7 @@ function getOrderChannel(ord: any): OrderChannelType {
     return "WALK_IN";
   }
 
-  // 2. Institutional B2B & Quotation Orders
-  if (
-    Boolean(ord.quotationId) ||
-    Boolean(ord.quotation) ||
-    num.startsWith("QUO-") ||
-    num.startsWith("B2B-") ||
-    cType === "B2B" ||
-    src.includes("B2B") ||
-    src.includes("QUOTE") ||
-    src.includes("QUOTATION")
-  ) {
-    return "B2B_QUOTATION";
-  }
-
-  // 3. Mobile App Orders
+  // 2. Mobile App Orders
   const payMethod = (ord.paymentMethod || "").toUpperCase();
   if (
     num.includes("APP") ||
@@ -88,7 +78,7 @@ function getOrderChannel(ord: any): OrderChannelType {
     return "MOBILE_APP";
   }
 
-  // 4. Default: Website Online Store Orders
+  // 3. Default: Website Online Store Orders
   return "WEBSITE";
 }
 
@@ -383,10 +373,29 @@ export default function AdminOrdersPage() {
           </h1>
           <p className="text-xs text-slate-500 font-medium mt-0.5">
             Real-time fulfillment desk for all orders originating from the{" "}
-            <strong>Prayog Website Store</strong>, <strong>B2B Quotations</strong>, <strong>Mobile App</strong>,
-            and store branches.
+            <strong>Prayog Website Store</strong>, <strong>Mobile App</strong>,
+            and physical store branches.
           </p>
         </div>
+      </div>
+
+      {/* Dedicated B2B Inquiries Shortcut Notice */}
+      <div className="bg-gradient-to-r from-amber-50 to-orange-50/50 border border-amber-200/90 rounded-2xl p-3 sm:p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 shadow-2xs">
+        <div className="flex items-center gap-2.5 text-xs text-amber-950">
+          <span className="p-1.5 rounded-lg bg-amber-100 text-amber-800 border border-amber-200 shrink-0">
+            <Quote className="w-4 h-4" />
+          </span>
+          <span className="font-semibold">
+            Institutional quote requests and B2B queries are managed separately in the dedicated <strong>B2B Quotations Desk</strong>.
+          </span>
+        </div>
+        <Link
+          href="/admin/quotations"
+          className="inline-flex items-center gap-1.5 bg-amber-600 hover:bg-amber-700 text-white px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all shadow-2xs self-start sm:self-auto shrink-0"
+        >
+          <span>Open B2B Quotations Desk</span>
+          <ArrowRight className="w-3.5 h-3.5" />
+        </Link>
       </div>
 
       {/* Channel Selector Filter Tabs */}
@@ -402,11 +411,6 @@ export default function AdminOrdersPage() {
             id: "WEBSITE",
             label: "🌐 Website Orders (Online)",
             count: searchFilteredOrders.filter((o) => getOrderChannel(o) === "WEBSITE").length,
-          },
-          {
-            id: "B2B_QUOTATION",
-            label: "📑 B2B & Quotation Orders",
-            count: searchFilteredOrders.filter((o) => getOrderChannel(o) === "B2B_QUOTATION").length,
           },
           {
             id: "MOBILE_APP",
@@ -456,11 +460,9 @@ export default function AdminOrdersPage() {
                 ? "bg-blue-500 ring-4 ring-blue-100"
                 : channelFilter === "WALK_IN"
                   ? "bg-emerald-500 ring-4 ring-emerald-100"
-                  : channelFilter === "B2B_QUOTATION"
-                    ? "bg-amber-500 ring-4 ring-amber-100"
-                    : channelFilter === "MOBILE_APP"
-                      ? "bg-purple-500 ring-4 ring-purple-100"
-                      : "bg-[#00AEEF] ring-4 ring-sky-100"
+                  : channelFilter === "MOBILE_APP"
+                    ? "bg-purple-500 ring-4 ring-purple-100"
+                    : "bg-[#00AEEF] ring-4 ring-sky-100"
             }`}
           />
           <div>
@@ -471,26 +473,22 @@ export default function AdminOrdersPage() {
                 ? "Unified Multi-Channel Overview:"
                 : channelFilter === "WEBSITE"
                   ? "Website Store Fulfillment:"
-                  : channelFilter === "B2B_QUOTATION"
-                    ? "Institutional B2B Desk:"
-                    : channelFilter === "MOBILE_APP"
-                      ? "Mobile App Dispatch:"
-                      : "Store Walk-in POS Desk:"}
+                  : channelFilter === "MOBILE_APP"
+                    ? "Mobile App Dispatch:"
+                    : "Store Walk-in POS Desk:"}
             </span>{" "}
             <span className="text-xs text-slate-600 font-medium">
               {searchQuery.trim()
                 ? filteredOrders.length === 0
-                  ? `No orders matching "${searchQuery.trim()}".`
-                  : `Displaying ${filteredOrders.length} order(s) matching "${searchQuery.trim()}".`
+                ? `No orders matching "${searchQuery.trim()}".`
+                : `Displaying ${filteredOrders.length} order(s) matching "${searchQuery.trim()}".`
                 : channelFilter === "all"
-                ? `Displaying all ${filteredOrders.length} orders across Website, Physical Store POS, Mobile App, and B2B Quotations.`
+                ? `Displaying all ${filteredOrders.length} orders across Website, Physical Store POS, and Mobile App.`
                 : channelFilter === "WEBSITE"
                   ? `Displaying ${filteredOrders.length} online orders placed via Prayog Web Store (Desktop & Mobile Web). Physical POS walk-ins are excluded.`
-                  : channelFilter === "B2B_QUOTATION"
-                    ? `Displaying ${filteredOrders.length} institutional bulk orders converted from formal quotes.`
-                    : channelFilter === "MOBILE_APP"
-                      ? `Displaying ${filteredOrders.length} direct orders received via Prayog Mobile App.`
-                      : `Displaying ${filteredOrders.length} counter sale receipts fulfilled at physical branches (Patna, Ranchi, Delhi).`}
+                  : channelFilter === "MOBILE_APP"
+                    ? `Displaying ${filteredOrders.length} direct orders received via Prayog Mobile App.`
+                    : `Displaying ${filteredOrders.length} counter sale receipts fulfilled at physical branches (Patna, Ranchi, Delhi).`}
             </span>
           </div>
         </div>
@@ -638,10 +636,6 @@ export default function AdminOrdersPage() {
                           ) : ordChannel === "WALK_IN" ? (
                             <span className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-800 border border-emerald-200/90 px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider">
                               🏬 {ord.orderNumber?.includes("PAT") || ord.shippingAddress?.includes("Patna") ? "Patna Store" : ord.orderNumber?.includes("RAN") || ord.shippingAddress?.includes("Ranchi") ? "Ranchi Hub" : ord.orderNumber?.includes("DEL") || ord.shippingAddress?.includes("Delhi") ? "Delhi Branch" : "Store POS"} Walk-in
-                            </span>
-                          ) : ordChannel === "B2B_QUOTATION" ? (
-                            <span className="inline-flex items-center gap-1 bg-amber-50 text-amber-900 border border-amber-200/90 px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider">
-                              📑 Institutional B2B
                             </span>
                           ) : (
                             <span className="inline-flex items-center gap-1 bg-purple-50 text-purple-800 border border-purple-200/90 px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider">

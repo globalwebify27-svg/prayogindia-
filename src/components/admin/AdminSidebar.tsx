@@ -84,9 +84,10 @@ const NAV_GROUPS: NavGroup[] = [
         badge: "NEFT",
       },
       {
-        label: "Quotations",
+        label: "B2B Enquiries & Quotes",
         href: "/admin/quotations",
         icon: Quote,
+        badge: "B2B",
       },
       {
         label: "Service Enquiries",
