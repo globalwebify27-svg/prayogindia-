@@ -264,6 +264,14 @@ export async function POST(request: Request) {
         console.warn("B2B CRM Auto-Sync Notice:", crmErr);
       }
 
+      // Ensure each line item preserves its user-provided productLink for admin review
+      if (quotation && Array.isArray((quotation as any).items)) {
+        (quotation as any).items = (quotation as any).items.map((dbItem: any, idx: number) => ({
+          ...dbItem,
+          productLink: items[idx]?.productLink || undefined,
+        }));
+      }
+
       saveStoredQuotation(quotation as any);
 
       return NextResponse.json(

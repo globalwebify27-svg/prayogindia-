@@ -27,6 +27,7 @@ import {
   Mail,
   MessageSquare,
   Bell,
+  Link2,
 } from "lucide-react";
 import { PRODUCTS, Product } from "@/data/mockData";
 import { STORES } from "@/data/storeConfig";
@@ -92,6 +93,40 @@ export interface QuotationDoc {
     totalAmount: number;
   };
   revisions?: any[];
+}
+
+function getItemProductLink(
+  item: QuotationItem,
+  docNotes?: string | null,
+): string | undefined {
+  if (item.productLink && item.productLink.trim()) {
+    return item.productLink.trim();
+  }
+  if (!docNotes) return undefined;
+
+  // 1. Check formatted links in notes: "1. test (10x): http://..." or "test: http://..."
+  const escapedName = item.productName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const pattern = new RegExp(
+    `(?:${escapedName}[^:\\n]*:\\s*)(https?:\\/\\/[^\\s\\n]+)`,
+    "i",
+  );
+  const match = docNotes.match(pattern);
+  if (match && match[1]) {
+    return match[1].trim();
+  }
+
+  // 2. Check line by line
+  const lines = docNotes.split("\n");
+  for (const line of lines) {
+    if (line.toLowerCase().includes(item.productName.toLowerCase())) {
+      const urlMatch = line.match(/(https?:\/\/[^\s]+)/i);
+      if (urlMatch && urlMatch[1]) {
+        return urlMatch[1].trim();
+      }
+    }
+  }
+
+  return undefined;
 }
 
 export default function QuotationsPage() {
@@ -1055,6 +1090,19 @@ export default function QuotationsPage() {
               </div>
             </div>
 
+            {/* Customer Provided Reference Links & Requirements */}
+            {selectedDoc.notes && (
+              <div className="bg-sky-50/70 border border-sky-200/90 rounded-2xl p-4 space-y-2">
+                <span className="text-[11px] font-black uppercase text-sky-950 tracking-wider flex items-center gap-1.5">
+                  <Link2 className="w-3.5 h-3.5 text-[#00AEEF]" />
+                  Customer Reference Links &amp; Requirements
+                </span>
+                <div className="text-xs text-slate-700 whitespace-pre-line leading-relaxed font-sans bg-white p-3 rounded-xl border border-sky-100">
+                  {selectedDoc.notes}
+                </div>
+              </div>
+            )}
+
             {/* Product items table */}
             <div className="border border-slate-200 rounded-2xl overflow-hidden">
               <table className="w-full text-left text-xs">
@@ -1070,45 +1118,53 @@ export default function QuotationsPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 font-medium">
-                  {selectedDoc.items?.map((item, idx) => (
-                    <tr key={idx}>
-                      <td className="p-3 text-slate-400">{idx + 1}</td>
-                      <td className="p-3 font-bold text-slate-900">
-                        <div className="flex items-center gap-2">
-                          <span>{item.productName}</span>
-                          {item.productLink && (
-                            <a
-                              href={item.productLink}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1 text-[10px] font-bold text-[#00AEEF] hover:underline bg-blue-50 px-2 py-0.5 rounded-full"
-                            >
-                              <ExternalLink className="w-2.5 h-2.5" />
-                              <span>Link</span>
-                            </a>
-                          )}
-                        </div>
-                      </td>
-                      <td className="p-3 font-mono text-slate-500">
-                        {item.productSku}
-                      </td>
-                      <td className="p-3 text-right font-mono">
-                        ₹{item.unitPrice?.toLocaleString("en-IN")}
-                      </td>
-                      <td className="p-3 text-center font-bold">
-                        {item.quantity}
-                      </td>
-                      <td className="p-3 text-center text-emerald-600">
-                        {item.discountPct}%
-                      </td>
-                      <td className="p-3 text-right font-mono font-bold">
-                        ₹
-                        {(
-                          item.total || item.unitPrice * item.quantity
-                        ).toLocaleString("en-IN")}
-                      </td>
-                    </tr>
-                  ))}
+                  {selectedDoc.items?.map((item, idx) => {
+                    const link = getItemProductLink(item, selectedDoc.notes);
+                    return (
+                      <tr key={idx}>
+                        <td className="p-3 text-slate-400">{idx + 1}</td>
+                        <td className="p-3 font-bold text-slate-900">
+                          <div className="space-y-1">
+                            <span className="text-slate-900 text-xs font-bold block">
+                              {item.productName}
+                            </span>
+                            {link && (
+                              <a
+                                href={link}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-[#00AEEF] hover:text-[#0096D6] hover:underline bg-sky-50 border border-sky-200/80 px-2 py-0.5 rounded-md transition-colors"
+                                title="Open User Provided Product Link"
+                              >
+                                <ExternalLink className="w-3 h-3 shrink-0" />
+                                <span className="max-w-[260px] sm:max-w-xs truncate">
+                                  {link}
+                                </span>
+                              </a>
+                            )}
+                          </div>
+                        </td>
+                        <td className="p-3 font-mono text-slate-500">
+                          {item.productSku}
+                        </td>
+                        <td className="p-3 text-right font-mono">
+                          ₹{item.unitPrice?.toLocaleString("en-IN")}
+                        </td>
+                        <td className="p-3 text-center font-bold">
+                          {item.quantity}
+                        </td>
+                        <td className="p-3 text-center text-emerald-600">
+                          {item.discountPct}%
+                        </td>
+                        <td className="p-3 text-right font-mono font-bold">
+                          ₹
+                          {(
+                            item.total || item.unitPrice * item.quantity
+                          ).toLocaleString("en-IN")}
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
