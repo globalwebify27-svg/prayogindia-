@@ -17,7 +17,6 @@ import {
   Loader2,
   MapPin,
   Clock,
-  Sparkles,
   ToggleLeft,
   ToggleRight,
   Filter,
@@ -494,8 +493,8 @@ export default function AdminCareersPage() {
                   </span>
 
                   {job.isFeatured && (
-                    <span className="bg-amber-50 text-amber-700 border border-amber-200 text-[10px] font-black px-2 py-0.5 rounded-full uppercase inline-flex items-center gap-1">
-                      <Sparkles className="w-2.5 h-2.5" /> Featured
+                    <span className="bg-amber-50 text-amber-700 border border-amber-200 text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase">
+                      Featured
                     </span>
                   )}
                 </div>
