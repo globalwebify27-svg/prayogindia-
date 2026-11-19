@@ -789,9 +789,13 @@ export const CheckoutView: React.FC = () => {
       const orderEntry = {
         id: `ord-${confirmedOrderNumber}`,
         orderNumber: confirmedOrderNumber,
+        userId: user?.id || (user as any)?._id || undefined,
+        user_id: user?.id || (user as any)?._id || undefined,
+        customerEmail: customerEmail || user?.email,
         user: {
+          id: user?.id,
           name: customerName || selectedAddr.name || "Customer",
-          email: customerEmail || "customer@prayogindia.com",
+          email: customerEmail || user?.email || "customer@prayogindia.com",
           phone: customerMobile || selectedAddr.phone || "+91 8709789641",
         },
         totalAmount: grandTotal,

@@ -675,6 +675,7 @@ export async function GET(request: Request) {
     Math.max(1, parseInt(searchParams.get("limit") || "10", 10)),
   );
   const statusFilter = searchParams.get("status");
+  const searchParam = searchParams.get("search")?.trim();
 
   if (!isDatabaseAvailable()) {
     if (process.env.NODE_ENV === "production") {
@@ -694,19 +695,70 @@ export async function GET(request: Request) {
         limit,
         total: 0,
         totalPages: 0,
+        statusCounts: {
+          all: 0,
+          pending: 0,
+          processing: 0,
+          shipped: 0,
+          delivered: 0,
+          cancelled: 0,
+        },
       },
       source: "mock",
     });
   }
 
   try {
-    const whereClause: any = { userId: user.id };
-    if (
-      statusFilter &&
-      Object.values(OrderStatus).includes(statusFilter as OrderStatus)
-    ) {
-      whereClause.status = statusFilter as OrderStatus;
+    // 1. STRICT USER-SPECIFIC ISOLATION:
+    // Only query orders that belong directly to the authenticated user's ID (or authenticated email)
+    const userOrConditions: any[] = [{ userId: user.id }];
+    if (user.email) {
+      userOrConditions.push({
+        user: { email: user.email.toLowerCase().trim() },
+      });
     }
+    const baseUserWhere: any = {
+      OR: userOrConditions,
+    };
+
+    const andConditions: any[] = [baseUserWhere];
+
+    // 2. Tab-specific status filtering (All, Pending, Processing, Shipped, Delivered, Cancelled)
+    if (statusFilter && statusFilter !== "all") {
+      const sLower = statusFilter.toLowerCase();
+      if (sLower === "pending") {
+        andConditions.push({
+          status: { in: [OrderStatus.ORDER_PLACED, OrderStatus.PAYMENT_CONFIRMED] },
+        });
+      } else if (sLower === "processing") {
+        andConditions.push({
+          status: { in: [OrderStatus.PROCESSING, OrderStatus.PACKED] },
+        });
+      } else if (sLower === "shipped") {
+        andConditions.push({
+          status: { in: [OrderStatus.SHIPPED, OrderStatus.OUT_FOR_DELIVERY] },
+        });
+      } else if (sLower === "delivered") {
+        andConditions.push({ status: OrderStatus.DELIVERED });
+      } else if (sLower === "cancelled") {
+        andConditions.push({ status: OrderStatus.CANCELLED });
+      } else if (Object.values(OrderStatus).includes(statusFilter as OrderStatus)) {
+        andConditions.push({ status: statusFilter as OrderStatus });
+      }
+    }
+
+    // 3. User-specific search filtering (Order #, Item Name, Tracking Number)
+    if (searchParam) {
+      andConditions.push({
+        OR: [
+          { orderNumber: { contains: searchParam, mode: "insensitive" } },
+          { items: { some: { productName: { contains: searchParam, mode: "insensitive" } } } },
+          { shipment: { trackingNumber: { contains: searchParam, mode: "insensitive" } } },
+        ],
+      });
+    }
+
+    const whereClause: any = { AND: andConditions };
 
     const total = await db.order.count({ where: whereClause });
     const totalPages = Math.ceil(total / limit) || 1;
@@ -730,6 +782,27 @@ export async function GET(request: Request) {
       },
     });
 
+    // 4. Compute accurate status counts strictly for the logged-in user
+    const userOrdersForCounts = await db.order.findMany({
+      where: baseUserWhere,
+      select: { status: true },
+    });
+
+    const statusCounts = {
+      all: userOrdersForCounts.length,
+      pending: userOrdersForCounts.filter((o) =>
+        ([OrderStatus.ORDER_PLACED, OrderStatus.PAYMENT_CONFIRMED] as string[]).includes(o.status),
+      ).length,
+      processing: userOrdersForCounts.filter((o) =>
+        ([OrderStatus.PROCESSING, OrderStatus.PACKED] as string[]).includes(o.status),
+      ).length,
+      shipped: userOrdersForCounts.filter((o) =>
+        ([OrderStatus.SHIPPED, OrderStatus.OUT_FOR_DELIVERY] as string[]).includes(o.status),
+      ).length,
+      delivered: userOrdersForCounts.filter((o) => o.status === OrderStatus.DELIVERED).length,
+      cancelled: userOrdersForCounts.filter((o) => o.status === OrderStatus.CANCELLED).length,
+    };
+
     return NextResponse.json({
       success: true,
       data: {
@@ -738,6 +811,7 @@ export async function GET(request: Request) {
         limit,
         total,
         totalPages,
+        statusCounts,
       },
     });
   } catch (error: any) {

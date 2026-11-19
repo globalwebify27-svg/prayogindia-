@@ -135,19 +135,42 @@ export const AccountDashboardView: React.FC = () => {
         console.warn("Could not load API orders for dashboard:", err);
       }
 
-      // 2. Merge locally placed orders from browser cache (if any)
+      // 2. Merge locally placed orders from browser cache ONLY for the logged-in user
       try {
         const stored =
           typeof window !== "undefined"
             ? localStorage.getItem("prayog_placed_orders")
             : null;
-        if (stored) {
+        if (stored && user) {
           const parsed = JSON.parse(stored);
           if (Array.isArray(parsed) && parsed.length > 0) {
+            const currentEmail = (user.email || "").toLowerCase().trim();
+            const currentUserId = user.id ? String(user.id) : "";
+
             const existingOrderNums = new Set(mapped.map((o) => o.orderNumber));
-            const localOrders: CustomerOrder[] = parsed
-              .filter((o: any) => !existingOrderNums.has(o.orderNumber))
-              .map((o: any) => {
+            const userOnlyParsed = parsed.filter((o: any) => {
+              if (existingOrderNums.has(o.orderNumber)) return false;
+              const orderUserId = o.userId || o.user_id || o.user?.id;
+              const orderUserEmail = (
+                o.customerEmail ||
+                o.user?.email ||
+                ""
+              )
+                .toLowerCase()
+                .trim();
+
+              // Match by user ID
+              if (currentUserId && orderUserId && String(orderUserId) === currentUserId) {
+                return true;
+              }
+              // Match by user email
+              if (currentEmail && orderUserEmail && orderUserEmail === currentEmail) {
+                return true;
+              }
+              return false;
+            });
+
+            const localOrders: CustomerOrder[] = userOnlyParsed.map((o: any) => {
                 const rawItems = o.items || [];
                 const resolvedItems =
                   rawItems.length > 0
@@ -231,7 +254,7 @@ export const AccountDashboardView: React.FC = () => {
     return () => {
       isMounted = false;
     };
-  }, [isLoggedIn]);
+  }, [isLoggedIn, user?.id, user?.email]);
 
   // Derived real Statistics strictly from real orders
   const totalOrdersCount = totalOrders;

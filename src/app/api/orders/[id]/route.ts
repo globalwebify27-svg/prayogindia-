@@ -59,6 +59,7 @@ export async function GET(
         payment: true,
         invoice: true,
         reviews: true,
+        user: true,
       },
     });
 
@@ -70,8 +71,16 @@ export async function GET(
     }
 
     // STRICT CUSTOMER ISOLATION REQUIREMENT:
-    // If order belongs to another customer, return 404/403 to prevent information leakage
-    if (order.userId !== user.id) {
+    // Verify user authorization: if order belongs to another customer, deny access (404)
+    const isAuthorized =
+      order.userId === user.id ||
+      Boolean(
+        order.user?.email &&
+          user.email &&
+          order.user.email.toLowerCase().trim() === user.email.toLowerCase().trim(),
+      );
+
+    if (!isAuthorized) {
       return NextResponse.json(
         { success: false, message: "Order not found." },
         { status: 404 },

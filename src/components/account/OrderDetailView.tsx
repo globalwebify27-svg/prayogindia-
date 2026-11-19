@@ -33,7 +33,7 @@ import {
   BillOrder,
 } from "@/components/invoice/ProfessionalBillModal";
 
-function customerOrderToBillOrder(ord: CustomerOrder): BillOrder {
+function customerOrderToBillOrder(ord: CustomerOrder, user?: any): BillOrder {
   const subtotal = ord.subtotal || Math.round(ord.totalAmount / 1.18);
   const tax = ord.gstAmount || Math.round(ord.totalAmount - subtotal);
   return {
@@ -43,11 +43,11 @@ function customerOrderToBillOrder(ord: CustomerOrder): BillOrder {
     billNo: ord.orderNumber,
     date: ord.date || new Date().toLocaleDateString("en-IN"),
     createdAt: ord.date,
-    customerName: "Tux (Prayog Customer)",
-    customerPhone: "+91 87097 89641",
-    customerEmail: "tuxgaming003@gmail.com",
+    customerName: user?.name || "Prayog Customer",
+    customerPhone: user?.phone || "+91 87097 89641",
+    customerEmail: user?.email || "customer@prayogindia.com",
     shippingAddress: ord.shippingAddress,
-    customerGstin: "20AAECP1234F1Z5",
+    customerGstin: user?.gstin || "20AAECP1234F1Z5",
     paymentMode: "UPI / NetBanking",
     items: (ord.items || []).map((item) => ({
       id: item.id,
@@ -99,9 +99,8 @@ function formatOrderStatus(status: string): CustomerOrder["status"] {
 
 export const OrderDetailView: React.FC<OrderDetailProps> = ({ orderId }) => {
   const router = useRouter();
-  const { addToCart } = useStore();
+  const { addToCart, user, isLoggedIn } = useStore();
 
-  const [orders, setOrders] = useState<CustomerOrder[]>([]);
   const [liveOrder, setLiveOrder] = useState<CustomerOrder | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -118,16 +117,24 @@ export const OrderDetailView: React.FC<OrderDetailProps> = ({ orderId }) => {
   const [reviewError, setReviewError] = useState<string | null>(null);
   const [showInvoiceModal, setShowInvoiceModal] = useState(false);
 
-  // Fetch live order details from /api/orders/[id]
+  // Fetch live order details with strict authorization check
   useEffect(() => {
+    let isMounted = true;
+
     async function loadLiveOrder() {
+      let resolved: CustomerOrder | null = null;
+
       try {
         const res = await fetch(`/api/orders/${orderId}`);
+        if (res.status === 401) {
+          router.replace("/login");
+          return;
+        }
         if (res.ok) {
           const json = await res.json();
           if (json.success && json.data) {
             const d = json.data;
-            const mapped: CustomerOrder = {
+            resolved = {
               id: d.id,
               orderNumber: d.orderNumber,
               date: new Date(d.createdAt).toLocaleDateString("en-IN", {
@@ -165,89 +172,94 @@ export const OrderDetailView: React.FC<OrderDetailProps> = ({ orderId }) => {
                     item.product?.images?.[0]?.imageUrl || "/placeholder.png",
                 })) || [],
             };
-            setLiveOrder(mapped);
           }
         }
       } catch (err) {
-        console.warn("Falling back to local fallback order", err);
+        console.warn("Could not load order details from API:", err);
       }
 
-      // Check local storage orders cache if API did not return it
-      try {
-        const stored = typeof window !== "undefined" ? localStorage.getItem("prayog_placed_orders") : null;
-        if (stored) {
-          const parsed = JSON.parse(stored);
-          const found = parsed.find((o: any) => o.id === orderId || o.orderNumber === orderId);
-          if (found) {
-            setLiveOrder({
-              id: found.id || found.orderNumber,
-              orderNumber: found.orderNumber,
-              date: found.createdAt
-                ? new Date(found.createdAt).toLocaleDateString("en-IN", {
-                    day: "numeric",
-                    month: "short",
-                    year: "numeric",
-                  })
-                : "Today",
-              totalAmount: found.totalAmount,
-              subtotal: found.subtotal || found.totalAmount,
-              status: formatOrderStatus(found.status || "ORDER_PLACED"),
-              itemsCount: found.items?.length || 1,
-              shippingAddress: found.shippingAddress || "Delivery Address",
-              courierName: "Delhivery Surface Cargo",
-              trackingNumber: "DEL-99228811IN",
-              trackingUrl: "https://www.delhivery.com",
-              items: (found.items || []).map((i: any) => ({
-                id: i.id || "item-1",
-                name: i.name || "Hardware Component",
-                sku: i.sku || "PRG-SKU",
-                slug: i.slug || "hardware",
-                quantity: i.quantity || 1,
-                price: i.price || 0,
-                image: i.image || "/placeholder.png",
-              })),
+      // Check local storage orders cache ONLY if order belongs to currently logged-in user
+      if (!resolved && user) {
+        try {
+          const stored =
+            typeof window !== "undefined"
+              ? localStorage.getItem("prayog_placed_orders")
+              : null;
+          if (stored) {
+            const parsed = JSON.parse(stored);
+            const currentEmail = (user.email || "").toLowerCase().trim();
+            const currentUserId = user.id ? String(user.id) : "";
+
+            const found = parsed.find((o: any) => {
+              if (o.id !== orderId && o.orderNumber !== orderId) return false;
+              const orderUserId = o.userId || o.user_id || o.user?.id;
+              const orderUserEmail = (
+                o.customerEmail ||
+                o.user?.email ||
+                ""
+              )
+                .toLowerCase()
+                .trim();
+
+              if (currentUserId && orderUserId && String(orderUserId) === currentUserId) {
+                return true;
+              }
+              if (currentEmail && orderUserEmail && orderUserEmail === currentEmail) {
+                return true;
+              }
+              return false;
             });
+
+            if (found) {
+              resolved = {
+                id: found.id || found.orderNumber,
+                orderNumber: found.orderNumber,
+                date: found.createdAt
+                  ? new Date(found.createdAt).toLocaleDateString("en-IN", {
+                      day: "numeric",
+                      month: "short",
+                      year: "numeric",
+                    })
+                  : "Today",
+                totalAmount: found.totalAmount,
+                subtotal: found.subtotal || found.totalAmount,
+                status: formatOrderStatus(found.status || "ORDER_PLACED"),
+                itemsCount: found.items?.length || 1,
+                shippingAddress: found.shippingAddress || "Delivery Address",
+                courierName: "Delhivery Surface Cargo",
+                trackingNumber: "DEL-99228811IN",
+                trackingUrl: "https://www.delhivery.com",
+                isCancelable: true,
+                isReturnable: false,
+                items: (found.items || []).map((i: any) => ({
+                  id: i.id || "item-1",
+                  name: i.name || "Hardware Component",
+                  sku: i.sku || "PRG-SKU",
+                  slug: i.slug || "hardware",
+                  quantity: i.quantity || 1,
+                  price: i.price || 0,
+                  image: i.image || "/placeholder.png",
+                })),
+              };
+            }
           }
-        }
-      } catch {}
+        } catch {}
+      }
 
-      setLoading(false);
+      if (isMounted) {
+        setLiveOrder(resolved);
+        setLoading(false);
+      }
     }
+
     loadLiveOrder();
-  }, [orderId]);
 
-  const fallbackOrder: CustomerOrder = {
-    id: orderId,
-    orderNumber: `PRG-2026-${orderId.slice(-4).toUpperCase()}`,
-    date: "Today",
-    totalAmount: 4999,
-    subtotal: 4236,
-    gstAmount: 763,
-    discountAmount: 0,
-    status: "Payment Confirmed",
-    itemsCount: 1,
-    shippingAddress: "Your verified delivery address",
-    courierName: "Delhivery Surface Cargo",
-    trackingNumber: "DEL-99228811IN",
-    trackingUrl: "https://www.delhivery.com",
-    isCancelable: true,
-    isReturnable: true,
-    items: [
-      {
-        id: PRODUCTS[0].id,
-        name: PRODUCTS[0].name,
-        sku: PRODUCTS[0].sku,
-        quantity: 1,
-        price: PRODUCTS[0].price,
-        image: PRODUCTS[0].image,
-      },
-    ],
-  };
+    return () => {
+      isMounted = false;
+    };
+  }, [orderId, user?.id, user?.email, router]);
 
-  const order =
-    liveOrder ||
-    orders.find((o) => o.id === orderId || o.orderNumber === orderId) ||
-    fallbackOrder;
+  const order = liveOrder;
 
   // Request Modals State
   const [modalType, setModalType] = useState<
@@ -293,6 +305,34 @@ export const OrderDetailView: React.FC<OrderDetailProps> = ({ orderId }) => {
         return 1;
     }
   };
+
+  if (loading) {
+    return (
+      <div className="bg-white rounded-2xl border border-slate-200/80 p-12 text-center shadow-2xs space-y-3">
+        <Loader2 className="w-8 h-8 text-[#2563EB] animate-spin mx-auto" />
+        <p className="text-xs text-slate-500 font-medium">Loading order details...</p>
+      </div>
+    );
+  }
+
+  if (!order) {
+    return (
+      <div className="bg-white rounded-2xl border border-slate-200/80 p-8 sm:p-12 text-center shadow-2xs space-y-4 max-w-lg mx-auto my-8">
+        <XCircle className="w-12 h-12 text-rose-500 mx-auto" />
+        <h2 className="text-lg font-black text-slate-900 tracking-tight">Order Not Found</h2>
+        <p className="text-xs text-slate-500">
+          This order does not exist or you do not have permission to view details for this order.
+        </p>
+        <Link
+          href="/account/orders"
+          className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-[#0A1128] hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition-all shadow-xs"
+        >
+          <ArrowLeft className="w-3.5 h-3.5" />
+          <span>Back to My Orders</span>
+        </Link>
+      </div>
+    );
+  }
 
   const currentStepIndex = getStepIndex(order.status);
 
@@ -924,7 +964,7 @@ export const OrderDetailView: React.FC<OrderDetailProps> = ({ orderId }) => {
       {/* 8. Professional Bill & Tax Invoice Modal */}
       {showInvoiceModal && (
         <ProfessionalBillModal
-          order={customerOrderToBillOrder(order)}
+          order={customerOrderToBillOrder(order, user)}
           onClose={() => setShowInvoiceModal(false)}
         />
       )}
