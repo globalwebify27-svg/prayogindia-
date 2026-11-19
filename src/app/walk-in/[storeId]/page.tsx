@@ -1467,11 +1467,11 @@ export default function StoreKioskPage() {
         <div className="flex-1 h-full min-w-0 relative flex flex-col overflow-hidden">
           {/* ── Main Content Area (Independent Scroll for Banners & Products) ── */}
           <main className="flex-1 h-full min-w-0 overflow-y-auto p-4 sm:p-6 pb-28 sm:pb-32 space-y-6">
-          {/* 1. Hero Banner Carousel — Live Synchronized with Website (Compact Height & Zero-Cut Contained Image) */}
+          {/* 1. Hero Banner Carousel — Live Synchronized with Website (Full-Bleed Edge-to-Edge, Zero Blank Space) */}
           <div
             onMouseEnter={() => setIsBannerPaused(true)}
             onMouseLeave={() => setIsBannerPaused(false)}
-            className="relative w-full rounded-2xl overflow-hidden shadow-sm h-36 sm:h-44 md:h-48 max-h-[200px] flex items-center bg-[#07132B] group select-none"
+            className="relative w-full rounded-2xl overflow-hidden shadow-sm h-40 sm:h-48 md:h-52 lg:h-56 max-h-[240px] flex items-center bg-[#07132B] group select-none"
             aria-label="Prayog India Featured Robotics Showcase Banner"
           >
             {/* Animated Swipeable Carousel Track */}
@@ -1490,20 +1490,11 @@ export default function StoreKioskPage() {
                   }}
                   className="absolute inset-0 w-full h-full flex items-center justify-center select-none"
                 >
-                  {/* Ambient Blurred Backdrop (Fills container with matching color gradient without letterbox voids) */}
-                  <img
-                    src={activeBanner.image}
-                    alt=""
-                    aria-hidden="true"
-                    className="absolute inset-0 w-full h-full object-cover blur-xl opacity-75 scale-125 pointer-events-none select-none"
-                    draggable={false}
-                  />
-
-                  {/* 100% Contained Foreground Image — Preserves Full Graphic Edge-to-Edge with Zero Cropping/Cutting */}
+                  {/* Full-Bleed Edge-to-Edge Banner Image (Eliminates Letterbox Blank/Blurred Space) */}
                   <img
                     src={activeBanner.image}
                     alt={activeBanner.alt || "Prayog India Banner"}
-                    className="relative z-10 w-full h-full object-contain object-center pointer-events-none select-none drop-shadow-sm"
+                    className="absolute inset-0 w-full h-full object-cover object-center pointer-events-none select-none"
                     draggable={false}
                   />
 
