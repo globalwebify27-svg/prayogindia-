@@ -11,9 +11,7 @@ export type SortOption =
   | "popularity"
   | "best-selling"
   | "highest-rated"
-  | "discount"
-  | "title-asc"
-  | "title-desc";
+  | "discount";
 
 export type GridColumns = 1 | 2 | 3 | 4;
 
@@ -38,8 +36,6 @@ const SORT_OPTIONS: { value: SortOption; label: string }[] = [
   { value: "price-desc", label: "Price: High to Low" },
   { value: "discount", label: "Highest Discount" },
   { value: "highest-rated", label: "Customer Rating" },
-  { value: "title-asc", label: "Alphabetically: A-Z" },
-  { value: "title-desc", label: "Alphabetically: Z-A" },
   { value: "newest", label: "Newest Arrivals" },
 ];
 

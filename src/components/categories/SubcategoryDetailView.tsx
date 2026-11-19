@@ -142,8 +142,6 @@ export const SubcategoryDetailView: React.FC<SubcategoryDetailProps> = ({
       if (sortBy === "price-asc") return a.price - b.price;
       if (sortBy === "price-desc") return b.price - a.price;
       if (sortBy === "highest-rated") return (b.rating || 0) - (a.rating || 0);
-      if (sortBy === "title-asc") return a.name.localeCompare(b.name);
-      if (sortBy === "title-desc") return b.name.localeCompare(a.name);
       if (sortBy === "newest") return b.id.localeCompare(a.id);
       if (sortBy === "discount") {
         const mrpA = a.mrp || Math.round(a.price * 1.35);

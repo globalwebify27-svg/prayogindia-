@@ -200,8 +200,6 @@ export const OffersLandingView: React.FC = () => {
       if (sortBy === "price-desc") return b.price - a.price;
       if (sortBy === "highest-rated")
         return (b.rating || 0) - (a.rating || 0);
-      if (sortBy === "title-asc") return a.name.localeCompare(b.name);
-      if (sortBy === "title-desc") return b.name.localeCompare(a.name);
       if (sortBy === "newest") return b.id.localeCompare(a.id);
       // default: highest savings
       return saveB - saveA;

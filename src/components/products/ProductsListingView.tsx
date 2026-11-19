@@ -314,12 +314,6 @@ function ProductsContent() {
       case "highest-rated":
         result = [...result].sort((a, b) => (b.rating || 0) - (a.rating || 0));
         break;
-      case "title-asc":
-        result = [...result].sort((a, b) => a.name.localeCompare(b.name));
-        break;
-      case "title-desc":
-        result = [...result].sort((a, b) => b.name.localeCompare(a.name));
-        break;
       case "newest":
         result = [...result].sort((a, b) => b.id.localeCompare(a.id));
         break;
