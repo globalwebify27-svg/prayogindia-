@@ -1196,16 +1196,8 @@ export default function QuotationsPage() {
               </div>
             </div>
 
-            {/* Notes & Terms */}
+            {/* Commercial Terms */}
             <div className="border-t border-slate-200 pt-4 text-xs space-y-3">
-              {selectedDoc.notes && (
-                <div>
-                  <span className="font-bold text-slate-800">
-                    Scope / Notes:{" "}
-                  </span>
-                  <span className="text-slate-600">{selectedDoc.notes}</span>
-                </div>
-              )}
               {selectedDoc.terms && (
                 <div>
                   <span className="font-bold text-slate-800 block mb-1">

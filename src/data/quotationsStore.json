@@ -12,7 +12,7 @@
     "gstin": null,
     "billingAddress": null,
     "shippingAddress": null,
-    "status": "REQUESTED",
+    "status": "SENT",
     "validUntil": "2026-12-19T11:08:11.202Z",
     "subtotal": 210700,
     "discountAmount": 0,
@@ -27,7 +27,7 @@
     "convertedAt": null,
     "createdByStaffId": null,
     "createdAt": "2026-11-19T11:08:11.203Z",
-    "updatedAt": "2026-11-19T11:08:11.203Z",
+    "updatedAt": "2026-11-19T11:18:14.110Z",
     "items": [
       {
         "id": "503e3827-7dc9-42d1-a3fd-e94b01df6444",
@@ -35,7 +35,6 @@
         "productId": null,
         "variantId": null,
         "productName": "test",
-        "productLink": "http://localhost:3000/products/test-2",
         "productSku": "PRG-CUSTOM",
         "quantity": 10,
         "unitPrice": 1200,
@@ -50,7 +49,6 @@
         "productId": null,
         "variantId": null,
         "productName": "product2",
-        "productLink": "http://localhost:3000/products/test-2",
         "productSku": "PRG-CUSTOM",
         "quantity": 100,
         "unitPrice": 1987,
@@ -65,7 +63,6 @@
         "productId": null,
         "variantId": null,
         "productName": "product3",
-        "productLink": "http://localhost:3000/products/test-2",
         "productSku": "PRG-CUSTOM",
         "quantity": 1,
         "unitPrice": 0,
@@ -80,7 +77,6 @@
         "productId": null,
         "variantId": null,
         "productName": "product 4",
-        "productLink": "http://localhost:3000/products/test-2",
         "productSku": "PRG-CUSTOM",
         "quantity": 1,
         "unitPrice": 0,
@@ -95,7 +91,6 @@
         "productId": null,
         "variantId": null,
         "productName": "product 5",
-        "productLink": "http://localhost:3000/products/test-2",
         "productSku": "PRG-CUSTOM",
         "quantity": 1,
         "unitPrice": 0,
@@ -107,8 +102,42 @@
     ],
     "store": {
       "id": "c6f8803c-80d1-4282-8268-075b7b24d465",
+      "code": "RANCHI",
       "name": "Prayog India Ranchi Main Branch & Central Hub",
-      "code": "RANCHI"
-    }
+      "type": "Central Main Hub & Store",
+      "isCentralHub": true,
+      "address": "Plot 42, Tech Innovation Corridor, Main Road",
+      "city": "Ranchi",
+      "state": "Jharkhand",
+      "pincode": "834001",
+      "contactPhone": "+91 94311 02931",
+      "contactEmail": "ranchi.hub@prayogindia.com",
+      "operatingHours": "09:30 AM - 08:30 PM (7 Days)",
+      "status": "Operational",
+      "totalStockUnits": 8450,
+      "monthlyWalkInRevenue": 1285000,
+      "createdAt": "2026-09-03T05:47:31.332Z",
+      "updatedAt": "2026-09-05T07:26:10.601Z"
+    },
+    "revisions": [
+      {
+        "id": "615dcb87-1f9b-4400-bb95-db757bb7c015",
+        "quotationId": "1ff5209d-ea16-4768-9f60-4243bcd7d87e",
+        "revisionNumber": 2,
+        "snapshotJson": "{\"status\":\"SENT\"}",
+        "changedByRole": "SUPER_ADMIN",
+        "changeNotes": "Sent official quote to customer by System Administrator",
+        "createdAt": "2026-11-19T11:18:14.110Z"
+      },
+      {
+        "id": "44fa435a-72a3-40c2-9d80-f993faa6ec76",
+        "quotationId": "1ff5209d-ea16-4768-9f60-4243bcd7d87e",
+        "revisionNumber": 1,
+        "snapshotJson": "{\"status\":\"REQUESTED\",\"companyName\":\"KD\",\"items\":[{\"productId\":null,\"variantId\":null,\"productName\":\"test\",\"productSku\":\"PRG-CUSTOM\",\"quantity\":10,\"unitPrice\":1200,\"discountPct\":0,\"taxRate\":18,\"total\":12000},{\"productId\":null,\"variantId\":null,\"productName\":\"product2\",\"productSku\":\"PRG-CUSTOM\",\"quantity\":100,\"unitPrice\":1987,\"discountPct\":0,\"taxRate\":18,\"total\":198700},{\"productId\":null,\"variantId\":null,\"productName\":\"product3\",\"productSku\":\"PRG-CUSTOM\",\"quantity\":1,\"unitPrice\":0,\"discountPct\":0,\"taxRate\":18,\"total\":0},{\"productId\":null,\"variantId\":null,\"productName\":\"product 4\",\"productSku\":\"PRG-CUSTOM\",\"quantity\":1,\"unitPrice\":0,\"discountPct\":0,\"taxRate\":18,\"total\":0},{\"productId\":null,\"variantId\":null,\"productName\":\"product 5\",\"productSku\":\"PRG-CUSTOM\",\"quantity\":1,\"unitPrice\":0,\"discountPct\":0,\"taxRate\":18,\"total\":0}],\"grandTotal\":248626}",
+        "changedByRole": "CUSTOMER",
+        "changeNotes": "Initial quote request submitted by customer",
+        "createdAt": "2026-11-19T11:08:11.203Z"
+      }
+    ]
   }
 ]
