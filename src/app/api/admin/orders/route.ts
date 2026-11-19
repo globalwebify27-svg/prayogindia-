@@ -409,6 +409,10 @@ export async function GET(request: Request) {
       const qClean = q.replace(/^#/, "");
       const num = String(o.orderNumber || "").toLowerCase();
 
+      // Direct prefix isolation: PRG searches never match WI orders; WI searches never match PRG orders
+      if (qClean.startsWith("prg") && num.startsWith("wi-")) return false;
+      if (qClean.startsWith("wi") && num.startsWith("prg-")) return false;
+
       // Order number match always checked first
       const numMatch = num.includes(qClean) || num.includes(q);
       if (numMatch) return true;

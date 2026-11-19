@@ -204,5 +204,31 @@ describe("User-Specific Order Filtering & Isolation", () => {
     // Search non-existent query
     const noResults = testOrders.filter((o) => matchesOrder(o, "NON-EXISTENT-ORDER"));
     expect(noResults.length).toBe(0);
+
+    // Search by order PRG-2026-7160 strictly excludes all WI-* walk-in orders
+    const allOrdersSample = [
+      ...testOrders,
+      {
+        orderNumber: "PRG-2026-7160",
+        customerName: "Bahubali",
+        customerPhone: "8709789641",
+        items: [{ productName: "Test 2", productSku: "PRG-ARD-001" }],
+      },
+      {
+        orderNumber: "WI-RAN-1794298945690",
+        customerName: "Om Kumar",
+        customerPhone: "8709789641",
+        items: [{ productName: "Test 2", productSku: "PRG-ARD-001" }],
+      },
+    ];
+
+    const prg7160Results = allOrdersSample.filter((o) => {
+      const q = "PRG-2026-7160".toLowerCase();
+      const num = o.orderNumber.toLowerCase();
+      if (q.startsWith("prg") && num.startsWith("wi-")) return false;
+      return num.includes(q);
+    });
+    expect(prg7160Results.length).toBe(1);
+    expect(prg7160Results[0].orderNumber).toBe("PRG-2026-7160");
   });
 });

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import { getOrderTimestamp } from "@/data/accountData";
 import {
   ShoppingBag,
@@ -108,6 +108,10 @@ function matchesOrder(ord: any, rawQuery: string): boolean {
   const orderNum = String(ord.orderNumber || "").toLowerCase();
   const orderId = String(ord.id || "").toLowerCase().replace(/^ord-/, "");
 
+  // Direct prefix isolation: PRG searches never match WI orders; WI searches never match PRG orders
+  if (cleanQ.startsWith("prg") && (orderNum.startsWith("wi-") || orderId.startsWith("wi-"))) return false;
+  if (cleanQ.startsWith("wi") && (orderNum.startsWith("prg-") || orderId.startsWith("prg-"))) return false;
+
   // 1. Direct Order Number / ID match (exact, partial, or prefix/suffix)
   const isOrderNumMatch =
     orderNum.includes(cleanQ) ||
@@ -194,6 +198,8 @@ export default function AdminOrdersPage() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [channelFilter, setChannelFilter] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
+  const activeSearchRef = useRef(searchQuery);
+  activeSearchRef.current = searchQuery;
 
   // Section 31 Shipping Info Modal State
   const [selectedOrderForShipping, setSelectedOrderForShipping] = useState<
@@ -225,7 +231,17 @@ export default function AdminOrdersPage() {
     fetch(`/api/admin/orders?${queryParams.toString()}`)
       .then((res) => res.json())
       .then((data) => {
+        // Discard responses from older in-flight requests to eliminate race conditions
+        if (activeSearchRef.current.trim() !== cleanSearch) {
+          return;
+        }
+
         let items: any[] = data.success && data.data?.items ? data.data.items : [];
+
+        // If searching, ensure API items strictly match search query
+        if (cleanSearch) {
+          items = items.filter((o: any) => matchesOrder(o, cleanSearch));
+        }
 
         // Merge locally stored orders (website + walk-in) for demo/offline fallback.
         try {
@@ -260,9 +276,19 @@ export default function AdminOrdersPage() {
             getOrderTimestamp(b) - getOrderTimestamp(a),
         );
 
-        setOrders(items);
+        // Final strict verification before updating state
+        const strictlyFiltered = cleanSearch
+          ? items.filter((o: any) => matchesOrder(o, cleanSearch))
+          : items;
+
+        setOrders(strictlyFiltered);
       })
       .catch(() => {
+        // Discard errors from older in-flight requests
+        if (activeSearchRef.current.trim() !== cleanSearch) {
+          return;
+        }
+
         // Offline fallback: load from localStorage only
         try {
           const stored = typeof window !== "undefined" ? localStorage.getItem("prayog_placed_orders") : null;
@@ -288,7 +314,11 @@ export default function AdminOrdersPage() {
           setOrders(matchingLocals);
         } catch {}
       })
-      .finally(() => setLoading(false));
+      .finally(() => {
+        if (activeSearchRef.current.trim() === cleanSearch) {
+          setLoading(false);
+        }
+      });
   };
 
   // Single unified effect: debounced re-fetch on any search/status change.
