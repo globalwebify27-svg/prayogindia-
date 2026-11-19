@@ -202,10 +202,17 @@ export default function AdminOrdersPage() {
   /**
    * Fetch orders from the API with strict search and status filtering.
    * Both statusFilter and searchVal are passed explicitly to avoid stale closure bugs.
+   * When a search is active, clear existing orders immediately so stale walk-in data
+   * never flashes on screen while the new fetch is in-flight.
    */
   const fetchOrders = (searchVal: string, currentStatusFilter: string) => {
     setLoading(true);
     const cleanSearch = searchVal.trim();
+    // Immediately clear results when searching by order number so the table
+    // never shows stale data from a previous all-orders fetch while loading.
+    if (cleanSearch) {
+      setOrders([]);
+    }
     const queryParams = new URLSearchParams({
       status: currentStatusFilter,
       limit: "200",
