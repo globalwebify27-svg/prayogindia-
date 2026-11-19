@@ -547,10 +547,10 @@ function ProductsContent() {
       <div className="flex flex-col lg:flex-row gap-4 lg:gap-6 items-start w-full">
         {/* Left Filter Sidebar (Desktop) — Expandable / Collapsible with Smooth Easing & Zero Screen Shake */}
         <aside
-          className={`hidden lg:block shrink-0 sticky top-24 bg-white border border-slate-200/90 rounded-2xl shadow-2xs overflow-hidden transition-[width,padding,border-color,box-shadow] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+          className={`hidden lg:block shrink-0 sticky top-24 bg-white border border-slate-200/90 rounded-2xl shadow-2xs transition-[width,padding,border-color,box-shadow] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${
             isFilterOpen
-              ? "w-64 xl:w-72 2xl:w-80 p-5"
-              : "w-12 py-5 px-1 cursor-pointer hover:border-[#2563EB] hover:shadow-md group active:scale-[0.98]"
+              ? "w-64 xl:w-72 2xl:w-80 p-5 max-h-[calc(100vh-7rem)] overflow-y-auto scrollbar-thin"
+              : "w-12 py-5 px-1 overflow-hidden cursor-pointer hover:border-[#2563EB] hover:shadow-md group active:scale-[0.98]"
           }`}
           onClick={!isFilterOpen ? () => setIsFilterOpen(true) : undefined}
           title={!isFilterOpen ? "Maximize & Open Filters Window" : undefined}

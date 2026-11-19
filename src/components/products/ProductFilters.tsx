@@ -581,9 +581,9 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
             </div>
           </button>
 
-          {/* Floating Dropdown Menu */}
+          {/* Brand Selection Menu (In-Flow to prevent container clipping & maintain clean layout) */}
           {isBrandDropdownOpen && (
-            <div className="absolute left-0 right-0 top-full mt-1.5 z-40 bg-white border border-slate-200/90 rounded-xl shadow-xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+            <div className="mt-2 bg-white border border-slate-200/90 rounded-xl shadow-xs overflow-hidden animate-in fade-in duration-150">
               {/* Optional Search inside dropdown if > 5 brands */}
               {brandList.length > 5 && (
                 <div className="p-2 border-b border-slate-100 bg-slate-50/60">
