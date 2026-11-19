@@ -2,10 +2,14 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getAuthenticatedCustomer } from "@/lib/authUtils";
 import { checkRateLimit } from "@/lib/security";
+import {
+  saveStoredServiceEnquiry,
+  getStoredServiceEnquiries,
+} from "@/lib/serviceEnquiriesStore";
 
 /**
  * POST /api/service-enquiries
- * Submit service enquiry with rate limiting and server validation.
+ * Submit service enquiry with rate limiting, server validation, and persistent offline store fallback.
  */
 export async function POST(request: Request) {
   try {
@@ -16,7 +20,7 @@ export async function POST(request: Request) {
 
     // 1. Rate Limiting Check
     const ipIdentifier = user?.id || email || "anonymous-ip";
-    const rateLimit = checkRateLimit(`enquiry:${ipIdentifier}`, 5, 60000);
+    const rateLimit = checkRateLimit(`enquiry:${ipIdentifier}`, 15, 60000);
     if (!rateLimit.allowed) {
       return NextResponse.json(
         {
@@ -76,57 +80,75 @@ export async function POST(request: Request) {
       );
     }
 
+    // Always persist to local JSON store first to guarantee enquiry is never lost
+    const storedEnquiry = saveStoredServiceEnquiry({
+      serviceId,
+      serviceName,
+      name: name.trim(),
+      email: email.trim().toLowerCase(),
+      phone: phone.trim(),
+      message: message.trim(),
+      user: user
+        ? {
+            id: user.id,
+            name: user.name || name.trim(),
+            email: user.email || email.trim(),
+          }
+        : null,
+    });
+
+    // If Database is accessible, also persist to Prisma
     if (process.env.DATABASE_URL) {
-      // Find matching Service record if serviceId or serviceName supplied
-      let matchedService = null;
-      if (serviceId) {
-        matchedService = await db.service.findFirst({
-          where: { OR: [{ id: serviceId }, { slug: serviceId }] },
-        });
-      } else if (serviceName) {
-        matchedService = await db.service.findFirst({
-          where: { name: { contains: serviceName, mode: "insensitive" } },
-        });
-      }
+      try {
+        let matchedService = null;
+        if (serviceId) {
+          matchedService = await db.service.findFirst({
+            where: { OR: [{ id: serviceId }, { slug: serviceId as any }] },
+          });
+        } else if (serviceName) {
+          matchedService = await db.service.findFirst({
+            where: { name: { contains: serviceName, mode: "insensitive" } },
+          });
+        }
 
-      if (!matchedService) {
-        // Fallback to first available Service in DB
-        matchedService = await db.service.findFirst();
-      }
+        if (!matchedService) {
+          matchedService = await db.service.findFirst();
+        }
 
-      if (matchedService) {
-        const enquiryRecord = await db.serviceEnquiry.create({
-          data: {
-            serviceId: matchedService.id,
-            userId: user?.id || null,
-            name: name.trim(),
-            email: email.trim().toLowerCase(),
-            phone: phone.trim(),
-            message: message.trim(),
-          },
-        });
+        if (matchedService) {
+          const enquiryRecord = await db.serviceEnquiry.create({
+            data: {
+              serviceId: matchedService.id,
+              userId: user?.id || null,
+              name: name.trim(),
+              email: email.trim().toLowerCase(),
+              phone: phone.trim(),
+              message: message.trim(),
+            },
+            include: {
+              service: true,
+            },
+          });
 
-        return NextResponse.json({
-          success: true,
-          message: "Service enquiry submitted successfully.",
-          data: enquiryRecord,
-        });
+          return NextResponse.json({
+            success: true,
+            message: "Service enquiry submitted successfully.",
+            data: enquiryRecord,
+          });
+        }
+      } catch (dbErr) {
+        console.warn(
+          "Database write failed or server unreachable, using persistent store:",
+          dbErr,
+        );
       }
     }
 
-    // Mock Mode Fallback Response
+    // Persistent store response
     return NextResponse.json({
       success: true,
-      message: "Service enquiry submitted successfully (Mock Mode).",
-      data: {
-        id: `enq-${Date.now()}`,
-        serviceName: serviceName || "Turnkey STEM Service",
-        name,
-        email,
-        phone,
-        message,
-        createdAt: new Date().toISOString(),
-      },
+      message: "Service enquiry submitted successfully.",
+      data: storedEnquiry,
     });
   } catch (error: any) {
     return NextResponse.json(
@@ -162,24 +184,27 @@ export async function GET() {
         },
       });
 
-      return NextResponse.json({
-        success: true,
-        data: enquiries,
-      });
+      if (enquiries && enquiries.length > 0) {
+        return NextResponse.json({
+          success: true,
+          data: enquiries,
+        });
+      }
     } catch (error: any) {
-      return NextResponse.json(
-        {
-          success: false,
-          message: error.message || "Failed to fetch enquiries.",
-        },
-        { status: 500 },
-      );
+      console.warn("Database read failed in GET /api/service-enquiries:", error);
     }
   }
 
+  // Fallback to stored enquiries
+  const stored = getStoredServiceEnquiries();
+  const userEnquiries = stored.filter(
+    (e) =>
+      (e.user?.id && e.user.id === user.id) ||
+      (e.email && e.email.toLowerCase() === (user.email || "").toLowerCase()),
+  );
+
   return NextResponse.json({
     success: true,
-    data: [],
-    source: "mock",
+    data: userEnquiries,
   });
 }

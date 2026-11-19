@@ -22,6 +22,7 @@ import {
   Building2,
   Download,
   ChevronDown,
+  Trash2,
 } from "lucide-react";
 
 const SERVICE_TYPES = [
@@ -109,6 +110,11 @@ export default function AdminServicesPage() {
       if (data.success) {
         setEnquiries(data.data || []);
         setServices(data.services || []);
+        const initialStatuses: Record<string, string> = {};
+        (data.data || []).forEach((e: any) => {
+          initialStatuses[e.id] = e.status || "NEW";
+        });
+        setLocalStatuses((prev) => ({ ...initialStatuses, ...prev }));
       }
     } catch {
       setEnquiries([]);
@@ -121,21 +127,67 @@ export default function AdminServicesPage() {
     fetchData();
   }, [selectedService]);
 
+  const normalizeSlug = (slug?: string) =>
+    (slug || "").toLowerCase().replace(/[-_]/g, "");
+
   const filteredEnquiries = enquiries.filter((e) => {
     const q = searchQuery.toLowerCase();
-    return (
+    const matchesSearch =
       !searchQuery ||
       e.name?.toLowerCase().includes(q) ||
       e.email?.toLowerCase().includes(q) ||
       e.phone?.includes(q) ||
-      e.message?.toLowerCase().includes(q)
-    );
+      e.message?.toLowerCase().includes(q) ||
+      e.service?.name?.toLowerCase().includes(q);
+
+    const matchesService =
+      selectedService === "all" ||
+      normalizeSlug(e.service?.slug) === normalizeSlug(selectedService);
+
+    return matchesSearch && matchesService;
   });
 
   const getStatusForEnquiry = (id: string) => localStatuses[id] || "NEW";
 
   const getStatusConfig = (status: string) =>
     STATUS_OPTIONS.find((s) => s.value === status) || STATUS_OPTIONS[0];
+
+  const handleUpdateStatus = async (id: string, newStatus: string) => {
+    setLocalStatuses((prev) => ({ ...prev, [id]: newStatus }));
+    try {
+      await fetch("/api/admin/services", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, status: newStatus }),
+      });
+      setEnquiries((prev) =>
+        prev.map((e) => (e.id === id ? { ...e, status: newStatus } : e)),
+      );
+      if (selectedEnquiry && selectedEnquiry.id === id) {
+        setSelectedEnquiry((prev: any) =>
+          prev ? { ...prev, status: newStatus } : null,
+        );
+      }
+    } catch (err) {
+      console.error("Failed to update status on server:", err);
+    }
+  };
+
+  const handleDeleteEnquiry = async (id: string) => {
+    if (!window.confirm("Are you sure you want to delete this enquiry?")) return;
+    try {
+      const res = await fetch(`/api/admin/services?id=${id}`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
+      if (data.success) {
+        setEnquiries((prev) => prev.filter((e) => e.id !== id));
+        if (selectedEnquiry?.id === id) setSelectedEnquiry(null);
+      }
+    } catch (err) {
+      console.error("Failed to delete enquiry:", err);
+    }
+  };
 
   const totalThisMonth = enquiries.filter((e) => {
     const d = new Date(e.createdAt);
@@ -224,7 +276,10 @@ export default function AdminServicesPage() {
           const count =
             svc.slug === "all"
               ? enquiries.length
-              : enquiries.filter((e) => e.service?.slug === svc.slug).length;
+              : enquiries.filter(
+                  (e) =>
+                    normalizeSlug(e.service?.slug) === normalizeSlug(svc.slug),
+                ).length;
 
           return (
             <button
@@ -390,10 +445,7 @@ export default function AdminServicesPage() {
                         <select
                           value={status}
                           onChange={(e) =>
-                            setLocalStatuses((prev) => ({
-                              ...prev,
-                              [enq.id]: e.target.value,
-                            }))
+                            handleUpdateStatus(enq.id, e.target.value)
                           }
                           className={`border rounded-lg px-2 py-1 text-[11px] font-bold focus:outline-none cursor-pointer ${statusConfig.color}`}
                         >
@@ -541,14 +593,11 @@ export default function AdminServicesPage() {
                       <button
                         key={s.value}
                         onClick={() =>
-                          setLocalStatuses((prev) => ({
-                            ...prev,
-                            [selectedEnquiry.id]: s.value,
-                          }))
+                          handleUpdateStatus(selectedEnquiry.id, s.value)
                         }
                         className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-all cursor-pointer ${
                           current === s.value
-                            ? s.color + " shadow-sm"
+                            ? s.color + " shadow-xs font-black ring-1 ring-slate-400"
                             : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
                         }`}
                       >
@@ -575,6 +624,14 @@ export default function AdminServicesPage() {
                   <Mail className="w-3.5 h-3.5" />
                   Email Reply
                 </a>
+                <button
+                  onClick={() => handleDeleteEnquiry(selectedEnquiry.id)}
+                  className="px-3.5 py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 rounded-xl font-bold text-xs transition-all cursor-pointer flex items-center gap-1.5"
+                  title="Delete Enquiry"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  Delete
+                </button>
                 <button
                   onClick={() => setSelectedEnquiry(null)}
                   className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold text-xs transition-all cursor-pointer"

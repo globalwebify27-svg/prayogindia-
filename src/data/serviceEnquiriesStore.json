@@ -1,0 +1,19 @@
+[
+  {
+    "id": "enq-seed-001",
+    "serviceId": "stem-lab-setup",
+    "serviceName": "STEM Lab Setup",
+    "name": "Bahubali (KD)",
+    "email": "sultansusu09@gmail.com",
+    "phone": "+918709789641",
+    "message": "Quotation request for STEM Lab Setup - turnkey lab equipment, microcontrollers, and curriculum.",
+    "status": "NEW",
+    "createdAt": "2026-11-19T11:20:00.000Z",
+    "updatedAt": "2026-11-19T11:20:00.000Z",
+    "service": {
+      "id": "stem-lab-setup",
+      "name": "STEM Lab Setup",
+      "slug": "STEM_LAB_SETUP"
+    }
+  }
+]
