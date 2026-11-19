@@ -93,91 +93,92 @@ function getOrderChannel(ord: any): OrderChannelType {
 }
 
 /**
- * Detects if a query is an order number pattern (PRG-, WI-, QUO-, ORD-, APP-).
- * When true, ONLY the order number field is matched — no name/address/items.
- * This prevents walk-in orders from leaking into PRG-* searches and vice versa.
- */
-function isOrderNumberQuery(q: string): boolean {
-  const upper = q.toUpperCase().replace(/^#/, "").trim();
-  return (
-    upper.startsWith("PRG-") ||
-    upper.startsWith("WI-") ||
-    upper.startsWith("QUO-") ||
-    upper.startsWith("B2B-") ||
-    upper.startsWith("ORD-") ||
-    upper.startsWith("APP-") ||
-    /^PRG-\d{4}-\d+/.test(upper) ||
-    /^WI-[A-Z]+-\d+/.test(upper)
-  );
-}
-
-/**
- * Safe, professional multi-field order matcher.
- * Supports partial matching, # prefixes, customer phone/email, AWB, and product names/SKUs.
- * When the query looks like an order number (PRG-, WI-, QUO-), ONLY matches the orderNumber
- * field to prevent cross-channel contamination of search results.
+ * Professional multi-field order search matcher.
+ * STRICT ORDER NUMBER MATCHING:
+ * When the query looks like an order number (e.g. PRG-*, WI-*, QUO-*, 2026-*, or any 4+ digit sequence):
+ * It strictly matches against orderNumber and id ONLY.
+ * It will NEVER leak unrelated walk-in orders into a website order search or vice versa.
  */
 function matchesOrder(ord: any, rawQuery: string): boolean {
   if (!rawQuery || !rawQuery.trim()) return true;
-  const q = rawQuery.toLowerCase().trim();
-  const qClean = q.replace(/^#/, "").trim();
+  const q = rawQuery.trim().toLowerCase();
+  const cleanQ = q.replace(/^#/, "").trim();
+  if (!cleanQ) return true;
 
-  // 1. Order Number & ID match (supports with/without #)
   const orderNum = String(ord.orderNumber || "").toLowerCase();
-  const orderId = String(ord.id || "").toLowerCase();
-  const orderNumMatch =
-    orderNum.includes(qClean) ||
-    orderId.replace(/^ord-/, "").includes(qClean);
+  const orderId = String(ord.id || "").toLowerCase().replace(/^ord-/, "");
 
-  if (orderNumMatch) return true;
+  // 1. Direct Order Number / ID match (exact, partial, or prefix/suffix)
+  const isOrderNumMatch =
+    orderNum.includes(cleanQ) ||
+    orderNum.includes(q) ||
+    orderId.includes(cleanQ) ||
+    orderId.includes(q);
 
-  // STRICT MODE: If the query looks like an order number prefix (PRG-, WI-, QUO-),
-  // do NOT fall through to name/address/item matching — this prevents WI-* orders
-  // from ever appearing in PRG-* searches and vice versa.
-  if (isOrderNumberQuery(rawQuery)) return false;
+  // Distinguish an Indian 10-digit mobile number from an order number
+  const is10DigitPhone = /^(?:\+?91)?([6-9]\d{9})$/.test(cleanQ.replace(/[\s()-]/g, ""));
+
+  // Detect if query is searching for an order number
+  const isOrderNumberSearch =
+    !is10DigitPhone && (
+      /^(prg|wi|quo|b2b|ord|app|pos|pi)/i.test(cleanQ) ||
+      /^[a-z0-9]+-[a-z0-9]+/i.test(cleanQ) ||
+      /^\d{4,8}$/.test(cleanQ) ||
+      /^wi-|^prg-|^quo-|^pos-|^app-/i.test(cleanQ)
+    );
+
+  // When searching by order number, enforce STRICT ISOLATION:
+  // ONLY return orders whose order number or id matches.
+  if (isOrderNumberSearch) {
+    return isOrderNumMatch;
+  }
+
+  // If order number matches directly, accept it immediately
+  if (isOrderNumMatch) return true;
 
   // 2. Quotation / Invoice numbers
-  if (ord.quotation?.quoteNumber && String(ord.quotation.quoteNumber).toLowerCase().includes(qClean)) return true;
-  if (ord.quotationId && String(ord.quotationId).toLowerCase().includes(qClean)) return true;
-  if (ord.invoice?.invoiceNumber && String(ord.invoice.invoiceNumber).toLowerCase().includes(qClean)) return true;
+  if (ord.quotation?.quoteNumber && String(ord.quotation.quoteNumber).toLowerCase().includes(cleanQ)) return true;
+  if (ord.quotationId && String(ord.quotationId).toLowerCase().includes(cleanQ)) return true;
+  if (ord.invoice?.invoiceNumber && String(ord.invoice.invoiceNumber).toLowerCase().includes(cleanQ)) return true;
 
-  // 3. Customer Info (Name, Email, Phone, Company)
+  // 3. Customer Info (Name, Email, Company)
   const custName = String(ord.customerName || ord.user?.name || "").toLowerCase();
-  if (custName.includes(q)) return true;
+  if (custName.includes(cleanQ)) return true;
 
   const custEmail = String(ord.customerEmail || ord.user?.email || "").toLowerCase();
-  if (custEmail.includes(q)) return true;
+  if (custEmail.includes(cleanQ)) return true;
 
   const company = String(ord.companyName || ord.user?.companyName || "").toLowerCase();
-  if (company.includes(q)) return true;
+  if (company.includes(cleanQ)) return true;
 
-  // Only match phone numbers if query is numeric/phone-like (e.g. 8709789641)
-  // Prevents alphanumeric order numbers (e.g. PRG-2026-7068) from accidentally matching phones
-  const isNumericQuery = /^[0-9+\s()-]+$/.test(rawQuery.trim());
+  // 4. Phone matching (ONLY when query contains digits and is phone-like)
+  const isNumericPhone = /^[0-9+\s()-]+$/.test(rawQuery.trim());
   const rawPhone = String(ord.customerPhone || ord.user?.phone || "").replace(/\D/g, "");
-  const qDigits = q.replace(/\D/g, "");
-  if (isNumericQuery && qDigits.length >= 4 && rawPhone && rawPhone.includes(qDigits)) return true;
+  const qDigits = cleanQ.replace(/\D/g, "");
+  if (isNumericPhone && qDigits.length >= 5 && rawPhone && rawPhone.includes(qDigits)) {
+    return true;
+  }
 
-  // 4. Shipping Address & Location
+  // 5. Shipping Address & Location
   const address = String(ord.shippingAddress || "").toLowerCase();
-  if (address.includes(q)) return true;
+  if (address.includes(cleanQ)) return true;
 
-  // 5. Courier, AWB & Tracking Number
+  // 6. Courier, AWB & Tracking Number
   const awb = String(ord.awbNumber || ord.trackingNumber || ord.shipment?.trackingNumber || "").toLowerCase();
-  if (awb && (awb.includes(q) || awb.includes(qClean))) return true;
+  if (awb && (awb.includes(cleanQ) || awb.includes(q))) return true;
 
   const courier = String(ord.courierProvider || ord.courierName || ord.shipment?.courierName || "").toLowerCase();
-  if (courier && courier.includes(q)) return true;
+  if (courier && courier.includes(cleanQ)) return true;
 
-  // 6. Items / Products (Name & SKU)
+  // 7. Items / Products (Name & SKU)
   if (Array.isArray(ord.items)) {
     for (const item of ord.items) {
       if (!item) continue;
       const itemName = String(item.productName || item.name || "").toLowerCase();
       const itemSku = String(item.productSku || item.sku || "").toLowerCase();
       if (
-        itemName.includes(q) ||
-        (itemSku && (itemSku.includes(q) || itemSku.includes(qClean)))
+        itemName.includes(cleanQ) ||
+        (itemSku && itemSku.includes(cleanQ))
       ) {
         return true;
       }
@@ -227,67 +228,28 @@ export default function AdminOrdersPage() {
         let items: any[] = data.success && data.data?.items ? data.data.items : [];
 
         // Merge locally stored orders (website + walk-in) for demo/offline fallback.
-        // RULE: When a search is active, ONLY add localStorage orders whose orderNumber
-        //       is an exact partial match of the search string. Walk-in (WI-*) orders
-        //       are NEVER merged when searching for a PRG-/QUO-/B2B- order number,
-        //       and vice versa. This prevents cross-channel contamination entirely.
         try {
           const stored = typeof window !== "undefined" ? localStorage.getItem("prayog_placed_orders") : null;
           const walkinStored = typeof window !== "undefined" ? localStorage.getItem("prayog_walkin_orders") : null;
 
-          let websiteLocals: any[] = [];
-          let walkinLocals: any[] = [];
-
+          let rawLocals: any[] = [];
           if (stored) {
             const parsed = JSON.parse(stored);
-            if (Array.isArray(parsed)) {
-              // Separate website orders (PRG-/QUO-/APP-) from walk-in orders (WI-/walk-)
-              parsed.forEach((o: any) => {
-                const num = String(o.orderNumber || o.id || "").toUpperCase();
-                if (num.startsWith("WI-") || num.startsWith("WALK-") || num.includes("POS") || (o.orderSource === "WALK_IN")) {
-                  walkinLocals.push(o);
-                } else {
-                  websiteLocals.push(o);
-                }
-              });
-            }
+            if (Array.isArray(parsed)) rawLocals.push(...parsed);
           }
           if (walkinStored) {
             const parsedW = JSON.parse(walkinStored);
-            if (Array.isArray(parsedW)) walkinLocals.push(...parsedW);
+            if (Array.isArray(parsedW)) rawLocals.push(...parsedW);
           }
 
-          let mergedLocals: any[] = [];
+          // If searching, ONLY include local orders that strictly match the search query!
+          const matchingLocals = cleanSearch
+            ? rawLocals.filter((o: any) => matchesOrder(o, cleanSearch))
+            : rawLocals;
 
-          if (cleanSearch) {
-            const qUp = cleanSearch.toUpperCase().replace(/^#/, "");
-            // Determine which channel the search targets
-            const searchesWebsite = qUp.startsWith("PRG-") || qUp.startsWith("QUO-") || qUp.startsWith("B2B-") || qUp.startsWith("APP-");
-            const searchesWalkIn  = qUp.startsWith("WI-") || qUp.startsWith("ORD-PATNA") || qUp.startsWith("ORD-RANCHI");
-
-            if (searchesWebsite) {
-              // Only check website orders; never include walk-in orders
-              mergedLocals = websiteLocals.filter((o: any) =>
-                String(o.orderNumber || "").toUpperCase().includes(qUp) ||
-                String(o.id || "").toUpperCase().replace(/^ORD-/, "").includes(qUp)
-              );
-            } else if (searchesWalkIn) {
-              // Only check walk-in orders; never include website orders
-              mergedLocals = walkinLocals.filter((o: any) =>
-                String(o.orderNumber || "").toUpperCase().includes(qUp)
-              );
-            } else {
-              // Generic search (name, phone, etc.) — search all, use full matchesOrder
-              mergedLocals = [...websiteLocals, ...walkinLocals].filter((o: any) => matchesOrder(o, cleanSearch));
-            }
-          } else {
-            // No search — show everything
-            mergedLocals = [...websiteLocals, ...walkinLocals];
-          }
-
-          if (mergedLocals.length > 0) {
+          if (matchingLocals.length > 0) {
             const existingOrderNums = new Set(items.map((o: any) => o.orderNumber));
-            const missingLocals = mergedLocals.filter((o: any) => !existingOrderNums.has(o.orderNumber));
+            const missingLocals = matchingLocals.filter((o: any) => !existingOrderNums.has(o.orderNumber));
             items = [...items, ...missingLocals];
           }
         } catch {}
@@ -301,56 +263,29 @@ export default function AdminOrdersPage() {
         setOrders(items);
       })
       .catch(() => {
-        // Offline fallback: load from localStorage only with same strict channel logic
+        // Offline fallback: load from localStorage only
         try {
           const stored = typeof window !== "undefined" ? localStorage.getItem("prayog_placed_orders") : null;
           const walkinStored = typeof window !== "undefined" ? localStorage.getItem("prayog_walkin_orders") : null;
-          let websiteLocals: any[] = [];
-          let walkinLocals: any[] = [];
+          let rawLocals: any[] = [];
           if (stored) {
             const parsed = JSON.parse(stored);
-            if (Array.isArray(parsed)) {
-              parsed.forEach((o: any) => {
-                const num = String(o.orderNumber || o.id || "").toUpperCase();
-                if (num.startsWith("WI-") || num.startsWith("WALK-") || num.includes("POS") || (o.orderSource === "WALK_IN")) {
-                  walkinLocals.push(o);
-                } else {
-                  websiteLocals.push(o);
-                }
-              });
-            }
+            if (Array.isArray(parsed)) rawLocals.push(...parsed);
           }
           if (walkinStored) {
             const parsedW = JSON.parse(walkinStored);
-            if (Array.isArray(parsedW)) walkinLocals.push(...parsedW);
+            if (Array.isArray(parsedW)) rawLocals.push(...parsedW);
           }
 
-          let locals: any[] = [];
-          if (cleanSearch) {
-            const qUp = cleanSearch.toUpperCase().replace(/^#/, "");
-            const searchesWebsite = qUp.startsWith("PRG-") || qUp.startsWith("QUO-") || qUp.startsWith("B2B-") || qUp.startsWith("APP-");
-            const searchesWalkIn  = qUp.startsWith("WI-") || qUp.startsWith("ORD-PATNA") || qUp.startsWith("ORD-RANCHI");
-            if (searchesWebsite) {
-              locals = websiteLocals.filter((o: any) =>
-                String(o.orderNumber || "").toUpperCase().includes(qUp) ||
-                String(o.id || "").toUpperCase().replace(/^ORD-/, "").includes(qUp)
-              );
-            } else if (searchesWalkIn) {
-              locals = walkinLocals.filter((o: any) =>
-                String(o.orderNumber || "").toUpperCase().includes(qUp)
-              );
-            } else {
-              locals = [...websiteLocals, ...walkinLocals].filter((o: any) => matchesOrder(o, cleanSearch));
-            }
-          } else {
-            locals = [...websiteLocals, ...walkinLocals];
-          }
+          const matchingLocals = cleanSearch
+            ? rawLocals.filter((o: any) => matchesOrder(o, cleanSearch))
+            : rawLocals;
 
-          locals.sort(
+          matchingLocals.sort(
             (a: any, b: any) =>
               getOrderTimestamp(b) - getOrderTimestamp(a),
           );
-          setOrders(locals);
+          setOrders(matchingLocals);
         } catch {}
       })
       .finally(() => setLoading(false));
@@ -387,14 +322,10 @@ export default function AdminOrdersPage() {
     return orders.filter((o) => matchesOrder(o, searchQuery));
   }, [orders, searchQuery]);
 
-  // Safe and responsive client-side order filtering — FINAL render guard.
-  // Uses channel-aware strict matching: searching PRG-* never shows WI-* rows, ever.
+  // Safe, instant, client-side order filtering:
+  // Strictly renders ONLY orders matching the active search query.
   const filteredOrders = useMemo(() => {
     const q = searchQuery.trim();
-    const qUp = q.toUpperCase().replace(/^#/, "");
-    const searchesWebsite = qUp.startsWith("PRG-") || qUp.startsWith("QUO-") || qUp.startsWith("B2B-") || qUp.startsWith("APP-");
-    const searchesWalkIn  = qUp.startsWith("WI-") || qUp.startsWith("ORD-PATNA") || qUp.startsWith("ORD-RANCHI");
-
     return orders.filter((ord) => {
       const ordChannel = getOrderChannel(ord);
       const matchesChannel =
@@ -402,11 +333,6 @@ export default function AdminOrdersPage() {
       if (!matchesChannel) return false;
 
       if (!q) return true;
-
-      // Channel-based hard exclusion: PRG-* search → never show WI-* rows
-      if (searchesWebsite && ordChannel === "WALK_IN") return false;
-      // WI-* search → never show PRG-* rows
-      if (searchesWalkIn && ordChannel !== "WALK_IN") return false;
 
       return matchesOrder(ord, q);
     });

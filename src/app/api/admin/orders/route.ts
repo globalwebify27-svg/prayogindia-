@@ -74,18 +74,15 @@ export async function GET(request: Request) {
       const qLower = searchParam.toLowerCase().trim();
       const qClean = cleanSearch.toLowerCase();
 
-      // Detect order number pattern queries (PRG-, WI-, QUO-, B2B-, ORD-)
+      // Detect order number pattern queries (PRG-, WI-, QUO-, B2B-, ORD-, 4+ digit order suffixes)
       // When an order number pattern is typed, ONLY match the orderNumber field.
-      const upperSearch = searchParam.toUpperCase().replace(/^#/, "").trim();
+      const is10DigitPhone = /^(?:\+?91)?([6-9]\d{9})$/.test(cleanSearch.replace(/[\s()-]/g, ""));
       const isOrderNumPattern =
-        upperSearch.startsWith("PRG-") ||
-        upperSearch.startsWith("WI-") ||
-        upperSearch.startsWith("QUO-") ||
-        upperSearch.startsWith("B2B-") ||
-        upperSearch.startsWith("ORD-") ||
-        upperSearch.startsWith("APP-") ||
-        /^PRG-\d{4}-\d+/.test(upperSearch) ||
-        /^WI-[A-Z]+-\d+/.test(upperSearch);
+        !is10DigitPhone && (
+          /^(prg|wi|quo|b2b|ord|app|pos|pi)/i.test(cleanSearch) ||
+          /^[a-z0-9]+-[a-z0-9]+/i.test(cleanSearch) ||
+          /^\d{4,8}$/.test(cleanSearch)
+        );
 
       let searchConditions: any[];
       if (isOrderNumPattern) {
@@ -417,14 +414,13 @@ export async function GET(request: Request) {
       if (numMatch) return true;
 
       // Strict mode: if query is an order number pattern, ONLY match orderNumber
-      const upperSearch = searchParam.toUpperCase().replace(/^#/, "").trim();
+      const is10DigitPhone = /^(?:\+?91)?([6-9]\d{9})$/.test(qClean.replace(/[\s()-]/g, ""));
       const isOrderNumPattern =
-        upperSearch.startsWith("PRG-") ||
-        upperSearch.startsWith("WI-") ||
-        upperSearch.startsWith("QUO-") ||
-        upperSearch.startsWith("B2B-") ||
-        upperSearch.startsWith("ORD-") ||
-        upperSearch.startsWith("APP-");
+        !is10DigitPhone && (
+          /^(prg|wi|quo|b2b|ord|app|pos|pi)/i.test(qClean) ||
+          /^[a-z0-9]+-[a-z0-9]+/i.test(qClean) ||
+          /^\d{4,8}$/.test(qClean)
+        );
       if (isOrderNumPattern) return false;
 
       const name = String(o.customerName || o.user?.name || "").toLowerCase();
