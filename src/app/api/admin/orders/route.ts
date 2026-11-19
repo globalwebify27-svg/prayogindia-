@@ -70,12 +70,36 @@ export async function GET(request: Request) {
       }
 
       if (searchParam) {
-        const cleanSearch = searchParam.replace(/^#/, "");
-        const searchConditions = [
+      const cleanSearch = searchParam.replace(/^#/, "").trim();
+      const qLower = searchParam.toLowerCase().trim();
+      const qClean = cleanSearch.toLowerCase();
+
+      // Detect order number pattern queries (PRG-, WI-, QUO-, B2B-, ORD-)
+      // When an order number pattern is typed, ONLY match the orderNumber field.
+      const upperSearch = searchParam.toUpperCase().replace(/^#/, "").trim();
+      const isOrderNumPattern =
+        upperSearch.startsWith("PRG-") ||
+        upperSearch.startsWith("WI-") ||
+        upperSearch.startsWith("QUO-") ||
+        upperSearch.startsWith("B2B-") ||
+        upperSearch.startsWith("ORD-") ||
+        upperSearch.startsWith("APP-") ||
+        /^PRG-\d{4}-\d+/.test(upperSearch) ||
+        /^WI-[A-Z]+-\d+/.test(upperSearch);
+
+      let searchConditions: any[];
+      if (isOrderNumPattern) {
+        // Strict order-number-only search — prevents WI-* from appearing in PRG-* results
+        searchConditions = [
+          { orderNumber: { contains: cleanSearch, mode: "insensitive" } },
+        ];
+      } else {
+        const isNumericQuery = /^[0-9+\s()-]+$/.test(searchParam.trim());
+        searchConditions = [
           { orderNumber: { contains: cleanSearch, mode: "insensitive" } },
           { user: { name: { contains: searchParam, mode: "insensitive" } } },
           { user: { email: { contains: searchParam, mode: "insensitive" } } },
-          { user: { phone: { contains: searchParam, mode: "insensitive" } } },
+          ...(isNumericQuery ? [{ user: { phone: { contains: searchParam, mode: "insensitive" } } }] : []),
           { shippingAddress: { contains: searchParam, mode: "insensitive" } },
           { shipment: { trackingNumber: { contains: cleanSearch, mode: "insensitive" } } },
           { quotation: { quoteNumber: { contains: cleanSearch, mode: "insensitive" } } },
@@ -83,6 +107,7 @@ export async function GET(request: Request) {
           { items: { some: { productName: { contains: searchParam, mode: "insensitive" } } } },
           { items: { some: { productSku: { contains: cleanSearch, mode: "insensitive" } } } },
         ];
+      }
         if (where.OR) {
           where.AND = [{ OR: where.OR }, { OR: searchConditions }];
           delete where.OR;
@@ -383,9 +408,25 @@ export async function GET(request: Request) {
     if (channel && channel !== "all" && o.orderSource !== channel) return false;
 
     if (searchParam) {
-      const q = searchParam.toLowerCase();
+      const q = searchParam.toLowerCase().trim();
       const qClean = q.replace(/^#/, "");
       const num = String(o.orderNumber || "").toLowerCase();
+
+      // Order number match always checked first
+      const numMatch = num.includes(qClean) || num.includes(q);
+      if (numMatch) return true;
+
+      // Strict mode: if query is an order number pattern, ONLY match orderNumber
+      const upperSearch = searchParam.toUpperCase().replace(/^#/, "").trim();
+      const isOrderNumPattern =
+        upperSearch.startsWith("PRG-") ||
+        upperSearch.startsWith("WI-") ||
+        upperSearch.startsWith("QUO-") ||
+        upperSearch.startsWith("B2B-") ||
+        upperSearch.startsWith("ORD-") ||
+        upperSearch.startsWith("APP-");
+      if (isOrderNumPattern) return false;
+
       const name = String(o.customerName || o.user?.name || "").toLowerCase();
       const email = String(o.customerEmail || o.user?.email || "").toLowerCase();
       const phone = String(o.customerPhone || o.user?.phone || "").replace(/\D/g, "");
@@ -398,8 +439,6 @@ export async function GET(request: Request) {
       );
 
       const matches =
-        num.includes(q) ||
-        num.replace(/^#/, "").includes(qClean) ||
         name.includes(q) ||
         email.includes(q) ||
         (isNumericQuery && qDigits.length >= 4 && phone.includes(qDigits)) ||

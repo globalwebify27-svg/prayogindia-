@@ -93,8 +93,29 @@ function getOrderChannel(ord: any): OrderChannelType {
 }
 
 /**
+ * Detects if a query is an order number pattern (PRG-, WI-, QUO-, ORD-, APP-).
+ * When true, ONLY the order number field is matched — no name/address/items.
+ * This prevents walk-in orders from leaking into PRG-* searches and vice versa.
+ */
+function isOrderNumberQuery(q: string): boolean {
+  const upper = q.toUpperCase().replace(/^#/, "").trim();
+  return (
+    upper.startsWith("PRG-") ||
+    upper.startsWith("WI-") ||
+    upper.startsWith("QUO-") ||
+    upper.startsWith("B2B-") ||
+    upper.startsWith("ORD-") ||
+    upper.startsWith("APP-") ||
+    /^PRG-\d{4}-\d+/.test(upper) ||
+    /^WI-[A-Z]+-\d+/.test(upper)
+  );
+}
+
+/**
  * Safe, professional multi-field order matcher.
  * Supports partial matching, # prefixes, customer phone/email, AWB, and product names/SKUs.
+ * When the query looks like an order number (PRG-, WI-, QUO-), ONLY matches the orderNumber
+ * field to prevent cross-channel contamination of search results.
  */
 function matchesOrder(ord: any, rawQuery: string): boolean {
   if (!rawQuery || !rawQuery.trim()) return true;
@@ -104,14 +125,16 @@ function matchesOrder(ord: any, rawQuery: string): boolean {
   // 1. Order Number & ID match (supports with/without #)
   const orderNum = String(ord.orderNumber || "").toLowerCase();
   const orderId = String(ord.id || "").toLowerCase();
-  if (
-    orderNum.includes(q) ||
-    orderNum.replace(/^#/, "").includes(qClean) ||
-    orderId.includes(q) ||
-    orderId.replace(/^#/, "").includes(qClean)
-  ) {
-    return true;
-  }
+  const orderNumMatch =
+    orderNum.includes(qClean) ||
+    orderId.replace(/^ord-/, "").includes(qClean);
+
+  if (orderNumMatch) return true;
+
+  // STRICT MODE: If the query looks like an order number prefix (PRG-, WI-, QUO-),
+  // do NOT fall through to name/address/item matching — this prevents WI-* orders
+  // from ever appearing in PRG-* searches and vice versa.
+  if (isOrderNumberQuery(rawQuery)) return false;
 
   // 2. Quotation / Invoice numbers
   if (ord.quotation?.quoteNumber && String(ord.quotation.quoteNumber).toLowerCase().includes(qClean)) return true;
@@ -176,15 +199,19 @@ export default function AdminOrdersPage() {
     any | null
   >(null);
 
-  const fetchOrders = (searchOverride?: string) => {
+  /**
+   * Fetch orders from the API with strict search and status filtering.
+   * Both statusFilter and searchVal are passed explicitly to avoid stale closure bugs.
+   */
+  const fetchOrders = (searchVal: string, currentStatusFilter: string) => {
     setLoading(true);
-    const searchVal = (searchOverride !== undefined ? searchOverride : searchQuery).trim();
+    const cleanSearch = searchVal.trim();
     const queryParams = new URLSearchParams({
-      status: statusFilter,
+      status: currentStatusFilter,
       limit: "200",
     });
-    if (searchVal) {
-      queryParams.set("search", searchVal);
+    if (cleanSearch) {
+      queryParams.set("search", cleanSearch);
     }
 
     fetch(`/api/admin/orders?${queryParams.toString()}`)
@@ -192,7 +219,7 @@ export default function AdminOrdersPage() {
       .then((data) => {
         let items: any[] = data.success && data.data?.items ? data.data.items : [];
 
-        // Seamlessly merge locally placed website and walk-in orders (e.g. from live demo testing)
+        // Merge locally placed website and walk-in orders (live demo / offline fallback)
         try {
           const stored = typeof window !== "undefined" ? localStorage.getItem("prayog_placed_orders") : null;
           const walkinStored = typeof window !== "undefined" ? localStorage.getItem("prayog_walkin_orders") : null;
@@ -205,9 +232,9 @@ export default function AdminOrdersPage() {
             const parsedW = JSON.parse(walkinStored);
             if (Array.isArray(parsedW)) mergedLocals.push(...parsedW);
           }
-          // Filter local orders by active search query so non-matching locals are never injected
-          if (searchVal) {
-            mergedLocals = mergedLocals.filter((o: any) => matchesOrder(o, searchVal));
+          // CRITICAL: Always filter local orders by search to prevent unrelated orders leaking in
+          if (cleanSearch) {
+            mergedLocals = mergedLocals.filter((o: any) => matchesOrder(o, cleanSearch));
           }
           if (mergedLocals.length > 0) {
             const existingOrderNums = new Set(items.map((o: any) => o.orderNumber));
@@ -216,7 +243,7 @@ export default function AdminOrdersPage() {
           }
         } catch {}
 
-        // Chronologically sort all orders by creation date (newest first)
+        // Sort: newest first
         items.sort(
           (a: any, b: any) =>
             getOrderTimestamp(b) - getOrderTimestamp(a),
@@ -225,7 +252,7 @@ export default function AdminOrdersPage() {
         setOrders(items);
       })
       .catch(() => {
-        // Fallback to locally stored orders if fetch fails completely
+        // Offline fallback: load from localStorage only
         try {
           const stored = typeof window !== "undefined" ? localStorage.getItem("prayog_placed_orders") : null;
           const walkinStored = typeof window !== "undefined" ? localStorage.getItem("prayog_walkin_orders") : null;
@@ -238,8 +265,8 @@ export default function AdminOrdersPage() {
             const parsedW = JSON.parse(walkinStored);
             if (Array.isArray(parsedW)) locals.push(...parsedW);
           }
-          if (searchVal) {
-            locals = locals.filter((o: any) => matchesOrder(o, searchVal));
+          if (cleanSearch) {
+            locals = locals.filter((o: any) => matchesOrder(o, cleanSearch));
           }
           locals.sort(
             (a: any, b: any) =>
@@ -251,19 +278,17 @@ export default function AdminOrdersPage() {
       .finally(() => setLoading(false));
   };
 
+  // Single unified effect: debounced re-fetch on any search/status change.
+  // Using a single effect prevents both effects from firing simultaneously and racing each other.
+  // Status filter changes trigger immediately (0ms); search queries debounce at 350ms.
   useEffect(() => {
-    fetchOrders();
-  }, [statusFilter]);
-
-  // Debounced server fetch for search query to ensure complete database coverage
-  useEffect(() => {
+    const delay = searchQuery.trim() ? 350 : 0;
     const timer = setTimeout(() => {
-      if (searchQuery.trim()) {
-        fetchOrders(searchQuery.trim());
-      }
-    }, 350);
+      fetchOrders(searchQuery, statusFilter);
+    }, delay);
     return () => clearTimeout(timer);
-  }, [searchQuery]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchQuery, statusFilter]);
 
   const handleStatusChange = async (orderId: string, newStatus: string) => {
     setOrders((prev) =>
