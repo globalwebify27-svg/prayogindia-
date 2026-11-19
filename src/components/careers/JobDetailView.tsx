@@ -6,15 +6,9 @@ import { CategoryBreadcrumb } from "@/components/categories/CategoryBreadcrumb";
 import { JOB_OPENINGS, JobOpening, COMPANY_INFO } from "@/data/companyData";
 import {
   MapPin,
-  Briefcase,
-  Clock,
   CheckCircle2,
   ArrowLeft,
   Send,
-  Sparkles,
-  Cpu,
-  ShieldCheck,
-  Zap,
   MessageCircle,
   Share2,
 } from "lucide-react";
@@ -96,10 +90,7 @@ export const JobDetailView: React.FC<JobDetailProps> = ({ slug }) => {
                 <MapPin className="w-4 h-4 text-[#00AEEF]" /> {job.location}
               </span>
               <span>·</span>
-              <span className="flex items-center gap-1.5">
-                <Cpu className="w-4 h-4 text-sky-400" /> Electronics City R&amp;D
-                Lab
-              </span>
+              <span>Electronics City R&amp;D Lab</span>
             </div>
 
             {/* Tags */}
@@ -134,9 +125,8 @@ export const JobDetailView: React.FC<JobDetailProps> = ({ slug }) => {
         {/* Left Column: Responsibilities & Requirements (Span 7) */}
         <div className="lg:col-span-7 space-y-8 text-slate-900">
           <section className="bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-8 space-y-3 shadow-2xs">
-            <h2 className="text-lg font-extrabold text-slate-900 tracking-tight flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-[#00AEEF]" />
-              <span>Position Summary</span>
+            <h2 className="text-lg font-extrabold text-slate-900 tracking-tight">
+              Position Summary
             </h2>
             <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-medium">
               {job.shortDescription}
@@ -144,9 +134,8 @@ export const JobDetailView: React.FC<JobDetailProps> = ({ slug }) => {
           </section>
 
           <section className="bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-8 space-y-4 shadow-2xs">
-            <h2 className="text-lg font-extrabold text-slate-900 tracking-tight flex items-center gap-2">
-              <Zap className="w-4 h-4 text-[#00AEEF]" />
-              <span>Key Responsibilities</span>
+            <h2 className="text-lg font-extrabold text-slate-900 tracking-tight">
+              Key Responsibilities
             </h2>
             <ul className="space-y-2.5">
               {job.responsibilities.map((resp, idx) => (
@@ -162,9 +151,8 @@ export const JobDetailView: React.FC<JobDetailProps> = ({ slug }) => {
           </section>
 
           <section className="bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-8 space-y-4 shadow-2xs">
-            <h2 className="text-lg font-extrabold text-slate-900 tracking-tight flex items-center gap-2">
-              <ShieldCheck className="w-4 h-4 text-emerald-600" />
-              <span>Technical Qualifications &amp; Mindset</span>
+            <h2 className="text-lg font-extrabold text-slate-900 tracking-tight">
+              Technical Qualifications &amp; Mindset
             </h2>
             <ul className="space-y-2.5">
               {job.requirements.map((req, idx) => (

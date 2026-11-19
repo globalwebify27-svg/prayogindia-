@@ -10,7 +10,6 @@ import {
   ArrowRight,
   Search,
   X,
-  Sparkles,
   Send,
   MessageCircle,
   Briefcase,
@@ -55,9 +54,8 @@ export const CareersView: React.FC = () => {
       <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-[#0B254E] to-slate-950 border border-slate-800 text-white p-8 sm:p-10 shadow-xl">
         <div className="absolute top-0 right-0 -mt-10 -mr-10 w-60 h-60 bg-[#00AEEF]/20 rounded-full blur-3xl pointer-events-none" />
 
-        <div className="relative z-10 space-y-4 max-w-2xl">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-[#00AEEF]/30 backdrop-blur-xs">
-            <Sparkles className="w-3.5 h-3.5 text-[#00AEEF]" />
+        <div className="relative z-10 space-y-3 max-w-2xl">
+          <div className="inline-block px-3 py-1 rounded-full bg-blue-500/10 border border-[#00AEEF]/30">
             <span className="text-[11px] font-black uppercase tracking-wider text-sky-200">
               Join Our Engineering Team
             </span>
@@ -71,18 +69,6 @@ export const CareersView: React.FC = () => {
             Build the next generation of mechatronics hardware, drone flight
             controllers, and educational robotics ecosystems in Bengaluru.
           </p>
-
-          <div className="flex flex-wrap items-center gap-2 pt-1 text-[11px] text-sky-200 font-bold">
-            <span className="bg-white/10 px-3 py-1 rounded-full border border-white/10">
-              📍 Bengaluru HQ
-            </span>
-            <span className="bg-white/10 px-3 py-1 rounded-full border border-white/10">
-              ⚡ Hardware &amp; Embedded R&amp;D
-            </span>
-            <span className="bg-white/10 px-3 py-1 rounded-full border border-white/10">
-              🚀 Fast-Paced Maker Culture
-            </span>
-          </div>
         </div>
       </div>
 
