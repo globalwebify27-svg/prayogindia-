@@ -93,7 +93,7 @@ export interface ProductFiltersProps {
 
 export const ProductFilters: React.FC<ProductFiltersProps> = ({
   categories,
-  hideCategories = false,
+  hideCategories = true,
   selectedCategory,
   onSelectCategory,
   selectedSubcategory,

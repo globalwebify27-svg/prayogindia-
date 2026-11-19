@@ -565,6 +565,7 @@ function ProductsContent() {
             >
               <div className="w-56 xl:w-64 2xl:w-72">
                 <ProductFilters
+                  hideCategories={true}
                   selectedCategory={selectedCategory}
                   onSelectCategory={setSelectedCategory}
                   selectedSubcategory={selectedSubcategory}
@@ -790,6 +791,7 @@ function ProductsContent() {
               </button>
             </div>
             <ProductFilters
+              hideCategories={true}
               selectedCategory={selectedCategory}
               onSelectCategory={(cat) => {
                 setSelectedCategory(cat);
