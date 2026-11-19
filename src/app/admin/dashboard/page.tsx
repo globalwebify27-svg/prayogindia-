@@ -917,7 +917,7 @@ export default function AdminDashboardPage() {
 
           <div className="mt-4 pt-3 border-t border-slate-100">
             <span className="text-[11px] text-slate-400 font-medium">
-              Real-time audit log active across all branches.
+              Real-time operational activity stream across all branches.
             </span>
           </div>
         </div>
