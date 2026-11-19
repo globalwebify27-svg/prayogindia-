@@ -182,16 +182,19 @@ describe("User-Specific Order Filtering & Isolation", () => {
     const exactResults = testOrders.filter((o) => matchesOrder(o, "PRG-2026-7068"));
     expect(exactResults.length).toBe(1);
     expect(exactResults[0].orderNumber).toBe("PRG-2026-7068");
+    expect(exactResults.some((o) => o.orderNumber.startsWith("WI-"))).toBe(false);
 
     // Search with hashtag #PRG-2026-7068
     const hashResults = testOrders.filter((o) => matchesOrder(o, "#PRG-2026-7068"));
     expect(hashResults.length).toBe(1);
     expect(hashResults[0].orderNumber).toBe("PRG-2026-7068");
+    expect(hashResults.some((o) => o.orderNumber.startsWith("WI-"))).toBe(false);
 
     // Search by partial suffix 7068
     const suffixResults = testOrders.filter((o) => matchesOrder(o, "7068"));
     expect(suffixResults.length).toBe(1);
     expect(suffixResults[0].orderNumber).toBe("PRG-2026-7068");
+    expect(suffixResults.some((o) => o.orderNumber.startsWith("WI-"))).toBe(false);
 
     // Search for walk-in order
     const walkinResults = testOrders.filter((o) => matchesOrder(o, "1794316722518"));

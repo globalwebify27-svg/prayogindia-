@@ -389,6 +389,7 @@ export async function GET(request: Request) {
       const name = String(o.customerName || o.user?.name || "").toLowerCase();
       const email = String(o.customerEmail || o.user?.email || "").toLowerCase();
       const phone = String(o.customerPhone || o.user?.phone || "").replace(/\D/g, "");
+      const isNumericQuery = /^[0-9+\s()-]+$/.test(searchParam.trim());
       const qDigits = q.replace(/\D/g, "");
       const awb = String(o.awbNumber || "").toLowerCase();
       const itemsMatch = Array.isArray(o.items) && o.items.some((i: any) =>
@@ -401,7 +402,7 @@ export async function GET(request: Request) {
         num.replace(/^#/, "").includes(qClean) ||
         name.includes(q) ||
         email.includes(q) ||
-        (qDigits && phone.includes(qDigits)) ||
+        (isNumericQuery && qDigits.length >= 4 && phone.includes(qDigits)) ||
         awb.includes(q) ||
         itemsMatch;
 

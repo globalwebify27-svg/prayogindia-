@@ -99,7 +99,7 @@ function getOrderChannel(ord: any): OrderChannelType {
 function matchesOrder(ord: any, rawQuery: string): boolean {
   if (!rawQuery || !rawQuery.trim()) return true;
   const q = rawQuery.toLowerCase().trim();
-  const qClean = q.replace(/^#/, "");
+  const qClean = q.replace(/^#/, "").trim();
 
   // 1. Order Number & ID match (supports with/without #)
   const orderNum = String(ord.orderNumber || "").toLowerCase();
@@ -128,9 +128,12 @@ function matchesOrder(ord: any, rawQuery: string): boolean {
   const company = String(ord.companyName || ord.user?.companyName || "").toLowerCase();
   if (company.includes(q)) return true;
 
+  // Only match phone numbers if query is numeric/phone-like (e.g. 8709789641)
+  // Prevents alphanumeric order numbers (e.g. PRG-2026-7068) from accidentally matching phones
+  const isNumericQuery = /^[0-9+\s()-]+$/.test(rawQuery.trim());
   const rawPhone = String(ord.customerPhone || ord.user?.phone || "").replace(/\D/g, "");
   const qDigits = q.replace(/\D/g, "");
-  if (qDigits.length >= 3 && rawPhone.includes(qDigits)) return true;
+  if (isNumericQuery && qDigits.length >= 4 && rawPhone && rawPhone.includes(qDigits)) return true;
 
   // 4. Shipping Address & Location
   const address = String(ord.shippingAddress || "").toLowerCase();
@@ -151,8 +154,7 @@ function matchesOrder(ord: any, rawQuery: string): boolean {
       const itemSku = String(item.productSku || item.sku || "").toLowerCase();
       if (
         itemName.includes(q) ||
-        itemSku.includes(q) ||
-        itemSku.includes(qClean)
+        (itemSku && (itemSku.includes(q) || itemSku.includes(qClean)))
       ) {
         return true;
       }
@@ -194,7 +196,7 @@ export default function AdminOrdersPage() {
         try {
           const stored = typeof window !== "undefined" ? localStorage.getItem("prayog_placed_orders") : null;
           const walkinStored = typeof window !== "undefined" ? localStorage.getItem("prayog_walkin_orders") : null;
-          const mergedLocals: any[] = [];
+          let mergedLocals: any[] = [];
           if (stored) {
             const parsed = JSON.parse(stored);
             if (Array.isArray(parsed)) mergedLocals.push(...parsed);
@@ -202,6 +204,10 @@ export default function AdminOrdersPage() {
           if (walkinStored) {
             const parsedW = JSON.parse(walkinStored);
             if (Array.isArray(parsedW)) mergedLocals.push(...parsedW);
+          }
+          // Filter local orders by active search query so non-matching locals are never injected
+          if (searchVal) {
+            mergedLocals = mergedLocals.filter((o: any) => matchesOrder(o, searchVal));
           }
           if (mergedLocals.length > 0) {
             const existingOrderNums = new Set(items.map((o: any) => o.orderNumber));
@@ -222,16 +228,24 @@ export default function AdminOrdersPage() {
         // Fallback to locally stored orders if fetch fails completely
         try {
           const stored = typeof window !== "undefined" ? localStorage.getItem("prayog_placed_orders") : null;
+          const walkinStored = typeof window !== "undefined" ? localStorage.getItem("prayog_walkin_orders") : null;
+          let locals: any[] = [];
           if (stored) {
             const parsed = JSON.parse(stored);
-            if (Array.isArray(parsed)) {
-              parsed.sort(
-                (a: any, b: any) =>
-                  getOrderTimestamp(b) - getOrderTimestamp(a),
-              );
-              setOrders(parsed);
-            }
+            if (Array.isArray(parsed)) locals.push(...parsed);
           }
+          if (walkinStored) {
+            const parsedW = JSON.parse(walkinStored);
+            if (Array.isArray(parsedW)) locals.push(...parsedW);
+          }
+          if (searchVal) {
+            locals = locals.filter((o: any) => matchesOrder(o, searchVal));
+          }
+          locals.sort(
+            (a: any, b: any) =>
+              getOrderTimestamp(b) - getOrderTimestamp(a),
+          );
+          setOrders(locals);
         } catch {}
       })
       .finally(() => setLoading(false));
@@ -263,6 +277,12 @@ export default function AdminOrdersPage() {
       });
     } catch {}
   };
+
+  // Channel selector counts reflect active search query so counts match current results
+  const searchFilteredOrders = useMemo(() => {
+    if (!searchQuery.trim()) return orders;
+    return orders.filter((o) => matchesOrder(o, searchQuery));
+  }, [orders, searchQuery]);
 
   // Safe and responsive client-side order filtering
   const filteredOrders = useMemo(() => {
@@ -304,27 +324,27 @@ export default function AdminOrdersPage() {
             id: "all",
             label: "All Channels",
             icon: ShoppingBag,
-            count: orders.length,
+            count: searchFilteredOrders.length,
           },
           {
             id: "WEBSITE",
             label: "🌐 Website Orders (Online)",
-            count: orders.filter((o) => getOrderChannel(o) === "WEBSITE").length,
+            count: searchFilteredOrders.filter((o) => getOrderChannel(o) === "WEBSITE").length,
           },
           {
             id: "B2B_QUOTATION",
             label: "📑 B2B & Quotation Orders",
-            count: orders.filter((o) => getOrderChannel(o) === "B2B_QUOTATION").length,
+            count: searchFilteredOrders.filter((o) => getOrderChannel(o) === "B2B_QUOTATION").length,
           },
           {
             id: "MOBILE_APP",
             label: "📱 Mobile App Orders",
-            count: orders.filter((o) => getOrderChannel(o) === "MOBILE_APP").length,
+            count: searchFilteredOrders.filter((o) => getOrderChannel(o) === "MOBILE_APP").length,
           },
           {
             id: "WALK_IN",
             label: "🏬 Store Walk-ins",
-            count: orders.filter((o) => getOrderChannel(o) === "WALK_IN").length,
+            count: searchFilteredOrders.filter((o) => getOrderChannel(o) === "WALK_IN").length,
           },
         ].map((tab) => {
           const active = channelFilter === tab.id;
@@ -387,7 +407,9 @@ export default function AdminOrdersPage() {
             </span>{" "}
             <span className="text-xs text-slate-600 font-medium">
               {searchQuery.trim()
-                ? `Displaying ${filteredOrders.length} order(s) matching "${searchQuery.trim()}".`
+                ? filteredOrders.length === 0
+                  ? `No orders matching "${searchQuery.trim()}".`
+                  : `Displaying ${filteredOrders.length} order(s) matching "${searchQuery.trim()}".`
                 : channelFilter === "all"
                 ? `Displaying all ${filteredOrders.length} orders across Website, Physical Store POS, Mobile App, and B2B Quotations.`
                 : channelFilter === "WEBSITE"
@@ -430,7 +452,7 @@ export default function AdminOrdersPage() {
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search order # (e.g. PRG-2026-7068), customer, phone..."
+            placeholder="Search by order number, customer name, phone, or tracking..."
             className="w-full bg-slate-50 border border-slate-200 pl-10 pr-9 py-2 rounded-xl text-xs font-bold text-slate-900 focus:bg-white focus:outline-none focus:border-[#00AEEF] focus:ring-2 focus:ring-[#00AEEF]/10 transition-all shadow-2xs"
           />
           {searchQuery && (
