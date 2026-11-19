@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { CustomerOrder } from "@/data/accountData";
+import { CustomerOrder, getOrderTimestamp } from "@/data/accountData";
 import { PRODUCTS } from "@/data/mockData";
 import {
   ShoppingBag,
@@ -175,6 +175,7 @@ export const OrdersList: React.FC = () => {
             mapped = json.data.items.map((o: any) => ({
               id: o.id,
               orderNumber: o.orderNumber,
+              createdAt: o.createdAt,
               date: new Date(o.createdAt).toLocaleDateString("en-IN", {
                 day: "numeric",
                 month: "short",
@@ -256,6 +257,7 @@ export const OrdersList: React.FC = () => {
                 return {
                   id: o.id || o.orderNumber,
                   orderNumber: o.orderNumber,
+                  createdAt: o.createdAt || getOrderTimestamp(o),
                   date: o.createdAt
                     ? new Date(o.createdAt).toLocaleDateString("en-IN", {
                         day: "numeric",
@@ -277,6 +279,9 @@ export const OrdersList: React.FC = () => {
       } catch (cacheErr) {
         console.warn("Failed to load local orders cache:", cacheErr);
       }
+
+      // Chronological sort: strictly latest order at the top, then second latest, etc.
+      mapped.sort((a, b) => getOrderTimestamp(b) - getOrderTimestamp(a));
 
       const finalOrders = mapped;
       setOrders(finalOrders);

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { getOrderTimestamp } from "@/data/accountData";
 import {
   ShoppingBag,
   Truck,
@@ -132,8 +133,7 @@ export default function AdminOrdersPage() {
         // Chronologically sort all orders by creation date (newest first)
         items.sort(
           (a: any, b: any) =>
-            new Date(b.createdAt || 0).getTime() -
-            new Date(a.createdAt || 0).getTime(),
+            getOrderTimestamp(b) - getOrderTimestamp(a),
         );
 
         setOrders(items);
@@ -144,7 +144,13 @@ export default function AdminOrdersPage() {
           const stored = typeof window !== "undefined" ? localStorage.getItem("prayog_placed_orders") : null;
           if (stored) {
             const parsed = JSON.parse(stored);
-            if (Array.isArray(parsed)) setOrders(parsed);
+            if (Array.isArray(parsed)) {
+              parsed.sort(
+                (a: any, b: any) =>
+                  getOrderTimestamp(b) - getOrderTimestamp(a),
+              );
+              setOrders(parsed);
+            }
           }
         } catch {}
       })

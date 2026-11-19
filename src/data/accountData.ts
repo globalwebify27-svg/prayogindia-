@@ -29,6 +29,7 @@ export interface CustomerOrder {
     | "Cancelled";
   itemsCount: number;
   shippingAddress: string;
+  createdAt?: string | Date | number;
   courierName?: string;
   courierCode?: string;
   trackingNumber?: string;
@@ -180,3 +181,44 @@ export const MOCK_CUSTOMER_ORDERS: CustomerOrder[] = [
 ];
 
 export const MOCK_SUPPORT_TICKETS: SupportTicket[] = [];
+
+/**
+ * Safely extracts a reliable numeric millisecond timestamp from an order object,
+ * using createdAt, embedded timestamp in orderNumber (e.g. WI-PAT-1794316722518),
+ * or human-readable date strings.
+ */
+export function getOrderTimestamp(order: any): number {
+  if (!order) return 0;
+
+  // 1. Explicit raw createdAt (ISO string, Date, or timestamp number)
+  if (order.createdAt) {
+    const t = new Date(order.createdAt).getTime();
+    if (!isNaN(t) && t > 0) return t;
+  }
+
+  // 2. Explicit numeric timestamp property
+  if (typeof order.timestamp === "number" && !isNaN(order.timestamp) && order.timestamp > 0) {
+    return order.timestamp;
+  }
+
+  // 3. Embedded timestamp in orderNumber or id (e.g. WI-PAT-1794316722518, PRG-1731234567890)
+  const idStr = `${order.orderNumber || ""} ${order.id || ""}`;
+  const digitsMatch = idStr.match(/\b(1[6-9]\d{11,12})\b/) || idStr.match(/(1[6-9]\d{9,12})/);
+  if (digitsMatch) {
+    const parsed = parseInt(digitsMatch[1], 10);
+    const ms = parsed < 1e11 ? parsed * 1000 : parsed;
+    if (!isNaN(ms) && ms > 0) return ms;
+  }
+
+  // 4. Human-readable date string (e.g. "10 Nov 2026", "02 Nov 2025 • 10:24 AM", "Today")
+  if (order.date && typeof order.date === "string") {
+    const dLower = order.date.toLowerCase().trim();
+    if (dLower === "today" || dLower.includes("just now")) return Date.now();
+    if (dLower === "yesterday") return Date.now() - 86400000;
+    const cleanDate = order.date.split("•")[0].trim();
+    const t = new Date(cleanDate).getTime();
+    if (!isNaN(t) && t > 0) return t;
+  }
+
+  return 0;
+}

@@ -23,7 +23,7 @@ import {
   LogOut,
   Wallet,
 } from "lucide-react";
-import { CustomerOrder } from "@/data/accountData";
+import { CustomerOrder, getOrderTimestamp } from "@/data/accountData";
 import { PRODUCTS } from "@/data/mockData";
 
 const WhatsAppIcon: React.FC<{ className?: string }> = ({
@@ -100,7 +100,7 @@ export const AccountDashboardView: React.FC = () => {
 
       // 1. Fetch Orders from API
       try {
-        const res = await fetch("/api/orders?limit=10");
+        const res = await fetch("/api/orders?limit=50");
         if (res.ok) {
           const json = await res.json();
           if (json.success && json.data) {
@@ -108,6 +108,7 @@ export const AccountDashboardView: React.FC = () => {
             mapped = items.map((o: any) => ({
               id: o.id,
               orderNumber: o.orderNumber,
+              createdAt: o.createdAt,
               date: new Date(o.createdAt).toLocaleDateString("en-IN", {
                 day: "numeric",
                 month: "short",
@@ -186,6 +187,7 @@ export const AccountDashboardView: React.FC = () => {
                 return {
                   id: o.id || o.orderNumber,
                   orderNumber: o.orderNumber,
+                  createdAt: o.createdAt || getOrderTimestamp(o),
                   date: o.createdAt
                     ? new Date(o.createdAt).toLocaleDateString("en-IN", {
                         day: "numeric",
@@ -207,6 +209,9 @@ export const AccountDashboardView: React.FC = () => {
       } catch (cacheErr) {
         console.warn("Failed to load local orders cache:", cacheErr);
       }
+
+      // 3. Chronological sorting: strictly latest order first, then second latest, etc.
+      mapped.sort((a, b) => getOrderTimestamp(b) - getOrderTimestamp(a));
 
       if (isMounted) {
         setOrders(mapped);
