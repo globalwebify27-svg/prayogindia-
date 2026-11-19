@@ -633,12 +633,12 @@ export default function AdminDashboardPage() {
               </Link>
 
               <Link
-                href="/admin/audit"
+                href="/admin/inventory"
                 className="w-full bg-white hover:bg-slate-50 text-slate-800 hover:text-[#0084FF] border border-slate-200/80 text-xs font-bold py-3 px-4 rounded-2xl flex items-center justify-between transition-all shadow-xs cursor-pointer active:scale-95 group"
               >
                 <div className="flex items-center gap-2.5">
-                  <ClipboardList className="w-4 h-4 text-[#8B5CF6] stroke-[2.5]" />
-                  <span>Stock Audit</span>
+                  <Boxes className="w-4 h-4 text-[#8B5CF6] stroke-[2.5]" />
+                  <span>Inventory Control</span>
                 </div>
                 <ArrowRight className="w-3.5 h-3.5 opacity-40 group-hover:translate-x-1 transition-transform" />
               </Link>
@@ -894,12 +894,6 @@ export default function AdminDashboardPage() {
               <h3 className="text-base font-bold text-slate-900 tracking-tight">
                 Recent Activity
               </h3>
-              <Link
-                href="/admin/audit"
-                className="text-xs font-bold text-[#0084FF] hover:underline"
-              >
-                Audit Log
-              </Link>
             </div>
 
             <div className="space-y-3.5 pt-3 text-[11px]">

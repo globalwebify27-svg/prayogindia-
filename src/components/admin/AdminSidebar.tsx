@@ -131,11 +131,6 @@ const NAV_GROUPS: NavGroup[] = [
         href: "/admin/logistics",
         icon: PackageCheck,
       },
-      {
-        label: "Stock Audit Log",
-        href: "/admin/audit",
-        icon: ClipboardList,
-      },
     ],
   },
   {
@@ -255,11 +250,6 @@ const NAV_GROUPS: NavGroup[] = [
         href: "/admin/settings",
         icon: Settings,
       },
-      {
-        label: "Activity Log",
-        href: "/admin/audit?tab=activity",
-        icon: History,
-      },
     ],
   },
 ];
@@ -277,7 +267,6 @@ const getNavIconColor = (href: string, isActive: boolean) => {
   if (href.startsWith("/admin/category-showcase")) return "text-[#00C2E0]";
   if (href.startsWith("/admin/stores")) return "text-indigo-400";
   if (href.startsWith("/admin/bulk-edit")) return "text-rose-400";
-  if (href.startsWith("/admin/audit")) return "text-amber-400";
   if (href.startsWith("/admin/media")) return "text-cyan-400";
   if (href.startsWith("/admin/purchases")) return "text-orange-400";
   if (href.startsWith("/admin/logistics")) return "text-[#00C2E0]";
