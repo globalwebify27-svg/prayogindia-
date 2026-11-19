@@ -16,7 +16,8 @@ export async function POST(request: Request) {
     const user = await getAuthenticatedCustomer();
     const body = await request.json().catch(() => ({}));
 
-    const { serviceId, serviceName, name, email, phone, message } = body;
+    const { serviceId, serviceName, name, email, phone, message, notes } =
+      body;
 
     // 1. Rate Limiting Check
     const ipIdentifier = user?.id || email || "anonymous-ip";
@@ -88,6 +89,7 @@ export async function POST(request: Request) {
       email: email.trim().toLowerCase(),
       phone: phone.trim(),
       message: message.trim(),
+      notes: typeof notes === "string" ? notes.trim() : message.trim(),
       user: user
         ? {
             id: user.id,

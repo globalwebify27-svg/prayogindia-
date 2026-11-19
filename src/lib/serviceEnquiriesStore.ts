@@ -9,6 +9,7 @@ export interface StoredServiceEnquiry {
   email: string;
   phone: string;
   message: string;
+  notes?: string | null;
   status: "NEW" | "CONTACTED" | "IN_PROGRESS" | "CLOSED";
   adminNote?: string;
   createdAt: string;
@@ -92,7 +93,9 @@ function getDefaultRecords(): StoredServiceEnquiry[] {
       email: "sultansusu09@gmail.com",
       phone: "+918709789641",
       message:
-        "Quotation request for turnkey STEM Lab Setup with hands-on curriculums, microcontrollers, and trainer certification.",
+        "Quotation request for STEM Lab Setup - turnkey lab equipment, microcontrollers, and curriculum.",
+      notes:
+        "Looking for turnkey K-12 STEM Innovation Lab setup with 3D printers, IoT microcontrollers, student workbenches, and faculty training certification.",
       status: "NEW",
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -145,6 +148,7 @@ export function saveStoredServiceEnquiry(
     email: string;
     phone: string;
     message: string;
+    notes?: string | null;
     user?: { id: string; name: string; email: string; phone?: string } | null;
   }
 ): StoredServiceEnquiry {
@@ -159,6 +163,7 @@ export function saveStoredServiceEnquiry(
     email: input.email,
     phone: input.phone,
     message: input.message,
+    notes: input.notes !== undefined ? input.notes : input.message,
     status: "NEW",
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),

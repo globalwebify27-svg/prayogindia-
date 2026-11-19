@@ -138,6 +138,7 @@ export default function AdminServicesPage() {
       e.email?.toLowerCase().includes(q) ||
       e.phone?.includes(q) ||
       e.message?.toLowerCase().includes(q) ||
+      e.notes?.toLowerCase().includes(q) ||
       e.service?.name?.toLowerCase().includes(q);
 
     const matchesService =
@@ -340,7 +341,7 @@ export default function AdminServicesPage() {
                 <th className="p-4">Customer</th>
                 <th className="p-4">Service Type</th>
                 <th className="p-4">Contact</th>
-                <th className="p-4">Message Preview</th>
+                <th className="p-4">Notes (Optional) / Message</th>
                 <th className="p-4">Date</th>
                 <th className="p-4">Status</th>
                 <th className="p-4 text-right">Action</th>
@@ -421,10 +422,10 @@ export default function AdminServicesPage() {
                         </div>
                       </td>
 
-                      {/* Message Preview */}
+                      {/* Notes / Message Preview */}
                       <td className="p-4 max-w-xs">
                         <p className="text-[11px] text-slate-600 leading-relaxed line-clamp-2">
-                          {enq.message}
+                          {enq.notes || enq.message}
                         </p>
                       </td>
 
@@ -553,15 +554,37 @@ export default function AdminServicesPage() {
                 </div>
               </div>
 
-              {/* Message */}
+              {/* Notes (Optional) */}
               <div className="bg-slate-50 border border-slate-200 p-4 rounded-xl">
-                <span className="text-[10px] font-black uppercase text-slate-400 block mb-2">
-                  Customer Message
-                </span>
-                <p className="text-sm text-slate-700 leading-relaxed font-medium whitespace-pre-wrap">
-                  {selectedEnquiry.message}
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-[10px] font-black uppercase text-slate-500 tracking-wider flex items-center gap-1.5">
+                    <MessageSquare className="w-3.5 h-3.5 text-[#00AEEF]" />
+                    Notes (Optional)
+                  </span>
+                  <span className="text-[9px] font-bold text-slate-500 bg-slate-200/70 px-2 py-0.5 rounded-full">
+                    Customer Requirements
+                  </span>
+                </div>
+                <p className="text-sm text-slate-900 leading-relaxed font-medium whitespace-pre-wrap">
+                  {selectedEnquiry.notes ||
+                    selectedEnquiry.message ||
+                    "No notes provided."}
                 </p>
               </div>
+
+              {/* Requirement Summary (if distinct from Notes) */}
+              {selectedEnquiry.notes &&
+                selectedEnquiry.message &&
+                selectedEnquiry.notes !== selectedEnquiry.message && (
+                  <div className="bg-slate-50/70 border border-slate-200 p-3.5 rounded-xl">
+                    <span className="text-[10px] font-black uppercase text-slate-400 block mb-1">
+                      Requirement Summary
+                    </span>
+                    <p className="text-xs text-slate-600 leading-relaxed font-medium">
+                      {selectedEnquiry.message}
+                    </p>
+                  </div>
+                )}
 
               {/* Linked Account */}
               {selectedEnquiry.user && (

@@ -58,6 +58,7 @@ export const ServiceDetailView: React.FC<ServiceDetailProps> = ({ slug }) => {
         name: `${formName} (${formOrg || "Institution"})`,
         phone: formPhone,
         email: formEmail,
+        notes: formNotes,
         message: formNotes || `Quotation request for ${service.name}`,
       });
 

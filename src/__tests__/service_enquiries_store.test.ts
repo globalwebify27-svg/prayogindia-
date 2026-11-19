@@ -36,6 +36,7 @@ describe("Service Enquiries Persistence & Management", () => {
     );
     expect(stemEnquiry).toBeDefined();
     expect(stemEnquiry?.serviceName).toBe("STEM Lab Setup");
+    expect(stemEnquiry?.notes).toBeDefined();
   });
 
   it("should create, update, and delete service enquiries", () => {

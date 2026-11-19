@@ -117,6 +117,7 @@ export async function GET(request: Request) {
         e.email?.toLowerCase().includes(search) ||
         e.phone?.includes(search) ||
         e.message?.toLowerCase().includes(search) ||
+        e.notes?.toLowerCase().includes(search) ||
         e.service?.name?.toLowerCase().includes(search)
       );
     });

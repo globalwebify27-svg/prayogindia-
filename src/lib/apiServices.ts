@@ -163,7 +163,8 @@ export async function submitServiceEnquiry(payload: {
   name: string;
   email: string;
   phone: string;
-  message: string;
+  message?: string;
+  notes?: string;
 }) {
   try {
     const res = await fetch("/api/service-enquiries", {
