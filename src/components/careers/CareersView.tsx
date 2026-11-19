@@ -34,26 +34,26 @@ export const CareersView: React.FC = () => {
   }, [searchQuery]);
 
   return (
-    <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-8 animate-in fade-in duration-300">
+    <div className="w-full max-w-6xl mx-auto px-3.5 sm:px-6 lg:px-8 py-4 sm:py-6 pb-28 sm:pb-12 space-y-4 sm:space-y-6 animate-in fade-in duration-300">
       {/* 1. Breadcrumb */}
       <CategoryBreadcrumb items={[{ label: "Careers" }]} />
 
-      {/* 2. Sleek Modern Header */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-[#0B254E] to-slate-950 border border-slate-800 text-white p-8 sm:p-10 shadow-xl">
-        <div className="absolute top-0 right-0 -mt-10 -mr-10 w-60 h-60 bg-[#00AEEF]/20 rounded-full blur-3xl pointer-events-none" />
+      {/* 2. Sleek Modern Header (Optimized for Mobile & Desktop) */}
+      <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-br from-slate-900 via-[#0B254E] to-slate-950 border border-slate-800 text-white p-4 sm:p-7 md:p-9 shadow-lg">
+        <div className="absolute top-0 right-0 -mt-10 -mr-10 w-48 sm:w-60 h-48 sm:h-60 bg-[#00AEEF]/20 rounded-full blur-3xl pointer-events-none" />
 
-        <div className="relative z-10 space-y-3 max-w-2xl">
-          <div className="inline-block px-3 py-1 rounded-full bg-blue-500/10 border border-[#00AEEF]/30">
-            <span className="text-[11px] font-black uppercase tracking-wider text-sky-200">
+        <div className="relative z-10 space-y-2 sm:space-y-3 max-w-2xl">
+          <div className="inline-block px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full bg-blue-500/10 border border-[#00AEEF]/30">
+            <span className="text-[10px] sm:text-[11px] font-black uppercase tracking-wider text-sky-200">
               Join Our Engineering Team
             </span>
           </div>
 
-          <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight">
+          <h1 className="text-xl sm:text-3xl md:text-4xl font-black text-white tracking-tight leading-snug">
             Careers at Prayog India
           </h1>
 
-          <p className="text-xs sm:text-sm text-slate-300 leading-relaxed font-medium">
+          <p className="text-xs sm:text-sm text-slate-300 leading-relaxed font-normal">
             Build the next generation of mechatronics hardware, drone flight
             controllers, and educational robotics ecosystems in Bengaluru.
           </p>
@@ -61,9 +61,9 @@ export const CareersView: React.FC = () => {
       </div>
 
       {/* 3. Search & Filter Bar */}
-      <div className="space-y-3">
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
-          <h2 className="text-xl font-extrabold text-slate-900 tracking-tight self-start sm:self-auto">
+      <div className="space-y-2.5">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 sm:gap-3">
+          <h2 className="text-base sm:text-xl font-extrabold text-slate-900 tracking-tight">
             Open Positions ({filteredJobs.length})
           </h2>
 
@@ -74,7 +74,7 @@ export const CareersView: React.FC = () => {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search by role or skill (e.g. ROS2, C++)..."
-              className="w-full bg-white border border-slate-200 pl-10 pr-9 py-2 rounded-xl text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#00AEEF] focus:ring-2 focus:ring-[#00AEEF]/10 shadow-2xs"
+              className="w-full bg-white border border-slate-200 pl-10 pr-9 py-2 rounded-xl text-xs font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#00AEEF] focus:ring-2 focus:ring-[#00AEEF]/10 shadow-2xs"
             />
             {searchQuery && (
               <button
@@ -91,7 +91,7 @@ export const CareersView: React.FC = () => {
 
       {/* 4. Clean & Polished Job Cards */}
       {filteredJobs.length === 0 ? (
-        <div className="py-12 text-center bg-white border border-slate-200 rounded-3xl space-y-2 max-w-md mx-auto p-6">
+        <div className="py-12 text-center bg-white border border-slate-200 rounded-2xl space-y-2 max-w-md mx-auto p-6">
           <Briefcase className="w-8 h-8 text-slate-300 mx-auto" />
           <h3 className="text-sm font-bold text-slate-900">
             No Roles Found
@@ -107,15 +107,15 @@ export const CareersView: React.FC = () => {
           </button>
         </div>
       ) : (
-        <div className="space-y-3.5">
+        <div className="space-y-3">
           {filteredJobs.map((job) => (
             <div
               key={job.id}
-              className="bg-white rounded-2xl border border-slate-200 p-5 sm:p-6 shadow-2xs hover:border-[#00AEEF] hover:shadow-md transition-all flex flex-col md:flex-row md:items-center justify-between gap-5 group"
+              className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 md:p-6 shadow-2xs hover:border-[#00AEEF] hover:shadow-md transition-all flex flex-col md:flex-row md:items-center justify-between gap-4 sm:gap-5 group"
             >
               <div className="space-y-2 max-w-2xl">
-                <div className="flex flex-wrap items-center gap-2 text-[10px] font-bold">
-                  <span className="bg-sky-50 text-[#005CA9] border border-sky-200/80 px-2.5 py-0.5 rounded-full uppercase tracking-wider font-black">
+                <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 text-[10px] font-bold">
+                  <span className="bg-sky-50 text-[#005CA9] border border-sky-200/80 px-2 py-0.5 rounded-full uppercase tracking-wider font-black">
                     {job.department}
                   </span>
                   <span className="text-slate-500 flex items-center gap-1">
@@ -137,7 +137,7 @@ export const CareersView: React.FC = () => {
                   )}
                 </div>
 
-                <h3 className="text-lg font-black text-slate-900 group-hover:text-[#005CA9] transition-colors">
+                <h3 className="text-base sm:text-lg font-black text-slate-900 group-hover:text-[#005CA9] transition-colors leading-snug">
                   {job.title}
                 </h3>
 
@@ -146,7 +146,7 @@ export const CareersView: React.FC = () => {
                 </p>
 
                 {job.tags && job.tags.length > 0 && (
-                  <div className="flex flex-wrap items-center gap-1 pt-1">
+                  <div className="flex flex-wrap items-center gap-1 pt-0.5 sm:pt-1">
                     {job.tags.map((tag, idx) => (
                       <span
                         key={idx}
@@ -161,7 +161,7 @@ export const CareersView: React.FC = () => {
 
               <Link
                 href={`/careers/${job.slug}`}
-                className="inline-flex items-center justify-center gap-1.5 bg-slate-900 group-hover:bg-[#00AEEF] text-white px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-colors shrink-0 self-start md:self-auto cursor-pointer"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 bg-slate-900 group-hover:bg-[#00AEEF] text-white px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-colors shrink-0 self-stretch sm:self-auto cursor-pointer"
               >
                 <span>View &amp; Apply</span>
                 <ArrowRight className="w-4 h-4 text-[#FFC20E] group-hover:translate-x-0.5 transition-transform" />
@@ -172,17 +172,17 @@ export const CareersView: React.FC = () => {
       )}
 
       {/* 5. Simple Bottom Open Application Card */}
-      <div className="bg-slate-50 rounded-2xl border border-slate-200/90 p-5 sm:p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div>
-          <h4 className="text-sm font-extrabold text-slate-900">
+      <div className="bg-slate-50 rounded-2xl border border-slate-200/90 p-4 sm:p-6 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4">
+        <div className="space-y-0.5">
+          <h4 className="text-xs sm:text-sm font-extrabold text-slate-900">
             Don&apos;t see your role?
           </h4>
-          <p className="text-xs text-slate-500 font-medium">
+          <p className="text-[11px] sm:text-xs text-slate-500 font-medium">
             Send your resume and project links directly to our engineering team.
           </p>
         </div>
 
-        <div className="flex items-center gap-2.5 shrink-0 w-full sm:w-auto">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-2.5 shrink-0 w-full sm:w-auto">
           <a
             href={`mailto:${COMPANY_INFO.email}?subject=${encodeURIComponent("[Open Application] Robotics Engineer")}`}
             className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 bg-[#00AEEF] hover:bg-[#0096D6] text-white px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-2xs"
