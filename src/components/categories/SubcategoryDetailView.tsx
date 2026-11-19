@@ -256,6 +256,7 @@ export const SubcategoryDetailView: React.FC<SubcategoryDetailProps> = ({
             >
               <div className="w-56 xl:w-64 2xl:w-72">
                 <ProductFilters
+                  products={allSubcategoryProducts}
                   hideCategories={true}
                   selectedCategory={category.name}
                   onSelectCategory={() => {}}
@@ -422,6 +423,7 @@ export const SubcategoryDetailView: React.FC<SubcategoryDetailProps> = ({
               </button>
             </div>
             <ProductFilters
+              products={allSubcategoryProducts}
               hideCategories={true}
               selectedCategory={category.name}
               onSelectCategory={() => {}}

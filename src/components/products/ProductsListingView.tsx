@@ -19,6 +19,7 @@ import { ProductCard } from "@/components/products/ProductCard";
 import { ProductEmptyState } from "@/components/products/ProductEmptyState";
 import { QuickViewModal } from "@/components/products/QuickViewModal";
 import { PRODUCTS, Product } from "@/data/mockData";
+import { getProductBrand } from "@/data/brands";
 import { useCartStore, useWishlistStore } from "@/store";
 import { searchProductsFuzzy } from "@/lib/fuzzySearch";
 import { X, Search, Clock, TrendingUp, Tag, ShoppingCart, Loader2, SlidersHorizontal, PanelLeftClose, PanelLeftOpen } from "lucide-react";
@@ -238,9 +239,11 @@ function ProductsContent() {
     }
 
     if (selectedBrand) {
-      result = result.filter((p) =>
-        (p.brand ?? p.name).toLowerCase().includes(selectedBrand.toLowerCase()),
-      );
+      result = result.filter((p) => {
+        const b = getProductBrand(p).toLowerCase();
+        const sel = selectedBrand.toLowerCase();
+        return b === sel || b.includes(sel) || (p.brand ?? p.name).toLowerCase().includes(sel);
+      });
     }
 
     if (stockFilter === "inStock") {
@@ -565,6 +568,7 @@ function ProductsContent() {
             >
               <div className="w-56 xl:w-64 2xl:w-72">
                 <ProductFilters
+                  products={productList}
                   hideCategories={true}
                   selectedCategory={selectedCategory}
                   onSelectCategory={setSelectedCategory}
@@ -791,6 +795,7 @@ function ProductsContent() {
               </button>
             </div>
             <ProductFilters
+              products={productList}
               hideCategories={true}
               selectedCategory={selectedCategory}
               onSelectCategory={(cat) => {

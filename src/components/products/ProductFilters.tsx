@@ -42,6 +42,9 @@ export interface CategoryFilterItem {
 }
 
 export interface ProductFiltersProps {
+  // Source products for live dynamic brand/category derivation
+  products?: any[];
+
   // Categories
   categories?: CategoryFilterItem[];
   hideCategories?: boolean;
@@ -92,6 +95,7 @@ export interface ProductFiltersProps {
 }
 
 export const ProductFilters: React.FC<ProductFiltersProps> = ({
+  products,
   categories,
   hideCategories = true,
   selectedCategory,
@@ -183,13 +187,13 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
       count: c.productCount,
     }));
 
-  // Context-aware Brands filtered by active Category
+  // Context-aware Brands filtered by active Category dynamically from real products
   const brandList = useMemo(() => {
     if (brands && brands.length > 0) {
       return brands;
     }
-    return getBrandsForCategory(selectedCategory, PRODUCTS);
-  }, [brands, selectedCategory]);
+    return getBrandsForCategory(selectedCategory, products || PRODUCTS);
+  }, [brands, selectedCategory, products]);
 
   const filteredBrands = useMemo(() => {
     if (!brandSearch.trim()) return brandList;

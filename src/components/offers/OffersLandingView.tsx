@@ -325,6 +325,7 @@ export const OffersLandingView: React.FC = () => {
           {/* Left Sticky Filter Sidebar (Desktop) */}
           <div className="hidden lg:block w-64 xl:w-72 2xl:w-80 shrink-0 sticky top-24 bg-white border border-slate-200/90 p-5 rounded-2xl shadow-2xs">
             <ProductFilters
+              products={dealProducts}
               selectedCategory={selectedCategory}
               onSelectCategory={setSelectedCategory}
               selectedSubcategory={selectedSubcategory}
@@ -503,6 +504,7 @@ export const OffersLandingView: React.FC = () => {
               </button>
             </div>
             <ProductFilters
+              products={dealProducts}
               selectedCategory={selectedCategory}
               onSelectCategory={(cat) => {
                 setSelectedCategory(cat);

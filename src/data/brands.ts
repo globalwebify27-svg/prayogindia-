@@ -1,109 +1,106 @@
+import { PRODUCTS } from "@/data/mockData";
+
 export interface Brand {
   id: string;
   name: string;
   count: number;
 }
 
-export const CATEGORY_BRANDS_MAP: Record<string, { name: string; baseCount: number }[]> = {
-  // Electronic Components
-  "electronic-components": [
-    { name: "Prayog India", baseCount: 15 },
-    { name: "Texas Instruments", baseCount: 12 },
-    { name: "STMicroelectronics", baseCount: 12 },
-    { name: "Microchip", baseCount: 9 },
-    { name: "Vishay", baseCount: 8 },
-    { name: "Panasonic", baseCount: 7 },
-    { name: "Murata", baseCount: 6 },
-    { name: "DFRobot", baseCount: 8 },
-  ],
-  // Robotics & DIY Kits
-  robotics: [
-    { name: "Prayog India", baseCount: 16 },
-    { name: "Dilay-Bot", baseCount: 6 },
-    { name: "Pololu", baseCount: 8 },
-    { name: "RoboRacer", baseCount: 4 },
-    { name: "Waveshare", baseCount: 9 },
-    { name: "Arduino", baseCount: 6 },
-    { name: "Makeblock", baseCount: 5 },
-  ],
-  // Development Boards / Microcontrollers
-  "development-boards": [
-    { name: "Arduino", baseCount: 18 },
-    { name: "Raspberry Pi", baseCount: 14 },
-    { name: "Espressif", baseCount: 22 },
-    { name: "NVIDIA", baseCount: 6 },
-    { name: "STMicroelectronics", baseCount: 10 },
-    { name: "Seeed Studio", baseCount: 8 },
-    { name: "BeagleBoard", baseCount: 4 },
-    { name: "Prayog India", baseCount: 12 },
-  ],
-  // Drones & UAV Parts
-  "drone-technology": [
-    { name: "Pixhawk", baseCount: 10 },
-    { name: "Holybro", baseCount: 8 },
-    { name: "FlySky", baseCount: 8 },
-    { name: "BetaFPV", baseCount: 6 },
-    { name: "T-Motor", baseCount: 9 },
-    { name: "EMAX", baseCount: 7 },
-    { name: "DJI", baseCount: 5 },
-    { name: "Prayog India", baseCount: 11 },
-  ],
-  // Sensors & IoT
-  "sensors-iot": [
-    { name: "Bosch", baseCount: 12 },
-    { name: "InvenSense", baseCount: 6 },
-    { name: "Benewake", baseCount: 5 },
-    { name: "Espressif", baseCount: 14 },
-    { name: "Omron", baseCount: 7 },
-    { name: "Honeywell", baseCount: 5 },
-    { name: "Seeed Studio", baseCount: 8 },
-    { name: "Prayog India", baseCount: 15 },
-  ],
-  // Batteries & Power Supplies
-  "batteries-power": [
-    { name: "Orange", baseCount: 12 },
-    { name: "Samsung", baseCount: 8 },
-    { name: "Panasonic", baseCount: 9 },
-    { name: "LiitoKala", baseCount: 7 },
-    { name: "Mean Well", baseCount: 6 },
-    { name: "Prayog India", baseCount: 10 },
-  ],
-  // Mechanical & Hardware / Steppers
-  "mechanical-hardware": [
-    { name: "NEMA", baseCount: 10 },
-    { name: "StepperOnline", baseCount: 8 },
-    { name: "Misumi", baseCount: 5 },
-    { name: "Prayog India", baseCount: 14 },
-  ],
-  // Educational & STEM Kits
-  "educational-stem-kits": [
-    { name: "Prayog India", baseCount: 18 },
-    { name: "LEGO Education", baseCount: 6 },
-    { name: "Makeblock", baseCount: 8 },
-    { name: "Atal Tinkering Lab (ATL)", baseCount: 5 },
-    { name: "STEM Lab", baseCount: 7 },
-  ],
-  // Industrial Automation
-  "industrial-automation": [
-    { name: "Siemens", baseCount: 9 },
-    { name: "Schneider Electric", baseCount: 7 },
-    { name: "Omron", baseCount: 11 },
-    { name: "Delta", baseCount: 6 },
-    { name: "Prayog India", baseCount: 8 },
-  ],
-};
+/**
+ * Returns the verified, canonical brand for any product in the Prayog India store.
+ * Inspects explicit `brand` property first, then falls back to brand detection
+ * based on product title, MCU model, or manufacturer prefix.
+ */
+export function getProductBrand(product: {
+  id?: string;
+  name?: string;
+  brand?: string;
+  category?: string;
+}): string {
+  if (product.brand && product.brand.trim()) {
+    const raw = product.brand.trim();
+    const lower = raw.toLowerCase();
+    if (lower === "prayog india" || lower === "prayog") return "Prayog India";
+    if (lower === "espressif systems" || lower === "espressif") return "Espressif";
+    if (lower === "stm" || lower === "stmicroelectronics") return "STMicroelectronics";
+    if (lower === "arduino") return "Arduino";
+    if (lower === "raspberry pi") return "Raspberry Pi";
+    if (lower !== "generic" && lower !== "unknown") return raw;
+  }
 
-export const BRANDS_DATA: Brand[] = [
-  { id: "b-arduino", name: "Arduino", count: 18 },
-  { id: "b-raspberry", name: "Raspberry Pi", count: 14 },
-  { id: "b-nvidia", name: "NVIDIA", count: 6 },
-  { id: "b-espressif", name: "Espressif", count: 22 },
-  { id: "b-pixhawk", name: "Pixhawk", count: 10 },
-  { id: "b-prayog", name: "Prayog India", count: 15 },
-  { id: "b-stm", name: "STMicroelectronics", count: 12 },
-  { id: "b-flysky", name: "FlySky", count: 8 },
-];
+  const text = `${product.id || ""} ${product.name || ""}`.toLowerCase();
 
+  if (text.includes("arduino") || text.includes("atmega328p") || text.includes("atmega32u4") || text.includes("atmega2560")) {
+    return "Arduino";
+  }
+  if (text.includes("raspberry pi") || text.includes("rpi-") || text.includes("rpi 5") || text.includes("rpi 4")) {
+    return "Raspberry Pi";
+  }
+  if (text.includes("jetson") || text.includes("nvidia")) {
+    return "NVIDIA";
+  }
+  if (text.includes("esp32") || text.includes("esp8266") || text.includes("nodemcu") || text.includes("espressif")) {
+    return "Espressif";
+  }
+  if (text.includes("stm32") || text.includes("stmicroelectronics") || text.includes("nucleo") || text.includes("blue pill")) {
+    return "STMicroelectronics";
+  }
+  if (text.includes("pixhawk")) {
+    return "Pixhawk";
+  }
+  if (text.includes("holybro")) {
+    return "Holybro";
+  }
+  if (text.includes("speedybee")) {
+    return "SpeedyBee";
+  }
+  if (text.includes("flysky")) {
+    return "FlySky";
+  }
+  if (text.includes("foxeer")) {
+    return "Foxeer";
+  }
+  if (text.includes("gemfan")) {
+    return "Gemfan";
+  }
+  if (text.includes("matek")) {
+    return "Matek Systems";
+  }
+  if (text.includes("towerpro") || text.includes("mg996r") || text.includes("sg90")) {
+    return "TowerPro";
+  }
+  if (text.includes("benewake") || text.includes("tf-luna")) {
+    return "Benewake";
+  }
+  if (text.includes("bme280") || text.includes("bosch") || text.includes("bmp280")) {
+    return "Bosch";
+  }
+  if (text.includes("mpu6050") || text.includes("mpu-6050") || text.includes("invensense")) {
+    return "InvenSense";
+  }
+  if (text.includes("seeed") || text.includes("xiao")) {
+    return "Seeed Studio";
+  }
+  if (text.includes("orange pi")) {
+    return "Orange Pi";
+  }
+  if (text.includes("beaglebone") || text.includes("beagleboard")) {
+    return "BeagleBoard";
+  }
+  if (text.includes("teensy")) {
+    return "Teensy";
+  }
+  if (text.includes("nema")) {
+    return "NEMA";
+  }
+
+  // Official Prayog India in-house robotics, STEM kits, custom drivers, and hardware
+  return "Prayog India";
+}
+
+/**
+ * Normalizes category input to standard keywords for resilient cross-view matching.
+ */
 export function normalizeCategoryKey(cat?: string | null): string | null {
   if (!cat) return null;
   const c = cat.toLowerCase().trim();
@@ -118,55 +115,79 @@ export function normalizeCategoryKey(cat?: string | null): string | null {
     return "mechanical-hardware";
   if (c.includes("stem") || c.includes("edu")) return "educational-stem-kits";
   if (c.includes("industrial") || c.includes("automation")) return "industrial-automation";
-  return "electronic-components";
+  return c;
 }
 
+/**
+ * Checks if a product belongs to a given category filter.
+ */
+function isProductInCategory(
+  product: { category?: string; subcategory?: string; name?: string },
+  selectedCategory: string
+): boolean {
+  const normTarget = normalizeCategoryKey(selectedCategory);
+  if (!normTarget) return true;
+
+  const prodCat = (product.category || "").toLowerCase();
+  const prodSub = (product.subcategory || "").toLowerCase();
+  const prodName = (product.name || "").toLowerCase();
+  const targetLower = selectedCategory.toLowerCase();
+
+  // Direct name or substring match
+  if (prodCat.includes(targetLower) || targetLower.includes(prodCat)) return true;
+  if (prodSub.includes(targetLower) || targetLower.includes(prodSub)) return true;
+
+  // Normalized key match
+  const normProd = normalizeCategoryKey(product.category);
+  if (normProd && normProd === normTarget) return true;
+
+  // Keyword associations
+  if (normTarget === "drone-technology" && (prodCat.includes("drone") || prodCat.includes("uav") || prodName.includes("fpv") || prodName.includes("flight controller"))) return true;
+  if (normTarget === "robotics" && (prodCat.includes("robot") || prodName.includes("robot") || prodName.includes("chassis") || prodName.includes("rover"))) return true;
+  if (normTarget === "educational-stem-kits" && (prodCat.includes("stem") || prodCat.includes("educational") || prodName.includes("kit"))) return true;
+  if (normTarget === "development-boards" && (prodCat.includes("microcontroller") || prodCat.includes("dev board") || prodCat.includes("single board") || prodCat.includes("arduino"))) return true;
+  if (normTarget === "sensors-iot" && (prodCat.includes("sensor") || prodCat.includes("iot") || prodCat.includes("wireless"))) return true;
+  if (normTarget === "mechanical-hardware" && (prodCat.includes("motor") || prodCat.includes("stepper") || prodCat.includes("mechanical"))) return true;
+
+  return false;
+}
+
+/**
+ * Returns strictly available brands dynamically calculated from the live product list.
+ * Only brands with actual products (> 0) in the given category/catalog are returned.
+ */
 export function getBrandsForCategory(
   selectedCategory?: string | null,
-  rawProducts?: Array<{ name: string; brand?: string; category?: string }>,
+  rawProducts?: Array<{ id?: string; name: string; brand?: string; category?: string; subcategory?: string }>
 ): Brand[] {
-  const normKey = normalizeCategoryKey(selectedCategory);
+  const source = rawProducts && rawProducts.length > 0 ? rawProducts : PRODUCTS;
 
-  if (!normKey) {
-    // Return all unique brands aggregated
-    const brandMap = new Map<string, number>();
-    Object.values(CATEGORY_BRANDS_MAP).forEach((list) => {
-      list.forEach((b) => {
-        brandMap.set(b.name, Math.max(brandMap.get(b.name) || 0, b.baseCount));
-      });
-    });
+  // Filter products by category if specified
+  const filteredProducts = selectedCategory
+    ? source.filter((p) => isProductInCategory(p, selectedCategory))
+    : source;
 
-    return Array.from(brandMap.entries())
-      .map(([name, count]) => ({
-        id: `b-${name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`,
-        name,
-        count,
-      }))
-      .sort((a, b) => b.count - a.count);
-  }
+  // Count products per brand
+  const brandCountMap = new Map<string, number>();
 
-  const categoryBrands = CATEGORY_BRANDS_MAP[normKey] || [];
+  filteredProducts.forEach((p) => {
+    // Exclude sub-objects like review/variant entries if present
+    if (p.id && (p.id.startsWith("var-") || p.id.startsWith("rev-") || p.id.startsWith("v-") || /^\d+$/.test(p.id))) {
+      return;
+    }
+    const brand = getProductBrand(p);
+    brandCountMap.set(brand, (brandCountMap.get(brand) || 0) + 1);
+  });
 
-  return categoryBrands
-    .map((b) => {
-      let count = b.baseCount;
-      if (rawProducts && rawProducts.length > 0) {
-        const dynamicCount = rawProducts.filter((p) => {
-          const pName = (p.name || "").toLowerCase();
-          const pBrand = (p.brand || "").toLowerCase();
-          const bLower = b.name.toLowerCase();
-          return pBrand === bLower || pBrand.includes(bLower) || pName.includes(bLower);
-        }).length;
-        if (dynamicCount > 0) {
-          count = dynamicCount;
-        }
-      }
-
-      return {
-        id: `b-${b.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`,
-        name: b.name,
-        count,
-      };
-    })
-    .sort((a, b) => b.count - a.count);
+  return Array.from(brandCountMap.entries())
+    .filter(([, count]) => count > 0)
+    .map(([name, count]) => ({
+      id: `b-${name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`,
+      name,
+      count,
+    }))
+    .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
 }
+
+// Fallback site-wide brand registry computed from actual catalog
+export const BRANDS_DATA: Brand[] = getBrandsForCategory(null, PRODUCTS);

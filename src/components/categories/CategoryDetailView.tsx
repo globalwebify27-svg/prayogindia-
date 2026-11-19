@@ -485,6 +485,7 @@ export const CategoryDetailView: React.FC<CategoryDetailProps> = ({
             >
               <div className="w-56 xl:w-64 2xl:w-72">
                 <ProductFilters
+                  products={allCategoryProducts}
                   hideCategories={true}
                   selectedCategory={category.name}
                   onSelectCategory={() => {}}
@@ -576,6 +577,7 @@ export const CategoryDetailView: React.FC<CategoryDetailProps> = ({
             </div>
 
             <ProductFilters
+              products={allCategoryProducts}
               hideCategories={true}
               selectedCategory={category.name}
               onSelectCategory={() => {}}
