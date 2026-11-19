@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { getOrderTimestamp } from "@/data/accountData";
 import {
   ShoppingBag,
@@ -10,6 +10,7 @@ import {
   Filter,
   Eye,
   Search,
+  X,
   AlertTriangle,
   Plane,
   Package,
@@ -91,6 +92,76 @@ function getOrderChannel(ord: any): OrderChannelType {
   return "WEBSITE";
 }
 
+/**
+ * Safe, professional multi-field order matcher.
+ * Supports partial matching, # prefixes, customer phone/email, AWB, and product names/SKUs.
+ */
+function matchesOrder(ord: any, rawQuery: string): boolean {
+  if (!rawQuery || !rawQuery.trim()) return true;
+  const q = rawQuery.toLowerCase().trim();
+  const qClean = q.replace(/^#/, "");
+
+  // 1. Order Number & ID match (supports with/without #)
+  const orderNum = String(ord.orderNumber || "").toLowerCase();
+  const orderId = String(ord.id || "").toLowerCase();
+  if (
+    orderNum.includes(q) ||
+    orderNum.replace(/^#/, "").includes(qClean) ||
+    orderId.includes(q) ||
+    orderId.replace(/^#/, "").includes(qClean)
+  ) {
+    return true;
+  }
+
+  // 2. Quotation / Invoice numbers
+  if (ord.quotation?.quoteNumber && String(ord.quotation.quoteNumber).toLowerCase().includes(qClean)) return true;
+  if (ord.quotationId && String(ord.quotationId).toLowerCase().includes(qClean)) return true;
+  if (ord.invoice?.invoiceNumber && String(ord.invoice.invoiceNumber).toLowerCase().includes(qClean)) return true;
+
+  // 3. Customer Info (Name, Email, Phone, Company)
+  const custName = String(ord.customerName || ord.user?.name || "").toLowerCase();
+  if (custName.includes(q)) return true;
+
+  const custEmail = String(ord.customerEmail || ord.user?.email || "").toLowerCase();
+  if (custEmail.includes(q)) return true;
+
+  const company = String(ord.companyName || ord.user?.companyName || "").toLowerCase();
+  if (company.includes(q)) return true;
+
+  const rawPhone = String(ord.customerPhone || ord.user?.phone || "").replace(/\D/g, "");
+  const qDigits = q.replace(/\D/g, "");
+  if (qDigits.length >= 3 && rawPhone.includes(qDigits)) return true;
+
+  // 4. Shipping Address & Location
+  const address = String(ord.shippingAddress || "").toLowerCase();
+  if (address.includes(q)) return true;
+
+  // 5. Courier, AWB & Tracking Number
+  const awb = String(ord.awbNumber || ord.trackingNumber || ord.shipment?.trackingNumber || "").toLowerCase();
+  if (awb && (awb.includes(q) || awb.includes(qClean))) return true;
+
+  const courier = String(ord.courierProvider || ord.courierName || ord.shipment?.courierName || "").toLowerCase();
+  if (courier && courier.includes(q)) return true;
+
+  // 6. Items / Products (Name & SKU)
+  if (Array.isArray(ord.items)) {
+    for (const item of ord.items) {
+      if (!item) continue;
+      const itemName = String(item.productName || item.name || "").toLowerCase();
+      const itemSku = String(item.productSku || item.sku || "").toLowerCase();
+      if (
+        itemName.includes(q) ||
+        itemSku.includes(q) ||
+        itemSku.includes(qClean)
+      ) {
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
+
 export default function AdminOrdersPage() {
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -103,9 +174,18 @@ export default function AdminOrdersPage() {
     any | null
   >(null);
 
-  const fetchOrders = () => {
+  const fetchOrders = (searchOverride?: string) => {
     setLoading(true);
-    fetch(`/api/admin/orders?status=${statusFilter}&limit=100`)
+    const searchVal = (searchOverride !== undefined ? searchOverride : searchQuery).trim();
+    const queryParams = new URLSearchParams({
+      status: statusFilter,
+      limit: "200",
+    });
+    if (searchVal) {
+      queryParams.set("search", searchVal);
+    }
+
+    fetch(`/api/admin/orders?${queryParams.toString()}`)
       .then((res) => res.json())
       .then((data) => {
         let items: any[] = data.success && data.data?.items ? data.data.items : [];
@@ -161,6 +241,16 @@ export default function AdminOrdersPage() {
     fetchOrders();
   }, [statusFilter]);
 
+  // Debounced server fetch for search query to ensure complete database coverage
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (searchQuery.trim()) {
+        fetchOrders(searchQuery.trim());
+      }
+    }, 350);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
   const handleStatusChange = async (orderId: string, newStatus: string) => {
     setOrders((prev) =>
       prev.map((o) => (o.id === orderId ? { ...o, status: newStatus } : o)),
@@ -174,35 +264,17 @@ export default function AdminOrdersPage() {
     } catch {}
   };
 
-  const filteredOrders = orders.filter((ord) => {
-    const q = searchQuery.toLowerCase().trim();
-    const matchesSearch =
-      !q ||
-      ord.orderNumber?.toLowerCase().includes(q) ||
-      ord.quotation?.quoteNumber?.toLowerCase().includes(q) ||
-      ord.quotationId?.toLowerCase().includes(q) ||
-      ord.invoice?.invoiceNumber?.toLowerCase().includes(q) ||
-      ord.user?.name?.toLowerCase().includes(q) ||
-      ord.user?.email?.toLowerCase().includes(q) ||
-      ord.user?.phone?.toLowerCase().includes(q) ||
-      ord.user?.companyName?.toLowerCase().includes(q) ||
-      ord.customerName?.toLowerCase().includes(q) ||
-      ord.customerPhone?.toLowerCase().includes(q) ||
-      ord.shippingAddress?.toLowerCase().includes(q) ||
-      ord.awbNumber?.toLowerCase().includes(q) ||
-      ord.courierProvider?.toLowerCase().includes(q) ||
-      ord.items?.some(
-        (i: any) =>
-          (i.productName || i.name)?.toLowerCase().includes(q) ||
-          (i.productSku || i.sku)?.toLowerCase().includes(q),
-      );
+  // Safe and responsive client-side order filtering
+  const filteredOrders = useMemo(() => {
+    return orders.filter((ord) => {
+      const matchesSearch = matchesOrder(ord, searchQuery);
+      const ordChannel = getOrderChannel(ord);
+      const matchesChannel =
+        channelFilter === "all" || ordChannel === channelFilter;
 
-    const ordChannel = getOrderChannel(ord);
-    const matchesChannel =
-      channelFilter === "all" || ordChannel === channelFilter;
-
-    return matchesSearch && matchesChannel;
-  });
+      return matchesSearch && matchesChannel;
+    });
+  }, [orders, searchQuery, channelFilter]);
 
   return (
     <div className="w-full space-y-6 animate-in fade-in duration-300">
@@ -281,12 +353,14 @@ export default function AdminOrdersPage() {
         })}
       </div>
 
-      {/* Active Channel Context Banner */}
+      {/* Active Channel & Search Context Banner */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-gradient-to-r from-slate-50 via-sky-50/30 to-slate-50 border border-slate-200/90 rounded-2xl px-4 py-3 shadow-2xs">
         <div className="flex items-center gap-2.5">
           <div
             className={`w-2.5 h-2.5 rounded-full animate-pulse ${
-              channelFilter === "WEBSITE"
+              searchQuery.trim()
+                ? "bg-amber-500 ring-4 ring-amber-100"
+                : channelFilter === "WEBSITE"
                 ? "bg-blue-500 ring-4 ring-blue-100"
                 : channelFilter === "WALK_IN"
                   ? "bg-emerald-500 ring-4 ring-emerald-100"
@@ -299,7 +373,9 @@ export default function AdminOrdersPage() {
           />
           <div>
             <span className="font-extrabold text-xs text-slate-900 block sm:inline">
-              {channelFilter === "all"
+              {searchQuery.trim()
+                ? "Search Results:"
+                : channelFilter === "all"
                 ? "Unified Multi-Channel Overview:"
                 : channelFilter === "WEBSITE"
                   ? "Website Store Fulfillment:"
@@ -310,7 +386,9 @@ export default function AdminOrdersPage() {
                       : "Store Walk-in POS Desk:"}
             </span>{" "}
             <span className="text-xs text-slate-600 font-medium">
-              {channelFilter === "all"
+              {searchQuery.trim()
+                ? `Displaying ${filteredOrders.length} order(s) matching "${searchQuery.trim()}".`
+                : channelFilter === "all"
                 ? `Displaying all ${filteredOrders.length} orders across Website, Physical Store POS, Mobile App, and B2B Quotations.`
                 : channelFilter === "WEBSITE"
                   ? `Displaying ${filteredOrders.length} online orders placed via Prayog Web Store (Desktop & Mobile Web). Physical POS walk-ins are excluded.`
@@ -323,14 +401,25 @@ export default function AdminOrdersPage() {
           </div>
         </div>
 
-        {channelFilter !== "all" && (
-          <button
-            onClick={() => setChannelFilter("all")}
-            className="self-start sm:self-center text-[11px] font-black text-[#00AEEF] hover:underline cursor-pointer shrink-0"
-          >
-            Show All Channels →
-          </button>
-        )}
+        <div className="flex items-center gap-2">
+          {searchQuery.trim() && (
+            <button
+              type="button"
+              onClick={() => setSearchQuery("")}
+              className="self-start sm:self-center text-[11px] font-black text-rose-600 hover:underline cursor-pointer shrink-0"
+            >
+              Clear Search ✕
+            </button>
+          )}
+          {channelFilter !== "all" && !searchQuery.trim() && (
+            <button
+              onClick={() => setChannelFilter("all")}
+              className="self-start sm:self-center text-[11px] font-black text-[#00AEEF] hover:underline cursor-pointer shrink-0"
+            >
+              Show All Channels →
+            </button>
+          )}
+        </div>
       </div>
 
       {/* 2. Search & Filter Bar */}
@@ -341,9 +430,19 @@ export default function AdminOrdersPage() {
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search order #, quote #, customer, company, AWB..."
-            className="w-full bg-slate-50 border border-slate-200 pl-10 pr-4 py-2 rounded-xl text-xs font-bold text-slate-900 focus:bg-white focus:outline-none focus:border-[#00AEEF]"
+            placeholder="Search order # (e.g. PRG-2026-7068), customer, phone..."
+            className="w-full bg-slate-50 border border-slate-200 pl-10 pr-9 py-2 rounded-xl text-xs font-bold text-slate-900 focus:bg-white focus:outline-none focus:border-[#00AEEF] focus:ring-2 focus:ring-[#00AEEF]/10 transition-all shadow-2xs"
           />
+          {searchQuery && (
+            <button
+              type="button"
+              onClick={() => setSearchQuery("")}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5 rounded cursor-pointer"
+              title="Clear Search"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          )}
         </div>
 
         <div className="flex items-center gap-3 w-full sm:w-auto">
@@ -388,8 +487,29 @@ export default function AdminOrdersPage() {
                 </tr>
               ) : filteredOrders.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="py-8 text-center text-slate-400">
-                    No orders found matching filter
+                  <td colSpan={8} className="py-16 text-center">
+                    <div className="max-w-sm mx-auto space-y-3 px-4">
+                      <Search className="w-10 h-10 text-slate-300 mx-auto" />
+                      <div className="font-extrabold text-slate-800 text-sm">
+                        {searchQuery
+                          ? `No orders matching "${searchQuery}"`
+                          : "No orders found"}
+                      </div>
+                      <p className="text-xs text-slate-500">
+                        {searchQuery
+                          ? "We couldn't find any orders matching this order number, customer name, phone, or tracking ID."
+                          : "No orders currently match the selected status or channel."}
+                      </p>
+                      {searchQuery && (
+                        <button
+                          type="button"
+                          onClick={() => setSearchQuery("")}
+                          className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl text-xs font-bold transition-all shadow-2xs cursor-pointer"
+                        >
+                          Clear Search
+                        </button>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ) : (

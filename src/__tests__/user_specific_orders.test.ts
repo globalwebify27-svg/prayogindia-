@@ -118,4 +118,88 @@ describe("User-Specific Order Filtering & Isolation", () => {
 
     expect(isAuthorized).toBe(false);
   });
+
+  it("should accurately filter orders when searching by order number (e.g. PRG-2026-7068)", () => {
+    function matchesOrder(ord: any, rawQuery: string): boolean {
+      if (!rawQuery || !rawQuery.trim()) return true;
+      const q = rawQuery.toLowerCase().trim();
+      const qClean = q.replace(/^#/, "");
+
+      const orderNum = String(ord.orderNumber || "").toLowerCase();
+      const orderId = String(ord.id || "").toLowerCase();
+      if (
+        orderNum.includes(q) ||
+        orderNum.replace(/^#/, "").includes(qClean) ||
+        orderId.includes(q) ||
+        orderId.replace(/^#/, "").includes(qClean)
+      ) {
+        return true;
+      }
+
+      if (ord.customerName && String(ord.customerName).toLowerCase().includes(q)) return true;
+      if (ord.customerEmail && String(ord.customerEmail).toLowerCase().includes(q)) return true;
+
+      const rawPhone = String(ord.customerPhone || ord.user?.phone || "").replace(/\D/g, "");
+      const qDigits = q.replace(/\D/g, "");
+      if (qDigits.length >= 3 && rawPhone.includes(qDigits)) return true;
+
+      if (Array.isArray(ord.items)) {
+        for (const item of ord.items) {
+          if (!item) continue;
+          const itemName = String(item.productName || item.name || "").toLowerCase();
+          const itemSku = String(item.productSku || item.sku || "").toLowerCase();
+          if (itemName.includes(q) || itemSku.includes(q) || itemSku.includes(qClean)) {
+            return true;
+          }
+        }
+      }
+
+      return false;
+    }
+
+    const testOrders = [
+      {
+        orderNumber: "WI-PAT-1794316722518",
+        customerName: "Om Kumar",
+        customerPhone: "8709789641",
+        items: [{ productName: "Atal Tinkering Lab Kit", productSku: "PRG-ATL-001" }],
+      },
+      {
+        orderNumber: "WI-PAT-1794307736187",
+        customerName: "ओम कुमार",
+        customerPhone: "8709789641",
+        items: [{ productName: "Test 2", productSku: "PRG-ARD-001" }],
+      },
+      {
+        orderNumber: "PRG-2026-7068",
+        customerName: "Bahubali",
+        customerPhone: "+91 9988776655",
+        items: [{ productName: "Raspberry Pi 5", productSku: "PRG-RPI5-001" }],
+      },
+    ];
+
+    // Search by exact order number PRG-2026-7068
+    const exactResults = testOrders.filter((o) => matchesOrder(o, "PRG-2026-7068"));
+    expect(exactResults.length).toBe(1);
+    expect(exactResults[0].orderNumber).toBe("PRG-2026-7068");
+
+    // Search with hashtag #PRG-2026-7068
+    const hashResults = testOrders.filter((o) => matchesOrder(o, "#PRG-2026-7068"));
+    expect(hashResults.length).toBe(1);
+    expect(hashResults[0].orderNumber).toBe("PRG-2026-7068");
+
+    // Search by partial suffix 7068
+    const suffixResults = testOrders.filter((o) => matchesOrder(o, "7068"));
+    expect(suffixResults.length).toBe(1);
+    expect(suffixResults[0].orderNumber).toBe("PRG-2026-7068");
+
+    // Search for walk-in order
+    const walkinResults = testOrders.filter((o) => matchesOrder(o, "1794316722518"));
+    expect(walkinResults.length).toBe(1);
+    expect(walkinResults[0].orderNumber).toBe("WI-PAT-1794316722518");
+
+    // Search non-existent query
+    const noResults = testOrders.filter((o) => matchesOrder(o, "NON-EXISTENT-ORDER"));
+    expect(noResults.length).toBe(0);
+  });
 });

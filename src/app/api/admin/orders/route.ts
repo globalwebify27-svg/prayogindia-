@@ -17,6 +17,7 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const status = searchParams.get("status");
   const channel = searchParams.get("channel"); // 'all' | 'WEBSITE' | 'MOBILE_APP' | 'WALK_IN'
+  const searchParam = searchParams.get("search")?.trim();
   const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
   const limit = Math.min(
     200,
@@ -65,6 +66,28 @@ export async function GET(request: Request) {
             { customerType: "B2B" },
             { customerType: "WALK_IN" },
           ];
+        }
+      }
+
+      if (searchParam) {
+        const cleanSearch = searchParam.replace(/^#/, "");
+        const searchConditions = [
+          { orderNumber: { contains: cleanSearch, mode: "insensitive" } },
+          { user: { name: { contains: searchParam, mode: "insensitive" } } },
+          { user: { email: { contains: searchParam, mode: "insensitive" } } },
+          { user: { phone: { contains: searchParam, mode: "insensitive" } } },
+          { shippingAddress: { contains: searchParam, mode: "insensitive" } },
+          { shipment: { trackingNumber: { contains: cleanSearch, mode: "insensitive" } } },
+          { quotation: { quoteNumber: { contains: cleanSearch, mode: "insensitive" } } },
+          { invoice: { invoiceNumber: { contains: cleanSearch, mode: "insensitive" } } },
+          { items: { some: { productName: { contains: searchParam, mode: "insensitive" } } } },
+          { items: { some: { productSku: { contains: cleanSearch, mode: "insensitive" } } } },
+        ];
+        if (where.OR) {
+          where.AND = [{ OR: where.OR }, { OR: searchConditions }];
+          delete where.OR;
+        } else {
+          where.OR = searchConditions;
         }
       }
 
@@ -355,9 +378,36 @@ export async function GET(request: Request) {
     })),
   ];
 
-  const filtered = enrichedOrders.filter((o) => {
+  const filtered = enrichedOrders.filter((o: any) => {
     if (status && status !== "all" && o.status !== status) return false;
     if (channel && channel !== "all" && o.orderSource !== channel) return false;
+
+    if (searchParam) {
+      const q = searchParam.toLowerCase();
+      const qClean = q.replace(/^#/, "");
+      const num = String(o.orderNumber || "").toLowerCase();
+      const name = String(o.customerName || o.user?.name || "").toLowerCase();
+      const email = String(o.customerEmail || o.user?.email || "").toLowerCase();
+      const phone = String(o.customerPhone || o.user?.phone || "").replace(/\D/g, "");
+      const qDigits = q.replace(/\D/g, "");
+      const awb = String(o.awbNumber || "").toLowerCase();
+      const itemsMatch = Array.isArray(o.items) && o.items.some((i: any) =>
+        String(i.name || i.productName || "").toLowerCase().includes(q) ||
+        String(i.sku || i.productSku || "").toLowerCase().includes(qClean)
+      );
+
+      const matches =
+        num.includes(q) ||
+        num.replace(/^#/, "").includes(qClean) ||
+        name.includes(q) ||
+        email.includes(q) ||
+        (qDigits && phone.includes(qDigits)) ||
+        awb.includes(q) ||
+        itemsMatch;
+
+      if (!matches) return false;
+    }
+
     return true;
   });
 
