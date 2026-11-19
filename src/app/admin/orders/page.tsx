@@ -409,17 +409,17 @@ export default function AdminOrdersPage() {
           },
           {
             id: "WEBSITE",
-            label: "🌐 Website Orders (Online)",
+            label: "Website Orders (Online)",
             count: searchFilteredOrders.filter((o) => getOrderChannel(o) === "WEBSITE").length,
           },
           {
             id: "MOBILE_APP",
-            label: "📱 Mobile App Orders",
+            label: "Mobile App Orders",
             count: searchFilteredOrders.filter((o) => getOrderChannel(o) === "MOBILE_APP").length,
           },
           {
             id: "WALK_IN",
-            label: "🏬 Store Walk-ins",
+            label: "Store Walk-ins",
             count: searchFilteredOrders.filter((o) => getOrderChannel(o) === "WALK_IN").length,
           },
         ].map((tab) => {
@@ -631,15 +631,15 @@ export default function AdminOrdersPage() {
                         <div className="mt-1 flex items-center gap-1.5 flex-wrap">
                           {ordChannel === "WEBSITE" ? (
                             <span className="inline-flex items-center gap-1 bg-sky-50 text-[#005CA9] border border-sky-200/90 px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider">
-                              🌐 Website Online
+                              Website Online
                             </span>
                           ) : ordChannel === "WALK_IN" ? (
                             <span className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-800 border border-emerald-200/90 px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider">
-                              🏬 {ord.orderNumber?.includes("PAT") || ord.shippingAddress?.includes("Patna") ? "Patna Store" : ord.orderNumber?.includes("RAN") || ord.shippingAddress?.includes("Ranchi") ? "Ranchi Hub" : ord.orderNumber?.includes("DEL") || ord.shippingAddress?.includes("Delhi") ? "Delhi Branch" : "Store POS"} Walk-in
+                              {ord.orderNumber?.includes("PAT") || ord.shippingAddress?.includes("Patna") ? "Patna Store" : ord.orderNumber?.includes("RAN") || ord.shippingAddress?.includes("Ranchi") ? "Ranchi Hub" : ord.orderNumber?.includes("DEL") || ord.shippingAddress?.includes("Delhi") ? "Delhi Branch" : "Store POS"} Walk-in
                             </span>
                           ) : (
                             <span className="inline-flex items-center gap-1 bg-purple-50 text-purple-800 border border-purple-200/90 px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider">
-                              📱 Mobile App
+                              Mobile App
                             </span>
                           )}
                         </div>
@@ -734,7 +734,7 @@ export default function AdminOrdersPage() {
                       <td className="p-4">
                         <div className="font-extrabold text-slate-900">
                           {ordChannel === "WALK_IN"
-                            ? ord.courierProvider || "🏬 In-Store Counter"
+                            ? ord.courierProvider || "In-Store Counter"
                             : ord.courierProvider || "Delhivery Surface"}
                         </div>
                         <div className="font-mono text-xs font-black text-[#00AEEF]">

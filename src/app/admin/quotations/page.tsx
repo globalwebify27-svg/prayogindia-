@@ -428,7 +428,7 @@ export default function QuotationsPage() {
                 statusFilter === "REQUESTED" ? "text-amber-100" : "text-amber-600"
               }`}
             >
-              🔔 New User Inquiries
+              New User Inquiries
             </span>
             {requestedCount > 0 && (
               <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping" />
@@ -1185,7 +1185,7 @@ export default function QuotationsPage() {
               { id: "all", label: "All Enquiries & Quotes", count: quotations.length },
               {
                 id: "REQUESTED",
-                label: "🔔 New Customer Enquiries",
+                label: "New Customer Enquiries",
                 count: requestedCount,
                 isHot: requestedCount > 0,
               },
@@ -1329,7 +1329,7 @@ export default function QuotationsPage() {
                         </span>
                         {doc.status === "REQUESTED" ? (
                           <span className="text-[9px] font-black uppercase px-2.5 py-0.5 rounded-full bg-amber-500 text-white shadow-2xs inline-flex items-center gap-1">
-                            🔔 New Customer Enquiry
+                            New Customer Enquiry
                           </span>
                         ) : (
                           <span
