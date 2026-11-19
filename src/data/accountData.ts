@@ -216,8 +216,13 @@ export function getOrderTimestamp(order: any): number {
     if (dLower === "today" || dLower.includes("just now")) return Date.now();
     if (dLower === "yesterday") return Date.now() - 86400000;
     const cleanDate = order.date.split("•")[0].trim();
-    const t = new Date(cleanDate).getTime();
+    const currentYear = new Date().getFullYear();
+    const hasYear = /\b20\d{2}\b/.test(cleanDate);
+    const withYear = hasYear ? cleanDate : `${cleanDate} ${currentYear}`;
+    const t = new Date(withYear).getTime();
     if (!isNaN(t) && t > 0) return t;
+    const rawT = new Date(cleanDate).getTime();
+    if (!isNaN(rawT) && rawT > 0) return rawT;
   }
 
   return 0;

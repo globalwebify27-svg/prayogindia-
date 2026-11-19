@@ -22,7 +22,96 @@ import {
   ShieldCheck,
   Quote,
   ArrowRight,
+  Calendar,
+  RotateCcw,
 } from "lucide-react";
+
+type OrderDateFilterType =
+  | "all"
+  | "today"
+  | "yesterday"
+  | "last_7_days"
+  | "last_30_days"
+  | "this_month"
+  | "custom";
+
+/**
+ * Universal date matching helper for orders.
+ * Works seamlessly across ISO strings, numeric timestamps, embedded timestamps, and human-readable dates.
+ */
+function matchesDateFilter(
+  order: any,
+  dateFilter: OrderDateFilterType,
+  customStart?: string,
+  customEnd?: string
+): boolean {
+  if (dateFilter === "all") return true;
+
+  const ts = getOrderTimestamp(order);
+  if (!ts) return false;
+
+  const orderDate = new Date(ts);
+  const now = new Date();
+
+  // Normalize to start of day (midnight) in local time
+  const orderStartOfDay = new Date(
+    orderDate.getFullYear(),
+    orderDate.getMonth(),
+    orderDate.getDate()
+  ).getTime();
+
+  const todayStartOfDay = new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate()
+  ).getTime();
+
+  const ONE_DAY_MS = 24 * 60 * 60 * 1000;
+
+  switch (dateFilter) {
+    case "today":
+      return orderStartOfDay === todayStartOfDay;
+
+    case "yesterday":
+      return orderStartOfDay === todayStartOfDay - ONE_DAY_MS;
+
+    case "last_7_days":
+      return (
+        orderStartOfDay >= todayStartOfDay - 6 * ONE_DAY_MS &&
+        orderStartOfDay <= todayStartOfDay + ONE_DAY_MS
+      );
+
+    case "last_30_days":
+      return (
+        orderStartOfDay >= todayStartOfDay - 29 * ONE_DAY_MS &&
+        orderStartOfDay <= todayStartOfDay + ONE_DAY_MS
+      );
+
+    case "this_month":
+      return (
+        orderDate.getFullYear() === now.getFullYear() &&
+        orderDate.getMonth() === now.getMonth()
+      );
+
+    case "custom": {
+      if (!customStart && !customEnd) return true;
+      if (customStart) {
+        const [sYear, sMonth, sDay] = customStart.split("-").map(Number);
+        const startTime = new Date(sYear, sMonth - 1, sDay, 0, 0, 0, 0).getTime();
+        if (!isNaN(startTime) && ts < startTime) return false;
+      }
+      if (customEnd) {
+        const [eYear, eMonth, eDay] = customEnd.split("-").map(Number);
+        const endTime = new Date(eYear, eMonth - 1, eDay, 23, 59, 59, 999).getTime();
+        if (!isNaN(endTime) && ts > endTime) return false;
+      }
+      return true;
+    }
+
+    default:
+      return true;
+  }
+}
 
 const ORDER_STATUSES = [
   "ORDER_PLACED",
@@ -187,6 +276,9 @@ export default function AdminOrdersPage() {
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState("all");
   const [channelFilter, setChannelFilter] = useState("all");
+  const [dateFilter, setDateFilter] = useState<OrderDateFilterType>("all");
+  const [customStartDate, setCustomStartDate] = useState("");
+  const [customEndDate, setCustomEndDate] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const activeSearchRef = useRef(searchQuery);
   activeSearchRef.current = searchQuery;
@@ -336,14 +428,42 @@ export default function AdminOrdersPage() {
     } catch {}
   };
 
-  // Channel selector counts reflect active search query so counts match current results
+  const isDateActive = dateFilter !== "all";
+  const dateFilterLabel = useMemo(() => {
+    if (dateFilter === "today") {
+      return `Today (${new Date().toLocaleDateString("en-IN", { day: "numeric", month: "short" })})`;
+    }
+    if (dateFilter === "yesterday") return "Yesterday";
+    if (dateFilter === "last_7_days") return "Last 7 Days";
+    if (dateFilter === "last_30_days") return "Last 30 Days";
+    if (dateFilter === "this_month") {
+      return `This Month (${new Date().toLocaleDateString("en-IN", { month: "long" })})`;
+    }
+    if (dateFilter === "custom") {
+      if (customStartDate && customEndDate) return `${customStartDate} → ${customEndDate}`;
+      if (customStartDate) return `From ${customStartDate}`;
+      if (customEndDate) return `Up to ${customEndDate}`;
+      return "Custom Range";
+    }
+    return "All Dates";
+  }, [dateFilter, customStartDate, customEndDate]);
+
+  // Channel selector counts reflect active search query and date filter so counts match current results
   const searchFilteredOrders = useMemo(() => {
-    if (!searchQuery.trim()) return orders;
-    return orders.filter((o) => matchesOrder(o, searchQuery));
-  }, [orders, searchQuery]);
+    let result = orders;
+    if (searchQuery.trim()) {
+      result = result.filter((o) => matchesOrder(o, searchQuery));
+    }
+    if (dateFilter !== "all") {
+      result = result.filter((o) =>
+        matchesDateFilter(o, dateFilter, customStartDate, customEndDate)
+      );
+    }
+    return result;
+  }, [orders, searchQuery, dateFilter, customStartDate, customEndDate]);
 
   // Safe, instant, client-side order filtering:
-  // Strictly renders ONLY orders matching the active search query.
+  // Strictly renders ONLY orders matching active channel, date filter, and search query.
   const filteredOrders = useMemo(() => {
     const q = searchQuery.trim();
     return orders.filter((ord) => {
@@ -352,11 +472,17 @@ export default function AdminOrdersPage() {
         channelFilter === "all" || ordChannel === channelFilter;
       if (!matchesChannel) return false;
 
+      if (dateFilter !== "all") {
+        if (!matchesDateFilter(ord, dateFilter, customStartDate, customEndDate)) {
+          return false;
+        }
+      }
+
       if (!q) return true;
 
       return matchesOrder(ord, q);
     });
-  }, [orders, searchQuery, channelFilter]);
+  }, [orders, searchQuery, channelFilter, dateFilter, customStartDate, customEndDate]);
 
   return (
     <div className="w-full space-y-6 animate-in fade-in duration-300">
@@ -456,6 +582,8 @@ export default function AdminOrdersPage() {
             className={`w-2.5 h-2.5 rounded-full animate-pulse ${
               searchQuery.trim()
                 ? "bg-amber-500 ring-4 ring-amber-100"
+                : isDateActive
+                ? "bg-[#00AEEF] ring-4 ring-sky-100"
                 : channelFilter === "WEBSITE"
                 ? "bg-blue-500 ring-4 ring-blue-100"
                 : channelFilter === "WALK_IN"
@@ -466,47 +594,82 @@ export default function AdminOrdersPage() {
             }`}
           />
           <div>
-            <span className="font-extrabold text-xs text-slate-900 block sm:inline">
-              {searchQuery.trim()
-                ? "Search Results:"
-                : channelFilter === "all"
-                ? "Unified Multi-Channel Overview:"
-                : channelFilter === "WEBSITE"
-                  ? "Website Store Fulfillment:"
-                  : channelFilter === "MOBILE_APP"
-                    ? "Mobile App Dispatch:"
-                    : "Store Walk-in POS Desk:"}
-            </span>{" "}
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="font-extrabold text-xs text-slate-900 block sm:inline">
+                {searchQuery.trim()
+                  ? "Search Results:"
+                  : isDateActive
+                  ? `${dateFilterLabel}:`
+                  : channelFilter === "all"
+                  ? "Unified Multi-Channel Overview:"
+                  : channelFilter === "WEBSITE"
+                    ? "Website Store Fulfillment:"
+                    : channelFilter === "MOBILE_APP"
+                      ? "Mobile App Dispatch:"
+                      : "Store Walk-in POS Desk:"}
+              </span>
+              {isDateActive && (
+                <span className="inline-flex items-center gap-1 bg-[#E0F7FC] text-[#007EA7] border border-[#00AEEF]/30 px-2.5 py-0.5 rounded-full text-[10px] font-bold">
+                  <Calendar className="w-2.5 h-2.5" />
+                  <span>{dateFilterLabel}</span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setDateFilter("all");
+                      setCustomStartDate("");
+                      setCustomEndDate("");
+                    }}
+                    className="hover:text-red-600 font-black cursor-pointer ml-0.5"
+                    title="Remove date filter"
+                  >
+                    ✕
+                  </button>
+                </span>
+              )}
+            </div>
             <span className="text-xs text-slate-600 font-medium">
               {searchQuery.trim()
                 ? filteredOrders.length === 0
-                ? `No orders matching "${searchQuery.trim()}".`
-                : `Displaying ${filteredOrders.length} order(s) matching "${searchQuery.trim()}".`
+                  ? `No orders matching "${searchQuery.trim()}".`
+                  : `Displaying ${filteredOrders.length} order(s) matching "${searchQuery.trim()}"${isDateActive ? ` (${dateFilterLabel})` : ""}.`
                 : channelFilter === "all"
-                ? `Displaying all ${filteredOrders.length} orders across Website, Physical Store POS, and Mobile App.`
+                ? `Displaying ${filteredOrders.length} order(s) across Website, Physical Store POS, and Mobile App${isDateActive ? ` (${dateFilterLabel})` : ""}.`
                 : channelFilter === "WEBSITE"
-                  ? `Displaying ${filteredOrders.length} online orders placed via Prayog Web Store (Desktop & Mobile Web). Physical POS walk-ins are excluded.`
+                  ? `Displaying ${filteredOrders.length} online orders placed via Prayog Web Store${isDateActive ? ` (${dateFilterLabel})` : ""}.`
                   : channelFilter === "MOBILE_APP"
-                    ? `Displaying ${filteredOrders.length} direct orders received via Prayog Mobile App.`
-                    : `Displaying ${filteredOrders.length} counter sale receipts fulfilled at physical branches (Patna, Ranchi, Delhi).`}
+                    ? `Displaying ${filteredOrders.length} direct orders received via Prayog Mobile App${isDateActive ? ` (${dateFilterLabel})` : ""}.`
+                    : `Displaying ${filteredOrders.length} counter sale receipts fulfilled at physical branches${isDateActive ? ` (${dateFilterLabel})` : ""}.`}
             </span>
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           {searchQuery.trim() && (
             <button
               type="button"
               onClick={() => setSearchQuery("")}
-              className="self-start sm:self-center text-[11px] font-black text-rose-600 hover:underline cursor-pointer shrink-0"
+              className="text-[11px] font-black text-rose-600 hover:underline cursor-pointer shrink-0"
             >
               Clear Search ✕
+            </button>
+          )}
+          {isDateActive && (
+            <button
+              type="button"
+              onClick={() => {
+                setDateFilter("all");
+                setCustomStartDate("");
+                setCustomEndDate("");
+              }}
+              className="text-[11px] font-black text-[#00AEEF] hover:underline cursor-pointer shrink-0"
+            >
+              All Dates ✕
             </button>
           )}
           {channelFilter !== "all" && !searchQuery.trim() && (
             <button
               onClick={() => setChannelFilter("all")}
-              className="self-start sm:self-center text-[11px] font-black text-[#00AEEF] hover:underline cursor-pointer shrink-0"
+              className="text-[11px] font-black text-[#00AEEF] hover:underline cursor-pointer shrink-0"
             >
               Show All Channels →
             </button>
@@ -515,43 +678,156 @@ export default function AdminOrdersPage() {
       </div>
 
       {/* 2. Search & Filter Bar */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white p-4 rounded-2xl border border-slate-200/90 shadow-2xs">
-        <div className="relative w-full sm:w-96">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search by order number, customer name, phone, or tracking..."
-            className="w-full bg-slate-50 border border-slate-200 pl-10 pr-9 py-2 rounded-xl text-xs font-bold text-slate-900 focus:bg-white focus:outline-none focus:border-[#00AEEF] focus:ring-2 focus:ring-[#00AEEF]/10 transition-all shadow-2xs"
-          />
-          {searchQuery && (
-            <button
-              type="button"
-              onClick={() => setSearchQuery("")}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5 rounded cursor-pointer"
-              title="Clear Search"
-            >
-              <X className="w-3.5 h-3.5" />
-            </button>
-          )}
+      <div className="bg-white p-4 rounded-2xl border border-slate-200/90 shadow-2xs space-y-3">
+        <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3">
+          {/* Search Input */}
+          <div className="relative w-full lg:w-96">
+            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search by order number, customer name, phone, or tracking..."
+              className="w-full bg-slate-50 border border-slate-200 pl-10 pr-9 py-2 rounded-xl text-xs font-bold text-slate-900 focus:bg-white focus:outline-none focus:border-[#00AEEF] focus:ring-2 focus:ring-[#00AEEF]/10 transition-all shadow-2xs"
+            />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => setSearchQuery("")}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5 rounded cursor-pointer"
+                title="Clear Search"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            )}
+          </div>
+
+          {/* Quick Date Presets, Dropdown, Status Filter & Reset Controls */}
+          <div className="flex flex-wrap items-center gap-2">
+            {/* Quick Date Buttons: All, Today, Yesterday, 7 Days */}
+            <div className="inline-flex items-center p-1 bg-slate-100 rounded-xl gap-1 border border-slate-200/80">
+              {[
+                { id: "all", label: "All Dates" },
+                { id: "today", label: "Today" },
+                { id: "yesterday", label: "Yesterday" },
+                { id: "last_7_days", label: "7 Days" },
+              ].map((tab) => {
+                const active = dateFilter === tab.id;
+                return (
+                  <button
+                    key={tab.id}
+                    type="button"
+                    onClick={() => setDateFilter(tab.id as OrderDateFilterType)}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                      active
+                        ? "bg-[#00AEEF] text-white shadow-2xs"
+                        : "text-slate-600 hover:text-slate-900 hover:bg-white/70"
+                    }`}
+                  >
+                    {tab.label}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Date Range Selector Dropdown */}
+            <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5 focus-within:border-[#00AEEF] focus-within:bg-white transition-all shadow-2xs">
+              <Calendar className="w-3.5 h-3.5 text-[#00AEEF] shrink-0" />
+              <select
+                value={dateFilter}
+                onChange={(e) => setDateFilter(e.target.value as OrderDateFilterType)}
+                className="bg-transparent text-xs text-slate-800 font-bold focus:outline-none cursor-pointer"
+              >
+                <option value="all">More Dates...</option>
+                <option value="today">Today</option>
+                <option value="yesterday">Yesterday</option>
+                <option value="last_7_days">Last 7 Days</option>
+                <option value="last_30_days">Last 30 Days</option>
+                <option value="this_month">This Month</option>
+                <option value="custom">Custom Date Range...</option>
+              </select>
+            </div>
+
+            {/* Order Status Selector */}
+            <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5 focus-within:border-[#00AEEF] focus-within:bg-white transition-all shadow-2xs">
+              <Filter className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="bg-transparent text-xs text-slate-800 font-bold focus:outline-none cursor-pointer"
+              >
+                <option value="all">All Order Statuses</option>
+                {ORDER_STATUSES.map((st) => (
+                  <option key={st} value={st}>
+                    {st.replace(/_/g, " ")}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Reset All Filters Button */}
+            {(dateFilter !== "all" || statusFilter !== "all" || searchQuery.trim()) && (
+              <button
+                type="button"
+                onClick={() => {
+                  setDateFilter("all");
+                  setStatusFilter("all");
+                  setSearchQuery("");
+                  setCustomStartDate("");
+                  setCustomEndDate("");
+                }}
+                className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-bold text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-xl transition-all cursor-pointer shadow-2xs"
+                title="Reset active filters"
+              >
+                <RotateCcw className="w-3 h-3" />
+                <span>Reset</span>
+              </button>
+            )}
+          </div>
         </div>
 
-        <div className="flex items-center gap-3 w-full sm:w-auto">
-          <Filter className="w-4 h-4 text-slate-400" />
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 font-bold focus:bg-white focus:outline-none focus:border-[#00AEEF]"
-          >
-            <option value="all">All Order Statuses</option>
-            {ORDER_STATUSES.map((st) => (
-              <option key={st} value={st}>
-                {st.replace(/_/g, " ")}
-              </option>
-            ))}
-          </select>
-        </div>
+        {/* Custom Date Range Picker */}
+        {dateFilter === "custom" && (
+          <div className="flex flex-wrap items-center gap-3 pt-2.5 border-t border-slate-100 animate-in fade-in slide-in-from-top-1 duration-200">
+            <span className="text-xs font-black uppercase text-slate-600 tracking-wider flex items-center gap-1.5">
+              <Calendar className="w-3.5 h-3.5 text-[#00AEEF]" />
+              Custom Date Window:
+            </span>
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1 text-xs">
+                <span className="text-[10px] font-black uppercase text-slate-400">From</span>
+                <input
+                  type="date"
+                  value={customStartDate}
+                  onChange={(e) => setCustomStartDate(e.target.value)}
+                  className="bg-transparent font-bold text-slate-900 focus:outline-none text-xs"
+                />
+              </div>
+              <span className="text-slate-400 text-xs font-bold">to</span>
+              <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1 text-xs">
+                <span className="text-[10px] font-black uppercase text-slate-400">To</span>
+                <input
+                  type="date"
+                  value={customEndDate}
+                  onChange={(e) => setCustomEndDate(e.target.value)}
+                  className="bg-transparent font-bold text-slate-900 focus:outline-none text-xs"
+                />
+              </div>
+            </div>
+            {(customStartDate || customEndDate) && (
+              <button
+                type="button"
+                onClick={() => {
+                  setCustomStartDate("");
+                  setCustomEndDate("");
+                }}
+                className="text-[11px] font-bold text-slate-500 hover:text-slate-800 underline cursor-pointer"
+              >
+                Clear Dates
+              </button>
+            )}
+          </div>
+        )}
       </div>
 
       {/* 3. Orders & Section 31 Shipping Info Table */}
@@ -585,28 +861,55 @@ export default function AdminOrdersPage() {
                       <div className="font-extrabold text-slate-800 text-sm">
                         {searchQuery
                           ? `No orders matching "${searchQuery}"`
+                          : isDateActive
+                          ? `No orders found for ${dateFilter === "today" ? "today" : dateFilter === "yesterday" ? "yesterday" : dateFilterLabel}`
                           : "No orders found"}
                       </div>
                       <p className="text-xs text-slate-500">
                         {searchQuery
                           ? "We couldn't find any orders matching this order number, customer name, phone, or tracking ID."
+                          : isDateActive
+                          ? "There are no customer orders recorded in the system for this specific time window."
                           : "No orders currently match the selected status or channel."}
                       </p>
-                      {searchQuery && (
-                        <button
-                          type="button"
-                          onClick={() => setSearchQuery("")}
-                          className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl text-xs font-bold transition-all shadow-2xs cursor-pointer"
-                        >
-                          Clear Search
-                        </button>
-                      )}
+                      <div className="flex items-center justify-center gap-2 pt-1 flex-wrap">
+                        {searchQuery && (
+                          <button
+                            type="button"
+                            onClick={() => setSearchQuery("")}
+                            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl text-xs font-bold transition-all shadow-2xs cursor-pointer"
+                          >
+                            Clear Search
+                          </button>
+                        )}
+                        {isDateActive && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setDateFilter("all");
+                              setCustomStartDate("");
+                              setCustomEndDate("");
+                            }}
+                            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-[#00AEEF] hover:bg-[#0098d1] text-white rounded-xl text-xs font-bold transition-all shadow-2xs cursor-pointer"
+                          >
+                            Show All Dates
+                          </button>
+                        )}
+                      </div>
                     </div>
                   </td>
                 </tr>
               ) : (
                 filteredOrders.map((ord) => {
                   const ordChannel = getOrderChannel(ord);
+                  const orderTs = getOrderTimestamp(ord);
+                  const ordDate = orderTs > 0 ? new Date(orderTs) : null;
+                  const isOrderToday = ordDate
+                    ? ordDate.getFullYear() === new Date().getFullYear() &&
+                      ordDate.getMonth() === new Date().getMonth() &&
+                      ordDate.getDate() === new Date().getDate()
+                    : false;
+
                   return (
                     <tr
                       key={ord.id}
@@ -618,15 +921,22 @@ export default function AdminOrdersPage() {
                           <ShoppingBag className="w-3.5 h-3.5 text-[#00AEEF]" />
                           <span>{ord.orderNumber}</span>
                         </div>
-                        <div className="text-[10px] text-slate-400 font-mono mt-0.5">
-                          {ord.createdAt
-                            ? new Date(ord.createdAt).toLocaleDateString("en-IN", {
-                                day: "2-digit",
-                                month: "short",
-                                hour: "2-digit",
-                                minute: "2-digit",
-                              })
-                            : "Recent Order"}
+                        <div className="text-[10px] text-slate-400 font-mono mt-0.5 flex items-center gap-1.5 flex-wrap">
+                          <span>
+                            {orderTs > 0
+                              ? new Date(orderTs).toLocaleDateString("en-IN", {
+                                  day: "2-digit",
+                                  month: "short",
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                })
+                              : ord.date || "Recent Order"}
+                          </span>
+                          {isOrderToday && (
+                            <span className="bg-emerald-100 text-emerald-800 text-[9px] font-black px-1.5 py-0.2 rounded uppercase tracking-wider">
+                              Today
+                            </span>
+                          )}
                         </div>
                         <div className="mt-1 flex items-center gap-1.5 flex-wrap">
                           {ordChannel === "WEBSITE" ? (

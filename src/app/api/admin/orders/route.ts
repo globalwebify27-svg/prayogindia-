@@ -2,7 +2,7 @@
 import { NextResponse } from "next/server";
 import { db, isDatabaseAvailable } from "@/lib/db";
 import { getAuthenticatedAdmin } from "@/lib/adminAuth";
-import { MOCK_CUSTOMER_ORDERS } from "@/data/accountData";
+import { MOCK_CUSTOMER_ORDERS, getOrderTimestamp } from "@/data/accountData";
 
 // GET /api/admin/orders - List All Orders for Super Admin Management
 export async function GET(request: Request) {
@@ -18,6 +18,9 @@ export async function GET(request: Request) {
   const status = searchParams.get("status");
   const channel = searchParams.get("channel"); // 'all' | 'WEBSITE' | 'MOBILE_APP' | 'WALK_IN'
   const searchParam = searchParams.get("search")?.trim();
+  const dateFilter = searchParams.get("dateFilter"); // 'all' | 'today' | 'yesterday' | 'last_7_days' | 'last_30_days' | 'this_month' | 'custom'
+  const startDate = searchParams.get("startDate");
+  const endDate = searchParams.get("endDate");
   const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
   const limit = Math.min(
     200,
@@ -110,6 +113,46 @@ export async function GET(request: Request) {
           delete where.OR;
         } else {
           where.OR = searchConditions;
+        }
+      }
+
+      if (dateFilter && dateFilter !== "all") {
+        const now = new Date();
+        const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        const ONE_DAY_MS = 24 * 60 * 60 * 1000;
+
+        if (dateFilter === "today") {
+          where.createdAt = { gte: todayStart };
+        } else if (dateFilter === "yesterday") {
+          where.createdAt = {
+            gte: new Date(todayStart.getTime() - ONE_DAY_MS),
+            lt: todayStart,
+          };
+        } else if (dateFilter === "last_7_days") {
+          where.createdAt = {
+            gte: new Date(todayStart.getTime() - 6 * ONE_DAY_MS),
+          };
+        } else if (dateFilter === "last_30_days") {
+          where.createdAt = {
+            gte: new Date(todayStart.getTime() - 29 * ONE_DAY_MS),
+          };
+        } else if (dateFilter === "this_month") {
+          where.createdAt = {
+            gte: new Date(now.getFullYear(), now.getMonth(), 1),
+          };
+        } else if (dateFilter === "custom") {
+          const dateRange: any = {};
+          if (startDate) {
+            const s = new Date(startDate + "T00:00:00");
+            if (!isNaN(s.getTime())) dateRange.gte = s;
+          }
+          if (endDate) {
+            const e = new Date(endDate + "T23:59:59.999");
+            if (!isNaN(e.getTime())) dateRange.lte = e;
+          }
+          if (dateRange.gte || dateRange.lte) {
+            where.createdAt = dateRange;
+          }
         }
       }
 
@@ -446,6 +489,35 @@ export async function GET(request: Request) {
         itemsMatch;
 
       if (!matches) return false;
+    }
+
+    if (dateFilter && dateFilter !== "all") {
+      const ts = getOrderTimestamp(o);
+      if (ts > 0) {
+        const ordDate = new Date(ts);
+        const now = new Date();
+        const ordDay = new Date(ordDate.getFullYear(), ordDate.getMonth(), ordDate.getDate()).getTime();
+        const todayDay = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+        const ONE_DAY_MS = 24 * 60 * 60 * 1000;
+
+        if (dateFilter === "today" && ordDay !== todayDay) return false;
+        if (dateFilter === "yesterday" && ordDay !== todayDay - ONE_DAY_MS) return false;
+        if (dateFilter === "last_7_days" && (ordDay < todayDay - 6 * ONE_DAY_MS || ordDay > todayDay + ONE_DAY_MS)) return false;
+        if (dateFilter === "last_30_days" && (ordDay < todayDay - 29 * ONE_DAY_MS || ordDay > todayDay + ONE_DAY_MS)) return false;
+        if (dateFilter === "this_month" && (ordDate.getFullYear() !== now.getFullYear() || ordDate.getMonth() !== now.getMonth())) return false;
+        if (dateFilter === "custom") {
+          if (startDate) {
+            const [sy, sm, sd] = startDate.split("-").map(Number);
+            const st = new Date(sy, sm - 1, sd, 0, 0, 0, 0).getTime();
+            if (!isNaN(st) && ts < st) return false;
+          }
+          if (endDate) {
+            const [ey, em, ed] = endDate.split("-").map(Number);
+            const et = new Date(ey, em - 1, ed, 23, 59, 59, 999).getTime();
+            if (!isNaN(et) && ts > et) return false;
+          }
+        }
+      }
     }
 
     return true;
