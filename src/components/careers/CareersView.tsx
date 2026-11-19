@@ -17,25 +17,13 @@ import {
 
 export const CareersView: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedDept, setSelectedDept] = useState("all");
-
-  // Derive unique departments
-  const departments = useMemo(() => {
-    const set = new Set(JOB_OPENINGS.map((j) => j.department));
-    return ["all", ...Array.from(set)];
-  }, []);
 
   // Filter positions
   const filteredJobs = useMemo(() => {
+    if (!searchQuery.trim()) return JOB_OPENINGS;
+
+    const q = searchQuery.toLowerCase().trim();
     return JOB_OPENINGS.filter((job) => {
-      const matchesDept =
-        selectedDept === "all" || job.department === selectedDept;
-
-      if (!matchesDept) return false;
-
-      if (!searchQuery.trim()) return true;
-
-      const q = searchQuery.toLowerCase().trim();
       const inTitle = job.title.toLowerCase().includes(q);
       const inDept = job.department.toLowerCase().includes(q);
       const inDesc = job.shortDescription.toLowerCase().includes(q);
@@ -43,7 +31,7 @@ export const CareersView: React.FC = () => {
 
       return inTitle || inDept || inDesc || inTags;
     });
-  }, [selectedDept, searchQuery]);
+  }, [searchQuery]);
 
   return (
     <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-8 animate-in fade-in duration-300">
@@ -99,37 +87,6 @@ export const CareersView: React.FC = () => {
             )}
           </div>
         </div>
-
-        {/* Department Filter Pills */}
-        <div className="flex flex-wrap items-center gap-1.5">
-          {departments.map((dept) => {
-            const active = selectedDept === dept;
-            const count =
-              dept === "all"
-                ? JOB_OPENINGS.length
-                : JOB_OPENINGS.filter((j) => j.department === dept).length;
-            return (
-              <button
-                key={dept}
-                onClick={() => setSelectedDept(dept)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                  active
-                    ? "bg-[#00AEEF] text-white shadow-xs"
-                    : "bg-white hover:bg-slate-50 text-slate-600 border border-slate-200"
-                }`}
-              >
-                <span>{dept === "all" ? "All Departments" : dept}</span>
-                <span
-                  className={`text-[10px] px-1.5 py-0.2 rounded-full font-black ${
-                    active ? "bg-white/20 text-white" : "bg-slate-100 text-slate-600"
-                  }`}
-                >
-                  {count}
-                </span>
-              </button>
-            );
-          })}
-        </div>
       </div>
 
       {/* 4. Clean & Polished Job Cards */}
@@ -140,16 +97,13 @@ export const CareersView: React.FC = () => {
             No Roles Found
           </h3>
           <p className="text-xs text-slate-500">
-            Try clearing your search or department filter.
+            Try clearing your search query.
           </p>
           <button
-            onClick={() => {
-              setSearchQuery("");
-              setSelectedDept("all");
-            }}
+            onClick={() => setSearchQuery("")}
             className="text-xs text-[#00AEEF] font-bold hover:underline cursor-pointer pt-1"
           >
-            Reset Filters
+            Reset Search
           </button>
         </div>
       ) : (
