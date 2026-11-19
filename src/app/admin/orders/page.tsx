@@ -23,7 +23,6 @@ import {
   Quote,
   ArrowRight,
   Calendar,
-  RotateCcw,
 } from "lucide-react";
 
 type OrderDateFilterType =
@@ -679,16 +678,16 @@ export default function AdminOrdersPage() {
 
       {/* 2. Search & Filter Bar */}
       <div className="bg-white p-4 rounded-2xl border border-slate-200/90 shadow-2xs space-y-3">
-        <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
           {/* Search Input */}
-          <div className="relative w-full lg:w-96">
+          <div className="relative w-full sm:w-96">
             <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search by order number, customer name, phone, or tracking..."
-              className="w-full bg-slate-50 border border-slate-200 pl-10 pr-9 py-2 rounded-xl text-xs font-bold text-slate-900 focus:bg-white focus:outline-none focus:border-[#00AEEF] focus:ring-2 focus:ring-[#00AEEF]/10 transition-all shadow-2xs"
+              className="w-full bg-slate-50 border border-slate-200 pl-10 pr-9 py-2.5 rounded-xl text-xs font-bold text-slate-900 focus:bg-white focus:outline-none focus:border-[#00AEEF] focus:ring-2 focus:ring-[#00AEEF]/10 transition-all shadow-2xs"
             />
             {searchQuery && (
               <button
@@ -702,43 +701,17 @@ export default function AdminOrdersPage() {
             )}
           </div>
 
-          {/* Quick Date Presets, Dropdown, Status Filter & Reset Controls */}
-          <div className="flex flex-wrap items-center gap-2">
-            {/* Quick Date Buttons: All, Today, Yesterday, 7 Days */}
-            <div className="inline-flex items-center p-1 bg-slate-100 rounded-xl gap-1 border border-slate-200/80">
-              {[
-                { id: "all", label: "All Dates" },
-                { id: "today", label: "Today" },
-                { id: "yesterday", label: "Yesterday" },
-                { id: "last_7_days", label: "7 Days" },
-              ].map((tab) => {
-                const active = dateFilter === tab.id;
-                return (
-                  <button
-                    key={tab.id}
-                    type="button"
-                    onClick={() => setDateFilter(tab.id as OrderDateFilterType)}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                      active
-                        ? "bg-[#00AEEF] text-white shadow-2xs"
-                        : "text-slate-600 hover:text-slate-900 hover:bg-white/70"
-                    }`}
-                  >
-                    {tab.label}
-                  </button>
-                );
-              })}
-            </div>
-
+          {/* Symmetrical Filter Dropdowns: Date Range & Order Status */}
+          <div className="flex items-center gap-2.5 w-full sm:w-auto">
             {/* Date Range Selector Dropdown */}
-            <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5 focus-within:border-[#00AEEF] focus-within:bg-white transition-all shadow-2xs">
-              <Calendar className="w-3.5 h-3.5 text-[#00AEEF] shrink-0" />
+            <div className="flex items-center gap-2 bg-slate-50 hover:bg-slate-100/70 border border-slate-200 rounded-xl px-3 py-2.5 focus-within:border-[#00AEEF] focus-within:bg-white focus-within:ring-2 focus-within:ring-[#00AEEF]/10 transition-all shadow-2xs">
+              <Calendar className="w-4 h-4 text-[#00AEEF] shrink-0" />
               <select
                 value={dateFilter}
                 onChange={(e) => setDateFilter(e.target.value as OrderDateFilterType)}
-                className="bg-transparent text-xs text-slate-800 font-bold focus:outline-none cursor-pointer"
+                className="bg-transparent text-xs text-slate-800 font-bold focus:outline-none cursor-pointer pr-1"
               >
-                <option value="all">More Dates...</option>
+                <option value="all">All Dates</option>
                 <option value="today">Today</option>
                 <option value="yesterday">Yesterday</option>
                 <option value="last_7_days">Last 7 Days</option>
@@ -749,12 +722,12 @@ export default function AdminOrdersPage() {
             </div>
 
             {/* Order Status Selector */}
-            <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5 focus-within:border-[#00AEEF] focus-within:bg-white transition-all shadow-2xs">
-              <Filter className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+            <div className="flex items-center gap-2 bg-slate-50 hover:bg-slate-100/70 border border-slate-200 rounded-xl px-3 py-2.5 focus-within:border-[#00AEEF] focus-within:bg-white focus-within:ring-2 focus-within:ring-[#00AEEF]/10 transition-all shadow-2xs">
+              <Filter className="w-4 h-4 text-slate-400 shrink-0" />
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="bg-transparent text-xs text-slate-800 font-bold focus:outline-none cursor-pointer"
+                className="bg-transparent text-xs text-slate-800 font-bold focus:outline-none cursor-pointer pr-1"
               >
                 <option value="all">All Order Statuses</option>
                 {ORDER_STATUSES.map((st) => (
@@ -764,25 +737,6 @@ export default function AdminOrdersPage() {
                 ))}
               </select>
             </div>
-
-            {/* Reset All Filters Button */}
-            {(dateFilter !== "all" || statusFilter !== "all" || searchQuery.trim()) && (
-              <button
-                type="button"
-                onClick={() => {
-                  setDateFilter("all");
-                  setStatusFilter("all");
-                  setSearchQuery("");
-                  setCustomStartDate("");
-                  setCustomEndDate("");
-                }}
-                className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-bold text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-xl transition-all cursor-pointer shadow-2xs"
-                title="Reset active filters"
-              >
-                <RotateCcw className="w-3 h-3" />
-                <span>Reset</span>
-              </button>
-            )}
           </div>
         </div>
 
