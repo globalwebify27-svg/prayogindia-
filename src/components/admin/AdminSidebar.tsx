@@ -40,6 +40,7 @@ import {
   Image as ImageIcon,
   CreditCard,
   Search,
+  Briefcase,
 } from "lucide-react";
 import { PrayogLogo } from "@/components/PrayogLogo";
 
@@ -178,6 +179,12 @@ const NAV_GROUPS: NavGroup[] = [
         badge: "ABOUT",
       },
       {
+        label: "Careers & Jobs",
+        href: "/admin/careers",
+        icon: Briefcase,
+        badge: "JOBS",
+      },
+      {
         label: "Learning Hub",
         href: "/admin/learning",
         icon: BookOpen,
@@ -284,6 +291,7 @@ const getNavIconColor = (href: string, isActive: boolean) => {
   if (href.startsWith("/admin/cms")) return "text-violet-400";
   if (href.startsWith("/admin/whatsapp")) return "text-emerald-400";
   if (href.startsWith("/admin/about-showcase")) return "text-purple-400";
+  if (href.startsWith("/admin/careers")) return "text-teal-400";
   if (href.startsWith("/admin/learning")) return "text-[#38BDF8]";
   if (href.startsWith("/admin/staff")) return "text-cyan-400";
   if (href.startsWith("/admin/support")) return "text-emerald-400";

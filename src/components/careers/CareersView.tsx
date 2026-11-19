@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
 import { CategoryBreadcrumb } from "@/components/categories/CategoryBreadcrumb";
 import { JOB_OPENINGS, COMPANY_INFO } from "@/data/companyData";
@@ -16,14 +16,26 @@ import {
 } from "lucide-react";
 
 export const CareersView: React.FC = () => {
+  const [jobs, setJobs] = useState(JOB_OPENINGS);
   const [searchQuery, setSearchQuery] = useState("");
+
+  useEffect(() => {
+    fetch("/api/careers")
+      .then((res) => res.json())
+      .then((json) => {
+        if (json?.success && Array.isArray(json.data)) {
+          setJobs(json.data);
+        }
+      })
+      .catch((err) => console.error("Error fetching careers list:", err));
+  }, []);
 
   // Filter positions
   const filteredJobs = useMemo(() => {
-    if (!searchQuery.trim()) return JOB_OPENINGS;
+    if (!searchQuery.trim()) return jobs;
 
     const q = searchQuery.toLowerCase().trim();
-    return JOB_OPENINGS.filter((job) => {
+    return jobs.filter((job) => {
       const inTitle = job.title.toLowerCase().includes(q);
       const inDept = job.department.toLowerCase().includes(q);
       const inDesc = job.shortDescription.toLowerCase().includes(q);
@@ -31,7 +43,7 @@ export const CareersView: React.FC = () => {
 
       return inTitle || inDept || inDesc || inTags;
     });
-  }, [searchQuery]);
+  }, [jobs, searchQuery]);
 
   return (
     <div className="w-full max-w-6xl mx-auto px-3.5 sm:px-6 lg:px-8 py-4 sm:py-6 pb-28 sm:pb-12 space-y-4 sm:space-y-6 animate-in fade-in duration-300">

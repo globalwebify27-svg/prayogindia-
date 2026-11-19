@@ -15,12 +15,28 @@ import {
 
 interface JobDetailProps {
   slug: string;
+  initialJob?: JobOpening;
 }
 
-export const JobDetailView: React.FC<JobDetailProps> = ({ slug }) => {
-  const job =
-    JOB_OPENINGS.find((j) => j.slug === slug || j.id === slug) ||
-    JOB_OPENINGS[0];
+export const JobDetailView: React.FC<JobDetailProps> = ({ slug, initialJob }) => {
+  const [job, setJob] = useState<JobOpening>(() => {
+    return (
+      initialJob ||
+      JOB_OPENINGS.find((j) => j.slug === slug || j.id === slug) ||
+      JOB_OPENINGS[0]
+    );
+  });
+
+  React.useEffect(() => {
+    fetch(`/api/careers/${encodeURIComponent(slug)}`)
+      .then((res) => res.json())
+      .then((json) => {
+        if (json?.success && json.data) {
+          setJob(json.data);
+        }
+      })
+      .catch((e) => console.error("Error fetching job detail:", e));
+  }, [slug]);
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
