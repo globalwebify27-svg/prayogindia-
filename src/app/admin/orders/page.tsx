@@ -226,23 +226,65 @@ export default function AdminOrdersPage() {
       .then((data) => {
         let items: any[] = data.success && data.data?.items ? data.data.items : [];
 
-        // Merge locally placed website and walk-in orders (live demo / offline fallback)
+        // Merge locally stored orders (website + walk-in) for demo/offline fallback.
+        // RULE: When a search is active, ONLY add localStorage orders whose orderNumber
+        //       is an exact partial match of the search string. Walk-in (WI-*) orders
+        //       are NEVER merged when searching for a PRG-/QUO-/B2B- order number,
+        //       and vice versa. This prevents cross-channel contamination entirely.
         try {
           const stored = typeof window !== "undefined" ? localStorage.getItem("prayog_placed_orders") : null;
           const walkinStored = typeof window !== "undefined" ? localStorage.getItem("prayog_walkin_orders") : null;
-          let mergedLocals: any[] = [];
+
+          let websiteLocals: any[] = [];
+          let walkinLocals: any[] = [];
+
           if (stored) {
             const parsed = JSON.parse(stored);
-            if (Array.isArray(parsed)) mergedLocals.push(...parsed);
+            if (Array.isArray(parsed)) {
+              // Separate website orders (PRG-/QUO-/APP-) from walk-in orders (WI-/walk-)
+              parsed.forEach((o: any) => {
+                const num = String(o.orderNumber || o.id || "").toUpperCase();
+                if (num.startsWith("WI-") || num.startsWith("WALK-") || num.includes("POS") || (o.orderSource === "WALK_IN")) {
+                  walkinLocals.push(o);
+                } else {
+                  websiteLocals.push(o);
+                }
+              });
+            }
           }
           if (walkinStored) {
             const parsedW = JSON.parse(walkinStored);
-            if (Array.isArray(parsedW)) mergedLocals.push(...parsedW);
+            if (Array.isArray(parsedW)) walkinLocals.push(...parsedW);
           }
-          // CRITICAL: Always filter local orders by search to prevent unrelated orders leaking in
+
+          let mergedLocals: any[] = [];
+
           if (cleanSearch) {
-            mergedLocals = mergedLocals.filter((o: any) => matchesOrder(o, cleanSearch));
+            const qUp = cleanSearch.toUpperCase().replace(/^#/, "");
+            // Determine which channel the search targets
+            const searchesWebsite = qUp.startsWith("PRG-") || qUp.startsWith("QUO-") || qUp.startsWith("B2B-") || qUp.startsWith("APP-");
+            const searchesWalkIn  = qUp.startsWith("WI-") || qUp.startsWith("ORD-PATNA") || qUp.startsWith("ORD-RANCHI");
+
+            if (searchesWebsite) {
+              // Only check website orders; never include walk-in orders
+              mergedLocals = websiteLocals.filter((o: any) =>
+                String(o.orderNumber || "").toUpperCase().includes(qUp) ||
+                String(o.id || "").toUpperCase().replace(/^ORD-/, "").includes(qUp)
+              );
+            } else if (searchesWalkIn) {
+              // Only check walk-in orders; never include website orders
+              mergedLocals = walkinLocals.filter((o: any) =>
+                String(o.orderNumber || "").toUpperCase().includes(qUp)
+              );
+            } else {
+              // Generic search (name, phone, etc.) — search all, use full matchesOrder
+              mergedLocals = [...websiteLocals, ...walkinLocals].filter((o: any) => matchesOrder(o, cleanSearch));
+            }
+          } else {
+            // No search — show everything
+            mergedLocals = [...websiteLocals, ...walkinLocals];
           }
+
           if (mergedLocals.length > 0) {
             const existingOrderNums = new Set(items.map((o: any) => o.orderNumber));
             const missingLocals = mergedLocals.filter((o: any) => !existingOrderNums.has(o.orderNumber));
@@ -259,22 +301,51 @@ export default function AdminOrdersPage() {
         setOrders(items);
       })
       .catch(() => {
-        // Offline fallback: load from localStorage only
+        // Offline fallback: load from localStorage only with same strict channel logic
         try {
           const stored = typeof window !== "undefined" ? localStorage.getItem("prayog_placed_orders") : null;
           const walkinStored = typeof window !== "undefined" ? localStorage.getItem("prayog_walkin_orders") : null;
-          let locals: any[] = [];
+          let websiteLocals: any[] = [];
+          let walkinLocals: any[] = [];
           if (stored) {
             const parsed = JSON.parse(stored);
-            if (Array.isArray(parsed)) locals.push(...parsed);
+            if (Array.isArray(parsed)) {
+              parsed.forEach((o: any) => {
+                const num = String(o.orderNumber || o.id || "").toUpperCase();
+                if (num.startsWith("WI-") || num.startsWith("WALK-") || num.includes("POS") || (o.orderSource === "WALK_IN")) {
+                  walkinLocals.push(o);
+                } else {
+                  websiteLocals.push(o);
+                }
+              });
+            }
           }
           if (walkinStored) {
             const parsedW = JSON.parse(walkinStored);
-            if (Array.isArray(parsedW)) locals.push(...parsedW);
+            if (Array.isArray(parsedW)) walkinLocals.push(...parsedW);
           }
+
+          let locals: any[] = [];
           if (cleanSearch) {
-            locals = locals.filter((o: any) => matchesOrder(o, cleanSearch));
+            const qUp = cleanSearch.toUpperCase().replace(/^#/, "");
+            const searchesWebsite = qUp.startsWith("PRG-") || qUp.startsWith("QUO-") || qUp.startsWith("B2B-") || qUp.startsWith("APP-");
+            const searchesWalkIn  = qUp.startsWith("WI-") || qUp.startsWith("ORD-PATNA") || qUp.startsWith("ORD-RANCHI");
+            if (searchesWebsite) {
+              locals = websiteLocals.filter((o: any) =>
+                String(o.orderNumber || "").toUpperCase().includes(qUp) ||
+                String(o.id || "").toUpperCase().replace(/^ORD-/, "").includes(qUp)
+              );
+            } else if (searchesWalkIn) {
+              locals = walkinLocals.filter((o: any) =>
+                String(o.orderNumber || "").toUpperCase().includes(qUp)
+              );
+            } else {
+              locals = [...websiteLocals, ...walkinLocals].filter((o: any) => matchesOrder(o, cleanSearch));
+            }
+          } else {
+            locals = [...websiteLocals, ...walkinLocals];
           }
+
           locals.sort(
             (a: any, b: any) =>
               getOrderTimestamp(b) - getOrderTimestamp(a),
@@ -316,15 +387,28 @@ export default function AdminOrdersPage() {
     return orders.filter((o) => matchesOrder(o, searchQuery));
   }, [orders, searchQuery]);
 
-  // Safe and responsive client-side order filtering
+  // Safe and responsive client-side order filtering — FINAL render guard.
+  // Uses channel-aware strict matching: searching PRG-* never shows WI-* rows, ever.
   const filteredOrders = useMemo(() => {
+    const q = searchQuery.trim();
+    const qUp = q.toUpperCase().replace(/^#/, "");
+    const searchesWebsite = qUp.startsWith("PRG-") || qUp.startsWith("QUO-") || qUp.startsWith("B2B-") || qUp.startsWith("APP-");
+    const searchesWalkIn  = qUp.startsWith("WI-") || qUp.startsWith("ORD-PATNA") || qUp.startsWith("ORD-RANCHI");
+
     return orders.filter((ord) => {
-      const matchesSearch = matchesOrder(ord, searchQuery);
       const ordChannel = getOrderChannel(ord);
       const matchesChannel =
         channelFilter === "all" || ordChannel === channelFilter;
+      if (!matchesChannel) return false;
 
-      return matchesSearch && matchesChannel;
+      if (!q) return true;
+
+      // Channel-based hard exclusion: PRG-* search → never show WI-* rows
+      if (searchesWebsite && ordChannel === "WALK_IN") return false;
+      // WI-* search → never show PRG-* rows
+      if (searchesWalkIn && ordChannel !== "WALK_IN") return false;
+
+      return matchesOrder(ord, q);
     });
   }, [orders, searchQuery, channelFilter]);
 
