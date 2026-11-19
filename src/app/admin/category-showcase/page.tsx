@@ -37,11 +37,11 @@ const PRESET_IMAGES = [
   { name: "Arduino Uno Board", url: "/products/arduino_cutout.png" },
   { name: "HC-SR04 Sensor", url: "/products/sensors_cutout.png" },
   { name: "Aerial Drone", url: "/products/drone_cutout.png" },
+  { name: "Robot Chassis Kit", url: "/products/robot_chassis_cutout.png" },
   { name: "ESP32 Wireless", url: "/products/esp32_devkit_cutout.png" },
   { name: "Raspberry Pi Board", url: "/products/raspberry_pi_board.png" },
   { name: "Jumper Wires & Parts", url: "/products/jumper_wires.png" },
-  { name: "Robotics Catalog", url: "https://res.cloudinary.com/fyueflvh/image/upload/v1788595386/prayog/products/prod_catalog_template_4.jpg" },
-  { name: "Drone Flight Lab", url: "/images/drone_banner_lab.jpg" },
+  { name: "L298N Motor Driver", url: "/products/l298n_cutout.png" },
 ];
 
 const THEME_OPTIONS = [

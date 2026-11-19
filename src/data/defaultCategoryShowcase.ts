@@ -102,7 +102,7 @@ export const DEFAULT_CATEGORY_SHOWCASE: CategoryCardItem[] = [
     badgeIcon: "graduation",
     themeColor: "indigo",
     isFeatured: false,
-    image: "/products/robot_car_stem.png",
+    image: "/products/robot_chassis_cutout.png",
     imageAlt: "STEM Educational & DIY Maker Kits",
     sortOrder: 5,
     isActive: true,
