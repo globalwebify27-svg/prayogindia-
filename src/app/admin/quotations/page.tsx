@@ -1090,19 +1090,6 @@ export default function QuotationsPage() {
               </div>
             </div>
 
-            {/* Customer Provided Reference Links & Requirements */}
-            {selectedDoc.notes && (
-              <div className="bg-sky-50/70 border border-sky-200/90 rounded-2xl p-4 space-y-2">
-                <span className="text-[11px] font-black uppercase text-sky-950 tracking-wider flex items-center gap-1.5">
-                  <Link2 className="w-3.5 h-3.5 text-[#00AEEF]" />
-                  Customer Reference Links &amp; Requirements
-                </span>
-                <div className="text-xs text-slate-700 whitespace-pre-line leading-relaxed font-sans bg-white p-3 rounded-xl border border-sky-100">
-                  {selectedDoc.notes}
-                </div>
-              </div>
-            )}
-
             {/* Product items table */}
             <div className="border border-slate-200 rounded-2xl overflow-hidden">
               <table className="w-full text-left text-xs">
