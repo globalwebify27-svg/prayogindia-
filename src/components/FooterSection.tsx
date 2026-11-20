@@ -2,6 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import {
   Mail,
   Phone,
@@ -13,7 +14,6 @@ import {
   GraduationCap,
   Settings,
   ChevronRight,
-  ArrowRight,
   Lock,
   CheckCircle2,
 } from "lucide-react";
@@ -52,7 +52,7 @@ const DroneIcon: React.FC<{ className?: string }> = ({ className = "w-5 h-5" }) 
 
 export const FooterSection: React.FC = () => {
   return (
-    <footer className="relative bg-[#030712] text-white pt-8 pb-24 lg:pb-10 border-t border-cyan-500/30 overflow-hidden font-inter select-none">
+    <footer className="relative bg-[#030712] text-white pt-8 pb-24 lg:pb-10 border-t border-cyan-500/30 overflow-hidden font-inter select-none" style={{ background: "linear-gradient(135deg, #030b1a 0%, #040e22 40%, #030b1a 100%)" }}>
       {/* ── Top Neon Cyber Cyan Accent Line ── */}
       <div className="absolute top-0 inset-x-0 h-[2px] bg-gradient-to-r from-transparent via-[#00F0FF] to-transparent shadow-[0_0_15px_#00F0FF] z-20" />
 
@@ -115,6 +115,30 @@ export const FooterSection: React.FC = () => {
             PRAYOG INDIA
           </span>
         </div>
+      </div>
+
+      {/* ── Decorative Robot Arm — far left ── */}
+      <div className="absolute left-0 bottom-0 h-full w-[280px] pointer-events-none z-[1] hidden xl:block">
+        <Image
+          src="/images/robotics_arm_banner_v2.webp"
+          alt=""
+          fill
+          className="object-contain object-left-bottom opacity-30"
+          sizes="280px"
+          priority={false}
+        />
+      </div>
+
+      {/* ── Decorative Drone — far right top ── */}
+      <div className="absolute right-0 top-0 h-[260px] w-[260px] pointer-events-none z-[1] hidden xl:block">
+        <Image
+          src="/images/drone_cutout.jpg"
+          alt=""
+          fill
+          className="object-contain object-right-top opacity-25 mix-blend-screen"
+          sizes="260px"
+          priority={false}
+        />
       </div>
 
 
@@ -251,17 +275,6 @@ export const FooterSection: React.FC = () => {
                   </p>
                 </div>
               </div>
-            </div>
-
-            {/* Staff Portal Link */}
-            <div className="pt-4 mt-4 border-t border-cyan-500/20">
-              <Link
-                href="/login-staff"
-                className="inline-flex items-center gap-2 text-[11px] font-bold text-cyan-300 hover:text-white bg-cyan-950/60 hover:bg-cyan-900/60 px-3 py-1.5 rounded-lg border border-cyan-500/40 transition-all shadow-[0_0_8px_rgba(0,240,255,0.15)]"
-              >
-                <span>Staff Portal</span>
-                <ArrowRight className="w-3 h-3 text-cyan-400" />
-              </Link>
             </div>
           </div>
 
