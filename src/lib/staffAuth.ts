@@ -13,6 +13,7 @@ export interface StaffSessionUser {
   allowedStoreCodes?: string[]; // For REGIONAL_MANAGER with MULTI_STORE access
   deviceId?: string | null;
   deviceLabel?: string | null;
+  salesExecutive?: string | null;
   status: StaffStatus;
 }
 

@@ -117,8 +117,8 @@ function BranchDeviceLoginForm() {
                   required
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  placeholder="KIOSK / TABLET USERNAME"
-                  className="w-full bg-white text-slate-900 px-4 py-3.5 rounded-lg text-xs font-semibold placeholder:text-slate-400 placeholder:font-bold placeholder:tracking-widest uppercase focus:outline-none focus:ring-2 focus:ring-[#F26522] shadow-sm transition-all"
+                  placeholder="DEVICE CODE OR USERNAME (e.g. TAB-PATNA-ABHISHEK_TAB)"
+                  className="w-full bg-white text-slate-900 px-4 py-3.5 rounded-lg text-xs font-semibold placeholder:text-slate-400 placeholder:font-bold placeholder:tracking-wider uppercase focus:outline-none focus:ring-2 focus:ring-[#F26522] shadow-sm transition-all"
                 />
               </div>
 
@@ -128,9 +128,16 @@ function BranchDeviceLoginForm() {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="DEVICE PASSWORD"
-                  className="w-full bg-white text-slate-900 px-4 py-3.5 rounded-lg text-xs font-semibold placeholder:text-slate-400 placeholder:font-bold placeholder:tracking-widest uppercase focus:outline-none focus:ring-2 focus:ring-[#F26522] shadow-sm transition-all"
+                  placeholder="DEVICE PASSWORD / PIN (e.g. kiosk123)"
+                  className="w-full bg-white text-slate-900 px-4 py-3.5 rounded-lg text-xs font-semibold placeholder:text-slate-400 placeholder:font-bold placeholder:tracking-wider uppercase focus:outline-none focus:ring-2 focus:ring-[#F26522] shadow-sm transition-all"
                 />
+              </div>
+
+              <div className="bg-slate-900/60 border border-slate-700/60 rounded-lg p-2.5 text-[11px] text-slate-300 flex items-center justify-between">
+                <span>Quick Login:</span>
+                <span className="font-mono text-emerald-400 font-bold">
+                  Code: <code className="text-white">TAB-PATNA-ABHISHEK_TAB</code> | PIN: <code className="text-white">kiosk123</code>
+                </span>
               </div>
 
               <div className="pt-2">

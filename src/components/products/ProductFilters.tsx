@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useMemo } from "react";
+import { FilterFunnelIcon } from "@/components/icons/FilterFunnelIcon";
 import {
   ChevronDown,
   ChevronUp,
@@ -261,6 +262,7 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
       {/* ── 1. Top Filters Header ── */}
       <div className="flex items-center justify-between border-b border-slate-100 pb-3">
         <div className="flex items-center gap-2">
+          <FilterFunnelIcon className="w-3.5 h-3.5 text-[#2563EB]" />
           <h3 className="text-xs font-black uppercase tracking-wider text-slate-900">
             Filters
           </h3>

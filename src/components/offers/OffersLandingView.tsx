@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { CategoryBreadcrumb } from "@/components/categories/CategoryBreadcrumb";
 import { TopDealsHero } from "@/components/offers/TopDealsHero";
 import { TopDealsProductCard } from "@/components/offers/TopDealsProductCard";
@@ -11,8 +12,10 @@ import {
 } from "@/components/products/ProductToolbar";
 import { ProductFilters } from "@/components/products/ProductFilters";
 import { ActiveFilters } from "@/components/products/ActiveFilters";
+import { ProductEmptyState } from "@/components/products/ProductEmptyState";
 import { PRODUCTS, Product } from "@/data/mockData";
 import { OFFERS_DATA, COUPONS_DATA } from "@/data/offersData";
+import { FilterFunnelIcon } from "@/components/icons/FilterFunnelIcon";
 import {
   Search,
   X,
@@ -24,7 +27,6 @@ import {
   ShieldCheck,
   Truck,
   Building2,
-  SlidersHorizontal,
 } from "lucide-react";
 import { haptic } from "@/utils/haptics";
 
@@ -44,6 +46,26 @@ export const OffersLandingView: React.FC = () => {
   const [visibleCount, setVisibleCount] = useState<number>(20);
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
   const [copiedCoupon, setCopiedCoupon] = useState<string | null>(null);
+
+  // Bulletproof lock of background scroll on mobile touch & desktop wheel
+  useEffect(() => {
+    if (mobileFilterOpen) {
+      const scrollY = window.scrollY;
+      document.body.style.position = "fixed";
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.width = "100%";
+      document.body.style.overflow = "hidden";
+      document.documentElement.style.overflow = "hidden";
+      return () => {
+        document.body.style.position = "";
+        document.body.style.top = "";
+        document.body.style.width = "";
+        document.body.style.overflow = "";
+        document.documentElement.style.overflow = "";
+        window.scrollTo(0, scrollY);
+      };
+    }
+  }, [mobileFilterOpen]);
 
   // Collect offer product ids
   const offerProductIds = useMemo(() => {
@@ -347,24 +369,11 @@ export const OffersLandingView: React.FC = () => {
           {/* Right Product Grid or List */}
           <div className="flex-1 min-w-0 space-y-6">
             {dealProducts.length === 0 ? (
-              <div className="py-16 text-center bg-white rounded-2xl border border-slate-200 space-y-3 max-w-md mx-auto shadow-xs">
-                <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center mx-auto text-slate-400">
-                  <Tag className="w-6 h-6" />
-                </div>
-                <h3 className="text-base font-bold text-slate-900">
-                  No Deal Products Found
-                </h3>
-                <p className="text-xs text-slate-500 max-w-xs mx-auto">
-                  No products match your chosen filters. Try resetting search,
-                  price range, or category filter.
-                </p>
-                <button
-                  onClick={clearAllFilters}
-                  className="text-xs font-bold text-[#2563EB] bg-blue-50 hover:bg-blue-100 px-4 py-2 rounded-xl transition-colors cursor-pointer"
-                >
-                  Reset All Filters
-                </button>
-              </div>
+              <ProductEmptyState
+                onClearFilters={clearAllFilters}
+                description="No products match your chosen filters. Try resetting search, price range, or category filter."
+                buttonText="Reset All Filters"
+              />
             ) : columns === 1 ? (
               /* 1 Column / List View */
               <div className="space-y-3">
@@ -482,73 +491,121 @@ export const OffersLandingView: React.FC = () => {
         </div>
       </div>
 
-      {/* Mobile Filter Drawer */}
-      {mobileFilterOpen && (
-        <div className="fixed inset-0 z-50 overflow-hidden flex justify-end">
-          <div
-            onClick={() => setMobileFilterOpen(false)}
-            className="fixed inset-0 bg-slate-950/60 backdrop-blur-xs"
-          />
-          <div className="relative w-full max-w-xs bg-white h-full p-6 overflow-y-auto shadow-2xl space-y-4 z-10">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-200">
-              <h3 className="text-sm font-black text-slate-900 uppercase">
-                Filter Deals
-              </h3>
-              <button
-                onClick={() => setMobileFilterOpen(false)}
-                className="p-1 text-slate-400 hover:text-slate-800"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            <ProductFilters
-              products={dealProducts}
-              selectedCategory={selectedCategory}
-              onSelectCategory={(cat) => {
-                setSelectedCategory(cat);
-                setSelectedSubcategory(null);
-                setMobileFilterOpen(false);
-              }}
-              selectedSubcategory={selectedSubcategory}
-              onSelectSubcategory={(sub) => {
-                setSelectedSubcategory(sub);
-                setMobileFilterOpen(false);
-              }}
-              selectedBrand={selectedBrand}
-              onSelectBrand={(b) => {
-                setSelectedBrand(b);
-                setMobileFilterOpen(false);
-              }}
-              stockFilter={stockFilter}
-              onStockFilterChange={(s) => {
-                setStockFilter(s);
-                setMobileFilterOpen(false);
-              }}
-              inStockCount={inStockCount}
-              outOfStockCount={outOfStockCount}
-              priceRange={priceRange}
-              onPriceRangeChange={(r) => {
-                setPriceRange(r);
-                setMobileFilterOpen(false);
-              }}
-              minDiscount={minDiscount}
-              onMinDiscountChange={(d) => {
-                setMinDiscount(d);
-                setMobileFilterOpen(false);
-              }}
-              minRating={minRating}
-              onMinRatingChange={(r) => {
-                setMinRating(r);
-                setMobileFilterOpen(false);
-              }}
-              onClearAll={() => {
-                clearAllFilters();
-                setMobileFilterOpen(false);
-              }}
+      {/* Mobile Filter Drawer (Smooth Slide-in from LEFT) */}
+      <AnimatePresence>
+        {mobileFilterOpen && (
+          <div className="fixed inset-0 z-50 overflow-hidden flex justify-start overscroll-contain">
+            {/* Backdrop Overlay */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.25 }}
+              onClick={() => setMobileFilterOpen(false)}
+              onTouchMove={(e) => e.preventDefault()}
+              className="fixed inset-0 bg-slate-950/60 backdrop-blur-xs touch-none"
+              aria-hidden="true"
             />
+
+            {/* Drawer Sidebar from LEFT */}
+            <motion.aside
+              initial={{ x: "-100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "-100%" }}
+              transition={{ type: "spring", damping: 28, stiffness: 280 }}
+              className="relative w-[85vw] max-w-xs sm:max-w-sm bg-white h-full max-h-[100dvh] shadow-2xl flex flex-col z-10 font-sans border-r border-slate-200 overscroll-contain"
+            >
+              {/* Drawer Header */}
+              <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100 bg-white shrink-0">
+                <div className="flex items-center gap-2">
+                  <FilterFunnelIcon className="w-4 h-4 text-[#2563EB]" />
+                  <h3 className="text-sm font-black text-slate-900 uppercase tracking-wide">
+                    Filter Deals
+                  </h3>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setMobileFilterOpen(false)}
+                  className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-900 flex items-center justify-center transition-colors cursor-pointer"
+                  aria-label="Close filters"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Scrollable Filters Content */}
+              <div className="flex-1 overflow-y-auto overscroll-contain p-5 space-y-4">
+                <ProductFilters
+                  products={dealProducts}
+                  selectedCategory={selectedCategory}
+                  onSelectCategory={(cat) => {
+                    setSelectedCategory(cat);
+                    setSelectedSubcategory(null);
+                    setMobileFilterOpen(false);
+                  }}
+                  selectedSubcategory={selectedSubcategory}
+                  onSelectSubcategory={(sub) => {
+                    setSelectedSubcategory(sub);
+                    setMobileFilterOpen(false);
+                  }}
+                  selectedBrand={selectedBrand}
+                  onSelectBrand={(b) => {
+                    setSelectedBrand(b);
+                    setMobileFilterOpen(false);
+                  }}
+                  stockFilter={stockFilter}
+                  onStockFilterChange={(s) => {
+                    setStockFilter(s);
+                    setMobileFilterOpen(false);
+                  }}
+                  inStockCount={inStockCount}
+                  outOfStockCount={outOfStockCount}
+                  priceRange={priceRange}
+                  onPriceRangeChange={(r) => {
+                    setPriceRange(r);
+                    setMobileFilterOpen(false);
+                  }}
+                  minDiscount={minDiscount}
+                  onMinDiscountChange={(d) => {
+                    setMinDiscount(d);
+                    setMobileFilterOpen(false);
+                  }}
+                  minRating={minRating}
+                  onMinRatingChange={(r) => {
+                    setMinRating(r);
+                    setMobileFilterOpen(false);
+                  }}
+                  onClearAll={() => {
+                    clearAllFilters();
+                    setMobileFilterOpen(false);
+                  }}
+                />
+              </div>
+
+              {/* Action Bar Footer */}
+              <div className="p-4 border-t border-slate-100 bg-white shrink-0 flex items-center gap-2.5">
+                <button
+                  type="button"
+                  onClick={() => {
+                    clearAllFilters();
+                    setMobileFilterOpen(false);
+                  }}
+                  className="flex-1 py-2.5 rounded-xl border border-slate-200 text-xs font-bold text-slate-700 hover:bg-slate-50 transition-colors cursor-pointer"
+                >
+                  Clear All
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setMobileFilterOpen(false)}
+                  className="flex-1 py-2.5 rounded-xl bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-xs font-bold transition-all shadow-md shadow-blue-500/20 cursor-pointer"
+                >
+                  Apply Filters
+                </button>
+              </div>
+            </motion.aside>
           </div>
-        </div>
-      )}
+        )}
+      </AnimatePresence>
     </div>
   );
 };

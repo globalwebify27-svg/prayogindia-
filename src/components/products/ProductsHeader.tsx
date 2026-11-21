@@ -2,8 +2,8 @@
 
 import React, { useMemo, useState } from "react";
 import Image from "next/image";
-import { Layers } from "lucide-react";
-import { CATEGORIES_DATA, matchCategory, Subcategory } from "@/data/categories";
+import { Layers, ChevronDown } from "lucide-react";
+import { CATEGORIES_DATA, matchCategory } from "@/data/categories";
 
 interface ProductsHeaderProps {
   title?: string;
@@ -26,8 +26,8 @@ const QUICK_CATEGORIES = [
   { id: "Accessories", name: "Accessories" },
 ];
 
-const SubcategoryCard: React.FC<{
-  sub: Subcategory;
+const SubcategoryCardItem: React.FC<{
+  sub: { id: string; name: string; image?: string; productCount?: number };
   isSelected: boolean;
   onSelect: () => void;
 }> = ({ sub, isSelected, onSelect }) => {
@@ -66,10 +66,43 @@ const SubcategoryCard: React.FC<{
         >
           {sub.name}
         </h3>
-        <p className="text-[10px] sm:text-[11px] text-slate-400 font-medium mt-0.5">
-          {sub.productCount} Products
-        </p>
       </div>
+    </button>
+  );
+};
+
+const MobileSubcategoryPill: React.FC<{
+  sub: { id: string; name: string; image?: string; productCount?: number };
+  isSelected: boolean;
+  onSelect: () => void;
+}> = ({ sub, isSelected, onSelect }) => {
+  const [imgError, setImgError] = useState(false);
+
+  return (
+    <button
+      type="button"
+      onClick={onSelect}
+      className={`shrink-0 inline-flex items-center gap-2 pl-1.5 pr-2.5 py-1 rounded-xl text-xs font-semibold border transition-all cursor-pointer select-none active:scale-95 ${
+        isSelected
+          ? "bg-[#2563EB] text-white border-[#2563EB] shadow-xs"
+          : "bg-white text-slate-800 border-slate-200/90 active:bg-slate-50 shadow-2xs"
+      }`}
+    >
+      <div className="relative w-6 h-6 rounded-lg overflow-hidden shrink-0 bg-slate-100 border border-slate-200/60 flex items-center justify-center">
+        {!imgError && sub.image ? (
+          <Image
+            src={sub.image}
+            alt={sub.name}
+            fill
+            sizes="24px"
+            onError={() => setImgError(true)}
+            className="object-cover"
+          />
+        ) : (
+          <Layers className={`w-3.5 h-3.5 ${isSelected ? "text-white" : "text-blue-500"}`} />
+        )}
+      </div>
+      <span className="whitespace-nowrap font-medium text-[12px]">{sub.name}</span>
     </button>
   );
 };
@@ -80,85 +113,83 @@ export const ProductsHeader: React.FC<ProductsHeaderProps> = ({
   selectedSubcategory = null,
   onSelectSubcategory,
 }) => {
-  // Determine active category for the subcategories section.
-  // Defaults to "Educational & STEM Kits" when All Products is selected.
+  // Find matching category to extract its subcategories when active
   const activeCategory = useMemo(() => {
-    if (selectedCategory) {
-      const match = CATEGORIES_DATA.find((c) => matchCategory(c, selectedCategory));
-      if (match && match.subcategories && match.subcategories.length > 0) {
-        return match;
-      }
-    }
-    return (
-      CATEGORIES_DATA.find((c) => c.slug === "educational-stem-kits") ||
-      CATEGORIES_DATA[0]
-    );
+    if (!selectedCategory) return null;
+    return CATEGORIES_DATA.find((c) => matchCategory(c, selectedCategory));
   }, [selectedCategory]);
 
   return (
     <div className="space-y-4 pt-1">
-      {/* ── 1. Clean Category Filter Pills Row (Image 1) ── */}
-      {onSelectCategory && (
-        <div
-          className="flex items-center gap-2 overflow-x-auto no-scrollbar scroll-smooth py-1"
-          style={{ scrollbarWidth: "none" }}
-        >
-          {QUICK_CATEGORIES.map((cat) => {
-            const isSelected =
-              (!selectedCategory && cat.id === "all") ||
-              selectedCategory === cat.name;
-
-            return (
-              <button
-                key={cat.id}
-                onClick={() =>
-                  onSelectCategory(cat.id === "all" ? null : cat.name)
-                }
-                className={`inline-flex items-center px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all duration-200 cursor-pointer ${
-                  isSelected
-                    ? "bg-[#2563EB] text-white shadow-sm shadow-blue-500/25 scale-[1.02]"
-                    : "bg-white text-slate-700 border border-slate-200/90 hover:bg-slate-50 hover:border-slate-300 shadow-2xs"
-                }`}
+      {/* ── Subcategories: Simple Dropdown on Mobile (< sm), Cards Grid on Desktop (>= sm) ── */}
+      {activeCategory && activeCategory.subcategories && activeCategory.subcategories.length > 0 ? (
+        <div className="py-1">
+          {/* Mobile View (< sm): Simple Subcategory Dropdown Select */}
+          <div className="block sm:hidden">
+            <div className="relative">
+              <select
+                value={selectedSubcategory || ""}
+                onChange={(e) => onSelectSubcategory?.(e.target.value || null)}
+                className="w-full bg-white border border-slate-200/90 rounded-xl px-3.5 py-2.5 text-xs font-bold text-slate-800 appearance-none pr-9 shadow-2xs focus:border-[#2563EB] focus:ring-1 focus:ring-[#2563EB]/20 outline-hidden cursor-pointer"
               >
-                <span>{cat.name}</span>
-              </button>
-            );
-          })}
-        </div>
-      )}
-
-      {/* ── 2. Subcategories Section (Image 2) ── */}
-      {activeCategory && activeCategory.subcategories && activeCategory.subcategories.length > 0 && (
-        <div className="space-y-3 pt-0.5 pb-1">
-          {/* Header */}
-          <div className="flex items-center justify-between">
-            <h2 className="text-base sm:text-lg font-black text-slate-900 flex items-center gap-2">
-              <Layers className="w-4 h-4 sm:w-4.5 sm:h-4.5 text-[#2563EB]" />
-              <span>Subcategories in {activeCategory.name}</span>
-            </h2>
-            <span className="text-xs font-semibold text-slate-400">
-              {activeCategory.subcategories.length} Subcategories
-            </span>
+                <option value="">All Subcategories</option>
+                {activeCategory.subcategories.map((sub) => (
+                  <option key={sub.id} value={sub.name}>
+                    {sub.name}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown className="w-4 h-4 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+            </div>
           </div>
 
-          {/* Cards Grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
-            {activeCategory.subcategories.map((sub) => (
-              <SubcategoryCard
-                key={sub.id}
-                sub={sub}
-                isSelected={selectedSubcategory === sub.name}
-                onSelect={() => {
-                  if (onSelectSubcategory) {
-                    onSelectSubcategory(
-                      selectedSubcategory === sub.name ? null : sub.name
-                    );
+          {/* Desktop View (>= sm): 4-Column Cards Grid */}
+          <div className="hidden sm:grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+            {activeCategory.subcategories.map((sub) => {
+              const isSelected = selectedSubcategory === sub.name;
+              return (
+                <SubcategoryCardItem
+                  key={sub.id}
+                  sub={sub}
+                  isSelected={isSelected}
+                  onSelect={() =>
+                    onSelectSubcategory?.(isSelected ? null : sub.name)
                   }
-                }}
-              />
-            ))}
+                />
+              );
+            })}
           </div>
         </div>
+      ) : (
+        /* ── Main Category Filter Pills Row (when All Products is selected) ── */
+        onSelectCategory && (
+          <div
+            className="flex items-center gap-2 overflow-x-auto no-scrollbar scroll-smooth py-1"
+            style={{ scrollbarWidth: "none" }}
+          >
+            {QUICK_CATEGORIES.map((cat) => {
+              const isSelected =
+                (!selectedCategory && cat.id === "all") ||
+                selectedCategory === cat.name;
+
+              return (
+                <button
+                  key={cat.id}
+                  onClick={() =>
+                    onSelectCategory(cat.id === "all" ? null : cat.name)
+                  }
+                  className={`inline-flex items-center px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all duration-200 cursor-pointer ${
+                    isSelected
+                      ? "bg-[#2563EB] text-white shadow-sm shadow-blue-500/25 scale-[1.02]"
+                      : "bg-white text-slate-700 border border-slate-200/90 hover:bg-slate-50 hover:border-slate-300 shadow-2xs"
+                  }`}
+                >
+                  <span>{cat.name}</span>
+                </button>
+              );
+            })}
+          </div>
+        )
       )}
     </div>
   );

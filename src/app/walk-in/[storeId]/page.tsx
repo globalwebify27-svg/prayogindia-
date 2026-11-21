@@ -718,6 +718,7 @@ export default function StoreKioskPage() {
   // ── Kiosk Device Unlock / Manager Authentication State ──
   const [isDeviceUnlocked, setIsDeviceUnlocked] = useState<boolean>(false);
   const [checkingAuth, setCheckingAuth] = useState<boolean>(true);
+  const [staffSession, setStaffSession] = useState<any>(null);
   const [kioskUsername, setKioskUsername] = useState<string>(
     `${storeId}_kiosk`,
   );
@@ -766,6 +767,10 @@ export default function StoreKioskPage() {
         const data = await res.json();
         if (data?.success && data?.user) {
           setIsDeviceUnlocked(true);
+      if (data.user) {
+        setStaffSession(data.user);
+      }
+          setStaffSession(data.user);
         }
       } catch {
         // Leave locked if server check fails
@@ -810,6 +815,9 @@ export default function StoreKioskPage() {
 
       // Unlocked on server session
       setIsDeviceUnlocked(true);
+      if (data.user) {
+        setStaffSession(data.user);
+      }
       setLoginLoading(false);
     } catch {
       setLoginError("Authentication failed. Please check network connection.");
@@ -1248,6 +1256,11 @@ export default function StoreKioskPage() {
       // Persist walk-in order to localStorage for Super Admin & Store portals
       try {
         if (typeof window !== "undefined") {
+          const activeExecutive =
+            staffSession?.salesExecutive ||
+            staffSession?.name ||
+            "Abhishek Kumar";
+
           const walkInOrderRecord = {
             id: `walk-${Date.now()}`,
             orderNumber: session.id,
@@ -1263,6 +1276,9 @@ export default function StoreKioskPage() {
             status: "DELIVERED",
             orderSource: "WALK_IN",
             channelName: "Store Walk-in POS",
+            salesExecutive: activeExecutive,
+            storeCode: (storeId || "patna").toUpperCase(),
+            storeName: store.name,
             paymentMethod: paymentMethod === "CASH" ? "Cash Counter" : "Store Counter UPI",
             paymentStatus: "PAID",
             isPaid: true,

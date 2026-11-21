@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import {
   ShoppingBag,
   Search,
@@ -18,6 +18,7 @@ import {
   RefreshCw,
   Building2,
   Lock,
+  UserCheck,
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/Skeleton";
 import {
@@ -45,6 +46,7 @@ export default function StoreOrdersPage() {
   const [paymentOrder, setPaymentOrder] = useState<any | null>(null);
   const [paymentMode, setPaymentMode] = useState<"CASH" | "UPI" | "CARD">("CASH");
   const [processingPayment, setProcessingPayment] = useState(false);
+  const [executiveFilter, setExecutiveFilter] = useState("ALL");
 
   // Update both state and ref together so closures always see latest value
   const setActiveStore = (code: string) => {
@@ -256,8 +258,23 @@ export default function StoreOrdersPage() {
     }
   };
 
-  // Filtered orders by search and tab
+  // Distinct sales executives from store orders
+  const distinctExecutives = useMemo(() => {
+    const set = new Set<string>();
+    orders.forEach((o) => {
+      const exec = o.salesExecutive || o.assignedStaff;
+      if (exec) set.add(exec);
+    });
+    return Array.from(set);
+  }, [orders]);
+
+  // Filtered orders by search, status tab, and sales executive
   const filteredOrders = orders.filter((o) => {
+    if (executiveFilter !== "ALL") {
+      const exec = o.salesExecutive || o.assignedStaff;
+      if (exec !== executiveFilter) return false;
+    }
+
     const q = search.toLowerCase();
     const matchesSearch =
       !q ||
@@ -265,6 +282,7 @@ export default function StoreOrdersPage() {
       o.orderNumber?.toLowerCase().includes(q) ||
       o.customerName?.toLowerCase().includes(q) ||
       o.customerPhone?.toLowerCase().includes(q) ||
+      o.salesExecutive?.toLowerCase().includes(q) ||
       o.user?.name?.toLowerCase().includes(q);
 
     if (!matchesSearch) return false;
@@ -350,29 +368,49 @@ export default function StoreOrdersPage() {
             />
           </div>
 
-          {/* Status Tabs */}
-          <div className="flex items-center gap-1 bg-slate-200/60 p-1 rounded-xl">
-            {[
-              { key: "ALL", label: `All Orders (${orders.length})` },
-              { key: "PAID", label: `Paid & Delivered (${paidCount})` },
-              { key: "PENDING", label: `New Kiosk (${pendingCount})` },
-            ].map((tab) => (
-              <button
-                key={tab.key}
-                onClick={() => setStatusTab(tab.key as any)}
-                className={`text-xs font-bold px-3 py-1.5 rounded-lg transition-all cursor-pointer whitespace-nowrap ${
-                  statusTab === tab.key
-                    ? tab.key === "PENDING"
-                      ? "bg-white text-amber-700 shadow-2xs"
-                      : tab.key === "PAID"
-                        ? "bg-white text-emerald-700 shadow-2xs"
-                        : "bg-white text-slate-900 shadow-2xs"
-                    : "text-slate-600 hover:text-slate-900"
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
+          {/* Status Tabs & Executive Filter */}
+          <div className="flex flex-wrap items-center gap-2">
+            {distinctExecutives.length > 0 && (
+              <div className="flex items-center gap-1.5 bg-white border border-slate-200 rounded-xl px-3 py-1.5 text-xs shadow-2xs">
+                <UserCheck className="w-3.5 h-3.5 text-[#2563EB]" />
+                <select
+                  value={executiveFilter}
+                  onChange={(e) => setExecutiveFilter(e.target.value)}
+                  className="bg-transparent font-bold text-slate-800 focus:outline-none cursor-pointer"
+                >
+                  <option value="ALL">All Sales Executives</option>
+                  {distinctExecutives.map((exec) => (
+                    <option key={exec} value={exec}>
+                      {exec}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            <div className="flex items-center gap-1 bg-slate-200/60 p-1 rounded-xl">
+              {[
+                { key: "ALL", label: `All (${orders.length})` },
+                { key: "PAID", label: `Paid (${paidCount})` },
+                { key: "PENDING", label: `New Kiosk (${pendingCount})` },
+              ].map((tab) => (
+                <button
+                  key={tab.key}
+                  onClick={() => setStatusTab(tab.key as any)}
+                  className={`text-xs font-bold px-3 py-1.5 rounded-lg transition-all cursor-pointer whitespace-nowrap ${
+                    statusTab === tab.key
+                      ? tab.key === "PENDING"
+                        ? "bg-white text-amber-700 shadow-2xs"
+                        : tab.key === "PAID"
+                          ? "bg-white text-emerald-700 shadow-2xs"
+                          : "bg-white text-slate-900 shadow-2xs"
+                      : "text-slate-600 hover:text-slate-900"
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 
@@ -383,6 +421,7 @@ export default function StoreOrdersPage() {
               <tr>
                 <th className="px-6 py-3.5">Order ID</th>
                 <th className="px-6 py-3.5">Customer</th>
+                <th className="px-6 py-3.5">Sales Executive</th>
                 <th className="px-6 py-3.5">Amount</th>
                 <th className="px-6 py-3.5">Status</th>
                 <th className="px-6 py-3.5">Date &amp; Time</th>
@@ -403,7 +442,7 @@ export default function StoreOrdersPage() {
                 ))
               ) : filteredOrders.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-6 py-16 text-center text-slate-400">
+                  <td colSpan={7} className="px-6 py-16 text-center text-slate-400">
                     <ShoppingBag className="w-10 h-10 text-slate-300 mx-auto stroke-1 mb-2" />
                     <p className="font-bold text-sm text-slate-600">No Orders Found</p>
                     <p className="text-xs text-slate-400 mt-1">
@@ -447,6 +486,17 @@ export default function StoreOrdersPage() {
                         <div className="text-[11px] text-slate-400 font-mono">
                           {order.customerPhone || order.user?.phone || "Counter Sale"}
                         </div>
+                      </td>
+
+                      {/* Sales Executive Attribution */}
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-1.5 font-bold text-slate-900 text-xs">
+                          <UserCheck className="w-3.5 h-3.5 text-[#2563EB]" />
+                          <span>{order.salesExecutive || "Abhishek Kumar"}</span>
+                        </div>
+                        <span className="text-[10px] text-slate-400 font-mono block">
+                          {order.orderSource === "WALK_IN" ? "Branch Terminal" : "POS Counter"}
+                        </span>
                       </td>
 
                       <td className="px-6 py-4">

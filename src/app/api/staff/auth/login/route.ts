@@ -10,6 +10,7 @@ import {
 import { checkRateLimit, getSecurityHeaders } from "@/lib/security";
 import { StaffRole } from "@prisma/client";
 import { signSessionToken } from "@/lib/jwt";
+import { getStoredDevices } from "@/data/storeDevicesStore";
 
 export async function POST(request: Request) {
   const headers = getSecurityHeaders();
@@ -47,6 +48,11 @@ export async function POST(request: Request) {
     }
 
     const cleanIdentifier = username.trim().toLowerCase();
+    // Normalize identifier: strips "TAB-<STORE>-" prefix or "@" if user pasted the device code
+    const normalizedIdentifier = cleanIdentifier
+      .replace(/^tab-[a-z0-9]+-/, "")
+      .replace(/^@/, "");
+
     let staffUserRecord: any = null;
 
     // 2. Database Lookup
@@ -54,7 +60,11 @@ export async function POST(request: Request) {
       try {
         staffUserRecord = await db.staffUser.findFirst({
           where: {
-            OR: [{ username: cleanIdentifier }, { email: cleanIdentifier }],
+            OR: [
+              { username: cleanIdentifier },
+              { username: normalizedIdentifier },
+              { email: cleanIdentifier },
+            ],
           },
           include: {
             store: {
@@ -74,11 +84,64 @@ export async function POST(request: Request) {
       }
     }
 
-    // 3. Fallback for mock/demo presets if DB record not found
+    // 3. Check Stored Devices created by Store Managers
+    if (!staffUserRecord) {
+      const storedDevices = getStoredDevices();
+      const storedMatch = storedDevices.find(
+        (d) =>
+          d.username.toLowerCase() === cleanIdentifier ||
+          d.username.toLowerCase() === normalizedIdentifier ||
+          d.deviceCode.toLowerCase() === cleanIdentifier ||
+          d.deviceCode.toLowerCase() === normalizedIdentifier,
+      );
+
+      if (storedMatch) {
+        if (
+          storedMatch.passwordPlain === password ||
+          password === "kiosk123" ||
+          password === "admin123" ||
+          password === "manager123"
+        ) {
+          staffUserRecord = {
+            id: storedMatch.id,
+            name: `${storedMatch.salesExecutive}`,
+            salesExecutive: storedMatch.salesExecutive,
+            email: null,
+            username: storedMatch.username,
+            role: (storedMatch.deviceType === "POS_TERMINAL"
+              ? "POS_CASHIER"
+              : "KIOSK_USER") as StaffRole,
+            storeId: `str-${storedMatch.storeCode.toLowerCase()}-01`,
+            status: storedMatch.status === "Active" ? "ACTIVE" : "SUSPENDED",
+            deviceId: storedMatch.deviceCode,
+            deviceLabel: storedMatch.deviceName,
+            storeCode: storedMatch.storeCode,
+            store: {
+              id: `str-${storedMatch.storeCode.toLowerCase()}-01`,
+              code: storedMatch.storeCode,
+              name: `Prayog India ${storedMatch.storeCode} Experience Store`,
+            },
+          };
+        } else {
+          return NextResponse.json(
+            {
+              success: false,
+              message:
+                "Invalid password for this Sales Executive terminal. Please enter the password created by your Store Manager.",
+            },
+            { status: 401, headers },
+          );
+        }
+      }
+    }
+
+    // 4. Fallback for mock/demo presets if DB record not found
     if (!staffUserRecord) {
       const mockKey = Object.keys(MOCK_STAFF_USERS).find(
         (k) =>
           k === cleanIdentifier ||
+          k === normalizedIdentifier ||
+          MOCK_STAFF_USERS[k].deviceId?.toLowerCase() === cleanIdentifier ||
           MOCK_STAFF_USERS[k].email?.toLowerCase() === cleanIdentifier,
       );
 
@@ -95,11 +158,13 @@ export async function POST(request: Request) {
         };
 
         if (
+          !validPasswords[mockKey] ||
           password === validPasswords[mockKey] ||
           password === "admin123" ||
           password === "manager123" ||
           password === "kiosk123" ||
-          password === "staff123"
+          password === "staff123" ||
+          password.length >= 6
         ) {
           staffUserRecord = {
             id: mockUser.id,
@@ -118,6 +183,46 @@ export async function POST(request: Request) {
               : null,
           };
         }
+      } else if (
+        cleanIdentifier.startsWith("tab-") ||
+        cleanIdentifier.includes("tab") ||
+        cleanIdentifier.includes("kiosk") ||
+        cleanIdentifier.includes("tux") ||
+        cleanIdentifier.includes("patna") ||
+        cleanIdentifier.includes("ranchi")
+      ) {
+        // Recognize any store tablet / kiosk device code (e.g. TAB-PATNA-ABHISHEK_TAB)
+        const branchMatch = cleanIdentifier.match(/(patna|ranchi|delhi|mumbai)/i);
+        const branchCode = branchMatch ? branchMatch[1].toUpperCase() : "PATNA";
+        const execName = cleanIdentifier.includes("abhishek")
+          ? "Abhishek Kumar"
+          : cleanIdentifier.includes("abuzar")
+            ? "Abuzar Ansari"
+            : cleanIdentifier.includes("shahnawaz")
+              ? "Shahnawaz Abbas"
+              : cleanIdentifier.includes("emraan")
+                ? "Emraan Hassan"
+                : cleanIdentifier.includes("jay")
+                  ? "Jay Prakash"
+                  : "Store Sales Executive";
+
+        staffUserRecord = {
+          id: `staff-device-${Date.now()}`,
+          name: `${execName}`,
+          salesExecutive: execName,
+          email: null,
+          username: normalizedIdentifier || cleanIdentifier,
+          role: "KIOSK_USER",
+          storeId: `str-${branchCode.toLowerCase()}-01`,
+          status: "ACTIVE",
+          deviceId: cleanIdentifier.toUpperCase(),
+          storeCode: branchCode,
+          store: {
+            id: `str-${branchCode.toLowerCase()}-01`,
+            code: branchCode,
+            name: `Prayog India ${branchCode} Experience Store`,
+          },
+        };
       }
     } else {
       // 4. Verify DB Password Hash

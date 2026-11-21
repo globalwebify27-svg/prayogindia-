@@ -61,25 +61,37 @@ export default function Home() {
 
   // Canonical Slug Mapping Helper
   const getCategorySlug = (catName: string): string => {
+    if (!catName) return "/products";
     const lower = catName.toLowerCase().trim();
     if (lower === "all" || lower === "") return "/products";
+    if (lower.startsWith("/categories/") || lower.startsWith("/products")) return lower;
 
-    const matched = CATEGORIES_DATA.find(
+    // 1. Exact match on category slug, name, shortName, id, or slugAlias
+    const exactCategory = CATEGORIES_DATA.find(
       (c) =>
         matchCategory(c, lower) ||
-        c.name.toLowerCase().includes(lower) ||
-        lower.includes(c.name.toLowerCase()) ||
-        c.subcategories.some(
-          (s) =>
-            s.slug.toLowerCase() === lower ||
-            s.name.toLowerCase().includes(lower) ||
-            lower.includes(s.name.toLowerCase())
-        )
+        c.slug.toLowerCase() === lower ||
+        c.id.toLowerCase() === lower ||
+        c.name.toLowerCase() === lower ||
+        (c.shortName && c.shortName.toLowerCase() === lower) ||
+        (Array.isArray(c.slugAlias)
+          ? c.slugAlias.some((a) => a.toLowerCase() === lower)
+          : c.slugAlias?.toLowerCase() === lower)
     );
-    if (matched) return `/categories/${matched.slug}`;
+    if (exactCategory) return `/categories/${exactCategory.slug}`;
 
-    if (lower.includes("drone") || lower.includes("uav"))
-      return "/categories/drone-technology";
+    // 2. Exact match on subcategory slug or subcategory name
+    for (const c of CATEGORIES_DATA) {
+      const exactSub = c.subcategories.find(
+        (s) =>
+          s.slug.toLowerCase() === lower ||
+          s.name.toLowerCase() === lower ||
+          (s.slugAlias && s.slugAlias.some((a) => a.toLowerCase() === lower))
+      );
+      if (exactSub) return `/categories/${c.slug}/${exactSub.slug}`;
+    }
+
+    // 3. Keyword / semantic fallback matching (prioritizing specific terms)
     if (
       lower.includes("robot") ||
       lower.includes("motor") ||
@@ -87,6 +99,8 @@ export default function Home() {
       lower.includes("driver")
     )
       return "/categories/robotics";
+    if (lower.includes("drone") || lower.includes("uav"))
+      return "/categories/drone-technology";
     if (
       lower.includes("arduino") ||
       lower.includes("devboard") ||
@@ -119,7 +133,12 @@ export default function Home() {
       return "/categories/mechanical-hardware";
     if (lower.includes("industr") || lower.includes("automat"))
       return "/categories/industrial-automation";
-    if (lower.includes("component") || lower.includes("cable"))
+    if (
+      lower.includes("component") ||
+      lower.includes("cable") ||
+      lower.includes("resistor") ||
+      lower.includes("capacitor")
+    )
       return "/categories/electronic-components";
 
     return "/products";

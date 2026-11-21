@@ -11,10 +11,10 @@ import {
   selectWishlistCount,
   selectIsLoggedIn,
 } from "@/store";
+import { AddToCartIcon } from "@/components/icons/AddToCartIcon";
 import {
   Home,
   LayoutGrid,
-  ShoppingBag,
   Heart,
   User,
 } from "lucide-react";
@@ -73,7 +73,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
     {
       id: "cart",
       label: "Cart",
-      icon: ShoppingBag,
+      icon: AddToCartIcon,
       onClick: onOpenCart,
       badge: cartCount > 0 ? cartCount : null,
       badgeColor: "bg-[#FFC20E] text-slate-950",

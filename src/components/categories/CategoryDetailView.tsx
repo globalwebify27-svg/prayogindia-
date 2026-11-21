@@ -13,6 +13,7 @@ import {
 } from "@/components/products/ProductToolbar";
 import { ProductFilters } from "@/components/products/ProductFilters";
 import { ActiveFilters } from "@/components/products/ActiveFilters";
+import { FilterFunnelIcon } from "@/components/icons/FilterFunnelIcon";
 import { ProductEmptyState } from "@/components/products/ProductEmptyState";
 import { CategoryData, CATEGORIES_DATA, matchCategory } from "@/data/categories";
 import { PRODUCTS, Product } from "@/data/mockData";
@@ -23,7 +24,6 @@ import {
   Layers,
   X,
   Search,
-  SlidersHorizontal,
   PanelLeftClose,
   PanelLeftOpen,
 } from "lucide-react";
@@ -32,6 +32,51 @@ import { useStore } from "@/context/StoreContext";
 interface CategoryDetailProps {
   categorySlug: string;
 }
+
+const SubcategoryCardItem: React.FC<{
+  sub: { id: string; name: string; image?: string; productCount?: number };
+  isSelected: boolean;
+  onSelect: () => void;
+}> = ({ sub, isSelected, onSelect }) => {
+  const [imgError, setImgError] = useState(false);
+
+  return (
+    <button
+      type="button"
+      onClick={onSelect}
+      className={`group bg-white rounded-2xl border p-3 sm:p-3.5 flex items-center gap-3 sm:gap-3.5 transition-all text-left cursor-pointer ${
+        isSelected
+          ? "border-[#2563EB] ring-2 ring-[#2563EB]/20 bg-blue-50/20 shadow-xs"
+          : "border-slate-200/90 hover:border-[#2563EB]/70 hover:shadow-xs shadow-2xs"
+      }`}
+    >
+      <div className="relative w-12 h-12 rounded-xl overflow-hidden shrink-0 bg-slate-100 border border-slate-200/80 flex items-center justify-center">
+        {!imgError && sub.image ? (
+          <Image
+            src={sub.image}
+            alt={sub.name}
+            fill
+            sizes="48px"
+            onError={() => setImgError(true)}
+            className="object-cover group-hover:scale-105 transition-transform duration-300"
+          />
+        ) : (
+          <Layers className="w-5 h-5 text-blue-500" />
+        )}
+      </div>
+
+      <div className="flex-1 min-w-0">
+        <h3
+          className={`text-xs sm:text-[13px] font-bold truncate transition-colors ${
+            isSelected ? "text-[#2563EB]" : "text-slate-900 group-hover:text-[#2563EB]"
+          }`}
+        >
+          {sub.name}
+        </h3>
+      </div>
+    </button>
+  );
+};
 
 export const CategoryDetailView: React.FC<CategoryDetailProps> = ({
   categorySlug,
@@ -175,6 +220,26 @@ export const CategoryDetailView: React.FC<CategoryDetailProps> = ({
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [isFilterOpen, setIsFilterOpen] = useState(true);
+
+  // Bulletproof lock of background scroll on mobile touch & desktop wheel
+  useEffect(() => {
+    if (mobileFilterOpen) {
+      const scrollY = window.scrollY;
+      document.body.style.position = "fixed";
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.width = "100%";
+      document.body.style.overflow = "hidden";
+      document.documentElement.style.overflow = "hidden";
+      return () => {
+        document.body.style.position = "";
+        document.body.style.top = "";
+        document.body.style.width = "";
+        document.body.style.overflow = "";
+        document.documentElement.style.overflow = "";
+        window.scrollTo(0, scrollY);
+      };
+    }
+  }, [mobileFilterOpen]);
 
   // Stock counts
   const { inStockCount, outOfStockCount } = useMemo(() => {
@@ -334,103 +399,27 @@ export const CategoryDetailView: React.FC<CategoryDetailProps> = ({
         ]}
       />
 
-      {/* 2. Category Filter Pills Row (Image 1) */}
-      <div
-        className="flex items-center gap-2 overflow-x-auto no-scrollbar scroll-smooth py-1"
-        style={{ scrollbarWidth: "none" }}
-      >
-        <Link
-          href="/products"
-          className="inline-flex items-center px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap bg-white text-slate-700 border border-slate-200/90 hover:bg-slate-50 hover:border-slate-300 shadow-2xs transition-all duration-200 cursor-pointer"
-        >
-          All Products
-        </Link>
-        {[
-          { name: "Robot Kits", slug: "robotics-kits" },
-          { name: "Motors", slug: "motors-drivers" },
-          { name: "Controllers", slug: "development-boards" },
-          { name: "Sensors", slug: "sensors-modules" },
-          { name: "Development Boards", slug: "development-boards" },
-          { name: "Educational & STEM Kits", slug: "educational-stem-kits" },
-          { name: "Accessories", slug: "electronic-components" },
-        ].map((cat) => {
-          const isSelected = matchCategory(category, cat.slug) || category.name.toLowerCase().includes(cat.name.toLowerCase());
-          return (
-            <Link
-              key={cat.name}
-              href={`/categories/${cat.slug}`}
-              className={`inline-flex items-center px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all duration-200 cursor-pointer ${
-                isSelected
-                  ? "bg-[#2563EB] text-white shadow-sm shadow-blue-500/25 scale-[1.02]"
-                  : "bg-white text-slate-700 border border-slate-200/90 hover:bg-slate-50 hover:border-slate-300 shadow-2xs"
-              }`}
-            >
-              <span>{cat.name}</span>
-            </Link>
-          );
-        })}
-      </div>
-
-      {/* 3. Subcategories Grid (Image 2) */}
-      {category.subcategories.length > 0 && (
-        <div className="space-y-3 pt-1 pb-1">
-          <div className="flex items-center justify-between">
-            <h2 className="text-base sm:text-lg font-black text-slate-900 flex items-center gap-2">
-              <Layers className="w-4 h-4 sm:w-4.5 sm:h-4.5 text-[#2563EB]" />
-              <span>Subcategories in {category.name}</span>
-            </h2>
-            <span className="text-xs font-semibold text-slate-400">
-              {category.subcategories.length} Subcategories
-            </span>
-          </div>
-
-          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
-            {category.subcategories.map((sub) => {
-              const isSelected = selectedSubcategory === sub.name;
-              return (
-                <button
-                  key={sub.id}
-                  type="button"
-                  onClick={() =>
-                    setSelectedSubcategory(isSelected ? null : sub.name)
-                  }
-                  className={`group bg-white rounded-2xl border p-3 sm:p-3.5 flex items-center gap-3 sm:gap-3.5 transition-all text-left cursor-pointer ${
-                    isSelected
-                      ? "border-[#2563EB] ring-2 ring-[#2563EB]/20 bg-blue-50/20 shadow-xs"
-                      : "border-slate-200/90 hover:border-[#2563EB]/70 hover:shadow-xs shadow-2xs"
-                  }`}
-                >
-                  <div className="relative w-12 h-12 rounded-xl overflow-hidden shrink-0 bg-slate-100 border border-slate-200/80 flex items-center justify-center">
-                    <Image
-                      src={sub.image}
-                      alt={sub.name}
-                      fill
-                      sizes="48px"
-                      className="object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
-                  </div>
-
-                  <div className="flex-1 min-w-0">
-                    <h3
-                      className={`text-xs sm:text-[13px] font-bold truncate transition-colors ${
-                        isSelected ? "text-[#2563EB]" : "text-slate-900 group-hover:text-[#2563EB]"
-                      }`}
-                    >
-                      {sub.name}
-                    </h3>
-                    <p className="text-[10px] sm:text-[11px] text-slate-400 font-medium mt-0.5">
-                      {sub.productCount} Products
-                    </p>
-                  </div>
-                </button>
-              );
-            })}
-          </div>
+      {/* 2. Subcategories: 4-Column Cards on Desktop (>= sm); on mobile (< sm) shown directly inside the Filter Toolbar */}
+      {category.subcategories && category.subcategories.length > 0 && (
+        <div className="hidden sm:grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 py-1">
+          {category.subcategories.map((sub) => {
+            const isSelected = selectedSubcategory === sub.name;
+            return (
+              <SubcategoryCardItem
+                key={sub.id}
+                sub={sub}
+                isSelected={isSelected}
+                onSelect={() =>
+                  setSelectedSubcategory(isSelected ? null : sub.name)
+                }
+              />
+            );
+          })}
         </div>
       )}
 
-      {/* 4. Filter Toolbar & Active Chips (Hidden on small mobile to maximize product focus) */}
-      <div className="hidden sm:block space-y-3 pt-1">
+      {/* 3. Filter Toolbar & Active Chips */}
+      <div className="space-y-3 pt-1">
         <ActiveFilters
           category={selectedSubcategory}
           brand={selectedBrand}
@@ -460,6 +449,9 @@ export const CategoryDetailView: React.FC<CategoryDetailProps> = ({
           }}
           isFilterOpen={isFilterOpen}
           onToggleFilter={() => setIsFilterOpen((prev) => !prev)}
+          subcategories={category.subcategories}
+          selectedSubcategory={selectedSubcategory}
+          onSubcategoryChange={setSelectedSubcategory}
         />
       </div>
 
@@ -515,7 +507,7 @@ export const CategoryDetailView: React.FC<CategoryDetailProps> = ({
                 !isFilterOpen ? "opacity-100 delay-150" : "opacity-0 pointer-events-none absolute top-0 left-0 w-full"
               }`}
             >
-              <SlidersHorizontal className="w-4 h-4 text-[#2563EB] group-hover:scale-110 transition-transform mb-3 stroke-[2.2]" />
+              <FilterFunnelIcon className="w-4 h-4 text-[#2563EB] group-hover:scale-110 transition-transform mb-3 stroke-[2.2]" />
               <span className="[writing-mode:vertical-rl] text-xs font-black uppercase tracking-wider text-slate-700 group-hover:text-[#2563EB] rotate-180 py-1 transition-colors">
                 Filters
               </span>
@@ -555,69 +547,115 @@ export const CategoryDetailView: React.FC<CategoryDetailProps> = ({
         </div>
       </div>
 
-      {/* Mobile Filters Drawer */}
-      {mobileFilterOpen && (
-        <div className="fixed inset-0 z-50 overflow-hidden flex justify-end">
-          <div
-            onClick={() => setMobileFilterOpen(false)}
-            className="fixed inset-0 bg-slate-950/60 backdrop-blur-xs"
-          />
-          <div className="relative w-full max-w-xs bg-white h-full p-6 overflow-y-auto shadow-2xl space-y-4 z-10 font-sans">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-200">
-              <h3 className="text-sm font-black text-slate-900 uppercase">
-                Filter Products
-              </h3>
-              <button
-                type="button"
-                onClick={() => setMobileFilterOpen(false)}
-                className="p-1 text-slate-400 hover:text-slate-800"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <ProductFilters
-              products={allCategoryProducts}
-              hideCategories={true}
-              selectedCategory={category.name}
-              onSelectCategory={() => {}}
-              selectedSubcategory={selectedSubcategory}
-              onSelectSubcategory={(sub) => {
-                setSelectedSubcategory(sub);
-                setMobileFilterOpen(false);
-              }}
-              selectedBrand={selectedBrand}
-              onSelectBrand={(b) => {
-                setSelectedBrand(b);
-                setMobileFilterOpen(false);
-              }}
-              stockFilter={stockFilter}
-              onStockFilterChange={(s) => {
-                setStockFilter(s);
-                setMobileFilterOpen(false);
-              }}
-              inStockCount={inStockCount}
-              outOfStockCount={outOfStockCount}
-              priceRange={priceRange}
-              onPriceRangeChange={setPriceRange}
-              minDiscount={minDiscount}
-              onMinDiscountChange={(d) => {
-                setMinDiscount(d);
-                setMobileFilterOpen(false);
-              }}
-              minRating={minRating}
-              onMinRatingChange={(r) => {
-                setMinRating(r);
-                setMobileFilterOpen(false);
-              }}
-              onClearAll={() => {
-                clearAllFilters();
-                setMobileFilterOpen(false);
-              }}
+      {/* Mobile Filters Drawer (Smooth Slide-in from LEFT) */}
+      <AnimatePresence>
+        {mobileFilterOpen && (
+          <div className="fixed inset-0 z-50 overflow-hidden flex justify-start overscroll-contain">
+            {/* Backdrop Overlay */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.25 }}
+              onClick={() => setMobileFilterOpen(false)}
+              onTouchMove={(e) => e.preventDefault()}
+              className="fixed inset-0 bg-slate-950/60 backdrop-blur-xs touch-none"
+              aria-hidden="true"
             />
+
+            {/* Drawer Sidebar from LEFT */}
+            <motion.aside
+              initial={{ x: "-100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "-100%" }}
+              transition={{ type: "spring", damping: 28, stiffness: 280 }}
+              className="relative w-[85vw] max-w-xs sm:max-w-sm bg-white h-full max-h-[100dvh] shadow-2xl flex flex-col z-10 font-sans border-r border-slate-200 overscroll-contain"
+            >
+              {/* Drawer Header */}
+              <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100 bg-white shrink-0">
+                <div className="flex items-center gap-2">
+                  <FilterFunnelIcon className="w-4 h-4 text-[#2563EB]" />
+                  <h3 className="text-sm font-black text-slate-900 uppercase tracking-wide">
+                    Filter Products
+                  </h3>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setMobileFilterOpen(false)}
+                  className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-900 flex items-center justify-center transition-colors cursor-pointer"
+                  aria-label="Close filters"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Scrollable Filters Content */}
+              <div className="flex-1 overflow-y-auto overscroll-contain p-5 space-y-4">
+                <ProductFilters
+                  products={allCategoryProducts}
+                  hideCategories={true}
+                  selectedCategory={category.name}
+                  onSelectCategory={() => {}}
+                  selectedSubcategory={selectedSubcategory}
+                  onSelectSubcategory={(sub) => {
+                    setSelectedSubcategory(sub);
+                    setMobileFilterOpen(false);
+                  }}
+                  selectedBrand={selectedBrand}
+                  onSelectBrand={(b) => {
+                    setSelectedBrand(b);
+                    setMobileFilterOpen(false);
+                  }}
+                  stockFilter={stockFilter}
+                  onStockFilterChange={(s) => {
+                    setStockFilter(s);
+                    setMobileFilterOpen(false);
+                  }}
+                  inStockCount={inStockCount}
+                  outOfStockCount={outOfStockCount}
+                  priceRange={priceRange}
+                  onPriceRangeChange={setPriceRange}
+                  minDiscount={minDiscount}
+                  onMinDiscountChange={(d) => {
+                    setMinDiscount(d);
+                    setMobileFilterOpen(false);
+                  }}
+                  minRating={minRating}
+                  onMinRatingChange={(r) => {
+                    setMinRating(r);
+                    setMobileFilterOpen(false);
+                  }}
+                  onClearAll={() => {
+                    clearAllFilters();
+                    setMobileFilterOpen(false);
+                  }}
+                />
+              </div>
+
+              {/* Action Bar Footer */}
+              <div className="p-4 border-t border-slate-100 bg-white shrink-0 flex items-center gap-2.5">
+                <button
+                  type="button"
+                  onClick={() => {
+                    clearAllFilters();
+                    setMobileFilterOpen(false);
+                  }}
+                  className="flex-1 py-2.5 rounded-xl border border-slate-200 text-xs font-bold text-slate-700 hover:bg-slate-50 transition-colors cursor-pointer"
+                >
+                  Clear All
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setMobileFilterOpen(false)}
+                  className="flex-1 py-2.5 rounded-xl bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-xs font-bold transition-all shadow-md shadow-blue-500/20 cursor-pointer"
+                >
+                  Apply Filters
+                </button>
+              </div>
+            </motion.aside>
           </div>
-        </div>
-      )}
+        )}
+      </AnimatePresence>
     </div>
   );
 };

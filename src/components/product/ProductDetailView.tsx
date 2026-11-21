@@ -388,6 +388,8 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
             productName={product.name}
             videoUrl={product.videoUrl}
             media360={product.media360}
+            isWishlisted={isProductWishlisted}
+            onToggleWishlist={() => handleToggleWishlist(product)}
           />
         </div>
 

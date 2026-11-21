@@ -13,6 +13,8 @@ import {
   Wifi,
   Code,
   Layers,
+  Zap,
+  Wrench,
 } from "lucide-react";
 import {
   CategoryCardItem,
@@ -201,6 +203,10 @@ function getBadgeIcon(icon?: string) {
       return <GraduationCap className="w-3 sm:w-3 lg:w-3.5 lg:h-3.5" />;
     case "wifi":
       return <Wifi className="w-3 sm:w-3 lg:w-3.5 lg:h-3.5" />;
+    case "zap":
+      return <Zap className="w-3 sm:w-3 lg:w-3.5 lg:h-3.5" />;
+    case "wrench":
+      return <Wrench className="w-3 sm:w-3 lg:w-3.5 lg:h-3.5" />;
     case "code":
       return <Code className="w-3 sm:w-3 lg:w-3.5 lg:h-3.5" />;
     case "chip":
@@ -313,7 +319,7 @@ export const ShopByCategory: React.FC<Props> = ({ onSelectCategory }) => {
                   onClick={(e) => {
                     if (onSelectCategory) {
                       e.preventDefault();
-                      onSelectCategory(cat.name);
+                      onSelectCategory(cat.href || cat.slug || cat.name);
                     }
                   }}
                   className={`snap-start w-[calc(25%-5px)] min-w-[70px] max-w-[105px] shrink-0 rounded-xl xs:rounded-2xl p-1.5 xs:p-2 flex flex-col border shadow-2xs hover:shadow-xs transition-all duration-200 active:scale-[0.98] group cursor-pointer select-none ${theme.bg} ${theme.border}`}
@@ -375,7 +381,7 @@ export const ShopByCategory: React.FC<Props> = ({ onSelectCategory }) => {
                     onClick={(e) => {
                       if (onSelectCategory) {
                         e.preventDefault();
-                        onSelectCategory(cat.name);
+                        onSelectCategory(cat.href || cat.slug || cat.name);
                       }
                     }}
                     className={`relative block w-full h-[155px] lg:h-[172px] rounded-xl overflow-hidden p-3 lg:p-3.5 transition-all duration-300 hover:-translate-y-0.5 group cursor-pointer touch-pan-y ${theme.border} ${theme.bg}`}
@@ -490,7 +496,7 @@ export const ShopByCategory: React.FC<Props> = ({ onSelectCategory }) => {
                       onClick={(e) => {
                         if (onSelectCategory) {
                           e.preventDefault();
-                          onSelectCategory(cat.name);
+                          onSelectCategory(cat.href || cat.slug || cat.name);
                         }
                       }}
                       className={`relative block w-full h-[155px] lg:h-[172px] rounded-xl overflow-hidden p-3 lg:p-3.5 transition-all duration-300 hover:-translate-y-0.5 group cursor-pointer touch-pan-y ${theme.border} ${theme.bg}`}

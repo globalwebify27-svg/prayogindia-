@@ -18,11 +18,12 @@ import { ActiveFilters } from "@/components/products/ActiveFilters";
 import { ProductCard } from "@/components/products/ProductCard";
 import { ProductEmptyState } from "@/components/products/ProductEmptyState";
 import { QuickViewModal } from "@/components/products/QuickViewModal";
+import { FilterFunnelIcon } from "@/components/icons/FilterFunnelIcon";
 import { PRODUCTS, Product } from "@/data/mockData";
 import { getProductBrand } from "@/data/brands";
 import { useCartStore, useWishlistStore } from "@/store";
 import { searchProductsFuzzy } from "@/lib/fuzzySearch";
-import { X, Search, Clock, TrendingUp, Tag, ShoppingCart, Loader2, SlidersHorizontal, PanelLeftClose, PanelLeftOpen } from "lucide-react";
+import { X, Search, Clock, TrendingUp, Tag, ShoppingCart, Loader2, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useSearchSuggestions } from "@/hooks/useSearchSuggestions";
 import { SearchSuggestionsDropdown } from "@/components/ui/SearchSuggestionsDropdown";
@@ -167,6 +168,26 @@ function ProductsContent() {
   const wishlist = useWishlistStore((s) => s.wishlist);
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
   const [visibleCount, setVisibleCount] = useState(12);
+
+  // Bulletproof lock of background scroll on mobile touch & desktop wheel
+  useEffect(() => {
+    if (mobileFilterOpen) {
+      const scrollY = window.scrollY;
+      document.body.style.position = "fixed";
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.width = "100%";
+      document.body.style.overflow = "hidden";
+      document.documentElement.style.overflow = "hidden";
+      return () => {
+        document.body.style.position = "";
+        document.body.style.top = "";
+        document.body.style.width = "";
+        document.body.style.overflow = "";
+        document.documentElement.style.overflow = "";
+        window.scrollTo(0, scrollY);
+      };
+    }
+  }, [mobileFilterOpen]);
   const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(
     null,
   );
@@ -220,6 +241,16 @@ function ProductsContent() {
       else outCount++;
     });
     return { inStockCount: inCount, outOfStockCount: outCount };
+  }, [productList]);
+
+  // ── Available brands ──
+  const availableBrands = useMemo(() => {
+    const brands = new Set<string>();
+    productList.forEach((p) => {
+      const b = getProductBrand(p);
+      if (b) brands.add(b);
+    });
+    return Array.from(brands);
   }, [productList]);
 
   // ── Filter & Sort Logic ──
@@ -412,98 +443,6 @@ function ProductsContent() {
         onSelectSubcategory={setSelectedSubcategory}
       />
 
-      {/* ── Search Box with Suggestions ── */}
-      <div className="relative w-full">
-        <Search className="w-4 h-4 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2 z-10" />
-        <input
-          id="product-search-input"
-          type="text"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          onFocus={() => setSearchFocused(true)}
-          onBlur={() => setTimeout(() => setSearchFocused(false), 200)}
-          onKeyDown={handleSearchKeyDown}
-          placeholder="Instant search — name, SKU, brand, or specs (e.g. rasberry, arduno, pixhok)..."
-          className="w-full bg-white text-xs sm:text-sm pl-11 pr-12 py-3.5 rounded-2xl border border-slate-200 focus:outline-none focus:border-[#2563EB] focus:bg-white transition-all shadow-sm"
-          autoComplete="off"
-        />
-        {isSearchSuggestLoading && (
-          <Loader2 className="w-4 h-4 animate-spin text-blue-600 absolute right-10 top-1/2 -translate-y-1/2" />
-        )}
-        {searchQuery && !isSearchSuggestLoading && (
-          <button
-            onClick={() => {
-              setSearchQuery("");
-            }}
-            className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 cursor-pointer"
-          >
-            <X className="w-4 h-4" />
-          </button>
-        )}
-
-        {/* Live Auto-Suggestions when typing */}
-        <SearchSuggestionsDropdown
-          isOpen={searchFocused && searchQuery.trim().length > 0}
-          query={searchQuery}
-          suggestions={liveSuggestions}
-          isLoading={isSearchSuggestLoading}
-          onSelectProduct={(p) => {
-            commitSearch(p.name);
-            setSearchQuery(p.name);
-            setSearchFocused(false);
-          }}
-          onViewAll={() => {
-            commitSearch(searchQuery);
-            setSearchFocused(false);
-          }}
-          onSelectKeyword={(kw) => {
-            commitSearch(kw);
-            setSearchQuery(kw);
-            setSearchFocused(false);
-          }}
-        />
-
-        {/* Search Suggestions Dropdown */}
-        {showSearchSuggest && (
-          <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-slate-200 rounded-2xl shadow-xl z-50 overflow-hidden">
-            {searchHistory.length > 0 && (
-              <div className="p-3 border-b border-slate-100">
-                <div className="flex items-center gap-1.5 text-[10px] font-black uppercase text-slate-400 mb-2">
-                  <Clock className="w-3 h-3" /> Recent Searches
-                </div>
-                <div className="flex flex-wrap gap-1.5">
-                  {searchHistory.map((h) => (
-                    <button
-                      key={h}
-                      onMouseDown={() => handlePopularSearch(h)}
-                      className="bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-semibold px-2.5 py-1 rounded-lg transition-colors cursor-pointer"
-                    >
-                      {h}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-            <div className="p-3">
-              <div className="flex items-center gap-1.5 text-[10px] font-black uppercase text-slate-400 mb-2">
-                <TrendingUp className="w-3 h-3" /> Popular Searches
-              </div>
-              <div className="flex flex-wrap gap-1.5">
-                {POPULAR_SEARCHES.map((q) => (
-                  <button
-                    key={q}
-                    onMouseDown={() => handlePopularSearch(q)}
-                    className="bg-blue-50 hover:bg-blue-100 text-[#2563EB] text-[11px] font-bold px-2.5 py-1 rounded-lg transition-colors cursor-pointer"
-                  >
-                    {q}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
-
       {/* Active Filter Chips */}
       <ActiveFilters
         category={selectedCategory}
@@ -594,7 +533,7 @@ function ProductsContent() {
                 !isFilterOpen ? "opacity-100 delay-150" : "opacity-0 pointer-events-none absolute top-0 left-0 w-full"
               }`}
             >
-              <SlidersHorizontal className="w-4 h-4 text-[#2563EB] group-hover:scale-110 transition-transform mb-3 stroke-[2.2]" />
+              <FilterFunnelIcon className="w-4 h-4 text-[#2563EB] group-hover:scale-110 transition-transform mb-3 stroke-[2.2]" />
               <span className="[writing-mode:vertical-rl] text-xs font-black uppercase tracking-wider text-slate-700 group-hover:text-[#2563EB] rotate-180 py-1 transition-colors">
                 Filters
               </span>
@@ -769,76 +708,137 @@ function ProductsContent() {
         </div>
       </div>
 
-      {/* Mobile Filter Drawer */}
-      {mobileFilterOpen && (
-        <div className="fixed inset-0 z-50 overflow-hidden flex justify-end">
-          <div
-            onClick={() => setMobileFilterOpen(false)}
-            className="fixed inset-0 bg-slate-950/60 backdrop-blur-xs"
-          />
-          <div className="relative w-full max-w-xs bg-white h-full p-6 overflow-y-auto shadow-2xl space-y-4 z-10">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-200">
-              <h3 className="text-sm font-black text-slate-900 uppercase">
-                Filter Products
-              </h3>
-              <button
-                onClick={() => setMobileFilterOpen(false)}
-                className="p-1 text-slate-400 hover:text-slate-800"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            <ProductFilters
-              products={productList}
-              hideCategories={true}
-              selectedCategory={selectedCategory}
-              onSelectCategory={(cat) => {
-                setSelectedCategory(cat);
-                setSelectedSubcategory(null);
-                setMobileFilterOpen(false);
-              }}
-              selectedSubcategory={selectedSubcategory}
-              onSelectSubcategory={(sub) => {
-                setSelectedSubcategory(sub);
-                setMobileFilterOpen(false);
-              }}
-              selectedBrand={selectedBrand}
-              onSelectBrand={(b) => {
-                setSelectedBrand(b);
-                setMobileFilterOpen(false);
-              }}
-              stockFilter={stockFilter}
-              onStockFilterChange={(s) => {
-                setStockFilter(s);
-                setMobileFilterOpen(false);
-              }}
-              inStockCount={inStockCount}
-              outOfStockCount={outOfStockCount}
-              priceRange={priceRange}
-              onPriceRangeChange={(r) => {
-                setPriceRange(r);
-                setMobileFilterOpen(false);
-              }}
-              minDiscount={minDiscount}
-              onMinDiscountChange={(d) => {
-                setMinDiscount(d);
-                setMobileFilterOpen(false);
-              }}
-              minRating={minRating}
-              onMinRatingChange={(r) => {
-                setMinRating(r);
-                setMobileFilterOpen(false);
-              }}
-              techSpecs={techSpecs}
-              onTechSpecChange={handleTechSpecChange}
-              onClearAll={() => {
-                clearAllFilters();
-                setMobileFilterOpen(false);
-              }}
+      {/* Mobile Filter Drawer (Smooth Slide-in from LEFT) */}
+      <AnimatePresence>
+        {mobileFilterOpen && (
+          <div className="fixed inset-0 z-50 overflow-hidden flex justify-start overscroll-contain">
+            {/* Backdrop Overlay */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.25 }}
+              onClick={() => setMobileFilterOpen(false)}
+              onTouchMove={(e) => e.preventDefault()}
+              className="fixed inset-0 bg-slate-950/60 backdrop-blur-xs touch-none"
+              aria-hidden="true"
             />
+
+            {/* Drawer Sidebar from LEFT */}
+            <motion.aside
+              initial={{ x: "-100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "-100%" }}
+              transition={{ type: "spring", damping: 28, stiffness: 280 }}
+              className="relative w-[85vw] max-w-xs sm:max-w-sm bg-white h-full max-h-[100dvh] shadow-2xl flex flex-col z-10 font-sans border-r border-slate-200 overscroll-contain"
+            >
+              {/* Drawer Header */}
+              <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100 bg-white shrink-0">
+                <div className="flex items-center gap-2">
+                  <FilterFunnelIcon className="w-4 h-4 text-[#2563EB]" />
+                  <h3 className="text-sm font-black text-slate-900 uppercase tracking-wide">
+                    Filter Products
+                  </h3>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setMobileFilterOpen(false)}
+                  className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-900 flex items-center justify-center transition-colors cursor-pointer"
+                  aria-label="Close filters"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Scrollable Filters Content */}
+              <div className="flex-1 overflow-y-auto overscroll-contain p-5 space-y-4">
+                {/* Mobile Drawer Sort By */}
+                <div className="pb-3 border-b border-slate-100">
+                  <label className="text-[11px] font-black text-slate-700 uppercase tracking-wider block mb-1.5">
+                    Sort By
+                  </label>
+                  <select
+                    value={sortBy}
+                    onChange={(e) => {
+                      setSortBy(e.target.value as any);
+                    }}
+                    className="w-full bg-slate-50 text-slate-900 text-xs font-bold px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-slate-900 cursor-pointer"
+                  >
+                    <option value="featured">Featured</option>
+                    <option value="price-asc">Price: Low to High</option>
+                    <option value="price-desc">Price: High to Low</option>
+                    <option value="discount">Highest Discount</option>
+                    <option value="highest-rated">Customer Rating</option>
+                    <option value="newest">Newest Arrivals</option>
+                  </select>
+                </div>
+
+                <ProductFilters
+                  products={productList}
+                  hideCategories={true}
+                  selectedCategory={selectedCategory}
+                  onSelectCategory={(cat) => {
+                    setSelectedCategory(cat);
+                    setSelectedSubcategory(null);
+                  }}
+                  selectedSubcategory={selectedSubcategory}
+                  onSelectSubcategory={(sub) => {
+                    setSelectedSubcategory(sub);
+                  }}
+                  selectedBrand={selectedBrand}
+                  onSelectBrand={(b) => {
+                    setSelectedBrand(b);
+                  }}
+                  stockFilter={stockFilter}
+                  onStockFilterChange={(s) => {
+                    setStockFilter(s);
+                  }}
+                  inStockCount={inStockCount}
+                  outOfStockCount={outOfStockCount}
+                  priceRange={priceRange}
+                  onPriceRangeChange={(r) => {
+                    setPriceRange(r);
+                  }}
+                  minDiscount={minDiscount}
+                  onMinDiscountChange={(d) => {
+                    setMinDiscount(d);
+                  }}
+                  minRating={minRating}
+                  onMinRatingChange={(r) => {
+                    setMinRating(r);
+                  }}
+                  techSpecs={techSpecs}
+                  onTechSpecChange={handleTechSpecChange}
+                  onClearAll={() => {
+                    clearAllFilters();
+                  }}
+                />
+              </div>
+
+              {/* Action Bar Footer */}
+              <div className="p-4 border-t border-slate-100 bg-white shrink-0 flex items-center gap-2.5">
+                <button
+                  type="button"
+                  onClick={() => {
+                    clearAllFilters();
+                    setMobileFilterOpen(false);
+                  }}
+                  className="flex-1 py-2.5 rounded-xl border border-slate-200 text-xs font-bold text-slate-700 hover:bg-slate-50 transition-colors cursor-pointer"
+                >
+                  Clear All
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setMobileFilterOpen(false)}
+                  className="flex-1 py-2.5 rounded-xl bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-xs font-bold transition-all shadow-md shadow-blue-500/20 cursor-pointer"
+                >
+                  Apply Filters
+                </button>
+              </div>
+            </motion.aside>
           </div>
-        </div>
-      )}
+        )}
+      </AnimatePresence>
 
       {/* Quick View Modal */}
       {quickViewProduct && (

@@ -44,7 +44,7 @@ export const CheckoutOrderSummary: React.FC<CheckoutSummaryProps> = ({
   );
 
   return (
-    <div className="bg-white text-slate-800 rounded-xl sm:rounded-2xl p-4 sm:p-5 border border-slate-200/80 space-y-3.5 sticky top-24 shadow-xs">
+    <div className="bg-white text-slate-800 rounded-xl sm:rounded-2xl p-4 sm:p-5 border border-slate-200/80 space-y-3.5 shadow-xs">
       <div className="border-b border-slate-100 pb-2.5 flex items-center justify-between">
         <h3 className="text-sm font-bold tracking-tight text-slate-900">
           Order Summary

@@ -715,68 +715,11 @@ export const OrderDetailView: React.FC<OrderDetailProps> = ({ orderId }) => {
 
       {/* 5. Customer Order Actions */}
       <div className="pt-2">
-        <div className="flex flex-wrap items-center gap-2">
-          {/* Download Tax Invoice Action */}
-          <button
-            type="button"
-            onClick={() => setShowInvoiceModal(true)}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-blue-200 bg-blue-50 hover:bg-blue-100 text-[#2563EB] text-xs font-bold transition-all shadow-2xs active:scale-95 cursor-pointer"
-          >
-            <Download className="w-3.5 h-3.5 text-[#2563EB]" />
-            <span>Download Invoice</span>
-          </button>
-
-          {/* Reorder Action */}
-          <button
-            onClick={handleReorder}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-xs font-semibold transition-all shadow-2xs active:scale-95 cursor-pointer"
-          >
-            <RefreshCw className="w-3.5 h-3.5 text-yellow-300" />
-            <span>Reorder Items</span>
-          </button>
-
-          {/* Cancel Order Action */}
-          {order.isCancelable && (
-            <button
-              onClick={() => setModalType("cancel")}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-semibold transition-colors cursor-pointer"
-            >
-              <XCircle className="w-3.5 h-3.5" />
-              <span>Cancel Order</span>
-            </button>
-          )}
-
-          {/* Request Return */}
-          <button
-            onClick={() => setModalType("return")}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 hover:border-slate-300 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold transition-colors cursor-pointer"
-          >
-            <RotateCcw className="w-3.5 h-3.5 text-[#2563EB]" />
-            <span>Request Return</span>
-          </button>
-
-          {/* Request Replacement */}
-          <button
-            onClick={() => setModalType("replacement")}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 hover:border-slate-300 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold transition-colors cursor-pointer"
-          >
-            <RefreshCw className="w-3.5 h-3.5 text-purple-600" />
-            <span>Request Replacement</span>
-          </button>
-
-          {/* Request Refund */}
-          <button
-            onClick={() => setModalType("refund")}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 hover:border-slate-300 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold transition-colors cursor-pointer"
-          >
-            <DollarSign className="w-3.5 h-3.5 text-emerald-600" />
-            <span>Request Refund</span>
-          </button>
-
+        <div className="flex flex-wrap items-center justify-end gap-2">
           {/* Contact Support Helpdesk */}
           <Link
             href="/account/support"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold transition-colors ml-auto shadow-2xs"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold transition-colors shadow-2xs cursor-pointer"
           >
             <MessageSquare className="w-3.5 h-3.5 text-[#FFC20E]" />
             <span>Support Helpdesk</span>

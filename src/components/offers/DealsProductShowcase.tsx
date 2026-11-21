@@ -4,14 +4,14 @@ import React, { useState, useMemo } from "react";
 import { ProductCard } from "@/components/products/ProductCard";
 import { OFFERS_DATA } from "@/data/offersData";
 import { PRODUCTS, Product } from "@/data/mockData";
+import { ProductEmptyState } from "@/components/products/ProductEmptyState";
+import { FilterFunnelIcon } from "@/components/icons/FilterFunnelIcon";
 import {
   Search,
-  Filter,
   Tag,
   ArrowUpDown,
-Zap,
+  Zap,
   X,
-  SlidersHorizontal,
 } from "lucide-react";
 
 export const DealsProductShowcase: React.FC = () => {
@@ -171,6 +171,7 @@ export const DealsProductShowcase: React.FC = () => {
 
         {/* Quick Price Range Filter Chips */}
         <div className="flex items-center gap-1.5 text-xs">
+          <FilterFunnelIcon className="w-3.5 h-3.5 text-slate-400 shrink-0" />
           <span className="text-[11px] font-bold text-slate-400 hidden sm:inline">Price:</span>
           <button
             onClick={() => setPriceFilter(priceFilter === "under999" ? "all" : "under999")}
@@ -219,27 +220,15 @@ export const DealsProductShowcase: React.FC = () => {
 
       {/* Product Cards Grid */}
       {dealProducts.length === 0 ? (
-        <div className="py-16 text-center bg-white rounded-3xl border border-slate-200 space-y-3 max-w-md mx-auto shadow-sm">
-          <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center mx-auto text-slate-400">
-            <Tag className="w-6 h-6" />
-          </div>
-          <h3 className="text-base font-bold text-slate-900">
-            No Deal Products Found
-          </h3>
-          <p className="text-xs text-slate-500 max-w-xs mx-auto">
-            No items matched your active search or category filter. Try clearing your filters to see all promotions.
-          </p>
-          <button
-            onClick={() => {
-              setSearchQuery("");
-              setSelectedCategory("all");
-              setPriceFilter("all");
-            }}
-            className="text-xs font-bold text-[#2563EB] bg-blue-50 hover:bg-blue-100 px-4 py-2 rounded-xl transition-colors cursor-pointer"
-          >
-            Clear All Filters
-          </button>
-        </div>
+        <ProductEmptyState
+          onClearFilters={() => {
+            setSearchQuery("");
+            setSelectedCategory("all");
+            setPriceFilter("all");
+          }}
+          description="No items matched your active search or category filter. Try clearing your filters to see all promotions."
+          buttonText="Clear All Filters"
+        />
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
           {dealProducts.map((product) => (

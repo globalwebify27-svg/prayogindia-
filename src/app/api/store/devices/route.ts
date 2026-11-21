@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { getAuthenticatedStaff, hasStoreAccess } from "@/lib/staffAuth";
+import { getAuthenticatedStaff, hasStoreAccess, MOCK_STAFF_USERS } from "@/lib/staffAuth";
 import { INITIAL_STORES } from "@/data/storesData";
 import { hashPassword } from "@/lib/authUtils";
 import { getSecurityHeaders } from "@/lib/security";
 import { StaffStatus } from "@prisma/client";
+import { getStoredDevices, saveStoredDevice } from "@/data/storeDevicesStore";
 
 // GET /api/store/devices - Store-scoped Kiosk & Tablet Devices
 export async function GET(request: Request) {
@@ -74,6 +75,9 @@ export async function GET(request: Request) {
             deviceCode: d.deviceCode,
             status: d.status,
             assignedStaff: d.deviceName,
+            salesExecutive: d.deviceName.includes("(")
+              ? d.deviceName.split("(")[1]?.replace(")", "").trim()
+              : d.deviceName,
             lastActiveAt: d.lastLogin
               ? new Date(d.lastLogin).toLocaleTimeString()
               : "Active",
@@ -85,6 +89,9 @@ export async function GET(request: Request) {
             deviceCode: `TAB-${activeStoreCode}-${s.username.toUpperCase()}`,
             status: s.status,
             assignedStaff: `@${s.username}`,
+            salesExecutive: s.name.includes("(")
+              ? s.name.split("(")[1]?.replace(")", "").trim()
+              : s.name,
             lastActiveAt: "Active",
           })),
         ];
@@ -113,14 +120,36 @@ export async function GET(request: Request) {
     }
   }
 
+  const stored = getStoredDevices().filter((d) => d.storeCode === activeStoreCode);
   const branch = INITIAL_STORES.find((s) => s.code === activeStoreCode);
-  const devices = branch ? branch.authorizedDevices : [];
+  const branchDevices = branch ? branch.authorizedDevices : [];
+
+  const mappedStored = stored.map((d) => ({
+    id: d.id,
+    deviceName: d.deviceName,
+    deviceModel: `${d.deviceType.replace("_", " ")} (${d.deviceCode})`,
+    deviceCode: d.deviceCode,
+    status: d.status,
+    assignedStaff: `@${d.username}`,
+    salesExecutive: d.salesExecutive,
+    lastActiveAt: d.lastActiveAt || "Active",
+  }));
+
+  const allDevices = [...mappedStored, ...branchDevices];
+  const unique = Array.from(
+    new Map(
+      allDevices.map((item) => [
+        (item as any).deviceCode || item.deviceName,
+        item,
+      ]),
+    ).values(),
+  );
 
   return NextResponse.json(
     {
       success: true,
       store: activeStoreCode,
-      data: devices,
+      data: unique,
     },
     { headers },
   );
@@ -151,6 +180,7 @@ export async function POST(request: Request) {
       username,
       password,
       deviceType = "KIOSK_TABLET",
+      salesExecutive,
     } = body;
 
     if (!deviceName || !username || !password) {
@@ -209,10 +239,14 @@ export async function POST(request: Request) {
       const staffRole =
         deviceType === "POS_TERMINAL" ? "POS_CASHIER" : "KIOSK_USER";
 
-      // 1. Create Staff User Record
+      // 1. Create Staff User Record with Sales Executive linkage
+      const displayName = salesExecutive
+        ? `${deviceName} (${salesExecutive})`
+        : deviceName;
+
       const user = await db.staffUser.create({
         data: {
-          name: deviceName,
+          name: displayName,
           username: cleanUsername,
           passwordHash,
           role: staffRole,
@@ -228,7 +262,7 @@ export async function POST(request: Request) {
           data: {
             deviceCode,
             storeId,
-            deviceName,
+            deviceName: displayName,
             deviceType:
               staffRole === "KIOSK_USER" ? "KIOSK_TABLET" : "POS_TERMINAL",
             status: "ACTIVE",
@@ -236,13 +270,26 @@ export async function POST(request: Request) {
         })
         .catch((e) => console.warn("Device create warning:", e));
 
+      // Always persist to storeDevicesStore for instant synchronized lookup
+      saveStoredDevice({
+        storeCode: storeObj.code,
+        deviceName: displayName,
+        deviceType: deviceType as any,
+        deviceCode,
+        username: cleanUsername,
+        passwordPlain: password,
+        salesExecutive: salesExecutive || "Assigned Executive",
+        status: "Active",
+      });
+
       return NextResponse.json(
         {
           success: true,
-          message: `Kiosk device "${deviceName}" created for ${storeObj.name} with login @${cleanUsername}!`,
+          message: `Kiosk device "${deviceName}" created for ${storeObj.name} and attributed to Sales Executive ${salesExecutive || "Staff"} (login: @${cleanUsername})!`,
           data: {
             id: user.id,
             deviceName,
+            salesExecutive: salesExecutive || "Assigned Executive",
             username: user.username,
             deviceCode,
             store: storeObj.name,
@@ -252,10 +299,54 @@ export async function POST(request: Request) {
       );
     }
 
+    // Mock mode registration so the device logs in immediately
+    const cleanUsername = username.trim().toLowerCase();
+    const deviceCode = `TAB-${storeCode.toUpperCase()}-${cleanUsername.toUpperCase()}`;
+    const displayName = salesExecutive
+      ? `${deviceName} (${salesExecutive})`
+      : deviceName;
+
+    // Persist to storeDevicesStore so login recognizes it with the exact password
+    saveStoredDevice({
+      storeCode: storeCode.toUpperCase(),
+      deviceName: displayName,
+      deviceType: deviceType as any,
+      deviceCode,
+      username: cleanUsername,
+      passwordPlain: password,
+      salesExecutive: salesExecutive || "Assigned Executive",
+      status: "Active",
+    });
+
+    MOCK_STAFF_USERS[cleanUsername] = {
+      id: `staff-device-${Date.now()}`,
+      name: displayName,
+      email: null,
+      username: cleanUsername,
+      role: (deviceType === "POS_TERMINAL"
+        ? "POS_CASHIER"
+        : "KIOSK_USER") as any,
+      storeId: `str-${storeCode.toLowerCase()}-01`,
+      storeCode: storeCode.toUpperCase(),
+      storeName: `Prayog India ${storeCode.toUpperCase()} Branch`,
+      deviceId: deviceCode,
+      deviceLabel: displayName,
+      salesExecutive: salesExecutive || "Assigned Executive",
+      status: "ACTIVE" as any,
+    };
+
     return NextResponse.json(
       {
         success: true,
-        message: `Kiosk tablet registered for ${storeCode} Store (Mock mode).`,
+        message: `Kiosk device "${deviceName}" registered for ${storeCode.toUpperCase()} Store (Device Code: ${deviceCode}, Login: @${cleanUsername}).`,
+        data: {
+          id: `dev-${Date.now()}`,
+          deviceName: displayName,
+          salesExecutive: salesExecutive || "Assigned Executive",
+          username: cleanUsername,
+          deviceCode,
+          store: `${storeCode.toUpperCase()} Store`,
+        },
       },
       { headers },
     );

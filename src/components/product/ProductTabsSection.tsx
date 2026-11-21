@@ -446,17 +446,11 @@ export const ProductTabsSection: React.FC<ProductTabsSectionProps> = ({
       {/* ── MOBILE VIEW: Stacked Rounded Card Accordions (Matching Reference Image) ── */}
       <div className="block sm:hidden space-y-3 pt-2">
         {/* 1. Key Features Accordion Card */}
-        <div
-          className={`bg-white rounded-2xl border transition-all duration-200 overflow-hidden ${
-            activeAccordion === "features"
-              ? "border-[#005CA9]/60 shadow-xs"
-              : "border-slate-200/90 shadow-2xs hover:border-slate-300"
-          }`}
-        >
+        <div className="bg-white rounded-2xl shadow-sm transition-all duration-200 overflow-hidden border-0 outline-hidden ring-0">
           <button
             type="button"
             onClick={() => toggleSection("features")}
-            className="w-full flex items-center justify-between p-4 text-left font-bold text-slate-800 text-[15px] cursor-pointer select-none active:bg-slate-50/80 transition-colors"
+            className="w-full flex items-center justify-between p-4 text-left font-bold text-slate-800 text-[15px] cursor-pointer select-none active:bg-slate-50/80 transition-colors border-0 outline-hidden ring-0 focus:outline-hidden focus:ring-0"
           >
             <span>Key Features</span>
             <ChevronDown
@@ -486,9 +480,9 @@ export const ProductTabsSection: React.FC<ProductTabsSectionProps> = ({
                     opacity: { duration: 0.12 },
                   },
                 }}
-                className="overflow-hidden"
+                className="overflow-hidden border-0 outline-hidden ring-0"
               >
-                <div className="px-4 pb-4 pt-1 border-t border-slate-100">
+                <div className="px-4 pb-4 pt-1">
                   <ul className="space-y-2.5 pt-1">
                     {featuresList.map((feature, idx) => (
                       <li
@@ -509,17 +503,11 @@ export const ProductTabsSection: React.FC<ProductTabsSectionProps> = ({
         </div>
 
         {/* 2. Description Accordion Card */}
-        <div
-          className={`bg-white rounded-2xl border transition-all duration-200 overflow-hidden ${
-            activeAccordion === "description"
-              ? "border-[#005CA9]/60 shadow-xs"
-              : "border-slate-200/90 shadow-2xs hover:border-slate-300"
-          }`}
-        >
+        <div className="bg-white rounded-2xl shadow-sm transition-all duration-200 overflow-hidden border-0 outline-hidden ring-0">
           <button
             type="button"
             onClick={() => toggleSection("description")}
-            className="w-full flex items-center justify-between p-4 text-left font-bold text-slate-800 text-[15px] cursor-pointer select-none active:bg-slate-50/80 transition-colors"
+            className="w-full flex items-center justify-between p-4 text-left font-bold text-slate-800 text-[15px] cursor-pointer select-none active:bg-slate-50/80 transition-colors border-0 outline-hidden ring-0 focus:outline-hidden focus:ring-0"
           >
             <span>Description</span>
             <ChevronDown
@@ -549,16 +537,16 @@ export const ProductTabsSection: React.FC<ProductTabsSectionProps> = ({
                     opacity: { duration: 0.12 },
                   },
                 }}
-                className="overflow-hidden"
+                className="overflow-hidden border-0 outline-hidden ring-0"
               >
-                <div className="px-4 pb-4 pt-1 border-t border-slate-100 space-y-3">
+                <div className="px-4 pb-4 pt-1 space-y-3">
                   <p className="text-xs text-slate-600 leading-relaxed pt-1">
                     {product.description ||
                       `The ${product.name} is a high-performance hardware module designed for advanced robotics, IoT instrumentation, and embedded systems engineering. With robust circuitry, precise telemetry, and plug-and-play prototyping support, it empowers makers, university labs, and industrial automation developers.`}
                   </p>
 
                   {/* Package Includes */}
-                  <div className="bg-slate-50/90 p-3.5 rounded-xl border border-slate-200/80 space-y-2">
+                  <div className="bg-slate-50/90 p-3.5 rounded-xl space-y-2 border-0 outline-hidden ring-0">
                     <h4 className="text-xs font-bold text-slate-900">
                       Package Includes:
                     </h4>
@@ -582,7 +570,7 @@ export const ProductTabsSection: React.FC<ProductTabsSectionProps> = ({
                         {product.applications.map((app, idx) => (
                           <span
                             key={idx}
-                            className="bg-blue-50 text-[#005CA9] text-[11px] font-bold px-2.5 py-1 rounded-lg border border-blue-100"
+                            className="bg-blue-50 text-[#005CA9] text-[11px] font-bold px-2.5 py-1 rounded-lg border-0 outline-hidden ring-0"
                           >
                             {app}
                           </span>
@@ -597,17 +585,11 @@ export const ProductTabsSection: React.FC<ProductTabsSectionProps> = ({
         </div>
 
         {/* 3. Specifications Accordion Card */}
-        <div
-          className={`bg-white rounded-2xl border transition-all duration-200 overflow-hidden ${
-            activeAccordion === "specifications"
-              ? "border-[#005CA9]/60 shadow-xs"
-              : "border-slate-200/90 shadow-2xs hover:border-slate-300"
-          }`}
-        >
+        <div className="bg-white rounded-2xl shadow-sm transition-all duration-200 overflow-hidden border-0 outline-hidden ring-0">
           <button
             type="button"
             onClick={() => toggleSection("specifications")}
-            className="w-full flex items-center justify-between p-4 text-left font-bold text-slate-800 text-[15px] cursor-pointer select-none active:bg-slate-50/80 transition-colors"
+            className="w-full flex items-center justify-between p-4 text-left font-bold text-slate-800 text-[15px] cursor-pointer select-none active:bg-slate-50/80 transition-colors border-0 outline-hidden ring-0 focus:outline-hidden focus:ring-0"
           >
             <span>Specifications</span>
             <ChevronDown
@@ -637,10 +619,10 @@ export const ProductTabsSection: React.FC<ProductTabsSectionProps> = ({
                     opacity: { duration: 0.12 },
                   },
                 }}
-                className="overflow-hidden"
+                className="overflow-hidden border-0 outline-hidden ring-0"
               >
-                <div className="px-4 pb-4 pt-1 border-t border-slate-100">
-                  <div className="rounded-xl border border-slate-200/90 overflow-hidden text-xs mt-1">
+                <div className="px-4 pb-4 pt-1">
+                  <div className="rounded-xl bg-slate-50/70 overflow-hidden text-xs mt-1 border-0 outline-hidden ring-0">
                     <table className="w-full text-left">
                       <tbody>
                         {Object.entries(allSpecs).map(([key, val], idx) => (
@@ -648,10 +630,10 @@ export const ProductTabsSection: React.FC<ProductTabsSectionProps> = ({
                             key={key}
                             className={idx % 2 === 0 ? "bg-slate-50/70" : "bg-white"}
                           >
-                            <td className="py-2.5 px-3 font-bold text-slate-600 border-b border-slate-100 w-2/5 text-[11px]">
+                            <td className="py-2.5 px-3 font-bold text-slate-600 w-2/5 text-[11px]">
                               {key}
                             </td>
-                            <td className="py-2.5 px-3 font-semibold text-slate-900 border-b border-slate-100 text-[11px]">
+                            <td className="py-2.5 px-3 font-semibold text-slate-900 text-[11px]">
                               {val}
                             </td>
                           </tr>
@@ -666,17 +648,11 @@ export const ProductTabsSection: React.FC<ProductTabsSectionProps> = ({
         </div>
 
         {/* 4. Additional Resources Accordion Card */}
-        <div
-          className={`bg-white rounded-2xl border transition-all duration-200 overflow-hidden ${
-            activeAccordion === "resources"
-              ? "border-[#005CA9]/60 shadow-xs"
-              : "border-slate-200/90 shadow-2xs hover:border-slate-300"
-          }`}
-        >
+        <div className="bg-white rounded-2xl shadow-sm transition-all duration-200 overflow-hidden border-0 outline-hidden ring-0">
           <button
             type="button"
             onClick={() => toggleSection("resources")}
-            className="w-full flex items-center justify-between p-4 text-left font-bold text-slate-800 text-[15px] cursor-pointer select-none active:bg-slate-50/80 transition-colors"
+            className="w-full flex items-center justify-between p-4 text-left font-bold text-slate-800 text-[15px] cursor-pointer select-none active:bg-slate-50/80 transition-colors border-0 outline-hidden ring-0 focus:outline-hidden focus:ring-0"
           >
             <span>Additional Resources</span>
             <ChevronDown
@@ -706,9 +682,9 @@ export const ProductTabsSection: React.FC<ProductTabsSectionProps> = ({
                     opacity: { duration: 0.12 },
                   },
                 }}
-                className="overflow-hidden"
+                className="overflow-hidden border-0 outline-hidden ring-0"
               >
-                <div className="px-4 pb-4 pt-1 border-t border-slate-100 space-y-2.5">
+                <div className="px-4 pb-4 pt-1 space-y-2.5">
                   {!datasheetUrl && !tutorialVideo?.directUrl ? (
                     <p className="text-xs text-slate-500 py-3 text-center">
                       No additional resources available for this product yet.
@@ -717,7 +693,7 @@ export const ProductTabsSection: React.FC<ProductTabsSectionProps> = ({
                     <div className="pt-1 space-y-2">
                       {/* 1. Official PDF Datasheet */}
                       {datasheetUrl && (
-                        <div className="p-3 bg-slate-50/80 rounded-xl border border-slate-200/80 flex items-center justify-between gap-3">
+                        <div className="p-3 bg-slate-50/80 rounded-xl flex items-center justify-between gap-3 border-0 outline-hidden ring-0">
                           <div className="min-w-0 flex items-center gap-2.5">
                             <div className="w-8 h-8 rounded-lg bg-blue-50 text-[#005CA9] flex items-center justify-center shrink-0">
                               <FileText className="w-4 h-4" />
@@ -735,7 +711,7 @@ export const ProductTabsSection: React.FC<ProductTabsSectionProps> = ({
                             href={datasheetUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="shrink-0 px-3 py-1.5 bg-[#005CA9] hover:bg-[#004a88] text-white rounded-lg font-bold text-xs flex items-center gap-1 shadow-2xs"
+                            className="shrink-0 px-3 py-1.5 bg-[#005CA9] hover:bg-[#004a88] text-white rounded-lg font-bold text-xs flex items-center gap-1 shadow-2xs border-0 outline-hidden"
                           >
                             <Download className="w-3.5 h-3.5" />
                             <span>PDF</span>
@@ -745,7 +721,7 @@ export const ProductTabsSection: React.FC<ProductTabsSectionProps> = ({
 
                       {/* 2. YouTube Video */}
                       {tutorialVideo?.directUrl && (
-                        <div className="p-3 bg-red-50/50 rounded-xl border border-red-100 flex items-center justify-between gap-3 mt-1">
+                        <div className="p-3 bg-red-50/50 rounded-xl flex items-center justify-between gap-3 mt-1 border-0 outline-hidden ring-0">
                           <div className="min-w-0 flex items-center gap-2.5">
                             <div className="w-8 h-8 rounded-lg bg-red-500 text-white flex items-center justify-center shrink-0">
                               <Play className="w-4 h-4 fill-white" />
@@ -761,7 +737,7 @@ export const ProductTabsSection: React.FC<ProductTabsSectionProps> = ({
                             href={tutorialVideo.directUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="shrink-0 px-2.5 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg font-bold text-xs flex items-center gap-1 shadow-2xs"
+                            className="shrink-0 px-2.5 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg font-bold text-xs flex items-center gap-1 shadow-2xs border-0 outline-hidden"
                           >
                             <span>Watch</span>
                             <ExternalLink className="w-3 h-3" />
@@ -777,17 +753,11 @@ export const ProductTabsSection: React.FC<ProductTabsSectionProps> = ({
         </div>
 
         {/* 5. Warranty Accordion Card */}
-        <div
-          className={`bg-white rounded-2xl border transition-all duration-200 overflow-hidden ${
-            activeAccordion === "warranty"
-              ? "border-[#005CA9]/60 shadow-xs"
-              : "border-slate-200/90 shadow-2xs hover:border-slate-300"
-          }`}
-        >
+        <div className="bg-white rounded-2xl shadow-sm transition-all duration-200 overflow-hidden border-0 outline-hidden ring-0">
           <button
             type="button"
             onClick={() => toggleSection("warranty")}
-            className="w-full flex items-center justify-between p-4 text-left font-bold text-slate-800 text-[15px] cursor-pointer select-none active:bg-slate-50/80 transition-colors"
+            className="w-full flex items-center justify-between p-4 text-left font-bold text-slate-800 text-[15px] cursor-pointer select-none active:bg-slate-50/80 transition-colors border-0 outline-hidden ring-0 focus:outline-hidden focus:ring-0"
           >
             <span>Warranty</span>
             <ChevronDown
@@ -817,11 +787,11 @@ export const ProductTabsSection: React.FC<ProductTabsSectionProps> = ({
                     opacity: { duration: 0.12 },
                   },
                 }}
-                className="overflow-hidden"
+                className="overflow-hidden border-0 outline-hidden ring-0"
               >
-                <div className="px-4 pb-4 pt-1 border-t border-slate-100">
+                <div className="px-4 pb-4 pt-1">
                   <div className="space-y-2.5 pt-1">
-                    <div className="p-3 bg-emerald-50/60 rounded-xl border border-emerald-100 flex items-start gap-2.5">
+                    <div className="p-3 bg-emerald-50/60 rounded-xl flex items-start gap-2.5 border-0 outline-hidden ring-0">
                       <FileCheck className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
                       <div>
                         <p className="text-xs font-bold text-slate-900">
@@ -832,7 +802,7 @@ export const ProductTabsSection: React.FC<ProductTabsSectionProps> = ({
                         </p>
                       </div>
                     </div>
-                    <div className="p-3 bg-blue-50/60 rounded-xl border border-blue-100 flex items-start gap-2.5">
+                    <div className="p-3 bg-blue-50/60 rounded-xl flex items-start gap-2.5 border-0 outline-hidden ring-0">
                       <Package className="w-4 h-4 text-[#005CA9] shrink-0 mt-0.5" />
                       <div>
                         <p className="text-xs font-bold text-slate-900">
@@ -843,7 +813,7 @@ export const ProductTabsSection: React.FC<ProductTabsSectionProps> = ({
                         </p>
                       </div>
                     </div>
-                    <div className="p-3 bg-slate-50 rounded-xl border border-slate-200/80 flex items-start gap-2.5">
+                    <div className="p-3 bg-slate-50 rounded-xl flex items-start gap-2.5 border-0 outline-hidden ring-0">
                       <Wrench className="w-4 h-4 text-slate-700 shrink-0 mt-0.5" />
                       <div>
                         <p className="text-xs font-bold text-slate-900">
@@ -854,7 +824,7 @@ export const ProductTabsSection: React.FC<ProductTabsSectionProps> = ({
                         </p>
                       </div>
                     </div>
-                    <div className="p-3 bg-amber-50/60 rounded-xl border border-amber-100 flex items-start gap-2.5">
+                    <div className="p-3 bg-amber-50/60 rounded-xl flex items-start gap-2.5 border-0 outline-hidden ring-0">
                       <FileText className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
                       <div>
                         <p className="text-xs font-bold text-slate-900">
@@ -873,17 +843,11 @@ export const ProductTabsSection: React.FC<ProductTabsSectionProps> = ({
         </div>
 
         {/* 6. Customer Reviews Accordion Card */}
-        <div
-          className={`bg-white rounded-2xl border transition-all duration-200 overflow-hidden ${
-            activeAccordion === "reviews"
-              ? "border-[#005CA9]/60 shadow-xs"
-              : "border-slate-200/90 shadow-2xs hover:border-slate-300"
-          }`}
-        >
+        <div className="bg-white rounded-2xl shadow-sm transition-all duration-200 overflow-hidden border-0 outline-hidden ring-0">
           <button
             type="button"
             onClick={() => toggleSection("reviews")}
-            className="w-full flex items-center justify-between p-4 text-left font-bold text-slate-800 text-[15px] cursor-pointer select-none active:bg-slate-50/80 transition-colors"
+            className="w-full flex items-center justify-between p-4 text-left font-bold text-slate-800 text-[15px] cursor-pointer select-none active:bg-slate-50/80 transition-colors border-0 outline-hidden ring-0 focus:outline-hidden focus:ring-0"
           >
             <span>Customer Reviews</span>
             <ChevronDown
@@ -913,9 +877,9 @@ export const ProductTabsSection: React.FC<ProductTabsSectionProps> = ({
                     opacity: { duration: 0.12 },
                   },
                 }}
-                className="overflow-hidden"
+                className="overflow-hidden border-0 outline-hidden ring-0"
               >
-                <div className="px-4 pb-4 pt-1 border-t border-slate-100">
+                <div className="px-4 pb-4 pt-1">
                   <div className="pt-2">
                     <ProductReviewsSection
                       productId={product.id}

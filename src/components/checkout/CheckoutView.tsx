@@ -34,6 +34,7 @@ import {
   Package,
   Home,
   ChevronRight,
+  ChevronDown,
   Headphones,
   Info,
 } from "lucide-react";
@@ -327,6 +328,49 @@ export const CheckoutView: React.FC = () => {
   const [paymentMethod, setPaymentMethod] = useState<
     "upi" | "card" | "netbanking" | "cod"
   >("upi");
+
+  // ── Mobile Stepped Checkout Flow (Step 1: Address & Review, Step 2: Payment)
+  const [mobileStep, setMobileStep] = useState<"address" | "payment">("address");
+  const [showMobileOrderDetails, setShowMobileOrderDetails] = useState(false);
+
+  const handleProceedToPayment = () => {
+    setValidationError(null);
+    if (!customerName.trim() || customerName.trim().length < 2) {
+      setValidationError("Please enter a valid Full Name.");
+      setIsEditingAddress(true);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
+    if (
+      !customerMobile.trim() ||
+      customerMobile.replace(/\D/g, "").length < 10
+    ) {
+      setValidationError("Please enter a valid 10-digit Mobile Phone Number.");
+      setIsEditingAddress(true);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
+
+    const currentStreet = addrFormStreet || initialAddr?.street || "";
+    const currentCity = addrFormCity || initialAddr?.city || "";
+    const currentPincode = addrFormPincode || initialAddr?.pincode || "";
+
+    if (
+      !currentStreet.trim() ||
+      !currentCity.trim() ||
+      currentPincode.trim().length !== 6
+    ) {
+      setValidationError(
+        "Please enter a complete delivery address with a valid 6-digit PIN code."
+      );
+      setIsEditingAddress(true);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
+
+    setMobileStep("payment");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isOrderPlacedDemo, setIsOrderPlacedDemo] = useState(false);
   const [placedOrderNumber, setPlacedOrderNumber] = useState<string | null>(
@@ -1556,10 +1600,73 @@ export const CheckoutView: React.FC = () => {
         </div>
       </div>
 
+      {/* Mobile Step Progress Indicator (Clean Integrated Header - lg:hidden) */}
+      <div className="lg:hidden flex items-center justify-between px-1 py-1">
+        {/* Step 1 Pill */}
+        <button
+          type="button"
+          onClick={() => {
+            setMobileStep("address");
+            window.scrollTo({ top: 0, behavior: "smooth" });
+          }}
+          className={`flex items-center gap-1.5 text-xs font-bold transition-all cursor-pointer ${
+            mobileStep === "address"
+              ? "text-[#2563EB]"
+              : "text-slate-600 hover:text-slate-900"
+          }`}
+        >
+          <span
+            className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-black ${
+              mobileStep === "payment"
+                ? "bg-emerald-500 text-white"
+                : "bg-[#2563EB] text-white"
+            }`}
+          >
+            {mobileStep === "payment" ? "✓" : "1"}
+          </span>
+          <span>1. Address</span>
+        </button>
+
+        {/* Stepper Progress Line */}
+        <div className="flex-1 mx-3 h-1 bg-slate-200/80 rounded-full overflow-hidden">
+          <div
+            className={`h-full transition-all duration-300 ${
+              mobileStep === "payment" ? "w-full bg-emerald-500" : "w-1/2 bg-[#2563EB]"
+            }`}
+          />
+        </div>
+
+        {/* Step 2 Pill */}
+        <button
+          type="button"
+          onClick={handleProceedToPayment}
+          className={`flex items-center gap-1.5 text-xs font-bold transition-all cursor-pointer ${
+            mobileStep === "payment"
+              ? "text-[#2563EB]"
+              : "text-slate-400 hover:text-slate-600"
+          }`}
+        >
+          <span
+            className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-black ${
+              mobileStep === "payment"
+                ? "bg-[#2563EB] text-white"
+                : "bg-slate-200 text-slate-500"
+            }`}
+          >
+            2
+          </span>
+          <span>2. Payment</span>
+        </button>
+      </div>
+
       {/* 2-Column One-Page Checkout Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-3.5 lg:gap-8 items-start">
         {/* Left Column: Order Summary (Span 5) */}
-        <div className="lg:col-span-5 sticky top-24">
+        <div
+          className={`lg:col-span-5 static lg:sticky lg:top-24 ${
+            mobileStep === "payment" ? "hidden lg:block" : "order-2 lg:order-1 block"
+          }`}
+        >
           <CheckoutOrderSummary
             cart={cart}
             subtotal={subtotal}
@@ -1573,10 +1680,33 @@ export const CheckoutView: React.FC = () => {
             onToggleRewardPoints={setUseRewardPoints}
             rewardPointsAvailable={rewardPointsAvailable}
           />
+
+          {/* On mobile Step 1, Continue to Payment button right below Order Summary */}
+          <div className="lg:hidden pt-3 space-y-2">
+            <button
+              type="button"
+              onClick={handleProceedToPayment}
+              className="w-full h-12 bg-[#2563EB] hover:bg-[#1D4ED8] active:bg-[#1E40AF] active:scale-[0.99] text-white px-4 rounded-xl font-bold transition-all shadow-md shadow-blue-500/25 flex items-center justify-between cursor-pointer border border-blue-600"
+            >
+              <div className="flex items-baseline gap-1.5 shrink-0">
+                <span className="text-xs text-blue-200 font-medium">Pay</span>
+                <span className="text-base font-black text-white tracking-tight">
+                  ₹{grandTotal.toLocaleString("en-IN")}
+                </span>
+              </div>
+              <div className="flex items-center gap-1.5 text-sm font-bold text-white shrink-0">
+                <span>Proceed to Payment</span>
+                <ArrowRight className="w-4 h-4 text-white shrink-0" />
+              </div>
+            </button>
+            <p className="text-center text-[11px] text-slate-500">
+              Next: Select payment method (UPI, Cards, COD)
+            </p>
+          </div>
         </div>
 
         {/* Right Column: Delivery Address & Payment Flow (Span 7) */}
-        <div className="lg:col-span-7 space-y-3 sm:space-y-4">
+        <div className="lg:col-span-7 space-y-3 sm:space-y-4 order-1 lg:order-2">
           {/* Validation Error Banner */}
           {validationError && (
             <div className="bg-red-50 border border-red-200 rounded-xl p-3 flex items-start gap-2.5 text-red-900 text-xs animate-in fade-in">
@@ -1605,7 +1735,100 @@ export const CheckoutView: React.FC = () => {
             </div>
           )}
 
+          {/* Mobile Step 2: Unified Delivery & Order Overview (lg:hidden) */}
+          {mobileStep === "payment" && (
+            <div className="lg:hidden bg-slate-50/70 border border-slate-200/80 rounded-2xl overflow-hidden divide-y divide-slate-200/80">
+              {/* Delivery Destination Row */}
+              <div className="p-3.5 flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <div className="w-8 h-8 rounded-xl bg-blue-100/70 text-[#2563EB] flex items-center justify-center shrink-0">
+                    <MapPin className="w-4 h-4" />
+                  </div>
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Deliver to</span>
+                      <span className="text-xs font-bold text-slate-900 truncate">
+                        {customerName || addrFormName || "Om Kumar"}
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-slate-600 truncate leading-tight mt-0.5">
+                      {addrFormStreet || initialAddr?.street}, {addrFormCity || initialAddr?.city}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMobileStep("address");
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                  }}
+                  className="text-xs font-bold text-[#2563EB] hover:underline cursor-pointer shrink-0"
+                >
+                  Change
+                </button>
+              </div>
+
+              {/* Order Total Accordion Row */}
+              <div className="bg-white">
+                <button
+                  type="button"
+                  onClick={() => setShowMobileOrderDetails(!showMobileOrderDetails)}
+                  className="w-full px-3.5 py-2.5 flex items-center justify-between cursor-pointer hover:bg-slate-50/50 transition-colors"
+                >
+                  <div className="flex items-center gap-2 text-xs">
+                    <Receipt className="w-3.5 h-3.5 text-slate-400" />
+                    <span className="font-semibold text-slate-700">
+                      Order Total ({cart.reduce((a, b) => a + b.quantity, 0)} {cart.reduce((a, b) => a + b.quantity, 0) === 1 ? "item" : "items"})
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-xs font-black text-slate-900">
+                      ₹{grandTotal.toLocaleString("en-IN")}
+                    </span>
+                    <ChevronDown
+                      className={`w-3.5 h-3.5 text-slate-400 transition-transform duration-200 ${
+                        showMobileOrderDetails ? "rotate-180" : ""
+                      }`}
+                    />
+                  </div>
+                </button>
+
+                {showMobileOrderDetails && (
+                  <div className="px-3.5 pb-3 pt-1 border-t border-slate-100 text-xs space-y-1.5 animate-in fade-in bg-slate-50/50">
+                    <div className="flex justify-between text-slate-600 text-[11px]">
+                      <span>Items Total (MRP)</span>
+                      <span>₹{mrpTotal.toLocaleString("en-IN")}</span>
+                    </div>
+                    {mrpTotal > subtotal && (
+                      <div className="flex justify-between text-emerald-600 font-medium text-[11px]">
+                        <span>Catalogue Discount</span>
+                        <span>-₹{(mrpTotal - subtotal).toLocaleString("en-IN")}</span>
+                      </div>
+                    )}
+                    {couponDiscount > 0 && (
+                      <div className="flex justify-between text-emerald-600 font-medium text-[11px]">
+                        <span>Coupon Discount ({couponCode})</span>
+                        <span>-₹{couponDiscount.toLocaleString("en-IN")}</span>
+                      </div>
+                    )}
+                    {useRewardPoints && rewardDiscount > 0 && (
+                      <div className="flex justify-between text-emerald-600 font-medium text-[11px]">
+                        <span>Reward Points</span>
+                        <span>-₹{rewardDiscount.toLocaleString("en-IN")}</span>
+                      </div>
+                    )}
+                    <div className="flex justify-between text-slate-600 text-[11px]">
+                      <span>Shipping ({selectedDeliveryMethod === "faster_express" ? "Priority Air" : selectedDeliveryMethod === "ranchi_24h" ? "Ranchi 24h" : "Standard"})</span>
+                      <span>{shippingFee === 0 ? "FREE" : `₹${shippingFee}`}</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
           {/* ── Section 1: Delivery Address (Amazon Reference Style) ── */}
+          <div className={mobileStep === "payment" ? "hidden lg:block space-y-3" : "block space-y-3"}>
           {!isEditingAddress && (addrFormStreet || initialAddr?.street) ? (
             /* Amazon-style Collapsed Delivery Address Card */
             <div className="bg-white border border-slate-200/90 rounded-2xl p-4 sm:p-5 shadow-xs space-y-2">
@@ -1901,8 +2124,54 @@ export const CheckoutView: React.FC = () => {
             </div>
           )}
 
+            {/* Delivery Speed Selector - Clean segmented control */}
+            <div className="bg-white border border-slate-200/90 rounded-2xl p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+              <span className="text-xs font-semibold text-slate-800 flex items-center gap-1.5">
+                <Truck className="w-3.5 h-3.5 text-[#2563EB]" />
+                Shipping Speed:
+              </span>
+              <div className="inline-flex p-0.5 bg-slate-100 rounded-lg">
+                <button
+                  type="button"
+                  onClick={() => setSelectedDeliveryMethod("standard")}
+                  className={`px-2.5 py-1 rounded-md text-xs font-medium transition-all cursor-pointer ${
+                    selectedDeliveryMethod === "standard"
+                      ? "bg-white text-slate-900 font-semibold shadow-xs"
+                      : "text-slate-600 hover:text-slate-900"
+                  }`}
+                >
+                  Standard ({isFreeStandardShipping ? "FREE" : "₹99"})
+                </button>
+                {isRanchiEligible && (
+                  <button
+                    type="button"
+                    onClick={() => setSelectedDeliveryMethod("ranchi_24h")}
+                    className={`px-2.5 py-1 rounded-md text-xs font-medium transition-all cursor-pointer ${
+                      selectedDeliveryMethod === "ranchi_24h"
+                        ? "bg-white text-slate-900 font-semibold shadow-xs"
+                        : "text-slate-600 hover:text-slate-900"
+                    }`}
+                  >
+                    Ranchi 24h (₹49)
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={() => setSelectedDeliveryMethod("faster_express")}
+                  className={`px-2.5 py-1 rounded-md text-xs font-medium transition-all cursor-pointer ${
+                    selectedDeliveryMethod === "faster_express"
+                      ? "bg-white text-slate-900 font-semibold shadow-xs"
+                      : "text-slate-600 hover:text-slate-900"
+                  }`}
+                >
+                  Priority Air (₹149)
+                </button>
+              </div>
+            </div>
+          </div>
+
           {/* ── Section 2: Payment Method (Amazon Reference Style) ── */}
-          <div className="space-y-2">
+          <div className={`space-y-2 ${mobileStep === "address" ? "hidden lg:block" : "block"}`}>
             <h2 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight">
               Payment method
             </h2>
@@ -2139,51 +2408,6 @@ export const CheckoutView: React.FC = () => {
                 </div>
               </div>
             </div>
-
-            {/* Delivery Speed Selector - Clean segmented control */}
-            <div className="pt-2 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-              <span className="text-xs font-medium text-slate-700 flex items-center gap-1.5">
-                <Truck className="w-3.5 h-3.5 text-slate-500" />
-                Shipping Speed:
-              </span>
-              <div className="inline-flex p-0.5 bg-slate-100 rounded-lg">
-                <button
-                  type="button"
-                  onClick={() => setSelectedDeliveryMethod("standard")}
-                  className={`px-2.5 py-1 rounded-md text-xs font-medium transition-all cursor-pointer ${
-                    selectedDeliveryMethod === "standard"
-                      ? "bg-white text-slate-900 font-semibold shadow-xs"
-                      : "text-slate-600 hover:text-slate-900"
-                  }`}
-                >
-                  Standard ({isFreeStandardShipping ? "FREE" : "₹99"})
-                </button>
-                {isRanchiEligible && (
-                  <button
-                    type="button"
-                    onClick={() => setSelectedDeliveryMethod("ranchi_24h")}
-                    className={`px-2.5 py-1 rounded-md text-xs font-medium transition-all cursor-pointer ${
-                      selectedDeliveryMethod === "ranchi_24h"
-                        ? "bg-white text-slate-900 font-semibold shadow-xs"
-                        : "text-slate-600 hover:text-slate-900"
-                    }`}
-                  >
-                    Ranchi 24h (₹49)
-                  </button>
-                )}
-                <button
-                  type="button"
-                  onClick={() => setSelectedDeliveryMethod("faster_express")}
-                  className={`px-2.5 py-1 rounded-md text-xs font-medium transition-all cursor-pointer ${
-                    selectedDeliveryMethod === "faster_express"
-                      ? "bg-white text-slate-900 font-semibold shadow-xs"
-                      : "text-slate-600 hover:text-slate-900"
-                  }`}
-                >
-                  Priority Air (₹149)
-                </button>
-              </div>
-            </div>
           </div>
 
           {/* OTP Verification Modal Dialog */}
@@ -2284,11 +2508,11 @@ export const CheckoutView: React.FC = () => {
           )}
 
           {/* Place Order CTA */}
-          <div className="space-y-2 pt-0.5">
+          <div className={`space-y-2 pt-0.5 ${mobileStep === "address" ? "hidden lg:block" : "block"}`}>
             <button
               onClick={handlePlaceOrder}
               disabled={isSubmitting}
-              className="w-full h-12 bg-[#2563EB] hover:bg-[#1D4ED8] active:bg-[#1E40AF] active:scale-[0.99] text-white px-4 sm:px-5 rounded-xl font-bold transition-all shadow-md shadow-blue-500/20 flex items-center justify-between cursor-pointer disabled:opacity-50 group border border-blue-600"
+              className="w-full h-12 bg-[#2563EB] hover:bg-[#1D4ED8] active:bg-[#1E40AF] active:scale-[0.99] text-white px-4 sm:px-5 rounded-xl font-bold transition-all shadow-md shadow-blue-500/25 flex items-center justify-between cursor-pointer disabled:opacity-50 group border border-blue-600"
             >
               {isSubmitting ? (
                 <div className="w-full text-center py-0.5 flex items-center justify-center gap-2">
@@ -2297,25 +2521,34 @@ export const CheckoutView: React.FC = () => {
                 </div>
               ) : (
                 <>
-                  <div className="flex flex-col text-left">
-                    <span className="text-[10px] text-blue-100 font-medium uppercase tracking-wider leading-none">
-                      Total to Pay
-                    </span>
-                    <span className="text-base sm:text-lg font-black text-white tracking-tight leading-tight mt-0.5">
+                  <div className="flex items-baseline gap-1.5 shrink-0">
+                    <span className="text-xs text-blue-200 font-medium">Pay</span>
+                    <span className="text-base sm:text-lg font-black text-white tracking-tight">
                       ₹{grandTotal.toLocaleString("en-IN")}
                     </span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm sm:text-base font-bold tracking-wide">
-                      Place Order
-                    </span>
-                    <div className="w-7 h-7 rounded-lg bg-white/15 flex items-center justify-center group-hover:translate-x-0.5 transition-transform">
-                      <ArrowRight className="w-4 h-4 text-white" />
-                    </div>
+                  <div className="flex items-center gap-1.5 text-sm sm:text-base font-bold text-white shrink-0">
+                    <span>Place Order</span>
+                    <ArrowRight className="w-4 h-4 text-white shrink-0 group-hover:translate-x-0.5 transition-transform" />
                   </div>
                 </>
               )}
             </button>
+
+            {/* Back to Delivery Address button on mobile */}
+            <div className="lg:hidden text-center pt-1">
+              <button
+                type="button"
+                onClick={() => {
+                  setMobileStep("address");
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                }}
+                className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-600 hover:text-[#2563EB] cursor-pointer py-1"
+              >
+                <ArrowLeft className="w-3.5 h-3.5" />
+                <span>Back to Delivery Address</span>
+              </button>
+            </div>
 
             {/* Trust and Guarantee Bar */}
             <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-0.5 text-[10px] sm:text-[11px] text-slate-500 font-medium pt-0.5">

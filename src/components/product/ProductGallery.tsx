@@ -12,6 +12,7 @@ import {
   ChevronRight,
   RotateCcw,
   Compass,
+  Heart,
 } from "lucide-react";
 
 interface ProductGalleryProps {
@@ -19,6 +20,8 @@ interface ProductGalleryProps {
   productName: string;
   videoUrl?: string;
   media360?: string[];
+  isWishlisted?: boolean;
+  onToggleWishlist?: () => void;
 }
 
 export const ProductGallery: React.FC<ProductGalleryProps> = ({
@@ -26,6 +29,8 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
   productName,
   videoUrl,
   media360 = [],
+  isWishlisted = false,
+  onToggleWishlist,
 }) => {
   const galleryImages = (images || [])
     .filter(Boolean)
@@ -325,7 +330,7 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
       >
         {/* Top Badges & Controls Overlay */}
         {currentIndex === videoSlideIndex && (
-          <div className="absolute top-3 right-3 z-20 pointer-events-auto">
+          <div className="absolute top-3 left-3 z-20 pointer-events-auto">
             <button
               type="button"
               onClick={() => goToSlide(0)}
@@ -335,6 +340,32 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
               <span>Back to Images</span>
             </button>
           </div>
+        )}
+
+        {/* ── Top-Right Upper Corner Wishlist Action Button ── */}
+        {onToggleWishlist && (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onToggleWishlist();
+            }}
+            aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
+            title={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
+            className={`absolute top-3 right-3 sm:top-4 sm:right-4 z-30 w-10 h-10 sm:w-11 sm:h-11 rounded-full backdrop-blur-xs flex items-center justify-center border shadow-md active:scale-90 transition-all duration-200 cursor-pointer ${
+              isWishlisted
+                ? "bg-red-50/95 border-red-300 text-red-500 shadow-red-500/15"
+                : "bg-white/95 hover:bg-white border-slate-200/90 text-slate-600 hover:text-red-500 hover:border-red-200 shadow-slate-900/10"
+            }`}
+          >
+            <Heart
+              className={`w-5 h-5 transition-all duration-300 ${
+                isWishlisted
+                  ? "fill-red-500 text-red-500 scale-110"
+                  : "stroke-[2.2] group-hover:scale-110"
+              }`}
+            />
+          </button>
         )}
 
         {/* Mobile Slide Counter Badge */}

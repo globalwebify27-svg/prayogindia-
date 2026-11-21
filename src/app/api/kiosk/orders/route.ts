@@ -92,7 +92,7 @@ export async function POST(request: Request) {
           ].filter((c) => c.amount > 0)
         : [{ method: paymentMethod, amount: computedTotal }];
 
-    const salesExecutive = staff.name || staff.username || "Store Staff";
+    const salesExecutive = staff.salesExecutive || staff.name || staff.username || "Store Staff";
     const subtotal = items.reduce(
       (acc: number, it: any) => acc + (it.price / 1.18) * (it.quantity || 1),
       0,
