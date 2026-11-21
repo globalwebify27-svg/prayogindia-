@@ -261,8 +261,8 @@ export default function MediaLibraryPage() {
         setNewFileType(first.type === "video" ? "video" : "image");
         setCompressionMessage(
           first.savingsPercentage
-            ? `⚡ Compression Complete: ${Math.round((first.originalBytes || 0) / 1024)} KB → ${Math.round(first.bytes / 1024)} KB (${first.savingsPercentage}% saved)`
-            : "⚡ Media compressed & uploaded successfully!",
+            ? `Compression Complete: ${Math.round((first.originalBytes || 0) / 1024)} KB → ${Math.round(first.bytes / 1024)} KB (${first.savingsPercentage}% saved)`
+            : "Media compressed & uploaded successfully!",
         );
       }
     } catch (err) {

@@ -792,7 +792,7 @@ export const CartView: React.FC = () => {
                     DGCA AVIATION SAFETY REGULATION
                   </span>
                   <h3 className="text-base font-black text-slate-900">
-                    ⚠ Shipping Restriction
+                    Shipping Restriction
                   </h3>
                 </div>
               </div>

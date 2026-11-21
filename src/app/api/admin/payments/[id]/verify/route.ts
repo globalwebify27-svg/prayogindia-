@@ -259,7 +259,7 @@ export async function POST(
       await NotificationService.createNotification({
         userId: order.userId,
         type: "ORDER_PLACED",
-        title: "Payment Verified! 🎉",
+        title: "Payment Verified!",
         message: `Your NEFT/RTGS payment of ₹${order.totalAmount.toLocaleString("en-IN")} (UTR: ${finalUtr || "N/A"}) has been verified. Order #${order.orderNumber} is now being processed for dispatch.`,
         data: {
           orderId: order.id,

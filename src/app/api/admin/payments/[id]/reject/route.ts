@@ -139,7 +139,7 @@ export async function POST(
         await NotificationService.createNotification({
           userId: order.userId,
           type: "ORDER_PLACED",
-          title: "Bank Transfer Payment Action Required ⚠️",
+          title: "Bank Transfer Payment Action Required",
           message: `Your NEFT/RTGS payment details for Order #${order.orderNumber} could not be verified: "${rejectionReason}". Please review and resubmit your valid UTR.`,
           data: {
             orderId: order.id,

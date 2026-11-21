@@ -578,7 +578,7 @@ export default function AdminDashboardPage() {
 
           <div className="mt-4 pt-3 flex items-center justify-between text-xs text-slate-500">
             <span className="font-medium">
-              💡 {dashboardData.highestCapacityStore?.name || "Ranchi Hub"} holds the highest active stock capacity ({(dashboardData.highestCapacityStore?.units || 15200).toLocaleString()} units)
+              {dashboardData.highestCapacityStore?.name || "Ranchi Hub"} holds the highest active stock capacity ({(dashboardData.highestCapacityStore?.units || 15200).toLocaleString()} units)
             </span>
             <span className="font-bold text-[#0084FF]">
               Overall {dashboardData.overallInStockRate ?? 91.8}% In-Stock

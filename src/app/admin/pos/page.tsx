@@ -257,7 +257,7 @@ function LiveSessionCard({
 
       {session.notes && (
         <div className="bg-amber-50/80 border border-amber-200/60 rounded-xl p-2.5 text-xs text-amber-900 font-medium flex items-center gap-1.5">
-          <span>📝</span>
+          
           <span>{session.notes}</span>
         </div>
       )}
@@ -1057,7 +1057,7 @@ export default function WalkInPOSPage() {
         <div className="bg-amber-400 text-slate-900 px-5 py-3 rounded-2xl flex items-center gap-3 animate-in slide-in-from-top-2 duration-200 shadow-lg">
           <Bell className="w-5 h-5 shrink-0 animate-bounce" />
           <span className="font-extrabold text-sm">
-            🛎️ New customer order received from the kiosk!
+            New customer order received from the kiosk!
           </span>
           <button
             onClick={() => {

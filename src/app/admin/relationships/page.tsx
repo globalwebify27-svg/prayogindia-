@@ -612,7 +612,7 @@ export default function AdminRelationshipsPage() {
                 : "text-slate-400 hover:text-white"
             }`}
           >
-            🏢 B2B CRM Accounts
+            B2B CRM Accounts
           </button>
           <button
             onClick={() => setActiveTab("product-intelligence")}
@@ -622,7 +622,7 @@ export default function AdminRelationshipsPage() {
                 : "text-slate-400 hover:text-white"
             }`}
           >
-            🧩 Product Cross-Selling (Sec 13)
+            Product Cross-Selling (Sec 13)
           </button>
         </div>
       </div>
@@ -803,7 +803,7 @@ export default function AdminRelationshipsPage() {
                           )}
                           {comp.city && (
                             <span>
-                              📍 {comp.city}, {comp.state}
+                              {comp.city}, {comp.state}
                             </span>
                           )}
                         </div>
@@ -1179,9 +1179,9 @@ export default function AdminRelationshipsPage() {
                                     {contact.designation || "Contact Person"}
                                   </p>
                                   <div className="flex items-center gap-3 text-slate-600 mt-1 font-mono text-[11px]">
-                                    <span>📞 {contact.phone}</span>
+                                    <span>{contact.phone}</span>
                                     {contact.email && (
-                                      <span>✉️ {contact.email}</span>
+                                      <span>{contact.email}</span>
                                     )}
                                   </div>
                                 </div>
@@ -1691,10 +1691,10 @@ export default function AdminRelationshipsPage() {
                     }
                     className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl font-bold"
                   >
-                    <option value="CALL">📞 Phone Call</option>
-                    <option value="MEETING">🤝 In-person / Zoom Meeting</option>
-                    <option value="EMAIL">✉️ Email Exchange</option>
-                    <option value="NOTE">📝 Internal Note</option>
+                    <option value="CALL">Phone Call</option>
+                    <option value="MEETING">In-person / Zoom Meeting</option>
+                    <option value="EMAIL">Email Exchange</option>
+                    <option value="NOTE">Internal Note</option>
                   </select>
                   <input
                     required

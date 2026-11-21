@@ -210,19 +210,19 @@ export async function GET(request: Request) {
               : "WEBSITE";
 
         const channelName = isMobileApp
-          ? "📱 Prayog Mobile App"
+          ? "Prayog Mobile App"
           : isB2B
-            ? "📑 Institutional B2B Quote"
+            ? "Institutional B2B Quote"
             : isWalkIn
-              ? "🏬 Store Walk-in POS"
-              : "🌐 Prayog Website Store";
+              ? "Store Walk-in POS"
+              : "Prayog Website Store";
 
         return {
           ...ord,
           orderSource,
           channelName,
           awbNumber: isWalkIn ? "Counter Handover" : ord.shipment?.trackingNumber || null,
-          courierProvider: isWalkIn ? "🏬 In-Store Fulfillment" : ord.shipment?.courierName || "Delhivery Surface",
+          courierProvider: isWalkIn ? "In-Store Fulfillment" : ord.shipment?.courierName || "Delhivery Surface",
           weightGm: ord.shipment?.weightKg
             ? Math.round(ord.shipment.weightKg * 1000)
             : 500,
@@ -263,7 +263,7 @@ export async function GET(request: Request) {
         "Department of Electrical Engineering, IIT Bombay, Powai, Mumbai - 400076",
       status: "PROCESSING",
       orderSource: "WEBSITE",
-      channelName: "🌐 Prayog Website Store",
+      channelName: "Prayog Website Store",
       paymentMethod: "UPI / Razorpay",
       isPaid: true,
       items: [
@@ -285,7 +285,7 @@ export async function GET(request: Request) {
         "Flat 402, Green Glen Layout, Bellandur, Bengaluru, Karnataka - 560103",
       status: "SHIPPED",
       orderSource: "MOBILE_APP",
-      channelName: "📱 Prayog Mobile App",
+      channelName: "Prayog Mobile App",
       paymentMethod: "Credit Card",
       isPaid: true,
       items: [
@@ -311,7 +311,7 @@ export async function GET(request: Request) {
         "Hostel 4, Room 210, Delhi Technological University, Shahbad Daulatpur, Delhi - 110042",
       status: "PAYMENT_CONFIRMED",
       orderSource: "WEBSITE",
-      channelName: "🌐 Prayog Website Store",
+      channelName: "Prayog Website Store",
       paymentMethod: "Net Banking (HDFC)",
       isPaid: true,
       items: [
@@ -336,7 +336,7 @@ export async function GET(request: Request) {
       shippingAddress: "Shivajinagar, Model Colony, Pune, Maharashtra - 411016",
       status: "ORDER_PLACED",
       orderSource: "MOBILE_APP",
-      channelName: "📱 Prayog Mobile App",
+      channelName: "Prayog Mobile App",
       paymentMethod: "UPI (PhonePe)",
       isPaid: true,
       items: [
@@ -360,15 +360,15 @@ export async function GET(request: Request) {
       customerName: "Abhinav Singh",
       customerPhone: "+91 98351 44210",
       totalAmount: 4850,
-      shippingAddress: "🏬 Ranchi Central Hub · In-Store Counter Pickup",
+      shippingAddress: "Ranchi Central Hub · In-Store Counter Pickup",
       status: "DELIVERED",
       orderSource: "WALK_IN",
-      channelName: "🏬 Store Walk-in POS",
+      channelName: "Store Walk-in POS",
       paymentMethod: "Store Counter UPI",
       paymentStatus: "PAID",
       isPaid: true,
       awbNumber: "Counter Handover",
-      courierProvider: "🏬 In-Store Fulfillment",
+      courierProvider: "In-Store Fulfillment",
       freightMode: "Store Handover",
       weightGm: 450,
       items: [
@@ -389,15 +389,15 @@ export async function GET(request: Request) {
       customerName: "Ramesh Sharma",
       customerPhone: "+91 94312 88450",
       totalAmount: 12450,
-      shippingAddress: "🏬 Patna STEM & Robotics Branch · In-Store Counter Pickup",
+      shippingAddress: "Patna STEM & Robotics Branch · In-Store Counter Pickup",
       status: "DELIVERED",
       orderSource: "WALK_IN",
-      channelName: "🏬 Store Walk-in POS",
+      channelName: "Store Walk-in POS",
       paymentMethod: "Cash Counter",
       paymentStatus: "PAID",
       isPaid: true,
       awbNumber: "Counter Handover",
-      courierProvider: "🏬 In-Store Fulfillment",
+      courierProvider: "In-Store Fulfillment",
       freightMode: "Store Handover",
       weightGm: 650,
       items: [
@@ -418,15 +418,15 @@ export async function GET(request: Request) {
       customerName: "Devendra Mehra",
       customerPhone: "+91 98110 55219",
       totalAmount: 9200,
-      shippingAddress: "🏬 Delhi NCR Innovation Center · In-Store Counter Pickup",
+      shippingAddress: "Delhi NCR Innovation Center · In-Store Counter Pickup",
       status: "DELIVERED",
       orderSource: "WALK_IN",
-      channelName: "🏬 Store Walk-in POS",
+      channelName: "Store Walk-in POS",
       paymentMethod: "Store Counter UPI",
       paymentStatus: "PAID",
       isPaid: true,
       awbNumber: "Counter Handover",
-      courierProvider: "🏬 In-Store Fulfillment",
+      courierProvider: "In-Store Fulfillment",
       freightMode: "Store Handover",
       weightGm: 1200,
       items: [
@@ -439,7 +439,7 @@ export async function GET(request: Request) {
     ...MOCK_CUSTOMER_ORDERS.map((o) => ({
       ...o,
       orderSource: "WEBSITE",
-      channelName: "🌐 Prayog Website Store",
+      channelName: "Prayog Website Store",
     })),
   ];
 

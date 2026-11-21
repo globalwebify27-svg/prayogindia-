@@ -15,7 +15,6 @@ import {
   Layers,
 } from "lucide-react";
 import {
-  DEFAULT_CATEGORY_SHOWCASE,
   CategoryCardItem,
 } from "@/data/defaultCategoryShowcase";
 
@@ -212,9 +211,8 @@ function getBadgeIcon(icon?: string) {
 }
 
 export const ShopByCategory: React.FC<Props> = ({ onSelectCategory }) => {
-  const [categories, setCategories] = useState<CategoryCardItem[]>(
-    DEFAULT_CATEGORY_SHOWCASE
-  );
+  const [categories, setCategories] = useState<CategoryCardItem[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let isMounted = true;
@@ -226,13 +224,14 @@ export const ShopByCategory: React.FC<Props> = ({ onSelectCategory }) => {
         if (
           isMounted &&
           json?.success &&
-          Array.isArray(json.data) &&
-          json.data.length > 0
+          Array.isArray(json.data)
         ) {
           setCategories(json.data);
         }
       } catch (err) {
         console.warn("Could not load dynamic category showcase:", err);
+      } finally {
+        if (isMounted) setLoading(false);
       }
     }
     loadShowcaseCategories();
@@ -245,6 +244,37 @@ export const ShopByCategory: React.FC<Props> = ({ onSelectCategory }) => {
   const topRow = categories.slice(0, 4);
   // Bottom row: remaining 4 items (equal 4 single columns)
   const bottomRow = categories.slice(4, 8);
+
+  // Loading skeleton
+  if (loading) {
+    return (
+      <section className="pt-1.5 sm:pt-4 pb-0.5 sm:pb-6 bg-white">
+        <div className="w-full px-3 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 space-y-1 sm:space-y-2 lg:space-y-2.5">
+          <div className="flex items-center justify-between pb-0 sm:pb-1">
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              <span className="w-1 h-3.5 sm:h-5 bg-[#2563EB] rounded-full inline-block" />
+              <h2 className="text-sm sm:text-xl lg:text-2xl font-bold text-slate-900 tracking-tight">Shop by Category</h2>
+            </div>
+          </div>
+          <div className="hidden sm:grid grid-cols-5 gap-2.5 lg:gap-3">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className={`${i === 0 ? "col-span-2" : "col-span-1"} h-[172px] rounded-xl bg-slate-100 animate-pulse`} />
+            ))}
+          </div>
+          <div className="hidden sm:grid grid-cols-4 gap-2.5 lg:gap-3 mt-3">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="col-span-1 h-[172px] rounded-xl bg-slate-100 animate-pulse" />
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  // Empty state — admin hasn't uploaded any categories yet
+  if (categories.length === 0) {
+    return null;
+  }
 
   return (
     <section className="pt-1.5 sm:pt-4 pb-0.5 sm:pb-6 bg-white touch-pan-y" style={{ touchAction: "pan-y" }}>

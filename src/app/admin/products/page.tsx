@@ -567,7 +567,7 @@ export default function AdminProductsPage() {
       refreshProductList();
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Error importing products";
-      alert(`❌ Import Failed: ${msg}`);
+      alert(`Import Failed: ${msg}`);
     } finally {
       setIsImporting(false);
     }
@@ -1265,7 +1265,7 @@ export default function AdminProductsPage() {
           ),
         );
 
-        alert(`✅ Product "${newName}" updated successfully with SEO settings!`);
+        alert(`Product "${newName}" updated successfully with SEO settings!`);
       } else {
         const res = await fetch("/api/admin/products", {
           method: "POST",
@@ -1279,7 +1279,7 @@ export default function AdminProductsPage() {
         }
 
         alert(
-          `✅ Product "${newName}" published and SEO indexed successfully!`,
+          `Product "${newName}" published and SEO indexed successfully!`,
         );
         refreshProductList();
       }
@@ -1287,7 +1287,7 @@ export default function AdminProductsPage() {
       setShowCreateModal(false);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Error saving product.";
-      alert(`❌ ${msg}`);
+      alert(`${msg}`);
     } finally {
       setIsSubmitting(false);
     }
@@ -2375,7 +2375,7 @@ export default function AdminProductsPage() {
                               {item.type === "image" && (
                                 <div className="absolute bottom-1.5 left-1.5 right-1.5 flex items-center justify-between pointer-events-none">
                                   <span className="bg-emerald-600/90 backdrop-blur-xs text-white text-[9px] font-black px-1.5 py-0.5 rounded-md shadow-xs flex items-center gap-1">
-                                    <span>⚡ WebP</span>
+                                    <span>WebP</span>
                                     {item.savingsPercentage ? (
                                       <span>-{item.savingsPercentage}%</span>
                                     ) : null}

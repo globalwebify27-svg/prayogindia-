@@ -81,61 +81,61 @@ const CANONICAL_CATEGORIES: CategorySectionDef[] = [
   {
     id: "electronic-components",
     name: "Electronic Components",
-    icon: "⚡",
+    icon: "",
     description: "Resistors, Capacitors, ICs, Relays & Prototyping Essentials",
   },
   {
     id: "development-boards",
     name: "Development Boards",
-    icon: "🛠️",
+    icon: "",
     description: "Arduino Boards, Raspberry Pi, ESP32, and Single Board Computers",
   },
   {
     id: "robotics",
     name: "Robotics & DIY Kits",
-    icon: "🤖",
+    icon: "",
     description: "Robot Chassis, Robotic Arms, Kits & Smart Mechatronics",
   },
   {
     id: "drone-technology",
     name: "Drone Technology",
-    icon: "🚁",
+    icon: "",
     description: "Flight Controllers, ESCs, BLDC Motors & UAV Accessories",
   },
   {
     id: "sensors-iot",
     name: "Sensors & IoT Modules",
-    icon: "📡",
+    icon: "",
     description: "Ultrasonic, LiDAR, Environmental Sensors & Wireless Modules",
   },
   {
     id: "motors-drivers",
     name: "Motors, Steppers & Drivers",
-    icon: "⚙️",
+    icon: "",
     description: "NEMA Steppers, High Torque Servos, DC Motors & Driver Shields",
   },
   {
     id: "batteries-power",
     name: "Batteries & Power Supplies",
-    icon: "🔋",
+    icon: "",
     description: "LiPo Packs, Buck Converters, Battery Management & Power Modules",
   },
   {
     id: "stem-education",
     name: "Educational & STEM Kits",
-    icon: "🎓",
+    icon: "",
     description: "Hands-on School Science Kits, ATL Labs & Tinkering Sets",
   },
   {
     id: "mechanical-hardware",
     name: "Mechanical & Hardware",
-    icon: "🔩",
+    icon: "",
     description: "Frames, 3D Printer Accessories, Standoffs & Brackets",
   },
   {
     id: "industrial-automation",
     name: "Industrial Automation",
-    icon: "🏭",
+    icon: "",
     description: "PLCs, Solid State Relays & Heavy Duty Automation Modules",
   },
 ];
@@ -480,7 +480,7 @@ function KioskHeader({
         {/* Right: Store Mode Status Badge + Device Lock */}
         <div className="flex items-center gap-2 sm:gap-3 shrink-0">
           <div className="bg-[#0B254E] border border-blue-800/50 rounded-xl px-3 py-1.5 flex items-center gap-2 shadow-xs">
-            <span className="text-amber-400 text-xs">📍</span>
+            
             <span className="text-white font-bold text-xs truncate max-w-[110px] sm:max-w-none">
               {storeData.shortName}
             </span>
@@ -1013,7 +1013,7 @@ export default function StoreKioskPage() {
           category: {
             id: safeName.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
             name: safeName,
-            icon: "📦",
+            icon: "",
             description: `All ${safeName} items`,
           },
           products: prods,
@@ -1259,10 +1259,10 @@ export default function StoreKioskPage() {
             customerName: customerName.trim(),
             customerPhone: customerPhone.trim(),
             totalAmount: payableAmount,
-            shippingAddress: `🏬 In-Store Walk-in (${store.shortName})`,
+            shippingAddress: `In-Store Walk-in (${store.shortName})`,
             status: "DELIVERED",
             orderSource: "WALK_IN",
-            channelName: "🏬 Store Walk-in POS",
+            channelName: "Store Walk-in POS",
             paymentMethod: paymentMethod === "CASH" ? "Cash Counter" : "Store Counter UPI",
             paymentStatus: "PAID",
             isPaid: true,
@@ -1275,7 +1275,7 @@ export default function StoreKioskPage() {
             })),
             weightGm: 500,
             freightMode: "Store Counter Handover",
-            courierProvider: "🏬 In-Store Fulfillment",
+            courierProvider: "In-Store Fulfillment",
             awbNumber: "Counter Handover",
             createdAt: new Date().toISOString(),
           };

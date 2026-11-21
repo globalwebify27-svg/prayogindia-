@@ -274,7 +274,7 @@ export const ProfessionalBillModal: React.FC<ProfessionalBillModalProps> = ({
     const cleanPhone = customerPhone.replace(/\D/g, "");
     const targetPhone = cleanPhone.length === 10 ? `91${cleanPhone}` : cleanPhone;
     const msg = encodeURIComponent(
-      `Hello ${customerName}!\n\nThank you for shopping with Prayog India.\n\n📄 Tax Invoice: #${invoiceNo}\n🛍️ Total Items: ${totalItemsCount} (${totalQuantity} Units)\n💰 Total Amount: ₹${totalAmount.toLocaleString("en-IN")}\n💳 Txn Mode: ${paymentMode.toUpperCase()}\n\nPrayog India - The World of Robotics\nSupport: +91 ${phone}`
+      `Hello ${customerName}!\n\nThank you for shopping with Prayog India.\n\nTax Invoice: #${invoiceNo}\nTotal Items: ${totalItemsCount} (${totalQuantity} Units)\nTotal Amount: ₹${totalAmount.toLocaleString("en-IN")}\nTxn Mode: ${paymentMode.toUpperCase()}\n\nPrayog India - The World of Robotics\nSupport: +91 ${phone}`
     );
     window.open(`https://wa.me/${targetPhone}?text=${msg}`, "_blank");
   };

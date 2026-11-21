@@ -262,10 +262,10 @@ export default function StoreDevicesPage() {
                   className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs text-slate-900 focus:bg-white focus:outline-none focus:border-[#2563EB]"
                 >
                   <option value="KIOSK_TABLET">
-                    📱 Store Shopping Tablet (Kiosk Mode)
+                    Store Shopping Tablet (Kiosk Mode)
                   </option>
                   <option value="POS_TERMINAL">
-                    💳 POS Billing Terminal (Cashier Mode)
+                    POS Billing Terminal (Cashier Mode)
                   </option>
                 </select>
               </div>

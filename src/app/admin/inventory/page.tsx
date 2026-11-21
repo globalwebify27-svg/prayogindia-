@@ -428,7 +428,7 @@ export default function AdminInventoryPage() {
         fetchInventory();
         fetchTransactions();
         alert(
-          `✅ Stock Inward Successfully Recorded!\n\nAdded +${addStockQuantity} units of "${selectedProductForStock.name}" to ${addStockStore.toUpperCase()}.\nAudit Reference: ${addStockPoNumber}`,
+          `Stock Inward Successfully Recorded!\n\nAdded +${addStockQuantity} units of "${selectedProductForStock.name}" to ${addStockStore.toUpperCase()}.\nAudit Reference: ${addStockPoNumber}`,
         );
       } else {
         alert(data.message || "Failed to add stock.");

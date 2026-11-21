@@ -463,7 +463,7 @@ export default function AdminProfitPage() {
             </div>
 
             <div className="bg-purple-50 border border-purple-200 p-3 rounded-2xl text-[11px] text-purple-900 font-medium">
-              🔒 Immutable Audit Rule: Historical reports retain the calculation
+              Immutable Audit Rule: Historical reports retain the calculation
               rate active at the time the order was closed.
             </div>
 

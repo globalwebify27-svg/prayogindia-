@@ -192,7 +192,7 @@ export default function CheckoutFlowPreviewPage() {
                   : "bg-white/10 hover:bg-white/20 text-white"
               }`}
             >
-              👤 Existing Customer (Om Kumar)
+              Existing Customer (Om Kumar)
             </button>
             <button
               onClick={() => handleSwitchMode("new")}
@@ -280,7 +280,7 @@ export default function CheckoutFlowPreviewPage() {
                     </label>
                     <div className="relative flex items-center">
                       <div className="absolute left-3.5 flex items-center gap-1.5 text-xs font-bold text-slate-500 border-r border-slate-200 pr-2.5">
-                        <span className="text-base">🇮🇳</span>
+                        
                         <span>+91</span>
                       </div>
                       <input

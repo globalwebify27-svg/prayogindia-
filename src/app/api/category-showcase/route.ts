@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import fs from "fs/promises";
 import path from "path";
-import { DEFAULT_CATEGORY_SHOWCASE, CategoryCardItem } from "@/data/defaultCategoryShowcase";
+import { CategoryCardItem } from "@/data/defaultCategoryShowcase";
 
 const STORE_PATH = path.join(process.cwd(), "src", "data", "categoryShowcaseStore.json");
 
@@ -9,13 +9,13 @@ async function readStore(): Promise<CategoryCardItem[]> {
   try {
     const raw = await fs.readFile(STORE_PATH, "utf-8");
     const parsed = JSON.parse(raw);
-    if (Array.isArray(parsed) && parsed.length > 0) {
+    if (Array.isArray(parsed)) {
       return parsed;
     }
   } catch {
-    // fallback
+    // file missing or invalid JSON — return empty, do NOT fall back to defaults
   }
-  return DEFAULT_CATEGORY_SHOWCASE;
+  return [];
 }
 
 async function writeStore(data: CategoryCardItem[]): Promise<void> {

@@ -281,7 +281,7 @@ export default function AdminCategoryShowcasePage() {
         throw new Error(json.message || "Save failed");
       }
 
-      showToast("success", "🎉 Category showcase cards published live to homepage!");
+      showToast("success", "Category showcase cards published live to homepage!");
     } catch (err: any) {
       showToast("error", err?.message || "Failed to publish categories.");
     } finally {

@@ -67,7 +67,7 @@ export const HeroSpotlightDeal: React.FC<HeroSpotlightDealProps> = ({
                   : "bg-slate-100 text-slate-600 hover:bg-slate-200"
               }`}
             >
-              {offer.badge === "FEATURED" && "⭐ "}
+              {offer.badge === "FEATURED" && "FEATURED"}
               {offer.title.split(" ")[0]} {offer.title.split(" ")[1]}
             </button>
           ))}

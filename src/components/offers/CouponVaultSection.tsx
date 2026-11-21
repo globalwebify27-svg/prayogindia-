@@ -93,7 +93,7 @@ export const CouponVaultSection: React.FC = () => {
 
                   {coupon.isPopular && (
                     <span className="text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
-                      ⭐ Popular
+                      Popular
                     </span>
                   )}
 

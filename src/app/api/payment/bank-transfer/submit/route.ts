@@ -247,7 +247,7 @@ export async function POST(req: NextRequest) {
       await NotificationService.createNotification({
         userId: order.userId,
         type: "ORDER_PLACED",
-        title: "NEFT/RTGS Payment Details Received 🏦",
+        title: "NEFT/RTGS Payment Details Received",
         message: `We received your UTR #${sanitizedUtr} for ₹${parsedAmount.toLocaleString("en-IN")}. Our accounts team is verifying the bank credit.`,
         data: {
           orderId: order.id,

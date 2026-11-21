@@ -400,7 +400,7 @@ export default function UnifiedAdminHubPage() {
     };
 
     setProductsList([createdProduct, ...productsList]);
-    showToast(`✅ Product "${newProdName}" added successfully to live catalog!`);
+    showToast(`Product "${newProdName}" added successfully to live catalog!`);
 
     // Reset Form
     setNewProdName("");
@@ -413,13 +413,13 @@ export default function UnifiedAdminHubPage() {
   const handleUpdateProduct = (updated: Product) => {
     setProductsList((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));
     setEditingProduct(null);
-    showToast(`✅ Product "${updated.name}" updated successfully.`);
+    showToast(`Product "${updated.name}" updated successfully.`);
   };
 
   const handleDeleteProduct = (id: string, name: string) => {
     if (confirm(`Are you sure you want to delete "${name}" from the store catalog?`)) {
       setProductsList((prev) => prev.filter((p) => p.id !== id));
-      showToast(`🗑️ Product "${name}" deleted.`);
+      showToast(`Product "${name}" deleted.`);
     }
   };
 
@@ -427,7 +427,7 @@ export default function UnifiedAdminHubPage() {
     setOrdersList((prev) =>
       prev.map((o) => (o.id === orderId ? { ...o, status: newStatus } : o)),
     );
-    showToast(`📦 Order ${orderId} status updated to: ${newStatus}`);
+    showToast(`Order ${orderId} status updated to: ${newStatus}`);
   };
 
   const handleGrantCoins = () => {
@@ -439,7 +439,7 @@ export default function UnifiedAdminHubPage() {
           : c,
       ),
     );
-    showToast(`🪙 Granted +${coinsToAdd} Prayog Coins to ${grantCoinsUser.name}!`);
+    showToast(`Granted +${coinsToAdd} Prayog Coins to ${grantCoinsUser.name}!`);
     setGrantCoinsUser(null);
   };
 
@@ -1329,7 +1329,7 @@ export default function UnifiedAdminHubPage() {
                         <button
                           onClick={() => {
                             handleUpdateOrderStatus(o.id, "Out for Delivery");
-                            showToast(`🛸 Express Drone Dispatched for ${o.orderNumber}! ETA: 14 mins.`);
+                            showToast(`Express Drone Dispatched for ${o.orderNumber}! ETA: 14 mins.`);
                           }}
                           className="flex items-center gap-1.5 bg-[#031B33] hover:bg-[#003B73] text-[#FFC20E] text-[11px] font-extrabold px-3 py-1.5 rounded-xl shadow-xs transition-all cursor-pointer"
                         >
@@ -1402,7 +1402,7 @@ export default function UnifiedAdminHubPage() {
                           </div>
                           {c.companyName && (
                             <div className="text-[10px] text-sky-700 font-bold mt-0.5">
-                              🏢 {c.companyName} (GST: {c.gstin})
+                              {c.companyName} (GST: {c.gstin})
                             </div>
                           )}
                         </div>
@@ -1433,7 +1433,7 @@ export default function UnifiedAdminHubPage() {
 
                     <td className="py-3.5 px-4">
                       <span className="inline-flex items-center gap-1 font-extrabold text-amber-700 bg-amber-50 px-2.5 py-1 rounded-xl border border-amber-200">
-                        🪙 {c.rewardPoints}
+                        {c.rewardPoints} Coins
                       </span>
                     </td>
 
@@ -1545,7 +1545,7 @@ export default function UnifiedAdminHubPage() {
                   <h4 className="text-sm font-extrabold text-slate-900">{ticket.subject}</h4>
                   <p className="text-xs text-slate-600">{ticket.message}</p>
                   <div className="text-[11px] font-bold text-slate-500 pt-1">
-                    👤 From: {ticket.customerName} ({ticket.customerPhone})
+                    From: {ticket.customerName} ({ticket.customerPhone})
                   </div>
                 </div>
 
@@ -1568,7 +1568,7 @@ export default function UnifiedAdminHubPage() {
                             t.id === ticket.id ? { ...t, status: "RESOLVED" } : t,
                           ),
                         );
-                        showToast(`✅ Ticket ${ticket.ticketNumber} marked as Resolved!`);
+                        showToast(`Ticket ${ticket.ticketNumber} marked as Resolved!`);
                       }}
                       className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-xs transition-all cursor-pointer"
                     >
@@ -1719,8 +1719,8 @@ export default function UnifiedAdminHubPage() {
       {grantCoinsUser && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-sm w-full shadow-2xl border border-slate-200 animate-in zoom-in-95 text-center">
-            <div className="w-14 h-14 bg-amber-100 text-amber-800 rounded-full flex items-center justify-center mx-auto text-2xl mb-3">
-              🪙
+            <div className="w-14 h-14 bg-amber-100 text-amber-800 rounded-full flex items-center justify-center mx-auto mb-3">
+              <Coins className="w-7 h-7 text-amber-600" />
             </div>
             <h3 className="text-lg font-black text-slate-900">
               Grant Prayog Coins
@@ -1812,7 +1812,7 @@ export default function UnifiedAdminHubPage() {
               </div>
               <div className="flex justify-between py-1 border-b border-slate-50">
                 <span className="text-slate-400">Prayog Coins:</span>
-                <span className="font-extrabold text-amber-700">🪙 {viewingCustomer.rewardPoints}</span>
+                <span className="font-extrabold text-amber-700">{viewingCustomer.rewardPoints} Coins</span>
               </div>
             </div>
 

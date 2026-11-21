@@ -352,7 +352,7 @@ export const AccountDashboardView: React.FC = () => {
           </span>
           <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight mt-0.5 flex items-center gap-1.5">
             <span>{displayName}!</span>
-            <span className="text-xl sm:text-2xl">👋</span>
+            
           </h1>
           <p className="text-[11px] sm:text-xs text-slate-500 font-normal mt-1">
             Here&apos;s your account overview and recent activity.

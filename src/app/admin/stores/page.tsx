@@ -643,7 +643,7 @@ export default function AdminStoresPage() {
               </div>
 
               <div className="p-3 bg-amber-50 rounded-xl border border-amber-200 text-amber-900 text-[11px] font-medium">
-                🔒 A unique hardware cryptographic pairing token (`PRG_POS_AUTH_
+                A unique hardware cryptographic pairing token (`PRG_POS_AUTH_
                 {activeStoreForDevice.code}_...`) will be generated.
               </div>
 

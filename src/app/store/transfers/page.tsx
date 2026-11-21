@@ -566,9 +566,9 @@ export default function StoreTransfersPage() {
                     onChange={(e) => setTargetSourceStore(e.target.value)}
                     className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-900 focus:outline-none focus:border-[#2563EB] shadow-2xs"
                   >
-                    <option value="ranchi">🏢 Ranchi Main Branch &amp; Central Hub (Primary)</option>
-                    <option value="patna">🏬 Patna STEM Branch</option>
-                    <option value="delhi">🏬 Delhi NCR Center</option>
+                    <option value="ranchi">Ranchi Main Branch &amp; Central Hub (Primary)</option>
+                    <option value="patna">Patna STEM Branch</option>
+                    <option value="delhi">Delhi NCR Center</option>
                   </select>
                 </div>
                 <div>

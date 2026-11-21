@@ -803,7 +803,7 @@ export const CheckoutView: React.FC = () => {
         shippingAddress: `${selectedAddr.name}, ${selectedAddr.street}, ${selectedAddr.city}, ${selectedAddr.state} - ${selectedAddr.pincode}`,
         status: "ORDER_PLACED",
         orderSource: "WEBSITE",
-        channelName: "🌐 Prayog Website Store",
+        channelName: "Prayog Website Store",
         paymentMethod: paymentMethod === "cod" ? "Cash on Delivery" : "Online Payment",
         isPaid: paymentMethod !== "cod",
         items: (cart || []).map((i) => ({

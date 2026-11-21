@@ -874,7 +874,7 @@ export default function AdminHeroBannersPage() {
               {showTextOverlay && (
                 <div className="space-y-4 pt-1 animate-in fade-in duration-150">
                   <div className="p-2.5 rounded-lg bg-slate-100 text-slate-600 text-[11px] font-medium flex items-center gap-1.5">
-                    <span>💡</span>
+                    
                     <span>
                       <strong>All text fields are completely optional.</strong> You can fill only what you want, or leave any field blank.
                     </span>
@@ -889,7 +889,7 @@ export default function AdminHeroBannersPage() {
                       type="text"
                       value={badge}
                       onChange={(e) => setBadge(e.target.value)}
-                      placeholder="e.g. 🇮🇳 India's #1 Robotics & Electronics Platform"
+                      placeholder="e.g. India's #1 Robotics & Electronics Platform"
                       className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#0062E0]/20 focus:border-[#0062E0]"
                     />
                   </div>
@@ -973,7 +973,7 @@ export default function AdminHeroBannersPage() {
                   <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-3.5">
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
-                        <span>🔘</span> Action Buttons &amp; Redirection Links <span className="font-normal text-slate-400">(Optional)</span>
+                        Action Buttons &amp; Redirection Links <span className="font-normal text-slate-400">(Optional)</span>
                       </span>
                       <span className="text-[11px] text-slate-500">
                         Leave blank to omit button

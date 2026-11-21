@@ -342,16 +342,16 @@ export default function IncentivesPage() {
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-slate-700 pt-1">
               <span className="bg-white p-2 rounded-xl border border-slate-200">
-                🚁 Drone Tech: <strong>5.0%</strong>
+                Drone Tech: <strong>5.0%</strong>
               </span>
               <span className="bg-white p-2 rounded-xl border border-slate-200">
-                ⚡ Arduino / Micro: <strong>3.0%</strong>
+                Arduino / Micro: <strong>3.0%</strong>
               </span>
               <span className="bg-white p-2 rounded-xl border border-slate-200">
-                🎓 STEM Kits: <strong>2.0%</strong>
+                STEM Kits: <strong>2.0%</strong>
               </span>
               <span className="bg-white p-2 rounded-xl border border-slate-200">
-                🎯 Sensors / IoT: <strong>2.0%</strong>
+                Sensors / IoT: <strong>2.0%</strong>
               </span>
             </div>
           </div>

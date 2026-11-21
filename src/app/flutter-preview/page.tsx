@@ -1130,7 +1130,7 @@ export default function FlutterPreviewPage() {
             <div className="space-y-2 text-xs">
               <div className="p-2 bg-blue-50 rounded-xl">
                 <div className="font-bold text-blue-950 text-[11px]">
-                  🎉 28% OFF on Arduino Kits
+                  28% OFF on Arduino Kits
                 </div>
                 <div className="text-slate-600 text-[9.5px]">
                   Use code PRAYOG300 on checkout today.
@@ -1138,7 +1138,7 @@ export default function FlutterPreviewPage() {
               </div>
               <div className="p-2 bg-emerald-50 rounded-xl">
                 <div className="font-bold text-emerald-950 text-[11px]">
-                  ⚡ 30 Min Kiosk Active
+                  30 Min Kiosk Active
                 </div>
                 <div className="text-slate-600 text-[9.5px]">
                   Local pickup ready in Patna & Ranchi hubs.
@@ -2059,7 +2059,7 @@ export default function FlutterPreviewPage() {
                     Incl. GST (No Hidden Charges)
                   </span>
                   <span className="font-bold text-slate-800">
-                    ⚡ Free Pan-India Delivery
+                    Free Pan-India Delivery
                   </span>
                 </div>
 
@@ -2067,7 +2067,7 @@ export default function FlutterPreviewPage() {
                 <div className="pt-1 space-y-1">
                   <div className="flex justify-between text-[9.5px] font-black text-rose-600">
                     <span>
-                      🔥 Please hurry! Only {selectedProduct.stockCount || 4}{" "}
+                      Please hurry! Only {selectedProduct.stockCount || 4}{" "}
                       units left in stock
                     </span>
                     <span>High Demand</span>

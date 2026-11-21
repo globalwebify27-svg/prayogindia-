@@ -75,7 +75,7 @@ export async function POST(request: Request) {
           customerEmail: session.customerEmail || "",
           customerType: "WALK_IN",
           orderSource: "WALK_IN",
-          channelName: "🏬 Store Walk-in POS",
+          channelName: "Store Walk-in POS",
           paymentMethod: session.paymentMethod || "CASH",
           paymentStatus: session.status === "PAID" ? "PAID" : "PENDING",
           isPaid: session.status === "PAID",

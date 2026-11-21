@@ -691,7 +691,7 @@ export const Header: React.FC<HeaderProps> = ({
             </Link>
 
             {/* 2. Center: Primary Horizontal Navigation Links (Clean Robocraze-style Nav) */}
-            <nav className="flex items-center gap-2.5 sm:gap-4 xl:gap-5 2xl:gap-6 text-xs xl:text-[13px] 2xl:text-[13.5px] text-slate-800 font-semibold whitespace-nowrap min-w-0">
+            <nav className="flex items-center gap-1 lg:gap-1.5 xl:gap-2 2xl:gap-2.5 text-xs xl:text-[13px] text-slate-800 font-semibold whitespace-nowrap min-w-0 uppercase tracking-wide">
               {/* 1. Home */}
               <Link
                 href="/"
@@ -791,7 +791,7 @@ export const Header: React.FC<HeaderProps> = ({
               <div className="relative group py-1.5">
                 <Link
                   href="/offers"
-                  className="px-3.5 py-1 rounded-full font-black text-xs inline-flex items-center bg-gradient-to-r from-red-600 via-rose-600 to-amber-600 text-white shadow-xs hover:shadow-sm hover:brightness-110 active:scale-95 transition-all"
+                  className="px-3 py-1.5 rounded-full font-black text-xs inline-flex items-center bg-gradient-to-r from-red-600 via-rose-600 to-amber-600 text-white shadow-xs hover:shadow-sm hover:brightness-110 active:scale-95 transition-all"
                 >
                   <span>Top Deals</span>
                 </Link>

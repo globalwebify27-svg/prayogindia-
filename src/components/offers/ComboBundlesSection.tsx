@@ -56,7 +56,7 @@ export const ComboBundlesSection: React.FC = () => {
         </div>
 
         <span className="text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-full self-start sm:self-auto">
-          ⚡ 1-Click Multi-Item Add
+          1-Click Multi-Item Add
         </span>
       </div>
 
@@ -163,7 +163,7 @@ export const ComboBundlesSection: React.FC = () => {
                   {isAdded ? (
                     <>
                       <Check className="w-4 h-4 text-white" />
-                      <span>Added All Items to Cart! 🎉</span>
+                      <span>Added All Items to Cart!</span>
                     </>
                   ) : (
                     <>
