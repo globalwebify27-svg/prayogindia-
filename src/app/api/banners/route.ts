@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
+import os from "os";
 import {
   DEFAULT_HERO_BANNERS,
   HeroBanner,
@@ -15,32 +16,113 @@ const STORAGE_PATH = path.join(
   "heroBannersStore.json",
 );
 
+const TMP_STORAGE_PATH = path.join(os.tmpdir(), "prayog_heroBannersStore.json");
+const TMP_DELETED_PATH = path.join(os.tmpdir(), "prayog_deletedBannerIds.json");
+
+// In-memory runtime store shared across lambda invocations within the same container
+const globalRef = globalThis as unknown as {
+  __heroBannersStore?: HeroBanner[];
+  __deletedBannerIds?: Set<string>;
+};
+
+function getDeletedBannerIds(): Set<string> {
+  if (!globalRef.__deletedBannerIds) {
+    globalRef.__deletedBannerIds = new Set<string>();
+    try {
+      if (fs.existsSync(TMP_DELETED_PATH)) {
+        const raw = fs.readFileSync(TMP_DELETED_PATH, "utf-8");
+        const list = JSON.parse(raw);
+        if (Array.isArray(list)) {
+          list.forEach((id: string) => globalRef.__deletedBannerIds!.add(id));
+        }
+      }
+    } catch {}
+  }
+  return globalRef.__deletedBannerIds;
+}
+
+function recordDeletedBannerId(id: string) {
+  const deleted = getDeletedBannerIds();
+  deleted.add(id);
+  try {
+    fs.writeFileSync(
+      TMP_DELETED_PATH,
+      JSON.stringify(Array.from(deleted)),
+      "utf-8"
+    );
+  } catch {}
+}
+
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 function getBannersFromDisk(): HeroBanner[] {
+  const deleted = getDeletedBannerIds();
+
+  // 1. In-memory warm container cache
+  if (globalRef.__heroBannersStore && Array.isArray(globalRef.__heroBannersStore)) {
+    return globalRef.__heroBannersStore.filter((b) => !deleted.has(b.id));
+  }
+
+  // 2. Read from /tmp (writable in Vercel lambda)
+  try {
+    if (fs.existsSync(TMP_STORAGE_PATH)) {
+      const raw = fs.readFileSync(TMP_STORAGE_PATH, "utf-8");
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        const filtered = parsed.filter((b: HeroBanner) => !deleted.has(b.id));
+        globalRef.__heroBannersStore = filtered;
+        return filtered;
+      }
+    }
+  } catch (err) {
+    console.error("Error reading /tmp/prayog_heroBannersStore.json:", err);
+  }
+
+  // 3. Read from repo STORAGE_PATH
   try {
     if (fs.existsSync(STORAGE_PATH)) {
       const raw = fs.readFileSync(STORAGE_PATH, "utf-8");
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed)) {
-        return parsed;
+        const filtered = parsed.filter((b: HeroBanner) => !deleted.has(b.id));
+        globalRef.__heroBannersStore = filtered;
+        return filtered;
       }
     }
   } catch (err) {
     console.error("Error reading heroBannersStore.json:", err);
   }
-  return [...DEFAULT_HERO_BANNERS];
+
+  const defaults = DEFAULT_HERO_BANNERS.filter((b) => !deleted.has(b.id));
+  globalRef.__heroBannersStore = defaults;
+  return [...defaults];
 }
 
 function saveBannersToDisk(banners: HeroBanner[]): boolean {
+  const deleted = getDeletedBannerIds();
+  const cleanBanners = banners.filter((b) => !deleted.has(b.id));
+  globalRef.__heroBannersStore = cleanBanners;
+
+  let written = false;
+
+  // Try writing to repo path (works in local dev / persistent server)
   try {
-    fs.writeFileSync(STORAGE_PATH, JSON.stringify(banners, null, 2), "utf-8");
-    return true;
-  } catch (err) {
-    console.error("Error writing heroBannersStore.json:", err);
-    return false;
+    fs.writeFileSync(STORAGE_PATH, JSON.stringify(cleanBanners, null, 2), "utf-8");
+    written = true;
+  } catch {
+    // Expected on Vercel read-only filesystem (/var/task)
   }
+
+  // Always write to /tmp (works in Vercel serverless lambda)
+  try {
+    fs.writeFileSync(TMP_STORAGE_PATH, JSON.stringify(cleanBanners, null, 2), "utf-8");
+    written = true;
+  } catch (err) {
+    console.error("Error writing /tmp/prayog_heroBannersStore.json:", err);
+  }
+
+  return written;
 }
 
 function getNoCacheHeaders(): Record<string, string> {
@@ -200,6 +282,9 @@ export async function DELETE(request: Request) {
       { status: 400, headers },
     );
   }
+
+  // Tombstone deleted banner permanently so it can never be resurrected
+  recordDeletedBannerId(id);
 
   const currentBanners = getBannersFromDisk();
   const updatedList = currentBanners.filter((b) => b.id !== id);

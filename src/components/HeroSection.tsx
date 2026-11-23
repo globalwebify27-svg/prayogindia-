@@ -61,6 +61,23 @@ export const HeroSection: React.FC<HeroProps> = ({
   // Fetch live banners from CMS API
   useEffect(() => {
     let isMounted = true;
+
+    // Check localStorage cache to prevent showing any deleted banners on page load/refresh
+    try {
+      const cached = localStorage.getItem("prayog_hero_banners_v2");
+      const deletedRaw = localStorage.getItem("prayog_deleted_banners");
+      const deletedList: string[] = deletedRaw ? JSON.parse(deletedRaw) : [];
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          const active = parsed.filter(
+            (b: HeroBanner) => b.isActive && !deletedList.includes(b.id)
+          );
+          if (active.length > 0) setSlides(sortHeroBanners(active));
+        }
+      }
+    } catch {}
+
     async function loadBanners() {
       try {
         const res = await fetch(`/api/banners?activeOnly=true&_t=${Date.now()}`, {
@@ -73,7 +90,17 @@ export const HeroSection: React.FC<HeroProps> = ({
         if (!res.ok) return;
         const json = await res.json();
         if (isMounted && json?.success && Array.isArray(json.data) && json.data.length > 0) {
-          setSlides(sortHeroBanners(json.data));
+          let clean = json.data;
+          try {
+            const deletedRaw = localStorage.getItem("prayog_deleted_banners");
+            if (deletedRaw) {
+              const deletedList: string[] = JSON.parse(deletedRaw);
+              clean = clean.filter((b: HeroBanner) => !deletedList.includes(b.id));
+            }
+          } catch {}
+          if (clean.length > 0) {
+            setSlides(sortHeroBanners(clean));
+          }
         }
       } catch (err) {
         console.warn("Could not load dynamic banners, using default slides:", err);

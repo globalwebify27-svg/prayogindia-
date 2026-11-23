@@ -159,7 +159,16 @@ export default function AdminHeroBannersPage() {
       });
       const json = await res.json();
       if (json?.success && Array.isArray(json.data)) {
-        setBanners(sortHeroBanners(json.data));
+        let clean = json.data;
+        try {
+          const deletedRaw = localStorage.getItem("prayog_deleted_banners");
+          if (deletedRaw) {
+            const deletedList: string[] = JSON.parse(deletedRaw);
+            clean = clean.filter((b: HeroBanner) => !deletedList.includes(b.id));
+          }
+          localStorage.setItem("prayog_hero_banners_v2", JSON.stringify(clean));
+        } catch {}
+        setBanners(sortHeroBanners(clean));
       }
     } catch (e) {
       console.error("Failed to fetch banners:", e);
@@ -186,6 +195,18 @@ export default function AdminHeroBannersPage() {
   };
 
   useEffect(() => {
+    // Immediately hydrate from localStorage to prevent flash of deleted items on refresh
+    try {
+      const cached = localStorage.getItem("prayog_hero_banners_v2");
+      const deletedRaw = localStorage.getItem("prayog_deleted_banners");
+      const deletedList: string[] = deletedRaw ? JSON.parse(deletedRaw) : [];
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setBanners(sortHeroBanners(parsed.filter((b: HeroBanner) => !deletedList.includes(b.id))));
+        }
+      }
+    } catch {}
     fetchBanners();
     fetchPromoBanner();
   }, []);
@@ -396,11 +417,30 @@ export default function AdminHeroBannersPage() {
   const handleDelete = async (id: string) => {
     if (!confirm("Are you sure you want to delete this banner?")) return;
     try {
+      // 1. Permanently record tombstone in localStorage
+      try {
+        const deletedRaw = localStorage.getItem("prayog_deleted_banners");
+        const deletedList: string[] = deletedRaw ? JSON.parse(deletedRaw) : [];
+        if (!deletedList.includes(id)) {
+          deletedList.push(id);
+          localStorage.setItem("prayog_deleted_banners", JSON.stringify(deletedList));
+        }
+      } catch {}
+
+      // 2. Call backend delete API
       const res = await fetch(`/api/banners?id=${id}`, {
         method: "DELETE",
       });
       const data = await res.json();
-      if (data?.all) setBanners(sortHeroBanners(data.all));
+      const updated = data?.all && Array.isArray(data.all)
+        ? data.all.filter((b: HeroBanner) => b.id !== id)
+        : banners.filter((b) => b.id !== id);
+
+      setBanners(sortHeroBanners(updated));
+      try {
+        localStorage.setItem("prayog_hero_banners_v2", JSON.stringify(updated));
+      } catch {}
+
       showNotification("Banner deleted successfully.");
     } catch {
       showNotification("Failed to delete banner.", "error");

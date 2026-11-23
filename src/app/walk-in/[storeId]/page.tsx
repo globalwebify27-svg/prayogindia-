@@ -1052,7 +1052,17 @@ export default function StoreKioskPage() {
         if (!res.ok) return;
         const json = await res.json();
         if (isMounted && json?.success && Array.isArray(json.data) && json.data.length > 0) {
-          setHeroBanners(sortHeroBanners(json.data));
+          let clean = json.data;
+          try {
+            const deletedRaw = localStorage.getItem("prayog_deleted_banners");
+            if (deletedRaw) {
+              const deletedList: string[] = JSON.parse(deletedRaw);
+              clean = clean.filter((b: HeroBanner) => !deletedList.includes(b.id));
+            }
+          } catch {}
+          if (clean.length > 0) {
+            setHeroBanners(sortHeroBanners(clean));
+          }
         }
       } catch (err) {
         console.warn("Could not load dynamic banners for kiosk, using defaults:", err);
