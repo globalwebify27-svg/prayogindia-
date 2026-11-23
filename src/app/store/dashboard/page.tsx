@@ -23,7 +23,95 @@ import {
   Activity,
   Layers,
   Sparkles,
+  Award,
+  UserCheck,
 } from "lucide-react";
+
+// Branch staff sales & incentive benchmarks
+const BRANCH_STAFF_MAP: Record<
+  string,
+  Array<{
+    name: string;
+    role: string;
+    target: number;
+    achieved: number;
+    incentive: number;
+    rank: number;
+  }>
+> = {
+  PATNA: [
+    {
+      name: "Jay Prakash",
+      role: "Store Manager & Sales Lead",
+      target: 300000,
+      achieved: 265400,
+      incentive: 9289,
+      rank: 1,
+    },
+    {
+      name: "Abhishek Kumar",
+      role: "Senior Sales Executive",
+      target: 200000,
+      achieved: 150000,
+      incentive: 5250,
+      rank: 2,
+    },
+  ],
+  RANCHI: [
+    {
+      name: "Abhishek Kumar",
+      role: "Store Manager & Lead Sales",
+      target: 450000,
+      achieved: 412000,
+      incentive: 14420,
+      rank: 1,
+    },
+    {
+      name: "Emraan Hassan",
+      role: "Branch Sales Executive",
+      target: 350000,
+      achieved: 310000,
+      incentive: 10850,
+      rank: 2,
+    },
+    {
+      name: "Abuzar Ansari",
+      role: "Sales Executive",
+      target: 400000,
+      achieved: 290000,
+      incentive: 10150,
+      rank: 3,
+    },
+  ],
+  DELHI: [
+    {
+      name: "Shahnawaz Abbas",
+      role: "Lead Sales Executive",
+      target: 450000,
+      achieved: 420000,
+      incentive: 14700,
+      rank: 1,
+    },
+    {
+      name: "Siddharth Varma",
+      role: "Store Manager & NCR Sales",
+      target: 300000,
+      achieved: 245000,
+      incentive: 8575,
+      rank: 2,
+    },
+  ],
+  MUMBAI: [
+    {
+      name: "Abuzar Ansari",
+      role: "Sales Executive",
+      target: 300000,
+      achieved: 215000,
+      incentive: 7525,
+      rank: 1,
+    },
+  ],
+};
 
 export default function StoreDashboardPage() {
   const [dashboardData, setDashboardData] = useState<any>(null);
@@ -485,6 +573,129 @@ export default function StoreDashboardPage() {
           </div>
         </div>
       </div>
+
+      {/* ── 3.5. Branch Sales Executives & Incentives Overview ── */}
+      {(() => {
+        const branchStaff = BRANCH_STAFF_MAP[storeCode] || BRANCH_STAFF_MAP["PATNA"];
+        const totalBranchTarget = branchStaff.reduce((sum, s) => sum + s.target, 0);
+        const totalBranchAchieved = branchStaff.reduce((sum, s) => sum + s.achieved, 0);
+        const totalBranchIncentive = branchStaff.reduce((sum, s) => sum + s.incentive, 0);
+        const overallRate = totalBranchTarget > 0 ? Math.round((totalBranchAchieved / totalBranchTarget) * 100) : 0;
+
+        return (
+          <div className="bg-white border border-slate-200/90 rounded-2xl p-5 sm:p-6 space-y-4 shadow-2xs">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="bg-blue-50 text-[#2563EB] text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider border border-blue-200/60">
+                    {storeCode} Branch Quotas
+                  </span>
+                  <span className="text-slate-400 text-xs font-semibold">Monthly Performance &amp; Commission</span>
+                </div>
+                <h2 className="text-base sm:text-lg font-black text-slate-900 flex items-center gap-2">
+                  <Award className="w-5 h-5 text-amber-500" /> Branch Sales Executives &amp; Incentives
+                </h2>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <div className="hidden lg:flex items-center gap-4 text-xs font-bold text-slate-500 pr-2 border-r border-slate-200">
+                  <div>
+                    <span className="text-[10px] text-slate-400 block uppercase font-mono">Store Pool Earned</span>
+                    <span className="text-slate-900 font-mono font-black text-sm">₹{totalBranchIncentive.toLocaleString("en-IN")}</span>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-slate-400 block uppercase font-mono">Quota Hit</span>
+                    <span className="text-emerald-600 font-mono font-black text-sm">{overallRate}%</span>
+                  </div>
+                </div>
+
+                <Link
+                  href="/store/incentives"
+                  className="flex items-center gap-1.5 text-xs font-bold text-white bg-[#2563EB] hover:bg-blue-700 px-3.5 py-2 rounded-xl transition-all shadow-xs self-start sm:self-auto active:scale-95"
+                >
+                  <span>Open Branch Incentives Desk</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </Link>
+              </div>
+            </div>
+
+            {/* Staff Performance Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5 pt-1">
+              {branchStaff.map((exec) => {
+                const pct = Math.round((exec.achieved / exec.target) * 100);
+                const isOverQuota = pct >= 80;
+
+                return (
+                  <div
+                    key={exec.name}
+                    className="p-4 rounded-xl bg-slate-50/80 border border-slate-200/80 flex flex-col justify-between hover:bg-slate-50 transition-all shadow-2xs"
+                  >
+                    <div>
+                      <div className="flex items-start justify-between gap-2 mb-2">
+                        <div className="flex items-center gap-2.5">
+                          <div className="w-8 h-8 rounded-lg bg-blue-100 text-[#2563EB] font-black text-xs flex items-center justify-center shrink-0">
+                            {exec.name
+                              .split(" ")
+                              .map((n) => n[0])
+                              .join("")
+                              .slice(0, 2)}
+                          </div>
+                          <div>
+                            <div className="font-extrabold text-slate-900 text-xs">{exec.name}</div>
+                            <div className="text-[10px] text-slate-500 font-medium">{exec.role}</div>
+                          </div>
+                        </div>
+
+                        <span className="text-[10px] font-black px-2 py-0.5 rounded-md bg-amber-50 text-amber-700 border border-amber-200/60 uppercase">
+                          Rank #{exec.rank}
+                        </span>
+                      </div>
+
+                      {/* Quota Progress */}
+                      <div className="mt-3 space-y-1.5">
+                        <div className="flex justify-between text-[11px] font-bold">
+                          <span className="text-slate-500">Monthly Quota</span>
+                          <span className="font-mono text-slate-900">
+                            ₹{exec.achieved.toLocaleString("en-IN")}{" "}
+                            <span className="text-slate-400 font-normal">/ ₹{exec.target.toLocaleString("en-IN")}</span>
+                          </span>
+                        </div>
+                        <div className="w-full bg-slate-200 rounded-full h-1.5 overflow-hidden">
+                          <div
+                            className={`h-full rounded-full transition-all ${
+                              isOverQuota ? "bg-emerald-500" : "bg-[#2563EB]"
+                            }`}
+                            style={{ width: `${Math.min(pct, 100)}%` }}
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="mt-3.5 pt-3 border-t border-slate-200/60 flex items-center justify-between text-xs">
+                      <div>
+                        <span className="text-[10px] text-slate-400 block font-mono">Commission Earned</span>
+                        <span className="font-mono font-black text-slate-900">
+                          ₹{exec.incentive.toLocaleString("en-IN")}
+                        </span>
+                      </div>
+
+                      <span
+                        className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                          isOverQuota
+                            ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                            : "bg-blue-50 text-blue-700 border border-blue-200"
+                        }`}
+                      >
+                        {pct}% Achieved
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })()}
 
       {/* ── 4. Lower Section: Recent Orders & Stock Movements ── */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

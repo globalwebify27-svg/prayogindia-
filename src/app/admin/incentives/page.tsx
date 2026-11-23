@@ -1378,9 +1378,9 @@ export default function IncentivesPage() {
       </div>
 
       {/* ── 2. Module Navigation & Filter Control Bar (Clean Prayog India Theme) ── */}
-      <div className="bg-white border border-slate-200/90 rounded-2xl p-3.5 sm:p-4 shadow-2xs flex flex-col xl:flex-row items-start xl:items-center justify-between gap-4">
-        {/* Module Navigation Tabs */}
-        <div className="flex flex-wrap items-center gap-1.5">
+      <div className="bg-white border border-slate-200/90 rounded-2xl p-3 sm:p-3.5 shadow-2xs flex flex-col 2xl:flex-row items-stretch 2xl:items-center justify-between gap-3">
+        {/* Module Navigation Tabs (Single line scrollable, never awkwardly wraps) */}
+        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
           {[
             { id: "dashboard", label: "Dashboard", icon: BarChart3 },
             { id: "leaderboard", label: "Leaderboard", icon: Award },
@@ -1394,7 +1394,7 @@ export default function IncentivesPage() {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as any)}
-                className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0 ${
                   isActive
                     ? "bg-[#0084FF] text-white shadow-xs font-black"
                     : "bg-slate-50 hover:bg-slate-100 text-slate-600 hover:text-slate-900 border border-slate-200/80"
@@ -1408,7 +1408,7 @@ export default function IncentivesPage() {
         </div>
 
         {/* Filters: Period & Store Selection */}
-        <div className="flex flex-wrap items-center gap-3 w-full xl:w-auto justify-between xl:justify-end">
+        <div className="flex flex-wrap items-center gap-2.5 justify-end shrink-0 border-t 2xl:border-t-0 pt-2.5 2xl:pt-0 border-slate-100">
           {/* Period Filter (Segmented control) */}
           <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl text-xs font-bold border border-slate-200/60">
             {[
@@ -1422,7 +1422,7 @@ export default function IncentivesPage() {
                 <button
                   key={p.id}
                   onClick={() => setDatePeriod(p.id as any)}
-                  className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+                  className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer text-xs whitespace-nowrap ${
                     isSelected
                       ? "bg-white text-slate-900 font-black shadow-xs"
                       : "text-slate-500 hover:text-slate-900"
@@ -1435,9 +1435,9 @@ export default function IncentivesPage() {
           </div>
 
           {/* Store Filter Dropdown */}
-          <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 hover:border-slate-300 px-3 py-1.5 rounded-xl shadow-2xs transition-colors">
-            <Building2 className="w-4 h-4 text-[#0084FF]" />
-            <span className="text-[10px] font-black uppercase tracking-wider text-slate-400">
+          <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 hover:border-slate-300 px-3 py-1.5 rounded-xl shadow-2xs transition-colors shrink-0">
+            <Building2 className="w-4 h-4 text-[#0084FF] shrink-0" />
+            <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 shrink-0">
               Store:
             </span>
             <select

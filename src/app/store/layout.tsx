@@ -22,6 +22,7 @@ import {
   Building2,
   UserCheck,
   CreditCard,
+  Award,
 } from "lucide-react";
 import { PrayogLogo } from "@/components/PrayogLogo";
 import { StaffSessionUser } from "@/lib/staffAuth";
@@ -135,6 +136,11 @@ export default function StoreManagerLayout({
           label: "Store Staff",
           href: "/store/staff",
           icon: UserCheck,
+        },
+        {
+          label: "Sales & Incentives",
+          href: "/store/incentives",
+          icon: Award,
         },
         {
           label: "Kiosk Tablets",
