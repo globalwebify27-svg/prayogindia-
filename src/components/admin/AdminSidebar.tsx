@@ -219,6 +219,7 @@ const NAV_GROUPS: NavGroup[] = [
         label: "Executive Incentives",
         href: "/admin/incentives",
         icon: AwardIcon,
+        badge: "SUPER ADMIN",
       },
     ],
   },
@@ -308,6 +309,9 @@ const getBadgeStyle = (badge: string, isActive: boolean) => {
   }
   if (b === "ABOUT") {
     return "bg-purple-500/20 text-purple-300 border border-purple-500/30 text-[9px] font-bold px-2 py-0.5 rounded-full uppercase";
+  }
+  if (b === "SUPER ADMIN") {
+    return "bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[8px] font-black px-1.5 py-0.5 rounded-full uppercase tracking-wider";
   }
   return "bg-[#0084FF] text-white text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider";
 };
