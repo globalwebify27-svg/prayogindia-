@@ -62,6 +62,9 @@ export async function POST(request: Request) {
       const globalForOrders = globalThis as unknown as {
         _PRAYOG_STORE_ORDERS_LOG: any[] | undefined;
       };
+      if (!globalForOrders._PRAYOG_STORE_ORDERS_LOG) {
+        globalForOrders._PRAYOG_STORE_ORDERS_LOG = [];
+      }
       if (globalForOrders._PRAYOG_STORE_ORDERS_LOG) {
         const orderRecord = {
           id: session.id,

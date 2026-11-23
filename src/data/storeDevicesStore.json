@@ -1,0 +1,80 @@
+[
+  {
+    "id": "dev-delhi-1795411137285",
+    "createdAt": "2026-11-23T05:18:57.285Z",
+    "lastActiveAt": "Active",
+    "storeCode": "DELHI",
+    "deviceName": "Delhi Shopping Tablet",
+    "deviceType": "KIOSK_TABLET",
+    "deviceCode": "TAB-DEL-KIOSK-01",
+    "username": "delhi_kiosk",
+    "passwordPlain": "kiosk123",
+    "salesExecutive": "Siddharth Varma",
+    "status": "Active"
+  },
+  {
+    "id": "dev-ranchi-1795411137285",
+    "createdAt": "2026-11-23T05:18:57.285Z",
+    "lastActiveAt": "Active",
+    "storeCode": "RANCHI",
+    "deviceName": "Ranchi Shopping Tablet",
+    "deviceType": "KIOSK_TABLET",
+    "deviceCode": "TAB-RNC-KIOSK-01",
+    "username": "ranchi_kiosk",
+    "passwordPlain": "kiosk123",
+    "salesExecutive": "Abhishek Kumar",
+    "status": "Active"
+  },
+  {
+    "id": "dev-patna-1795411137284",
+    "createdAt": "2026-11-23T05:18:57.284Z",
+    "lastActiveAt": "Active",
+    "storeCode": "PATNA",
+    "deviceName": "tux (Jay Prakash)",
+    "deviceType": "KIOSK_TABLET",
+    "deviceCode": "TAB-PATNA-TUX007",
+    "username": "tux007",
+    "passwordPlain": "kiosk123",
+    "salesExecutive": "Jay Prakash",
+    "status": "Active"
+  },
+  {
+    "id": "dev-pat-01",
+    "storeCode": "PATNA",
+    "deviceName": "Abhishek Kumar's Store Tablet",
+    "deviceType": "KIOSK_TABLET",
+    "deviceCode": "TAB-PATNA-ABHISHEK_TAB",
+    "username": "abhishek_tab",
+    "passwordPlain": "kiosk123",
+    "salesExecutive": "Abhishek Kumar",
+    "status": "Active",
+    "createdAt": "2026-11-23T05:15:35.774Z",
+    "lastActiveAt": "Active"
+  },
+  {
+    "id": "dev-pat-02",
+    "storeCode": "PATNA",
+    "deviceName": "Patna Kiosk (Store Shopping Tablet)",
+    "deviceType": "KIOSK_TABLET",
+    "deviceCode": "TAB-PATNA-PATNA_KIOSK",
+    "username": "patna_kiosk",
+    "passwordPlain": "kiosk123",
+    "salesExecutive": "Jay Prakash",
+    "status": "Active",
+    "createdAt": "2026-11-23T05:15:35.777Z",
+    "lastActiveAt": "Active"
+  },
+  {
+    "id": "dev-rnc-01",
+    "storeCode": "RANCHI",
+    "deviceName": "Shahnawaz Abbas's Kiosk Tablet",
+    "deviceType": "KIOSK_TABLET",
+    "deviceCode": "TAB-RANCHI-SHAHNAWAZ_TAB",
+    "username": "shahnawaz_tab",
+    "passwordPlain": "kiosk123",
+    "salesExecutive": "Shahnawaz Abbas",
+    "status": "Active",
+    "createdAt": "2026-11-23T05:15:35.777Z",
+    "lastActiveAt": "Active"
+  }
+]

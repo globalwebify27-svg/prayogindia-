@@ -62,7 +62,80 @@ export default function StoreDashboardPage() {
       }
 
       if (ordData?.success) {
-        setOrders(ordData.data.items || []);
+        let items: any[] = ordData.data.items || [];
+        try {
+          const stored =
+            typeof window !== "undefined"
+              ? localStorage.getItem("prayog_placed_orders")
+              : null;
+          const walkinStored =
+            typeof window !== "undefined"
+              ? localStorage.getItem("prayog_walkin_orders")
+              : null;
+
+          const rawLocals: any[] = [];
+          if (stored) {
+            const parsed = JSON.parse(stored);
+            if (Array.isArray(parsed)) rawLocals.push(...parsed);
+          }
+          if (walkinStored) {
+            const parsedW = JSON.parse(walkinStored);
+            if (Array.isArray(parsedW)) rawLocals.push(...parsedW);
+          }
+
+          const storeLocals = rawLocals
+            .filter((ord: any) => {
+              const ordStore = (ord.storeCode || ord.storeId || "").toUpperCase();
+              return (
+                ordStore === activeCode ||
+                ord.orderNumber?.toUpperCase().includes(activeCode) ||
+                ord.id?.toUpperCase().includes(activeCode)
+              );
+            })
+            .map((ord: any) => ({
+              id: ord.id || ord.orderNumber,
+              orderNumber: ord.orderNumber || ord.id,
+              invoiceNo: ord.invoiceNo || ord.orderNumber || ord.id,
+              storeCode: activeCode,
+              storeLocation: ord.storeLocation || `${activeCode} Branch`,
+              customerName:
+                ord.customerName || ord.user?.name || "Walk-in Guest",
+              customerPhone: ord.customerPhone || ord.user?.phone || "",
+              customerEmail: ord.customerEmail || ord.user?.email || "",
+              totalAmount: ord.totalAmount || ord.total || 0,
+              status:
+                ord.isPaid || ord.status === "DELIVERED"
+                  ? "PAID & BILLED"
+                  : ord.status || "NEW KIOSK ORDER",
+              createdAt: ord.createdAt || new Date().toISOString(),
+              items: ord.items || [],
+              salesExecutive:
+                ord.salesExecutive ||
+                (ord.user?.name ? ord.user.name : "Branch Terminal"),
+              orderSource: "WALK_IN",
+              isLiveWalkIn: true,
+              isPaid: ord.isPaid || ord.status === "DELIVERED",
+              paymentMethod: ord.paymentMethod || "CASH",
+            }));
+
+          const seen = new Set(items.map((i: any) => i.id || i.orderNumber));
+          for (const l of storeLocals) {
+            const key = l.id || l.orderNumber;
+            if (key && !seen.has(key)) {
+              seen.add(key);
+              items.push(l);
+            }
+          }
+
+          items.sort(
+            (a: any, b: any) =>
+              new Date(b.createdAt || 0).getTime() -
+              new Date(a.createdAt || 0).getTime(),
+          );
+        } catch (e) {
+          console.warn("Local storage orders reading notice on dashboard:", e);
+        }
+        setOrders(items);
       }
     } catch (err) {
       console.error("Failed to load store dashboard data:", err);

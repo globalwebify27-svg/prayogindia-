@@ -56,77 +56,175 @@ export default function StoreOrdersPage() {
   };
 
   // Fetch orders for a specific store
-  const fetchOrders = useCallback((targetStore: string) => {
+  const fetchOrders = useCallback(async (targetStore: string) => {
     if (!targetStore) return;
     setLoading(true);
 
-    fetch(`/api/store/orders?storeId=${targetStore.toUpperCase()}`)
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.success) {
-          const apiOrders = data.data?.items || [];
-          const activeStore = (data.store || targetStore).toUpperCase();
+    try {
+      const activeStore = targetStore.toUpperCase();
 
-          // Merge live walk-in kiosk sessions for this EXACT store only
-          const localSessions = getAllSessions().filter(
-            (s) => (s.storeId || "").toUpperCase() === activeStore,
-          );
-
-          const walkInOrders = localSessions.map((s) => ({
-            id: s.id,
-            orderNumber: s.id,
-            invoiceNo: s.invoiceNo || s.id,
-            storeCode: activeStore,
-            storeLocation: `${activeStore} Branch`,
-            customerName: s.customerName,
-            customerPhone: s.customerPhone,
-            customerEmail: s.customerEmail,
-            totalAmount: s.total,
-            status:
-              s.status === "PENDING"
-                ? "NEW KIOSK ORDER"
-                : s.status === "ACCEPTED"
-                  ? "ACCEPTED"
-                  : s.status === "PAID"
-                    ? "PAID & BILLED"
-                    : s.status,
-            createdAt: s.createdAt,
-            items: s.items,
-            isLiveWalkIn: true,
-            isPaid: s.status === "PAID",
-            rawSession: s,
-          }));
-
-          // Merge & deduplicate: local sessions take priority (freshest data)
-          const seen = new Set<string>();
-          const combined: any[] = [];
-          [...walkInOrders, ...apiOrders].forEach((item) => {
-            const key = item.id || item.orderNumber;
-            if (key && !seen.has(key)) {
-              seen.add(key);
-              combined.push(item);
-            }
-          });
-
-          // Sort newest first
-          combined.sort(
-            (a, b) =>
-              new Date(b.createdAt || 0).getTime() -
-              new Date(a.createdAt || 0).getTime(),
-          );
-
-          setOrders(combined);
-        } else {
-          // Backend rejected (e.g. 403 for wrong store) — clear orders
-          setOrders([]);
-          console.warn("Store orders fetch rejected:", data.message);
+      // 1. Fetch orders from backend store API
+      let apiOrders: any[] = [];
+      try {
+        const res = await fetch(`/api/store/orders?storeId=${activeStore}`);
+        const data = await res.json();
+        if (data.success && data.data?.items) {
+          apiOrders = data.data.items;
         }
-      })
-      .catch((err) => {
-        console.error("Failed to load store orders", err);
-        setOrders([]);
-      })
-      .finally(() => setLoading(false));
+      } catch (err) {
+        console.warn("Failed to fetch backend store orders:", err);
+      }
+
+      // 2. Fetch server-side POS sessions for multi-device sync
+      let serverSessions: any[] = [];
+      try {
+        const sessRes = await fetch(
+          `/api/pos/sessions?storeId=${activeStore.toLowerCase()}`,
+        );
+        const sessData = await sessRes.json();
+        if (sessData?.success && Array.isArray(sessData.sessions)) {
+          serverSessions = sessData.sessions;
+        }
+      } catch (err) {
+        console.warn("Failed to fetch server sessions:", err);
+      }
+
+      // 3. Merge in-memory sessions from broadcast
+      const localSessions = getAllSessions().filter(
+        (s) => (s.storeId || "").toUpperCase() === activeStore,
+      );
+
+      // 4. Merge client localStorage walk-in & placed orders (same browser demo/offline fallback)
+      let localPlacedOrders: any[] = [];
+      try {
+        const stored =
+          typeof window !== "undefined"
+            ? localStorage.getItem("prayog_placed_orders")
+            : null;
+        const walkinStored =
+          typeof window !== "undefined"
+            ? localStorage.getItem("prayog_walkin_orders")
+            : null;
+
+        const rawLocals: any[] = [];
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed)) rawLocals.push(...parsed);
+        }
+        if (walkinStored) {
+          const parsedW = JSON.parse(walkinStored);
+          if (Array.isArray(parsedW)) rawLocals.push(...parsedW);
+        }
+
+        localPlacedOrders = rawLocals
+          .filter((ord: any) => {
+            const ordStore = (ord.storeCode || ord.storeId || "").toUpperCase();
+            return (
+              ordStore === activeStore ||
+              ord.orderNumber?.toUpperCase().includes(activeStore) ||
+              ord.id?.toUpperCase().includes(activeStore)
+            );
+          })
+          .map((ord: any) => {
+            const isPaid =
+              ord.isPaid ||
+              ord.paymentStatus === "PAID" ||
+              ord.status === "DELIVERED" ||
+              ord.status === "PAID & BILLED" ||
+              ord.status === "PAID";
+
+            return {
+              id: ord.id || ord.orderNumber,
+              orderNumber: ord.orderNumber || ord.id,
+              invoiceNo: ord.invoiceNo || ord.orderNumber || ord.id,
+              storeCode: activeStore,
+              storeLocation: ord.storeLocation || `${activeStore} Branch`,
+              customerName:
+                ord.customerName || ord.user?.name || "Walk-in Guest",
+              customerPhone: ord.customerPhone || ord.user?.phone || "",
+              customerEmail: ord.customerEmail || ord.user?.email || "",
+              totalAmount: ord.totalAmount || ord.total || 0,
+              status: isPaid
+                ? "PAID & BILLED"
+                : ord.status || "NEW KIOSK ORDER",
+              createdAt: ord.createdAt || new Date().toISOString(),
+              items: ord.items || [],
+              salesExecutive:
+                ord.salesExecutive ||
+                (ord.user?.name ? ord.user.name : "Branch Terminal"),
+              orderSource: "WALK_IN",
+              isLiveWalkIn: true,
+              isPaid,
+              paymentMethod: ord.paymentMethod || "CASH",
+              rawSession: ord,
+            };
+          });
+      } catch (e) {
+        console.warn("Local storage orders reading notice:", e);
+      }
+
+      // 5. Combine and map all sessions
+      const allSessions = [...serverSessions, ...localSessions];
+      const seenSessions = new Set<string>();
+      const uniqueSessions = allSessions.filter((s: any) => {
+        if (!s?.id || seenSessions.has(s.id)) return false;
+        seenSessions.add(s.id);
+        return (s.storeId || "").toUpperCase() === activeStore;
+      });
+
+      const walkInOrders = uniqueSessions.map((s) => ({
+        id: s.id,
+        orderNumber: s.id,
+        invoiceNo: s.invoiceNo || s.id,
+        storeCode: activeStore,
+        storeLocation: `${activeStore} Branch`,
+        customerName: s.customerName || "Walk-in Guest",
+        customerPhone: s.customerPhone || "",
+        customerEmail: s.customerEmail || "",
+        totalAmount: s.total,
+        status:
+          s.status === "PENDING"
+            ? "NEW KIOSK ORDER"
+            : s.status === "ACCEPTED"
+              ? "ACCEPTED"
+              : s.status === "PAID"
+                ? "PAID & BILLED"
+                : s.status,
+        createdAt: s.createdAt,
+        items: s.items || [],
+        salesExecutive: s.salesExecutive || "Branch Terminal",
+        orderSource: "WALK_IN",
+        isLiveWalkIn: true,
+        isPaid: s.status === "PAID",
+        paymentMethod: s.paymentMethod || "CASH",
+        rawSession: s,
+      }));
+
+      // 6. Merge & deduplicate: local placed orders and sessions take highest priority
+      const seen = new Set<string>();
+      const combined: any[] = [];
+      [...localPlacedOrders, ...walkInOrders, ...apiOrders].forEach((item) => {
+        const key = item.id || item.orderNumber;
+        if (key && !seen.has(key)) {
+          seen.add(key);
+          combined.push(item);
+        }
+      });
+
+      // Sort newest first
+      combined.sort(
+        (a, b) =>
+          new Date(b.createdAt || 0).getTime() -
+          new Date(a.createdAt || 0).getTime(),
+      );
+
+      setOrders(combined);
+    } catch (err) {
+      console.error("Failed to load store orders", err);
+      setOrders([]);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   // ── Load staff session ONCE on mount ──
@@ -226,6 +324,36 @@ export default function StoreOrdersPage() {
             updates: { status: "PAID", invoiceNo: invNo },
           }),
         }).catch(() => {});
+      }
+
+      // Also update localStorage orders
+      if (typeof window !== "undefined") {
+        try {
+          const targetId = paymentOrder.id || paymentOrder.orderNumber;
+          ["prayog_placed_orders", "prayog_walkin_orders"].forEach((key) => {
+            const stored = localStorage.getItem(key);
+            if (stored) {
+              const parsed = JSON.parse(stored);
+              if (Array.isArray(parsed)) {
+                const updated = parsed.map((item: any) => {
+                  if (item.id === targetId || item.orderNumber === targetId) {
+                    return {
+                      ...item,
+                      status: "DELIVERED",
+                      paymentStatus: "PAID",
+                      isPaid: true,
+                      paymentMethod: paymentMode,
+                    };
+                  }
+                  return item;
+                });
+                localStorage.setItem(key, JSON.stringify(updated));
+              }
+            }
+          });
+        } catch (e) {
+          console.warn("Failed to update localStorage orders:", e);
+        }
       }
 
       // Immediately update local state — no waiting for re-fetch

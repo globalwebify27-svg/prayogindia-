@@ -526,6 +526,17 @@ const globalForOrders = globalThis as unknown as {
 
 if (!globalForOrders._PRAYOG_STORE_ORDERS_LOG) {
   globalForOrders._PRAYOG_STORE_ORDERS_LOG = [...INITIAL_STORE_ORDERS];
+} else {
+  const existingIds = new Set(
+    globalForOrders._PRAYOG_STORE_ORDERS_LOG.map(
+      (o: any) => o.id || o.orderNumber,
+    ),
+  );
+  for (const initOrd of INITIAL_STORE_ORDERS) {
+    if (!existingIds.has(initOrd.id)) {
+      globalForOrders._PRAYOG_STORE_ORDERS_LOG.push(initOrd);
+    }
+  }
 }
 const STORE_ORDERS_LOG = globalForOrders._PRAYOG_STORE_ORDERS_LOG;
 
