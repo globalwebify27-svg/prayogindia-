@@ -832,41 +832,43 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
           <div className="flex items-center gap-1.5 sm:gap-3 flex-1 sm:flex-initial justify-end min-w-0">
             {isInStock ? (
               <>
-                {/* Quantity Selector: [ - 1 + ] */}
-                <div className="flex items-center border border-slate-200 rounded-xl h-10 sm:h-11 bg-white shrink-0 overflow-hidden shadow-2xs">
-                  <button
-                    type="button"
-                    onClick={() => setStickyQuantity((q) => Math.max(1, q - 1))}
-                    disabled={stickyQuantity <= 1}
-                    className="w-7 sm:w-9 h-full flex items-center justify-center text-slate-500 hover:bg-slate-50 disabled:opacity-30 font-bold text-sm cursor-pointer transition-colors"
-                    aria-label="Decrease quantity"
-                  >
-                    -
-                  </button>
-                  <span className="w-6 sm:w-8 text-center text-xs sm:text-sm font-extrabold text-slate-900 select-none">
-                    {stickyQuantity}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const maxStock = getProductStock(product, selectedVariant);
-                      if (stickyQuantity >= maxStock) {
-                        useUIStore.getState().showToast({
-                          title: `Only ${maxStock} units available.`,
-                          type: "error",
-                          iconType: "stock-limit",
-                          duration: 3000,
-                        });
-                        return;
-                      }
-                      setStickyQuantity((q) => q + 1);
-                    }}
-                    className="w-7 sm:w-9 h-full flex items-center justify-center text-slate-500 hover:bg-slate-50 font-bold text-sm cursor-pointer transition-colors"
-                    aria-label="Increase quantity"
-                  >
-                    +
-                  </button>
-                </div>
+                {/* Quantity Selector: [ - 1 + ] (Only shown when not yet added to cart) */}
+                {currentQuantityInCart === 0 && (
+                  <div className="flex items-center border border-slate-200 rounded-xl h-10 sm:h-11 bg-white shrink-0 overflow-hidden shadow-2xs">
+                    <button
+                      type="button"
+                      onClick={() => setStickyQuantity((q) => Math.max(1, q - 1))}
+                      disabled={stickyQuantity <= 1}
+                      className="w-7 sm:w-9 h-full flex items-center justify-center text-slate-500 hover:bg-slate-50 disabled:opacity-30 font-bold text-sm cursor-pointer transition-colors"
+                      aria-label="Decrease quantity"
+                    >
+                      -
+                    </button>
+                    <span className="w-6 sm:w-8 text-center text-xs sm:text-sm font-extrabold text-slate-900 select-none">
+                      {stickyQuantity}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const maxStock = getProductStock(product, selectedVariant);
+                        if (stickyQuantity >= maxStock) {
+                          useUIStore.getState().showToast({
+                            title: `Only ${maxStock} units available.`,
+                            type: "error",
+                            iconType: "stock-limit",
+                            duration: 3000,
+                          });
+                          return;
+                        }
+                        setStickyQuantity((q) => q + 1);
+                      }}
+                      className="w-7 sm:w-9 h-full flex items-center justify-center text-slate-500 hover:bg-slate-50 font-bold text-sm cursor-pointer transition-colors"
+                      aria-label="Increase quantity"
+                    >
+                      +
+                    </button>
+                  </div>
+                )}
 
                 {/* Add to Cart Button or Stepper (Secondary CTA) */}
                 {currentQuantityInCart > 0 ? (
@@ -974,16 +976,14 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
         document.body
       )}
 
-      {/* ── Floating "View Cart" Pill: Floats cleanly above the bottom action bar with rounded pill shape & shadow ── */}
+      {/* ── Floating "View Cart" Pill: Floats cleanly above the bottom action bar with rounded pill shape & shadow (mobile only) ── */}
       {mounted && totalCartCount > 0 && createPortal(
         <div
           style={{
             position: "fixed",
             zIndex: 45,
           }}
-          className={`left-3 right-3 sm:left-auto sm:right-6 sm:w-88 transition-all duration-300 animate-in slide-in-from-bottom-3 select-none pointer-events-auto bottom-[calc(78px+env(safe-area-inset-bottom,0px))] ${
-            showStickyBar ? "sm:bottom-20" : "sm:bottom-6"
-          }`}
+          className="sm:hidden fixed left-3 right-3 z-45 transition-all duration-300 animate-in slide-in-from-bottom-3 select-none pointer-events-auto bottom-[calc(78px+env(safe-area-inset-bottom,0px))]"
         >
           <Link
             href="/cart"

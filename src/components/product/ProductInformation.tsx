@@ -507,8 +507,8 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
             </div>
           </div>
 
-          {/* Right: Quantity Capsule Selector (Beside Price) */}
-          <div className="flex items-center border border-slate-200 rounded-full h-10 sm:h-11 bg-white shadow-2xs overflow-hidden shrink-0">
+          {/* Right: Quantity Capsule Selector (Beside Price - hidden on desktop when item is already in cart to avoid duplicate steppers) */}
+          <div className={`flex items-center border border-slate-200 rounded-full h-10 sm:h-11 bg-white shadow-2xs overflow-hidden shrink-0 ${currentQuantityInCart > 0 ? "sm:hidden" : ""}`}>
             <button
               type="button"
               onClick={handleDecreaseQuantity}
