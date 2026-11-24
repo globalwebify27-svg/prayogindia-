@@ -3693,8 +3693,6 @@ export const CheckoutView: React.FC = () => {
             <span>Processing...</span>
           ) : checkoutStep === "payment" ? (
             <span>Place Order</span>
-          ) : checkoutStep === "address" ? (
-            <span>Save Address</span>
           ) : (
             <span>Continue</span>
           )}
