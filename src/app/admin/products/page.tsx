@@ -84,6 +84,13 @@ interface ProductItemRow {
   weightGrams?: number;
   dimensionsCm?: { length: number; width: number; height: number };
   shippingTag?: string;
+  airFreightAllowed?: boolean;
+  surfaceFreightAllowed?: boolean;
+  localPickupAllowed?: boolean;
+  airFreightCharge?: number;
+  surfaceFreightCharge?: number;
+  pickupCharge?: number;
+  shippingCharge?: number;
   image?: string;
   images?: Array<string | { imageUrl: string }>;
   videoUrl?: string;
@@ -685,10 +692,13 @@ export default function AdminProductsPage() {
   const [dimWidth, setDimWidth] = useState("10");
   const [dimHeight, setDimHeight] = useState("5");
 
-  // Freight Modes Checklist
+  // Freight Modes Checklist & Custom Charges
   const [airFreightAllowed, setAirFreightAllowed] = useState(true);
   const [surfaceFreightAllowed, setSurfaceFreightAllowed] = useState(true);
   const [localPickupAllowed, setLocalPickupAllowed] = useState(true);
+  const [airFreightCharge, setAirFreightCharge] = useState("149");
+  const [surfaceFreightCharge, setSurfaceFreightCharge] = useState("99");
+  const [pickupCharge, setPickupCharge] = useState("0");
 
   // Shipping Tags Classification
   const [shippingTag, setShippingTag] =
@@ -1118,11 +1128,37 @@ export default function AdminProductsPage() {
     );
     setIsHazardousItem(false);
     setIsDangerousGoods(false);
+    const rawShip = (rawSpecs?._shipping as unknown as Record<string, unknown>) || {};
     setAirFreightAllowed(
-      !(tag === "Battery Product" || (tag as string) === "Battery"),
+      typeof p.airFreightAllowed === "boolean"
+        ? p.airFreightAllowed
+        : typeof rawShip.airFreightAllowed === "boolean"
+        ? (rawShip.airFreightAllowed as boolean)
+        : !(tag === "Battery Product" || (tag as string) === "Battery"),
     );
-    setSurfaceFreightAllowed(true);
-    setLocalPickupAllowed(true);
+    setSurfaceFreightAllowed(
+      typeof p.surfaceFreightAllowed === "boolean"
+        ? p.surfaceFreightAllowed
+        : typeof rawShip.surfaceFreightAllowed === "boolean"
+        ? (rawShip.surfaceFreightAllowed as boolean)
+        : true,
+    );
+    setLocalPickupAllowed(
+      typeof p.localPickupAllowed === "boolean"
+        ? p.localPickupAllowed
+        : typeof rawShip.localPickupAllowed === "boolean"
+        ? (rawShip.localPickupAllowed as boolean)
+        : true,
+    );
+    setAirFreightCharge(
+      String(p.airFreightCharge ?? rawShip.airFreightCharge ?? "149")
+    );
+    setSurfaceFreightCharge(
+      String(p.surfaceFreightCharge ?? rawShip.surfaceFreightCharge ?? "99")
+    );
+    setPickupCharge(
+      String(p.pickupCharge ?? rawShip.pickupCharge ?? "0")
+    );
 
     // Pre-populate SEO Settings from Product or _seo json
     setSeoTitle(p.metaTitle || (rawSeo?.metaTitle as string) || "");
@@ -1216,6 +1252,9 @@ export default function AdminProductsPage() {
       airFreightAllowed,
       surfaceFreightAllowed,
       localPickupAllowed,
+      airFreightCharge: parseFloat(airFreightCharge) || 149,
+      surfaceFreightCharge: parseFloat(surfaceFreightCharge) || 99,
+      pickupCharge: parseFloat(pickupCharge) || 0,
       isHazardousItem,
       isBatteryProduct,
       isFragileItem,
@@ -2758,48 +2797,102 @@ export default function AdminProductsPage() {
                         </select>
                       </div>
 
-                      {/* Freight Modes */}
-                      <div className="pt-2 border-t border-slate-200/60">
-                        <span className="block text-xs font-semibold text-slate-700 mb-2">
-                          Allowed Freight Modes
+                      {/* Freight Modes & Custom Delivery Charges */}
+                      <div className="pt-2 border-t border-slate-200/60 space-y-3">
+                        <span className="block text-xs font-semibold text-slate-700">
+                          Allowed Freight Modes &amp; Delivery Charges
                         </span>
-                        <div className="flex flex-wrap items-center gap-5">
-                          <label className="flex items-center gap-2 text-xs font-medium text-slate-800 cursor-pointer">
-                            <input
-                              type="checkbox"
-                              checked={airFreightAllowed}
-                              onChange={(e) =>
-                                setAirFreightAllowed(e.target.checked)
-                              }
-                              disabled={isBatteryProduct || isHazardousItem}
-                              className="rounded text-blue-600 focus:ring-blue-500"
-                            />
-                            <span>Air Freight</span>
-                          </label>
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                          {/* Air Freight */}
+                          <div className={`p-3 rounded-xl border transition-all ${airFreightAllowed ? "bg-white border-blue-200 shadow-2xs" : "bg-slate-50 border-slate-200 opacity-60"}`}>
+                            <label className="flex items-center gap-2 text-xs font-semibold text-slate-800 cursor-pointer mb-2">
+                              <input
+                                type="checkbox"
+                                checked={airFreightAllowed}
+                                onChange={(e) => setAirFreightAllowed(e.target.checked)}
+                                disabled={isBatteryProduct || isHazardousItem}
+                                className="rounded text-blue-600 focus:ring-blue-500"
+                              />
+                              <span>Air Express</span>
+                            </label>
+                            {airFreightAllowed && (
+                              <div className="space-y-1">
+                                <label className="text-[10px] font-semibold text-slate-500 block">
+                                  Delivery Charge (₹)
+                                </label>
+                                <div className="relative flex items-center">
+                                  <span className="absolute left-2.5 text-xs text-slate-400 font-bold">₹</span>
+                                  <input
+                                    type="number"
+                                    value={airFreightCharge}
+                                    onChange={(e) => setAirFreightCharge(e.target.value)}
+                                    placeholder="149"
+                                    className="w-full bg-slate-50 border border-slate-200 rounded-lg pl-6 pr-2.5 py-1 text-xs font-bold text-slate-900 outline-none focus:border-blue-500"
+                                  />
+                                </div>
+                              </div>
+                            )}
+                          </div>
 
-                          <label className="flex items-center gap-2 text-xs font-medium text-slate-800 cursor-pointer">
-                            <input
-                              type="checkbox"
-                              checked={surfaceFreightAllowed}
-                              onChange={(e) =>
-                                setSurfaceFreightAllowed(e.target.checked)
-                              }
-                              className="rounded text-emerald-600 focus:ring-emerald-500"
-                            />
-                            <span>Surface Freight</span>
-                          </label>
+                          {/* Surface Freight */}
+                          <div className={`p-3 rounded-xl border transition-all ${surfaceFreightAllowed ? "bg-white border-emerald-200 shadow-2xs" : "bg-slate-50 border-slate-200 opacity-60"}`}>
+                            <label className="flex items-center gap-2 text-xs font-semibold text-slate-800 cursor-pointer mb-2">
+                              <input
+                                type="checkbox"
+                                checked={surfaceFreightAllowed}
+                                onChange={(e) => setSurfaceFreightAllowed(e.target.checked)}
+                                className="rounded text-emerald-600 focus:ring-emerald-500"
+                              />
+                              <span>Standard Ground</span>
+                            </label>
+                            {surfaceFreightAllowed && (
+                              <div className="space-y-1">
+                                <label className="text-[10px] font-semibold text-slate-500 block">
+                                  Delivery Charge (₹)
+                                </label>
+                                <div className="relative flex items-center">
+                                  <span className="absolute left-2.5 text-xs text-slate-400 font-bold">₹</span>
+                                  <input
+                                    type="number"
+                                    value={surfaceFreightCharge}
+                                    onChange={(e) => setSurfaceFreightCharge(e.target.value)}
+                                    placeholder="99"
+                                    className="w-full bg-slate-50 border border-slate-200 rounded-lg pl-6 pr-2.5 py-1 text-xs font-bold text-slate-900 outline-none focus:border-emerald-500"
+                                  />
+                                </div>
+                              </div>
+                            )}
+                          </div>
 
-                          <label className="flex items-center gap-2 text-xs font-medium text-slate-800 cursor-pointer">
-                            <input
-                              type="checkbox"
-                              checked={localPickupAllowed}
-                              onChange={(e) =>
-                                setLocalPickupAllowed(e.target.checked)
-                              }
-                              className="rounded text-purple-600 focus:ring-purple-500"
-                            />
-                            <span>Local Store Pickup</span>
-                          </label>
+                          {/* Local Store Pickup */}
+                          <div className={`p-3 rounded-xl border transition-all ${localPickupAllowed ? "bg-white border-purple-200 shadow-2xs" : "bg-slate-50 border-slate-200 opacity-60"}`}>
+                            <label className="flex items-center gap-2 text-xs font-semibold text-slate-800 cursor-pointer mb-2">
+                              <input
+                                type="checkbox"
+                                checked={localPickupAllowed}
+                                onChange={(e) => setLocalPickupAllowed(e.target.checked)}
+                                className="rounded text-purple-600 focus:ring-purple-500"
+                              />
+                              <span>Store Pickup</span>
+                            </label>
+                            {localPickupAllowed && (
+                              <div className="space-y-1">
+                                <label className="text-[10px] font-semibold text-slate-500 block">
+                                  Pickup Fee (0 = FREE)
+                                </label>
+                                <div className="relative flex items-center">
+                                  <span className="absolute left-2.5 text-xs text-slate-400 font-bold">₹</span>
+                                  <input
+                                    type="number"
+                                    value={pickupCharge}
+                                    onChange={(e) => setPickupCharge(e.target.value)}
+                                    placeholder="0"
+                                    className="w-full bg-slate-50 border border-slate-200 rounded-lg pl-6 pr-2.5 py-1 text-xs font-bold text-slate-900 outline-none focus:border-purple-500"
+                                  />
+                                </div>
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </div>
 

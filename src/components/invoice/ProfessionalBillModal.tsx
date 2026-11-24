@@ -10,14 +10,13 @@ import {
   X,
   MessageCircle,
   Building2,
-  Edit2,
   Check,
 } from "lucide-react";
 import { STORES, StoreId } from "@/data/storeConfig";
 import { numberToIndianWords } from "@/lib/numberToWords";
 import { PrayogLogo } from "@/components/PrayogLogo";
 
-export type BillFormat = "modern" | "3inchA" | "3inchB" | "2inchA" | "2inchB";
+export type BillFormat = "modern" | "a4" | "3inchA" | "3inchB" | "2inchA" | "2inchB";
 
 export interface BillItem {
   id?: string;
@@ -76,17 +75,18 @@ interface ProfessionalBillModalProps {
   order: BillOrder | null;
   onClose: () => void;
   defaultFormat?: BillFormat;
+  showThermalFormats?: boolean;
 }
 
 export const ProfessionalBillModal: React.FC<ProfessionalBillModalProps> = ({
   order,
   onClose,
   defaultFormat = "modern",
+  showThermalFormats = false,
 }) => {
   const [mounted, setMounted] = useState(false);
   const [activeFormat, setActiveFormat] = useState<BillFormat>(defaultFormat);
-  const [showBankForm, setShowBankForm] = useState(false);
-  const [bankDetails, setBankDetails] = useState({
+  const [bankDetails] = useState({
     bankName: "HDFC Bank / State Bank of India",
     accountName: "Prayog India Mechatronics Pvt Ltd",
     upiId: "8409498926@icici",
@@ -101,6 +101,16 @@ export const ProfessionalBillModal: React.FC<ProfessionalBillModalProps> = ({
       portalRoot.id = "invoice-portal-root";
       document.body.appendChild(portalRoot);
     }
+
+    const prevBodyOverflow = document.body.style.overflow;
+    const prevHtmlOverflow = document.documentElement.style.overflow;
+    document.body.style.overflow = "hidden";
+    document.documentElement.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = prevBodyOverflow;
+      document.documentElement.style.overflow = prevHtmlOverflow;
+    };
   }, []);
 
   if (!order) return null;
@@ -172,9 +182,14 @@ export const ProfessionalBillModal: React.FC<ProfessionalBillModalProps> = ({
 
   const totalQuantity = items.reduce((sum, item) => sum + (item.quantity || 1), 0);
   const totalItemsCount = items.length;
-
+  const itemsSubtotal = items.reduce(
+    (sum, item) =>
+      sum + (item.total || (item.rate || item.price || 0) * (item.quantity || 1)),
+    0
+  );
   // Calculate discount & taxable subtotal
   const discountAmount = order.discount || (totalAmount > 1000 ? 13 : 0);
+  const calculatedShipping = Math.max(0, totalAmount - itemsSubtotal + discountAmount);
   const discountPercent =
     order.discountPercent ||
     (discountAmount > 0
@@ -184,11 +199,32 @@ export const ProfessionalBillModal: React.FC<ProfessionalBillModalProps> = ({
   const subTotalWithoutTax = totalAmount > 0 ? taxableSubtotal : 0;
   const gstAmount = totalAmount - taxableSubtotal;
 
-  const paymentMode = (
+  const rawPaymentMode = (
     order.paymentMode ||
     order.paymentMethod ||
-    "cash"
-  ).toLowerCase();
+    "Cash on Delivery"
+  ).trim();
+
+  const isCod =
+    rawPaymentMode.toLowerCase().includes("cod") ||
+    rawPaymentMode.toLowerCase().includes("cash on delivery") ||
+    rawPaymentMode.toLowerCase().includes("pay on delivery");
+
+  const isOrderPaid =
+    order.isPaid !== undefined
+      ? order.isPaid
+      : !isCod &&
+        (order.status?.toLowerCase() === "paid" ||
+          order.status?.toLowerCase() === "payment confirmed" ||
+          order.status?.toLowerCase() === "delivered");
+
+  const paymentMode = isCod
+    ? "Cash on Delivery (COD)"
+    : rawPaymentMode;
+
+  const receivedAmount = isOrderPaid
+    ? (order.receivedAmount ?? totalAmount)
+    : 0;
 
   const amountInWords = numberToIndianWords(totalAmount);
 
@@ -242,7 +278,7 @@ export const ProfessionalBillModal: React.FC<ProfessionalBillModalProps> = ({
               body { margin: 0; padding: ${
                 isThermal ? "0" : "10px"
               }; background: white !important; color: #000 !important; font-family: Inter, system-ui, -apple-system, sans-serif; }
-              #printable-bill-document { width: 100% !important; max-width: 100% !important; margin: 0 !important; box-shadow: none !important; border: none !important; }
+              #printable-bill-document { width: 100% !important; max-width: 100% !important; min-height: auto !important; margin: 0 !important; box-shadow: none !important; border: none !important; padding: 0 !important; }
               .no-print { display: none !important; }
             </style>
           </head>
@@ -274,7 +310,7 @@ export const ProfessionalBillModal: React.FC<ProfessionalBillModalProps> = ({
     const cleanPhone = customerPhone.replace(/\D/g, "");
     const targetPhone = cleanPhone.length === 10 ? `91${cleanPhone}` : cleanPhone;
     const msg = encodeURIComponent(
-      `Hello ${customerName}!\n\nThank you for shopping with Prayog India.\n\nTax Invoice: #${invoiceNo}\nTotal Items: ${totalItemsCount} (${totalQuantity} Units)\nTotal Amount: ₹${totalAmount.toLocaleString("en-IN")}\nTxn Mode: ${paymentMode.toUpperCase()}\n\nPrayog India - The World of Robotics\nSupport: +91 ${phone}`
+      `Hello ${customerName}!\n\nThank you for shopping with Prayog India.\n\nTax Invoice: #${invoiceNo}\nTotal Items: ${totalItemsCount} (${totalQuantity} Units)\nTotal Amount: ₹${totalAmount.toLocaleString("en-IN")}\nTxn Mode: ${paymentMode.toUpperCase()} (${isOrderPaid ? "PAID" : "DUE ON DELIVERY"})\n\nPrayog India - The World of Robotics\nSupport: +91 ${phone}`
     );
     window.open(`https://wa.me/${targetPhone}?text=${msg}`, "_blank");
   };
@@ -282,8 +318,15 @@ export const ProfessionalBillModal: React.FC<ProfessionalBillModalProps> = ({
   if (!mounted) return null;
 
   return createPortal(
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-2 sm:p-4 print:p-0 print:bg-white print:static">
-      <div className="w-full max-w-4xl bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[95vh] print:max-h-none print:shadow-none print:w-full print:max-w-none print:rounded-none">
+    <div
+      className="fixed inset-0 z-50 overflow-hidden bg-slate-950/75 backdrop-blur-xs flex items-center justify-center p-2 sm:p-4 print:p-0 print:bg-white print:static overscroll-contain select-none"
+      onClick={onClose}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        onWheel={(e) => e.stopPropagation()}
+        className="w-full max-w-4xl bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[95vh] print:max-h-none print:shadow-none print:w-full print:max-w-none print:rounded-none select-auto"
+      >
         
         {/* ── Top Blue Header Bar (Matches user's reference) ── */}
         <div className="bg-[#0084FF] text-white px-4 sm:px-6 py-2.5 flex items-center justify-between gap-3 shadow-xs shrink-0 no-print select-none">
@@ -300,31 +343,33 @@ export const ProfessionalBillModal: React.FC<ProfessionalBillModalProps> = ({
             </span>
           </div>
 
-          {/* Format Tabs: Modern, 3 Inch A, 3 Inch B, 2 Inch A, 2 Inch B */}
-          <div className="flex items-center gap-1.5 overflow-x-auto py-0.5">
-            {[
-              { id: "modern", label: "Modern" },
-              { id: "3inchA", label: "3 Inch A" },
-              { id: "3inchB", label: "3 Inch B" },
-              { id: "2inchA", label: "2 Inch A" },
-              { id: "2inchB", label: "2 Inch B" },
-            ].map((tab) => {
-              const active = activeFormat === tab.id;
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveFormat(tab.id as BillFormat)}
-                  className={`px-3 py-1 rounded-md text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
-                    active
-                      ? "bg-white text-[#0084FF] shadow-xs"
-                      : "bg-white/20 text-white hover:bg-white/30"
-                  }`}
-                >
-                  {tab.label}
-                </button>
-              );
-            })}
-          </div>
+          {/* Format Tabs: Only shown in Store POS counter when thermal formats are enabled */}
+          {showThermalFormats && (
+            <div className="flex items-center gap-1.5 overflow-x-auto py-0.5">
+              {[
+                { id: "modern", label: "A4 Size" },
+                { id: "3inchA", label: "3 Inch A" },
+                { id: "3inchB", label: "3 Inch B" },
+                { id: "2inchA", label: "2 Inch A" },
+                { id: "2inchB", label: "2 Inch B" },
+              ].map((tab) => {
+                const active = activeFormat === tab.id;
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveFormat(tab.id as BillFormat)}
+                    className={`px-3 py-1 rounded-md text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
+                      active
+                        ? "bg-white text-[#0084FF] shadow-xs"
+                        : "bg-white/20 text-white hover:bg-white/30"
+                    }`}
+                  >
+                    {tab.label}
+                  </button>
+                );
+              })}
+            </div>
+          )}
 
           <button
             onClick={onClose}
@@ -335,26 +380,28 @@ export const ProfessionalBillModal: React.FC<ProfessionalBillModalProps> = ({
         </div>
 
         {/* ── Scrollable Document Paper Area ── */}
-        <div className="flex-1 overflow-y-auto p-4 sm:p-8 bg-[#F8FAFC] print:p-0 print:bg-white flex justify-center">
+        <div
+          onWheel={(e) => e.stopPropagation()}
+          className="flex-1 overflow-y-auto p-4 sm:p-8 pb-20 sm:pb-24 bg-slate-100/90 print:p-0 print:bg-white flex justify-center overscroll-contain"
+        >
           
           {/* ========================================================================= */}
-          {/* 1. MODERN A4 FORMAT (Pixel-Perfect Match to User Screenshot 1) */}
+          {/* 1. A4 STANDARD TAX INVOICE FORMAT (210mm x 297mm proportions) */}
           {/* ========================================================================= */}
-          {activeFormat === "modern" && (
-            <div id="printable-bill-document" className="w-full max-w-3xl bg-white border border-slate-200/90 rounded-lg p-6 sm:p-8 shadow-xs text-slate-800 font-sans space-y-4 print:border-none print:shadow-none print:p-0">
+          {(activeFormat === "modern" || activeFormat === "a4") && (
+            <div
+              id="printable-bill-document"
+              className="w-full max-w-[794px] bg-white border border-slate-300/80 rounded-lg p-6 sm:p-10 shadow-lg text-slate-800 font-sans space-y-4 print:border-none print:shadow-none print:p-0 print:m-0 print:w-full print:max-w-none my-1"
+              style={{
+                minHeight: "1050px",
+              }}
+            >
               
-              {/* Header: Company Details (Original Logo, Address, Phone, GSTIN) */}
-              <div className="flex items-start justify-between gap-4 border-b border-slate-100 pb-3">
+              {/* Header: Company Details & A4 Tax Invoice Tag */}
+              <div className="flex items-start justify-between gap-4 border-b border-slate-200 pb-3">
                 <div className="space-y-1">
                   <div className="flex items-center gap-2 pb-1">
                     <PrayogLogo size="md" showSubtitle={false} />
-                    <button
-                      onClick={() => setShowBankForm(!showBankForm)}
-                      className="text-slate-400 hover:text-[#0084FF] text-xs no-print ml-1"
-                      title="Edit Company / Bank Info"
-                    >
-                      <Edit2 className="w-3.5 h-3.5" />
-                    </button>
                   </div>
                   <div className="text-xs text-slate-700 font-medium max-w-md uppercase leading-snug">
                     {storeAddress}
@@ -384,9 +431,11 @@ export const ProfessionalBillModal: React.FC<ProfessionalBillModalProps> = ({
                   <div className="font-black text-slate-900 text-sm">
                     {customerName}
                   </div>
-                  <div className="text-slate-700 font-mono text-xs">
-                    {customerPhone}
-                  </div>
+                  {customerPhone && !customerPhone.includes("000000") && (
+                    <div className="text-slate-700 font-mono text-xs">
+                      {customerPhone}
+                    </div>
+                  )}
                 </div>
 
                 <div className="text-right space-y-1 text-xs">
@@ -450,12 +499,14 @@ export const ProfessionalBillModal: React.FC<ProfessionalBillModalProps> = ({
                             {idx + 1}
                           </td>
                           <td className="py-2 px-3 border-r border-slate-300">
-                            <span className="text-slate-600 font-mono text-xs mr-1">
-                              [{sku}]
-                            </span>
                             <span className="font-bold text-slate-900">
                               {item.name || item.product?.name}
                             </span>
+                            {item.sku && item.sku.length > 2 && !item.sku.match(/^\d+$/) && (
+                              <span className="text-slate-500 font-mono text-[11px] block mt-0.5">
+                                SKU: {item.sku}
+                              </span>
+                            )}
                           </td>
                           <td className="py-2 px-2.5 border-r border-slate-300 text-center font-mono whitespace-nowrap">
                             {qty} NOS
@@ -492,7 +543,7 @@ export const ProfessionalBillModal: React.FC<ProfessionalBillModalProps> = ({
                         ₹{discountAmount.toLocaleString("en-IN")}
                       </td>
                       <td className="py-1.5 px-3 text-right font-mono font-bold text-slate-900">
-                        ₹{totalAmount.toLocaleString("en-IN")}
+                        ₹{itemsSubtotal.toLocaleString("en-IN")}
                       </td>
                     </tr>
                   </tbody>
@@ -500,115 +551,116 @@ export const ProfessionalBillModal: React.FC<ProfessionalBillModalProps> = ({
               </div>
 
               {/* Bottom Summary: Words & Bank on Left, Financials on Right */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-2 text-xs">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-3 border-t border-slate-200/90 text-xs">
                 
-                {/* Left: Invoice Amount in Words & Bank Details */}
-                <div className="space-y-3">
+                {/* Left: Invoice Amount in Words & Company Payment Details (Read-only) */}
+                <div className="space-y-4">
                   <div>
-                    <div className="font-bold text-slate-900 text-xs uppercase tracking-wide">
+                    <div className="font-bold text-slate-500 text-[10px] uppercase tracking-wider">
                       Invoice Amount In Words
                     </div>
-                    <div className="text-slate-800 font-medium text-xs sm:text-sm mt-0.5 capitalize">
+                    <div className="text-slate-900 font-bold text-xs sm:text-sm mt-1 capitalize leading-snug">
                       {amountInWords}
                     </div>
                   </div>
 
-                  <div className="pt-2">
-                    <button
-                      onClick={() => setShowBankForm(!showBankForm)}
-                      className="text-[#0084FF] hover:underline font-semibold flex items-center gap-1 cursor-pointer no-print text-xs"
-                    >
-                      <span>Add Bank Details</span>
-                      <Edit2 className="w-3 h-3" />
-                    </button>
+                  <div className="pt-2 border-t border-slate-100 space-y-1">
+                    <div className="font-bold text-slate-500 text-[10px] uppercase tracking-wider">
+                      Company Payment Details
+                    </div>
+                    <div className="text-[11px] text-slate-700 space-y-0.5 pt-0.5">
+                      <div><span className="font-semibold text-slate-600">Bank:</span> {bankDetails.bankName}</div>
+                      <div><span className="font-semibold text-slate-600">A/c Name:</span> {bankDetails.accountName}</div>
+                      <div><span className="font-semibold text-slate-600">UPI ID:</span> {bankDetails.upiId}</div>
+                    </div>
+                  </div>
 
-                    {showBankForm ? (
-                      <div className="bg-slate-50 border border-slate-200 rounded-lg p-3 space-y-2 mt-2 text-xs no-print">
-                        <div>
-                          <label className="text-[10px] font-bold text-slate-500 uppercase">Bank Name</label>
-                          <input
-                            type="text"
-                            value={bankDetails.bankName}
-                            onChange={(e) => setBankDetails({ ...bankDetails, bankName: e.target.value })}
-                            className="w-full bg-white border border-slate-300 rounded px-2 py-1 text-xs"
-                          />
-                        </div>
-                        <div>
-                          <label className="text-[10px] font-bold text-slate-500 uppercase">Account Name</label>
-                          <input
-                            type="text"
-                            value={bankDetails.accountName}
-                            onChange={(e) => setBankDetails({ ...bankDetails, accountName: e.target.value })}
-                            className="w-full bg-white border border-slate-300 rounded px-2 py-1 text-xs"
-                          />
-                        </div>
-                        <div>
-                          <label className="text-[10px] font-bold text-slate-500 uppercase">UPI ID</label>
-                          <input
-                            type="text"
-                            value={bankDetails.upiId}
-                            onChange={(e) => setBankDetails({ ...bankDetails, upiId: e.target.value })}
-                            className="w-full bg-white border border-slate-300 rounded px-2 py-1 text-xs"
-                          />
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="text-[11px] text-slate-600 space-y-0.5 pt-1">
-                        <div>Bank: {bankDetails.bankName}</div>
-                        <div>A/c: {bankDetails.accountName}</div>
-                        <div>UPI: {bankDetails.upiId}</div>
-                      </div>
-                    )}
+                  <div className="text-[10px] text-slate-400 leading-tight pt-1">
+                    * This is an official computer-generated GST tax invoice. No signature required.
                   </div>
                 </div>
 
-                {/* Right: Exact Financial Calculations matching reference image */}
-                <div className="space-y-1.5 text-xs">
+                {/* Right: Structured Financial & Payment Box */}
+                <div className="bg-slate-50/80 border border-slate-200/90 rounded-xl p-3.5 space-y-2 text-xs">
                   <div className="flex justify-between text-slate-700">
-                    <span>
-                      Sub Total <span className="text-[11px] text-slate-500">without Tax</span>
-                    </span>
+                    <span>Items Subtotal</span>
                     <span className="font-mono text-slate-900 font-semibold">
-                      ₹{subTotalWithoutTax.toLocaleString("en-IN")}
+                      ₹{itemsSubtotal.toLocaleString("en-IN")}
                     </span>
                   </div>
 
-                  <div className="flex justify-between text-slate-700">
-                    <span>
-                      Cash Discount
-                    </span>
-                    <span className="font-mono text-slate-900 font-semibold">
-                      ₹{discountAmount} ({discountPercent}%)
-                    </span>
+                  {calculatedShipping > 0 && (
+                    <div className="flex justify-between text-slate-700">
+                      <span>Shipping &amp; Delivery</span>
+                      <span className="font-mono text-slate-900 font-semibold">
+                        ₹{calculatedShipping.toLocaleString("en-IN")}
+                      </span>
+                    </div>
+                  )}
+
+                  {discountAmount > 0 && (
+                    <div className="flex justify-between text-emerald-700 font-medium">
+                      <span>Cash Discount</span>
+                      <span className="font-mono font-semibold">
+                        -₹{discountAmount.toLocaleString("en-IN")} ({discountPercent}%)
+                      </span>
+                    </div>
+                  )}
+
+                  <div className="flex justify-between text-slate-500 text-[10px] pt-1 border-t border-slate-200">
+                    <span>Taxable: ₹{subTotalWithoutTax.toLocaleString("en-IN")}</span>
+                    <span>GST (18% Included): ₹{gstAmount.toLocaleString("en-IN")}</span>
                   </div>
 
-                  <div className="flex justify-between font-black text-slate-950 text-sm sm:text-base pt-1 border-t border-slate-300">
+                  <div className="flex justify-between font-black text-slate-950 text-sm sm:text-base pt-1 border-t-2 border-slate-300">
                     <span>TOTAL AMOUNT</span>
                     <span className="font-mono text-slate-950">
                       ₹{totalAmount.toLocaleString("en-IN")}
                     </span>
                   </div>
 
-                  <div className="flex justify-between text-slate-700">
-                    <span>Received Amount</span>
-                    <span className="font-mono text-slate-900 font-semibold">
-                      ₹{totalAmount.toLocaleString("en-IN")}
-                    </span>
+                  {/* Payment Breakdown Card */}
+                  <div className="pt-2 border-t border-slate-200 space-y-1.5">
+                    <div className="flex justify-between items-center text-slate-700">
+                      <span className="font-medium">Txn Mode :</span>
+                      <span className="font-mono font-bold uppercase text-slate-900">
+                        {paymentMode}
+                      </span>
+                    </div>
+
+                    <div className="flex justify-between items-center text-slate-700">
+                      <span className="font-medium">Payment Status :</span>
+                      <span
+                        className={`text-[10px] font-extrabold uppercase px-2 py-0.5 rounded tracking-wide ${
+                          isOrderPaid
+                            ? "bg-emerald-100 text-emerald-800 border border-emerald-200"
+                            : "bg-amber-100 text-amber-800 border border-amber-200"
+                        }`}
+                      >
+                        {isOrderPaid ? "PAID" : "PENDING (COD)"}
+                      </span>
+                    </div>
+
+                    <div className="flex justify-between items-center pt-0.5">
+                      <span className="font-medium text-slate-700">
+                        {isOrderPaid ? "Received Amount :" : "Amount Due on Delivery :"}
+                      </span>
+                      <span
+                        className={`font-mono font-bold text-xs sm:text-sm ${
+                          isOrderPaid ? "text-emerald-700" : "text-amber-800"
+                        }`}
+                      >
+                        ₹{totalAmount.toLocaleString("en-IN")}
+                      </span>
+                    </div>
                   </div>
 
-                  <div className="flex justify-between text-slate-700">
-                    <span>Txn Mode :</span>
-                    <span className="font-mono text-slate-900 font-semibold uppercase">
-                      {paymentMode}
-                    </span>
-                  </div>
-
-                  <div className="flex justify-between font-black text-slate-950 pt-1">
-                    <span>TOTAL SAVING</span>
-                    <span className="font-mono">
-                      ₹{discountAmount}
-                    </span>
-                  </div>
+                  {discountAmount > 0 && (
+                    <div className="flex justify-between font-bold text-emerald-700 pt-1 border-t border-slate-200 text-[11px]">
+                      <span>TOTAL SAVINGS</span>
+                      <span className="font-mono">₹{discountAmount}</span>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -709,7 +761,9 @@ export const ProfessionalBillModal: React.FC<ProfessionalBillModalProps> = ({
 
                 <div className="flex justify-between text-[11px] text-slate-700">
                   <span>Payment Mode: {paymentMode.toUpperCase()}</span>
-                  <span>Status: PAID</span>
+                  <span className={isOrderPaid ? "text-emerald-700 font-bold" : "text-amber-700 font-bold"}>
+                    Status: {isOrderPaid ? "PAID" : "PENDING (COD)"}
+                  </span>
                 </div>
               </div>
 
@@ -757,7 +811,9 @@ export const ProfessionalBillModal: React.FC<ProfessionalBillModalProps> = ({
                   <span>NET PAYABLE</span>
                   <span>₹{totalAmount.toLocaleString("en-IN")}</span>
                 </div>
-                <div className="text-[9px] text-slate-600">MODE: {paymentMode.toUpperCase()} (PAID)</div>
+                <div className="text-[9px] text-slate-600">
+                  MODE: {paymentMode.toUpperCase()} ({isOrderPaid ? "PAID" : "DUE ON DELIVERY"})
+                </div>
               </div>
 
               <div className="text-center text-[8px] text-slate-500 pt-1">
@@ -771,8 +827,12 @@ export const ProfessionalBillModal: React.FC<ProfessionalBillModalProps> = ({
         {/* ── Cohesive Bottom Action Bar (Matches reference styling) ── */}
         <div className="bg-white border-t border-slate-200 px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-3 shrink-0 no-print select-none">
           <div className="text-xs font-bold text-slate-600">
-            <span>Bill View: <strong className="text-slate-900 uppercase">{activeFormat}</strong></span>
-            <span className="mx-2 text-slate-300">•</span>
+            {showThermalFormats && (
+              <>
+                <span>Bill View: <strong className="text-slate-900 uppercase">{activeFormat === "modern" || activeFormat === "a4" ? "A4 SIZE" : activeFormat}</strong></span>
+                <span className="mx-2 text-slate-300">•</span>
+              </>
+            )}
             <span>Invoice: <strong className="text-[#0084FF] font-mono">{invoiceNo}</strong></span>
           </div>
 

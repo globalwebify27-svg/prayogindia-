@@ -25,6 +25,14 @@ export interface ProductReview {
   title?: string;
   avatar?: string;
   helpfulCount?: number;
+  images?: string[];
+  videoUrl?: string;
+  isFeatured?: boolean;
+  status?: "APPROVED" | "PENDING" | "REJECTED";
+  productId?: string;
+  productSlug?: string;
+  productSku?: string;
+  productName?: string;
 }
 
 export type ShippingTag =
@@ -74,6 +82,10 @@ export interface Product {
   airFreightAllowed?: boolean;
   surfaceFreightAllowed?: boolean;
   localPickupAllowed?: boolean;
+  shippingCharge?: number;
+  airFreightCharge?: number;
+  surfaceFreightCharge?: number;
+  pickupCharge?: number;
 
   // Section 6: Search Engine Optimization (SEO) & OpenGraph
   metaTitle?: string;

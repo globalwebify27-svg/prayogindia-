@@ -41,6 +41,7 @@ import {
   CreditCard,
   Search,
   Briefcase,
+  Star,
 } from "lucide-react";
 import { PrayogLogo } from "@/components/PrayogLogo";
 
@@ -209,6 +210,12 @@ const NAV_GROUPS: NavGroup[] = [
         label: "Rewards & Loyalty",
         href: "/admin/rewards",
         icon: Award,
+      },
+      {
+        label: "Reviews & Ratings",
+        href: "/admin/reviews",
+        icon: Star,
+        badge: "NEW",
       },
       {
         label: "WhatsApp Automation",

@@ -22,11 +22,13 @@ import {
   Check,
   Search,
   X,
+  Star,
 } from "lucide-react";
 import {
   ProfessionalBillModal,
   BillOrder,
 } from "@/components/invoice/ProfessionalBillModal";
+import { RateAndReviewModal } from "@/components/reviews/RateAndReviewModal";
 
 export type OrderTab =
   | "all"
@@ -48,6 +50,13 @@ const TABS: Array<{ key: OrderTab; label: string }> = [
 function customerOrderToBillOrder(ord: CustomerOrder, user?: any): BillOrder {
   const subtotal = ord.subtotal || Math.round(ord.totalAmount / 1.18);
   const tax = ord.gstAmount || Math.round(ord.totalAmount - subtotal);
+  const rawMethod = (ord.paymentMethod || ord.paymentMode || "").toLowerCase();
+  const isCod = rawMethod.includes("cod") || rawMethod.includes("cash on delivery") || rawMethod.includes("cash-on-delivery");
+  const isPaid = ord.isPaid !== undefined ? ord.isPaid : (!isCod && ord.status !== "Order Placed");
+  const paymentMode = isCod
+    ? "Cash on Delivery (COD)"
+    : (ord.paymentMethod || ord.paymentMode || "UPI / NetBanking");
+
   return {
     id: ord.id,
     orderNumber: ord.orderNumber,
@@ -60,7 +69,10 @@ function customerOrderToBillOrder(ord: CustomerOrder, user?: any): BillOrder {
     customerEmail: user?.email || "customer@prayogindia.com",
     shippingAddress: ord.shippingAddress,
     customerGstin: user?.gstin || "20AAECP1234F1Z5",
-    paymentMode: "UPI / NetBanking",
+    paymentMode,
+    paymentMethod: paymentMode,
+    isPaid,
+    receivedAmount: isPaid ? ord.totalAmount : 0,
     items: (ord.items || []).map((item) => ({
       id: item.id,
       name: item.name,
@@ -130,36 +142,6 @@ function matchesTab(statusStr: string, tab: OrderTab): boolean {
   }
 }
 
-function getStatusBadgeConfig(status: string) {
-  const s = status?.toLowerCase() || "";
-  if (s.includes("delivered") || s.includes("arrived")) {
-    return {
-      className: "bg-emerald-50 text-emerald-700 border-emerald-200/80",
-      icon: CheckCircle2,
-      label: "Delivered",
-    };
-  }
-  if (s.includes("shipped") || s.includes("out for delivery")) {
-    return {
-      className: "bg-sky-50 text-sky-700 border-sky-200/80",
-      icon: Truck,
-      label: "Shipped",
-    };
-  }
-  if (s.includes("cancelled")) {
-    return {
-      className: "bg-rose-50 text-rose-700 border-rose-200/80",
-      icon: XCircle,
-      label: "Cancelled",
-    };
-  }
-  return {
-    className: "bg-amber-50 text-amber-700 border-amber-200/80",
-    icon: Clock,
-    label: "Processing",
-  };
-}
-
 function getProductThumbnail(item: { id?: string; name?: string; image?: string; sku?: string }) {
   if (item.image && item.image !== "/placeholder.png" && !item.image.includes("placeholder")) {
     return item.image;
@@ -201,6 +183,13 @@ export const OrdersList: React.FC = () => {
   const [allUserOrders, setAllUserOrders] = useState<CustomerOrder[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedInvoiceOrder, setSelectedInvoiceOrder] = useState<CustomerOrder | null>(null);
+  const [reviewProduct, setReviewProduct] = useState<{
+    id: string;
+    name: string;
+    image?: string;
+    sku?: string;
+    orderId?: string;
+  } | null>(null);
   const [isInvoiceAction, setIsInvoiceAction] = useState(false);
   const [copiedOrderNum, setCopiedOrderNum] = useState<string | null>(null);
 
@@ -249,6 +238,10 @@ export const OrdersList: React.FC = () => {
               shippingAddress: o.shippingAddress,
               trackingNumber: o.shipment?.trackingNumber,
               courierName: o.shipment?.courierName,
+              paymentMethod: o.paymentMethod,
+              paymentMode: o.paymentMethod,
+              paymentStatus: o.paymentStatus,
+              isPaid: o.paymentStatus === "PAID" || o.isPaid,
               items:
                 o.items?.map((item: any) => ({
                   id: item.productId,
@@ -355,6 +348,10 @@ export const OrdersList: React.FC = () => {
                 totalAmount: o.totalAmount || 0,
                 subtotal: o.subtotal || o.totalAmount || 0,
                 status: formatStatus(o.status || "ORDER_PLACED"),
+                paymentMethod: o.paymentMethod,
+                paymentMode: o.paymentMode || o.paymentMethod,
+                paymentStatus: o.paymentStatus || (o.isPaid ? "PAID" : "PENDING"),
+                isPaid: !!o.isPaid,
                 itemsCount: resolvedItems.length,
                 shippingAddress: o.shippingAddress || "",
                 items: resolvedItems,
@@ -442,33 +439,28 @@ export const OrdersList: React.FC = () => {
   }, [filteredOrders, page]);
 
   return (
-    <div className="space-y-4 text-slate-900 w-full max-w-full">
-      {/* Header Info Bar */}
-      <div className="flex items-center justify-between gap-2 pb-1 px-0.5">
-        <div>
-          <h1 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
-            My Orders
-          </h1>
-          <p className="text-xs text-slate-500 font-medium mt-0.5">
-            {allUserOrders.length}{" "}
-            {allUserOrders.length === 1 ? "order placed" : "orders placed"}
-          </p>
+    <div className="space-y-4 text-slate-900 w-full max-w-full font-sans">
+      {/* ── 1. Top Breadcrumb & Orders Count ── */}
+      <div className="flex items-center justify-between text-xs text-slate-500 px-0.5">
+        <div className="hidden sm:flex items-center gap-1.5 text-xs text-slate-500 font-medium">
+          <Link href="/" className="hover:text-[#2563EB] transition-colors">Home</Link>
+          <span>›</span>
+          <Link href="/account" className="hover:text-[#2563EB] transition-colors">My Account</Link>
+          <span>›</span>
+          <span className="text-slate-900 font-bold">My Orders</span>
         </div>
-        <Link
-          href="/products"
-          className="text-xs font-bold text-[#2563EB] hover:underline shrink-0"
-        >
-          Browse Products →
-        </Link>
+        <span className="text-xs text-slate-600 font-bold ml-auto sm:ml-0">
+          {allUserOrders.length} {allUserOrders.length === 1 ? "Order Placed" : "Orders Placed"}
+        </span>
       </div>
 
       {/* Invoice Mode Guidance Banner */}
       {isInvoiceAction && (
         <div className="bg-sky-50 border border-sky-200/80 rounded-2xl p-4 flex items-center justify-between gap-3 text-xs text-slate-700 animate-in fade-in shadow-2xs">
           <div className="flex items-center gap-2.5">
-            <FileText className="w-5 h-5 text-[#2563EB] shrink-0" />
+            <FileText className="w-4 h-4 text-[#2563EB] shrink-0" />
             <span>
-              <strong>Download Invoices:</strong> Tap <strong>Download Invoice</strong> on any order below to view and download your official GST tax invoice.
+              <strong>Download Invoices:</strong> Click <strong>Download Invoice</strong> next to any delivered or confirmed item below to view your official GST tax invoice.
             </span>
           </div>
           <button
@@ -481,11 +473,9 @@ export const OrdersList: React.FC = () => {
         </div>
       )}
 
-      {/* Search Bar & Order Tabs Toolbar */}
-      <div className="bg-white rounded-2xl border border-slate-200/80 p-3 sm:p-4 shadow-2xs space-y-3">
-        {/* Search Input */}
-        <div className="relative">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+      {/* ── 2. Prayog India Signature Search Bar (Rounded-2xl with #2563EB CTA) ── */}
+      <div className="bg-white border border-slate-200/90 rounded-2xl shadow-2xs p-1.5 flex items-center gap-2">
+        <div className="relative flex-1 flex items-center">
           <input
             type="text"
             value={searchQuery}
@@ -493,8 +483,8 @@ export const OrdersList: React.FC = () => {
               setSearchQuery(e.target.value);
               setPage(1);
             }}
-            placeholder="Search by Order ID, product name, or tracking number..."
-            className="w-full bg-slate-50/70 border border-slate-200 rounded-xl px-3.5 py-2 pl-9 pr-9 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/10 transition-all"
+            placeholder="Search your orders here"
+            className="w-full px-4 py-2.5 text-xs sm:text-sm text-slate-900 placeholder-slate-400 focus:outline-none bg-transparent"
           />
           {searchQuery && (
             <button
@@ -503,56 +493,30 @@ export const OrdersList: React.FC = () => {
                 setSearchQuery("");
                 setPage(1);
               }}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5 rounded cursor-pointer"
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1 cursor-pointer"
               title="Clear Search"
             >
-              <X className="w-3.5 h-3.5" />
+              <X className="w-4 h-4" />
             </button>
           )}
         </div>
-
-        {/* Status Filter Tabs */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
-          {TABS.map((tab) => {
-            const count = statusCounts[tab.key] ?? 0;
-            const isActive = activeTab === tab.key;
-            return (
-              <button
-                key={tab.key}
-                type="button"
-                onClick={() => {
-                  setActiveTab(tab.key);
-                  setPage(1);
-                }}
-                className={`text-xs font-bold px-3 py-1.5 rounded-xl transition-all cursor-pointer whitespace-nowrap shrink-0 flex items-center gap-1.5 ${
-                  isActive
-                    ? "bg-[#0A1128] text-white shadow-2xs"
-                    : "bg-slate-100/80 hover:bg-slate-200/70 text-slate-600 hover:text-slate-900"
-                }`}
-              >
-                <span>{tab.label}</span>
-                <span
-                  className={`text-[10px] px-1.5 py-0.5 rounded-full font-extrabold ${
-                    isActive
-                      ? "bg-white/20 text-white"
-                      : "bg-slate-200 text-slate-600"
-                  }`}
-                >
-                  {count}
-                </span>
-              </button>
-            );
-          })}
-        </div>
+        <button
+          type="button"
+          onClick={() => setPage(1)}
+          className="bg-[#2563EB] hover:bg-[#1D4ED8] active:bg-[#1E40AF] text-white px-5 sm:px-7 py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 cursor-pointer transition-all shadow-xs shrink-0 active:scale-95"
+        >
+          <Search className="w-4 h-4" />
+          <span className="hidden sm:inline">Search Orders</span>
+        </button>
       </div>
 
-      {/* Main Order Content */}
+      {/* ── 3. Main Prayog Orders List (Rounded-2xl Cards) ── */}
       {loading ? (
-        <div className="p-12 text-center text-xs text-slate-400 bg-white rounded-2xl border border-slate-200/80 shadow-2xs animate-pulse">
+        <div className="p-14 text-center text-xs text-slate-400 bg-white rounded-2xl border border-slate-200/90 shadow-2xs animate-pulse">
           Loading your orders...
         </div>
       ) : paginatedOrders.length === 0 ? (
-        <div className="text-center py-16 space-y-3 bg-white rounded-2xl border border-slate-200/80 shadow-2xs px-4">
+        <div className="text-center py-16 space-y-3 bg-white rounded-2xl border border-slate-200/90 shadow-2xs px-4">
           <ShoppingBag className="w-12 h-12 text-slate-300 mx-auto" />
           <h3 className="text-sm font-bold text-slate-900">
             {searchQuery
@@ -566,7 +530,7 @@ export const OrdersList: React.FC = () => {
               ? "Try adjusting your search query or clear the filter to view all orders."
               : activeTab !== "all"
               ? "You do not have any orders currently under this status filter."
-              : "Explore our robotics kits, development boards, and components."}
+              : "Explore our robotics kits, development boards, and STEM electronics."}
           </p>
           {searchQuery ? (
             <button
@@ -593,7 +557,7 @@ export const OrdersList: React.FC = () => {
           ) : (
             <Link
               href="/products"
-              className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#0A1128] hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition-all shadow-xs"
+              className="inline-flex items-center gap-1.5 px-5 py-2.5 bg-[#2563EB] hover:bg-[#1D4ED8] active:bg-[#1E40AF] text-white rounded-xl text-xs font-bold transition-all shadow-sm active:scale-95"
             >
               <span>Start Shopping</span>
               <ChevronRight className="w-3.5 h-3.5" />
@@ -601,16 +565,17 @@ export const OrdersList: React.FC = () => {
           )}
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-3.5">
           {paginatedOrders.map((ord) => {
-            const badgeConfig = getStatusBadgeConfig(ord.status);
-            const BadgeIcon = badgeConfig.icon;
-            const isDelivered =
-              ord.status?.toLowerCase().includes("delivered") ||
-              ord.status?.toLowerCase().includes("arrived");
-            const isShipped =
-              ord.status?.toLowerCase().includes("shipped") ||
-              ord.status?.toLowerCase().includes("out for delivery");
+            const rawStatus = (ord.status || "").toLowerCase();
+            const isDelivered = rawStatus.includes("delivered") || rawStatus.includes("arrived");
+            const isShipped = rawStatus.includes("shipped") || rawStatus.includes("out for delivery");
+            const isCancelled = rawStatus.includes("cancelled");
+            const isPendingOrProcessing = !isDelivered && !isShipped && !isCancelled;
+
+            const isCod =
+              ord.paymentMethod?.toLowerCase().includes("cod") ||
+              ord.paymentMethod?.toLowerCase().includes("cash on delivery");
 
             const displayItems =
               ord.items && ord.items.length > 0
@@ -630,217 +595,330 @@ export const OrdersList: React.FC = () => {
             return (
               <div
                 key={ord.id}
-                className="bg-white rounded-2xl border border-slate-200/80 shadow-2xs hover:shadow-xs transition-all overflow-hidden"
+                onClick={() => router.push(`/account/orders/${ord.id}`)}
+                className="bg-white border border-slate-200/90 rounded-2xl hover:shadow-xs transition-all p-4 sm:p-5 cursor-pointer divide-y divide-slate-100"
               >
-                {/* ── 1. Order Card Header Bar ── */}
-                <div className="bg-slate-50/80 px-4 sm:px-6 py-3.5 border-b border-slate-200/70 flex flex-wrap items-center justify-between gap-3 text-xs">
-                  {/* Left Metadata Columns */}
-                  <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
-                    <div>
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
-                        Order Placed
-                      </span>
-                      <span className="font-bold text-slate-800 text-xs">
-                        {ord.date}
-                      </span>
-                    </div>
+                {displayItems.map((item, idx) => {
+                  const itemImg = getProductThumbnail(item);
+                  const itemTotal =
+                    item.price && item.quantity
+                      ? item.price * item.quantity
+                      : ord.totalAmount;
 
-                    <div>
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
-                        Total Amount
-                      </span>
-                      <span className="font-extrabold text-slate-900 text-xs sm:text-sm">
-                        ₹{ord.totalAmount.toLocaleString("en-IN")}
-                      </span>
-                    </div>
+                  return (
+                    <div key={idx} className="first:pt-0 pt-4">
+                      {/* ── Mobile Layout (< md) ── */}
+                      <div className="md:hidden space-y-3">
+                        {/* 1. Product Thumbnail + Details & Price */}
+                        <div className="flex items-start gap-3">
+                          <div className="w-16 h-16 shrink-0 relative bg-slate-50 border border-slate-200/80 rounded-xl flex items-center justify-center p-1">
+                            <Image
+                              src={itemImg}
+                              alt={item.name}
+                              fill
+                              sizes="64px"
+                              className="object-contain p-0.5"
+                            />
+                          </div>
 
-                    <div>
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
-                        Order Number
-                      </span>
-                      <div className="flex items-center gap-1.5">
-                        <span className="font-mono font-bold text-slate-900 text-xs">
-                          #{ord.orderNumber}
-                        </span>
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            if (typeof navigator !== "undefined" && navigator.clipboard) {
-                              navigator.clipboard.writeText(ord.orderNumber);
-                              setCopiedOrderNum(ord.orderNumber);
-                              setTimeout(() => setCopiedOrderNum(null), 1500);
-                            }
-                          }}
-                          className="p-1 text-slate-400 hover:text-slate-700 rounded-md hover:bg-slate-200/60 transition-colors cursor-pointer"
-                          title="Copy Order Number"
-                        >
-                          {copiedOrderNum === ord.orderNumber ? (
-                            <Check className="w-3.5 h-3.5 text-emerald-600" />
-                          ) : (
-                            <Copy className="w-3.5 h-3.5" />
-                          )}
-                        </button>
-                      </div>
-                    </div>
-                  </div>
+                          <div className="min-w-0 flex-1 space-y-1">
+                            <span className="font-bold text-slate-900 text-xs hover:text-[#2563EB] line-clamp-2 block transition-colors leading-snug">
+                              {item.name}
+                            </span>
 
-                  {/* Right Header Actions: Download Invoice & View Details */}
-                  <div className="flex items-center gap-2">
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setSelectedInvoiceOrder(ord);
-                      }}
-                      className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-white hover:bg-slate-100 border border-slate-300 text-slate-800 hover:text-[#2563EB] rounded-xl text-xs font-bold transition-all shadow-2xs cursor-pointer active:scale-95"
-                      title="Download Official GST Tax Invoice"
-                    >
-                      <Download className="w-3.5 h-3.5 text-[#2563EB]" />
-                      <span>Download Invoice</span>
-                    </button>
-
-                    <Link
-                      href={`/account/orders/${ord.id}`}
-                      className="hidden sm:inline-flex items-center gap-1 px-3 py-1.5 text-xs font-bold text-slate-600 hover:text-slate-900 hover:bg-slate-200/50 rounded-xl transition-all"
-                    >
-                      <span>View Details</span>
-                      <ChevronRight className="w-3.5 h-3.5" />
-                    </Link>
-                  </div>
-                </div>
-
-                {/* ── 2. Order Body: Status + Product Items ── */}
-                <div className="p-4 sm:p-6 space-y-4">
-                  {/* Status Banner */}
-                  <div className="flex items-center justify-between flex-wrap gap-2 pb-3 border-b border-slate-100">
-                    <div className="flex items-center gap-2.5">
-                      <span
-                        className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border ${badgeConfig.className}`}
-                      >
-                        <BadgeIcon className="w-3.5 h-3.5" />
-                        <span>{badgeConfig.label}</span>
-                      </span>
-                      <span className="text-xs text-slate-600 font-medium">
-                        {isDelivered
-                          ? `Package delivered on ${ord.date}`
-                          : isShipped
-                          ? `In transit with ${ord.courierName || "Express Courier"}`
-                          : "Processing order at Prayog central warehouse"}
-                      </span>
-                    </div>
-
-                    <Link
-                      href={`/account/orders/${ord.id}`}
-                      className="sm:hidden text-xs font-bold text-[#2563EB] inline-flex items-center gap-0.5 hover:underline"
-                    >
-                      <span>View Details</span>
-                      <ChevronRight className="w-3.5 h-3.5" />
-                    </Link>
-                  </div>
-
-                  {/* ── List of Products in this Order ── */}
-                  <div className="divide-y divide-slate-100">
-                    {displayItems.map((item, idx) => {
-                      const itemImg = getProductThumbnail(item);
-                      return (
-                        <div
-                          key={idx}
-                          className="py-3.5 first:pt-1 last:pb-1 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
-                        >
-                          {/* Product Image + Details */}
-                          <div className="flex items-start sm:items-center gap-4 min-w-0 flex-1">
-                            <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl bg-slate-50 border border-slate-200/80 p-1.5 shrink-0 relative overflow-hidden flex items-center justify-center">
-                              <Image
-                                src={itemImg}
-                                alt={item.name}
-                                fill
-                                sizes="80px"
-                                className="object-contain p-1"
-                              />
+                            <div className="flex items-baseline gap-1.5 pt-0.5">
+                              <span className="text-sm font-black text-slate-900">
+                                ₹{itemTotal.toLocaleString("en-IN")}
+                              </span>
+                              <span className="text-[10px] text-slate-500 font-medium">
+                                ({isCod ? "Cash on Delivery" : (ord.paymentMethod || "Prepaid")})
+                              </span>
                             </div>
 
-                            <div className="min-w-0 flex-1 space-y-1">
-                              <Link
-                                href={
-                                  item.slug
-                                    ? `/products/${item.slug}`
-                                    : `/account/orders/${ord.id}`
-                                }
-                                className="font-bold text-slate-900 text-xs sm:text-sm hover:text-[#2563EB] line-clamp-2 transition-colors block"
-                              >
-                                {item.name}
-                              </Link>
+                            <div className="flex items-center gap-1.5 text-[10px] text-slate-400 font-mono pt-0.5 flex-wrap">
+                              <span>Qty: {item.quantity || 1}</span>
+                              {item.sku && <span>• SKU: {item.sku}</span>}
+                              <span>• #{ord.orderNumber}</span>
+                            </div>
+                          </div>
+                        </div>
 
-                              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-500 font-medium">
-                                <span>
-                                  Qty:{" "}
-                                  <strong className="text-slate-800">
-                                    {item.quantity}
-                                  </strong>
+                        {/* 2. Full-Width Status Block & Action Buttons */}
+                        <div className="pt-2.5 border-t border-slate-100 space-y-2">
+                          {isDelivered && (
+                            <div>
+                              <div className="flex items-center gap-1.5">
+                                <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
+                                <span className="font-bold text-xs text-slate-900">
+                                  Delivered on {ord.date}
                                 </span>
-                                <span>•</span>
-                                <span>
-                                  Price:{" "}
-                                  <strong className="text-slate-800">
-                                    ₹
-                                    {(
-                                      item.price ||
-                                      Math.round(
-                                        ord.totalAmount /
-                                          (displayItems.length || 1)
-                                      )
-                                    ).toLocaleString("en-IN")}
-                                  </strong>
+                              </div>
+                              <p className="text-[11px] text-slate-500 pl-3.5">
+                                Your item has been delivered
+                              </p>
+                            </div>
+                          )}
+
+                          {isShipped && (
+                            <div>
+                              <div className="flex items-center gap-1.5">
+                                <span className="w-2 h-2 rounded-full bg-blue-500 shrink-0" />
+                                <span className="font-bold text-xs text-slate-900">
+                                  Shipped on {ord.date}
                                 </span>
+                              </div>
+                              <p className="text-[11px] text-slate-500 pl-3.5">
+                                Your item is in transit with {ord.courierName || "Express Courier"}
+                              </p>
+                            </div>
+                          )}
+
+                          {isCancelled && (
+                            <div>
+                              <div className="flex items-center gap-1.5">
+                                <span className="w-2 h-2 rounded-full bg-rose-500 shrink-0" />
+                                <span className="font-bold text-xs text-slate-900">
+                                  Cancelled on {ord.date}
+                                </span>
+                              </div>
+                              <p className="text-[11px] text-slate-500 pl-3.5">
+                                Your order was cancelled as per your request
+                              </p>
+                            </div>
+                          )}
+
+                          {isPendingOrProcessing && (
+                            <div>
+                              <div className="flex items-center gap-1.5">
+                                <span className="w-2 h-2 rounded-full bg-amber-500 shrink-0" />
+                                <span className="font-bold text-xs text-slate-900">
+                                  Order Placed on {ord.date}
+                                </span>
+                              </div>
+                              <p className="text-[11px] text-slate-500 pl-3.5">
+                                Processing order at Prayog central warehouse
+                              </p>
+                            </div>
+                          )}
+
+                          {/* Mobile Action Buttons Bar */}
+                          <div className="flex items-center justify-between gap-2 pt-0.5 flex-wrap">
+                            {isDelivered ? (
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setReviewProduct({
+                                    id: item.id || item.sku || `item-${idx}`,
+                                    name: item.name,
+                                    image: itemImg,
+                                    sku: item.sku,
+                                    orderId: ord.id,
+                                  });
+                                }}
+                                className="inline-flex items-center gap-1.5 text-xs font-bold text-[#2563EB] hover:text-[#1D4ED8] bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-lg active:scale-95 transition-all cursor-pointer"
+                              >
+                                <Star className="w-3.5 h-3.5 fill-[#FFC200] text-[#FFC200]" />
+                                <span>Rate &amp; Review Product</span>
+                              </button>
+                            ) : isPendingOrProcessing || isShipped ? (
+                              <span className="text-xs font-bold text-[#2563EB]">
+                                Track Status
+                              </span>
+                            ) : null}
+
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedInvoiceOrder(ord);
+                              }}
+                              className="inline-flex items-center gap-1 text-xs font-medium text-slate-600 bg-slate-50 hover:bg-slate-100 border border-slate-200/80 px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer ml-auto"
+                              title="Download Invoice"
+                            >
+                              <Download className="w-3.5 h-3.5 text-slate-500" />
+                              <span>Invoice</span>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* ── Desktop Layout (hidden md:grid md:grid-cols-12) ── */}
+                      <div className="hidden md:grid md:grid-cols-12 gap-4 items-center">
+                        {/* Column 1 & 2: Product Thumbnail & Details */}
+                        <div className="col-span-6 flex items-start gap-3.5 min-w-0">
+                          <div className="w-20 h-20 shrink-0 relative bg-slate-50 border border-slate-200/80 rounded-xl flex items-center justify-center p-1.5">
+                            <Image
+                              src={itemImg}
+                              alt={item.name}
+                              fill
+                              sizes="80px"
+                              className="object-contain p-0.5"
+                            />
+                          </div>
+
+                          <div className="min-w-0 flex-1 space-y-1">
+                            <span className="font-bold text-slate-900 text-sm hover:text-[#2563EB] line-clamp-2 block transition-colors leading-snug">
+                              {item.name}
+                            </span>
+
+                            <div className="text-xs text-slate-500 font-medium space-y-0.5">
+                              <div>
+                                <span>Qty: {item.quantity || 1}</span>
                                 {item.sku && (
-                                  <>
-                                    <span>•</span>
-                                    <span className="font-mono text-[11px] text-slate-400">
-                                      SKU: {item.sku}
-                                    </span>
-                                  </>
+                                  <span className="text-slate-400"> • SKU: {item.sku}</span>
                                 )}
                               </div>
 
-                              <p className="text-[11px] text-emerald-600 font-semibold flex items-center gap-1">
-                                <CheckCircle2 className="w-3 h-3" />
-                                <span>Genuine Prayog Hardware (100% Tested)</span>
-                              </p>
+                              <div className="flex items-center gap-1.5 text-[11px] text-slate-400 font-mono pt-0.5">
+                                <span>Order #{ord.orderNumber}</span>
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    if (typeof navigator !== "undefined" && navigator.clipboard) {
+                                      navigator.clipboard.writeText(ord.orderNumber);
+                                      setCopiedOrderNum(ord.orderNumber);
+                                      setTimeout(() => setCopiedOrderNum(null), 1500);
+                                    }
+                                  }}
+                                  className="p-0.5 text-slate-400 hover:text-slate-700 transition-colors cursor-pointer"
+                                  title="Copy Order Number"
+                                >
+                                  {copiedOrderNum === ord.orderNumber ? (
+                                    <Check className="w-3 h-3 text-emerald-600" />
+                                  ) : (
+                                    <Copy className="w-3 h-3" />
+                                  )}
+                                </button>
+                              </div>
                             </div>
                           </div>
+                        </div>
 
-                          {/* Item Action Buttons */}
-                          <div className="flex sm:flex-col items-center sm:items-end gap-2 shrink-0 self-end sm:self-center">
-                            <Link
-                              href={
-                                item.slug
-                                  ? `/products/${item.slug}`
-                                  : "/products"
-                              }
-                              className="w-full sm:w-auto text-center px-4 py-2 bg-[#0A1128] hover:bg-slate-800 active:scale-95 text-white rounded-xl text-xs font-bold transition-all shadow-2xs"
+                        {/* Column 3: Price Column */}
+                        <div className="col-span-2 text-left">
+                          <div className="font-extrabold text-base text-slate-900">
+                            ₹{itemTotal.toLocaleString("en-IN")}
+                          </div>
+                          <span className="block text-[11px] text-slate-500 font-medium mt-0.5">
+                            {isCod ? "Cash on Delivery" : (ord.paymentMethod || "Prepaid")}
+                          </span>
+                        </div>
+
+                        {/* Column 4: Status & Actions */}
+                        <div className="col-span-4 text-left space-y-1">
+                          {isDelivered && (
+                            <>
+                              <div className="flex items-center gap-2">
+                                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shrink-0" />
+                                <span className="font-bold text-sm text-slate-900">
+                                  Delivered on {ord.date}
+                                </span>
+                              </div>
+                              <p className="text-xs text-slate-500 pl-4.5">
+                                Your item has been delivered
+                              </p>
+                              <div className="pl-4.5 pt-1 flex flex-wrap items-center gap-3">
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setReviewProduct({
+                                      id: item.id || item.sku || `item-${idx}`,
+                                      name: item.name,
+                                      image: itemImg,
+                                      sku: item.sku,
+                                      orderId: ord.id,
+                                    });
+                                  }}
+                                  className="inline-flex items-center gap-1.5 text-xs font-bold text-[#2563EB] hover:text-[#1D4ED8] hover:underline cursor-pointer active:scale-95 transition-all"
+                                >
+                                  <Star className="w-3.5 h-3.5 fill-[#FFC200] text-[#FFC200]" />
+                                  <span>Rate &amp; Review Product</span>
+                                </button>
+                              </div>
+                            </>
+                          )}
+
+                          {isShipped && (
+                            <>
+                              <div className="flex items-center gap-2">
+                                <span className="w-2.5 h-2.5 rounded-full bg-blue-500 shrink-0" />
+                                <span className="font-bold text-sm text-slate-900">
+                                  Shipped on {ord.date}
+                                </span>
+                              </div>
+                              <p className="text-xs text-slate-500 pl-4.5">
+                                Your item is in transit with {ord.courierName || "Express Courier"}
+                              </p>
+                              <div className="pl-4.5 pt-1">
+                                <span className="text-xs font-bold text-[#2563EB] hover:underline">
+                                  Track Package
+                                </span>
+                              </div>
+                            </>
+                          )}
+
+                          {isCancelled && (
+                            <>
+                              <div className="flex items-center gap-2">
+                                <span className="w-2.5 h-2.5 rounded-full bg-rose-500 shrink-0" />
+                                <span className="font-bold text-sm text-slate-900">
+                                  Cancelled on {ord.date}
+                                </span>
+                              </div>
+                              <p className="text-xs text-slate-500 pl-4.5">
+                                Your order was cancelled as per your request.
+                              </p>
+                            </>
+                          )}
+
+                          {isPendingOrProcessing && (
+                            <>
+                              <div className="flex items-center gap-2">
+                                <span className="w-2.5 h-2.5 rounded-full bg-amber-500 shrink-0" />
+                                <span className="font-bold text-sm text-slate-900">
+                                  Order Placed on {ord.date}
+                                </span>
+                              </div>
+                              <p className="text-xs text-slate-500 pl-4.5">
+                                Processing order at Prayog central warehouse
+                              </p>
+                              <div className="pl-4.5 pt-1">
+                                <span className="text-xs font-bold text-[#2563EB] hover:underline">
+                                  Track Order Status
+                                </span>
+                              </div>
+                            </>
+                          )}
+
+                          <div className="pl-4.5 pt-0.5">
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedInvoiceOrder(ord);
+                              }}
+                              className="inline-flex items-center gap-1 text-xs font-semibold text-slate-500 hover:text-[#2563EB] transition-colors cursor-pointer"
+                              title="Download Official GST Tax Invoice"
                             >
-                              Buy Again
-                            </Link>
-                            <Link
-                              href={`/account/orders/${ord.id}`}
-                              className="w-full sm:w-auto text-center px-3 py-1.5 text-slate-600 hover:text-slate-900 text-xs font-semibold hover:bg-slate-100 rounded-lg transition-colors"
-                            >
-                              Track Package
-                            </Link>
+                              <Download className="w-3 h-3 text-slate-400" />
+                              <span>Download Invoice</span>
+                            </button>
                           </div>
                         </div>
-                      );
-                    })}
-                  </div>
-                </div>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             );
           })}
 
-          {/* ── 3. Pagination Controls ── */}
+          {/* ── 5. Prayog Theme Bottom Pagination (Rounded-2xl) ── */}
           {totalPages > 1 && (
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-white rounded-2xl border border-slate-200/80 px-4 py-3 shadow-2xs text-xs">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-white border border-slate-200/90 rounded-2xl px-4 py-3 shadow-2xs text-xs">
               <span className="text-slate-500 font-medium">
                 Showing <strong className="text-slate-900">{(page - 1) * PAGE_SIZE + 1}</strong> – <strong className="text-slate-900">{Math.min(page * PAGE_SIZE, totalFiltered)}</strong> of <strong className="text-slate-900">{totalFiltered}</strong> orders
               </span>
@@ -849,19 +927,19 @@ export const OrdersList: React.FC = () => {
                   type="button"
                   disabled={page <= 1}
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
-                  className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-100 disabled:opacity-40 disabled:pointer-events-none transition-colors cursor-pointer text-slate-700"
+                  className="p-1.5 border border-slate-200 rounded-xl hover:bg-slate-100 disabled:opacity-40 disabled:pointer-events-none transition-colors cursor-pointer text-slate-700"
                   title="Previous Page"
                 >
                   <ChevronLeft className="w-4 h-4" />
                 </button>
-                <span className="px-2.5 py-1 font-bold text-slate-700 bg-slate-50 border border-slate-200 rounded-lg">
+                <span className="px-3 py-1 font-bold text-slate-700 bg-slate-50 border border-slate-200 rounded-xl">
                   {page} / {totalPages}
                 </span>
                 <button
                   type="button"
                   disabled={page >= totalPages}
                   onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                  className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-100 disabled:opacity-40 disabled:pointer-events-none transition-colors cursor-pointer text-slate-700"
+                  className="p-1.5 border border-slate-200 rounded-xl hover:bg-slate-100 disabled:opacity-40 disabled:pointer-events-none transition-colors cursor-pointer text-slate-700"
                   title="Next Page"
                 >
                   <ChevronRight className="w-4 h-4" />
@@ -877,6 +955,15 @@ export const OrdersList: React.FC = () => {
         <ProfessionalBillModal
           order={customerOrderToBillOrder(selectedInvoiceOrder, user)}
           onClose={() => setSelectedInvoiceOrder(null)}
+        />
+      )}
+
+      {/* Rate & Review Modal (Strictly for Delivered Products) */}
+      {reviewProduct && (
+        <RateAndReviewModal
+          isOpen={!!reviewProduct}
+          product={reviewProduct}
+          onClose={() => setReviewProduct(null)}
         />
       )}
     </div>

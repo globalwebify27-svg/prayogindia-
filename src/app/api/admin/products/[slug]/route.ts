@@ -43,6 +43,10 @@ export async function PATCH(
       airFreightAllowed,
       surfaceFreightAllowed,
       localPickupAllowed,
+      airFreightCharge,
+      surfaceFreightCharge,
+      pickupCharge,
+      shippingCharge,
       isHazardousItem,
       isBatteryProduct,
       isFragileItem,
@@ -144,6 +148,10 @@ export async function PATCH(
           localPickupAllowed: typeof localPickupAllowed === "boolean"
             ? localPickupAllowed
             : (existingShipping.localPickupAllowed !== undefined ? existingShipping.localPickupAllowed : true),
+          airFreightCharge: airFreightCharge !== undefined ? parseFloat(airFreightCharge) : ((existingShipping.airFreightCharge as number) ?? 149),
+          surfaceFreightCharge: surfaceFreightCharge !== undefined ? parseFloat(surfaceFreightCharge) : ((existingShipping.surfaceFreightCharge as number) ?? 99),
+          pickupCharge: pickupCharge !== undefined ? parseFloat(pickupCharge) : ((existingShipping.pickupCharge as number) ?? 0),
+          shippingCharge: shippingCharge !== undefined ? parseFloat(shippingCharge) : (existingShipping.shippingCharge as number | undefined),
           weightGrams: weightGrams !== undefined ? parseFloat(weightGrams) : (existing.weight || 250),
           dimensionsCm: dimensionsCm || existingShipping.dimensionsCm || { length: 15, width: 10, height: 5 },
           isBatteryProduct: Boolean(isBatteryProduct || shippingTag === "Battery Product"),
@@ -156,6 +164,9 @@ export async function PATCH(
         mergedSpecs.airFreightAllowed = finalShipping.airFreightAllowed;
         mergedSpecs.surfaceFreightAllowed = finalShipping.surfaceFreightAllowed;
         mergedSpecs.localPickupAllowed = finalShipping.localPickupAllowed;
+        mergedSpecs.airFreightCharge = finalShipping.airFreightCharge;
+        mergedSpecs.surfaceFreightCharge = finalShipping.surfaceFreightCharge;
+        mergedSpecs.pickupCharge = finalShipping.pickupCharge;
         mergedSpecs.shippingTag = finalShipping.shippingTag;
 
         updateData.specifications = mergedSpecs;

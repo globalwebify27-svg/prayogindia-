@@ -702,11 +702,11 @@ const QuickViewModalContent: React.FC<{
                 };
 
                 return (
-                  <div className="bg-white border border-slate-200 rounded-2xl p-3 shadow-xs space-y-2.5">
+                  <div className="bg-slate-50/60 border border-slate-200 rounded-xl p-2.5 shadow-2xs space-y-2">
                     <div className="flex items-center justify-between">
-                      <span className="text-[10px] font-black uppercase text-slate-500 tracking-wider flex items-center gap-1.5">
+                      <span className="text-[11px] font-bold text-slate-800 flex items-center gap-1.5">
                         <Truck className="w-3.5 h-3.5 text-[#2563EB]" />
-                        Select Delivery Mode
+                        Delivery & Shipping
                       </span>
                       {fullProduct.shippingTag && (
                         <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200">
@@ -715,83 +715,33 @@ const QuickViewModalContent: React.FC<{
                       )}
                     </div>
 
-                    {/* Supported Modes Interactive Badges */}
-                    <div className="grid grid-cols-3 gap-2">
-                      <button
-                        type="button"
-                        onClick={() => handleModeClick("air")}
-                        className={`p-2.5 rounded-xl border flex flex-col items-center justify-center text-center cursor-pointer transition-all ${quickSelectedMode === "air" && isAirAllowed
-                            ? "bg-blue-50 border-blue-500 ring-2 ring-blue-500/20 text-blue-900 shadow-2xs"
-                            : isAirAllowed
-                              ? "bg-white border-slate-200 hover:border-blue-300 text-slate-700 hover:bg-slate-50"
-                              : "bg-slate-50 border-amber-200 text-slate-400 opacity-75 hover:border-amber-400"
-                          }`}
-                      >
-                        <span className="text-[11px] font-bold">By Air</span>
-                        {!isAirAllowed && (
-                          <span className="text-[9px] text-amber-600 font-semibold">
-                            Restricted
-                          </span>
-                        )}
-                      </button>
+                    {/* Supported Modes Informational Badges */}
+                    <div className="flex flex-wrap items-center gap-1.5 text-[11px]">
+                      {isAirAllowed ? (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-blue-50 border border-blue-200 text-blue-900 font-medium">
+                          By Air{quickPinStatus === "valid" ? " (1-2 days)" : ""}
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-50 border border-amber-200 text-amber-800 font-medium">
+                          Air Restricted
+                        </span>
+                      )}
 
-                      <button
-                        type="button"
-                        onClick={() => handleModeClick("surface")}
-                        className={`p-2.5 rounded-xl border flex flex-col items-center justify-center text-center cursor-pointer transition-all ${quickSelectedMode === "surface" && isSurfaceAllowed
-                            ? "bg-emerald-50 border-emerald-500 ring-2 ring-emerald-500/20 text-emerald-900 shadow-2xs"
-                            : isSurfaceAllowed
-                              ? "bg-white border-slate-200 hover:border-emerald-300 text-slate-700 hover:bg-slate-50"
-                              : "bg-slate-50 border-slate-200 text-slate-400 opacity-60"
-                          }`}
-                      >
-                        <span className="text-[11px] font-bold">By Land</span>
-                        {!isSurfaceAllowed && (
-                          <span className="text-[9px] text-slate-400">
-                            Unavailable
-                          </span>
-                        )}
-                      </button>
+                      {isSurfaceAllowed && (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-50 border border-emerald-200 text-emerald-900 font-medium">
+                          By Road{quickPinStatus === "valid" ? " (3-5 days)" : ""}
+                        </span>
+                      )}
 
-                      <button
-                        type="button"
-                        onClick={() => handleModeClick("pickup")}
-                        className={`p-2.5 rounded-xl border flex flex-col items-center justify-center text-center cursor-pointer transition-all ${quickSelectedMode === "pickup" && isLocalPickupAllowed
-                            ? "bg-purple-50 border-purple-500 ring-2 ring-purple-500/20 text-purple-900 shadow-2xs"
-                            : isLocalPickupAllowed
-                              ? "bg-white border-slate-200 hover:border-purple-300 text-slate-700 hover:bg-slate-50"
-                              : "bg-slate-50 border-slate-200 text-slate-400 opacity-60"
-                          }`}
-                      >
-                        <span className="text-[11px] font-bold">Pickup</span>
-                        {!isLocalPickupAllowed && (
-                          <span className="text-[9px] text-slate-400">
-                            Unavailable
-                          </span>
-                        )}
-                      </button>
+                      {isLocalPickupAllowed && (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-purple-50 border border-purple-200 text-purple-900 font-medium">
+                          Store Pickup{quickPinStatus === "valid" ? " (2h)" : ""}
+                        </span>
+                      )}
                     </div>
 
-                    {/* Inline Restriction Alert Banner if unallowed mode clicked */}
-                    {quickRestrictionAlert && (
-                      <div className="p-2.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-[11px] flex items-start gap-2 animate-in fade-in duration-150">
-                        <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-                        <div className="flex-1">
-                          <p className="font-bold text-amber-950">Option Not Available</p>
-                          <p className="mt-0.5 text-amber-800 leading-tight">{quickRestrictionAlert}</p>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => setQuickRestrictionAlert(null)}
-                          className="text-amber-500 hover:text-amber-800"
-                        >
-                          <X className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-                    )}
-
                     {/* Pincode Availability Checker */}
-                    <div className="flex items-center gap-2 pt-1 border-t border-slate-100">
+                    <div className="flex items-center gap-1.5 pt-1">
                       <input
                         type="text"
                         maxLength={6}
@@ -801,7 +751,7 @@ const QuickViewModalContent: React.FC<{
                           if (quickPinStatus !== "idle") setQuickPinStatus("idle");
                         }}
                         placeholder="Enter Pincode to check delivery"
-                        className="flex-1 px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#2563EB]"
+                        className="flex-1 px-2.5 py-1 bg-white border border-slate-200 rounded-lg text-xs font-semibold text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#2563EB]"
                       />
                       <button
                         type="button"
@@ -812,29 +762,22 @@ const QuickViewModalContent: React.FC<{
                             setQuickPinStatus("invalid");
                           }
                         }}
-                        className="px-3.5 py-1.5 bg-[#2563EB] hover:bg-[#1D4ED8] active:bg-[#1E40AF] text-white text-xs font-bold rounded-xl transition-all cursor-pointer shrink-0 shadow-xs"
+                        className="px-3 py-1 bg-[#2563EB] hover:bg-[#1D4ED8] active:bg-[#1E40AF] text-white text-xs font-bold rounded-lg transition-all cursor-pointer shrink-0 shadow-2xs"
                       >
                         Check
                       </button>
                     </div>
                     {quickPinStatus === "valid" && (
-                      <div className="p-2 bg-emerald-50 border border-emerald-200 rounded-lg text-[11px] font-medium text-emerald-800 space-y-0.5">
+                      <div className="p-1.5 bg-emerald-50 border border-emerald-200 rounded-lg text-[11px] font-medium text-emerald-800">
                         <p className="font-bold flex items-center gap-1">
                           ✓ Delivery Available for PIN {quickPincode}
-                        </p>
-                        <p className="text-slate-600">
-                          {quickSelectedMode === "air" && isAirAllowed
-                            ? "Priority Air Cargo: 1-2 business days"
-                            : quickSelectedMode === "surface"
-                              ? "Standard Express Surface: 3-5 business days"
-                              : "Local Store Counter: Ready in 2 hours"}
                         </p>
                       </div>
                     )}
                     {quickPinStatus === "invalid" && (
-                      <p className="text-[11px] text-red-600 font-medium">
-                        Please enter a valid 6-digit PIN code.
-                      </p>
+                      <div className="p-1.5 bg-red-50 border border-red-200 rounded-lg text-[11px] font-medium text-red-700">
+                        Please enter a valid 6-digit Pincode.
+                      </div>
                     )}
                   </div>
                 );

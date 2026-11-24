@@ -228,28 +228,11 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
   const [pincodeStatus, setPincodeStatus] = useState<
     "idle" | "valid" | "invalid"
   >("idle");
-  const [deliveryDate, setDeliveryDate] = useState("");
-
-  // Calculate estimated delivery dates
-  const airDeliveryDate = useMemo(() => {
-    const d = new Date();
-    d.setDate(d.getDate() + 2);
-    return d.toLocaleDateString("en-IN", {
-      weekday: "short",
-      month: "short",
-      day: "numeric",
-    });
-  }, []);
-
-  const surfaceDeliveryDate = useMemo(() => {
-    const d = new Date();
-    d.setDate(d.getDate() + 4);
-    return d.toLocaleDateString("en-IN", {
-      weekday: "short",
-      month: "short",
-      day: "numeric",
-    });
-  }, []);
+  const [estimatedDates, setEstimatedDates] = useState<{
+    air: string;
+    surface: string;
+    locationName?: string;
+  } | null>(null);
 
   // Delivery options resolved from Admin configuration
   const isAirAllowed = product.airFreightAllowed !== false;
@@ -312,24 +295,91 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
     }
   };
 
-  useEffect(() => {
-    const d = new Date();
-    d.setDate(d.getDate() + 3);
-    setDeliveryDate(
-      d.toLocaleDateString("en-IN", {
+  const handleCheckPincode = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    const cleanPin = pincode.trim().replace(/\D/g, "");
+    if (/^\d{6}$/.test(cleanPin)) {
+      // Dynamically calculate delivery time based on destination PIN code distance from Ranchi hub (834xxx)
+      let airDays = 2;
+      let surfaceDays = 4;
+      let location = "";
+
+      if (cleanPin.startsWith("834")) {
+        // Ranchi Local: fast 24h express dispatch
+        airDays = 1;
+        surfaceDays = 1;
+        location = "Ranchi Local";
+      } else if (
+        cleanPin.startsWith("83") ||
+        cleanPin.startsWith("82") ||
+        cleanPin.startsWith("80") ||
+        cleanPin.startsWith("81") ||
+        cleanPin.startsWith("84") ||
+        cleanPin.startsWith("85")
+      ) {
+        // Jharkhand / Bihar regional
+        airDays = 2;
+        surfaceDays = 3;
+        location = cleanPin.startsWith("80") ? "Patna Hub" : "Regional";
+      } else if (
+        cleanPin.startsWith("11") ||
+        cleanPin.startsWith("12") ||
+        cleanPin.startsWith("20")
+      ) {
+        // Delhi NCR
+        airDays = 2;
+        surfaceDays = 4;
+        location = "Delhi NCR";
+      } else if (cleanPin.startsWith("40") || cleanPin.startsWith("41")) {
+        // Mumbai / Pune
+        airDays = 2;
+        surfaceDays = 5;
+        location = "Mumbai Hub";
+      } else if (
+        cleanPin.startsWith("56") ||
+        cleanPin.startsWith("50") ||
+        cleanPin.startsWith("60")
+      ) {
+        // Bengaluru / Hyderabad / Chennai
+        airDays = 2;
+        surfaceDays = 5;
+        location = "South Hub";
+      } else if (
+        cleanPin.startsWith("70") ||
+        cleanPin.startsWith("71") ||
+        cleanPin.startsWith("72")
+      ) {
+        // Kolkata / West Bengal
+        airDays = 2;
+        surfaceDays = 3;
+        location = "Kolkata Hub";
+      } else {
+        // Rest of India
+        airDays = 3;
+        surfaceDays = 6;
+      }
+
+      const now = new Date();
+      const airDate = new Date(now.getTime() + airDays * 24 * 60 * 60 * 1000);
+      const surfaceDate = new Date(
+        now.getTime() + surfaceDays * 24 * 60 * 60 * 1000
+      );
+
+      const formatOptions: Intl.DateTimeFormatOptions = {
         weekday: "short",
         month: "short",
         day: "numeric",
-      })
-    );
-  }, []);
+      };
 
-  const handleCheckPincode = (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
-    const cleanPin = pincode.trim();
-    if (/^\d{6}$/.test(cleanPin)) {
+      setEstimatedDates({
+        air: airDate.toLocaleDateString("en-IN", formatOptions),
+        surface: surfaceDate.toLocaleDateString("en-IN", formatOptions),
+        locationName: location,
+      });
+
       setPincodeStatus("valid");
     } else {
+      setEstimatedDates(null);
       setPincodeStatus("invalid");
     }
   };
@@ -683,182 +733,103 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
         </div>
       </div>
 
-      {/* ── 8. Delivery & Dispatch Options (Interactive: Compact Mobile & Full Desktop) ── */}
-      <div className="pt-2">
-        <div className="rounded-2xl border border-slate-200/90 bg-gradient-to-b from-white to-slate-50/70 p-3 sm:p-4 shadow-2xs space-y-2 sm:space-y-3.5">
-          {/* Header */}
-          <div className="flex items-center justify-between gap-2 border-b border-slate-100 pb-2 sm:pb-2.5">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-blue-50 to-sky-100/70 border border-blue-200/80 flex items-center justify-center shrink-0 shadow-2xs">
-                <DeliveryTruckSVG className="w-5 h-5" />
+      {/* ── 8. Delivery Information (Optimized for Mobile & Desktop) ── */}
+      <div className="pt-1.5">
+        <div className="rounded-2xl border border-slate-200/90 bg-white p-3 sm:p-3.5 space-y-2.5 shadow-2xs">
+          {/* Main Delivery Headline */}
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2 min-w-0">
+              <div className="w-8 h-8 rounded-xl bg-blue-50/80 border border-blue-200/60 flex items-center justify-center shrink-0 text-[#0B0F6B]">
+                <DeliveryTruckSVG className="w-4 h-4" />
               </div>
-              <div>
-                <h4 className="text-xs sm:text-sm font-bold text-slate-900 tracking-tight leading-none sm:leading-normal">
-                  Select Delivery Mode
-                </h4>
-                <p className="text-[10px] sm:text-[11px] text-slate-500 font-medium hidden sm:block">
-                  Choose your preferred transit mode • Direct from Ranchi Hub
-                </p>
+              <div className="min-w-0">
+                {pincodeStatus === "valid" && estimatedDates ? (
+                  <div className="flex items-baseline gap-1.5 flex-wrap">
+                    <span className="text-xs font-bold text-slate-500">Delivery by</span>
+                    <span className="text-sm font-black text-slate-950">
+                      {isAirAllowed ? estimatedDates.air : estimatedDates.surface}
+                    </span>
+                    {estimatedDates.locationName && (
+                      <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
+                        {estimatedDates.locationName}
+                      </span>
+                    )}
+                  </div>
+                ) : (
+                  <h4 className="text-xs sm:text-sm font-black text-slate-900 tracking-tight">
+                    Check Delivery
+                  </h4>
+                )}
               </div>
             </div>
 
-            {product.shippingTag && (
-              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200 shrink-0">
-                {product.shippingTag}
-              </span>
-            )}
-          </div>
-
-          {/* Freight Modes Interactive Selection Grid (3-column compact pill cards on mobile to save vertical space) */}
-          <div className="grid grid-cols-3 gap-1.5 sm:gap-2.5">
-            {/* 1. By Air Freight */}
-            <button
-              type="button"
-              onClick={() => handleSelectDeliveryMode("air")}
-              className={`py-2 px-1.5 sm:p-3 rounded-xl border text-center sm:text-left transition-all flex flex-col sm:flex-row items-center sm:justify-between gap-1 cursor-pointer relative ${
-                selectedDeliveryMode === "air" && isAirAllowed
-                  ? "bg-blue-50/80 border-blue-600 ring-1 sm:ring-2 ring-blue-500/30 shadow-xs"
-                  : isAirAllowed
-                  ? "bg-white border-slate-200 hover:border-blue-300 hover:bg-slate-50/70 shadow-2xs"
-                  : "bg-slate-50/90 border-amber-200/90 hover:border-amber-400 opacity-85"
-              }`}
-            >
-              <div className="flex items-center justify-center gap-1 sm:gap-1.5 min-w-0">
-                <AirPlaneSVG className="w-3.5 h-3.5 text-blue-600 shrink-0" />
-                <span className="text-[11px] sm:text-xs font-bold text-slate-900 truncate">
-                  By Air
-                </span>
-                {!isAirAllowed && (
-                  <span className="text-[8px] sm:text-[9px] font-bold uppercase px-1 py-0.5 rounded bg-amber-100 text-amber-800 border border-amber-200">
-                    Restricted
-                  </span>
-                )}
-              </div>
-
-              {/* Selection / Warning Indicator */}
-              <div className="shrink-0 ml-1 hidden sm:block">
-                {selectedDeliveryMode === "air" && isAirAllowed ? (
-                  <CheckCircle2 className="w-4 h-4 text-blue-600 fill-blue-50" />
-                ) : isAirAllowed ? (
-                  <Circle className="w-4 h-4 text-slate-300" />
-                ) : (
-                  <span title="Click to view restriction alert">
-                    <AlertTriangle className="w-4 h-4 text-amber-600" />
-                  </span>
-                )}
-              </div>
-            </button>
-
-            {/* 2. By Land / Road (Surface Cargo) */}
-            <button
-              type="button"
-              onClick={() => handleSelectDeliveryMode("surface")}
-              className={`py-2 px-1.5 sm:p-3 rounded-xl border text-center sm:text-left transition-all flex flex-col sm:flex-row items-center sm:justify-between gap-1 cursor-pointer relative ${
-                selectedDeliveryMode === "surface" && isSurfaceAllowed
-                  ? "bg-emerald-50/80 border-emerald-600 ring-1 sm:ring-2 ring-emerald-500/30 shadow-xs"
-                  : isSurfaceAllowed
-                  ? "bg-white border-slate-200 hover:border-emerald-300 hover:bg-slate-50/70 shadow-2xs"
-                  : "bg-slate-50/90 border-slate-200/80 opacity-70"
-              }`}
-            >
-              <div className="flex items-center justify-center gap-1 sm:gap-1.5 min-w-0">
-                <RoadFreightSVG className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                <span className="text-[11px] sm:text-xs font-bold text-slate-900 truncate">
-                  By Road
-                </span>
-                {!isSurfaceAllowed && (
-                  <span className="text-[8px] sm:text-[9px] font-bold uppercase px-1 py-0.5 rounded bg-slate-100 text-slate-600">
-                    N/A
-                  </span>
-                )}
-              </div>
-
-              {/* Selection Indicator */}
-              <div className="shrink-0 ml-1 hidden sm:block">
-                {selectedDeliveryMode === "surface" && isSurfaceAllowed ? (
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600 fill-emerald-50" />
-                ) : isSurfaceAllowed ? (
-                  <Circle className="w-4 h-4 text-slate-300" />
-                ) : (
-                  <AlertTriangle className="w-4 h-4 text-slate-400" />
-                )}
-              </div>
-            </button>
-
-            {/* 3. Local Store Pickup */}
-            <button
-              type="button"
-              onClick={() => handleSelectDeliveryMode("pickup")}
-              className={`py-2 px-1.5 sm:p-3 rounded-xl border text-center sm:text-left transition-all flex flex-col sm:flex-row items-center sm:justify-between gap-1 cursor-pointer relative ${
-                selectedDeliveryMode === "pickup" && isLocalPickupAllowed
-                  ? "bg-purple-50/80 border-purple-600 ring-1 sm:ring-2 ring-purple-500/30 shadow-xs"
-                  : isLocalPickupAllowed
-                  ? "bg-white border-slate-200 hover:border-purple-300 hover:bg-slate-50/70 shadow-2xs"
-                  : "bg-slate-50/90 border-slate-200/80 opacity-70"
-              }`}
-            >
-              <div className="flex items-center justify-center gap-1 sm:gap-1.5 min-w-0">
-                <StorePickupSVG className="w-3.5 h-3.5 text-purple-600 shrink-0" />
-                <span className="text-[11px] sm:text-xs font-bold text-slate-900 truncate">
-                  <span className="inline xs:hidden">Pickup</span>
-                  <span className="hidden xs:inline">Store Pickup</span>
-                </span>
-                {!isLocalPickupAllowed && (
-                  <span className="text-[8px] sm:text-[9px] font-bold uppercase px-1 py-0.5 rounded bg-slate-100 text-slate-600">
-                    N/A
-                  </span>
-                )}
-              </div>
-
-              {/* Selection Indicator */}
-              <div className="shrink-0 ml-1 hidden sm:block">
-                {selectedDeliveryMode === "pickup" && isLocalPickupAllowed ? (
-                  <CheckCircle2 className="w-4 h-4 text-purple-600 fill-purple-50" />
-                ) : isLocalPickupAllowed ? (
-                  <Circle className="w-4 h-4 text-slate-300" />
-                ) : (
-                  <AlertTriangle className="w-4 h-4 text-slate-400" />
-                )}
-              </div>
-            </button>
-          </div>
-
-          {/* Active Selection Summary Banner */}
-          <div className="px-2.5 py-1.5 sm:p-2.5 rounded-lg sm:rounded-xl bg-slate-100/80 border border-slate-200/80 flex items-center justify-between text-[11px] sm:text-xs">
-            <div className="flex items-center gap-1.5 sm:gap-2 truncate">
-              <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-wider text-slate-500 shrink-0">
-                Est. Arrival:
-              </span>
-              {selectedDeliveryMode === "air" && (
-                <span className="font-bold text-blue-700 truncate">
-                  Air Flight ({airDeliveryDate})
-                </span>
-              )}
-              {selectedDeliveryMode === "surface" && (
-                <span className="font-bold text-emerald-800 truncate">
-                  Road Cargo ({surfaceDeliveryDate})
-                </span>
-              )}
-              {selectedDeliveryMode === "pickup" && (
-                <span className="font-bold text-purple-800 truncate">
-                  Store Pickup (Ready in 2h)
-                </span>
-              )}
-            </div>
-            <span className="text-[10px] text-slate-500 hidden sm:inline font-medium shrink-0 ml-2">
-              Click above to switch
+            <span className="text-[10px] font-extrabold text-blue-700 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-200 shrink-0">
+              {isAirAllowed ? "Express" : "Road Cargo"}
             </span>
           </div>
 
-          {/* Integrated Pincode Checker */}
-          <div className="pt-0.5">
-            <form
-              onSubmit={handleCheckPincode}
-              className="flex items-center gap-1.5 p-1 sm:p-1.5 bg-white border border-slate-300 rounded-xl shadow-2xs focus-within:border-[#2563EB] focus-within:ring-2 focus-within:ring-blue-100 transition-all"
-            >
-              <div className="ml-2 shrink-0 flex items-center">
-                <DeliveryTruckSVG className="w-4 h-4 opacity-80" />
+          {/* 3-Column Symmetrical Modes Grid (Always balanced on Mobile & Desktop) */}
+          <div className="grid grid-cols-3 gap-1.5 text-center">
+            {/* 1. Air Freight */}
+            <div className={`flex flex-col items-center justify-center py-1.5 px-1 rounded-xl border text-[11px] transition-all ${
+              pincodeStatus === "valid" && estimatedDates && isAirAllowed
+                ? "bg-blue-50/60 border-blue-200 text-blue-900"
+                : "bg-slate-50 border-slate-200 text-slate-800"
+            }`}>
+              <div className="flex items-center justify-center gap-1 font-bold text-slate-800">
+                <AirPlaneSVG className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                <span className="truncate">By Air</span>
               </div>
+              {pincodeStatus === "valid" && estimatedDates ? (
+                <span className="text-[10px] font-black text-blue-700 mt-0.5 truncate w-full">
+                  {isAirAllowed ? estimatedDates.air : "Restricted"}
+                </span>
+              ) : !isAirAllowed ? (
+                <span className="text-[9px] font-bold text-amber-700 mt-0.5">Restricted</span>
+              ) : null}
+            </div>
+
+            {/* 2. Road Freight */}
+            <div className={`flex flex-col items-center justify-center py-1.5 px-1 rounded-xl border text-[11px] transition-all ${
+              pincodeStatus === "valid" && estimatedDates && isSurfaceAllowed
+                ? "bg-emerald-50/60 border-emerald-200 text-emerald-900"
+                : "bg-slate-50 border-slate-200 text-slate-800"
+            }`}>
+              <div className="flex items-center justify-center gap-1 font-bold text-slate-800">
+                <RoadFreightSVG className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                <span className="truncate">By Road</span>
+              </div>
+              {pincodeStatus === "valid" && estimatedDates && (
+                <span className="text-[10px] font-black text-emerald-700 mt-0.5 truncate w-full">
+                  {isSurfaceAllowed ? estimatedDates.surface : "N/A"}
+                </span>
+              )}
+            </div>
+
+            {/* 3. Local Store Pickup */}
+            <div className={`flex flex-col items-center justify-center py-1.5 px-1 rounded-xl border text-[11px] transition-all ${
+              pincodeStatus === "valid" && estimatedDates && isLocalPickupAllowed
+                ? "bg-purple-50/60 border-purple-200 text-purple-900"
+                : "bg-slate-50 border-slate-200 text-slate-800"
+            }`}>
+              <div className="flex items-center justify-center gap-1 font-bold text-slate-800">
+                <StorePickupSVG className="w-3.5 h-3.5 text-purple-600 shrink-0" />
+                <span className="truncate">Pickup</span>
+              </div>
+              {pincodeStatus === "valid" && estimatedDates && (
+                <span className="text-[10px] font-black text-purple-700 mt-0.5 truncate w-full">
+                  {isLocalPickupAllowed ? "Ready in 2h" : "N/A"}
+                </span>
+              )}
+            </div>
+          </div>
+
+          {/* Integrated Pincode Checker Form (Mobile Optimized) */}
+          <form
+            onSubmit={handleCheckPincode}
+            className="flex items-center gap-2 pt-0.5"
+          >
+            <div className="flex-1 relative flex items-center">
               <input
                 type="text"
                 inputMode="numeric"
@@ -868,75 +839,38 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
                 onChange={(e) => {
                   const val = e.target.value.replace(/\D/g, "");
                   setPincode(val);
-                  if (pincodeStatus !== "idle") setPincodeStatus("idle");
+                  if (pincodeStatus !== "idle") {
+                    setPincodeStatus("idle");
+                    setEstimatedDates(null);
+                  }
                 }}
-                placeholder="Enter 6-digit Pincode"
-                className="flex-1 px-1.5 py-1 bg-transparent text-xs sm:text-sm font-semibold text-slate-800 placeholder-slate-400 focus:outline-none min-w-0"
+                placeholder="Enter 6-digit PIN code"
+                className="w-full h-10 px-3.5 rounded-xl bg-slate-50/80 border border-slate-200 text-xs sm:text-sm font-bold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:bg-white focus:border-[#0B0F6B] focus:ring-1 focus:ring-blue-100 transition-all shadow-2xs"
               />
-              <button
-                type="submit"
-                className="px-3.5 sm:px-5 py-1.5 sm:py-2 bg-[#0F172A] hover:bg-[#1E293B] active:bg-[#020617] text-white text-xs font-bold rounded-lg shadow-xs transition-colors cursor-pointer shrink-0"
-              >
-                Check
-              </button>
-            </form>
+            </div>
+            <button
+              type="submit"
+              className="h-10 px-5 rounded-xl bg-[#0B0F6B] hover:bg-[#080D58] active:bg-[#05093D] text-white text-xs sm:text-sm font-black transition-all cursor-pointer shadow-xs active:scale-95 shrink-0"
+            >
+              Check
+            </button>
+          </form>
 
-            {pincodeStatus === "valid" && (
-              <div className="mt-2.5 p-3 rounded-xl bg-emerald-50/90 border border-emerald-200 text-xs text-emerald-900 space-y-1.5 animate-in fade-in duration-200">
-                <div className="flex items-center gap-1.5 font-bold text-emerald-800">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                  <span>Delivery Available for PIN {pincode}</span>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1 text-[11px]">
-                  {isAirAllowed && (
-                    <div className={`p-2 rounded-lg border flex items-center gap-2 transition-all ${
-                      selectedDeliveryMode === "air"
-                        ? "bg-white border-blue-400 font-semibold text-blue-900 shadow-2xs"
-                        : "bg-white/80 border-emerald-100"
-                    }`}>
-                      <span><strong>By Air:</strong> Est. {airDeliveryDate} (Express)</span>
-                    </div>
-                  )}
-                  {isSurfaceAllowed && (
-                    <div className={`p-2 rounded-lg border flex items-center gap-2 transition-all ${
-                      selectedDeliveryMode === "surface"
-                        ? "bg-white border-emerald-400 font-semibold text-emerald-900 shadow-2xs"
-                        : "bg-white/80 border-emerald-100"
-                    }`}>
-                      <span><strong>By Land:</strong> Est. {surfaceDeliveryDate} (Free Standard)</span>
-                    </div>
-                  )}
-                  {isLocalPickupAllowed && (
-                    <div className={`p-2 rounded-lg border flex items-center gap-2 sm:col-span-2 transition-all ${
-                      selectedDeliveryMode === "pickup"
-                        ? "bg-white border-purple-400 font-semibold text-purple-900 shadow-2xs"
-                        : "bg-white/80 border-emerald-100"
-                    }`}>
-                      <span><strong>Store Pickup:</strong> Ready today at Ranchi Store Counter</span>
-                    </div>
-                  )}
-                </div>
-                {!isAirAllowed && (
-                  <p className="text-[10px] text-amber-800 bg-amber-50 p-2 rounded-lg border border-amber-200 mt-1 flex items-start gap-1.5">
-                    <AlertCircle className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
-                    <span>
-                      Air cargo is restricted for this product ({shippingTag}). It will be safely dispatched via insured express road transport.
-                    </span>
-                  </p>
-                )}
-              </div>
-            )}
+          {/* Pincode Feedback */}
+          {pincodeStatus === "valid" && (
+            <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-700 pt-0.5">
+              <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+              <span>Delivery available for PIN {pincode}</span>
+            </div>
+          )}
 
-            {pincodeStatus === "invalid" && (
-              <div className="mt-2 p-2.5 rounded-xl bg-red-50 border border-red-200 text-xs text-red-700 flex items-center gap-2">
-                <AlertTriangle className="w-4 h-4 text-red-500 shrink-0" />
-                <span>Please enter a valid 6-digit Indian Postal PIN code.</span>
-              </div>
-            )}
-          </div>
+          {pincodeStatus === "invalid" && (
+            <div className="flex items-center gap-1.5 text-xs font-bold text-rose-600 pt-0.5">
+              <AlertTriangle className="w-4 h-4 text-rose-500 shrink-0" />
+              <span>Please enter a valid 6-digit Indian PIN code</span>
+            </div>
+          )}
         </div>
-
-
       </div>
 
       {/* ── 9. Trust Badges Row ── */}

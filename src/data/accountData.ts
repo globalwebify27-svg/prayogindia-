@@ -18,6 +18,11 @@ export interface CustomerOrder {
   subtotal?: number;
   gstAmount?: number;
   discountAmount?: number;
+  paymentMethod?: string;
+  paymentMode?: string;
+  paymentStatus?: string;
+  isPaid?: boolean;
+  receivedAmount?: number;
   status:
     | "Order Placed"
     | "Payment Confirmed"

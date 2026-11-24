@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Star,
@@ -24,10 +24,15 @@ import {
   Upload,
   Share2,
   Check,
+  Sparkles,
+  Play,
+  Camera,
+  Image as ImageIcon,
 } from "lucide-react";
 import { ProductReview } from "@/data/mockData";
 import { useStore } from "@/context/StoreContext";
 import { useRouter } from "next/navigation";
+import { isReviewForProduct } from "@/lib/reviewUtils";
 
 interface ProductReviewsProps {
   productId?: string;
@@ -293,6 +298,112 @@ export const ProductReviewsSection: React.FC<ProductReviewsProps> = ({
     return list;
   });
 
+  const [selectedMediaImage, setSelectedMediaImage] = useState<string | null>(null);
+
+  // Dynamic fetch & synchronization of admin-approved reviews
+  const loadApprovedReviews = useCallback(async () => {
+    try {
+      const target = {
+        id: productId,
+        name: productName,
+        slug: productSlug,
+      };
+
+      // 1. Fetch from server API
+      const q = new URLSearchParams();
+      if (productId) q.set("productId", productId);
+      if (productSlug) q.set("slug", productSlug);
+      if (productName) q.set("name", productName);
+
+      let apiItems: ProductReview[] = [];
+      try {
+        const res = await fetch(`/api/reviews?${q.toString()}`);
+        if (res.ok) {
+          const json = await res.json();
+          if (json.success && json.data?.items) {
+            apiItems = json.data.items;
+          }
+        }
+      } catch (err) {
+        console.warn("Could not fetch server reviews:", err);
+      }
+
+      // 2. Fetch from local customer submissions cache
+      let localCacheApproved: ProductReview[] = [];
+      try {
+        const stored = localStorage.getItem("prayog_product_reviews");
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed)) {
+            localCacheApproved = parsed
+              .filter((r) => {
+                const matchesProd = isReviewForProduct(r, target);
+                // Must be APPROVED by admin (strictly hide PENDING or REJECTED)
+                const isApproved = r.status === "APPROVED";
+                return matchesProd && isApproved;
+              })
+              .map((r) => ({
+                id: r.id,
+                author: r.author || "Verified Buyer",
+                role: r.role || "Verified Buyer",
+                rating: r.rating || 5,
+                date: r.date || "Recently",
+                title: r.title,
+                comment: r.comment || r.body || "",
+                verified: true,
+                images: r.images || [],
+                videoUrl: r.videoUrl,
+                isFeatured: !!r.isFeatured,
+                status: "APPROVED" as const,
+                helpfulCount: r.helpfulCount || 0,
+              }));
+          }
+        }
+      } catch (err) {
+        console.warn("Could not parse local reviews:", err);
+      }
+
+      // 3. Merge: Local Cache Approved + API Items + Base reviewItems
+      const mergedMap = new Map<string, ProductReview>();
+
+      // Base items first
+      (reviewItems || []).forEach((r) => mergedMap.set(r.id, r));
+      // API items
+      apiItems.forEach((r) => mergedMap.set(r.id, r));
+      // Local cache approved items (highest priority for instant feedback)
+      localCacheApproved.forEach((r) => mergedMap.set(r.id, r));
+
+      let result = Array.from(mergedMap.values());
+
+      if (result.length === 0) {
+        for (const fb of FALLBACK_ADDITIONAL_REVIEWS) {
+          if (result.length >= 4) break;
+          result.push(fb);
+        }
+      }
+
+      setLocalReviews(result);
+    } catch (err) {
+      console.warn("loadApprovedReviews error:", err);
+    }
+  }, [productId, productSlug, productName, reviewItems]);
+
+  // Synchronize when reviews are approved in admin portal
+  useEffect(() => {
+    loadApprovedReviews();
+
+    const handleStorageUpdate = () => loadApprovedReviews();
+    window.addEventListener("storage", handleStorageUpdate);
+    window.addEventListener("prayog_reviews_updated", handleStorageUpdate);
+    window.addEventListener("prayog_review_approved", handleStorageUpdate);
+
+    return () => {
+      window.removeEventListener("storage", handleStorageUpdate);
+      window.removeEventListener("prayog_reviews_updated", handleStorageUpdate);
+      window.removeEventListener("prayog_review_approved", handleStorageUpdate);
+    };
+  }, [loadApprovedReviews]);
+
   const [helpfulVotes, setHelpfulVotes] = useState<
     Record<string, "up" | "down" | null>
   >({});
@@ -321,8 +432,23 @@ export const ProductReviewsSection: React.FC<ProductReviewsProps> = ({
     return { stars, count, pct };
   });
 
+  // Dynamic metrics derived from approved reviews
+  const dynamicTotalReviews = localReviews.length > 0 ? localReviews.length : reviewsCount;
+  const dynamicAvgRating =
+    localReviews.length > 0
+      ? Number(
+          (
+            localReviews.reduce((sum, r) => sum + r.rating, 0) /
+            localReviews.length
+          ).toFixed(1)
+        )
+      : rating;
+
   // Sorted reviews
   const sortedReviews = [...localReviews].sort((a, b) => {
+    // Featured reviews prioritized first
+    if (a.isFeatured && !b.isFeatured) return -1;
+    if (!a.isFeatured && b.isFeatured) return 1;
     if (sortBy === "Highest Rated") return b.rating - a.rating;
     if (sortBy === "Lowest Rated") return a.rating - b.rating;
     return 0; // Most Recent & Most Helpful — default order
@@ -633,7 +759,7 @@ export const ProductReviewsSection: React.FC<ProductReviewsProps> = ({
         <h2 className="text-xs sm:text-sm font-extrabold text-slate-900 tracking-tight flex items-center gap-2">
           <span>Customer Reviews</span>
           <span className="text-[11px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full">
-            {reviewsCount}
+            {dynamicTotalReviews}
           </span>
         </h2>
         {isDeliveredBuyer && (
@@ -657,7 +783,7 @@ export const ProductReviewsSection: React.FC<ProductReviewsProps> = ({
           <div className="flex sm:flex-col items-center justify-between sm:justify-center w-full sm:w-auto shrink-0 gap-2 sm:gap-1.5 sm:min-w-[125px] pb-3 sm:pb-0 border-b sm:border-b-0 sm:border-r border-slate-200 sm:pr-6">
             <div className="flex items-baseline sm:flex-col sm:items-center gap-1.5 sm:gap-1">
               <span className="text-4xl sm:text-5xl font-black text-slate-900 tracking-tight leading-none">
-                {rating.toFixed(1)}
+                {dynamicAvgRating.toFixed(1)}
               </span>
               <span className="text-xs text-slate-400 font-bold sm:hidden">/ 5.0</span>
             </div>
@@ -666,12 +792,12 @@ export const ProductReviewsSection: React.FC<ProductReviewsProps> = ({
                 {[1, 2, 3, 4, 5].map((s) => (
                   <Star
                     key={s}
-                    className={`w-3.5 h-3.5 ${s <= Math.round(rating) ? "fill-amber-400 text-amber-400" : "fill-slate-200 text-slate-200"}`}
+                    className={`w-3.5 h-3.5 ${s <= Math.round(dynamicAvgRating) ? "fill-amber-400 text-amber-400" : "fill-slate-200 text-slate-200"}`}
                   />
                 ))}
               </div>
               <span className="text-[11px] font-bold text-slate-500 whitespace-nowrap">
-                {reviewsCount} verified reviews
+                {dynamicTotalReviews} verified reviews
               </span>
             </div>
           </div>
@@ -833,8 +959,8 @@ export const ProductReviewsSection: React.FC<ProductReviewsProps> = ({
                       </div>
                     </div>
 
-                    {/* 2. Star Rating + Verified Purchase */}
-                    <div className="flex items-center gap-2 flex-wrap pt-0.5">
+                    {/* 2. Star Rating + Verified Purchase + Featured Review Badge */}
+                    <div className="flex items-center gap-2.5 flex-wrap pt-0.5">
                       <div className="flex items-center gap-0.5">
                         {[1, 2, 3, 4, 5].map((s) => (
                           <Star
@@ -850,6 +976,12 @@ export const ProductReviewsSection: React.FC<ProductReviewsProps> = ({
                       {activeReview.verified && (
                         <span className="text-xs font-bold text-[#C45500]">
                           Verified Purchase
+                        </span>
+                      )}
+                      {activeReview.isFeatured && (
+                        <span className="inline-flex items-center gap-1 text-[11px] font-black bg-amber-50 text-amber-800 border border-amber-300 px-2.5 py-0.5 rounded-full shadow-2xs">
+                          <Sparkles className="w-3 h-3 text-amber-500 fill-amber-500" />
+                          <span>Featured Review</span>
                         </span>
                       )}
                     </div>
@@ -868,6 +1000,40 @@ export const ProductReviewsSection: React.FC<ProductReviewsProps> = ({
                     <p className="text-sm sm:text-[15px] text-slate-800 leading-relaxed font-normal pt-1">
                       {activeReview.comment}
                     </p>
+
+                    {/* Customer Uploaded Media (Photos & Video) */}
+                    {((activeReview.images && activeReview.images.length > 0) || activeReview.videoUrl) && (
+                      <div className="pt-2 pb-1 space-y-2">
+                        <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                          <Camera className="w-3.5 h-3.5" />
+                          <span>Customer Images &amp; Video</span>
+                        </div>
+                        <div className="flex flex-wrap items-center gap-2.5">
+                          {activeReview.images?.map((img, imgIdx) => (
+                            <button
+                              key={imgIdx}
+                              type="button"
+                              onClick={() => setSelectedMediaImage(img)}
+                              className="w-16 h-16 relative rounded-xl overflow-hidden border border-slate-200 hover:border-[#2563EB] shadow-2xs transition-all cursor-pointer group bg-slate-100"
+                              title="Click to view full photo"
+                            >
+                              <img
+                                src={img}
+                                alt={`Customer photo ${imgIdx + 1}`}
+                                className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                              />
+                            </button>
+                          ))}
+
+                          {activeReview.videoUrl && (
+                            <div className="h-16 px-3.5 bg-blue-50 border border-blue-200 rounded-xl flex items-center gap-2 text-xs font-bold text-[#2563EB] shadow-2xs">
+                              <Play className="w-4 h-4 text-[#2563EB] fill-[#2563EB] shrink-0" />
+                              <span className="text-[11px]">Customer Video</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
 
                     {/* 6. Helpful Statement */}
                     {(() => {
@@ -1443,6 +1609,33 @@ export const ProductReviewsSection: React.FC<ProductReviewsProps> = ({
                 </button>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Customer Photo Lightbox Modal */}
+      {selectedMediaImage && (
+        <div
+          className="fixed inset-0 z-50 bg-black/80 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in"
+          onClick={() => setSelectedMediaImage(null)}
+        >
+          <div
+            className="relative max-w-2xl max-h-[85vh] bg-white rounded-2xl overflow-hidden shadow-2xl p-2"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              onClick={() => setSelectedMediaImage(null)}
+              className="absolute top-4 right-4 z-10 w-8 h-8 rounded-full bg-black/60 hover:bg-black/80 text-white flex items-center justify-center cursor-pointer transition-colors"
+              title="Close image"
+            >
+              <X className="w-4 h-4" />
+            </button>
+            <img
+              src={selectedMediaImage}
+              alt="Customer product photo"
+              className="max-h-[80vh] w-auto max-w-full rounded-xl object-contain mx-auto"
+            />
           </div>
         </div>
       )}

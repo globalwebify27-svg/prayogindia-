@@ -2,6 +2,10 @@ import { NextResponse } from "next/server";
 import { db, isDatabaseAvailable } from "@/lib/db";
 import { AuthSessionUser, getAuthenticatedCustomer } from "@/lib/authUtils";
 import { getSecurityHeaders, checkRateLimit } from "@/lib/security";
+import {
+  getApprovedReviewsForProduct,
+  addOrUpdateReview,
+} from "@/lib/reviewsStore";
 
 const getAuthenticatedUser = getAuthenticatedCustomer;
 
@@ -199,75 +203,53 @@ export async function GET(request: Request) {
       });
     }
 
-    // ── Public Reviews List ─────────────────────────────────────────────
-    if (!isDatabaseAvailable()) {
-      return NextResponse.json({
-        success: true,
-        data: { items: [], page, limit, total: 0, totalPages: 0 },
-        source: "mock",
-      });
-    }
+    // ── Public Reviews List (Strictly Approved Reviews Only) ───────────
+    const name = searchParams.get("name") || searchParams.get("productName") || "";
+    const sku = searchParams.get("sku") || searchParams.get("productSku") || "";
 
-    // Resolve product ID from slug if needed
-    let resolvedProductId = productId;
-    if (!resolvedProductId && slug) {
-      const product = await db.product.findUnique({
-        where: { slug },
-        select: { id: true },
-      });
-      if (!product) {
-        return NextResponse.json(
-          { success: false, message: "Product not found." },
-          { status: 404 },
-        );
-      }
-      resolvedProductId = product.id;
-    }
-
-    const total = await db.review.count({
-      where: { productId: resolvedProductId! },
+    const approvedReviews = await getApprovedReviewsForProduct({
+      id: productId || undefined,
+      slug: slug || undefined,
+      name: name || undefined,
+      sku: sku || undefined,
     });
+
+    const total = approvedReviews.length;
     const totalPages = Math.ceil(total / limit) || 1;
-
-    const reviews = await db.review.findMany({
-      where: { productId: resolvedProductId! },
-      orderBy: { createdAt: "desc" },
-      skip: (page - 1) * limit,
-      take: limit,
-      select: {
-        id: true,
-        rating: true,
-        title: true,
-        body: true,
-        isVerified: true,
-        createdAt: true,
-        user: { select: { name: true } },
-      },
-    });
-
-    // Calculate average rating
-    const avgResult = await db.review.aggregate({
-      where: { productId: resolvedProductId! },
-      _avg: { rating: true },
-    });
+    const paginated = approvedReviews.slice((page - 1) * limit, page * limit);
+    const avgRating =
+      total > 0
+        ? Number(
+            (approvedReviews.reduce((sum, r) => sum + r.rating, 0) / total).toFixed(1)
+          )
+        : 5.0;
 
     return NextResponse.json({
       success: true,
       data: {
-        items: reviews.map((r) => ({
+        items: paginated.map((r) => ({
           id: r.id,
           rating: r.rating,
           title: r.title,
-          body: r.body,
-          isVerified: r.isVerified,
-          createdAt: r.createdAt,
-          customerName: r.user.name,
+          body: r.comment,
+          comment: r.comment,
+          isVerified: r.verified,
+          verified: r.verified,
+          createdAt: r.createdAt || r.date,
+          date: r.date,
+          customerName: r.author,
+          author: r.author,
+          role: r.role || "Verified Buyer",
+          images: r.images || [],
+          videoUrl: r.videoUrl,
+          isFeatured: !!r.isFeatured,
+          helpfulCount: r.helpfulCount || 0,
         })),
         page,
         limit,
         total,
         totalPages,
-        averageRating: avgResult._avg.rating || 0,
+        averageRating: avgRating,
       },
     });
   } catch (error: any) {
@@ -311,7 +293,7 @@ export async function POST(request: Request) {
 
   try {
     const body = await request.json();
-    const { productId, rating, title, body: reviewBody, mockVerified } = body;
+    const { productId, rating, title, body: reviewBody, mockVerified, images, videoUrl } = body;
 
     if (!productId || typeof productId !== "string") {
       return NextResponse.json(
@@ -351,13 +333,44 @@ export async function POST(request: Request) {
           { status: 403, headers },
         );
       }
+      const newRev = {
+        id: `rev-${Date.now()}`,
+        productId,
+        productName: (body as any).productName || "Hardware Component",
+        productSku: (body as any).productSku || "PRG-SKU",
+        productSlug: (body as any).productSlug,
+        userId: user.id,
+        author: user.name || "Customer",
+        role: (user as any).customerType || "Verified Buyer",
+        rating: numRating,
+        title: title || "Customer Review",
+        comment: reviewBody,
+        verified: true,
+        status: "APPROVED" as const,
+        isFeatured: numRating >= 4,
+        isReported: false,
+        helpfulCount: 0,
+        images: images || [],
+        videoUrl: videoUrl || null,
+        date: new Date().toLocaleDateString("en-IN", {
+          day: "numeric",
+          month: "short",
+          year: "numeric",
+        }),
+        createdAt: new Date().toISOString(),
+      };
+      await addOrUpdateReview(newRev);
+
       return NextResponse.json({
         success: true,
         message: "Review submitted with Verified Purchase badge!",
         data: {
           productId,
           rating: numRating,
+          title: title || null,
           body: reviewBody,
+          images: images || [],
+          videoUrl: videoUrl || null,
           isVerified: true,
         },
       });
@@ -464,13 +477,45 @@ export async function POST(request: Request) {
       });
     } catch (err: any) {
       if (err.code === "P2002") {
-        return NextResponse.json(
-          {
-            success: false,
-            message: "You have already reviewed this product.",
-          },
-          { status: 409, headers },
-        );
+        // Customer is editing their existing review
+        try {
+          const updated = await db.review.update({
+            where: {
+              productId_userId: { productId, userId: user.id },
+            },
+            data: {
+              rating: numRating,
+              title: title ? String(title).trim().slice(0, 150) : null,
+              body: reviewBody.trim().slice(0, 2000),
+            },
+            include: {
+              user: { select: { name: true } },
+            },
+          });
+          return NextResponse.json({
+            success: true,
+            message: "Your review has been updated successfully!",
+            data: {
+              id: updated.id,
+              rating: updated.rating,
+              title: updated.title,
+              body: updated.body,
+              images: images || [],
+              videoUrl: videoUrl || null,
+              isVerified: updated.isVerified,
+              customerName: updated.user.name,
+              createdAt: updated.createdAt,
+            },
+          });
+        } catch (updateErr: any) {
+          return NextResponse.json(
+            {
+              success: false,
+              message: "You have already reviewed this product.",
+            },
+            { status: 409, headers },
+          );
+        }
       }
       throw err;
     }

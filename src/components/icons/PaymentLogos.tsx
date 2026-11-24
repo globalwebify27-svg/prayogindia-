@@ -18,84 +18,22 @@ interface PaymentLogoProps {
 
 // 1. Official UPI Logo
 export const UPILogo: React.FC<PaymentLogoProps> = ({ className = "h-4 w-auto" }) => (
-  <svg
-    viewBox="0 0 88 28"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-    className={className}
-    role="img"
-    aria-label="UPI - Unified Payments Interface"
-  >
-    {/* NPCI directional double arrow chevrons */}
-    <g transform="translate(2, 3)">
-      <path
-        d="M9.8 0L3.6 11H8.8L15 0H9.8Z"
-        fill="#097939"
-      />
-      <path
-        d="M17.4 0L11.2 11H16.4L22.6 0H17.4Z"
-        fill="#ED7524"
-      />
-      <path
-        d="M5.2 11L11.4 22H6.2L0 11H5.2Z"
-        fill="#097939"
-      />
-      <path
-        d="M12.8 11L19 22H13.8L7.6 11H12.8Z"
-        fill="#ED7524"
-      />
-    </g>
-
-    {/* Slanted "UPI" typography */}
-    <g transform="skewX(-14) translate(30, 21)">
-      <text
-        fontFamily="var(--font-inter), Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
-        fontWeight="900"
-        fontSize="17.5"
-        fill="#1E2A4A"
-        letterSpacing="0.8px"
-      >
-        UPI
-      </text>
-    </g>
-  </svg>
+  <img
+    src="/images/payments/upi.webp"
+    alt="UPI - Unified Payments Interface"
+    className={`object-contain inline-block ${className}`}
+    loading="lazy"
+  />
 );
 
 // 2. Official RuPay Logo
 export const RuPayLogo: React.FC<PaymentLogoProps> = ({ className = "h-4 w-auto" }) => (
-  <svg
-    viewBox="0 0 92 28"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-    className={className}
-    role="img"
-    aria-label="RuPay"
-  >
-    {/* RuPay Text */}
-    <g transform="skewX(-11) translate(2, 20.5)">
-      <text
-        fontFamily="var(--font-inter), Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
-        fontWeight="900"
-        fontSize="18"
-        fill="#003B73"
-        letterSpacing="-0.3px"
-      >
-        RuPay
-      </text>
-    </g>
-
-    {/* Dual RuPay chevrons: Green & Orange */}
-    <g transform="translate(64, 4)">
-      <path
-        d="M8 0L0 20H5.5L13.5 0H8Z"
-        fill="#009A44"
-      />
-      <path
-        d="M16 0L8 20H13.5L21.5 0H16Z"
-        fill="#F37021"
-      />
-    </g>
-  </svg>
+  <img
+    src="/images/payments/rupay.webp"
+    alt="RuPay"
+    className={`object-contain inline-block ${className}`}
+    loading="lazy"
+  />
 );
 
 // 3. Official VISA Logo
@@ -171,34 +109,10 @@ export const NetBankingLogo: React.FC<PaymentLogoProps> = ({ className = "h-4 w-
 
 // 6. Razorpay Official Logo Mark
 export const RazorpayLogo: React.FC<PaymentLogoProps> = ({ className = "h-4 w-auto" }) => (
-  <svg
-    viewBox="0 0 96 26"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-    className={className}
-    role="img"
-    aria-label="Razorpay"
-  >
-    {/* Razorpay stylized lightning slash */}
-    <path
-      d="M13.2 1.5L4 15.2H11L8.5 24.5L20.5 10.8H14.2L16.8 1.5H13.2Z"
-      fill="#0C2340"
-    />
-    <path
-      d="M13.2 1.5L7.5 15.2H12.8L10.5 24.5L18.5 10.8H13.8L16.8 1.5H13.2Z"
-      fill="#0284C7"
-    />
-    {/* Text */}
-    <text
-      x="23"
-      y="18.5"
-      fontFamily="var(--font-inter), Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
-      fontWeight="800"
-      fontSize="14.5"
-      fill="#0C2340"
-      letterSpacing="-0.3px"
-    >
-      Razorpay
-    </text>
-  </svg>
+  <img
+    src="/images/payments/razorpay.webp"
+    alt="Razorpay"
+    className={`object-contain inline-block ${className}`}
+    loading="lazy"
+  />
 );

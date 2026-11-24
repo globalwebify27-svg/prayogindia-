@@ -611,6 +611,7 @@ export default function StorePOSPage() {
           order={completedOrder}
           onClose={() => setCompletedOrder(null)}
           defaultFormat="modern"
+          showThermalFormats={true}
         />
       )}
     </div>
