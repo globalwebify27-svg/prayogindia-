@@ -2288,15 +2288,14 @@ export const CheckoutView: React.FC = () => {
                         className="text-xs font-bold text-[#2563EB] hover:text-[#1D4ED8] hover:underline flex items-center justify-center sm:justify-start gap-1.5 py-1.5 cursor-pointer"
                       >
                         <Plus className="w-3.5 h-3.5" />
-                        <span>+ Add New Address</span>
+                        <span>Add New Address</span>
                       </button>
                       <button
                         type="button"
                         onClick={handleProceedToSummary}
-                        className="w-full sm:w-auto bg-[#2563EB] hover:bg-[#1D4ED8] active:bg-[#1E40AF] text-white px-7 py-3 rounded-xl text-sm font-bold transition-all shadow-md shadow-blue-500/20 cursor-pointer flex items-center justify-center gap-2 group"
+                        className="w-full sm:w-auto bg-[#2563EB] hover:bg-[#1D4ED8] active:bg-[#1E40AF] text-white px-7 py-3 rounded-xl text-sm font-bold transition-all shadow-md shadow-blue-500/20 cursor-pointer flex items-center justify-center transition-all"
                       >
                         <span>Deliver to this Address</span>
-                        <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
                       </button>
                     </div>
                   )}
