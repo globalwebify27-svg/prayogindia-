@@ -110,17 +110,16 @@ export const CheckoutOrderSummary: React.FC<CheckoutSummaryProps> = ({
 
       {/* Green Savings Alert Banner (Flipkart Style) */}
       {totalDiscounts > 0 && (
-        <div className="bg-emerald-50 border border-emerald-200/80 rounded-xl p-3 flex items-center gap-2 text-xs font-bold text-emerald-800">
-          <span className="text-sm">🎉</span>
+        <div className="bg-emerald-50 border border-emerald-200/80 rounded-xl p-3 text-xs font-bold text-emerald-800">
           <span>
             You&apos;ll save ₹{totalDiscounts.toLocaleString("en-IN")} on this order!
           </span>
         </div>
       )}
 
-      {/* Action Footer (Continue / Place Order) */}
+      {/* Action Footer (Continue / Place Order) - Only displayed inside desktop card, mobile is handled by sticky bottom bar */}
       {onProceed && (
-        <div className="pt-2 border-t border-slate-100 flex items-center justify-between gap-3">
+        <div className="hidden lg:flex pt-2 border-t border-slate-100 items-center justify-between gap-3">
           <div>
             {mrpTotal > grandTotal && (
               <span className="text-xs text-slate-400 line-through block font-medium">
@@ -143,8 +142,6 @@ export const CheckoutOrderSummary: React.FC<CheckoutSummaryProps> = ({
               <span>Processing...</span>
             ) : activeStep === "payment" ? (
               <span>Place Order</span>
-            ) : activeStep === "address" ? (
-              <span>Deliver Here</span>
             ) : (
               <span>Continue</span>
             )}

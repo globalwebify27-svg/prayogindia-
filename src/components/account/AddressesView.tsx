@@ -63,12 +63,32 @@ export const AddressesView: React.FC<AddressesViewProps> = ({
       const res = await fetch("/api/users/me/addresses");
       if (res.ok) {
         const data = await res.json();
-        if (data.success) setAddresses(data.data || []);
+        if (data.success && Array.isArray(data.data) && data.data.length > 0) {
+          setAddresses(data.data);
+          if (typeof window !== "undefined") {
+            try {
+              localStorage.setItem("prayog_saved_addresses", JSON.stringify(data.data));
+            } catch {}
+          }
+          return;
+        }
       }
     } catch {
       setError("Failed to load addresses.");
     } finally {
       setLoading(false);
+    }
+
+    if (typeof window !== "undefined") {
+      try {
+        const stored = localStorage.getItem("prayog_saved_addresses");
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setAddresses(parsed);
+          }
+        }
+      } catch {}
     }
   }, []);
 
@@ -155,7 +175,15 @@ export const AddressesView: React.FC<AddressesViewProps> = ({
       const data = await res.json();
       if (data.success) {
         showMessage("Address deleted.");
-        setAddresses((prev) => prev.filter((a) => a.id !== id));
+        setAddresses((prev) => {
+          const updated = prev.filter((a) => a.id !== id);
+          if (typeof window !== "undefined") {
+            try {
+              localStorage.setItem("prayog_saved_addresses", JSON.stringify(updated));
+            } catch {}
+          }
+          return updated;
+        });
       } else {
         showMessage(data.message || "Failed to delete.", true);
       }

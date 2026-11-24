@@ -95,26 +95,14 @@ function customerOrderToBillOrder(ord: CustomerOrder, user?: any): BillOrder {
 }
 
 function formatStatus(status: string): CustomerOrder["status"] {
-  switch (status) {
-    case "ORDER_PLACED":
-      return "Order Placed";
-    case "PAYMENT_CONFIRMED":
-      return "Payment Confirmed";
-    case "PROCESSING":
-      return "Processing";
-    case "PACKED":
-      return "Packed";
-    case "SHIPPED":
-      return "Shipped";
-    case "OUT_FOR_DELIVERY":
-      return "Out for Delivery";
-    case "DELIVERED":
-      return "Delivered";
-    case "CANCELLED":
-      return "Cancelled" as any;
-    default:
-      return "Payment Confirmed";
-  }
+  const norm = (status || "").toUpperCase().replace(/[\s-]/g, "_");
+  if (norm.includes("DELIVER") || norm.includes("ARRIV")) return "Delivered";
+  if (norm.includes("SHIP") || norm.includes("TRANSIT") || norm.includes("OUT_FOR_DELIVERY")) return "Shipped";
+  if (norm.includes("CANCEL")) return "Cancelled" as any;
+  if (norm.includes("PROCESS") || norm.includes("PACK")) return "Processing";
+  if (norm.includes("CONFIRM") || norm.includes("PAID")) return "Payment Confirmed";
+  if (norm.includes("PLACE")) return "Order Placed";
+  return "Order Placed";
 }
 
 function matchesTab(statusStr: string, tab: OrderTab): boolean {
@@ -132,7 +120,7 @@ function matchesTab(statusStr: string, tab: OrderTab): boolean {
     case "processing":
       return s.includes("processing") || s.includes("packed");
     case "shipped":
-      return s.includes("shipped") || s.includes("out for delivery");
+      return s.includes("shipped") || s.includes("transit") || s.includes("out for delivery");
     case "delivered":
       return s.includes("delivered") || s.includes("arrived");
     case "cancelled":
@@ -358,6 +346,24 @@ export const OrdersList: React.FC = () => {
               };
             });
 
+            // Reconcile status between server orders and local cache
+            mapped = mapped.map((ord) => {
+              const localMatch = parsed.find(
+                (p: any) =>
+                  p.orderNumber === ord.orderNumber ||
+                  p.id === ord.id ||
+                  p.id === `ord-${ord.orderNumber}`,
+              );
+              if (localMatch && localMatch.status) {
+                const localNorm = (localMatch.status || "").toUpperCase();
+                // If local status has DELIVERED and server hasn't updated yet, prefer DELIVERED
+                if (localNorm.includes("DELIVER")) {
+                  return { ...ord, status: "Delivered" };
+                }
+              }
+              return ord;
+            });
+
             mapped = [...mapped, ...localOrders];
           }
         }
@@ -381,8 +387,25 @@ export const OrdersList: React.FC = () => {
       setLoading(false);
     }
 
+    const handleSync = () => {
+      if (isLoggedIn) {
+        loadOrders();
+      }
+    };
+
+    if (typeof window !== "undefined") {
+      window.addEventListener("storage", handleSync);
+      window.addEventListener("prayog_orders_updated", handleSync);
+      window.addEventListener("focus", handleSync);
+    }
+
     return () => {
       isMounted = false;
+      if (typeof window !== "undefined") {
+        window.removeEventListener("storage", handleSync);
+        window.removeEventListener("prayog_orders_updated", handleSync);
+        window.removeEventListener("focus", handleSync);
+      }
     };
   }, [router, isLoggedIn, user?.id, user?.email]);
 

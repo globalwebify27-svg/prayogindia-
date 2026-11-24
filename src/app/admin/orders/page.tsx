@@ -415,9 +415,64 @@ export default function AdminOrdersPage() {
   }, [searchQuery, statusFilter]);
 
   const handleStatusChange = async (orderId: string, newStatus: string) => {
+    const cleanId = orderId.replace(/^ord-/, "").trim();
+
+    // 1. Update in-memory state
     setOrders((prev) =>
-      prev.map((o) => (o.id === orderId ? { ...o, status: newStatus } : o)),
+      prev.map((o) =>
+        o.id === orderId ||
+        o.id === cleanId ||
+        o.orderNumber === orderId ||
+        o.orderNumber === cleanId
+          ? { ...o, status: newStatus }
+          : o,
+      ),
     );
+
+    // 2. Synchronize localStorage prayog_placed_orders & prayog_walkin_orders
+    try {
+      if (typeof window !== "undefined") {
+        ["prayog_placed_orders", "prayog_walkin_orders"].forEach((storageKey) => {
+          const stored = localStorage.getItem(storageKey);
+          if (stored) {
+            try {
+              const list = JSON.parse(stored);
+              if (Array.isArray(list)) {
+                let changed = false;
+                const updatedList = list.map((item: any) => {
+                  const match =
+                    item.id === orderId ||
+                    item.id === cleanId ||
+                    item.orderNumber === orderId ||
+                    item.orderNumber === cleanId ||
+                    item.orderNumber?.replace(/^ord-/, "") === cleanId;
+                  if (match) {
+                    changed = true;
+                    return { ...item, status: newStatus };
+                  }
+                  return item;
+                });
+                if (changed) {
+                  localStorage.setItem(storageKey, JSON.stringify(updatedList));
+                }
+              }
+            } catch {}
+          }
+        });
+
+        // Broadcast cross-tab and in-tab sync events
+        window.dispatchEvent(new Event("storage"));
+        window.dispatchEvent(
+          new CustomEvent("prayog_orders_updated", {
+            detail: { orderId, status: newStatus },
+          }),
+        );
+      }
+    } catch (e) {
+      console.warn("Could not sync local order status:", e);
+    }
+
+    // 3. Persist to API
     try {
       await fetch(`/api/admin/orders/${orderId}`, {
         method: "PATCH",

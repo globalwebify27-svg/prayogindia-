@@ -714,7 +714,7 @@ export async function GET(request: Request) {
     const userOrConditions: any[] = [{ userId: user.id }];
     if (user.email) {
       userOrConditions.push({
-        user: { email: user.email.toLowerCase().trim() },
+        user: { email: { equals: user.email.trim(), mode: "insensitive" } },
       });
     }
     const baseUserWhere: any = {

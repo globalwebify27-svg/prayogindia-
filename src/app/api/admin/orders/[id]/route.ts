@@ -27,30 +27,46 @@ export async function PATCH(
     const { status, courierName, trackingNumber, trackingUrl } = body;
 
     if (process.env.DATABASE_URL) {
-      const existingOrder = await db.order.findUnique({
-        where: { id: orderId },
+      const cleanId = orderId.replace(/^ord-/, "").trim();
+      const existingOrder = await db.order.findFirst({
+        where: {
+          OR: [
+            { id: orderId },
+            { id: cleanId },
+            { orderNumber: orderId },
+            { orderNumber: cleanId },
+          ],
+        },
         include: { user: true },
       });
 
+      if (!existingOrder) {
+        return NextResponse.json(
+          { success: false, message: "Order not found" },
+          { status: 404 },
+        );
+      }
+
       const updateData: any = {};
+      const normalizedStatus = (status || "").toUpperCase().replace(/[\s-]/g, "_");
       if (
-        status &&
-        Object.values(OrderStatus).includes(status as OrderStatus)
+        normalizedStatus &&
+        Object.values(OrderStatus).includes(normalizedStatus as OrderStatus)
       ) {
-        updateData.status = status as OrderStatus;
+        updateData.status = normalizedStatus as OrderStatus;
       }
 
       const updatedOrder = await db.order.update({
-        where: { id: orderId },
+        where: { id: existingOrder.id },
         data: updateData,
       });
 
       // Upsert Shipment Info if Courier Details Provided
       if (courierName && trackingNumber) {
         await db.shipment.upsert({
-          where: { orderId },
+          where: { orderId: existingOrder.id },
           create: {
-            orderId,
+            orderId: existingOrder.id,
             courierName,
             trackingNumber,
             trackingUrl: trackingUrl || null,
@@ -73,11 +89,11 @@ export async function PATCH(
             ? `ORDER_STATUS_${status}`
             : "ORDER_SHIPMENT_UPDATE",
         entityType: "Order",
-        entityId: orderId,
+        entityId: existingOrder.id,
         description:
           status && existingOrder?.status !== status
-            ? `Order #${updatedOrder.orderNumber || orderId.slice(0, 8)} status changed from ${existingOrder?.status} to ${status}`
-            : `Order #${updatedOrder.orderNumber || orderId.slice(0, 8)} shipping details updated (${courierName} #${trackingNumber})`,
+            ? `Order #${updatedOrder.orderNumber || existingOrder.id.slice(0, 8)} status changed from ${existingOrder?.status} to ${status}`
+            : `Order #${updatedOrder.orderNumber || existingOrder.id.slice(0, 8)} shipping details updated (${courierName} #${trackingNumber})`,
         actor: admin,
         storeId: null,
         previousValue: {
@@ -102,7 +118,7 @@ export async function PATCH(
         if (status === "CANCELLED" || status === "REFUNDED") {
           try {
             await LoyaltyEngine.reverseOrderPoints(
-              orderId,
+              existingOrder.id,
               `Admin status changed to ${status}`,
               admin,
               request,
@@ -115,7 +131,7 @@ export async function PATCH(
           }
 
           try {
-            await releaseOrderStockOnCancel(orderId);
+            await releaseOrderStockOnCancel(existingOrder.id);
           } catch (stockErr) {
             console.error(
               "[AdminOrderPatch] Stock restock error on cancellation:",
@@ -127,7 +143,7 @@ export async function PATCH(
           updatedOrder.paymentStatus === "PAID"
         ) {
           try {
-            await LoyaltyEngine.awardOrderPoints(orderId, request);
+            await LoyaltyEngine.awardOrderPoints(existingOrder.id, request);
           } catch (loyaltyErr) {
             console.error("[AdminOrderPatch] Loyalty award error:", loyaltyErr);
           }

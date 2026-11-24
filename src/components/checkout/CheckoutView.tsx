@@ -41,6 +41,13 @@ import {
   Phone,
   Building2,
   ExternalLink,
+  Bookmark,
+  Trash2,
+  Heart,
+  Zap,
+  Minus,
+  Plus,
+  Edit3,
 } from "lucide-react";
 import {
   CustomerType,
@@ -154,6 +161,30 @@ const RazorpayBadgeLogo: React.FC<{ className?: string }> = ({ className = "h-3.
   />
 );
 
+const normalizeAddressKey = (a: Partial<Address>): string => {
+  const street = (a.street || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+  const pincode = (a.pincode || "").replace(/\D/g, "");
+  const name = (a.name || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+  return `${name}-${street}-${pincode}`;
+};
+
+export const deduplicateAddresses = (addrs: Address[]): Address[] => {
+  const seenKeys = new Set<string>();
+  const seenIds = new Set<string>();
+  const unique: Address[] = [];
+
+  for (const a of addrs) {
+    if (!a || !a.street || !a.street.trim()) continue;
+    const key = normalizeAddressKey(a);
+    if (!seenKeys.has(key) && (!a.id || !seenIds.has(a.id))) {
+      seenKeys.add(key);
+      if (a.id) seenIds.add(a.id);
+      unique.push(a);
+    }
+  }
+  return unique;
+};
+
 export const CheckoutView: React.FC = () => {
   const {
     cart,
@@ -163,6 +194,7 @@ export const CheckoutView: React.FC = () => {
     redeemRewardPoints,
     updateQuantity,
     removeFromCart,
+    moveToWishlist,
   } = useStore();
 
   // ── Customer Profile Information (Auto-populated only if logged in, otherwise blank)
@@ -181,6 +213,18 @@ export const CheckoutView: React.FC = () => {
   const [checkoutReceivedOtp, setCheckoutReceivedOtp] = useState<string | null>(null);
   const [validationError, setValidationError] = useState<string | null>(null);
   const [guestAllowed, setGuestAllowed] = useState(false);
+  const [singleCheckoutItemId, setSingleCheckoutItemId] = useState<string | null>(null);
+
+  // Active items being checked out (either single item via 'Buy this now' or entire cart)
+  const activeCheckoutItems = React.useMemo(() => {
+    if (!singleCheckoutItemId) return cart;
+    const match = cart.filter(
+      (item) =>
+        `${item.product.id}-${item.variant?.id || "def"}` === singleCheckoutItemId ||
+        item.product.id === singleCheckoutItemId,
+    );
+    return match.length > 0 ? match : cart;
+  }, [cart, singleCheckoutItemId]);
 
   // Sync with logged in user state
   React.useEffect(() => {
@@ -192,6 +236,79 @@ export const CheckoutView: React.FC = () => {
       setIsPhoneVerified(true);
     }
   }, [user]);
+
+  // Auto-load and initialize saved addresses so customer never has to re-enter
+  React.useEffect(() => {
+    const loadSavedAddresses = async () => {
+      let loaded: Address[] = [];
+
+      // 1. Check persistent localStorage cache
+      if (typeof window !== "undefined") {
+        try {
+          const stored = localStorage.getItem("prayog_saved_addresses");
+          if (stored) {
+            const parsed = JSON.parse(stored);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              loaded = parsed;
+            }
+          }
+        } catch {}
+      }
+
+      // 2. If logged in, fetch user's saved addresses from server
+      if (isLoggedIn) {
+        try {
+          const res = await fetch("/api/users/me/addresses");
+          if (res.ok) {
+            const data = await res.json();
+            if (data.success && Array.isArray(data.data) && data.data.length > 0) {
+              loaded = data.data;
+              if (typeof window !== "undefined") {
+                try {
+                  localStorage.setItem("prayog_saved_addresses", JSON.stringify(data.data));
+                } catch {}
+              }
+            }
+          }
+        } catch {}
+      }
+
+      // 3. Fallback to mock addresses if still empty and user is logged in
+      if (loaded.length === 0 && isLoggedIn && Array.isArray(MOCK_SAVED_ADDRESSES) && MOCK_SAVED_ADDRESSES.length > 0) {
+        loaded = MOCK_SAVED_ADDRESSES;
+      }
+
+      const deduped = deduplicateAddresses(loaded);
+      if (deduped.length > 0) {
+        setAddresses(deduped);
+        if (typeof window !== "undefined") {
+          try {
+            localStorage.setItem("prayog_saved_addresses", JSON.stringify(deduped));
+          } catch {}
+        }
+        const defaultAddr = deduped.find((a) => a.isDefault) || deduped[0];
+        if (defaultAddr) {
+          setSelectedShippingAddressId(defaultAddr.id);
+          setAddrFormStreet(defaultAddr.street);
+          setAddrFormCity(defaultAddr.city);
+          setAddrFormState(defaultAddr.state);
+          setAddrFormPincode(defaultAddr.pincode);
+          setAddrFormName(defaultAddr.name);
+          setAddrFormPhone(defaultAddr.phone);
+          if (defaultAddr.type) setAddrFormType(defaultAddr.type as any);
+
+          if (defaultAddr.name) {
+            setCustomerName(defaultAddr.name);
+          }
+          if (defaultAddr.phone) {
+            setCustomerMobile(defaultAddr.phone.replace(/\D/g, "").slice(-10));
+          }
+        }
+      }
+    };
+
+    loadSavedAddresses();
+  }, [isLoggedIn]);
 
   // When mobile number changes and does not match logged-in user phone, require re-verification
   const handleMobileChange = (val: string) => {
@@ -299,6 +416,7 @@ export const CheckoutView: React.FC = () => {
     string | null
   >(null);
   const [isEditingAddress, setIsEditingAddress] = useState(false);
+  const [isAddingNewAddress, setIsAddingNewAddress] = useState(false);
   const [deliveryInstructions, setDeliveryInstructions] = useState("");
   const [showInstructionsInput, setShowInstructionsInput] = useState(false);
   const [paymentBank, setPaymentBank] = useState("Choose an Option");
@@ -306,6 +424,9 @@ export const CheckoutView: React.FC = () => {
 
   const handleSelectSavedAddress = (id: string) => {
     setSelectedShippingAddressId(id);
+    setIsEditingAddress(false);
+    setIsAddingNewAddress(false);
+    setEditingAddressId(null);
     const addr = addresses.find((a) => a.id === id);
     if (addr) {
       setAddrFormName(addr.name);
@@ -314,6 +435,67 @@ export const CheckoutView: React.FC = () => {
       setAddrFormCity(addr.city);
       setAddrFormState(addr.state);
       setAddrFormPincode(addr.pincode);
+      if (addr.type) setAddrFormType(addr.type as any);
+      if (addr.name) setCustomerName(addr.name);
+      if (addr.phone) setCustomerMobile(addr.phone.replace(/\D/g, "").slice(-10));
+    }
+  };
+
+  const handleStartEditAddress = (id: string) => {
+    const addr = addresses.find((a) => a.id === id);
+    if (addr) {
+      setSelectedShippingAddressId(addr.id);
+      setEditingAddressId(addr.id);
+      setAddrFormName(addr.name);
+      setAddrFormPhone(addr.phone);
+      setAddrFormStreet(addr.street);
+      setAddrFormCity(addr.city);
+      setAddrFormState(addr.state);
+      setAddrFormPincode(addr.pincode);
+      if (addr.type) setAddrFormType(addr.type as any);
+      if (addr.name) setCustomerName(addr.name);
+      if (addr.phone) setCustomerMobile(addr.phone.replace(/\D/g, "").slice(-10));
+    }
+    setIsEditingAddress(true);
+    setIsAddingNewAddress(false);
+  };
+
+  const handleStartAddNewAddress = () => {
+    setSelectedShippingAddressId("");
+    setEditingAddressId(null);
+    setIsEditingAddress(false);
+    setIsAddingNewAddress(true);
+    setAddrFormStreet("");
+    setAddrFormCity("");
+    setAddrFormState("");
+    setAddrFormPincode("");
+    setAddrFormType("Home");
+    if (user?.name) {
+      setAddrFormName(user.name);
+      setCustomerName(user.name);
+    }
+    if (user?.phone) {
+      const cleanPhone = user.phone.replace(/\D/g, "").slice(-10);
+      setAddrFormPhone(cleanPhone);
+      setCustomerMobile(cleanPhone);
+    }
+  };
+
+  const handleCancelAddressEdit = () => {
+    setIsEditingAddress(false);
+    setIsAddingNewAddress(false);
+    setEditingAddressId(null);
+    if (selectedShippingAddressId) {
+      const addr = addresses.find((a) => a.id === selectedShippingAddressId);
+      if (addr) {
+        setAddrFormName(addr.name);
+        setAddrFormPhone(addr.phone);
+        setAddrFormStreet(addr.street);
+        setAddrFormCity(addr.city);
+        setAddrFormState(addr.state);
+        setAddrFormPincode(addr.pincode);
+        if (addr.type) setAddrFormType(addr.type as any);
+      }
     }
   };
 
@@ -405,12 +587,87 @@ export const CheckoutView: React.FC = () => {
     return true;
   };
 
-  const handleProceedToSummary = () => {
-    if (validateAddressData()) {
-      setIsEditingAddress(false);
-      setCheckoutStep("summary");
-      window.scrollTo({ top: 0, behavior: "smooth" });
+  const handleSaveAddressForm = (): boolean => {
+    if (!validateAddressData()) return false;
+
+    const targetId = editingAddressId || selectedShippingAddressId || `addr-${Date.now()}`;
+    const newAddress: Address = {
+      id: targetId,
+      name: (customerName || addrFormName || "Customer").trim(),
+      phone: (customerMobile || addrFormPhone || "").trim(),
+      street: addrFormStreet.trim(),
+      city: addrFormCity.trim(),
+      state: addrFormState.trim(),
+      pincode: addrFormPincode.trim(),
+      type: (addrFormType as "Home" | "Office" | "Lab / College") || "Home",
+      isDefault: true,
+    };
+
+    setAddresses((prev) => {
+      const existingIdx = prev.findIndex((a) => a.id === targetId);
+      let updated: Address[];
+      if (existingIdx >= 0) {
+        updated = prev.map((a, idx) =>
+          idx === existingIdx
+            ? { ...newAddress, id: a.id }
+            : { ...a, isDefault: false },
+        );
+      } else {
+        updated = [newAddress, ...prev.map((a) => ({ ...a, isDefault: false }))];
+      }
+      const deduped = deduplicateAddresses(updated);
+      if (typeof window !== "undefined") {
+        try {
+          localStorage.setItem("prayog_saved_addresses", JSON.stringify(deduped));
+        } catch {}
+      }
+      return deduped;
+    });
+
+    setSelectedShippingAddressId(newAddress.id);
+    setIsEditingAddress(false);
+    setIsAddingNewAddress(false);
+    setEditingAddressId(null);
+
+    // Persist to user API if logged in
+    if (isLoggedIn) {
+      fetch("/api/users/me/addresses", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: newAddress.name,
+          phone: newAddress.phone,
+          street: newAddress.street,
+          city: newAddress.city,
+          state: newAddress.state,
+          pincode: newAddress.pincode,
+          type: newAddress.type,
+          isDefault: true,
+        }),
+      }).catch(() => {});
     }
+    return true;
+  };
+
+  const handleProceedToSummary = () => {
+    // If the address form is actively open (editing or adding or empty), save it first
+    if (isEditingAddress || isAddingNewAddress || addresses.length === 0) {
+      const saved = handleSaveAddressForm();
+      if (!saved) return;
+    }
+
+    // Ensure we have a valid selected address
+    const currentAddr = addresses.find((a) => a.id === selectedShippingAddressId) || addresses[0];
+    if (!currentAddr && !addrFormStreet) {
+      if (!validateAddressData()) return;
+      handleSaveAddressForm();
+    }
+
+    setIsEditingAddress(false);
+    setIsAddingNewAddress(false);
+    setEditingAddressId(null);
+    setCheckoutStep("summary");
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handleProceedToPayment = () => {
@@ -466,7 +723,7 @@ export const CheckoutView: React.FC = () => {
   };
 
   // ── Cart Calculations
-  const subtotal = cart.reduce((sum, item) => {
+  const subtotal = activeCheckoutItems.reduce((sum, item) => {
     const rawPrice = item.variant ? item.variant.price : item.product.price;
     const { unitPrice } = calculateCustomerPrice(
       rawPrice,
@@ -476,7 +733,7 @@ export const CheckoutView: React.FC = () => {
     return sum + unitPrice * item.quantity;
   }, 0);
 
-  const mrpTotal = cart.reduce((sum, item) => {
+  const mrpTotal = activeCheckoutItems.reduce((sum, item) => {
     const mrp = item.variant ? item.variant.mrp : item.product.mrp;
     return sum + mrp * item.quantity;
   }, 0);
@@ -485,7 +742,7 @@ export const CheckoutView: React.FC = () => {
   const rewardDiscount = Math.round(rewardPointsAvailable * 0.5);
 
   // ── DGCA Shipping Restriction Check
-  const hasRestrictedBatteryItem = cart.some(
+  const hasRestrictedBatteryItem = activeCheckoutItems.some(
     (item) =>
       (item.product.shippingTag as string) === "Battery Item" ||
       (item.product.shippingTag as string) === "Battery Product" ||
@@ -496,15 +753,15 @@ export const CheckoutView: React.FC = () => {
   );
 
   // ── Admin-Configured Freight & Shipping Rules per Product
-  const isAirAllowedOnCart = !hasRestrictedBatteryItem && cart.every((it) => it.product.airFreightAllowed !== false);
-  const isSurfaceAllowedOnCart = cart.every((it) => it.product.surfaceFreightAllowed !== false);
-  const isLocalPickupAllowedOnCart = cart.some((it) => it.product.localPickupAllowed !== false);
+  const isAirAllowedOnCart = !hasRestrictedBatteryItem && activeCheckoutItems.every((it) => it.product.airFreightAllowed !== false);
+  const isSurfaceAllowedOnCart = activeCheckoutItems.every((it) => it.product.surfaceFreightAllowed !== false);
+  const isLocalPickupAllowedOnCart = activeCheckoutItems.some((it) => it.product.localPickupAllowed !== false);
 
   // Check free shipping threshold (₹2,000)
   const isFreeStandardShipping = subtotal >= 2000;
 
   // Air delivery amount configured by admin on product (or default ₹149)
-  const adminAirCharge = cart.reduce((max, it) => {
+  const adminAirCharge = activeCheckoutItems.reduce((max, it) => {
     const custom = it.product.airFreightCharge ?? 
       (it.product as any).specs?._shipping?.airFreightCharge ?? 
       (it.product as any).specs?._shipping?.shippingCharge ?? 
@@ -513,7 +770,7 @@ export const CheckoutView: React.FC = () => {
   }, 149);
 
   // Surface delivery amount configured by admin on product (or default ₹99)
-  const adminSurfaceCharge = cart.reduce((max, it) => {
+  const adminSurfaceCharge = activeCheckoutItems.reduce((max, it) => {
     const custom = it.product.surfaceFreightCharge ?? 
       (it.product as any).specs?._shipping?.surfaceFreightCharge ?? 
       (it.product as any).specs?._shipping?.shippingCost;
@@ -522,7 +779,7 @@ export const CheckoutView: React.FC = () => {
   const effectiveSurfaceFee = isFreeStandardShipping ? 0 : adminSurfaceCharge;
 
   // Local Store Pickup amount configured by admin on product (default 0 / Free)
-  const adminPickupCharge = cart.reduce((max, it) => {
+  const adminPickupCharge = activeCheckoutItems.reduce((max, it) => {
     const custom = it.product.pickupCharge ?? 
       (it.product as any).specs?._shipping?.pickupCharge;
     return typeof custom === "number" && !isNaN(custom) ? Math.max(max, custom) : max;
@@ -595,7 +852,7 @@ export const CheckoutView: React.FC = () => {
           couponCode: c,
           cartTotal: subtotal,
           customerType: activeCustomerType,
-          cartItems: cart.map((item) => ({
+          cartItems: activeCheckoutItems.map((item) => ({
             category: item.product.category,
             sku: item.product.sku,
             price: item.product.price,
@@ -631,7 +888,7 @@ export const CheckoutView: React.FC = () => {
           user?.email,
           false,
           false,
-          cart.map((item) => ({
+          activeCheckoutItems.map((item) => ({
             category: item.product.category,
             sku: item.product.sku,
             price: item.product.price,
@@ -730,8 +987,8 @@ export const CheckoutView: React.FC = () => {
 
     if (editingAddressId) {
       // Edit existing
-      setAddresses((prev) =>
-        prev.map((a) => {
+      setAddresses((prev) => {
+        const updated = prev.map((a) => {
           if (a.id === editingAddressId) {
             return {
               ...a,
@@ -746,8 +1003,14 @@ export const CheckoutView: React.FC = () => {
             };
           }
           return addrFormIsDefault ? { ...a, isDefault: false } : a;
-        }),
-      );
+        });
+        if (typeof window !== "undefined") {
+          try {
+            localStorage.setItem("prayog_saved_addresses", JSON.stringify(updated));
+          } catch {}
+        }
+        return updated;
+      });
     } else {
       // Create new
       const newAddr: Address = {
@@ -766,7 +1029,13 @@ export const CheckoutView: React.FC = () => {
         const next = addrFormIsDefault
           ? prev.map((a) => ({ ...a, isDefault: false }))
           : [...prev];
-        return [...next, newAddr];
+        const updated = [...next, newAddr];
+        if (typeof window !== "undefined") {
+          try {
+            localStorage.setItem("prayog_saved_addresses", JSON.stringify(updated));
+          } catch {}
+        }
+        return updated;
       });
       setSelectedShippingAddressId(newAddr.id);
     }
@@ -837,6 +1106,26 @@ export const CheckoutView: React.FC = () => {
       };
     }
 
+    // Persist to localStorage so customer never has to re-enter address in future
+    if (typeof window !== "undefined" && selectedAddr.street && selectedAddr.pincode) {
+      try {
+        const stored = localStorage.getItem("prayog_saved_addresses");
+        const list: Address[] = stored ? JSON.parse(stored) : [];
+        const exists = list.some(
+          (a) =>
+            a.id === selectedAddr?.id ||
+            (a.street.toLowerCase() === selectedAddr?.street.toLowerCase() &&
+              a.pincode === selectedAddr?.pincode),
+        );
+        if (!exists) {
+          localStorage.setItem(
+            "prayog_saved_addresses",
+            JSON.stringify([selectedAddr, ...list.map((a) => ({ ...a, isDefault: false }))]),
+          );
+        }
+      } catch {}
+    }
+
     if (
       !selectedAddr.street.trim() ||
       !selectedAddr.city.trim() ||
@@ -872,7 +1161,7 @@ export const CheckoutView: React.FC = () => {
     try {
       const fullAddressStr = `${selectedAddr.name}, ${selectedAddr.street}, ${selectedAddr.city}, ${selectedAddr.state} - ${selectedAddr.pincode}`;
       
-      let orderItems = cart;
+      let orderItems = activeCheckoutItems;
       if (!orderItems || orderItems.length === 0) {
         try {
           const stored = typeof window !== "undefined" ? localStorage.getItem("prayog_cart") : null;
@@ -973,7 +1262,7 @@ export const CheckoutView: React.FC = () => {
         paymentStatus: paymentMethod === "cod" ? "PENDING" : "PAID",
         isPaid: paymentMethod !== "cod",
         receivedAmount: paymentMethod === "cod" ? 0 : grandTotal,
-        items: (cart || []).map((i) => ({
+        items: (activeCheckoutItems || []).map((i) => ({
           name: i.product?.name || "Component",
           quantity: i.quantity || 1,
           price: i.variant?.price || i.product?.price || 0,
@@ -1001,7 +1290,7 @@ export const CheckoutView: React.FC = () => {
       await new Promise((resolve) => setTimeout(resolve, 1400 - elapsed));
     }
 
-    setPlacedOrderItems([...cart]);
+    setPlacedOrderItems([...activeCheckoutItems]);
     setPlacedOrderTotal(grandTotal);
     setPlacedOrderAddress(selectedAddr);
     const now = new Date();
@@ -1017,7 +1306,13 @@ export const CheckoutView: React.FC = () => {
           minute: "2-digit",
         }),
     );
-    clearCart();
+    if (singleCheckoutItemId) {
+      activeCheckoutItems.forEach((it) =>
+        removeFromCart(it.product.id, it.variant?.id),
+      );
+    } else {
+      clearCart();
+    }
     setPlacedOrderNumber(confirmedOrderNumber);
     setIsOrderPlacedDemo(true);
     setIsSubmitting(false);
@@ -1703,7 +1998,7 @@ export const CheckoutView: React.FC = () => {
   }
 
   return (
-    <div className="w-full px-3.5 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 py-3 sm:py-5 space-y-3 sm:space-y-4 animate-in fade-in duration-300 relative">
+    <div className="w-full px-3.5 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 py-3 sm:py-5 space-y-3 sm:space-y-4 animate-in fade-in duration-300 relative pb-28 lg:pb-6">
       {/* Order Processing Overlay with Truck Loader */}
       {isSubmitting && (
         <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
@@ -1911,246 +2206,320 @@ export const CheckoutView: React.FC = () => {
                     onClick={handleProceedToSummary}
                     className="text-xs font-bold text-[#2563EB] hover:underline cursor-pointer"
                   >
-                    Done
+                    Save &amp; Continue →
                   </button>
                 )}
               </div>
 
               {/* Saved Addresses Quick Selector (if customer has saved addresses) */}
               {addresses.length > 0 && (
-                <div className="space-y-1.5 pb-2">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
-                    Saved Addresses
-                  </span>
-                  <div className="flex flex-wrap gap-1.5">
+                <div className="space-y-3 pb-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">
+                      Saved Delivery Addresses ({addresses.length})
+                    </span>
+                    <span className="text-[11px] text-slate-400 hidden sm:inline">
+                      Select an address below or add a new one
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {addresses.map((a) => {
                       const isSel = selectedShippingAddressId === a.id;
                       return (
-                        <button
+                        <div
                           key={a.id}
-                          type="button"
                           onClick={() => handleSelectSavedAddress(a.id)}
-                          className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-all cursor-pointer ${
+                          className={`p-3.5 rounded-xl border text-xs transition-all cursor-pointer relative flex flex-col justify-between gap-2.5 ${
                             isSel
-                              ? "bg-blue-50 text-[#2563EB] border-blue-200 font-bold shadow-2xs"
-                              : "bg-white text-slate-600 border-slate-200 hover:border-slate-300 hover:text-slate-900"
+                              ? "bg-blue-50/70 text-slate-900 border-[#2563EB] shadow-xs ring-2 ring-[#2563EB]/40"
+                              : "bg-white text-slate-600 border-slate-200 hover:border-slate-300 hover:bg-slate-50/50"
                           }`}
                         >
-                          <span className="font-semibold text-slate-900">{a.type}:</span> {a.street.slice(0, 18)}... ({a.pincode})
-                        </button>
+                          <div className="flex items-center justify-between gap-2">
+                            <div className="flex items-center gap-1.5 min-w-0">
+                              <span
+                                className={`text-[10px] font-extrabold uppercase px-2 py-0.5 rounded tracking-wide ${
+                                  isSel
+                                    ? "bg-[#2563EB] text-white"
+                                    : "bg-slate-100 text-slate-600"
+                                }`}
+                              >
+                                {a.type || "Home"}
+                              </span>
+                              <span className="font-bold text-slate-900 truncate">
+                                {a.name}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-2 shrink-0">
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleStartEditAddress(a.id);
+                                }}
+                                className="text-[11px] font-bold text-[#2563EB] hover:text-[#1D4ED8] hover:underline flex items-center gap-1 px-2 py-0.5 rounded-md bg-blue-50 hover:bg-blue-100 cursor-pointer transition-colors"
+                                title="Edit this address"
+                              >
+                                <Edit3 className="w-3 h-3" />
+                                <span>Edit</span>
+                              </button>
+                              {isSel && (
+                                <CheckCircle2 className="w-4 h-4 text-[#2563EB] fill-blue-100" />
+                              )}
+                            </div>
+                          </div>
+                          <p className="text-[11px] text-slate-600 line-clamp-2 leading-relaxed">
+                            {a.street}, {a.city}, {a.state} - {a.pincode}
+                          </p>
+                          <div className="text-[11px] font-medium text-slate-500">
+                            Phone: <strong className="font-semibold text-slate-700">{a.phone}</strong>
+                          </div>
+                        </div>
                       );
                     })}
+                  </div>
+
+                  {/* Actions when not actively editing/adding */}
+                  {!isEditingAddress && !isAddingNewAddress && (
+                    <div className="pt-3 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 border-t border-slate-100">
+                      <button
+                        type="button"
+                        onClick={handleStartAddNewAddress}
+                        className="text-xs font-bold text-[#2563EB] hover:text-[#1D4ED8] hover:underline flex items-center justify-center sm:justify-start gap-1.5 py-1.5 cursor-pointer"
+                      >
+                        <Plus className="w-3.5 h-3.5" />
+                        <span>+ Add New Address</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleProceedToSummary}
+                        className="w-full sm:w-auto bg-[#2563EB] hover:bg-[#1D4ED8] active:bg-[#1E40AF] text-white px-7 py-3 rounded-xl text-sm font-bold transition-all shadow-md shadow-blue-500/20 cursor-pointer flex items-center justify-center gap-2 group"
+                      >
+                        <span>Deliver to this Address</span>
+                        <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Form Fields: shown when user clicks Edit, Add New, or when no saved addresses exist */}
+              {(isEditingAddress || isAddingNewAddress || addresses.length === 0) && (
+                <div className="space-y-4 pt-3 border-t border-slate-100 animate-in fade-in duration-200">
+                  <div className="flex items-center justify-between pb-1">
+                    <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700">
+                      {isEditingAddress ? "Edit Delivery Address" : "Add New Delivery Address"}
+                    </h3>
+                    {addresses.length > 0 && (
+                      <button
+                        type="button"
+                        onClick={handleCancelAddressEdit}
+                        className="text-xs font-bold text-slate-500 hover:text-slate-800 cursor-pointer"
+                      >
+                        Cancel
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Contact Details: Name & Mobile */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-4">
+                    <div className="space-y-1.5">
+                      <label className="block text-xs font-bold text-slate-700">
+                        Full Name <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={customerName}
+                        onChange={(e) => {
+                          setCustomerName(e.target.value);
+                          setAddrFormName(e.target.value);
+                        }}
+                        placeholder="Enter your full name"
+                        className="w-full bg-slate-50/60 focus:bg-white border border-slate-200 focus:border-[#2563EB] focus:ring-4 focus:ring-blue-500/10 rounded-xl px-3.5 py-2.5 text-sm font-medium text-slate-900 outline-none transition-all placeholder:text-slate-400 placeholder:font-normal shadow-2xs"
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <div className="flex items-center justify-between">
+                        <label className="block text-xs font-bold text-slate-700">
+                          Mobile Number <span className="text-red-500">*</span>
+                        </label>
+                        {!isPhoneVerified && customerMobile.length === 10 && (
+                          <button
+                            type="button"
+                            onClick={handleSendCheckoutOtp}
+                            className="text-xs text-[#2563EB] font-bold hover:underline cursor-pointer"
+                          >
+                            Verify OTP
+                          </button>
+                        )}
+                      </div>
+                      <div className="relative flex items-center">
+                        <span className="absolute left-3.5 text-xs font-bold text-slate-500 pointer-events-none border-r border-slate-200 pr-2">
+                          +91
+                        </span>
+                        <input
+                          type="tel"
+                          required
+                          maxLength={10}
+                          value={customerMobile}
+                          onChange={(e) => {
+                            handleMobileChange(e.target.value);
+                            setAddrFormPhone(e.target.value);
+                          }}
+                          placeholder="10-digit mobile number"
+                          className="w-full bg-slate-50/60 focus:bg-white border border-slate-200 focus:border-[#2563EB] focus:ring-4 focus:ring-blue-500/10 rounded-xl pl-14 pr-3.5 py-2.5 text-sm font-medium text-slate-900 outline-none transition-all placeholder:text-slate-400 placeholder:font-normal shadow-2xs"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Email Address */}
+                  <div className="space-y-1.5">
+                    <div className="flex items-baseline justify-between">
+                      <label className="block text-xs font-bold text-slate-700">
+                        Email Address
+                      </label>
+                      <span className="text-[11px] text-slate-400 font-medium">
+                        Order invoice &amp; tracking updates
+                      </span>
+                    </div>
+                    <input
+                      type="email"
+                      value={customerEmail}
+                      onChange={(e) => setCustomerEmail(e.target.value)}
+                      placeholder="email@example.com"
+                      className="w-full bg-slate-50/60 focus:bg-white border border-slate-200 focus:border-[#2563EB] focus:ring-4 focus:ring-blue-500/10 rounded-xl px-3.5 py-2.5 text-sm font-medium text-slate-900 outline-none transition-all placeholder:text-slate-400 placeholder:font-normal shadow-2xs"
+                    />
+                  </div>
+
+                  {/* Street Address */}
+                  <div className="space-y-1.5">
+                    <label className="block text-xs font-bold text-slate-700">
+                      Flat, House no., Building, Street Address <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={addrFormStreet}
+                      onChange={(e) => setAddrFormStreet(e.target.value)}
+                      placeholder="House / Flat no., Building, Street, Area"
+                      className="w-full bg-slate-50/60 focus:bg-white border border-slate-200 focus:border-[#2563EB] focus:ring-4 focus:ring-blue-500/10 rounded-xl px-3.5 py-2.5 text-sm font-medium text-slate-900 outline-none transition-all placeholder:text-slate-400 placeholder:font-normal shadow-2xs"
+                    />
+                  </div>
+
+                  {/* PIN Code, City, State */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 sm:gap-4">
+                    <div className="space-y-1.5">
+                      <label className="block text-xs font-bold text-slate-700">
+                        PIN Code <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        maxLength={6}
+                        value={addrFormPincode}
+                        onChange={(e) => setAddrFormPincode(e.target.value.replace(/\D/g, ""))}
+                        placeholder="6-digit PIN code"
+                        className="w-full bg-slate-50/60 focus:bg-white border border-slate-200 focus:border-[#2563EB] focus:ring-4 focus:ring-blue-500/10 rounded-xl px-3.5 py-2.5 text-sm font-medium text-slate-900 outline-none transition-all placeholder:text-slate-400 placeholder:font-normal shadow-2xs"
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="block text-xs font-bold text-slate-700">
+                        City <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={addrFormCity}
+                        onChange={(e) => setAddrFormCity(e.target.value)}
+                        placeholder="City / District"
+                        className="w-full bg-slate-50/60 focus:bg-white border border-slate-200 focus:border-[#2563EB] focus:ring-4 focus:ring-blue-500/10 rounded-xl px-3.5 py-2.5 text-sm font-medium text-slate-900 outline-none transition-all placeholder:text-slate-400 placeholder:font-normal shadow-2xs"
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="block text-xs font-bold text-slate-700">
+                        State <span className="text-red-500">*</span>
+                      </label>
+                      <select
+                        value={addrFormState}
+                        onChange={(e) => setAddrFormState(e.target.value)}
+                        className="w-full bg-slate-50/60 focus:bg-white border border-slate-200 focus:border-[#2563EB] focus:ring-4 focus:ring-blue-500/10 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-900 outline-none transition-all cursor-pointer shadow-2xs"
+                      >
+                        <option value="">Select State</option>
+                        {INDIAN_STATES.map((s) => (
+                          <option key={s} value={s}>{s}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* Address Type Tag */}
+                  <div className="space-y-1.5 pt-0.5">
+                    <label className="block text-xs font-bold text-slate-700">
+                      Address Type
+                    </label>
+                    <div className="grid grid-cols-3 gap-2">
+                      {(["Home", "Office", "Lab / College"] as const).map((type) => {
+                        const isSel = addrFormType === type;
+                        return (
+                          <button
+                            key={type}
+                            type="button"
+                            onClick={() => setAddrFormType(type)}
+                            className={`py-2 px-1 text-center justify-center text-xs font-bold rounded-xl border transition-all cursor-pointer truncate ${
+                              isSel
+                                ? "bg-blue-50 text-[#2563EB] border-blue-200 shadow-2xs font-bold"
+                                : "bg-white text-slate-600 border-slate-200 hover:border-slate-300"
+                            }`}
+                          >
+                            {type === "Home" ? "Home" : type === "Office" ? "Office" : "College"}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Delivery Instructions */}
+                  <div className="space-y-1.5">
+                    <label className="block text-xs font-bold text-slate-700">
+                      Delivery Instructions <span className="text-slate-400 font-normal">(Optional)</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={deliveryInstructions}
+                      onChange={(e) => setDeliveryInstructions(e.target.value)}
+                      placeholder="Landmark, building entry, gate code, or delivery notes"
+                      className="w-full bg-slate-50/60 focus:bg-white border border-slate-200 focus:border-[#2563EB] focus:ring-4 focus:ring-blue-500/10 rounded-xl px-3.5 py-2.5 text-sm font-medium text-slate-900 outline-none transition-all placeholder:text-slate-400 placeholder:font-normal shadow-2xs"
+                    />
+                  </div>
+
+                  {/* Form Action Buttons */}
+                  <div className="pt-3 border-t border-slate-100 flex items-center justify-end gap-3">
+                    {addresses.length > 0 && (
+                      <button
+                        type="button"
+                        onClick={handleCancelAddressEdit}
+                        className="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs font-bold transition-colors cursor-pointer"
+                      >
+                        Cancel
+                      </button>
+                    )}
                     <button
                       type="button"
-                      onClick={() => {
-                        setSelectedShippingAddressId("");
-                        setAddrFormStreet("");
-                        setAddrFormPincode("");
-                        setAddrFormCity("");
-                        setAddrFormState("");
-                      }}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-all cursor-pointer ${
-                        !selectedShippingAddressId
-                          ? "bg-blue-50 text-[#2563EB] border-blue-200 font-bold"
-                          : "bg-white text-slate-600 border-slate-200 hover:border-slate-300 hover:text-slate-900"
-                      }`}
+                      onClick={handleSaveAddressForm}
+                      className="w-full sm:w-auto bg-[#2563EB] hover:bg-[#1D4ED8] active:bg-[#1E40AF] text-white px-7 py-3 rounded-xl text-sm font-bold transition-all shadow-md shadow-blue-500/20 cursor-pointer flex items-center justify-center gap-2 group"
                     >
-                      + New Address
+                      <CheckCircle2 className="w-4 h-4 text-white/90" />
+                      <span>Save Address</span>
+                      <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
                     </button>
                   </div>
                 </div>
               )}
-
-              {/* Form Fields */}
-              <div className="space-y-4">
-                {/* Contact Details: Name & Mobile */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-4">
-                  <div className="space-y-1.5">
-                    <label className="block text-xs font-bold text-slate-700">
-                      Full Name <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      value={customerName}
-                      onChange={(e) => {
-                        setCustomerName(e.target.value);
-                        setAddrFormName(e.target.value);
-                      }}
-                      placeholder="Enter your full name"
-                      className="w-full bg-slate-50/60 focus:bg-white border border-slate-200 focus:border-[#2563EB] focus:ring-4 focus:ring-blue-500/10 rounded-xl px-3.5 py-2.5 text-sm font-medium text-slate-900 outline-none transition-all placeholder:text-slate-400 placeholder:font-normal shadow-2xs"
-                    />
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <div className="flex items-center justify-between">
-                      <label className="block text-xs font-bold text-slate-700">
-                        Mobile Number <span className="text-red-500">*</span>
-                      </label>
-                      {!isPhoneVerified && customerMobile.length === 10 && (
-                        <button
-                          type="button"
-                          onClick={handleSendCheckoutOtp}
-                          className="text-xs text-[#2563EB] font-bold hover:underline cursor-pointer"
-                        >
-                          Verify OTP
-                        </button>
-                      )}
-                    </div>
-                    <div className="relative flex items-center">
-                      <span className="absolute left-3.5 text-xs font-bold text-slate-500 pointer-events-none border-r border-slate-200 pr-2">
-                        +91
-                      </span>
-                      <input
-                        type="tel"
-                        required
-                        maxLength={10}
-                        value={customerMobile}
-                        onChange={(e) => {
-                          handleMobileChange(e.target.value);
-                          setAddrFormPhone(e.target.value);
-                        }}
-                        placeholder="10-digit mobile number"
-                        className="w-full bg-slate-50/60 focus:bg-white border border-slate-200 focus:border-[#2563EB] focus:ring-4 focus:ring-blue-500/10 rounded-xl pl-14 pr-3.5 py-2.5 text-sm font-medium text-slate-900 outline-none transition-all placeholder:text-slate-400 placeholder:font-normal shadow-2xs"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Email Address */}
-                <div className="space-y-1.5">
-                  <div className="flex items-baseline justify-between">
-                    <label className="block text-xs font-bold text-slate-700">
-                      Email Address
-                    </label>
-                    <span className="text-[11px] text-slate-400 font-medium">
-                      Order invoice &amp; tracking updates
-                    </span>
-                  </div>
-                  <input
-                    type="email"
-                    value={customerEmail}
-                    onChange={(e) => setCustomerEmail(e.target.value)}
-                    placeholder="email@example.com"
-                    className="w-full bg-slate-50/60 focus:bg-white border border-slate-200 focus:border-[#2563EB] focus:ring-4 focus:ring-blue-500/10 rounded-xl px-3.5 py-2.5 text-sm font-medium text-slate-900 outline-none transition-all placeholder:text-slate-400 placeholder:font-normal shadow-2xs"
-                  />
-                </div>
-
-                {/* Street Address */}
-                <div className="space-y-1.5">
-                  <label className="block text-xs font-bold text-slate-700">
-                    Flat, House no., Building, Street Address <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={addrFormStreet}
-                    onChange={(e) => setAddrFormStreet(e.target.value)}
-                    placeholder="House / Flat no., Building, Street, Area"
-                    className="w-full bg-slate-50/60 focus:bg-white border border-slate-200 focus:border-[#2563EB] focus:ring-4 focus:ring-blue-500/10 rounded-xl px-3.5 py-2.5 text-sm font-medium text-slate-900 outline-none transition-all placeholder:text-slate-400 placeholder:font-normal shadow-2xs"
-                  />
-                </div>
-
-                {/* PIN Code, City, State */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 sm:gap-4">
-                  <div className="space-y-1.5">
-                    <label className="block text-xs font-bold text-slate-700">
-                      PIN Code <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      maxLength={6}
-                      value={addrFormPincode}
-                      onChange={(e) => setAddrFormPincode(e.target.value.replace(/\D/g, ""))}
-                      placeholder="6-digit PIN code"
-                      className="w-full bg-slate-50/60 focus:bg-white border border-slate-200 focus:border-[#2563EB] focus:ring-4 focus:ring-blue-500/10 rounded-xl px-3.5 py-2.5 text-sm font-medium text-slate-900 outline-none transition-all placeholder:text-slate-400 placeholder:font-normal shadow-2xs"
-                    />
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <label className="block text-xs font-bold text-slate-700">
-                      City <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      value={addrFormCity}
-                      onChange={(e) => setAddrFormCity(e.target.value)}
-                      placeholder="City / District"
-                      className="w-full bg-slate-50/60 focus:bg-white border border-slate-200 focus:border-[#2563EB] focus:ring-4 focus:ring-blue-500/10 rounded-xl px-3.5 py-2.5 text-sm font-medium text-slate-900 outline-none transition-all placeholder:text-slate-400 placeholder:font-normal shadow-2xs"
-                    />
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <label className="block text-xs font-bold text-slate-700">
-                      State <span className="text-red-500">*</span>
-                    </label>
-                    <select
-                      value={addrFormState}
-                      onChange={(e) => setAddrFormState(e.target.value)}
-                      className="w-full bg-slate-50/60 focus:bg-white border border-slate-200 focus:border-[#2563EB] focus:ring-4 focus:ring-blue-500/10 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-900 outline-none transition-all cursor-pointer shadow-2xs"
-                    >
-                      <option value="">Select State</option>
-                      {INDIAN_STATES.map((s) => (
-                        <option key={s} value={s}>{s}</option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-
-                {/* Address Type Tag */}
-                <div className="space-y-1.5 pt-0.5">
-                  <label className="block text-xs font-bold text-slate-700">
-                    Address Type
-                  </label>
-                  <div className="flex items-center gap-2">
-                    {(["Home", "Office", "Lab / College"] as const).map((type) => {
-                      const isSel = addrFormType === type;
-                      return (
-                        <button
-                          key={type}
-                          type="button"
-                          onClick={() => setAddrFormType(type)}
-                          className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all cursor-pointer ${
-                            isSel
-                              ? "bg-blue-50 text-[#2563EB] border-blue-200 shadow-2xs font-bold"
-                              : "bg-white text-slate-600 border-slate-200 hover:border-slate-300"
-                          }`}
-                        >
-                          {type === "Home" ? "Home" : type === "Office" ? "Work / Office" : "Lab / College"}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* Delivery Instructions */}
-                <div className="space-y-1.5">
-                  <label className="block text-xs font-bold text-slate-700">
-                    Delivery Instructions <span className="text-slate-400 font-normal">(Optional)</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={deliveryInstructions}
-                    onChange={(e) => setDeliveryInstructions(e.target.value)}
-                    placeholder="Landmark, building entry, gate code, or delivery notes"
-                    className="w-full bg-slate-50/60 focus:bg-white border border-slate-200 focus:border-[#2563EB] focus:ring-4 focus:ring-blue-500/10 rounded-xl px-3.5 py-2.5 text-sm font-medium text-slate-900 outline-none transition-all placeholder:text-slate-400 placeholder:font-normal shadow-2xs"
-                  />
-                </div>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="pt-3 border-t border-slate-100 flex justify-end">
-                <button
-                  type="button"
-                  onClick={handleProceedToSummary}
-                  className="bg-[#2563EB] hover:bg-[#1D4ED8] active:bg-[#1E40AF] text-white px-7 py-3 rounded-xl text-sm font-bold transition-all shadow-md shadow-blue-500/20 cursor-pointer flex items-center gap-2 group"
-                >
-                  <span>Deliver to this Address</span>
-                  <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
-                </button>
-              </div>
             </div>
           )}
 
@@ -2211,9 +2580,26 @@ export const CheckoutView: React.FC = () => {
                 </button>
               </div>
 
-              {/* Section 2: Order Item(s) & Shipping Options */}
-              <div className="p-4 sm:p-5 space-y-5 bg-white">
-                {cart.map((item) => {
+              {/* Section 2: Order Item(s) */}
+              <div className="divide-y divide-slate-100 bg-white">
+                {singleCheckoutItemId && cart.length > 1 && (
+                  <div className="bg-blue-50/90 border-b border-blue-100 p-3 sm:px-5 flex items-center justify-between text-xs text-blue-900 animate-in fade-in">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <Zap className="w-4 h-4 text-[#2563EB] shrink-0 fill-[#2563EB]" />
+                      <span className="truncate">
+                        Ordering <strong>{activeCheckoutItems[0]?.product.name}</strong> only. Other cart items ({cart.length - 1}) remain saved in your cart.
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setSingleCheckoutItemId(null)}
+                      className="text-[#2563EB] hover:text-[#1D4ED8] hover:underline font-bold shrink-0 ml-3 cursor-pointer whitespace-nowrap"
+                    >
+                      Order All ({cart.length}) Items
+                    </button>
+                  </div>
+                )}
+                {activeCheckoutItems.map((item) => {
                   const rawPrice = item.variant ? item.variant.price : item.product.price;
                   const { unitPrice } = calculateCustomerPrice(
                     rawPrice,
@@ -2225,245 +2611,315 @@ export const CheckoutView: React.FC = () => {
                   const itemTotal = unitPrice * item.quantity;
                   const itemMrpTotal = mrp * item.quantity;
 
+                  // Dynamic delivery date for this item based on selected delivery method
+                  const deliveryDateText =
+                    selectedDeliveryMethod === "store_pickup"
+                      ? "Ready in 2 Hours (Experience Store)"
+                      : selectedDeliveryMethod === "faster_express" || selectedDeliveryMethod === "ranchi_24h"
+                      ? getFormattedDate(1)
+                      : getFormattedDate(3);
+
                   return (
                     <div
                       key={`${item.product.id}-${item.variant?.id}`}
-                      className="space-y-4 pb-5 border-b border-slate-100 last:border-0 last:pb-0"
+                      className="bg-white transition-colors"
                     >
-                      {/* Badge */}
-                      <div>
-                        <span className="inline-block bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider">
-                          {item.product.badge || "In Stock • Prayog Assured"}
-                        </span>
-                      </div>
-
-                      {/* Main Item Row */}
-                      <div className="flex gap-4">
-                        {/* Thumbnail */}
-                        <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-xl border border-slate-200 bg-white p-1.5 shrink-0 overflow-hidden">
-                          <Image
-                            src={item.product.image}
-                            alt={item.product.name}
-                            fill
-                            className="object-contain"
-                          />
-                        </div>
-
-                        {/* Details */}
-                        <div className="flex-1 min-w-0 space-y-1.5">
-                          <h3 className="text-sm sm:text-base font-extrabold text-slate-900 leading-snug">
-                            {item.product.name}
-                          </h3>
-
-                          <div className="text-xs text-slate-500">
-                            {item.variant ? item.variant.name : item.product.category} • Genuine Prayog Robotics
+                      <div className="p-4 sm:p-5 flex gap-4 sm:gap-5 items-start">
+                        {/* Left Column: Product Thumbnail + Qty Dropdown (Flipkart style) */}
+                        <div className="flex flex-col items-center gap-2.5 shrink-0">
+                          <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-xl border border-slate-200/90 bg-white p-1.5 overflow-hidden flex items-center justify-center">
+                            <Image
+                              src={item.product.image}
+                              alt={item.product.name}
+                              fill
+                              sizes="(max-width: 640px) 80px, 96px"
+                              className="object-contain"
+                            />
                           </div>
 
-                          {/* Ratings */}
-                          <div className="flex items-center gap-2 text-xs">
-                            <div className="flex items-center gap-1 bg-emerald-600 text-white font-bold px-1.5 py-0.5 rounded text-[11px]">
+                          {/* Quantity Capsule Stepper */}
+                          <div className="inline-flex items-center justify-between w-full max-w-[80px] sm:max-w-[96px] bg-white border border-slate-200 hover:border-slate-300 rounded-full py-1 px-1.5 shadow-2xs transition-colors select-none">
+                            <button
+                              type="button"
+                              disabled={item.quantity <= 1}
+                              onClick={() => {
+                                if (item.quantity > 1) {
+                                  updateQuantity(item.product.id, -1, item.variant?.id);
+                                }
+                              }}
+                              className={`w-6 h-6 flex items-center justify-center rounded-full transition-colors ${
+                                item.quantity <= 1
+                                  ? "text-slate-300 cursor-not-allowed"
+                                  : "text-slate-600 hover:text-slate-900 hover:bg-slate-100 cursor-pointer"
+                              }`}
+                              aria-label="Decrease quantity"
+                            >
+                              <Minus className="w-3.5 h-3.5 stroke-[2.5]" />
+                            </button>
+                            <span className="text-xs sm:text-sm font-extrabold text-slate-900 min-w-[20px] text-center leading-none">
+                              {item.quantity}
+                            </span>
+                            <button
+                              type="button"
+                              disabled={
+                                item.product.stock !== undefined &&
+                                item.quantity >= item.product.stock
+                              }
+                              onClick={() => updateQuantity(item.product.id, 1, item.variant?.id)}
+                              className="w-6 h-6 text-slate-900 hover:text-[#2563EB] hover:bg-blue-50 flex items-center justify-center rounded-full transition-colors cursor-pointer disabled:text-slate-300 disabled:cursor-not-allowed disabled:hover:bg-transparent"
+                              aria-label="Increase quantity"
+                            >
+                              <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Right Column: Title, Subtitle, Rating, Price, Stock & Delivery */}
+                        <div className="flex-1 min-w-0 space-y-1.5">
+                          {/* 1. Title */}
+                          <Link
+                            href={`/products/${item.product.slug}`}
+                            className="text-sm sm:text-base font-bold text-slate-900 leading-snug line-clamp-2 hover:text-[#2563EB] transition-colors block"
+                          >
+                            {item.product.name}
+                          </Link>
+
+                          {/* 2. Subtitle / Category / Specs */}
+                          <p className="text-xs text-slate-500 font-normal line-clamp-1">
+                            {item.variant ? item.variant.name : item.product.category}
+                            {item.product.sku ? ` • SKU: ${item.product.sku}` : " • Genuine Prayog Robotics"}
+                          </p>
+
+                          {/* 3. Rating & Prayog Assured */}
+                          <div className="flex items-center gap-2 text-xs flex-wrap">
+                            <div className="inline-flex items-center gap-1 bg-emerald-600 text-white font-bold px-1.5 py-0.5 rounded text-[11px]">
                               <span>★</span>
                               <span>{item.product.rating || "4.9"}</span>
                             </div>
-                            <span className="text-slate-500 font-medium">
-                              ({item.product.reviews || 12} reviews)
+                            <span className="text-slate-500 text-xs font-medium">
+                              ({item.product.reviews || 12})
                             </span>
                             <span className="text-slate-300">•</span>
-                            <span className="text-[#2563EB] font-bold flex items-center gap-1 text-[11px]">
-                              <ShieldCheck className="w-3.5 h-3.5" />
-                              Prayog Assured
+                            <span className="inline-flex items-center gap-1 text-[#2563EB] font-extrabold text-[11px] italic uppercase tracking-wider">
+                              <ShieldCheck className="w-3.5 h-3.5 text-[#2563EB]" />
+                              <span>Assured</span>
                             </span>
                           </div>
 
-                          {/* Pricing & Qty row */}
-                          <div className="flex items-center gap-3 pt-1 flex-wrap">
+                          {/* 4. Price Row */}
+                          <div className="flex items-baseline gap-2.5 pt-0.5 flex-wrap">
                             {discountPercent > 0 && (
-                              <span className="text-xs font-extrabold text-emerald-600 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-md">
+                              <span className="text-xs sm:text-sm font-extrabold text-emerald-600">
                                 ↓ {discountPercent}%
                               </span>
                             )}
-                            <span className="text-xs text-slate-400 line-through font-medium">
-                              ₹{itemMrpTotal.toLocaleString("en-IN")}
-                            </span>
+                            {mrp > unitPrice && (
+                              <span className="text-xs sm:text-sm text-slate-400 line-through font-medium">
+                                ₹{itemMrpTotal.toLocaleString("en-IN")}
+                              </span>
+                            )}
                             <span className="text-base sm:text-lg font-black text-slate-900">
                               ₹{itemTotal.toLocaleString("en-IN")}
                             </span>
+                          </div>
 
-                            {/* Quantity Controls */}
-                            <div className="flex items-center border border-slate-200 rounded-lg ml-auto bg-slate-50/50">
-                              <button
-                                type="button"
-                                onClick={() => updateQuantity(item.product.id, -1, item.variant?.id)}
-                                className="w-7 h-7 flex items-center justify-center text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-l-lg font-bold text-sm cursor-pointer"
-                                title="Decrease quantity"
-                              >
-                                -
-                              </button>
-                              <span className="px-3 text-xs font-bold text-slate-900 select-none">
-                                Qty: {item.quantity}
-                              </span>
-                              <button
-                                type="button"
-                                onClick={() => updateQuantity(item.product.id, 1, item.variant?.id)}
-                                className="w-7 h-7 flex items-center justify-center text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-r-lg font-bold text-sm cursor-pointer"
-                                title="Increase quantity"
-                              >
-                                +
-                              </button>
-                            </div>
+                          {/* 5. Low Stock Notice (if applicable) */}
+                          {((item.product.stock !== undefined && item.product.stock <= 5) || item.product.badge?.toLowerCase().includes("few")) && (
+                            <p className="text-[11px] font-bold text-rose-600">
+                              Only few left
+                            </p>
+                          )}
+
+                          {/* 6. Delivery Date line */}
+                          <div className="pt-0.5 text-xs text-slate-700 font-medium flex items-center gap-1.5 flex-wrap">
+                            <span>Delivery by</span>
+                            <span className="font-bold text-slate-900">{deliveryDateText}</span>
                           </div>
                         </div>
                       </div>
 
-                      {/* Delivery Speed Radio Selection (Clean, Professional Flipkart-Style List) */}
-                      {(() => {
-                        const itemAirAllowed = item.product.airFreightAllowed !== false && !hasRestrictedBatteryItem;
-                        const itemSurfaceAllowed = item.product.surfaceFreightAllowed !== false;
-                        const itemPickupAllowed = item.product.localPickupAllowed !== false;
-                        const itemAirCharge = item.product.airFreightCharge ?? 
-                          (item.product as any).specs?._shipping?.airFreightCharge ?? 
-                          (item.product as any).specs?._shipping?.shippingCharge ?? 
-                          item.product.shippingCharge ?? 
-                          adminAirCharge;
-                        const itemSurfaceCharge = item.product.surfaceFreightCharge ?? 
-                          (item.product as any).specs?._shipping?.surfaceFreightCharge ?? 
-                          (item.product as any).specs?._shipping?.shippingCost ?? 
-                          adminSurfaceCharge;
-                        const itemPickupCharge = item.product.pickupCharge ?? 
-                          (item.product as any).specs?._shipping?.pickupCharge ?? 
-                          adminPickupCharge;
+                      {/* Bottom Action Bar: Move to wishlist | Remove | Buy this now */}
+                      <div className="grid grid-cols-3 divide-x divide-slate-100 border-t border-slate-100 text-xs font-semibold text-slate-700 bg-white">
+                        <button
+                          type="button"
+                          onClick={() => moveToWishlist(item.product, item.variant?.id)}
+                          className="py-3 px-2 flex items-center justify-center gap-1.5 hover:bg-slate-50 hover:text-rose-600 transition-colors cursor-pointer text-center select-none"
+                        >
+                          <Heart className="w-3.5 h-3.5 text-slate-400 group-hover:text-rose-500" />
+                          <span className="truncate">Move to wishlist</span>
+                        </button>
 
-                        return (
-                          <div className="pt-3 border-t border-slate-100 space-y-1.5">
-                            <span className="text-xs font-bold text-slate-700 block">
-                              Shipping &amp; Delivery Speed:
-                            </span>
-                            <div className="space-y-1 pt-0.5">
-                              {/* 1. Priority Air (Shown only if admin allowed Air Freight on this product) */}
-                              {itemAirAllowed && (
-                                <label className="flex items-center justify-between text-xs py-1.5 px-2 -mx-2 rounded-lg hover:bg-slate-50 transition-colors cursor-pointer select-none">
-                                  <div className="flex items-center gap-2.5">
-                                    <input
-                                      type="radio"
-                                      name="deliveryMethodRadio"
-                                      checked={selectedDeliveryMethod === "faster_express"}
-                                      onChange={() => setSelectedDeliveryMethod("faster_express")}
-                                      className="text-[#2563EB] focus:ring-[#2563EB] cursor-pointer"
-                                    />
-                                    <div className="flex items-center gap-1.5 flex-wrap">
-                                      <span className="font-extrabold text-[#2563EB] italic uppercase tracking-wider flex items-center gap-1">
-                                        <Truck className="w-3.5 h-3.5" /> EXPRESS
-                                      </span>
-                                      <span className="font-medium text-slate-800">
-                                        Priority Air: Delivery by {getFormattedDate(1)}
-                                      </span>
-                                    </div>
-                                  </div>
-                                  <span className="font-bold text-slate-900">₹{itemAirCharge}</span>
-                                </label>
-                              )}
+                        <button
+                          type="button"
+                          onClick={() => removeFromCart(item.product.id, item.variant?.id)}
+                          className="py-3 px-2 flex items-center justify-center gap-1.5 hover:bg-rose-50 hover:text-rose-600 transition-colors cursor-pointer text-center select-none"
+                        >
+                          <Trash2 className="w-3.5 h-3.5 text-slate-400 hover:text-rose-600" />
+                          <span className="truncate">Remove</span>
+                        </button>
 
-                              {/* 2. Standard Ground (Shown only if admin allowed Surface Freight on this product) */}
-                              {itemSurfaceAllowed && (
-                                <label className="flex items-center justify-between text-xs py-1.5 px-2 -mx-2 rounded-lg hover:bg-slate-50 transition-colors cursor-pointer select-none">
-                                  <div className="flex items-center gap-2.5">
-                                    <input
-                                      type="radio"
-                                      name="deliveryMethodRadio"
-                                      checked={selectedDeliveryMethod === "standard"}
-                                      onChange={() => setSelectedDeliveryMethod("standard")}
-                                      className="text-[#2563EB] focus:ring-[#2563EB] cursor-pointer"
-                                    />
-                                    <span className="font-medium text-slate-800">
-                                      Standard Ground: Delivery in 2-4 days, {getFormattedDate(3)}
-                                    </span>
-                                  </div>
-                                  <span className={`font-bold ${isFreeStandardShipping ? "text-emerald-600" : "text-slate-900"}`}>
-                                    {isFreeStandardShipping ? "FREE" : `₹${itemSurfaceCharge}`}
-                                  </span>
-                                </label>
-                              )}
-
-                              {/* 3. Local Store Pickup (Shown only if admin allowed Pickup on this product) */}
-                              {itemPickupAllowed && (
-                                <div className="space-y-1">
-                                  <label className="flex items-center justify-between text-xs py-1.5 px-2 -mx-2 rounded-lg hover:bg-slate-50 transition-colors cursor-pointer select-none">
-                                    <div className="flex items-center gap-2.5">
-                                      <input
-                                        type="radio"
-                                        name="deliveryMethodRadio"
-                                        checked={selectedDeliveryMethod === "store_pickup"}
-                                        onChange={() => setSelectedDeliveryMethod("store_pickup")}
-                                        className="text-[#2563EB] focus:ring-[#2563EB] cursor-pointer"
-                                      />
-                                      <span className="font-medium text-slate-800 flex items-center gap-1.5">
-                                        <ShoppingBag className="w-3.5 h-3.5 text-purple-600" />
-                                        Store Pickup: Ready in 2 Hours (Experience Store)
-                                      </span>
-                                    </div>
-                                    <span className={`font-bold ${itemPickupCharge === 0 ? "text-emerald-600" : "text-slate-900"}`}>
-                                      {itemPickupCharge === 0 ? "FREE" : `₹${itemPickupCharge}`}
-                                    </span>
-                                  </label>
-
-                                  {/* Clean, Unboxed Store Address Detail */}
-                                  {selectedDeliveryMethod === "store_pickup" && (
-                                    <div className="ml-6 pl-2.5 border-l-2 border-purple-500 text-[11.5px] text-slate-600 space-y-0.5 py-0.5 animate-in fade-in duration-150">
-                                      <p className="font-semibold text-slate-800">
-                                        Prayog India Experience Center: 1st Floor, City Centre Mall, Club Road, Ranchi - 834001
-                                      </p>
-                                      <p className="text-slate-500">
-                                        Mon–Sat: 10:00 AM – 8:00 PM · Helpline: +91 87097 89641 ·{" "}
-                                        <a
-                                          href="https://maps.google.com/?q=City+Centre+Club+Road+Ranchi+Jharkhand+834001"
-                                          target="_blank"
-                                          rel="noopener noreferrer"
-                                          className="text-[#2563EB] font-bold hover:underline inline-flex items-center gap-0.5"
-                                        >
-                                          <span>View on Maps</span>
-                                          <ExternalLink className="w-2.5 h-2.5" />
-                                        </a>
-                                      </p>
-                                    </div>
-                                  )}
-                                </div>
-                              )}
-
-                              {/* 4. Ranchi 24h Express if eligible */}
-                              {isRanchiEligible && (
-                                <label className="flex items-center justify-between text-xs py-1.5 px-2 -mx-2 rounded-lg hover:bg-slate-50 transition-colors cursor-pointer select-none">
-                                  <div className="flex items-center gap-2.5">
-                                    <input
-                                      type="radio"
-                                      name="deliveryMethodRadio"
-                                      checked={selectedDeliveryMethod === "ranchi_24h"}
-                                      onChange={() => setSelectedDeliveryMethod("ranchi_24h")}
-                                      className="text-[#2563EB] focus:ring-[#2563EB] cursor-pointer"
-                                    />
-                                    <span className="font-medium text-slate-800">
-                                      Ranchi Local Express: Delivery within 24 Hours
-                                    </span>
-                                  </div>
-                                  <span className={`font-bold ${effectiveRanchiFee === 0 ? "text-emerald-600" : "text-slate-900"}`}>
-                                    {effectiveRanchiFee === 0 ? "FREE" : `₹${effectiveRanchiFee}`}
-                                  </span>
-                                </label>
-                              )}
-
-                              {/* DGCA Battery Restriction Notice */}
-                              {!itemAirAllowed && (
-                                <div className="text-[11px] text-amber-800 bg-amber-50/80 border border-amber-200/80 px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 font-medium mt-1">
-                                  <AlertTriangle className="w-3.5 h-3.5 text-amber-600 shrink-0" />
-                                  <span>Air Freight restricted on this item (DGCA Surface Logistics Only).</span>
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        );
-                      })()}
+                        {singleCheckoutItemId === `${item.product.id}-${item.variant?.id || "def"}` ? (
+                          <button
+                            type="button"
+                            onClick={() => setSingleCheckoutItemId(null)}
+                            className="py-3 px-2 flex items-center justify-center gap-1.5 bg-blue-50/80 text-[#2563EB] hover:bg-blue-100/80 font-bold transition-colors cursor-pointer text-center select-none"
+                            title="Click to restore full cart checkout"
+                          >
+                            <CheckCircle2 className="w-3.5 h-3.5 text-[#2563EB]" />
+                            <span className="truncate">Buying Only This</span>
+                          </button>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const key = `${item.product.id}-${item.variant?.id || "def"}`;
+                              setSingleCheckoutItemId(key);
+                            }}
+                            className="py-3 px-2 flex items-center justify-center gap-1.5 hover:bg-slate-50 hover:text-[#2563EB] transition-colors cursor-pointer text-center select-none"
+                            title={`Order only ${item.product.name}`}
+                          >
+                            <Zap className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
+                            <span className="truncate">Buy this now</span>
+                          </button>
+                        )}
+                      </div>
                     </div>
                   );
                 })}
+              </div>
+
+              {/* Section 2.5: Shipping & Delivery Speed (Unified once for the whole order) */}
+              <div className="p-4 sm:p-5 border-t border-slate-100 bg-slate-50/40 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                    <Truck className="w-4 h-4 text-[#2563EB]" />
+                    <span>Shipping &amp; Delivery Option:</span>
+                  </span>
+                  <span className="text-[11px] text-slate-500 font-medium">
+                    {activeCheckoutItems.length} {activeCheckoutItems.length === 1 ? "item" : "items"} in shipment
+                  </span>
+                </div>
+
+                <div className="space-y-1.5 pt-1">
+                  {/* 1. Priority Air (Shown only if air freight is allowed across cart) */}
+                  {isAirAllowedOnCart && (
+                    <label className="flex items-center justify-between text-xs py-2 px-3 rounded-xl bg-white border border-slate-200/80 hover:border-blue-300 transition-colors cursor-pointer select-none">
+                      <div className="flex items-center gap-2.5">
+                        <input
+                          type="radio"
+                          name="deliveryMethodRadio"
+                          checked={selectedDeliveryMethod === "faster_express"}
+                          onChange={() => setSelectedDeliveryMethod("faster_express")}
+                          className="text-[#2563EB] focus:ring-[#2563EB] cursor-pointer"
+                        />
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <span className="font-extrabold text-[#2563EB] italic uppercase tracking-wider flex items-center gap-1 text-[11px]">
+                            <Truck className="w-3.5 h-3.5" /> EXPRESS
+                          </span>
+                          <span className="font-semibold text-slate-800">
+                            Priority Air: Delivery by {getFormattedDate(1)}
+                          </span>
+                        </div>
+                      </div>
+                      <span className="font-extrabold text-slate-900">₹{adminAirCharge}</span>
+                    </label>
+                  )}
+
+                  {/* 2. Standard Ground */}
+                  {isSurfaceAllowedOnCart && (
+                    <label className="flex items-center justify-between text-xs py-2 px-3 rounded-xl bg-white border border-slate-200/80 hover:border-blue-300 transition-colors cursor-pointer select-none">
+                      <div className="flex items-center gap-2.5">
+                        <input
+                          type="radio"
+                          name="deliveryMethodRadio"
+                          checked={selectedDeliveryMethod === "standard"}
+                          onChange={() => setSelectedDeliveryMethod("standard")}
+                          className="text-[#2563EB] focus:ring-[#2563EB] cursor-pointer"
+                        />
+                        <span className="font-semibold text-slate-800">
+                          Standard Ground: Delivery in 2-4 days, {getFormattedDate(3)}
+                        </span>
+                      </div>
+                      <span className={`font-extrabold ${isFreeStandardShipping ? "text-emerald-600" : "text-slate-900"}`}>
+                        {isFreeStandardShipping ? "FREE" : `₹${adminSurfaceCharge}`}
+                      </span>
+                    </label>
+                  )}
+
+                  {/* 3. Local Store Pickup */}
+                  {isLocalPickupAllowedOnCart && (
+                    <div className="space-y-1">
+                      <label className="flex items-center justify-between text-xs py-2 px-3 rounded-xl bg-white border border-slate-200/80 hover:border-blue-300 transition-colors cursor-pointer select-none">
+                        <div className="flex items-center gap-2.5">
+                          <input
+                            type="radio"
+                            name="deliveryMethodRadio"
+                            checked={selectedDeliveryMethod === "store_pickup"}
+                            onChange={() => setSelectedDeliveryMethod("store_pickup")}
+                            className="text-[#2563EB] focus:ring-[#2563EB] cursor-pointer"
+                          />
+                          <span className="font-semibold text-slate-800 flex items-center gap-1.5">
+                            <ShoppingBag className="w-3.5 h-3.5 text-purple-600" />
+                            Store Pickup: Ready in 2 Hours (Experience Store)
+                          </span>
+                        </div>
+                        <span className={`font-extrabold ${adminPickupCharge === 0 ? "text-emerald-600" : "text-slate-900"}`}>
+                          {adminPickupCharge === 0 ? "FREE" : `₹${adminPickupCharge}`}
+                        </span>
+                      </label>
+
+                      {/* Store Address Detail */}
+                      {selectedDeliveryMethod === "store_pickup" && (
+                        <div className="ml-6 pl-2.5 border-l-2 border-purple-500 text-[11.5px] text-slate-600 space-y-0.5 py-1 animate-in fade-in duration-150">
+                          <p className="font-semibold text-slate-800">
+                            Prayog India Experience Center: 1st Floor, City Centre Mall, Club Road, Ranchi - 834001
+                          </p>
+                          <p className="text-slate-500">
+                            Mon–Sat: 10:00 AM – 8:00 PM · Helpline: +91 87097 89641 ·{" "}
+                            <a
+                              href="https://maps.google.com/?q=City+Centre+Club+Road+Ranchi+Jharkhand+834001"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-[#2563EB] font-bold hover:underline inline-flex items-center gap-0.5"
+                            >
+                              <span>View on Maps</span>
+                              <ExternalLink className="w-2.5 h-2.5" />
+                            </a>
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* 4. Ranchi 24h Express if eligible */}
+                  {isRanchiEligible && (
+                    <label className="flex items-center justify-between text-xs py-2 px-3 rounded-xl bg-white border border-slate-200/80 hover:border-blue-300 transition-colors cursor-pointer select-none">
+                      <div className="flex items-center gap-2.5">
+                        <input
+                          type="radio"
+                          name="deliveryMethodRadio"
+                          checked={selectedDeliveryMethod === "ranchi_24h"}
+                          onChange={() => setSelectedDeliveryMethod("ranchi_24h")}
+                          className="text-[#2563EB] focus:ring-[#2563EB] cursor-pointer"
+                        />
+                        <span className="font-semibold text-slate-800">
+                          Ranchi Local Express: Delivery within 24 Hours
+                        </span>
+                      </div>
+                      <span className={`font-extrabold ${effectiveRanchiFee === 0 ? "text-emerald-600" : "text-slate-900"}`}>
+                        {effectiveRanchiFee === 0 ? "FREE" : `₹${effectiveRanchiFee}`}
+                      </span>
+                    </label>
+                  )}
+
+                  {/* DGCA Battery Restriction Notice */}
+                  {hasRestrictedBatteryItem && (
+                    <div className="text-[11px] text-amber-800 bg-amber-50/80 border border-amber-200/80 px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 font-medium mt-1">
+                      <AlertTriangle className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                      <span>Air Freight restricted on this order due to battery components (DGCA Surface Logistics Only).</span>
+                    </div>
+                  )}
+                </div>
               </div>
 
               {/* Section 3: Available Balance (Reward Points) & Promo Code */}
@@ -2673,7 +3129,7 @@ export const CheckoutView: React.FC = () => {
                       <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Order Summary</span>
                     </div>
                     <p className="text-xs font-bold text-slate-900 truncate mt-0.5">
-                      {cart.reduce((a, b) => a + b.quantity, 0)} {cart.reduce((a, b) => a + b.quantity, 0) === 1 ? "Item" : "Items"} • ₹{grandTotal.toLocaleString("en-IN")}
+                      {activeCheckoutItems.reduce((a, b) => a + b.quantity, 0)} {activeCheckoutItems.reduce((a, b) => a + b.quantity, 0) === 1 ? "Item" : "Items"} • ₹{grandTotal.toLocaleString("en-IN")}
                     </p>
                   </div>
                 </div>
@@ -3102,7 +3558,7 @@ export const CheckoutView: React.FC = () => {
         {/* Right Column: Sticky Price Details (Span 4) */}
         <div className="lg:col-span-4 static lg:sticky lg:top-24 space-y-4">
           <CheckoutOrderSummary
-            cart={cart}
+            cart={activeCheckoutItems}
             subtotal={subtotal}
             mrpTotal={mrpTotal}
             couponCode={couponCode}
@@ -3239,7 +3695,7 @@ export const CheckoutView: React.FC = () => {
           ) : checkoutStep === "payment" ? (
             <span>Place Order</span>
           ) : checkoutStep === "address" ? (
-            <span>Deliver Here</span>
+            <span>Save Address</span>
           ) : (
             <span>Continue</span>
           )}

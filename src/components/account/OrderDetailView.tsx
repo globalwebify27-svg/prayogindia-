@@ -95,26 +95,14 @@ interface OrderDetailProps {
 }
 
 function formatOrderStatus(status: string): CustomerOrder["status"] {
-  switch (status) {
-    case "ORDER_PLACED":
-      return "Order Placed";
-    case "PAYMENT_CONFIRMED":
-      return "Payment Confirmed";
-    case "PROCESSING":
-      return "Processing";
-    case "PACKED":
-      return "Packed";
-    case "SHIPPED":
-      return "Shipped";
-    case "OUT_FOR_DELIVERY":
-      return "Out for Delivery";
-    case "DELIVERED":
-      return "Delivered";
-    case "CANCELLED":
-      return "Order Placed"; // Handled with isCancelable = false
-    default:
-      return "Payment Confirmed";
-  }
+  const norm = (status || "").toUpperCase().replace(/[\s-]/g, "_");
+  if (norm.includes("DELIVER") || norm.includes("ARRIV")) return "Delivered";
+  if (norm.includes("SHIP") || norm.includes("TRANSIT") || norm.includes("OUT_FOR_DELIVERY")) return "Shipped";
+  if (norm.includes("CANCEL")) return "Order Placed";
+  if (norm.includes("PROCESS") || norm.includes("PACK")) return "Processing";
+  if (norm.includes("CONFIRM") || norm.includes("PAID")) return "Payment Confirmed";
+  if (norm.includes("PLACE")) return "Order Placed";
+  return "Order Placed";
 }
 
 export const OrderDetailView: React.FC<OrderDetailProps> = ({ orderId }) => {
@@ -281,8 +269,23 @@ export const OrderDetailView: React.FC<OrderDetailProps> = ({ orderId }) => {
 
     loadLiveOrder();
 
+    const handleSync = () => {
+      loadLiveOrder();
+    };
+
+    if (typeof window !== "undefined") {
+      window.addEventListener("storage", handleSync);
+      window.addEventListener("prayog_orders_updated", handleSync);
+      window.addEventListener("focus", handleSync);
+    }
+
     return () => {
       isMounted = false;
+      if (typeof window !== "undefined") {
+        window.removeEventListener("storage", handleSync);
+        window.removeEventListener("prayog_orders_updated", handleSync);
+        window.removeEventListener("focus", handleSync);
+      }
     };
   }, [orderId, user?.id, user?.email, router]);
 
@@ -314,23 +317,13 @@ export const OrderDetailView: React.FC<OrderDetailProps> = ({ orderId }) => {
   ];
 
   const getStepIndex = (status: CustomerOrder["status"]) => {
-    switch (status) {
-      case "Order Placed":
-        return 0;
-      case "Payment Confirmed":
-        return 1;
-      case "Processing":
-        return 2;
-      case "Packed":
-        return 3;
-      case "Shipped":
-      case "Out for Delivery":
-        return 4;
-      case "Delivered":
-        return 5;
-      default:
-        return 1;
-    }
+    const s = (status || "").toLowerCase();
+    if (s.includes("deliver") || s.includes("arriv")) return 5;
+    if (s.includes("out for delivery") || s.includes("shipped") || s.includes("transit")) return 4;
+    if (s.includes("pack")) return 3;
+    if (s.includes("process")) return 2;
+    if (s.includes("confirm") || s.includes("paid")) return 1;
+    return 0;
   };
 
   if (loading) {
