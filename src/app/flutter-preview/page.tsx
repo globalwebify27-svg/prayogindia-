@@ -2320,6 +2320,36 @@ export default function FlutterPreviewPage() {
               </div>
             </div>
 
+            {/* Floating "View Cart" Pill inside mobile app preview if cart has items */}
+            {cart.length > 0 && (
+              <div className="px-3.5 pt-2 pb-1 bg-white/95 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedProduct(null);
+                    setActiveBottomNav(2); // Switch to Cart screen
+                  }}
+                  className="w-full flex items-center justify-between bg-gradient-to-r from-[#0B0F6B] via-[#0D1F80] to-[#1D4ED8] text-white p-2.5 rounded-2xl shadow-md border border-white/15 active:scale-98 transition-all cursor-pointer"
+                >
+                  <div className="flex items-center gap-2">
+                    <div className="w-7 h-7 rounded-lg bg-white/20 flex items-center justify-center">
+                      <ShoppingCart className="w-3.5 h-3.5 text-white" />
+                    </div>
+                    <div className="text-left leading-tight">
+                      <div className="text-[10px] text-blue-200 font-bold">
+                        {cartItemCount} {cartItemCount === 1 ? "item" : "items"} • ₹{cartTotal.toLocaleString("en-IN")}
+                      </div>
+                      <div className="text-xs font-black text-white">In Shopping Cart</div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1 bg-white text-[#0B0F6B] font-black text-[11px] px-3 py-1.5 rounded-xl shadow-2xs">
+                    <span>View Cart</span>
+                    <ChevronRight className="w-3 h-3 stroke-[3]" />
+                  </div>
+                </button>
+              </div>
+            )}
+
             {/* Bottom Sticky Action Bar with Add to Cart & Buy Now */}
             <div className="bg-white/95 backdrop-blur-md border-t border-slate-200/80 px-3.5 py-3 flex items-center gap-2.5 shrink-0 shadow-2xl">
               <button
@@ -2336,16 +2366,49 @@ export default function FlutterPreviewPage() {
                 />
               </button>
 
-              {/* Add to Cart Button */}
-              <button
-                onClick={() => {
-                  addToCart(selectedProduct);
-                }}
-                className="flex-1 bg-gradient-to-r from-slate-900 to-slate-800 hover:from-slate-800 hover:to-slate-700 text-white font-extrabold text-xs py-3 rounded-2xl shadow-sm flex items-center justify-center gap-1.5 cursor-pointer active:scale-98 transition border border-slate-700"
-              >
-                <ShoppingCart className="w-3.5 h-3.5 text-cyan-400" />
-                <span>Add to Cart</span>
-              </button>
+              {/* Add to Cart Button or Quantity Stepper */}
+              {(() => {
+                const inCart = cart.find((i) => i.id === selectedProduct.id);
+                const qty = inCart ? inCart.quantity : 0;
+
+                if (qty > 0) {
+                  return (
+                    <div className="flex-1 h-11 bg-[#0B0F6B] text-white font-extrabold text-xs px-2 rounded-2xl shadow-sm flex items-center justify-between border border-blue-900/40">
+                      <button
+                        type="button"
+                        onClick={() => updateCartQty(selectedProduct.id, -1)}
+                        className="w-8 h-8 rounded-lg hover:bg-white/20 active:bg-white/30 flex items-center justify-center text-white cursor-pointer active:scale-90 font-black transition-transform"
+                        title="Reduce"
+                      >
+                        <Minus className="w-3.5 h-3.5 stroke-[3]" />
+                      </button>
+                      <span className="font-mono font-black text-sm text-white px-2 select-none">
+                        {qty}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => updateCartQty(selectedProduct.id, 1)}
+                        className="w-8 h-8 rounded-lg hover:bg-white/20 active:bg-white/30 flex items-center justify-center text-white cursor-pointer active:scale-90 font-black transition-transform"
+                        title="Add more"
+                      >
+                        <Plus className="w-3.5 h-3.5 stroke-[3]" />
+                      </button>
+                    </div>
+                  );
+                }
+
+                return (
+                  <button
+                    onClick={() => {
+                      addToCart(selectedProduct);
+                    }}
+                    className="flex-1 bg-[#0B0F6B] hover:bg-[#080B52] text-white font-extrabold text-xs py-3 rounded-2xl shadow-sm flex items-center justify-center gap-1.5 cursor-pointer active:scale-98 transition border border-blue-900/40"
+                  >
+                    <ShoppingCart className="w-3.5 h-3.5 text-blue-200" />
+                    <span>Add to Cart</span>
+                  </button>
+                );
+              })()}
 
               {/* Buy Now Button */}
               <button

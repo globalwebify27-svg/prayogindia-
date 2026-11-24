@@ -3,14 +3,20 @@
 import React, { useState, useRef, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { ChevronRight, ChevronDown, X } from "lucide-react";
+import { useCartStore, selectCartCount } from "@/store";
 
 export const FloatingWhatsAppWidget: React.FC = () => {
   const [isOpen, setIsOpen] = useState(true);
   const widgetRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
+  const cartCount = useCartStore(selectCartCount);
 
   // Customer-facing mobile pages have a bottom bar (sticky action bar or MobileBottomNav)
+  const isProductPage =
+    pathname?.startsWith("/products/") || pathname?.startsWith("/product/");
   const hasStickyBottomBar = true;
+  const mobileBottomOffset =
+    isProductPage && cartCount > 0 ? 136 : hasStickyBottomBar ? 84 : 16;
 
   // Mobile draggable position state (null = use default bottom/right classes)
   const [mobilePos, setMobilePos] = useState<{ x: number; y: number } | null>(null);
@@ -46,9 +52,7 @@ export const FloatingWhatsAppWidget: React.FC = () => {
           const snappedX =
             midX < screenWidth / 2 ? margin : screenWidth - iconSize - margin;
           const topBound = margin + 55;
-          const bottomBound = hasStickyBottomBar
-            ? screenHeight - iconSize - 88 - margin
-            : screenHeight - iconSize - margin;
+          const bottomBound = screenHeight - iconSize - mobileBottomOffset - margin;
           setMobilePos({
             x: snappedX,
             y: Math.max(topBound, Math.min(bottomBound, parsed.y)),
@@ -56,7 +60,7 @@ export const FloatingWhatsAppWidget: React.FC = () => {
         }
       }
     } catch {}
-  }, [hasStickyBottomBar]);
+  }, [mobileBottomOffset]);
 
   // Keep mobile icon snapped within screen bounds if window resizes or device rotates
   useEffect(() => {
@@ -71,9 +75,7 @@ export const FloatingWhatsAppWidget: React.FC = () => {
         const snappedX =
           midX < screenWidth / 2 ? margin : screenWidth - iconSize - margin;
         const topBound = margin + 55;
-        const bottomBound = hasStickyBottomBar
-          ? screenHeight - iconSize - 76 - margin
-          : screenHeight - iconSize - margin;
+        const bottomBound = screenHeight - iconSize - mobileBottomOffset - margin;
         return {
           x: snappedX,
           y: Math.max(topBound, Math.min(bottomBound, prev.y)),
@@ -82,7 +84,7 @@ export const FloatingWhatsAppWidget: React.FC = () => {
     };
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
-  }, [hasStickyBottomBar]);
+  }, [mobileBottomOffset]);
 
   // Desktop click-outside to collapse popup
   useEffect(() => {
@@ -197,9 +199,7 @@ export const FloatingWhatsAppWidget: React.FC = () => {
       const midX = currentPos.x + iconSize / 2;
       const snappedX = midX < screenWidth / 2 ? margin : screenWidth - iconSize - margin;
       const topBound = margin + 55;
-      const bottomBound = hasStickyBottomBar
-        ? screenHeight - iconSize - 76 - margin
-        : screenHeight - iconSize - margin;
+      const bottomBound = screenHeight - iconSize - mobileBottomOffset - margin;
       return {
         x: snappedX,
         y: Math.max(topBound, Math.min(bottomBound, currentPos.y)),
@@ -243,9 +243,11 @@ export const FloatingWhatsAppWidget: React.FC = () => {
         } ${
           mobilePos
             ? ""
+            : isProductPage && cartCount > 0
+            ? "bottom-[136px] right-3.5"
             : hasStickyBottomBar
-            ? "bottom-[88px] right-3"
-            : "bottom-4 right-3"
+            ? "bottom-[84px] right-3.5"
+            : "bottom-4 right-3.5"
         }`}
       >
         <svg viewBox="0 0 24 24" fill="currentColor" className="w-7 h-7 pointer-events-none">

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useMemo, useRef } from "react";
+import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Star,
@@ -26,6 +27,9 @@ Info,
   Circle,
   Plane,
   Store,
+  Minus,
+  Plus,
+  ChevronRight,
 } from "lucide-react";
 import { Product, ProductVariant, getProductStock } from "@/data/mockData";
 import { useUIStore, useCartStore } from "@/store";
@@ -133,6 +137,15 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
       setInternalQuantity(newQty);
     }
   };
+
+  const cart = useCartStore((s) => s.cart);
+  const storeUpdateCartQty = useCartStore((s) => s.updateQuantity);
+  const currentCartItem = cart.find(
+    (item) =>
+      item.product.id === product.id &&
+      (!selectedVariant || item.variant?.id === selectedVariant?.id)
+  );
+  const currentQuantityInCart = currentCartItem?.quantity || 0;
 
   const [copied, setCopied] = useState(false);
   const [addedAnimation, setAddedAnimation] = useState(false);
@@ -569,19 +582,67 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
       {/* ── 7. Desktop CTA (Add to Cart & Buy Now) ── */}
       <div id="main-product-cta" className="hidden sm:block pt-2">
         <div className="flex items-center gap-3">
-          {/* Secondary ADD TO CART Button */}
+          {/* Secondary ADD TO CART Button / In-Cart Stepper */}
           {currentStock ? (
-            <button
-              type="button"
-              onClick={handleAddToCartClick}
-              className={`flex-initial min-w-[140px] h-11 px-6 rounded-xl text-[15px] font-semibold whitespace-nowrap transition-all duration-200 ease-out flex items-center justify-center cursor-pointer select-none ${
-                addedAnimation
-                  ? "bg-emerald-600 border border-emerald-600 text-white shadow-xs scale-[1.01]"
-                  : "bg-white hover:bg-slate-50 active:bg-slate-100 text-slate-900 border border-slate-300 hover:border-slate-400 shadow-2xs active:scale-[0.98]"
-              }`}
-            >
-              <span>{addedAnimation ? "Added to Cart!" : "Add to Cart"}</span>
-            </button>
+            currentQuantityInCart > 0 ? (
+              <div className="flex items-center gap-2">
+                <div className="h-11 rounded-xl bg-[#0B0F6B] text-white flex items-center justify-between px-2 shadow-xs border border-blue-900/30 select-none">
+                  <button
+                    type="button"
+                    onClick={() => storeUpdateCartQty(product.id, -1, selectedVariant?.id)}
+                    className="w-8 h-8 rounded-lg hover:bg-white/15 active:bg-white/25 flex items-center justify-center text-white cursor-pointer active:scale-90 transition-all font-bold"
+                    title="Reduce quantity"
+                    aria-label="Reduce quantity"
+                  >
+                    <Minus className="w-4 h-4 stroke-[3]" />
+                  </button>
+                  <span className="font-mono font-black text-base text-white px-3 select-none">
+                    {currentQuantityInCart}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const maxStock = getProductStock(product, selectedVariant);
+                      if (currentQuantityInCart >= maxStock) {
+                        useUIStore.getState().showToast({
+                          title: `Only ${maxStock} units available.`,
+                          type: "error",
+                          iconType: "stock-limit",
+                          duration: 2500,
+                        });
+                        return;
+                      }
+                      storeUpdateCartQty(product.id, 1, selectedVariant?.id);
+                    }}
+                    className="w-8 h-8 rounded-lg hover:bg-white/15 active:bg-white/25 flex items-center justify-center text-white cursor-pointer active:scale-90 transition-all font-bold"
+                    title="Add more"
+                    aria-label="Add more"
+                  >
+                    <Plus className="w-4 h-4 stroke-[3]" />
+                  </button>
+                </div>
+
+                <Link
+                  href="/cart"
+                  className="h-11 px-4 rounded-xl text-xs font-black text-[#0B0F6B] bg-blue-50 hover:bg-blue-100 border border-blue-200 flex items-center gap-1.5 shadow-2xs transition-all active:scale-95"
+                >
+                  <ShoppingCart className="w-3.5 h-3.5" />
+                  <span>View Cart</span>
+                </Link>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={handleAddToCartClick}
+                className={`flex-initial min-w-[140px] h-11 px-6 rounded-xl text-[15px] font-semibold whitespace-nowrap transition-all duration-200 ease-out flex items-center justify-center cursor-pointer select-none ${
+                  addedAnimation
+                    ? "bg-emerald-600 border border-emerald-600 text-white shadow-xs scale-[1.01]"
+                    : "bg-white hover:bg-slate-50 active:bg-slate-100 text-slate-900 border border-slate-300 hover:border-slate-400 shadow-2xs active:scale-[0.98]"
+                }`}
+              >
+                <span>{addedAnimation ? "Added to Cart!" : "Add to Cart"}</span>
+              </button>
+            )
           ) : (
             <a
               href={`https://wa.me/918709789641?text=Hi%20Prayog%20India%2C%20I%20want%20to%20inquire%20about%20availability%20of%20${encodeURIComponent(product.name)}%20(SKU:%20${encodeURIComponent(currentSku)})`}

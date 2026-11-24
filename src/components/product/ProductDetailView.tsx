@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { CategoryBreadcrumb } from "@/components/categories/CategoryBreadcrumb";
@@ -21,6 +22,9 @@ import {
   Heart,
   ExternalLink,
   Smartphone,
+  Minus,
+  Plus,
+  ChevronRight,
 } from "lucide-react";
 import { AddToCartIcon } from "@/components/icons/AddToCartIcon";
 import { recordProductView } from "@/utils/recentProducts";
@@ -102,13 +106,37 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
       ? product.variants[0]
       : null,
   );
+  const cart = useCartStore((s) => s.cart);
   const storeAddToCart = useCartStore((s) => s.addToCart);
+  const updateQuantity = useCartStore((s) => s.updateQuantity);
   const storeToggleWishlist = useWishlistStore((s) => s.toggleWishlist);
   const isProductWishlisted = useWishlistStore((s) =>
     s.wishlist.some((p) => p.id === product?.id)
   );
+
+  // Compute live quantity in cart for this specific product & variant
+  const currentCartItem = product
+    ? cart.find(
+        (item) =>
+          item.product.id === product.id &&
+          (!selectedVariant || item.variant?.id === selectedVariant?.id)
+      )
+    : undefined;
+  const currentQuantityInCart = currentCartItem?.quantity || 0;
+  const totalCartCount = cart.reduce((acc, item) => acc + item.quantity, 0);
+  const totalCartPrice = cart.reduce(
+    (acc, item) =>
+      acc + (item.variant?.price ?? item.product.price) * item.quantity,
+    0
+  );
   const [stickyAdded, setStickyAdded] = useState(false);
   const [b2bOpen, setB2bOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const [promoBanner, setPromoBanner] = useState<ProductPromoBanner>(
     DEFAULT_PRODUCT_PROMO_BANNER
   );
@@ -358,7 +386,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
   const isInStock = selectedVariant ? selectedVariant.inStock : product.inStock;
 
   return (
-    <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 py-2 sm:py-3 space-y-4 sm:space-y-5 animate-in fade-in duration-300 pb-24 sm:pb-6">
+    <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 py-2 sm:py-3 space-y-4 sm:space-y-5 pb-36 sm:pb-8">
       {/* ── Breadcrumb ── */}
       <CategoryBreadcrumb
         items={[
@@ -633,15 +661,24 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
       )}
 
       {/* ── Sticky Bottom Action Bar: Always docked on Mobile (matching reference), conditional on Desktop ── */}
-      <aside
-        aria-label="Sticky purchase action bar"
-        className={`fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-xl border-t border-slate-200/90 shadow-[0_-4px_20px_rgba(15,23,42,0.08)] px-3 sm:px-6 lg:px-8 xl:px-12 py-2 sm:py-2.5 pb-[max(0.6rem,env(safe-area-inset-bottom))] transition-all duration-300 ease-in-out translate-y-0 opacity-100 pointer-events-auto ${
-          showStickyBar
-            ? "sm:translate-y-0 sm:opacity-100 sm:pointer-events-auto"
-            : "sm:translate-y-full sm:opacity-0 sm:pointer-events-none"
-        }`}
-      >
-        {/* ── MOBILE VIEW: [ ♡ ] [ Buy Now ] [ Add To Cart ] (matching reference image) ── */}
+      {mounted && createPortal(
+        <aside
+          aria-label="Sticky purchase action bar"
+          style={{
+            position: "fixed",
+            bottom: 0,
+            left: 0,
+            right: 0,
+            zIndex: 50,
+            backgroundColor: "#ffffff",
+          }}
+          className={`border-t border-slate-200/90 shadow-[0_-8px_25px_rgba(15,23,42,0.12)] px-3 sm:px-6 lg:px-8 xl:px-12 py-2.5 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] transition-all duration-300 ease-in-out translate-y-0 opacity-100 pointer-events-auto ${
+            showStickyBar
+              ? "sm:translate-y-0 sm:opacity-100 sm:pointer-events-auto"
+              : "sm:translate-y-full sm:opacity-0 sm:pointer-events-none"
+          }`}
+        >
+        {/* ── MOBILE VIEW: [ ♡ ] [ Buy Now ] [ Add To Cart / Stepper ] ── */}
         <div className="flex sm:hidden items-center gap-2.5 w-full">
           {/* 1. Wishlist Button */}
           <button
@@ -671,18 +708,58 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
                 <span>Buy Now</span>
               </button>
 
-              {/* 3. Add To Cart Button (Deep Royal Navy Blue) */}
-              <button
-                type="button"
-                onClick={handleStickyAddToCart}
-                className={`flex-1 h-12 rounded-xl font-bold text-sm tracking-wide flex items-center justify-center transition-all cursor-pointer shadow-sm active:scale-[0.98] select-none ${
-                  stickyAdded
-                    ? "bg-emerald-600 text-white shadow-emerald-600/20"
-                    : "bg-[#0B0F6B] hover:bg-[#080B52] active:bg-[#050738] text-white"
-                }`}
-              >
-                <span>{stickyAdded ? "Added!" : "Add To Cart"}</span>
-              </button>
+              {/* 3. Add To Cart / Quantity Stepper Button */}
+              {currentQuantityInCart > 0 ? (
+                <div className="flex-1 h-12 rounded-xl bg-[#0B0F6B] text-white flex items-center justify-between px-2 shadow-sm border border-blue-900/40 select-none animate-in zoom-in-95 duration-200">
+                  <button
+                    type="button"
+                    onClick={() => updateQuantity(product.id, -1, selectedVariant?.id)}
+                    className="w-9 h-9 rounded-lg hover:bg-white/15 active:bg-white/25 flex items-center justify-center text-white transition-all cursor-pointer font-black active:scale-90"
+                    title="Reduce quantity"
+                    aria-label="Reduce quantity"
+                  >
+                    <Minus className="w-4 h-4 stroke-[3]" />
+                  </button>
+
+                  <span className="font-mono font-black text-base text-white tracking-tight px-3 select-none">
+                    {currentQuantityInCart}
+                  </span>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const maxStock = getProductStock(product, selectedVariant);
+                      if (currentQuantityInCart >= maxStock) {
+                        useUIStore.getState().showToast({
+                          title: `Only ${maxStock} units available.`,
+                          type: "error",
+                          iconType: "stock-limit",
+                          duration: 2500,
+                        });
+                        return;
+                      }
+                      updateQuantity(product.id, 1, selectedVariant?.id);
+                    }}
+                    className="w-9 h-9 rounded-lg hover:bg-white/15 active:bg-white/25 flex items-center justify-center text-white transition-all cursor-pointer font-black active:scale-90"
+                    title="Add more"
+                    aria-label="Add more"
+                  >
+                    <Plus className="w-4 h-4 stroke-[3]" />
+                  </button>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={handleStickyAddToCart}
+                  className={`flex-1 h-12 rounded-xl font-bold text-sm tracking-wide flex items-center justify-center transition-all cursor-pointer shadow-sm active:scale-[0.98] select-none ${
+                    stickyAdded
+                      ? "bg-emerald-600 text-white shadow-emerald-600/20"
+                      : "bg-[#0B0F6B] hover:bg-[#080B52] active:bg-[#050738] text-white"
+                  }`}
+                >
+                  <span>{stickyAdded ? "Added!" : "Add To Cart"}</span>
+                </button>
+              )}
             </>
           ) : (
             <a
@@ -791,18 +868,64 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
                   </button>
                 </div>
 
-                {/* Add to Cart Button (Secondary CTA) */}
-                <button
-                  type="button"
-                  onClick={handleStickyAddToCart}
-                  className={`h-10 sm:h-11 px-3 sm:px-6 rounded-xl font-bold text-xs sm:text-sm uppercase tracking-wider flex items-center justify-center active:scale-95 transition-all cursor-pointer whitespace-nowrap shadow-2xs flex-1 sm:flex-initial min-w-0 ${
-                    stickyAdded
-                      ? "bg-emerald-600 text-white shadow-emerald-600/20"
-                      : "bg-white hover:bg-slate-50 text-slate-900 border border-slate-300 shadow-2xs"
-                  }`}
-                >
-                  <span className="truncate">{stickyAdded ? "ADDED!" : "ADD TO CART"}</span>
-                </button>
+                {/* Add to Cart Button or Stepper (Secondary CTA) */}
+                {currentQuantityInCart > 0 ? (
+                  <div className="flex items-center gap-2">
+                    <div className="h-10 sm:h-11 rounded-xl bg-[#0B0F6B] text-white flex items-center justify-between px-2 shadow-2xs border border-blue-900/40 select-none">
+                      <button
+                        type="button"
+                        onClick={() => updateQuantity(product.id, -1, selectedVariant?.id)}
+                        className="w-7 sm:w-8 h-full flex items-center justify-center text-white hover:bg-white/15 active:bg-white/25 rounded cursor-pointer transition-colors"
+                        title="Reduce quantity"
+                      >
+                        <Minus className="w-3.5 h-3.5 stroke-[3]" />
+                      </button>
+                      <span className="px-3 font-mono font-black text-sm text-white select-none">
+                        {currentQuantityInCart}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const maxStock = getProductStock(product, selectedVariant);
+                          if (currentQuantityInCart >= maxStock) {
+                            useUIStore.getState().showToast({
+                              title: `Only ${maxStock} units available.`,
+                              type: "error",
+                              iconType: "stock-limit",
+                              duration: 2500,
+                            });
+                            return;
+                          }
+                          updateQuantity(product.id, 1, selectedVariant?.id);
+                        }}
+                        className="w-7 sm:w-8 h-full flex items-center justify-center text-white hover:bg-white/15 active:bg-white/25 rounded cursor-pointer transition-colors"
+                        title="Add more"
+                      >
+                        <Plus className="w-3.5 h-3.5 stroke-[3]" />
+                      </button>
+                    </div>
+
+                    <Link
+                      href="/cart"
+                      className="h-10 sm:h-11 px-3 sm:px-4 rounded-xl text-xs sm:text-sm font-black text-[#0B0F6B] bg-blue-50 hover:bg-blue-100 border border-blue-200 flex items-center gap-1.5 shadow-2xs transition-all active:scale-95"
+                    >
+                      <ShoppingCart className="w-3.5 h-3.5" />
+                      <span>View Cart</span>
+                    </Link>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={handleStickyAddToCart}
+                    className={`h-10 sm:h-11 px-3 sm:px-6 rounded-xl font-bold text-xs sm:text-sm uppercase tracking-wider flex items-center justify-center active:scale-95 transition-all cursor-pointer whitespace-nowrap shadow-2xs flex-1 sm:flex-initial min-w-0 ${
+                      stickyAdded
+                        ? "bg-emerald-600 text-white shadow-emerald-600/20"
+                        : "bg-white hover:bg-slate-50 text-slate-900 border border-slate-300 shadow-2xs"
+                    }`}
+                  >
+                    <span className="truncate">{stickyAdded ? "ADDED!" : "ADD TO CART"}</span>
+                  </button>
+                )}
 
                 {/* Buy Now Button — Brand Primary Blue #2563EB */}
                 <button
@@ -847,7 +970,48 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
             )}
           </div>
         </div>
-      </aside>
+        </aside>,
+        document.body
+      )}
+
+      {/* ── Floating "View Cart" Pill: Floats cleanly above the bottom action bar with rounded pill shape & shadow ── */}
+      {mounted && totalCartCount > 0 && createPortal(
+        <div
+          style={{
+            position: "fixed",
+            zIndex: 45,
+          }}
+          className={`left-3 right-3 sm:left-auto sm:right-6 sm:w-88 transition-all duration-300 animate-in slide-in-from-bottom-3 select-none pointer-events-auto bottom-[calc(78px+env(safe-area-inset-bottom,0px))] ${
+            showStickyBar ? "sm:bottom-20" : "sm:bottom-6"
+          }`}
+        >
+          <Link
+            href="/cart"
+            className="w-full flex items-center justify-between bg-gradient-to-r from-[#0B0F6B] via-[#0D1F80] to-[#1D4ED8] hover:from-[#080C54] hover:to-[#1E40AF] text-white p-2.5 sm:p-3 rounded-2xl shadow-xl shadow-blue-950/35 border border-white/20 transition-all active:scale-[0.98] group cursor-pointer"
+          >
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-white/15 backdrop-blur-md flex items-center justify-center text-white shrink-0 group-hover:scale-105 transition-transform">
+                <ShoppingCart className="w-4 h-4" />
+              </div>
+              <div className="min-w-0 flex items-center gap-1.5 whitespace-nowrap">
+                <span className="text-[11px] sm:text-xs font-bold text-blue-100 uppercase tracking-wider whitespace-nowrap">
+                  {totalCartCount} {totalCartCount === 1 ? "ITEM" : "ITEMS"}
+                </span>
+                <span className="text-blue-300 text-xs font-bold whitespace-nowrap">•</span>
+                <span className="text-xs sm:text-sm font-black font-mono text-white leading-tight whitespace-nowrap">
+                  ₹{totalCartPrice.toLocaleString("en-IN")}
+                </span>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-1 bg-white text-[#0B0F6B] font-black text-xs px-3.5 py-2 rounded-xl shadow-xs group-hover:bg-blue-50 transition-colors shrink-0">
+              <span>View Cart</span>
+              <ChevronRight className="w-3.5 h-3.5 stroke-[3] group-hover:translate-x-0.5 transition-transform" />
+            </div>
+          </Link>
+        </div>,
+        document.body
+      )}
 
       {/* ── B2B Institutional & Bulk Order Enquiry Modal ── */}
       <B2BModal isOpen={b2bOpen} onClose={() => setB2bOpen(false)} />
