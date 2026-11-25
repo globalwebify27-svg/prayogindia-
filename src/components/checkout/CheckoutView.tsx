@@ -2215,20 +2215,11 @@ export const CheckoutView: React.FC = () => {
           {/* STEP 1: DELIVERY ADDRESS (When on Step 1) */}
           {/* ═══════════════════════════════════════════════════════════════════════════ */}
           {checkoutStep === "address" && (
-            <div className="-mx-3.5 sm:mx-0 bg-white border-0 sm:border border-slate-200/90 rounded-none sm:rounded-2xl p-4 sm:p-6 shadow-none sm:shadow-xs space-y-5">
-              <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-                <div className="flex items-center gap-2.5 min-w-0">
-                  <div className="w-8 h-8 rounded-lg bg-blue-50 border border-blue-100 flex items-center justify-center shrink-0">
-                    <MapPin className="w-4 h-4 text-[#2563EB]" />
-                  </div>
-                  <div>
-                    <h2 className="text-base font-black text-slate-900 tracking-tight">
-                      1. Delivery Address
-                    </h2>
-                    <p className="text-xs text-slate-500 font-medium hidden sm:block">
-                      Enter the destination address where you want your order delivered
-                    </p>
-                  </div>
+            <div className="-mx-3.5 sm:mx-0 bg-white border-0 sm:border border-slate-200/90 rounded-none sm:rounded-2xl p-3.5 sm:p-5 shadow-none sm:shadow-xs space-y-4">
+              <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+                <div className="flex items-center gap-1.5 min-w-0">
+                  <MapPin className="w-3.5 h-3.5 text-[#2563EB] shrink-0" />
+                  <span className="text-xs font-bold text-slate-800 tracking-tight">Delivery Address</span>
                 </div>
                 {addrFormStreet && (
                   <button
@@ -2236,39 +2227,36 @@ export const CheckoutView: React.FC = () => {
                     onClick={handleProceedToSummary}
                     className="text-xs font-bold text-[#2563EB] hover:underline cursor-pointer"
                   >
-                    Save &amp; Continue →
+                    Continue →
                   </button>
                 )}
               </div>
 
               {/* Saved Addresses Quick Selector (if customer has saved addresses) */}
               {addresses.length > 0 && (
-                <div className="space-y-3 pb-2">
+                <div className="space-y-2 pb-1">
                   <div className="flex items-center justify-between">
-                    <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">
-                      Saved Delivery Addresses ({addresses.length})
-                    </span>
-                    <span className="text-[11px] text-slate-400 hidden sm:inline">
-                      Select an address below or add a new one
+                    <span className="text-[10.5px] font-semibold text-slate-400 uppercase tracking-wider block">
+                      Saved Addresses ({addresses.length})
                     </span>
                   </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                     {addresses.map((a) => {
                       const isSel = selectedShippingAddressId === a.id;
                       return (
                         <div
                           key={a.id}
                           onClick={() => handleSelectSavedAddress(a.id)}
-                          className={`p-3.5 rounded-xl border text-xs transition-all cursor-pointer relative flex flex-col justify-between gap-2.5 ${
+                          className={`p-3 rounded-lg border text-xs transition-all cursor-pointer relative flex flex-col justify-between gap-1.5 ${
                             isSel
-                              ? "bg-blue-50/70 text-slate-900 border-[#2563EB] shadow-xs ring-2 ring-[#2563EB]/40"
+                              ? "bg-blue-50/60 text-slate-900 border-[#2563EB] ring-1 ring-[#2563EB]"
                               : "bg-white text-slate-600 border-slate-200 hover:border-slate-300 hover:bg-slate-50/50"
                           }`}
                         >
                           <div className="flex items-center justify-between gap-2">
                             <div className="flex items-center gap-1.5 min-w-0">
                               <span
-                                className={`text-[10px] font-extrabold uppercase px-2 py-0.5 rounded tracking-wide ${
+                                className={`text-[9px] font-bold uppercase px-1.5 py-0.5 rounded tracking-wide ${
                                   isSel
                                     ? "bg-[#2563EB] text-white"
                                     : "bg-slate-100 text-slate-600"
@@ -2276,7 +2264,7 @@ export const CheckoutView: React.FC = () => {
                               >
                                 {a.type || "Home"}
                               </span>
-                              <span className="font-bold text-slate-900 truncate">
+                              <span className="text-xs font-bold text-slate-900 truncate">
                                 {a.name}
                               </span>
                             </div>
@@ -2287,22 +2275,22 @@ export const CheckoutView: React.FC = () => {
                                   e.stopPropagation();
                                   handleStartEditAddress(a.id);
                                 }}
-                                className="text-[11px] font-bold text-[#2563EB] hover:text-[#1D4ED8] hover:underline flex items-center gap-1 px-2 py-0.5 rounded-md bg-blue-50 hover:bg-blue-100 cursor-pointer transition-colors"
+                                className="text-[11px] font-semibold text-[#2563EB] hover:underline flex items-center gap-0.5 cursor-pointer"
                                 title="Edit this address"
                               >
                                 <Edit3 className="w-3 h-3" />
                                 <span>Edit</span>
                               </button>
                               {isSel && (
-                                <CheckCircle2 className="w-4 h-4 text-[#2563EB] fill-blue-100" />
+                                <CheckCircle2 className="w-3.5 h-3.5 text-[#2563EB]" />
                               )}
                             </div>
                           </div>
-                          <p className="text-[11px] text-slate-600 line-clamp-2 leading-relaxed">
+                          <p className="text-[11px] text-slate-500 line-clamp-2 leading-relaxed">
                             {a.street}, {a.city}, {a.state} - {a.pincode}
                           </p>
-                          <div className="text-[11px] font-medium text-slate-500">
-                            Phone: <strong className="font-semibold text-slate-700">{a.phone}</strong>
+                          <div className="text-[10.5px] text-slate-400">
+                            Phone: <strong className="font-medium text-slate-700">{a.phone}</strong>
                           </div>
                         </div>
                       );
@@ -2311,11 +2299,11 @@ export const CheckoutView: React.FC = () => {
 
                   {/* Actions when not actively editing/adding */}
                   {!isEditingAddress && !isAddingNewAddress && (
-                    <div className="pt-3 flex items-center justify-start border-t border-slate-100">
+                    <div className="pt-2 flex items-center justify-start border-t border-slate-100">
                       <button
                         type="button"
                         onClick={handleStartAddNewAddress}
-                        className="text-xs font-bold text-[#2563EB] hover:text-[#1D4ED8] hover:underline flex items-center justify-center sm:justify-start gap-1.5 py-1.5 cursor-pointer"
+                        className="text-xs font-semibold text-[#2563EB] hover:underline flex items-center gap-1 py-1 cursor-pointer"
                       >
                         <Plus className="w-3.5 h-3.5" />
                         <span>Add New Address</span>
@@ -2327,16 +2315,16 @@ export const CheckoutView: React.FC = () => {
 
               {/* Form Fields: shown when user clicks Edit, Add New, or when no saved addresses exist */}
               {(isEditingAddress || isAddingNewAddress || addresses.length === 0) && (
-                <div className="space-y-4 pt-3 border-t border-slate-100 animate-in fade-in duration-200">
-                  <div className="flex items-center justify-between pb-1">
-                    <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700">
+                <div className="space-y-3.5 pt-2 border-t border-slate-100 animate-in fade-in duration-200">
+                  <div className="flex items-center justify-between pb-0.5">
+                    <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">
                       {isEditingAddress ? "Edit Delivery Address" : "Add New Delivery Address"}
-                    </h3>
+                    </span>
                     {addresses.length > 0 && (
                       <button
                         type="button"
                         onClick={handleCancelAddressEdit}
-                        className="text-xs font-bold text-slate-500 hover:text-slate-800 cursor-pointer"
+                        className="text-[11px] font-semibold text-slate-400 hover:text-slate-700 cursor-pointer"
                       >
                         Cancel
                       </button>
@@ -2344,9 +2332,9 @@ export const CheckoutView: React.FC = () => {
                   </div>
 
                   {/* Contact Details: Name & Mobile */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-4">
-                    <div className="space-y-1.5">
-                      <label className="block text-xs font-bold text-slate-700">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-3.5">
+                    <div className="space-y-1">
+                      <label className="block text-[11px] font-semibold text-slate-600">
                         Full Name <span className="text-red-500">*</span>
                       </label>
                       <input
@@ -2362,16 +2350,16 @@ export const CheckoutView: React.FC = () => {
                       />
                     </div>
 
-                    <div className="space-y-1.5">
+                    <div className="space-y-1">
                       <div className="flex items-center justify-between">
-                        <label className="block text-xs font-bold text-slate-700">
+                        <label className="block text-[11px] font-semibold text-slate-600">
                           Mobile Number <span className="text-red-500">*</span>
                         </label>
                         {!isPhoneVerified && customerMobile.length === 10 && (
                           <button
                             type="button"
                             onClick={handleSendCheckoutOtp}
-                            className="text-xs text-[#2563EB] font-bold hover:underline cursor-pointer"
+                            className="text-[11px] text-[#2563EB] font-bold hover:underline cursor-pointer"
                           >
                             Verify OTP
                           </button>
@@ -2398,13 +2386,13 @@ export const CheckoutView: React.FC = () => {
                   </div>
 
                   {/* Email Address */}
-                  <div className="space-y-1.5">
+                  <div className="space-y-1">
                     <div className="flex items-baseline justify-between">
-                      <label className="block text-xs font-bold text-slate-700">
+                      <label className="block text-[11px] font-semibold text-slate-600">
                         Email Address
                       </label>
-                      <span className="text-[11px] text-slate-400 font-medium">
-                        Order invoice &amp; tracking updates
+                      <span className="text-[10.5px] text-slate-400">
+                        Invoice &amp; tracking updates
                       </span>
                     </div>
                     <input
@@ -2417,8 +2405,8 @@ export const CheckoutView: React.FC = () => {
                   </div>
 
                   {/* Street Address */}
-                  <div className="space-y-1.5">
-                    <label className="block text-xs font-bold text-slate-700">
+                  <div className="space-y-1">
+                    <label className="block text-[11px] font-semibold text-slate-600">
                       Flat, House no., Building, Street Address <span className="text-red-500">*</span>
                     </label>
                     <input
@@ -2432,9 +2420,9 @@ export const CheckoutView: React.FC = () => {
                   </div>
 
                   {/* PIN Code, City, State */}
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 sm:gap-4">
-                    <div className="space-y-1.5">
-                      <label className="block text-xs font-bold text-slate-700">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-3.5">
+                    <div className="space-y-1">
+                      <label className="block text-[11px] font-semibold text-slate-600">
                         PIN Code <span className="text-red-500">*</span>
                       </label>
                       <input
@@ -2443,13 +2431,13 @@ export const CheckoutView: React.FC = () => {
                         maxLength={6}
                         value={addrFormPincode}
                         onChange={(e) => setAddrFormPincode(e.target.value.replace(/\D/g, ""))}
-                        placeholder="6-digit PIN code"
+                        placeholder="6-digit PIN"
                         className="w-full bg-slate-50/60 focus:bg-white border border-slate-200 focus:border-[#2563EB] focus:ring-2 focus:ring-blue-500/10 rounded-lg sm:rounded-xl px-3 py-2 sm:px-3.5 sm:py-2.5 text-xs sm:text-sm font-medium text-slate-900 outline-none transition-all placeholder:text-slate-400 placeholder:font-normal shadow-2xs"
                       />
                     </div>
 
-                    <div className="space-y-1.5">
-                      <label className="block text-xs font-bold text-slate-700">
+                    <div className="space-y-1">
+                      <label className="block text-[11px] font-semibold text-slate-600">
                         City <span className="text-red-500">*</span>
                       </label>
                       <input
@@ -2457,13 +2445,13 @@ export const CheckoutView: React.FC = () => {
                         required
                         value={addrFormCity}
                         onChange={(e) => setAddrFormCity(e.target.value)}
-                        placeholder="City / District"
+                        placeholder="City"
                         className="w-full bg-slate-50/60 focus:bg-white border border-slate-200 focus:border-[#2563EB] focus:ring-2 focus:ring-blue-500/10 rounded-lg sm:rounded-xl px-3 py-2 sm:px-3.5 sm:py-2.5 text-xs sm:text-sm font-medium text-slate-900 outline-none transition-all placeholder:text-slate-400 placeholder:font-normal shadow-2xs"
                       />
                     </div>
 
-                    <div className="space-y-1.5">
-                      <label className="block text-xs font-bold text-slate-700">
+                    <div className="space-y-1">
+                      <label className="block text-[11px] font-semibold text-slate-600">
                         State <span className="text-red-500">*</span>
                       </label>
                       <select
@@ -2480,8 +2468,8 @@ export const CheckoutView: React.FC = () => {
                   </div>
 
                   {/* Address Type Tag */}
-                  <div className="space-y-1.5 pt-0.5">
-                    <label className="block text-xs font-bold text-slate-700">
+                  <div className="space-y-1 pt-0.5">
+                    <label className="block text-[11px] font-semibold text-slate-600">
                       Address Type
                     </label>
                     <div className="grid grid-cols-3 gap-2">
@@ -2492,7 +2480,7 @@ export const CheckoutView: React.FC = () => {
                             key={type}
                             type="button"
                             onClick={() => setAddrFormType(type)}
-                            className={`py-2 px-1 text-center justify-center text-xs font-bold rounded-xl border transition-all cursor-pointer truncate ${
+                            className={`py-1.5 px-1 text-center justify-center text-xs font-bold rounded-lg border transition-all cursor-pointer truncate ${
                               isSel
                                 ? "bg-blue-50 text-[#2563EB] border-blue-200 shadow-2xs font-bold"
                                 : "bg-white text-slate-600 border-slate-200 hover:border-slate-300"
@@ -2506,26 +2494,26 @@ export const CheckoutView: React.FC = () => {
                   </div>
 
                   {/* Delivery Instructions */}
-                  <div className="space-y-1.5">
-                    <label className="block text-xs font-bold text-slate-700">
+                  <div className="space-y-1">
+                    <label className="block text-[11px] font-semibold text-slate-600">
                       Delivery Instructions <span className="text-slate-400 font-normal">(Optional)</span>
                     </label>
                     <input
                       type="text"
                       value={deliveryInstructions}
                       onChange={(e) => setDeliveryInstructions(e.target.value)}
-                      placeholder="Landmark, building entry, gate code, or delivery notes"
+                      placeholder="Landmark, building entry notes"
                       className="w-full bg-slate-50/60 focus:bg-white border border-slate-200 focus:border-[#2563EB] focus:ring-2 focus:ring-blue-500/10 rounded-lg sm:rounded-xl px-3 py-2 sm:px-3.5 sm:py-2.5 text-xs sm:text-sm font-medium text-slate-900 outline-none transition-all placeholder:text-slate-400 placeholder:font-normal shadow-2xs"
                     />
                   </div>
 
                   {/* Form Action Buttons */}
-                  <div className="pt-3 border-t border-slate-100 flex items-center justify-end gap-2.5 sm:gap-3">
+                  <div className="pt-2 border-t border-slate-100 flex items-center justify-end gap-2">
                     {addresses.length > 0 && (
                       <button
                         type="button"
                         onClick={handleCancelAddressEdit}
-                        className="px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs sm:text-sm font-bold transition-colors cursor-pointer whitespace-nowrap"
+                        className="px-3.5 py-1.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs font-semibold transition-colors cursor-pointer"
                       >
                         Cancel
                       </button>
@@ -2533,9 +2521,9 @@ export const CheckoutView: React.FC = () => {
                     <button
                       type="button"
                       onClick={handleSaveAddressForm}
-                      className="bg-[#2563EB] hover:bg-[#1D4ED8] active:bg-[#1E40AF] text-white px-5 sm:px-7 py-2.5 sm:py-3 rounded-xl text-xs sm:text-sm font-bold transition-all shadow-md shadow-blue-500/20 cursor-pointer flex items-center justify-center gap-2 whitespace-nowrap"
+                      className="bg-[#2563EB] hover:bg-[#1D4ED8] active:bg-[#1E40AF] text-white px-4 py-1.5 rounded-lg text-xs font-bold transition-all shadow-sm cursor-pointer flex items-center justify-center gap-1.5"
                     >
-                      <CheckCircle2 className="w-4 h-4 text-white/90 shrink-0" />
+                      <CheckCircle2 className="w-3.5 h-3.5 text-white/90 shrink-0" />
                       <span>Save Address</span>
                     </button>
                   </div>
