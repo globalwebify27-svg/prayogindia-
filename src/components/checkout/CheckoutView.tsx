@@ -2360,7 +2360,7 @@ export const CheckoutView: React.FC = () => {
                           setAddrFormName(e.target.value);
                         }}
                         placeholder="Enter your full name"
-                        className="w-full bg-slate-50/60 focus:bg-white border border-slate-200 focus:border-[#2563EB] focus:ring-4 focus:ring-blue-500/10 rounded-xl px-3.5 py-2.5 text-sm font-medium text-slate-900 outline-none transition-all placeholder:text-slate-400 placeholder:font-normal shadow-2xs"
+                        className="w-full bg-slate-50/60 focus:bg-white border border-slate-200 focus:border-[#2563EB] focus:ring-2 focus:ring-blue-500/10 rounded-lg sm:rounded-xl px-3 py-2 sm:px-3.5 sm:py-2.5 text-xs sm:text-sm font-medium text-slate-900 outline-none transition-all placeholder:text-slate-400 placeholder:font-normal shadow-2xs"
                       />
                     </div>
 
@@ -2380,7 +2380,7 @@ export const CheckoutView: React.FC = () => {
                         )}
                       </div>
                       <div className="relative flex items-center">
-                        <span className="absolute left-3.5 text-xs font-bold text-slate-500 pointer-events-none border-r border-slate-200 pr-2">
+                        <span className="absolute left-3 text-xs font-bold text-slate-500 pointer-events-none border-r border-slate-200 pr-2">
                           +91
                         </span>
                         <input
@@ -2393,7 +2393,7 @@ export const CheckoutView: React.FC = () => {
                             setAddrFormPhone(e.target.value);
                           }}
                           placeholder="10-digit mobile number"
-                          className="w-full bg-slate-50/60 focus:bg-white border border-slate-200 focus:border-[#2563EB] focus:ring-4 focus:ring-blue-500/10 rounded-xl pl-14 pr-3.5 py-2.5 text-sm font-medium text-slate-900 outline-none transition-all placeholder:text-slate-400 placeholder:font-normal shadow-2xs"
+                          className="w-full bg-slate-50/60 focus:bg-white border border-slate-200 focus:border-[#2563EB] focus:ring-2 focus:ring-blue-500/10 rounded-lg sm:rounded-xl pl-13 pr-3 py-2 sm:pl-14 sm:pr-3.5 sm:py-2.5 text-xs sm:text-sm font-medium text-slate-900 outline-none transition-all placeholder:text-slate-400 placeholder:font-normal shadow-2xs"
                         />
                       </div>
                     </div>
@@ -2414,7 +2414,7 @@ export const CheckoutView: React.FC = () => {
                       value={customerEmail}
                       onChange={(e) => setCustomerEmail(e.target.value)}
                       placeholder="email@example.com"
-                      className="w-full bg-slate-50/60 focus:bg-white border border-slate-200 focus:border-[#2563EB] focus:ring-4 focus:ring-blue-500/10 rounded-xl px-3.5 py-2.5 text-sm font-medium text-slate-900 outline-none transition-all placeholder:text-slate-400 placeholder:font-normal shadow-2xs"
+                      className="w-full bg-slate-50/60 focus:bg-white border border-slate-200 focus:border-[#2563EB] focus:ring-2 focus:ring-blue-500/10 rounded-lg sm:rounded-xl px-3 py-2 sm:px-3.5 sm:py-2.5 text-xs sm:text-sm font-medium text-slate-900 outline-none transition-all placeholder:text-slate-400 placeholder:font-normal shadow-2xs"
                     />
                   </div>
 
@@ -2429,7 +2429,7 @@ export const CheckoutView: React.FC = () => {
                       value={addrFormStreet}
                       onChange={(e) => setAddrFormStreet(e.target.value)}
                       placeholder="House / Flat no., Building, Street, Area"
-                      className="w-full bg-slate-50/60 focus:bg-white border border-slate-200 focus:border-[#2563EB] focus:ring-4 focus:ring-blue-500/10 rounded-xl px-3.5 py-2.5 text-sm font-medium text-slate-900 outline-none transition-all placeholder:text-slate-400 placeholder:font-normal shadow-2xs"
+                      className="w-full bg-slate-50/60 focus:bg-white border border-slate-200 focus:border-[#2563EB] focus:ring-2 focus:ring-blue-500/10 rounded-lg sm:rounded-xl px-3 py-2 sm:px-3.5 sm:py-2.5 text-xs sm:text-sm font-medium text-slate-900 outline-none transition-all placeholder:text-slate-400 placeholder:font-normal shadow-2xs"
                     />
                   </div>
 
@@ -2446,7 +2446,7 @@ export const CheckoutView: React.FC = () => {
                         value={addrFormPincode}
                         onChange={(e) => setAddrFormPincode(e.target.value.replace(/\D/g, ""))}
                         placeholder="6-digit PIN code"
-                        className="w-full bg-slate-50/60 focus:bg-white border border-slate-200 focus:border-[#2563EB] focus:ring-4 focus:ring-blue-500/10 rounded-xl px-3.5 py-2.5 text-sm font-medium text-slate-900 outline-none transition-all placeholder:text-slate-400 placeholder:font-normal shadow-2xs"
+                        className="w-full bg-slate-50/60 focus:bg-white border border-slate-200 focus:border-[#2563EB] focus:ring-2 focus:ring-blue-500/10 rounded-lg sm:rounded-xl px-3 py-2 sm:px-3.5 sm:py-2.5 text-xs sm:text-sm font-medium text-slate-900 outline-none transition-all placeholder:text-slate-400 placeholder:font-normal shadow-2xs"
                       />
                     </div>
 
@@ -2460,7 +2460,7 @@ export const CheckoutView: React.FC = () => {
                         value={addrFormCity}
                         onChange={(e) => setAddrFormCity(e.target.value)}
                         placeholder="City / District"
-                        className="w-full bg-slate-50/60 focus:bg-white border border-slate-200 focus:border-[#2563EB] focus:ring-4 focus:ring-blue-500/10 rounded-xl px-3.5 py-2.5 text-sm font-medium text-slate-900 outline-none transition-all placeholder:text-slate-400 placeholder:font-normal shadow-2xs"
+                        className="w-full bg-slate-50/60 focus:bg-white border border-slate-200 focus:border-[#2563EB] focus:ring-2 focus:ring-blue-500/10 rounded-lg sm:rounded-xl px-3 py-2 sm:px-3.5 sm:py-2.5 text-xs sm:text-sm font-medium text-slate-900 outline-none transition-all placeholder:text-slate-400 placeholder:font-normal shadow-2xs"
                       />
                     </div>
 
@@ -2471,7 +2471,7 @@ export const CheckoutView: React.FC = () => {
                       <select
                         value={addrFormState}
                         onChange={(e) => setAddrFormState(e.target.value)}
-                        className="w-full bg-slate-50/60 focus:bg-white border border-slate-200 focus:border-[#2563EB] focus:ring-4 focus:ring-blue-500/10 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-900 outline-none transition-all cursor-pointer shadow-2xs"
+                        className="w-full bg-slate-50/60 focus:bg-white border border-slate-200 focus:border-[#2563EB] focus:ring-2 focus:ring-blue-500/10 rounded-lg sm:rounded-xl px-2.5 py-2 sm:px-3 sm:py-2.5 text-xs sm:text-sm font-medium text-slate-900 outline-none transition-all cursor-pointer shadow-2xs"
                       >
                         <option value="">Select State</option>
                         {INDIAN_STATES.map((s) => (
@@ -2517,7 +2517,7 @@ export const CheckoutView: React.FC = () => {
                       value={deliveryInstructions}
                       onChange={(e) => setDeliveryInstructions(e.target.value)}
                       placeholder="Landmark, building entry, gate code, or delivery notes"
-                      className="w-full bg-slate-50/60 focus:bg-white border border-slate-200 focus:border-[#2563EB] focus:ring-4 focus:ring-blue-500/10 rounded-xl px-3.5 py-2.5 text-sm font-medium text-slate-900 outline-none transition-all placeholder:text-slate-400 placeholder:font-normal shadow-2xs"
+                      className="w-full bg-slate-50/60 focus:bg-white border border-slate-200 focus:border-[#2563EB] focus:ring-2 focus:ring-blue-500/10 rounded-lg sm:rounded-xl px-3 py-2 sm:px-3.5 sm:py-2.5 text-xs sm:text-sm font-medium text-slate-900 outline-none transition-all placeholder:text-slate-400 placeholder:font-normal shadow-2xs"
                     />
                   </div>
 
