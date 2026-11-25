@@ -22,7 +22,6 @@ import {
   CheckCircle2,
   MapPin,
   Coins,
-  User,
   LogIn,
   RotateCcw,
   Check,
@@ -208,24 +207,11 @@ export const CartView: React.FC = () => {
       {/* 1. Breadcrumb */}
       <CategoryBreadcrumb items={[{ label: "Shopping Cart" }]} />
 
-      {/* 2. Page Header & Segment Switcher */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4 border-b border-slate-200 pb-4 sm:pb-6">
-        <div>
-          {isLoggedIn ? (
-            <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200/80 px-2.5 py-0.5 rounded-full inline-flex items-center gap-1 shadow-2xs">
-              <User className="w-3 h-3 text-emerald-600" /> Logged In: {user?.name}
-            </span>
-          ) : (
-            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 bg-slate-100 border border-slate-200 px-2.5 py-0.5 rounded-full">
-              Guest Cart
-            </span>
-          )}
-          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 tracking-tight mt-1">
-            Your Shopping Cart
-          </h1>
-        </div>
-
-
+      {/* 2. Page Header */}
+      <div className="border-b border-slate-200 pb-4 sm:pb-6">
+        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 tracking-tight">
+          Your Shopping Cart
+        </h1>
       </div>
 
       {/* 3. Empty State */}
