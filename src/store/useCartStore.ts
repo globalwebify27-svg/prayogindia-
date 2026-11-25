@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { Product, ProductVariant } from "@/data/mockData";
+import { Product, ProductVariant, getProductStock } from "@/data/mockData";
 import { CartItem, CartNotificationData } from "./types";
 import { haptic } from "@/utils/haptics";
 import { useUIStore } from "./useUIStore";
@@ -39,7 +39,17 @@ export const useCartStore = create<CartState>()(
       },
 
       addToCart: (product: Product, variant?: ProductVariant, quantity = 1) => {
-        haptic.success();
+        const maxStock = getProductStock(product, variant);
+        if (maxStock <= 0) {
+          useUIStore.getState().showToast({
+            type: "error",
+            title: "Out of Stock",
+            message: `${product.name} is currently out of stock.`,
+            duration: 2500,
+          });
+          return;
+        }
+
         const prev = get().cart;
         const existingIdx = prev.findIndex(
           (item) =>
@@ -48,15 +58,28 @@ export const useCartStore = create<CartState>()(
 
         let updated: CartItem[];
         if (existingIdx > -1) {
+          const currentQty = prev[existingIdx].quantity;
+          if (currentQty >= maxStock) {
+            useUIStore.getState().showToast({
+              type: "error",
+              title: `Only ${maxStock} units available in stock`,
+              message: `You already have all available units of ${product.name} in your cart.`,
+              duration: 2500,
+            });
+            return;
+          }
+          const cappedQty = Math.min(currentQty + quantity, maxStock);
           updated = [...prev];
           updated[existingIdx] = {
             ...updated[existingIdx],
-            quantity: updated[existingIdx].quantity + quantity,
+            quantity: cappedQty,
           };
         } else {
-          updated = [...prev, { product, variant, quantity }];
+          const cappedQty = Math.min(quantity, maxStock);
+          updated = [...prev, { product, variant, quantity: cappedQty }];
         }
 
+        haptic.success();
         set({ cart: updated });
 
         // Trigger Toast Notification
@@ -93,6 +116,9 @@ export const useCartStore = create<CartState>()(
         variantId?: string
       ) => {
         haptic.selection();
+        let hitStockLimit = false;
+        let limitStock = 0;
+
         set((state) => ({
           cart: state.cart
             .map((item) => {
@@ -100,13 +126,29 @@ export const useCartStore = create<CartState>()(
                 item.product.id === productId &&
                 (!variantId || item.variant?.id === variantId)
               ) {
-                const newQty = item.quantity + delta;
+                const maxStock = getProductStock(item.product, item.variant);
+                if (delta > 0 && item.quantity >= maxStock) {
+                  hitStockLimit = true;
+                  limitStock = maxStock;
+                  return item;
+                }
+                const newQty = delta > 0
+                  ? Math.min(item.quantity + delta, maxStock)
+                  : item.quantity + delta;
                 return newQty > 0 ? { ...item, quantity: newQty } : null;
               }
               return item;
             })
             .filter(Boolean) as CartItem[],
         }));
+
+        if (hitStockLimit) {
+          useUIStore.getState().showToast({
+            title: `Only ${limitStock} units available in stock`,
+            type: "error",
+            duration: 2500,
+          });
+        }
       },
 
       clearCart: () => set({ cart: [] }),

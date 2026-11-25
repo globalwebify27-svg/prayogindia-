@@ -12,7 +12,7 @@ import {
   Layers,
   Maximize2,
 } from "lucide-react";
-import { Product } from "@/data/mockData";
+import { Product, getProductStock } from "@/data/mockData";
 import { useCartStore, useWishlistStore, useUIStore } from "@/store";
 import { haptic } from "@/utils/haptics";
 import { AddToCartIcon } from "@/components/icons/AddToCartIcon";
@@ -65,7 +65,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   const displayMrp = Math.round(activeVariant?.mrp ?? product.mrp ?? (displayPrice * 1.3));
   const discountAmount = displayMrp > displayPrice ? displayMrp - displayPrice : 0;
   const discountPercent = discountAmount > 0 ? Math.round((discountAmount / displayMrp) * 100) : 0;
-  const isInStock = activeVariant ? activeVariant.inStock : product.inStock;
+  const availableStock = getProductStock(product, activeVariant);
+  const isInStock = (activeVariant ? activeVariant.inStock : product.inStock) && availableStock > 0;
 
   const itemIsWishlisted =
     typeof isWishlisted === "boolean" ? isWishlisted : isWishlistedInStore;
@@ -265,6 +266,15 @@ export const ProductCard: React.FC<ProductCardProps> = ({
               {product.reviews || 35}
             </span>
           </div>
+
+          {/* Low Stock Advisory (<= 5 units) */}
+          {isInStock && availableStock <= 5 && (
+            <div className="pt-0.5">
+              <span className="text-[9px] sm:text-[10px] font-bold text-rose-600 tracking-tight block">
+                Only {availableStock} left in stock
+              </span>
+            </div>
+          )}
 
           {/* Deal Tag Badge (e.g. Limited time deal) */}
           {discountPercent > 10 && (

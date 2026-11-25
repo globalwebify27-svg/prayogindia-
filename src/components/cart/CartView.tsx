@@ -6,6 +6,8 @@ import Image from "next/image";
 import { CategoryBreadcrumb } from "@/components/categories/CategoryBreadcrumb";
 import { useStore, CartItem } from "@/context/StoreContext";
 import { CUSTOMER_TYPE_RULES, CustomerType } from "@/data/customerTypes";
+import { getProductStock } from "@/data/mockData";
+import { useUIStore } from "@/store/useUIStore";
 import {
   ShoppingBag,
   Trash2,
@@ -369,9 +371,11 @@ export const CartView: React.FC = () => {
                     : item.product.price;
                   const mrp = item.variant ? item.variant.mrp : item.product.mrp;
                   const sku = item.variant ? item.variant.sku : item.product.sku;
-                  const isInStock = item.variant
+                  const maxStock = getProductStock(item.product, item.variant);
+                  const isAtMaxStock = item.quantity >= maxStock;
+                  const isInStock = (item.variant
                     ? item.variant.inStock
-                    : item.product.inStock;
+                    : item.product.inStock) && maxStock > 0;
 
                   return (
                     <div
@@ -432,6 +436,17 @@ export const CartView: React.FC = () => {
                               </span>
                             )}
                           </div>
+
+                          {/* Stock status indicator */}
+                          {isAtMaxStock ? (
+                            <div className="text-[11px] font-bold text-amber-600">
+                              Max available stock reached ({maxStock} in stock)
+                            </div>
+                          ) : maxStock <= 5 && maxStock > 0 ? (
+                            <div className="text-[11px] font-bold text-rose-500">
+                              Only {maxStock} left in stock
+                            </div>
+                          ) : null}
                         </div>
                       </div>
 
@@ -456,11 +471,25 @@ export const CartView: React.FC = () => {
                             {item.quantity}
                           </span>
                           <button
-                            onClick={() =>
-                              updateQuantity(item.product.id, 1, item.variant?.id)
-                            }
-                            className="w-7 h-7 text-slate-600 hover:bg-slate-100 flex items-center justify-center transition-colors cursor-pointer"
+                            onClick={() => {
+                              if (isAtMaxStock) {
+                                useUIStore.getState().showToast({
+                                  title: `Only ${maxStock} units available in stock`,
+                                  type: "error",
+                                  duration: 2500,
+                                });
+                                return;
+                              }
+                              updateQuantity(item.product.id, 1, item.variant?.id);
+                            }}
+                            disabled={isAtMaxStock}
+                            className={`w-7 h-7 flex items-center justify-center transition-colors ${
+                              isAtMaxStock
+                                ? "text-slate-300 cursor-not-allowed bg-slate-50"
+                                : "text-slate-600 hover:bg-slate-100 cursor-pointer"
+                            }`}
                             aria-label="Increase quantity"
+                            title={isAtMaxStock ? `Only ${maxStock} units available in stock` : "Increase quantity"}
                           >
                             <Plus className="w-3 h-3" />
                           </button>

@@ -19,6 +19,8 @@ import {
   Truck,
 } from "lucide-react";
 import { useWishlistStore, CartItem } from "@/store";
+import { useUIStore } from "@/store/useUIStore";
+import { getProductStock } from "@/data/mockData";
 import { haptic } from "@/utils/haptics";
 
 interface CartDrawerProps {
@@ -267,6 +269,8 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                   ? item.variant.price
                   : item.product.price;
                 const sku = item.variant ? item.variant.sku : item.product.sku;
+                const maxStock = getProductStock(item.product, item.variant);
+                const isAtMaxStock = item.quantity >= maxStock;
 
                 return (
                   <div
@@ -299,6 +303,15 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                       <div className="text-xs font-black text-slate-900 pt-0.5">
                         ₹{price.toLocaleString("en-IN")}
                       </div>
+                      {isAtMaxStock ? (
+                        <div className="text-[10px] font-bold text-amber-600">
+                          Max available stock reached ({maxStock} in stock)
+                        </div>
+                      ) : maxStock <= 5 ? (
+                        <div className="text-[10px] font-bold text-rose-500">
+                          Only {maxStock} left in stock
+                        </div>
+                      ) : null}
                     </div>
 
                     {/* Quantity Stepper */}
@@ -323,10 +336,24 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                       <button
                         onClick={() => {
                           haptic.light();
+                          if (isAtMaxStock) {
+                            useUIStore.getState().showToast({
+                              title: `Only ${maxStock} units available in stock`,
+                              type: "error",
+                              duration: 2500,
+                            });
+                            return;
+                          }
                           onUpdateQuantity(item.product.id, 1, item.variant?.id);
                         }}
-                        className="w-6 h-6 flex items-center justify-center text-slate-500 hover:bg-slate-100 rounded-lg cursor-pointer transition-colors"
+                        disabled={isAtMaxStock}
+                        className={`w-6 h-6 flex items-center justify-center rounded-lg transition-colors ${
+                          isAtMaxStock
+                            ? "text-slate-300 cursor-not-allowed bg-slate-50"
+                            : "text-slate-500 hover:bg-slate-100 cursor-pointer"
+                        }`}
                         aria-label="Increase quantity"
+                        title={isAtMaxStock ? `Only ${maxStock} units available in stock` : "Increase quantity"}
                       >
                         <Plus className="w-3 h-3" />
                       </button>

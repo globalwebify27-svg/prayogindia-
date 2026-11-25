@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useStore, CartItem } from "@/context/StoreContext";
+import { useUIStore } from "@/store/useUIStore";
 import { CategoryBreadcrumb } from "@/components/categories/CategoryBreadcrumb";
 import { CheckoutOrderSummary } from "@/components/checkout/CheckoutOrderSummary";
 import { CheckoutAuthGate } from "@/components/checkout/CheckoutAuthGate";
@@ -56,6 +57,7 @@ import {
 } from "@/data/customerTypes";
 import { INITIAL_PROMO_COUPONS, evaluatePromoCoupon } from "@/data/promoData";
 import { calculateDeliveryRules } from "@/data/deliveryRules";
+import { getProductStock } from "@/data/mockData";
 
 const INDIAN_STATES = [
   "Andhra Pradesh",
@@ -236,6 +238,25 @@ export const CheckoutView: React.FC = () => {
       setIsPhoneVerified(true);
     }
   }, [user]);
+
+  // Proactively sanitize cart items so quantity cannot exceed available stock
+  React.useEffect(() => {
+    let hasExcess = false;
+    cart.forEach((item) => {
+      const maxStock = getProductStock(item.product, item.variant);
+      if (maxStock > 0 && item.quantity > maxStock) {
+        hasExcess = true;
+        updateQuantity(item.product.id, maxStock - item.quantity, item.variant?.id);
+      }
+    });
+    if (hasExcess) {
+      useUIStore.getState().showToast({
+        title: "Cart quantities adjusted to available warehouse stock.",
+        type: "info",
+        duration: 3000,
+      });
+    }
+  }, [cart, updateQuantity]);
 
   // Auto-load and initialize saved addresses so customer never has to re-enter
   React.useEffect(() => {
@@ -2027,11 +2048,6 @@ export const CheckoutView: React.FC = () => {
             Express delivery across India
           </span>
         </div>
-
-        <div className="flex items-center gap-1.5 text-[11px] sm:text-xs font-medium text-emerald-700 bg-emerald-50 border border-emerald-100 px-2.5 py-0.5 rounded-full shrink-0">
-          <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-          <span>256-Bit SSL Secure</span>
-        </div>
       </div>
 
       {/* Simple, Unique & Professional Linear Progress Stepper */}
@@ -2185,7 +2201,7 @@ export const CheckoutView: React.FC = () => {
           {/* STEP 1: DELIVERY ADDRESS (When on Step 1) */}
           {/* ═══════════════════════════════════════════════════════════════════════════ */}
           {checkoutStep === "address" && (
-            <div className="bg-white border border-slate-200/90 rounded-2xl p-4 sm:p-6 shadow-xs space-y-5">
+            <div className="-mx-3.5 sm:mx-0 bg-white border-0 sm:border border-slate-200/90 rounded-none sm:rounded-2xl p-4 sm:p-6 shadow-none sm:shadow-xs space-y-5">
               <div className="flex items-center justify-between pb-3 border-b border-slate-100">
                 <div className="flex items-center gap-2.5 min-w-0">
                   <div className="w-8 h-8 rounded-lg bg-blue-50 border border-blue-100 flex items-center justify-center shrink-0">
@@ -2281,7 +2297,7 @@ export const CheckoutView: React.FC = () => {
 
                   {/* Actions when not actively editing/adding */}
                   {!isEditingAddress && !isAddingNewAddress && (
-                    <div className="pt-3 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 border-t border-slate-100">
+                    <div className="pt-3 flex items-center justify-start border-t border-slate-100">
                       <button
                         type="button"
                         onClick={handleStartAddNewAddress}
@@ -2289,13 +2305,6 @@ export const CheckoutView: React.FC = () => {
                       >
                         <Plus className="w-3.5 h-3.5" />
                         <span>Add New Address</span>
-                      </button>
-                      <button
-                        type="button"
-                        onClick={handleProceedToSummary}
-                        className="w-full sm:w-auto bg-[#2563EB] hover:bg-[#1D4ED8] active:bg-[#1E40AF] text-white px-7 py-3 rounded-xl text-sm font-bold transition-all shadow-md shadow-blue-500/20 cursor-pointer flex items-center justify-center transition-all"
-                      >
-                        <span>Deliver to this Address</span>
                       </button>
                     </div>
                   )}
@@ -2497,12 +2506,12 @@ export const CheckoutView: React.FC = () => {
                   </div>
 
                   {/* Form Action Buttons */}
-                  <div className="pt-3 border-t border-slate-100 flex items-center justify-end gap-3">
+                  <div className="pt-3 border-t border-slate-100 flex items-center justify-end gap-2.5 sm:gap-3">
                     {addresses.length > 0 && (
                       <button
                         type="button"
                         onClick={handleCancelAddressEdit}
-                        className="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs font-bold transition-colors cursor-pointer"
+                        className="px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs sm:text-sm font-bold transition-colors cursor-pointer whitespace-nowrap"
                       >
                         Cancel
                       </button>
@@ -2510,11 +2519,10 @@ export const CheckoutView: React.FC = () => {
                     <button
                       type="button"
                       onClick={handleSaveAddressForm}
-                      className="w-full sm:w-auto bg-[#2563EB] hover:bg-[#1D4ED8] active:bg-[#1E40AF] text-white px-7 py-3 rounded-xl text-sm font-bold transition-all shadow-md shadow-blue-500/20 cursor-pointer flex items-center justify-center gap-2 group"
+                      className="bg-[#2563EB] hover:bg-[#1D4ED8] active:bg-[#1E40AF] text-white px-5 sm:px-7 py-2.5 sm:py-3 rounded-xl text-xs sm:text-sm font-bold transition-all shadow-md shadow-blue-500/20 cursor-pointer flex items-center justify-center gap-2 whitespace-nowrap"
                     >
-                      <CheckCircle2 className="w-4 h-4 text-white/90" />
+                      <CheckCircle2 className="w-4 h-4 text-white/90 shrink-0" />
                       <span>Save Address</span>
-                      <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
                     </button>
                   </div>
                 </div>
@@ -2526,9 +2534,9 @@ export const CheckoutView: React.FC = () => {
           {/* STEP 2: ORDER SUMMARY (Flipkart Target Style - Unified Clean Panel) */}
           {/* ═══════════════════════════════════════════════════════════════════════════ */}
           {checkoutStep === "summary" && (
-            <div className="bg-white border border-slate-200/90 rounded-2xl shadow-xs overflow-hidden">
+            <div className="-mx-3.5 sm:mx-0 bg-white border-0 sm:border border-slate-200/90 rounded-none sm:rounded-2xl shadow-none sm:shadow-xs overflow-hidden">
               {/* Section 1: Deliver to */}
-              <div className="p-4 sm:p-5 border-b border-slate-100 flex items-start justify-between gap-4 bg-white">
+              <div className="p-3.5 sm:p-5 border-b border-slate-100 flex items-start justify-between gap-3 sm:gap-4 bg-white">
                 <div className="space-y-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
@@ -2618,26 +2626,30 @@ export const CheckoutView: React.FC = () => {
                       ? getFormattedDate(1)
                       : getFormattedDate(3);
 
+                  const maxStock = getProductStock(item.product, item.variant);
+                  const isAtMaxStock = item.quantity >= maxStock;
+                  const isOverStock = item.quantity > maxStock;
+
                   return (
                     <div
                       key={`${item.product.id}-${item.variant?.id}`}
                       className="bg-white transition-colors"
                     >
-                      <div className="p-4 sm:p-5 flex gap-4 sm:gap-5 items-start">
-                        {/* Left Column: Product Thumbnail + Qty Dropdown (Flipkart style) */}
-                        <div className="flex flex-col items-center gap-2.5 shrink-0">
-                          <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-xl border border-slate-200/90 bg-white p-1.5 overflow-hidden flex items-center justify-center">
+                      <div className="p-3 sm:p-5 flex gap-3 sm:gap-5 items-start">
+                        {/* Left Column: Product Thumbnail + Qty Stepper */}
+                        <div className="flex flex-col items-center gap-2 shrink-0">
+                          <div className="relative w-18 h-18 sm:w-24 sm:h-24 rounded-xl border border-slate-200/90 bg-white p-1 overflow-hidden flex items-center justify-center">
                             <Image
                               src={item.product.image}
                               alt={item.product.name}
                               fill
-                              sizes="(max-width: 640px) 80px, 96px"
+                              sizes="(max-width: 640px) 72px, 96px"
                               className="object-contain"
                             />
                           </div>
 
                           {/* Quantity Capsule Stepper */}
-                          <div className="inline-flex items-center justify-between w-full max-w-[80px] sm:max-w-[96px] bg-white border border-slate-200 hover:border-slate-300 rounded-full py-1 px-1.5 shadow-2xs transition-colors select-none">
+                          <div className="inline-flex items-center justify-between w-full max-w-[76px] sm:max-w-[96px] bg-white border border-slate-200 hover:border-slate-300 rounded-full py-0.5 sm:py-1 px-1 sm:px-1.5 shadow-2xs transition-colors select-none">
                             <button
                               type="button"
                               disabled={item.quantity <= 1}
@@ -2646,67 +2658,100 @@ export const CheckoutView: React.FC = () => {
                                   updateQuantity(item.product.id, -1, item.variant?.id);
                                 }
                               }}
-                              className={`w-6 h-6 flex items-center justify-center rounded-full transition-colors ${
+                              className={`w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center rounded-full transition-colors ${
                                 item.quantity <= 1
                                   ? "text-slate-300 cursor-not-allowed"
                                   : "text-slate-600 hover:text-slate-900 hover:bg-slate-100 cursor-pointer"
                               }`}
                               aria-label="Decrease quantity"
                             >
-                              <Minus className="w-3.5 h-3.5 stroke-[2.5]" />
+                              <Minus className="w-3 h-3 sm:w-3.5 sm:h-3.5 stroke-[2.5]" />
                             </button>
-                            <span className="text-xs sm:text-sm font-extrabold text-slate-900 min-w-[20px] text-center leading-none">
+                            <span className="text-xs sm:text-sm font-extrabold text-slate-900 min-w-[18px] sm:min-w-[20px] text-center leading-none">
                               {item.quantity}
                             </span>
                             <button
                               type="button"
-                              disabled={
-                                item.product.stock !== undefined &&
-                                item.quantity >= item.product.stock
-                              }
-                              onClick={() => updateQuantity(item.product.id, 1, item.variant?.id)}
-                              className="w-6 h-6 text-slate-900 hover:text-[#2563EB] hover:bg-blue-50 flex items-center justify-center rounded-full transition-colors cursor-pointer disabled:text-slate-300 disabled:cursor-not-allowed disabled:hover:bg-transparent"
+                              disabled={isAtMaxStock}
+                              onClick={() => {
+                                if (isAtMaxStock) {
+                                  useUIStore.getState().showToast({
+                                    title: `Only ${maxStock} units available in stock`,
+                                    type: "error",
+                                    duration: 2500,
+                                  });
+                                  return;
+                                }
+                                updateQuantity(item.product.id, 1, item.variant?.id);
+                              }}
+                              className={`w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center rounded-full transition-colors ${
+                                isAtMaxStock
+                                  ? "text-slate-300 cursor-not-allowed"
+                                  : "text-slate-900 hover:text-[#2563EB] hover:bg-blue-50 cursor-pointer"
+                              }`}
                               aria-label="Increase quantity"
+                              title={isAtMaxStock ? `Only ${maxStock} units available in stock` : "Increase quantity"}
                             >
-                              <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+                              <Plus className="w-3 h-3 sm:w-3.5 sm:h-3.5 stroke-[2.5]" />
                             </button>
                           </div>
                         </div>
 
                         {/* Right Column: Title, Subtitle, Rating, Price, Stock & Delivery */}
-                        <div className="flex-1 min-w-0 space-y-1.5">
+                        <div className="flex-1 min-w-0 space-y-1 sm:space-y-1.5">
+                          {/* Stock Pill / Prayog Assured */}
+                          <div>
+                            {isOverStock ? (
+                              <span className="text-[9.5px] sm:text-[10px] font-bold uppercase tracking-normal sm:tracking-wider text-rose-700 bg-rose-50 border border-rose-200/80 px-2 py-0.5 rounded-full inline-block leading-tight">
+                                Exceeds Stock ({maxStock} Max)
+                              </span>
+                            ) : isAtMaxStock ? (
+                              <span className="text-[9.5px] sm:text-[10px] font-bold uppercase tracking-normal sm:tracking-wider text-amber-700 bg-amber-50 border border-amber-200/80 px-2 py-0.5 rounded-full inline-block leading-tight">
+                                Max Stock Reached ({maxStock})
+                              </span>
+                            ) : maxStock <= 5 ? (
+                              <span className="text-[9.5px] sm:text-[10px] font-bold uppercase tracking-normal sm:tracking-wider text-rose-700 bg-rose-50 border border-rose-200/80 px-2 py-0.5 rounded-full inline-block leading-tight">
+                                Only {maxStock} Left • Prayog Assured
+                              </span>
+                            ) : (
+                              <span className="text-[9.5px] sm:text-[10px] font-bold uppercase tracking-normal sm:tracking-wider text-emerald-700 bg-emerald-50 border border-emerald-200/80 px-2 py-0.5 rounded-full inline-block leading-tight">
+                                In Stock • Prayog Assured
+                              </span>
+                            )}
+                          </div>
+
                           {/* 1. Title */}
                           <Link
                             href={`/products/${item.product.slug}`}
-                            className="text-sm sm:text-base font-bold text-slate-900 leading-snug line-clamp-2 hover:text-[#2563EB] transition-colors block"
+                            className="text-xs sm:text-base font-bold text-slate-900 leading-snug line-clamp-2 hover:text-[#2563EB] transition-colors block"
                           >
                             {item.product.name}
                           </Link>
 
                           {/* 2. Subtitle / Category / Specs */}
-                          <p className="text-xs text-slate-500 font-normal line-clamp-1">
+                          <p className="text-[11px] sm:text-xs text-slate-500 font-normal line-clamp-1">
                             {item.variant ? item.variant.name : item.product.category}
                             {item.product.sku ? ` • SKU: ${item.product.sku}` : " • Genuine Prayog Robotics"}
                           </p>
 
                           {/* 3. Rating & Prayog Assured */}
-                          <div className="flex items-center gap-2 text-xs flex-wrap">
-                            <div className="inline-flex items-center gap-1 bg-emerald-600 text-white font-bold px-1.5 py-0.5 rounded text-[11px]">
+                          <div className="flex items-center gap-1.5 sm:gap-2 text-xs flex-wrap">
+                            <div className="inline-flex items-center gap-1 bg-emerald-600 text-white font-bold px-1.5 py-0.5 rounded text-[10px] sm:text-[11px] leading-tight">
                               <span>★</span>
                               <span>{item.product.rating || "4.9"}</span>
                             </div>
-                            <span className="text-slate-500 text-xs font-medium">
+                            <span className="text-slate-500 text-[11px] sm:text-xs font-medium">
                               ({item.product.reviews || 12})
                             </span>
                             <span className="text-slate-300">•</span>
-                            <span className="inline-flex items-center gap-1 text-[#2563EB] font-extrabold text-[11px] italic uppercase tracking-wider">
-                              <ShieldCheck className="w-3.5 h-3.5 text-[#2563EB]" />
+                            <span className="inline-flex items-center gap-0.5 sm:gap-1 text-[#2563EB] font-extrabold text-[10px] sm:text-[11px] italic uppercase tracking-wider">
+                              <ShieldCheck className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#2563EB]" />
                               <span>Assured</span>
                             </span>
                           </div>
 
                           {/* 4. Price Row */}
-                          <div className="flex items-baseline gap-2.5 pt-0.5 flex-wrap">
+                          <div className="flex items-baseline gap-1.5 sm:gap-2.5 pt-0.5 flex-wrap">
                             {discountPercent > 0 && (
                               <span className="text-xs sm:text-sm font-extrabold text-emerald-600">
                                 ↓ {discountPercent}%
@@ -2717,20 +2762,28 @@ export const CheckoutView: React.FC = () => {
                                 ₹{itemMrpTotal.toLocaleString("en-IN")}
                               </span>
                             )}
-                            <span className="text-base sm:text-lg font-black text-slate-900">
+                            <span className="text-sm sm:text-lg font-black text-slate-900">
                               ₹{itemTotal.toLocaleString("en-IN")}
                             </span>
                           </div>
 
-                          {/* 5. Low Stock Notice (if applicable) */}
-                          {((item.product.stock !== undefined && item.product.stock <= 5) || item.product.badge?.toLowerCase().includes("few")) && (
+                          {/* 5. Stock Status Notice */}
+                          {isOverStock ? (
                             <p className="text-[11px] font-bold text-rose-600">
-                              Only few left
+                              Quantity exceeds available stock ({maxStock} available). Please adjust quantity.
                             </p>
-                          )}
+                          ) : isAtMaxStock ? (
+                            <p className="text-[11px] font-bold text-amber-600">
+                              Maximum available quantity reached ({maxStock} in stock)
+                            </p>
+                          ) : maxStock <= 5 ? (
+                            <p className="text-[11px] font-bold text-rose-600">
+                              Only {maxStock} left in stock
+                            </p>
+                          ) : null}
 
                           {/* 6. Delivery Date line */}
-                          <div className="pt-0.5 text-xs text-slate-700 font-medium flex items-center gap-1.5 flex-wrap">
+                          <div className="pt-0.5 text-[11px] sm:text-xs text-slate-700 font-medium flex items-center gap-1.5 flex-wrap">
                             <span>Delivery by</span>
                             <span className="font-bold text-slate-900">{deliveryDateText}</span>
                           </div>
@@ -2738,22 +2791,24 @@ export const CheckoutView: React.FC = () => {
                       </div>
 
                       {/* Bottom Action Bar: Move to wishlist | Remove | Buy this now */}
-                      <div className="grid grid-cols-3 divide-x divide-slate-100 border-t border-slate-100 text-xs font-semibold text-slate-700 bg-white">
+                      <div className="grid grid-cols-3 divide-x divide-slate-100 border-t border-slate-100 text-[11px] sm:text-xs font-semibold text-slate-700 bg-white">
                         <button
                           type="button"
                           onClick={() => moveToWishlist(item.product, item.variant?.id)}
-                          className="py-3 px-2 flex items-center justify-center gap-1.5 hover:bg-slate-50 hover:text-rose-600 transition-colors cursor-pointer text-center select-none"
+                          className="py-2.5 sm:py-3 px-1 sm:px-2 flex items-center justify-center gap-1 sm:gap-1.5 hover:bg-slate-50 hover:text-rose-600 transition-colors cursor-pointer text-center select-none"
                         >
-                          <Heart className="w-3.5 h-3.5 text-slate-400 group-hover:text-rose-500" />
-                          <span className="truncate">Move to wishlist</span>
+                          <Heart className="w-3.5 h-3.5 text-slate-400 group-hover:text-rose-500 shrink-0" />
+                          <span className="truncate">
+                            <span className="hidden sm:inline">Move to </span>Wishlist
+                          </span>
                         </button>
 
                         <button
                           type="button"
                           onClick={() => removeFromCart(item.product.id, item.variant?.id)}
-                          className="py-3 px-2 flex items-center justify-center gap-1.5 hover:bg-rose-50 hover:text-rose-600 transition-colors cursor-pointer text-center select-none"
+                          className="py-2.5 sm:py-3 px-1 sm:px-2 flex items-center justify-center gap-1 sm:gap-1.5 hover:bg-rose-50 hover:text-rose-600 transition-colors cursor-pointer text-center select-none"
                         >
-                          <Trash2 className="w-3.5 h-3.5 text-slate-400 hover:text-rose-600" />
+                          <Trash2 className="w-3.5 h-3.5 text-slate-400 hover:text-rose-600 shrink-0" />
                           <span className="truncate">Remove</span>
                         </button>
 
@@ -2761,11 +2816,13 @@ export const CheckoutView: React.FC = () => {
                           <button
                             type="button"
                             onClick={() => setSingleCheckoutItemId(null)}
-                            className="py-3 px-2 flex items-center justify-center gap-1.5 bg-blue-50/80 text-[#2563EB] hover:bg-blue-100/80 font-bold transition-colors cursor-pointer text-center select-none"
+                            className="py-2.5 sm:py-3 px-1 sm:px-2 flex items-center justify-center gap-1 sm:gap-1.5 bg-blue-50/80 text-[#2563EB] hover:bg-blue-100/80 font-bold transition-colors cursor-pointer text-center select-none"
                             title="Click to restore full cart checkout"
                           >
                             <CheckCircle2 className="w-3.5 h-3.5 text-[#2563EB]" />
-                            <span className="truncate">Buying Only This</span>
+                            <span className="truncate">
+                              <span className="hidden sm:inline">Buying </span>Only This
+                            </span>
                           </button>
                         ) : (
                           <button
@@ -2774,11 +2831,13 @@ export const CheckoutView: React.FC = () => {
                               const key = `${item.product.id}-${item.variant?.id || "def"}`;
                               setSingleCheckoutItemId(key);
                             }}
-                            className="py-3 px-2 flex items-center justify-center gap-1.5 hover:bg-slate-50 hover:text-[#2563EB] transition-colors cursor-pointer text-center select-none"
+                            className="py-2.5 sm:py-3 px-1 sm:px-2 flex items-center justify-center gap-1 sm:gap-1.5 hover:bg-slate-50 hover:text-[#2563EB] transition-colors cursor-pointer text-center select-none"
                             title={`Order only ${item.product.name}`}
                           >
-                            <Zap className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
-                            <span className="truncate">Buy this now</span>
+                            <Zap className="w-3.5 h-3.5 text-amber-500 fill-amber-500 shrink-0" />
+                            <span className="truncate">
+                              Buy <span className="hidden sm:inline">this </span>now
+                            </span>
                           </button>
                         )}
                       </div>
@@ -2788,7 +2847,7 @@ export const CheckoutView: React.FC = () => {
               </div>
 
               {/* Section 2.5: Shipping & Delivery Speed (Unified once for the whole order) */}
-              <div className="p-4 sm:p-5 border-t border-slate-100 bg-slate-50/40 space-y-2">
+              <div className="p-3.5 sm:p-5 border-t border-slate-100 bg-slate-50/40 space-y-2">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
                     <Truck className="w-4 h-4 text-[#2563EB]" />
@@ -2922,7 +2981,7 @@ export const CheckoutView: React.FC = () => {
               </div>
 
               {/* Section 3: Available Balance (Reward Points) & Promo Code */}
-              <div className="p-4 sm:p-5 border-t border-slate-100 bg-white space-y-3">
+              <div className="p-3.5 sm:p-5 border-t border-slate-100 bg-white space-y-3">
                 <span className="text-xs font-bold text-slate-700 block">
                   Your available balance
                 </span>
@@ -3067,7 +3126,7 @@ export const CheckoutView: React.FC = () => {
               </div>
 
               {/* Section 4: Legal Disclaimer */}
-              <div className="px-4 sm:px-5 py-3 bg-slate-50/70 border-t border-slate-100 text-[11px] text-slate-500">
+              <div className="px-3.5 sm:px-5 py-2.5 sm:py-3 bg-slate-50/70 border-t border-slate-100 text-[11px] text-slate-500">
                 By continuing with the order, you confirm that you agree to Prayog India&apos;s{" "}
                 <Link href="/terms" className="text-[#2563EB] hover:underline font-semibold">
                   Terms of Use
@@ -3087,7 +3146,7 @@ export const CheckoutView: React.FC = () => {
           {checkoutStep === "payment" && (
             <div className="space-y-4">
               {/* Deliver to Card (Collapsed preview with Change button) */}
-              <div className="bg-white border border-slate-200/90 rounded-2xl p-4 shadow-xs flex items-center justify-between gap-3">
+              <div className="-mx-3.5 sm:mx-0 bg-white border-0 sm:border border-slate-200/90 rounded-none sm:rounded-2xl p-4 shadow-none sm:shadow-xs flex items-center justify-between gap-3">
                 <div className="flex items-center gap-2.5 min-w-0">
                   <div className="w-8 h-8 rounded-xl bg-blue-50 text-[#2563EB] flex items-center justify-center shrink-0">
                     <MapPin className="w-4 h-4" />
@@ -3118,7 +3177,7 @@ export const CheckoutView: React.FC = () => {
               </div>
 
               {/* Order Summary Card (Collapsed preview with Change button) */}
-              <div className="bg-white border border-slate-200/90 rounded-2xl p-4 shadow-xs flex items-center justify-between gap-3">
+              <div className="-mx-3.5 sm:mx-0 bg-white border-0 sm:border border-slate-200/90 rounded-none sm:rounded-2xl p-4 shadow-none sm:shadow-xs flex items-center justify-between gap-3">
                 <div className="flex items-center gap-2.5 min-w-0">
                   <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
                     <ShoppingBag className="w-4 h-4" />
@@ -3145,7 +3204,7 @@ export const CheckoutView: React.FC = () => {
               </div>
 
               {/* Professional Payment Methods Container */}
-              <div className="border border-slate-200/90 rounded-2xl overflow-hidden bg-white shadow-xs divide-y divide-slate-100">
+              <div className="-mx-3.5 sm:mx-0 border-0 sm:border border-slate-200/90 rounded-none sm:rounded-2xl overflow-hidden bg-white shadow-none sm:shadow-xs divide-y divide-slate-100">
                 {/* Method 1: UPI */}
                 <div className={`p-4 sm:p-5 transition-colors ${paymentMethod === "upi" ? "bg-blue-50/20" : "bg-white"}`}>
                   <label
