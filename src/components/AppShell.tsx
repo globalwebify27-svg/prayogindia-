@@ -84,7 +84,7 @@ export const AppShell: React.FC<{ children: React.ReactNode }> = ({
 
       <FooterSection />
 
-      <FloatingWhatsAppWidget />
+      {pathname !== "/checkout" && <FloatingWhatsAppWidget />}
 
       <CartDrawer
         isOpen={isCartOpen}

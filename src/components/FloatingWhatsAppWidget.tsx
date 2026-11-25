@@ -11,9 +11,6 @@ export const FloatingWhatsAppWidget: React.FC = () => {
   const pathname = usePathname();
   const cartCount = useCartStore(selectCartCount);
 
-  // Hide floating widget on checkout and admin pages to prevent covering critical action buttons
-  if (pathname === "/checkout" || pathname?.startsWith("/admin")) return null;
-
   // Customer-facing mobile pages have a bottom bar (sticky action bar or MobileBottomNav)
   const isProductPage =
     pathname?.startsWith("/products/") || pathname?.startsWith("/product/");
@@ -221,6 +218,12 @@ export const FloatingWhatsAppWidget: React.FC = () => {
     // Pure tap -> open WhatsApp
     window.open(WHATSAPP_URL, "_blank", "noopener,noreferrer");
   };
+
+  // Hide floating widget on checkout and admin pages to prevent covering critical action buttons
+  // Placed after all React hooks to preserve unconditional hook call order
+  if (pathname === "/checkout" || pathname?.startsWith("/admin")) {
+    return null;
+  }
 
   return (
     <>
