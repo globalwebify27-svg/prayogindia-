@@ -219,9 +219,13 @@ export const FloatingWhatsAppWidget: React.FC = () => {
     window.open(WHATSAPP_URL, "_blank", "noopener,noreferrer");
   };
 
-  // Hide floating widget on checkout and admin pages to prevent covering critical action buttons
+  // Hide floating widget on checkout, admin, and service detail pages (which already have dedicated mobile action bars) to prevent covering critical action buttons
   // Placed after all React hooks to preserve unconditional hook call order
-  if (pathname === "/checkout" || pathname?.startsWith("/admin")) {
+  if (
+    pathname === "/checkout" ||
+    pathname?.startsWith("/admin") ||
+    pathname?.startsWith("/services/")
+  ) {
     return null;
   }
 
