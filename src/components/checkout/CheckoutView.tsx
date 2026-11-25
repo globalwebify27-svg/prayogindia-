@@ -7,6 +7,7 @@ import { useStore, CartItem } from "@/context/StoreContext";
 import { useUIStore } from "@/store/useUIStore";
 import { CategoryBreadcrumb } from "@/components/categories/CategoryBreadcrumb";
 import { CheckoutOrderSummary } from "@/components/checkout/CheckoutOrderSummary";
+import { AnimatedPriceCharacters } from "@/components/checkout/AnimatedPrice";
 import { CheckoutAuthGate } from "@/components/checkout/CheckoutAuthGate";
 import { MOCK_SAVED_ADDRESSES, Address } from "@/data/accountData";
 import { createCustomerOrder } from "@/lib/apiServices";
@@ -3730,15 +3731,21 @@ export const CheckoutView: React.FC = () => {
 
       {/* Mobile Fixed Bottom CTA Bar */}
       <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-slate-200/90 px-4 py-3 shadow-[0_-4px_12px_rgba(0,0,0,0.06)] flex items-center justify-between gap-3">
-        <div>
+        <div key={`mobile-price-${mrpTotal}-${grandTotal}`}>
           {mrpTotal > grandTotal && (
-            <span className="text-[11px] text-slate-400 line-through block font-medium">
-              ₹{mrpTotal.toLocaleString("en-IN")}
-            </span>
+            <div className="relative inline-flex items-center leading-none">
+              <span className="text-[11px] text-slate-400 font-medium relative inline-block select-none">
+                ₹{mrpTotal.toLocaleString("en-IN")}
+                <span
+                  aria-hidden="true"
+                  className="absolute left-0 top-[52%] h-[1.5px] bg-slate-400 rounded-full animate-price-strike pointer-events-none"
+                />
+              </span>
+            </div>
           )}
           <div className="flex items-baseline gap-1">
-            <span className="text-base font-black text-slate-900">
-              ₹{grandTotal.toLocaleString("en-IN")}
+            <span className="text-base font-black text-slate-900 tabular-nums">
+              <AnimatedPriceCharacters amount={grandTotal} startDelay={160} staggerMs={28} />
             </span>
           </div>
         </div>

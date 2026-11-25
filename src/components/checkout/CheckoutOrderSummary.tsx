@@ -3,6 +3,7 @@
 import React from "react";
 import { CartItem } from "@/context/StoreContext";
 import { ShieldCheck, ArrowRight, Info } from "lucide-react";
+import { AnimatedPriceCharacters } from "@/components/checkout/AnimatedPrice";
 
 interface CheckoutSummaryProps {
   cart: CartItem[];
@@ -102,8 +103,8 @@ export const CheckoutOrderSummary: React.FC<CheckoutSummaryProps> = ({
         {/* Total Amount Divider */}
         <div className="flex justify-between items-center text-base sm:text-lg font-black text-slate-900 pt-3 border-t border-dashed border-slate-200">
           <span>Total Amount</span>
-          <span className="text-slate-900 font-black tracking-tight">
-            ₹{grandTotal.toLocaleString("en-IN")}
+          <span className="text-slate-900 font-black tracking-tight tabular-nums">
+            <AnimatedPriceCharacters amount={grandTotal} startDelay={160} staggerMs={28} />
           </span>
         </div>
       </div>
@@ -120,15 +121,21 @@ export const CheckoutOrderSummary: React.FC<CheckoutSummaryProps> = ({
       {/* Action Footer (Continue / Place Order) - Only displayed inside desktop card, mobile is handled by sticky bottom bar */}
       {onProceed && (
         <div className="hidden lg:flex pt-2 border-t border-slate-100 items-center justify-between gap-3">
-          <div>
+          <div key={`desktop-price-${mrpTotal}-${grandTotal}`}>
             {mrpTotal > grandTotal && (
-              <span className="text-xs text-slate-400 line-through block font-medium">
-                ₹{mrpTotal.toLocaleString("en-IN")}
-              </span>
+              <div className="relative inline-flex items-center leading-none">
+                <span className="text-xs text-slate-400 font-medium relative inline-block select-none">
+                  ₹{mrpTotal.toLocaleString("en-IN")}
+                  <span
+                    aria-hidden="true"
+                    className="absolute left-0 top-[52%] h-[1.5px] bg-slate-400 rounded-full animate-price-strike pointer-events-none"
+                  />
+                </span>
+              </div>
             )}
             <div className="flex items-baseline gap-1">
-              <span className="text-base sm:text-lg font-black text-slate-900">
-                ₹{grandTotal.toLocaleString("en-IN")}
+              <span className="text-base sm:text-lg font-black text-slate-900 tabular-nums">
+                <AnimatedPriceCharacters amount={grandTotal} startDelay={160} staggerMs={28} />
               </span>
             </div>
           </div>

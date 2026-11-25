@@ -56,18 +56,23 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
   const [isDragging, setIsDragging] = useState(false);
 
   // ── Hover Magnifier State ──
-  const [hoverPos, setHoverPos] = useState({ x: 50, y: 50 });
+  const [magnifierState, setMagnifierState] = useState({
+    px: 0,
+    py: 0,
+    width: 0,
+    height: 0,
+  });
   const [isHovering, setIsHovering] = useState(false);
 
   const handleContainerMouseEnter = (e: React.MouseEvent<HTMLDivElement>) => {
     if (isDragging || isPointerDownRef.current || currentIndex >= galleryImages.length) return;
     const rect = e.currentTarget.getBoundingClientRect();
     if (rect.width > 0 && rect.height > 0) {
-      const x = ((e.clientX - rect.left) / rect.width) * 100;
-      const y = ((e.clientY - rect.top) / rect.height) * 100;
-      setHoverPos({
-        x: Math.max(0, Math.min(100, x)),
-        y: Math.max(0, Math.min(100, y)),
+      setMagnifierState({
+        px: e.clientX - rect.left,
+        py: e.clientY - rect.top,
+        width: rect.width,
+        height: rect.height,
       });
       setIsHovering(true);
     }
@@ -81,11 +86,11 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
     }
     const rect = e.currentTarget.getBoundingClientRect();
     if (rect.width > 0 && rect.height > 0) {
-      const x = ((e.clientX - rect.left) / rect.width) * 100;
-      const y = ((e.clientY - rect.top) / rect.height) * 100;
-      setHoverPos({
-        x: Math.max(0, Math.min(100, x)),
-        y: Math.max(0, Math.min(100, y)),
+      setMagnifierState({
+        px: e.clientX - rect.left,
+        py: e.clientY - rect.top,
+        width: rect.width,
+        height: rect.height,
       });
       if (!isHovering) setIsHovering(true);
     }
@@ -130,7 +135,6 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
       setDragOffset(0);
       setIsDragging(false);
       setIsHovering(false);
-      setHoverPos({ x: 50, y: 50 });
     },
     [totalSlides, videoSlideIndex],
   );
@@ -267,6 +271,7 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
     startXRef.current = e.clientX;
     currentXRef.current = e.clientX;
     setIsDragging(false);
+    setIsHovering(false);
   };
 
   // Global mouse tracking so dragging continues smoothly even if cursor leaves container
@@ -323,9 +328,11 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
         style={{
           cursor: isDragging
             ? "grabbing"
-            : totalSlides > 1
-              ? "grab"
-              : "default",
+            : isHovering && currentIndex < galleryImages.length
+              ? "crosshair"
+              : totalSlides > 1
+                ? "grab"
+                : "default",
         }}
       >
         {/* Top Badges & Controls Overlay */}
@@ -418,19 +425,7 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
                   priority={idx === 0}
                   draggable={false}
                   sizes="(max-width: 768px) 100vw, 850px"
-                  style={{
-                    transformOrigin:
-                      idx === currentIndex ? `${hoverPos.x}% ${hoverPos.y}%` : "50% 50%",
-                    transform:
-                      isHovering && !isDragging && idx === currentIndex
-                        ? "scale(2.5)"
-                        : "scale(1)",
-                    transition:
-                      isHovering && !isDragging && idx === currentIndex
-                        ? "transform-origin 0.05s linear, transform 0.22s cubic-bezier(0.16, 1, 0.3, 1)"
-                        : "transform 0.3s cubic-bezier(0.16, 1, 0.3, 1)",
-                  }}
-                  className="w-full h-full object-cover pointer-events-none select-none will-change-transform"
+                  className="w-full h-full object-cover pointer-events-none select-none"
                 />
               </div>
             ))}
@@ -544,6 +539,31 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
                 </div>
               </div>
             )}
+          </div>
+        )}
+
+        {/* ── Circular Magnifying Glass Loupe (Desktop Hover) ── */}
+        {isHovering && !isDragging && currentIndex < galleryImages.length && magnifierState.width > 0 && (
+          <div
+            aria-hidden="true"
+            className="absolute pointer-events-none z-25 rounded-full hidden sm:block overflow-hidden will-change-transform"
+            style={{
+              width: 160,
+              height: 160,
+              left: magnifierState.px,
+              top: magnifierState.py,
+              transform: "translate(-50%, -50%)",
+              backgroundImage: `url(${galleryImages[currentIndex]})`,
+              backgroundRepeat: "no-repeat",
+              backgroundSize: `${magnifierState.width * 2.5}px ${magnifierState.height * 2.5}px`,
+              backgroundPosition: `${-(magnifierState.px * 2.5 - 80)}px ${-(magnifierState.py * 2.5 - 80)}px`,
+              border: "3px solid #ffffff",
+              boxShadow:
+                "0 14px 35px -4px rgba(0, 0, 0, 0.45), 0 4px 12px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(0, 0, 0, 0.12), inset 0 0 16px rgba(0, 0, 0, 0.25)",
+            }}
+          >
+            {/* Realistic optical lens reflection sheen */}
+            <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-transparent via-white/10 to-white/30 pointer-events-none" />
           </div>
         )}
 

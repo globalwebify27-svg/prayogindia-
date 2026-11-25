@@ -73,7 +73,7 @@ export const RoboticsCollectionShowcase: React.FC<Props> = ({
         </div>
 
         {/* Horizontal Expanding Feature Cards on Hover */}
-        <div className="expanding-cards-track overflow-x-auto sm:overflow-visible pb-4 sm:pb-0 scrollbar-none snap-x snap-mandatory -mx-4 px-4 sm:mx-0 sm:px-0">
+        <div className="expanding-cards-track overflow-x-auto sm:overflow-visible pb-4 sm:pb-0 scrollbar-none snap-x snap-mandatory touch-pan-x touch-pan-y -mx-4 px-4 sm:mx-0 sm:px-0">
           {ECOSYSTEM_CARDS.map((card, idx) => {
             const Icon = card.icon;
 
@@ -85,13 +85,14 @@ export const RoboticsCollectionShowcase: React.FC<Props> = ({
                 transition={{ duration: 0.4, delay: idx * 0.08 }}
                 viewport={{ once: true }}
                 onClick={() => onExploreCollection?.(card.category)}
-                className="feature-card-zoom group shrink-0 sm:shrink snap-center select-none border border-slate-200/70 shadow-lg hover:shadow-2xl bg-slate-950"
+                className="feature-card-zoom group shrink-0 sm:shrink snap-center select-none border border-slate-200/70 shadow-lg hover:shadow-2xl bg-slate-950 touch-pan-x touch-pan-y"
               >
                 {/* 1. Background Image with Smooth CSS Zoom */}
                 <img
                   src={card.image}
                   alt={card.title}
-                  className="card-zoom-img"
+                  draggable={false}
+                  className="card-zoom-img pointer-events-none select-none"
                   loading={idx < 2 ? "eager" : "lazy"}
                 />
 
