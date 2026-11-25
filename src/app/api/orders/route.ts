@@ -1,3 +1,6 @@
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 import { NextResponse } from "next/server";
 import { db, isDatabaseAvailable } from "@/lib/db";
 import { getAuthenticatedCustomer, AuthSessionUser } from "@/lib/authUtils";
@@ -19,11 +22,18 @@ function generateOrderNumber(): string {
   return `PRG-${year}-${randomDigits}`;
 }
 
-async function generateInvoiceNumber(): Promise<string> {
+async function generateInvoiceNumber(client: any = db): Promise<string> {
   const year = new Date().getFullYear();
-  const count = await db.invoice.count();
+  const count = await client.invoice.count();
   const seq = String(count + 1).padStart(5, "0");
-  return `INV-${year}-${seq}`;
+  const baseNum = `INV-${year}-${seq}`;
+  const exists = await client.invoice.findUnique({
+    where: { invoiceNumber: baseNum },
+  });
+  if (exists) {
+    return `INV-${year}-${Date.now().toString().slice(-6)}`;
+  }
+  return baseNum;
 }
 
 /**
@@ -542,7 +552,7 @@ export async function POST(request: Request) {
       }
 
       // 4e. Generate Invoice Record
-      const invNum = await generateInvoiceNumber();
+      const invNum = await generateInvoiceNumber(tx);
       await tx.invoice.create({
         data: {
           invoiceNumber: invNum,
@@ -617,6 +627,9 @@ export async function POST(request: Request) {
       }
 
       return order;
+    }, {
+      maxWait: 15000,
+      timeout: 30000,
     });
 
     // Trigger Non-Blocking Customer Notification & Optional Email (B9)

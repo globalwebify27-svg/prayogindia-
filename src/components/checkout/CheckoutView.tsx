@@ -1250,13 +1250,28 @@ export const CheckoutView: React.FC = () => {
             console.warn("Payment flow note:", payErr);
           }
         }
+      } else {
+        setIsSubmitting(false);
+        setValidationError(
+          res?.message ||
+            "Order placement could not be completed on the server. Please check your connection and try again.",
+        );
+        return;
       }
-    } catch (e) {
+    } catch (e: any) {
       console.warn("Order placement fallback:", e);
+      setIsSubmitting(false);
+      setValidationError(
+        e?.message ||
+          "An unexpected network error occurred while placing your order. Please try again.",
+      );
+      return;
     }
 
     if (!confirmedOrderNumber) {
-      confirmedOrderNumber = `PRG-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
+      setIsSubmitting(false);
+      setValidationError("Failed to receive verified order confirmation from server.");
+      return;
     }
 
     // Cache order in browser storage so Admin Operations & Customer Orders reflect it instantly
