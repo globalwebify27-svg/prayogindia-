@@ -2947,67 +2947,30 @@ export const CheckoutView: React.FC = () => {
           {/* STEP 3: PAYMENT METHOD */}
           {/* ═══════════════════════════════════════════════════════════════════════════ */}
           {checkoutStep === "payment" && (
-            <div className="space-y-4">
-              {/* Deliver to Card (Collapsed preview with Change button) */}
-              <div className="-mx-3.5 sm:mx-0 bg-white border-0 sm:border border-slate-200/90 rounded-none sm:rounded-2xl p-4 shadow-none sm:shadow-xs flex items-center justify-between gap-3">
-                <div className="flex items-center gap-2.5 min-w-0">
-                  <div className="w-8 h-8 rounded-xl bg-blue-50 text-[#2563EB] flex items-center justify-center shrink-0">
-                    <MapPin className="w-4 h-4" />
-                  </div>
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Deliver to</span>
-                      <span className="text-xs font-bold text-slate-900 truncate">
-                        {customerName || addrFormName || "Customer"}
-                      </span>
-                    </div>
-                    <p className="text-[11px] text-slate-600 truncate leading-tight mt-0.5">
-                      {addrFormStreet}, {addrFormCity} - {addrFormPincode}
-                    </p>
+            <div className="space-y-3.5">
+              {/* Total Payable Amount Header Card */}
+              <div className="bg-white border border-slate-200/90 rounded-xl sm:rounded-2xl p-3.5 sm:p-4.5 flex items-center justify-between shadow-xs">
+                <div>
+                  <span className="text-[10px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
+                    Total Payable Amount
+                  </span>
+                  <div className="flex items-baseline gap-2 mt-0.5">
+                    <span className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+                      ₹{grandTotal.toLocaleString("en-IN")}
+                    </span>
+                    <span className="text-xs text-slate-400 hidden sm:inline">
+                      ({activeCheckoutItems.reduce((a, b) => a + b.quantity, 0)} {activeCheckoutItems.reduce((a, b) => a + b.quantity, 0) === 1 ? "item" : "items"})
+                    </span>
                   </div>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setCheckoutStep("address");
-                    setIsEditingAddress(true);
-                    window.scrollTo({ top: 0, behavior: "smooth" });
-                  }}
-                  className="text-xs font-bold text-[#2563EB] hover:underline cursor-pointer shrink-0"
-                >
-                  Change
-                </button>
-              </div>
-
-              {/* Order Summary Card (Collapsed preview with Change button) */}
-              <div className="-mx-3.5 sm:mx-0 bg-white border-0 sm:border border-slate-200/90 rounded-none sm:rounded-2xl p-4 shadow-none sm:shadow-xs flex items-center justify-between gap-3">
-                <div className="flex items-center gap-2.5 min-w-0">
-                  <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
-                    <ShoppingBag className="w-4 h-4" />
-                  </div>
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Order Summary</span>
-                    </div>
-                    <p className="text-xs font-bold text-slate-900 truncate mt-0.5">
-                      {activeCheckoutItems.reduce((a, b) => a + b.quantity, 0)} {activeCheckoutItems.reduce((a, b) => a + b.quantity, 0) === 1 ? "Item" : "Items"} • ₹{grandTotal.toLocaleString("en-IN")}
-                    </p>
-                  </div>
+                <div className="flex items-center gap-1.5 text-xs font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200/80 px-2.5 py-1 rounded-lg shrink-0">
+                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                  <span>Secure Payment</span>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setCheckoutStep("summary");
-                    window.scrollTo({ top: 0, behavior: "smooth" });
-                  }}
-                  className="text-xs font-bold text-[#2563EB] hover:underline cursor-pointer shrink-0"
-                >
-                  Change
-                </button>
               </div>
 
               {/* Professional Payment Methods Container */}
-              <div className="-mx-3.5 sm:mx-0 border-0 sm:border border-slate-200/90 rounded-none sm:rounded-2xl overflow-hidden bg-white shadow-none sm:shadow-xs divide-y divide-slate-100">
+              <div className="border border-slate-200/90 rounded-xl sm:rounded-2xl overflow-hidden bg-white shadow-xs divide-y divide-slate-100">
                 {/* Method 1: UPI */}
                 <div className={`p-4 sm:p-5 transition-colors ${paymentMethod === "upi" ? "bg-blue-50/20" : "bg-white"}`}>
                   <label
@@ -3369,48 +3332,19 @@ export const CheckoutView: React.FC = () => {
                 </div>
               </div>
 
-              {/* Navigation & Trust Bar */}
-              <div className="space-y-3 pt-2">
-                {/* Back to Order Summary */}
-                <div className="flex items-center justify-between">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setCheckoutStep("summary");
-                      window.scrollTo({ top: 0, behavior: "smooth" });
-                    }}
-                    className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-600 hover:text-[#2563EB] cursor-pointer py-1"
-                  >
-                    <ArrowLeft className="w-3.5 h-3.5" />
-                    <span>Back to Order Summary</span>
-                  </button>
-                  <span className="text-[11px] font-semibold text-slate-400">
-                    Step 3 of 3
-                  </span>
-                </div>
-
-                {/* Trust and Guarantee Bar */}
-                <div className="flex flex-wrap items-center justify-center gap-x-3.5 gap-y-1 text-[10px] sm:text-[11px] text-slate-500 font-medium pt-1">
-                  <span className="flex items-center gap-1.5 bg-slate-50 border border-slate-200/80 px-2 py-0.5 rounded-md">
-                    <span className="text-[10px] text-slate-400">Powered by</span>
-                    <RazorpayBadgeLogo className="h-3 w-auto" />
-                  </span>
-                  <span>•</span>
-                  <span className="flex items-center gap-1">
-                    <Lock className="w-3 h-3 text-emerald-600" />
-                    256-Bit SSL
-                  </span>
-                  <span>•</span>
-                  <span className="flex items-center gap-1">
-                    <Receipt className="w-3 h-3 text-slate-700" />
-                    GST Invoice
-                  </span>
-                  <span>•</span>
-                  <span className="flex items-center gap-1">
-                    <ShieldCheck className="w-3 h-3 text-blue-600" />
-                    100% Genuine Robotics
-                  </span>
-                </div>
+              {/* Back to Order Summary */}
+              <div className="pt-1">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setCheckoutStep("summary");
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                  }}
+                  className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-slate-800 cursor-pointer py-1"
+                >
+                  <ArrowLeft className="w-3.5 h-3.5" />
+                  <span>Back to Order Summary</span>
+                </button>
               </div>
             </div>
           )}
