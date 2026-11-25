@@ -2055,20 +2055,19 @@ export const CheckoutView: React.FC = () => {
       />
 
       {/* Compact Professional Header */}
-      <div className="flex items-center justify-between gap-2 pb-2.5 border-b border-slate-200/80">
-        <div className="flex items-baseline gap-2.5">
-          <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-            Checkout
-          </h1>
-          <span className="text-xs text-slate-400 hidden sm:inline">
-            Express delivery across India
-          </span>
-        </div>
+      <div className="flex items-center justify-between gap-2 pb-1.5 border-b border-slate-100">
+        <h1 className="text-base sm:text-xl font-extrabold text-slate-900 tracking-tight">
+          Checkout
+        </h1>
+        <span className="text-[11px] font-medium text-slate-400 flex items-center gap-1">
+          <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
+          <span>256-Bit SSL</span>
+        </span>
       </div>
 
-      {/* Simple, Unique & Professional Linear Progress Stepper */}
-      <div className="py-2.5 mb-5">
-        <div className="grid grid-cols-3 gap-3 sm:gap-6">
+      {/* Sleek, Professional Linear Progress Stepper */}
+      <div className="py-1 mb-3">
+        <div className="grid grid-cols-3 gap-2 sm:gap-4">
           {/* Step 1: Address */}
           <button
             type="button"
@@ -2079,22 +2078,22 @@ export const CheckoutView: React.FC = () => {
             }}
             className="group text-left cursor-pointer transition-all"
           >
-            <div className="flex items-center justify-between mb-1.5">
+            <div className="flex items-center justify-between mb-1">
               <span
-                className={`text-xs sm:text-sm tracking-tight transition-colors ${
+                className={`text-[11px] sm:text-xs tracking-tight transition-colors ${
                   checkoutStep === "address"
-                    ? "font-black text-[#2563EB]"
-                    : "font-bold text-slate-800 group-hover:text-slate-950"
+                    ? "font-extrabold text-[#2563EB]"
+                    : "font-semibold text-slate-700 group-hover:text-slate-900"
                 }`}
               >
-                01 Address
+                1. Address
               </span>
               {checkoutStep !== "address" && (
-                <Check className="w-3.5 h-3.5 text-emerald-600 stroke-[2.5]" />
+                <Check className="w-3 h-3 text-emerald-600 stroke-[2.5]" />
               )}
             </div>
             <div
-              className={`h-1 rounded-full transition-all duration-300 ${
+              className={`h-0.5 rounded-full transition-all duration-300 ${
                 checkoutStep === "address"
                   ? "bg-[#2563EB]"
                   : "bg-emerald-500"
@@ -2118,25 +2117,24 @@ export const CheckoutView: React.FC = () => {
                 : "cursor-pointer group"
             }`}
           >
-            <div className="flex items-center justify-between mb-1.5">
+            <div className="flex items-center justify-between mb-1">
               <span
-                className={`text-xs sm:text-sm tracking-tight transition-colors ${
+                className={`text-[11px] sm:text-xs tracking-tight transition-colors ${
                   checkoutStep === "summary"
-                    ? "font-black text-[#2563EB]"
+                    ? "font-extrabold text-[#2563EB]"
                     : checkoutStep === "payment"
-                    ? "font-bold text-slate-800 group-hover:text-slate-950"
+                    ? "font-semibold text-slate-700 group-hover:text-slate-900"
                     : "font-medium text-slate-400"
                 }`}
               >
-                <span className="sm:hidden">02 Summary</span>
-                <span className="hidden sm:inline">02 Order Summary</span>
+                2. Summary
               </span>
               {checkoutStep === "payment" && (
-                <Check className="w-3.5 h-3.5 text-emerald-600 stroke-[2.5]" />
+                <Check className="w-3 h-3 text-emerald-600 stroke-[2.5]" />
               )}
             </div>
             <div
-              className={`h-1 rounded-full transition-all duration-300 ${
+              className={`h-0.5 rounded-full transition-all duration-300 ${
                 checkoutStep === "summary"
                   ? "bg-[#2563EB]"
                   : checkoutStep === "payment"
@@ -2161,19 +2159,19 @@ export const CheckoutView: React.FC = () => {
                 : "cursor-not-allowed opacity-40"
             }`}
           >
-            <div className="flex items-center justify-between mb-1.5">
+            <div className="flex items-center justify-between mb-1">
               <span
-                className={`text-xs sm:text-sm tracking-tight transition-colors ${
+                className={`text-[11px] sm:text-xs tracking-tight transition-colors ${
                   checkoutStep === "payment"
-                    ? "font-black text-[#2563EB]"
+                    ? "font-extrabold text-[#2563EB]"
                     : "font-medium text-slate-400"
                 }`}
               >
-                03 Payment
+                3. Payment
               </span>
             </div>
             <div
-              className={`h-1 rounded-full transition-all duration-300 ${
+              className={`h-0.5 rounded-full transition-all duration-300 ${
                 checkoutStep === "payment"
                   ? "bg-[#2563EB]"
                   : "bg-slate-200"
@@ -2547,78 +2545,65 @@ export const CheckoutView: React.FC = () => {
           )}
 
           {/* ═══════════════════════════════════════════════════════════════════════════ */}
-          {/* STEP 2: ORDER SUMMARY (Flipkart Target Style - Unified Clean Panel) */}
+          {/* STEP 2: ORDER SUMMARY (Clean, Uncluttered, Modern Professional Layout) */}
           {/* ═══════════════════════════════════════════════════════════════════════════ */}
           {checkoutStep === "summary" && (
-            <div className="-mx-3.5 sm:mx-0 bg-white border-0 sm:border border-slate-200/90 rounded-none sm:rounded-2xl shadow-none sm:shadow-xs overflow-hidden">
-              {/* Section 1: Deliver to */}
-              <div className="p-3.5 sm:p-5 border-b border-slate-100 flex items-start justify-between gap-3 sm:gap-4 bg-white">
-                <div className="space-y-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-                      {selectedDeliveryMethod === "store_pickup" ? "Pickup Customer Details:" : "Deliver to:"}
+            <div className="-mx-3.5 sm:mx-0 bg-white border-0 sm:border border-slate-200/90 rounded-none sm:rounded-2xl shadow-none sm:shadow-xs overflow-hidden divide-y divide-slate-100">
+              {/* Section 1: Deliver to (Compact) */}
+              <div className="p-3 sm:p-4 bg-white">
+                <div className="flex items-center justify-between gap-2 mb-1">
+                  <div className="flex items-center gap-1.5 min-w-0">
+                    <MapPin className="w-3.5 h-3.5 text-[#2563EB] shrink-0" />
+                    <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                      {selectedDeliveryMethod === "store_pickup" ? "Store Pickup" : "Deliver To"}
                     </span>
-                    {selectedDeliveryMethod === "store_pickup" && (
-                      <span className="text-[10px] font-bold bg-purple-50 text-purple-700 border border-purple-200 px-2 py-0.5 rounded-full flex items-center gap-1">
-                        <ShoppingBag className="w-3 h-3 text-purple-600" />
-                        Ranchi Store Pickup
-                      </span>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <h3 className="text-sm sm:text-base font-extrabold text-slate-900">
-                      {customerName || addrFormName || "Customer"}
-                    </h3>
                     {addrFormType && (
-                      <span className="text-[10px] font-bold bg-slate-100 text-slate-600 px-2 py-0.5 rounded uppercase">
+                      <span className="text-[10px] font-bold bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded uppercase">
                         {addrFormType}
                       </span>
                     )}
                   </div>
-                  {selectedDeliveryMethod === "store_pickup" ? (
-                    <p className="text-xs sm:text-sm text-purple-900 font-medium leading-relaxed">
-                      Pickup Hub: Prayog India Experience Center, 1st Floor, City Centre, Club Road, Ranchi - 834001
-                    </p>
-                  ) : (
-                    <p className="text-xs sm:text-sm text-slate-700 leading-relaxed font-normal">
-                      {addrFormStreet}, {addrFormCity},{" "}
-                      {addrFormState} - {addrFormPincode}
-                    </p>
-                  )}
-                  <p className="text-xs font-semibold text-slate-900 pt-0.5">
-                    {customerMobile || addrFormPhone}
-                  </p>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setCheckoutStep("address");
+                      setIsEditingAddress(true);
+                      window.scrollTo({ top: 0, behavior: "smooth" });
+                    }}
+                    className="text-xs font-bold text-[#2563EB] hover:text-[#1D4ED8] hover:underline cursor-pointer shrink-0"
+                  >
+                    Change
+                  </button>
                 </div>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    setCheckoutStep("address");
-                    setIsEditingAddress(true);
-                    window.scrollTo({ top: 0, behavior: "smooth" });
-                  }}
-                  className="border border-slate-300 hover:border-[#2563EB] text-[#2563EB] hover:bg-blue-50/50 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all shrink-0 cursor-pointer shadow-2xs"
-                >
-                  Change
-                </button>
+                <div className="text-xs font-bold text-slate-900">
+                  {customerName || addrFormName || "Customer"}
+                  <span className="text-slate-400 font-normal ml-2">
+                    {customerMobile || addrFormPhone}
+                  </span>
+                </div>
+                <p className="text-[11px] text-slate-500 font-normal leading-relaxed mt-0.5 line-clamp-2">
+                  {selectedDeliveryMethod === "store_pickup"
+                    ? "Prayog India Experience Center, 1st Floor, City Centre, Club Road, Ranchi - 834001"
+                    : `${addrFormStreet}, ${addrFormCity}, ${addrFormState} - ${addrFormPincode}`}
+                </p>
               </div>
 
-              {/* Section 2: Order Item(s) */}
+              {/* Section 2: Order Items (Sleek, Compact, Zero Clutter) */}
               <div className="divide-y divide-slate-100 bg-white">
                 {singleCheckoutItemId && cart.length > 1 && (
-                  <div className="bg-blue-50/90 border-b border-blue-100 p-3 sm:px-5 flex items-center justify-between text-xs text-blue-900 animate-in fade-in">
-                    <div className="flex items-center gap-2 min-w-0">
-                      <Zap className="w-4 h-4 text-[#2563EB] shrink-0 fill-[#2563EB]" />
-                      <span className="truncate">
-                        Ordering <strong>{activeCheckoutItems[0]?.product.name}</strong> only. Other cart items ({cart.length - 1}) remain saved in your cart.
+                  <div className="bg-blue-50/90 p-2.5 sm:px-4 flex items-center justify-between text-xs text-blue-900">
+                    <div className="flex items-center gap-1.5 min-w-0 truncate">
+                      <Zap className="w-3.5 h-3.5 text-[#2563EB] shrink-0 fill-[#2563EB]" />
+                      <span className="truncate text-[11px]">
+                        Buying <strong>{activeCheckoutItems[0]?.product.name}</strong> only.
                       </span>
                     </div>
                     <button
                       type="button"
                       onClick={() => setSingleCheckoutItemId(null)}
-                      className="text-[#2563EB] hover:text-[#1D4ED8] hover:underline font-bold shrink-0 ml-3 cursor-pointer whitespace-nowrap"
+                      className="text-[#2563EB] hover:underline font-bold text-[11px] shrink-0 ml-2 cursor-pointer"
                     >
-                      Order All ({cart.length}) Items
+                      Buy All ({cart.length})
                     </button>
                   </div>
                 )}
@@ -2633,525 +2618,352 @@ export const CheckoutView: React.FC = () => {
                   const discountPercent = mrp > unitPrice ? Math.round(((mrp - unitPrice) / mrp) * 100) : 0;
                   const itemTotal = unitPrice * item.quantity;
                   const itemMrpTotal = mrp * item.quantity;
+                  const maxStock = getProductStock(item.product, item.variant);
+                  const isAtMaxStock = item.quantity >= maxStock;
 
-                  // Dynamic delivery date for this item based on selected delivery method
                   const deliveryDateText =
                     selectedDeliveryMethod === "store_pickup"
-                      ? "Ready in 2 Hours (Experience Store)"
+                      ? "Ready in 2 Hours"
                       : selectedDeliveryMethod === "faster_express" || selectedDeliveryMethod === "ranchi_24h"
                       ? getFormattedDate(1)
                       : getFormattedDate(3);
 
-                  const maxStock = getProductStock(item.product, item.variant);
-                  const isAtMaxStock = item.quantity >= maxStock;
-                  const isOverStock = item.quantity > maxStock;
-
                   return (
-                    <div
-                      key={`${item.product.id}-${item.variant?.id}`}
-                      className="bg-white transition-colors"
-                    >
-                      <div className="p-3 sm:p-5 flex gap-3 sm:gap-5 items-start">
-                        {/* Left Column: Product Thumbnail + Qty Stepper */}
-                        <div className="flex flex-col items-center gap-2 shrink-0">
-                          <div className="relative w-18 h-18 sm:w-24 sm:h-24 rounded-xl border border-slate-200/90 bg-white p-1 overflow-hidden flex items-center justify-center">
-                            <Image
-                              src={item.product.image}
-                              alt={item.product.name}
-                              fill
-                              sizes="(max-width: 640px) 72px, 96px"
-                              className="object-contain"
-                            />
-                          </div>
+                    <div key={`${item.product.id}-${item.variant?.id}`} className="p-3 sm:p-4 flex gap-3 items-center">
+                      {/* Product Thumbnail */}
+                      <div className="relative w-14 h-14 sm:w-16 sm:h-16 rounded-lg border border-slate-200/80 bg-white p-1 shrink-0 overflow-hidden flex items-center justify-center">
+                        <Image
+                          src={item.product.image}
+                          alt={item.product.name}
+                          fill
+                          sizes="64px"
+                          className="object-contain"
+                        />
+                      </div>
 
-                          {/* Quantity Capsule Stepper */}
-                          <div className="inline-flex items-center justify-between w-full max-w-[76px] sm:max-w-[96px] bg-white border border-slate-200 hover:border-slate-300 rounded-full py-0.5 sm:py-1 px-1 sm:px-1.5 shadow-2xs transition-colors select-none">
-                            <button
-                              type="button"
-                              disabled={item.quantity <= 1}
-                              onClick={() => {
-                                if (item.quantity > 1) {
-                                  updateQuantity(item.product.id, -1, item.variant?.id);
-                                }
-                              }}
-                              className={`w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center rounded-full transition-colors ${
-                                item.quantity <= 1
-                                  ? "text-slate-300 cursor-not-allowed"
-                                  : "text-slate-600 hover:text-slate-900 hover:bg-slate-100 cursor-pointer"
-                              }`}
-                              aria-label="Decrease quantity"
-                            >
-                              <Minus className="w-3 h-3 sm:w-3.5 sm:h-3.5 stroke-[2.5]" />
-                            </button>
-                            <span className="text-xs sm:text-sm font-extrabold text-slate-900 min-w-[18px] sm:min-w-[20px] text-center leading-none">
-                              {item.quantity}
-                            </span>
-                            <button
-                              type="button"
-                              disabled={isAtMaxStock}
-                              onClick={() => {
-                                if (isAtMaxStock) {
-                                  useUIStore.getState().showToast({
-                                    title: `Only ${maxStock} units available in stock`,
-                                    type: "error",
-                                    duration: 2500,
-                                  });
-                                  return;
-                                }
-                                updateQuantity(item.product.id, 1, item.variant?.id);
-                              }}
-                              className={`w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center rounded-full transition-colors ${
-                                isAtMaxStock
-                                  ? "text-slate-300 cursor-not-allowed"
-                                  : "text-slate-900 hover:text-[#2563EB] hover:bg-blue-50 cursor-pointer"
-                              }`}
-                              aria-label="Increase quantity"
-                              title={isAtMaxStock ? `Only ${maxStock} units available in stock` : "Increase quantity"}
-                            >
-                              <Plus className="w-3 h-3 sm:w-3.5 sm:h-3.5 stroke-[2.5]" />
-                            </button>
-                          </div>
+                      {/* Info & Pricing */}
+                      <div className="flex-1 min-w-0 space-y-0.5">
+                        <Link
+                          href={`/products/${item.product.slug}`}
+                          className="text-xs font-semibold text-slate-900 leading-snug line-clamp-1 hover:text-[#2563EB] transition-colors block"
+                        >
+                          {item.product.name}
+                        </Link>
+                        <div className="text-[10px] text-slate-400 truncate">
+                          {item.variant ? item.variant.name : item.product.category}
+                          {item.product.sku ? ` · ${item.product.sku}` : ""}
                         </div>
 
-                        {/* Right Column: Title, Subtitle, Rating, Price, Stock & Delivery */}
-                        <div className="flex-1 min-w-0 space-y-1 sm:space-y-1.5">
-                          {/* Stock Pill / Prayog Assured */}
-                          <div>
-                            {isOverStock ? (
-                              <span className="text-[9.5px] sm:text-[10px] font-bold uppercase tracking-normal sm:tracking-wider text-rose-700 bg-rose-50 border border-rose-200/80 px-2 py-0.5 rounded-full inline-block leading-tight">
-                                Exceeds Stock ({maxStock} Max)
-                              </span>
-                            ) : isAtMaxStock ? (
-                              <span className="text-[9.5px] sm:text-[10px] font-bold uppercase tracking-normal sm:tracking-wider text-amber-700 bg-amber-50 border border-amber-200/80 px-2 py-0.5 rounded-full inline-block leading-tight">
-                                Max Stock Reached ({maxStock})
-                              </span>
-                            ) : maxStock <= 5 ? (
-                              <span className="text-[9.5px] sm:text-[10px] font-bold uppercase tracking-normal sm:tracking-wider text-rose-700 bg-rose-50 border border-rose-200/80 px-2 py-0.5 rounded-full inline-block leading-tight">
-                                Only {maxStock} Left • Prayog Assured
-                              </span>
-                            ) : (
-                              <span className="text-[9.5px] sm:text-[10px] font-bold uppercase tracking-normal sm:tracking-wider text-emerald-700 bg-emerald-50 border border-emerald-200/80 px-2 py-0.5 rounded-full inline-block leading-tight">
-                                In Stock • Prayog Assured
-                              </span>
-                            )}
-                          </div>
-
-                          {/* 1. Title */}
-                          <Link
-                            href={`/products/${item.product.slug}`}
-                            className="text-xs sm:text-base font-bold text-slate-900 leading-snug line-clamp-2 hover:text-[#2563EB] transition-colors block"
-                          >
-                            {item.product.name}
-                          </Link>
-
-                          {/* 2. Subtitle / Category / Specs */}
-                          <p className="text-[11px] sm:text-xs text-slate-500 font-normal line-clamp-1">
-                            {item.variant ? item.variant.name : item.product.category}
-                            {item.product.sku ? ` • SKU: ${item.product.sku}` : " • Genuine Prayog Robotics"}
-                          </p>
-
-                          {/* 3. Rating & Prayog Assured */}
-                          <div className="flex items-center gap-1.5 sm:gap-2 text-xs flex-wrap">
-                            <div className="inline-flex items-center gap-1 bg-emerald-600 text-white font-bold px-1.5 py-0.5 rounded text-[10px] sm:text-[11px] leading-tight">
-                              <span>★</span>
-                              <span>{item.product.rating || "4.9"}</span>
-                            </div>
-                            <span className="text-slate-500 text-[11px] sm:text-xs font-medium">
-                              ({item.product.reviews || 12})
+                        <div className="flex items-center justify-between gap-2 pt-1 flex-wrap">
+                          <div className="flex items-baseline gap-1.5">
+                            <span className="text-xs sm:text-sm font-extrabold text-slate-900">
+                              ₹{itemTotal.toLocaleString("en-IN")}
                             </span>
-                            <span className="text-slate-300">•</span>
-                            <span className="inline-flex items-center gap-0.5 sm:gap-1 text-[#2563EB] font-extrabold text-[10px] sm:text-[11px] italic uppercase tracking-wider">
-                              <ShieldCheck className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#2563EB]" />
-                              <span>Assured</span>
-                            </span>
-                          </div>
-
-                          {/* 4. Price Row */}
-                          <div className="flex items-baseline gap-1.5 sm:gap-2.5 pt-0.5 flex-wrap">
-                            {discountPercent > 0 && (
-                              <span className="text-xs sm:text-sm font-extrabold text-emerald-600">
-                                ↓ {discountPercent}%
-                              </span>
-                            )}
                             {mrp > unitPrice && (
-                              <span className="text-xs sm:text-sm text-slate-400 line-through font-medium">
+                              <span className="text-[10px] text-slate-400 line-through">
                                 ₹{itemMrpTotal.toLocaleString("en-IN")}
                               </span>
                             )}
-                            <span className="text-sm sm:text-lg font-black text-slate-900">
-                              ₹{itemTotal.toLocaleString("en-IN")}
-                            </span>
+                            {discountPercent > 0 && (
+                              <span className="text-[10px] font-bold text-emerald-600">
+                                {discountPercent}% OFF
+                              </span>
+                            )}
                           </div>
 
-                          {/* 5. Stock Status Notice */}
-                          {isOverStock ? (
-                            <p className="text-[11px] font-bold text-rose-600">
-                              Quantity exceeds available stock ({maxStock} available). Please adjust quantity.
-                            </p>
-                          ) : isAtMaxStock ? (
-                            <p className="text-[11px] font-bold text-amber-600">
-                              Maximum available quantity reached ({maxStock} in stock)
-                            </p>
-                          ) : maxStock <= 5 ? (
-                            <p className="text-[11px] font-bold text-rose-600">
-                              Only {maxStock} left in stock
-                            </p>
-                          ) : null}
-
-                          {/* 6. Delivery Date line */}
-                          <div className="pt-0.5 text-[11px] sm:text-xs text-slate-700 font-medium flex items-center gap-1.5 flex-wrap">
-                            <span>Delivery by</span>
-                            <span className="font-bold text-slate-900">{deliveryDateText}</span>
+                          {/* Stepper + Remove link */}
+                          <div className="flex items-center gap-2">
+                            <div className="inline-flex items-center bg-slate-50 border border-slate-200 rounded-md py-0.5 px-1 select-none">
+                              <button
+                                type="button"
+                                disabled={item.quantity <= 1}
+                                onClick={() => {
+                                  if (item.quantity > 1) {
+                                    updateQuantity(item.product.id, -1, item.variant?.id);
+                                  }
+                                }}
+                                className={`w-4 h-4 flex items-center justify-center rounded text-slate-600 hover:text-slate-900 ${
+                                  item.quantity <= 1 ? "opacity-30 cursor-not-allowed" : "cursor-pointer"
+                                }`}
+                                aria-label="Decrease quantity"
+                              >
+                                <Minus className="w-2.5 h-2.5 stroke-[2.5]" />
+                              </button>
+                              <span className="text-[11px] font-bold text-slate-800 min-w-[16px] text-center leading-none">
+                                {item.quantity}
+                              </span>
+                              <button
+                                type="button"
+                                disabled={isAtMaxStock}
+                                onClick={() => updateQuantity(item.product.id, 1, item.variant?.id)}
+                                className={`w-4 h-4 flex items-center justify-center rounded text-slate-600 hover:text-slate-900 ${
+                                  isAtMaxStock ? "opacity-30 cursor-not-allowed" : "cursor-pointer"
+                                }`}
+                                aria-label="Increase quantity"
+                              >
+                                <Plus className="w-2.5 h-2.5 stroke-[2.5]" />
+                              </button>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => removeFromCart(item.product.id, item.variant?.id)}
+                              className="text-[10.5px] text-slate-400 hover:text-rose-600 font-medium transition-colors cursor-pointer"
+                            >
+                              Remove
+                            </button>
                           </div>
                         </div>
-                      </div>
 
-                      {/* Bottom Action Bar: Move to wishlist | Remove | Buy this now */}
-                      <div className="grid grid-cols-3 divide-x divide-slate-100 border-t border-slate-100 text-[11px] sm:text-xs font-semibold text-slate-700 bg-white">
-                        <button
-                          type="button"
-                          onClick={() => moveToWishlist(item.product, item.variant?.id)}
-                          className="py-2.5 sm:py-3 px-1 sm:px-2 flex items-center justify-center gap-1 sm:gap-1.5 hover:bg-slate-50 hover:text-rose-600 transition-colors cursor-pointer text-center select-none"
-                        >
-                          <Heart className="w-3.5 h-3.5 text-slate-400 group-hover:text-rose-500 shrink-0" />
-                          <span className="truncate">
-                            <span className="hidden sm:inline">Move to </span>Wishlist
-                          </span>
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={() => removeFromCart(item.product.id, item.variant?.id)}
-                          className="py-2.5 sm:py-3 px-1 sm:px-2 flex items-center justify-center gap-1 sm:gap-1.5 hover:bg-rose-50 hover:text-rose-600 transition-colors cursor-pointer text-center select-none"
-                        >
-                          <Trash2 className="w-3.5 h-3.5 text-slate-400 hover:text-rose-600 shrink-0" />
-                          <span className="truncate">Remove</span>
-                        </button>
-
-                        {singleCheckoutItemId === `${item.product.id}-${item.variant?.id || "def"}` ? (
-                          <button
-                            type="button"
-                            onClick={() => setSingleCheckoutItemId(null)}
-                            className="py-2.5 sm:py-3 px-1 sm:px-2 flex items-center justify-center gap-1 sm:gap-1.5 bg-blue-50/80 text-[#2563EB] hover:bg-blue-100/80 font-bold transition-colors cursor-pointer text-center select-none"
-                            title="Click to restore full cart checkout"
-                          >
-                            <CheckCircle2 className="w-3.5 h-3.5 text-[#2563EB]" />
-                            <span className="truncate">
-                              <span className="hidden sm:inline">Buying </span>Only This
-                            </span>
-                          </button>
-                        ) : (
-                          <button
-                            type="button"
-                            onClick={() => {
-                              const key = `${item.product.id}-${item.variant?.id || "def"}`;
-                              setSingleCheckoutItemId(key);
-                            }}
-                            className="py-2.5 sm:py-3 px-1 sm:px-2 flex items-center justify-center gap-1 sm:gap-1.5 hover:bg-slate-50 hover:text-[#2563EB] transition-colors cursor-pointer text-center select-none"
-                            title={`Order only ${item.product.name}`}
-                          >
-                            <Zap className="w-3.5 h-3.5 text-amber-500 fill-amber-500 shrink-0" />
-                            <span className="truncate">
-                              Buy <span className="hidden sm:inline">this </span>now
-                            </span>
-                          </button>
-                        )}
+                        <div className="text-[10px] text-slate-500 font-medium pt-0.5">
+                          Delivery: <strong className="text-slate-700 font-semibold">{deliveryDateText}</strong>
+                        </div>
                       </div>
                     </div>
                   );
                 })}
               </div>
 
-              {/* Section 2.5: Shipping & Delivery Speed (Unified once for the whole order) */}
-              <div className="p-3.5 sm:p-5 border-t border-slate-100 bg-slate-50/40 space-y-2">
+              {/* Section 3: Shipping & Delivery Option */}
+              <div className="p-3 sm:p-4 bg-slate-50/50 space-y-2">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
-                    <Truck className="w-4 h-4 text-[#2563EB]" />
-                    <span>Shipping &amp; Delivery Option:</span>
+                    <Truck className="w-3.5 h-3.5 text-[#2563EB]" />
+                    <span>Shipping Option</span>
                   </span>
-                  <span className="text-[11px] text-slate-500 font-medium">
-                    {activeCheckoutItems.length} {activeCheckoutItems.length === 1 ? "item" : "items"} in shipment
+                  <span className="text-[10.5px] text-slate-400">
+                    {activeCheckoutItems.length} {activeCheckoutItems.length === 1 ? "item" : "items"}
                   </span>
                 </div>
 
-                <div className="space-y-1.5 pt-1">
-                  {/* 1. Priority Air (Shown only if air freight is allowed across cart) */}
+                <div className="space-y-1.5">
+                  {/* Priority Air */}
                   {isAirAllowedOnCart && (
-                    <label className="flex items-center justify-between text-xs py-2 px-3 rounded-xl bg-white border border-slate-200/80 hover:border-blue-300 transition-colors cursor-pointer select-none">
-                      <div className="flex items-center gap-2.5">
+                    <label className="flex items-center justify-between gap-2 p-2 rounded-lg bg-white border border-slate-200/80 hover:border-blue-300 transition-colors cursor-pointer select-none">
+                      <div className="flex items-center gap-2 min-w-0 flex-1">
                         <input
                           type="radio"
                           name="deliveryMethodRadio"
                           checked={selectedDeliveryMethod === "faster_express"}
                           onChange={() => setSelectedDeliveryMethod("faster_express")}
-                          className="text-[#2563EB] focus:ring-[#2563EB] cursor-pointer"
+                          className="w-3.5 h-3.5 text-[#2563EB] focus:ring-[#2563EB] cursor-pointer shrink-0"
                         />
-                        <div className="flex items-center gap-1.5 flex-wrap">
-                          <span className="font-extrabold text-[#2563EB] italic uppercase tracking-wider flex items-center gap-1 text-[11px]">
-                            <Truck className="w-3.5 h-3.5" /> EXPRESS
-                          </span>
-                          <span className="font-semibold text-slate-800">
-                            Priority Air: Delivery by {getFormattedDate(1)}
-                          </span>
+                        <div className="min-w-0 flex-1">
+                          <div className="text-[11px] font-semibold text-slate-900 truncate flex items-center gap-1">
+                            <span className="font-extrabold text-[#2563EB] text-[10px] italic">AIR EXPRESS</span>
+                            <span>· Delivery by {getFormattedDate(1)}</span>
+                          </div>
+                          <div className="text-[10px] text-slate-400 truncate">Fastest air cargo dispatch</div>
                         </div>
                       </div>
-                      <span className="font-extrabold text-slate-900">₹{adminAirCharge}</span>
+                      <span className="text-[11px] font-bold text-slate-900 shrink-0 text-right">₹{adminAirCharge}</span>
                     </label>
                   )}
 
-                  {/* 2. Standard Ground */}
+                  {/* Standard Ground */}
                   {isSurfaceAllowedOnCart && (
-                    <label className="flex items-center justify-between text-xs py-2 px-3 rounded-xl bg-white border border-slate-200/80 hover:border-blue-300 transition-colors cursor-pointer select-none">
-                      <div className="flex items-center gap-2.5">
+                    <label className="flex items-center justify-between gap-2 p-2 rounded-lg bg-white border border-slate-200/80 hover:border-blue-300 transition-colors cursor-pointer select-none">
+                      <div className="flex items-center gap-2 min-w-0 flex-1">
                         <input
                           type="radio"
                           name="deliveryMethodRadio"
                           checked={selectedDeliveryMethod === "standard"}
                           onChange={() => setSelectedDeliveryMethod("standard")}
-                          className="text-[#2563EB] focus:ring-[#2563EB] cursor-pointer"
+                          className="w-3.5 h-3.5 text-[#2563EB] focus:ring-[#2563EB] cursor-pointer shrink-0"
                         />
-                        <span className="font-semibold text-slate-800">
-                          Standard Ground: Delivery in 2-4 days, {getFormattedDate(3)}
-                        </span>
+                        <div className="min-w-0 flex-1">
+                          <div className="text-[11px] font-semibold text-slate-900 truncate">
+                            Standard Ground (2–4 Days)
+                          </div>
+                          <div className="text-[10px] text-slate-400 truncate">
+                            Delivery by {getFormattedDate(3)}
+                          </div>
+                        </div>
                       </div>
-                      <span className={`font-extrabold ${isFreeStandardShipping ? "text-emerald-600" : "text-slate-900"}`}>
+                      <span className={`text-[11px] font-bold shrink-0 text-right ${isFreeStandardShipping ? "text-emerald-600" : "text-slate-900"}`}>
                         {isFreeStandardShipping ? "FREE" : `₹${adminSurfaceCharge}`}
                       </span>
                     </label>
                   )}
 
-                  {/* 3. Local Store Pickup */}
+                  {/* Store Pickup */}
                   {isLocalPickupAllowedOnCart && (
-                    <div className="space-y-1">
-                      <label className="flex items-center justify-between text-xs py-2 px-3 rounded-xl bg-white border border-slate-200/80 hover:border-blue-300 transition-colors cursor-pointer select-none">
-                        <div className="flex items-center gap-2.5">
-                          <input
-                            type="radio"
-                            name="deliveryMethodRadio"
-                            checked={selectedDeliveryMethod === "store_pickup"}
-                            onChange={() => setSelectedDeliveryMethod("store_pickup")}
-                            className="text-[#2563EB] focus:ring-[#2563EB] cursor-pointer"
-                          />
-                          <span className="font-semibold text-slate-800 flex items-center gap-1.5">
-                            <ShoppingBag className="w-3.5 h-3.5 text-purple-600" />
-                            Store Pickup: Ready in 2 Hours (Experience Store)
-                          </span>
+                    <label className="flex items-center justify-between gap-2 p-2 rounded-lg bg-white border border-slate-200/80 hover:border-blue-300 transition-colors cursor-pointer select-none">
+                      <div className="flex items-center gap-2 min-w-0 flex-1">
+                        <input
+                          type="radio"
+                          name="deliveryMethodRadio"
+                          checked={selectedDeliveryMethod === "store_pickup"}
+                          onChange={() => setSelectedDeliveryMethod("store_pickup")}
+                          className="w-3.5 h-3.5 text-[#2563EB] focus:ring-[#2563EB] cursor-pointer shrink-0"
+                        />
+                        <div className="min-w-0 flex-1">
+                          <div className="text-[11px] font-semibold text-slate-900 truncate flex items-center gap-1">
+                            <ShoppingBag className="w-3 h-3 text-purple-600" />
+                            <span>Store Pickup: Ready in 2 Hours</span>
+                          </div>
+                          <div className="text-[10px] text-slate-400 truncate">Prayog Experience Center, Ranchi</div>
                         </div>
-                        <span className={`font-extrabold ${adminPickupCharge === 0 ? "text-emerald-600" : "text-slate-900"}`}>
-                          {adminPickupCharge === 0 ? "FREE" : `₹${adminPickupCharge}`}
-                        </span>
-                      </label>
-
-                      {/* Store Address Detail */}
-                      {selectedDeliveryMethod === "store_pickup" && (
-                        <div className="ml-6 pl-2.5 border-l-2 border-purple-500 text-[11.5px] text-slate-600 space-y-0.5 py-1 animate-in fade-in duration-150">
-                          <p className="font-semibold text-slate-800">
-                            Prayog India Experience Center: 1st Floor, City Centre Mall, Club Road, Ranchi - 834001
-                          </p>
-                          <p className="text-slate-500">
-                            Mon–Sat: 10:00 AM – 8:00 PM · Helpline: +91 87097 89641 ·{" "}
-                            <a
-                              href="https://maps.google.com/?q=City+Centre+Club+Road+Ranchi+Jharkhand+834001"
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-[#2563EB] font-bold hover:underline inline-flex items-center gap-0.5"
-                            >
-                              <span>View on Maps</span>
-                              <ExternalLink className="w-2.5 h-2.5" />
-                            </a>
-                          </p>
-                        </div>
-                      )}
-                    </div>
+                      </div>
+                      <span className="text-[11px] font-bold text-emerald-600 shrink-0 text-right">FREE</span>
+                    </label>
                   )}
 
-                  {/* 4. Ranchi 24h Express if eligible */}
+                  {/* Ranchi 24h Express */}
                   {isRanchiEligible && (
-                    <label className="flex items-center justify-between text-xs py-2 px-3 rounded-xl bg-white border border-slate-200/80 hover:border-blue-300 transition-colors cursor-pointer select-none">
-                      <div className="flex items-center gap-2.5">
+                    <label className="flex items-center justify-between gap-2 p-2 rounded-lg bg-white border border-slate-200/80 hover:border-blue-300 transition-colors cursor-pointer select-none">
+                      <div className="flex items-center gap-2 min-w-0 flex-1">
                         <input
                           type="radio"
                           name="deliveryMethodRadio"
                           checked={selectedDeliveryMethod === "ranchi_24h"}
                           onChange={() => setSelectedDeliveryMethod("ranchi_24h")}
-                          className="text-[#2563EB] focus:ring-[#2563EB] cursor-pointer"
+                          className="w-3.5 h-3.5 text-[#2563EB] focus:ring-[#2563EB] cursor-pointer shrink-0"
                         />
-                        <span className="font-semibold text-slate-800">
-                          Ranchi Local Express: Delivery within 24 Hours
-                        </span>
+                        <div className="min-w-0 flex-1">
+                          <div className="text-[11px] font-semibold text-slate-900 truncate">
+                            Ranchi Local Express (within 24h)
+                          </div>
+                          <div className="text-[10px] text-slate-400 truncate">Same-day dispatch for Ranchi PINs</div>
+                        </div>
                       </div>
-                      <span className={`font-extrabold ${effectiveRanchiFee === 0 ? "text-emerald-600" : "text-slate-900"}`}>
+                      <span className={`text-[11px] font-bold shrink-0 text-right ${effectiveRanchiFee === 0 ? "text-emerald-600" : "text-slate-900"}`}>
                         {effectiveRanchiFee === 0 ? "FREE" : `₹${effectiveRanchiFee}`}
                       </span>
                     </label>
                   )}
 
-                  {/* DGCA Battery Restriction Notice */}
+                  {/* Battery Restriction Notice */}
                   {hasRestrictedBatteryItem && (
-                    <div className="text-[11px] text-amber-800 bg-amber-50/80 border border-amber-200/80 px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 font-medium mt-1">
+                    <div className="text-[10.5px] text-amber-800 bg-amber-50 border border-amber-200/80 px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 font-medium mt-1">
                       <AlertTriangle className="w-3.5 h-3.5 text-amber-600 shrink-0" />
-                      <span>Air Freight restricted on this order due to battery components (DGCA Surface Logistics Only).</span>
+                      <span>Battery components ship via DGCA Surface Logistics only.</span>
                     </div>
                   )}
                 </div>
               </div>
 
-              {/* Section 3: Available Balance (Reward Points) & Promo Code */}
-              <div className="p-3.5 sm:p-5 border-t border-slate-100 bg-white space-y-3">
-                <span className="text-xs font-bold text-slate-700 block">
-                  Your available balance
-                </span>
+              {/* Section 4: Coins & Promo */}
+              <div className="p-3 sm:p-4 bg-white space-y-2.5">
+                {rewardPointsAvailable > 0 && (
+                  <label
+                    onClick={() => setUseRewardPoints(!useRewardPoints)}
+                    className={`flex items-center justify-between gap-2 p-2 rounded-lg border text-xs cursor-pointer select-none transition-colors ${
+                      useRewardPoints
+                        ? "bg-blue-50/70 border-blue-200 text-[#2563EB]"
+                        : "bg-slate-50 border-slate-200/80 text-slate-700 hover:bg-slate-100/60"
+                    }`}
+                  >
+                    <div className="flex items-center gap-2 min-w-0">
+                      <input
+                        type="checkbox"
+                        checked={useRewardPoints}
+                        onChange={() => {}}
+                        className="w-3.5 h-3.5 rounded border-slate-300 text-[#2563EB] focus:ring-[#2563EB] cursor-pointer"
+                      />
+                      <span className="text-[11px] font-semibold truncate">
+                        Redeem {rewardPointsAvailable} Coins (Save ₹{rewardDiscount})
+                      </span>
+                    </div>
+                    <span className="text-[11px] font-bold text-emerald-600 shrink-0">
+                      -₹{rewardDiscount}
+                    </span>
+                  </label>
+                )}
 
-                <div
-                  onClick={() => {
-                    if (rewardPointsAvailable > 0) {
-                      setUseRewardPoints(!useRewardPoints);
+                {/* Promo Code Input */}
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    if (paymentCouponInput.trim()) {
+                      handleApplyCoupon(paymentCouponInput.trim());
                     }
                   }}
-                  className="flex items-start gap-3 cursor-pointer group select-none"
+                  className="flex items-center gap-1.5"
                 >
-                  <input
-                    type="radio"
-                    name="walletBalanceSummaryRadio"
-                    id="walletBalanceSummaryRadio"
-                    checked={useRewardPoints}
-                    disabled={rewardPointsAvailable <= 0}
-                    onChange={() => {
-                      if (rewardPointsAvailable > 0) {
-                        setUseRewardPoints(!useRewardPoints);
-                      }
-                    }}
-                    className="mt-0.5 text-[#2563EB] focus:ring-[#2563EB] cursor-pointer"
-                  />
-                  <div className="space-y-0.5">
-                    <div className="text-xs sm:text-sm font-bold text-slate-900 group-hover:text-[#2563EB] transition-colors">
-                      {rewardPointsAvailable > 0 ? (
-                        <>Prayog Reward Points Balance ₹{(rewardPointsAvailable / 2).toFixed(2)} Available</>
-                      ) : (
-                        <span className="text-slate-500 font-medium">Prayog Reward Points Balance ₹0.00 Available</span>
-                      )}
-                    </div>
-                    {rewardPointsAvailable > 0 ? (
-                      <div className="text-[11px] text-slate-500 flex items-center gap-1">
-                        <Info className="w-3.5 h-3.5 text-blue-600 shrink-0" />
-                        <span>{rewardPointsAvailable} pts available. Redeem points to save ₹{rewardDiscount}.</span>
-                      </div>
-                    ) : (
-                      <div className="text-[11px] text-slate-500 flex items-center gap-1">
-                        <Info className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                        <span>0 pts available. Shop to earn reward points.</span>
-                      </div>
+                  <div className="relative flex-1">
+                    <input
+                      type="text"
+                      value={paymentCouponInput}
+                      onChange={(e) => setPaymentCouponInput(e.target.value.toUpperCase())}
+                      placeholder="Coupon / Voucher code"
+                      className="w-full bg-slate-50/70 border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-slate-900 uppercase placeholder:normal-case placeholder:font-normal placeholder:text-slate-400 outline-none focus:border-[#2563EB] focus:bg-white transition-colors"
+                    />
+                    {appliedCoupon && couponCode && (
+                      <button
+                        type="button"
+                        onClick={handleRemoveCoupon}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-red-500 text-xs font-bold cursor-pointer"
+                        title="Remove Coupon"
+                      >
+                        ✕
+                      </button>
                     )}
                   </div>
-                </div>
-
-                {/* Promo / Coupon Code Input */}
-                <div className="pt-1">
-                  <form
-                    onSubmit={(e) => {
-                      e.preventDefault();
-                      if (paymentCouponInput.trim()) {
-                        handleApplyCoupon(paymentCouponInput.trim());
-                      }
-                    }}
-                    className="flex items-center gap-2 max-w-sm"
+                  <button
+                    type="submit"
+                    className="bg-slate-900 hover:bg-slate-800 text-white px-3.5 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer shrink-0"
                   >
-                    <span className="text-slate-400 font-bold text-base leading-none select-none">+</span>
-                    <div className="relative flex-1">
-                      <input
-                        type="text"
-                        value={paymentCouponInput}
-                        onChange={(e) => setPaymentCouponInput(e.target.value.toUpperCase())}
-                        placeholder="Enter Promo Code"
-                        className="w-full bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-xs font-semibold text-slate-900 uppercase placeholder:normal-case placeholder:font-normal placeholder:text-slate-400 outline-none focus:border-[#2563EB]"
-                      />
-                      {appliedCoupon && couponCode && (
-                        <button
-                          type="button"
-                          onClick={handleRemoveCoupon}
-                          className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-red-500 text-xs font-bold cursor-pointer"
-                          title="Remove Coupon"
-                        >
-                          ✕
-                        </button>
-                      )}
-                    </div>
-                    <button
-                      type="submit"
-                      className="bg-white border border-slate-300 hover:border-slate-400 text-slate-800 px-4 py-1.5 rounded-full text-xs font-bold hover:bg-slate-50 transition-colors cursor-pointer shadow-2xs shrink-0"
-                    >
-                      Apply
-                    </button>
-                  </form>
-                  {appliedCoupon && couponCode && (
-                    <div className="mt-1.5 text-[11px] font-semibold text-emerald-600 flex items-center gap-1">
-                      <Check className="w-3 h-3" /> Coupon &ldquo;{couponCode}&rdquo; applied successfully!
-                    </div>
-                  )}
-                  {couponError && (
-                    <div className="mt-1.5 text-[11px] font-semibold text-red-600 flex items-center gap-1">
-                      <AlertTriangle className="w-3 h-3" /> {couponError}
-                    </div>
-                  )}
-                </div>
-              </div>
+                    Apply
+                  </button>
+                </form>
 
-              {/* Section 4: GST Invoice Checkbox */}
-              <div className="p-4 sm:p-5 border-t border-slate-100 bg-white space-y-3">
-                <label className="flex items-center gap-2.5 cursor-pointer select-none">
-                  <input
-                    type="checkbox"
-                    checked={requireGSTInvoice}
-                    onChange={(e) => setRequireGSTInvoice(e.target.checked)}
-                    className="w-4 h-4 rounded border-slate-300 text-[#2563EB] focus:ring-[#2563EB] cursor-pointer"
-                  />
-                  <span className="text-xs font-bold text-slate-800">
-                    Use GST Invoice
-                  </span>
-                </label>
-
-                {requireGSTInvoice && (
-                  <div className="p-3 bg-slate-50/70 border border-slate-200/80 rounded-xl grid grid-cols-1 sm:grid-cols-2 gap-3 animate-in fade-in">
-                    <div className="space-y-1">
-                      <label className="text-[11px] font-semibold text-slate-600 block">
-                        Company / Institution Name
-                      </label>
-                      <input
-                        type="text"
-                        placeholder="e.g. Prayog Robotics Lab Pvt Ltd"
-                        value={companyName}
-                        onChange={(e) => setCompanyName(e.target.value)}
-                        className="w-full bg-white border border-slate-300 focus:border-[#2563EB] rounded-lg px-3 py-1.5 text-xs text-slate-900 outline-none"
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <label className="text-[11px] font-semibold text-slate-600 block">
-                        15-digit GSTIN
-                      </label>
-                      <input
-                        type="text"
-                        maxLength={15}
-                        placeholder="e.g. 20AAAAA0000A1Z5"
-                        value={gstinNumber}
-                        onChange={(e) => setGstinNumber(e.target.value.toUpperCase())}
-                        className="w-full bg-white border border-slate-300 focus:border-[#2563EB] rounded-lg px-3 py-1.5 text-xs font-mono uppercase text-slate-900 outline-none"
-                      />
-                    </div>
+                {appliedCoupon && couponCode && (
+                  <div className="text-[10.5px] font-semibold text-emerald-600 flex items-center gap-1">
+                    <Check className="w-3 h-3" /> Coupon &ldquo;{couponCode}&rdquo; applied!
+                  </div>
+                )}
+                {couponError && (
+                  <div className="text-[10.5px] font-semibold text-red-600 flex items-center gap-1">
+                    <AlertTriangle className="w-3 h-3" /> {couponError}
                   </div>
                 )}
               </div>
 
-              {/* Section 4: Legal Disclaimer */}
-              <div className="px-3.5 sm:px-5 py-2.5 sm:py-3 bg-slate-50/70 border-t border-slate-100 text-[11px] text-slate-500">
-                By continuing with the order, you confirm that you agree to Prayog India&apos;s{" "}
-                <Link href="/terms" className="text-[#2563EB] hover:underline font-semibold">
-                  Terms of Use
+              {/* Section 5: GST Invoice Toggle */}
+              <div className="p-3 sm:p-4 bg-white space-y-2">
+                <label className="flex items-center gap-2 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={requireGSTInvoice}
+                    onChange={(e) => setRequireGSTInvoice(e.target.checked)}
+                    className="w-3.5 h-3.5 rounded border-slate-300 text-[#2563EB] focus:ring-[#2563EB] cursor-pointer"
+                  />
+                  <span className="text-[11px] font-semibold text-slate-700">
+                    Need GST Invoice for Business / Input Tax Credit
+                  </span>
+                </label>
+
+                {requireGSTInvoice && (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1 animate-in fade-in">
+                    <input
+                      type="text"
+                      placeholder="Company Name"
+                      value={companyName}
+                      onChange={(e) => setCompanyName(e.target.value)}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs text-slate-900 outline-none focus:border-[#2563EB]"
+                    />
+                    <input
+                      type="text"
+                      maxLength={15}
+                      placeholder="15-digit GSTIN"
+                      value={gstinNumber}
+                      onChange={(e) => setGstinNumber(e.target.value.toUpperCase())}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs font-mono uppercase text-slate-900 outline-none focus:border-[#2563EB]"
+                    />
+                  </div>
+                )}
+              </div>
+
+              {/* Section 6: Legal Footer */}
+              <div className="p-3 sm:px-4 bg-slate-50/70 text-[10.5px] text-slate-400">
+                By continuing, you agree to Prayog India&apos;s{" "}
+                <Link href="/terms" className="text-[#2563EB] hover:underline">
+                  Terms
                 </Link>{" "}
-                and{" "}
-                <Link href="/privacy" className="text-[#2563EB] hover:underline font-semibold">
+                &amp;{" "}
+                <Link href="/privacy" className="text-[#2563EB] hover:underline">
                   Privacy Policy
-                </Link>
-                .
+                </Link>.
               </div>
             </div>
           )}
