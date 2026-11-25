@@ -109,12 +109,18 @@ export const AccountDashboardView: React.FC = () => {
               id: o.id,
               orderNumber: o.orderNumber,
               createdAt: o.createdAt,
-              date: new Date(o.createdAt).toLocaleDateString("en-IN", {
-                day: "numeric",
-                month: "short",
-                year: "numeric",
-              }),
-              totalAmount: o.totalAmount,
+              date: (() => {
+                if (!o.createdAt) return "Recent";
+                const d = new Date(o.createdAt);
+                return isNaN(d.getTime())
+                  ? "Recent"
+                  : d.toLocaleDateString("en-IN", {
+                      day: "numeric",
+                      month: "short",
+                      year: "numeric",
+                    });
+              })(),
+              totalAmount: typeof o.totalAmount === "number" ? o.totalAmount : Number(o.totalAmount || 0),
               status: formatStatus(o.status),
               itemsCount: o.items?.length || 1,
               shippingAddress: o.shippingAddress,
@@ -211,15 +217,19 @@ export const AccountDashboardView: React.FC = () => {
                   id: o.id || o.orderNumber,
                   orderNumber: o.orderNumber,
                   createdAt: o.createdAt || getOrderTimestamp(o),
-                  date: o.createdAt
-                    ? new Date(o.createdAt).toLocaleDateString("en-IN", {
-                        day: "numeric",
-                        month: "short",
-                        year: "numeric",
-                      })
-                    : "Today",
-                  totalAmount: o.totalAmount || 0,
-                  subtotal: o.subtotal || o.totalAmount || 0,
+                  date: (() => {
+                    if (!o.createdAt) return "Today";
+                    const d = new Date(o.createdAt);
+                    return isNaN(d.getTime())
+                      ? "Today"
+                      : d.toLocaleDateString("en-IN", {
+                          day: "numeric",
+                          month: "short",
+                          year: "numeric",
+                        });
+                  })(),
+                  totalAmount: typeof o.totalAmount === "number" ? o.totalAmount : Number(o.totalAmount || 0),
+                  subtotal: typeof o.subtotal === "number" ? o.subtotal : Number(o.subtotal || o.totalAmount || 0),
                   status: formatStatus(o.status || "ORDER_PLACED"),
                   itemsCount: resolvedItems.length,
                   shippingAddress: o.shippingAddress || "",
@@ -258,20 +268,21 @@ export const AccountDashboardView: React.FC = () => {
 
   // Derived real Statistics strictly from real orders
   const totalOrdersCount = totalOrders;
-  const activeOrdersCount = orders.filter(
-    (o) =>
-      o.status?.toLowerCase().includes("shipped") ||
-      o.status?.toLowerCase().includes("processing") ||
-      o.status?.toLowerCase().includes("out for delivery") ||
-      o.status?.toLowerCase().includes("packed") ||
-      o.status?.toLowerCase().includes("placed") ||
-      o.status?.toLowerCase().includes("confirmed"),
-  ).length;
-  const deliveredOrdersCount = orders.filter(
-    (o) =>
-      o.status?.toLowerCase().includes("delivered") ||
-      o.status?.toLowerCase().includes("arrived"),
-  ).length;
+  const activeOrdersCount = orders.filter((o) => {
+    const s = String(o?.status || "").toLowerCase();
+    return (
+      s.includes("shipped") ||
+      s.includes("processing") ||
+      s.includes("out for delivery") ||
+      s.includes("packed") ||
+      s.includes("placed") ||
+      s.includes("confirmed")
+    );
+  }).length;
+  const deliveredOrdersCount = orders.filter((o) => {
+    const s = String(o?.status || "").toLowerCase();
+    return s.includes("delivered") || s.includes("arrived");
+  }).length;
 
   // User display name
   const displayName =
@@ -594,7 +605,7 @@ export const AccountDashboardView: React.FC = () => {
                       <div className="flex items-center gap-2.5 sm:gap-3 shrink-0">
                         {/* Total Amount */}
                         <span className="font-semibold text-xs sm:text-sm text-slate-800">
-                          ₹{ord.totalAmount.toLocaleString("en-IN")}
+                          ₹{Number(ord.totalAmount || 0).toLocaleString("en-IN")}
                         </span>
 
                         {/* View Details Link */}
