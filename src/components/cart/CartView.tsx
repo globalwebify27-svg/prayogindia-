@@ -40,7 +40,6 @@ export const CartView: React.FC = () => {
     isLoggedIn,
     loginUser,
     logoutUser,
-    setCustomerType,
     updateQuantity,
     removeFromCart,
     moveToWishlist,
@@ -226,20 +225,7 @@ export const CartView: React.FC = () => {
           </h1>
         </div>
 
-        {/* Customer Type Pricing Tier */}
-        <div className="flex items-center gap-2 text-xs">
-          <span className="text-slate-500 font-medium shrink-0">Pricing Tier:</span>
-          <select
-            value={currentCustomerType}
-            onChange={(e) => setCustomerType(e.target.value as CustomerType)}
-            className="bg-transparent text-xs font-bold text-slate-800 hover:text-[#2563EB] focus:outline-none cursor-pointer border-b border-slate-300 pb-0.5"
-          >
-            <option value="B2C Customer">B2C Customer (Standard)</option>
-            <option value="B2B Customer">B2B Customer (15% Wholesale)</option>
-            <option value="Registered Customer">Registered Customer (5% Loyalty)</option>
-            <option value="Guest Customer">Guest Customer (Retail)</option>
-          </select>
-        </div>
+
       </div>
 
       {/* 3. Empty State */}
