@@ -322,19 +322,7 @@ export const CartView: React.FC = () => {
             )}
 
             {/* Customer Type Promo Badge */}
-            {customerDiscountPercent > 0 && (
-              <div className="bg-emerald-50 border border-emerald-200/90 rounded-2xl p-3 sm:p-3.5 flex items-center justify-between gap-2.5 text-xs text-emerald-900">
-                <div className="flex items-center gap-2 min-w-0">
-                  <Tag className="w-4 h-4 text-emerald-600 shrink-0" />
-                  <span className="font-bold text-[11px] sm:text-xs leading-tight">
-                    {currentCustomerType} Privilege: {customerDiscountPercent}% instant discount applied!
-                  </span>
-                </div>
-                <span className="font-extrabold text-emerald-700 bg-white px-2 py-1 rounded-lg border border-emerald-200 text-xs shrink-0 whitespace-nowrap shadow-2xs">
-                  -₹{segmentDiscount.toLocaleString("en-IN")}
-                </span>
-              </div>
-            )}
+
 
             {/* Cart Items List */}
             <div className="space-y-4">
