@@ -18,7 +18,10 @@ import {
   XCircle,
   FileText,
   Printer,
+  ChevronLeft,
   ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
   ShieldCheck,
   Quote,
   ArrowRight,
@@ -270,6 +273,19 @@ function matchesOrder(ord: any, rawQuery: string): boolean {
   return false;
 }
 
+function getPageNumbers(currentPage: number, totalPages: number): (number | string)[] {
+  if (totalPages <= 7) {
+    return Array.from({ length: totalPages }, (_, i) => i + 1);
+  }
+  if (currentPage <= 4) {
+    return [1, 2, 3, 4, 5, "...", totalPages];
+  }
+  if (currentPage >= totalPages - 3) {
+    return [1, "...", totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
+  }
+  return [1, "...", currentPage - 1, currentPage, currentPage + 1, "...", totalPages];
+}
+
 export default function AdminOrdersPage() {
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -281,6 +297,10 @@ export default function AdminOrdersPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const activeSearchRef = useRef(searchQuery);
   activeSearchRef.current = searchQuery;
+
+  // Pagination State
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(25);
 
   // Section 31 Shipping Info Modal State
   const [selectedOrderForShipping, setSelectedOrderForShipping] = useState<
@@ -537,6 +557,19 @@ export default function AdminOrdersPage() {
       return matchesOrder(ord, q);
     });
   }, [orders, searchQuery, channelFilter, dateFilter, customStartDate, customEndDate]);
+
+  // Automatically reset to page 1 whenever any filter or search changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, channelFilter, dateFilter, customStartDate, customEndDate, statusFilter]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredOrders.length / pageSize));
+  const startIndex = (currentPage - 1) * pageSize;
+  const endIndex = Math.min(startIndex + pageSize, filteredOrders.length);
+
+  const paginatedOrders = useMemo(() => {
+    return filteredOrders.slice(startIndex, startIndex + pageSize);
+  }, [filteredOrders, startIndex, pageSize]);
 
   return (
     <div className="w-full space-y-6 animate-in fade-in duration-300">
@@ -909,7 +942,7 @@ export default function AdminOrdersPage() {
                   </td>
                 </tr>
               ) : (
-                filteredOrders.map((ord) => {
+                paginatedOrders.map((ord) => {
                   const ordChannel = getOrderChannel(ord);
                   const orderTs = getOrderTimestamp(ord);
                   const ordDate = orderTs > 0 ? new Date(orderTs) : null;
@@ -1097,6 +1130,106 @@ export default function AdminOrdersPage() {
           </tbody>
           </table>
         </div>
+
+        {/* 4. Pagination Controls */}
+        {filteredOrders.length > 0 && (
+          <div className="p-4 border-t border-slate-200/90 bg-white flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+            {/* Left: Page Size Selector & Range Summary */}
+            <div className="flex items-center gap-2.5 text-slate-600 font-medium flex-wrap">
+              <div className="flex items-center gap-1.5">
+                <span className="text-slate-500 font-semibold">Rows per page:</span>
+                <select
+                  value={pageSize}
+                  onChange={(e) => {
+                    setPageSize(Number(e.target.value));
+                    setCurrentPage(1);
+                  }}
+                  className="border border-slate-200 rounded-lg px-2.5 py-1 text-xs font-bold text-slate-800 bg-slate-50 hover:bg-slate-100 transition-colors focus:outline-none focus:border-[#00AEEF] cursor-pointer"
+                >
+                  <option value={10}>10</option>
+                  <option value={25}>25</option>
+                  <option value={50}>50</option>
+                  <option value={100}>100</option>
+                </select>
+              </div>
+              <span className="text-slate-300">|</span>
+              <span className="text-slate-700 font-semibold">
+                Showing <strong className="text-slate-900">{startIndex + 1}</strong> to{" "}
+                <strong className="text-slate-900">{endIndex}</strong> of{" "}
+                <strong className="text-slate-900">{filteredOrders.length}</strong> orders
+              </span>
+            </div>
+
+            {/* Right: Page Navigation Controls */}
+            <div className="flex items-center gap-1 flex-wrap">
+              <button
+                type="button"
+                title="First Page"
+                disabled={currentPage <= 1}
+                onClick={() => setCurrentPage(1)}
+                className="p-1.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900 disabled:opacity-30 disabled:pointer-events-none transition-colors cursor-pointer"
+              >
+                <ChevronsLeft className="w-4 h-4" />
+              </button>
+              <button
+                type="button"
+                title="Previous Page"
+                disabled={currentPage <= 1}
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                className="p-1.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900 disabled:opacity-30 disabled:pointer-events-none transition-colors cursor-pointer"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+
+              <div className="flex items-center gap-1 px-1">
+                {getPageNumbers(currentPage, totalPages).map((p, idx) => {
+                  if (p === "...") {
+                    return (
+                      <span key={`ellipsis-${idx}`} className="px-2 text-slate-400 font-bold select-none">
+                        ...
+                      </span>
+                    );
+                  }
+                  const pageNum = Number(p);
+                  const isActive = pageNum === currentPage;
+                  return (
+                    <button
+                      key={pageNum}
+                      type="button"
+                      onClick={() => setCurrentPage(pageNum)}
+                      className={`min-w-8 h-8 px-2 rounded-lg font-bold text-xs transition-all cursor-pointer ${
+                        isActive
+                          ? "bg-[#00AEEF] text-white shadow-xs font-black"
+                          : "text-slate-700 hover:bg-slate-100 hover:text-slate-900"
+                      }`}
+                    >
+                      {pageNum}
+                    </button>
+                  );
+                })}
+              </div>
+
+              <button
+                type="button"
+                title="Next Page"
+                disabled={currentPage >= totalPages}
+                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                className="p-1.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900 disabled:opacity-30 disabled:pointer-events-none transition-colors cursor-pointer"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
+              <button
+                type="button"
+                title="Last Page"
+                disabled={currentPage >= totalPages}
+                onClick={() => setCurrentPage(totalPages)}
+                className="p-1.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900 disabled:opacity-30 disabled:pointer-events-none transition-colors cursor-pointer"
+              >
+                <ChevronsRight className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* 4. Section 31 Order Shipping Information Modal */}
