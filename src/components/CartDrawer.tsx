@@ -200,20 +200,8 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                   </h3>
                 </div>
 
-                {/* Primary Catalog CTA */}
-                <div className="pt-1">
-                  <Link
-                    href="/products"
-                    onClick={onClose}
-                    className="inline-flex items-center justify-center gap-2 bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-xs sm:text-sm font-semibold px-6 py-2.5 rounded-xl shadow-xs transition-all active:scale-95 cursor-pointer"
-                  >
-                    <span>Browse Catalogue</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </Link>
-                </div>
-
                 {/* Popular Categories Shortcut */}
-                <div className="pt-2">
+                <div className="pt-1">
                   <div className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-2">
                     Popular Categories
                   </div>
@@ -235,6 +223,18 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                       </Link>
                     ))}
                   </div>
+                </div>
+
+                {/* Primary Catalog CTA */}
+                <div className="pt-1.5">
+                  <Link
+                    href="/products"
+                    onClick={onClose}
+                    className="inline-flex items-center justify-center gap-2 bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-xs sm:text-sm font-semibold px-6 py-2.5 rounded-xl shadow-xs transition-all active:scale-95 cursor-pointer"
+                  >
+                    <span>Browse Catalogue</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </Link>
                 </div>
               </div>
             ) : (
