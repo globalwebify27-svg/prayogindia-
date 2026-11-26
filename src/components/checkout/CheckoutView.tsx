@@ -2104,9 +2104,6 @@ export const CheckoutView: React.FC = () => {
               >
                 1. Address
               </span>
-              {checkoutStep !== "address" && (
-                <Check className="w-3 h-3 text-emerald-600 stroke-[2.5]" />
-              )}
             </div>
             <div
               className={`h-0.5 rounded-full transition-all duration-300 ${
@@ -2145,9 +2142,6 @@ export const CheckoutView: React.FC = () => {
               >
                 2. Summary
               </span>
-              {checkoutStep === "payment" && (
-                <Check className="w-3 h-3 text-emerald-600 stroke-[2.5]" />
-              )}
             </div>
             <div
               className={`h-0.5 rounded-full transition-all duration-300 ${
