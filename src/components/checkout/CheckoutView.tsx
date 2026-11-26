@@ -504,6 +504,9 @@ export const CheckoutView: React.FC = () => {
   };
 
   const handleCancelAddressEdit = () => {
+    if (typeof window !== "undefined") {
+      window.scrollTo(0, 0);
+    }
     setIsEditingAddress(false);
     setIsAddingNewAddress(false);
     setEditingAddressId(null);
@@ -612,6 +615,11 @@ export const CheckoutView: React.FC = () => {
   const handleSaveAddressForm = (): boolean => {
     if (!validateAddressData()) return false;
 
+    // Immediately reset scroll to top to prevent browser scroll clamping down to the footer
+    if (typeof window !== "undefined") {
+      window.scrollTo(0, 0);
+    }
+
     const targetId = editingAddressId || selectedShippingAddressId || `addr-${Date.now()}`;
     const newAddress: Address = {
       id: targetId,
@@ -669,6 +677,15 @@ export const CheckoutView: React.FC = () => {
       }).catch(() => {});
     }
     return true;
+  };
+
+  const handleSaveAndDeliver = () => {
+    const saved = handleSaveAddressForm();
+    if (!saved) return;
+    setCheckoutStep("summary");
+    if (typeof window !== "undefined") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
   };
 
   const handleProceedToSummary = () => {
@@ -1062,6 +1079,9 @@ export const CheckoutView: React.FC = () => {
       setSelectedShippingAddressId(newAddr.id);
     }
     setShowAddressModal(false);
+    if (typeof window !== "undefined") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
   };
 
   // ── Place Order Final Action with Strict Validations
@@ -2507,11 +2527,11 @@ export const CheckoutView: React.FC = () => {
                     )}
                     <button
                       type="button"
-                      onClick={handleSaveAddressForm}
-                      className="bg-[#2563EB] hover:bg-[#1D4ED8] active:bg-[#1E40AF] text-white px-4 py-1.5 rounded-lg text-xs font-bold transition-all shadow-sm cursor-pointer flex items-center justify-center gap-1.5"
+                      onClick={handleSaveAndDeliver}
+                      className="bg-[#2563EB] hover:bg-[#1D4ED8] active:bg-[#1E40AF] text-white px-4 py-2 sm:px-5 sm:py-2.5 rounded-lg sm:rounded-xl text-xs font-bold transition-all shadow-md shadow-blue-500/20 cursor-pointer flex items-center justify-center gap-1.5"
                     >
                       <CheckCircle2 className="w-3.5 h-3.5 text-white/90 shrink-0" />
-                      <span>Save Address</span>
+                      <span>Save &amp; Deliver Here</span>
                     </button>
                   </div>
                 </div>

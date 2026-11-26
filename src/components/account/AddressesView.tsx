@@ -152,6 +152,9 @@ export const AddressesView: React.FC<AddressesViewProps> = ({
 
       const data = await res.json();
       if (data.success) {
+        if (typeof window !== "undefined") {
+          window.scrollTo(0, 0);
+        }
         showMessage(editingId ? "Address updated." : "Address saved.");
         setShowForm(false);
         await fetchAddresses();
