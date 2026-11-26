@@ -10,7 +10,6 @@ import { PRODUCTS } from "@/data/mockData";
 import {
   Truck,
   CheckCircle2,
-  Clock,
   ArrowLeft,
   FileText,
   RotateCcw,
@@ -33,6 +32,7 @@ import {
   BillOrder,
 } from "@/components/invoice/ProfessionalBillModal";
 import { RateAndReviewModal } from "@/components/reviews/RateAndReviewModal";
+import { OrderCancellationModal } from "@/components/orders/OrderCancellationModal";
 
 function customerOrderToBillOrder(ord: CustomerOrder, user?: any): BillOrder {
   const subtotal = ord.subtotal || Math.round(ord.totalAmount / 1.18);
@@ -295,6 +295,7 @@ export const OrderDetailView: React.FC<OrderDetailProps> = ({ orderId }) => {
   const [modalType, setModalType] = useState<
     "cancel" | "return" | "replacement" | "refund" | null
   >(null);
+  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [requestReason, setRequestReason] = useState("");
   const [isCancelling, setIsCancelling] = useState(false);
   const [requestSubmittedMessage, setRequestSubmittedMessage] = useState<
@@ -339,7 +340,7 @@ export const OrderDetailView: React.FC<OrderDetailProps> = ({ orderId }) => {
     return (
       <div className="bg-white rounded-2xl border border-slate-200/80 p-8 sm:p-12 text-center shadow-2xs space-y-4 max-w-lg mx-auto my-8">
         <XCircle className="w-12 h-12 text-rose-500 mx-auto" />
-        <h2 className="text-lg font-black text-slate-900 tracking-tight">Order Not Found</h2>
+        <h2 className="text-lg font-bold text-slate-900 tracking-tight">Order Not Found</h2>
         <p className="text-xs text-slate-500">
           This order does not exist or you do not have permission to view details for this order.
         </p>
@@ -440,6 +441,15 @@ export const OrderDetailView: React.FC<OrderDetailProps> = ({ orderId }) => {
     setRequestReason("");
   };
 
+  const rawStatus = (order.status || "").toLowerCase();
+  const isCancelled = rawStatus.includes("cancel");
+  const isCancellable =
+    !isCancelled &&
+    !rawStatus.includes("deliver") &&
+    !rawStatus.includes("ship") &&
+    !rawStatus.includes("out for delivery") &&
+    !rawStatus.includes("return");
+
   return (
     <div className="bg-white rounded-2xl border border-slate-200/80 p-4 sm:p-6 lg:p-7 shadow-2xs space-y-6 text-slate-900 animate-in fade-in duration-300">
       {/* 1. Header with Back link, Order ID, Status, and Actions */}
@@ -452,24 +462,11 @@ export const OrderDetailView: React.FC<OrderDetailProps> = ({ orderId }) => {
             <ArrowLeft className="w-3.5 h-3.5" />
             <span>Back to Orders</span>
           </Link>
-
-          <span
-            className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full border flex items-center gap-1 shrink-0 ${
-              order.status?.toLowerCase().includes("delivered")
-                ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-                : order.status?.toLowerCase().includes("shipped")
-                ? "bg-sky-50 text-sky-700 border-sky-200"
-                : "bg-amber-50 text-amber-700 border-amber-200"
-            }`}
-          >
-            <Clock className="w-3 h-3" />
-            <span>{order.status}</span>
-          </span>
         </div>
 
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">
           <div>
-            <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+            <h1 className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight">
               Order #{order.orderNumber}
             </h1>
             <p className="text-xs text-slate-500 mt-0.5">
@@ -515,6 +512,26 @@ export const OrderDetailView: React.FC<OrderDetailProps> = ({ orderId }) => {
           </div>
         </div>
       </div>
+
+      {/* Cancellation Notice Banner */}
+      {rawStatus.includes("cancel") && (
+        <div className="bg-rose-50/70 border border-rose-200 rounded-2xl p-4 sm:p-5 text-xs text-rose-950 space-y-2">
+          <div className="flex items-center gap-2">
+            <span className="w-2.5 h-2.5 rounded-full bg-rose-500 shrink-0" />
+            <h3 className="font-bold text-sm text-rose-900">This Order Has Been Cancelled</h3>
+          </div>
+          <p className="text-slate-600 leading-relaxed font-normal">
+            {(order.paymentMethod || order.paymentMode || "").toLowerCase().includes("cod")
+              ? "This Cash on Delivery order was cancelled. No payment was collected."
+              : "If you were charged, a refund has been initiated to your original payment method. The refund will reflect in your account within 3–5 business days."}
+          </p>
+          {((order as any).cancellationReferenceId || (order as any).cancellation?.cancellationReferenceId) && (
+            <div className="pt-1 text-[11px] font-mono text-slate-500">
+              Cancellation Ref: <strong className="text-slate-800">{(order as any).cancellationReferenceId || (order as any).cancellation?.cancellationReferenceId}</strong>
+            </div>
+          )}
+        </div>
+      )}
 
       {requestSubmittedMessage && (
         <div className="bg-emerald-50 text-emerald-800 text-xs font-bold p-3.5 rounded-xl border border-emerald-200 flex items-center gap-2.5 animate-in fade-in">
@@ -588,6 +605,39 @@ export const OrderDetailView: React.FC<OrderDetailProps> = ({ orderId }) => {
             );
           })}
         </div>
+
+        {/* Delivery Executive notice and split action bar (Cancel | Chat with us) */}
+        {!isCancelled && (
+          <div className="mt-4 pt-3.5 border-t border-slate-200/80 -mx-4 sm:-mx-6 lg:-mx-7 font-sans">
+            <p className="px-4 sm:px-6 lg:px-7 pb-3 text-xs sm:text-sm text-slate-600 font-medium tracking-tight">
+              Delivery partner information will be shared after your order is dispatched for delivery.
+            </p>
+            <div
+              className={`border-t border-slate-200 grid ${
+                isCancellable ? "grid-cols-2 divide-x divide-slate-200" : "grid-cols-1"
+              } text-center`}
+            >
+              {isCancellable && (
+                <button
+                  type="button"
+                  onClick={() => setIsCancelModalOpen(true)}
+                  className="py-3.5 px-3 text-center text-xs sm:text-sm font-bold text-slate-800 hover:text-rose-600 hover:bg-slate-50 active:bg-slate-100 transition-colors cursor-pointer flex items-center justify-center gap-1.5 tracking-tight font-sans"
+                >
+                  <span>Cancel</span>
+                </button>
+              )}
+              <a
+                href="https://wa.me/918709789641?text=Hi%20Prayog%20India,%20I%20need%20help%20with%20my%20order."
+                target="_blank"
+                rel="noopener noreferrer"
+                className="py-3.5 px-3 text-center text-xs sm:text-sm font-bold text-slate-800 hover:text-[#2563EB] hover:bg-slate-50 active:bg-slate-100 transition-colors cursor-pointer flex items-center justify-center gap-2 tracking-tight font-sans"
+              >
+                <MessageSquare className="w-4 h-4 text-slate-700" />
+                <span>Chat with us</span>
+              </a>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* 3. Ordered Products (Clean List, Direct Product Links) */}
@@ -769,7 +819,7 @@ export const OrderDetailView: React.FC<OrderDetailProps> = ({ orderId }) => {
             className="fixed inset-0 bg-slate-950/70 backdrop-blur-xs"
           />
           <div className="relative max-w-md w-full bg-white rounded-3xl p-6 shadow-2xl z-10 space-y-4 text-xs">
-            <h3 className="text-base font-black text-slate-900 uppercase tracking-tight">
+            <h3 className="text-base font-bold text-slate-900 uppercase tracking-tight">
               {modalType === "cancel"
                 ? "Cancel Hardware Order"
                 : `Request ${modalType.toUpperCase()}`}
@@ -838,6 +888,29 @@ export const OrderDetailView: React.FC<OrderDetailProps> = ({ orderId }) => {
         <ProfessionalBillModal
           order={customerOrderToBillOrder(order, user)}
           onClose={() => setShowInvoiceModal(false)}
+        />
+      )}
+
+      {/* 9. Production-Grade Order Cancellation Modal */}
+      {isCancelModalOpen && (
+        <OrderCancellationModal
+          isOpen={isCancelModalOpen}
+          onClose={() => setIsCancelModalOpen(false)}
+          order={order}
+          onSuccess={(res) => {
+            if (liveOrder) {
+              setLiveOrder({
+                ...liveOrder,
+                status: "Cancelled",
+                isCancelable: false,
+                cancellationReferenceId: res.cancellationReferenceId,
+              } as any);
+            }
+            setIsCancelModalOpen(false);
+            if (typeof window !== "undefined") {
+              window.dispatchEvent(new Event("prayog_orders_updated"));
+            }
+          }}
         />
       )}
     </div>

@@ -1,17 +1,24 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { verifySessionToken } from "@/lib/jwt";
-import { StaffSessionUser } from "@/lib/staffAuth";
-import { AdminSessionUser } from "@/lib/adminAuth";
-import { AuthSessionUser, AUTH_COOKIE_NAME } from "@/lib/authUtils";
+import type {
+  StaffSessionUser,
+  AdminSessionUser,
+  AuthSessionUser,
+} from "@/lib/authConstants";
+import {
+  AUTH_COOKIE_NAME,
+  AUTH_STAFF_COOKIE_NAME,
+  AUTH_ADMIN_COOKIE_NAME,
+} from "@/lib/authConstants";
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Read session cookies
   const customerCookie = request.cookies.get(AUTH_COOKIE_NAME);
-  const staffCookie = request.cookies.get("prayog_staff_session");
-  const adminCookie = request.cookies.get("prayog_admin_session");
+  const staffCookie = request.cookies.get(AUTH_STAFF_COOKIE_NAME);
+  const adminCookie = request.cookies.get(AUTH_ADMIN_COOKIE_NAME);
 
   // Cryptographically verify customer session token
   let customerUser: AuthSessionUser | null = null;

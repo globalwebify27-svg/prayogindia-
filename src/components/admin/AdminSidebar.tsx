@@ -28,6 +28,7 @@ import {
   Headphones,
   ChevronRight,
   X,
+  XCircle,
   Wrench,
   BadgePercent,
   Handshake,
@@ -72,6 +73,17 @@ const NAV_GROUPS: NavGroup[] = [
         href: "/admin/orders",
         icon: ShoppingBag,
         badge: "LIVE",
+      },
+      {
+        label: "Cancellation Desk",
+        href: "/admin/cancellations",
+        icon: XCircle,
+        badge: "CAN",
+      },
+      {
+        label: "Refund Management",
+        href: "/admin/cancellations?tab=refunds",
+        icon: History,
       },
       {
         label: "Walk-in POS Desk",

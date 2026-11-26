@@ -504,6 +504,7 @@ model Order {
   reviews           Review[]
   quotationId       String?       @unique
   quotation         Quotation?    @relation(fields: [quotationId], references: [id])
+  cancellation      OrderCancellation?
 
   @@index([userId])
   @@index([status])
@@ -523,6 +524,38 @@ model OrderItem {
   productSku  String          // Historical Snapshot
   price       Float           // Purchase Price Snapshot
   quantity    Int
+}
+
+// ─────────────────────────────────────────────
+// Order Cancellation Records
+// ─────────────────────────────────────────────
+model OrderCancellation {
+  id                          String    @id @default(uuid())
+  orderId                     String    @unique
+  order                       Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  cancellationReferenceId     String    @unique
+  cancellationReason          String
+  cancellationComment         String?
+  cancellationInitiatedBy     String    @default("Customer") // Customer | Admin
+  cancellationInitiatorId     String?
+  previousOrderStatus         String
+  cancellationStatus          String    @default("CONFIRMED") // PENDING | CONFIRMED | REJECTED
+  cancellationDate            DateTime  @default(now())
+  refundStatus                String    @default("Not Applicable") // Not Applicable | Refund Pending | Refund Initiated | Refund Processing | Refund Completed | Refund Failed
+  refundAmount                Float     @default(0)
+  refundTransactionId         String?
+  refundDate                  DateTime?
+  inventoryRestorationStatus  String    @default("RESTORED") // RESTORED | FAILED | NOT_APPLICABLE
+  inventoryTransactionId      String?
+  adminRemarks                String?
+  createdAt                   DateTime  @default(now())
+  updatedAt                   DateTime  @updatedAt
+
+  @@index([orderId])
+  @@index([cancellationReferenceId])
+  @@index([cancellationStatus])
+  @@index([refundStatus])
+  @@index([createdAt])
 }
 
 // 10. Shipment Tracking

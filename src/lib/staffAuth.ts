@@ -1,4 +1,3 @@
-import { cookies } from "next/headers";
 import { StaffRole, StaffStatus } from "@prisma/client";
 
 export interface StaffSessionUser {
@@ -215,6 +214,7 @@ import { verifySessionToken } from "@/lib/jwt";
  * Server-side Helper: Extract & Verify Authenticated Staff Session
  */
 export async function getAuthenticatedStaff(): Promise<StaffSessionUser | null> {
+  const { cookies } = await import("next/headers");
   const cookieStore = await cookies();
   const sessionCookie = cookieStore.get(AUTH_STAFF_COOKIE_NAME);
 

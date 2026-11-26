@@ -1,17 +1,9 @@
 import bcrypt from "bcryptjs";
+import { AUTH_COOKIE_NAME, AuthSessionUser } from "@/lib/authConstants";
+import { verifySessionToken } from "@/lib/jwt";
 
-export interface AuthSessionUser {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-  role: "CUSTOMER" | "ADMIN";
-  customerType?: string;
-  companyName?: string | null;
-  gstin?: string | null;
-  rewardPoints?: number;
-  avatarUrl?: string;
-}
+export { AUTH_COOKIE_NAME };
+export type { AuthSessionUser };
 
 /**
  * Utility: Normalize email address to lowercase and strip leading/trailing spaces
@@ -37,14 +29,6 @@ export async function verifyPassword(
 ): Promise<boolean> {
   return await bcrypt.compare(password, hash);
 }
-
-/**
- * Cookie-based Session Cookie Name
- */
-export const AUTH_COOKIE_NAME = "prayog_customer_session";
-
-import { cookies } from "next/headers";
-import { verifySessionToken } from "@/lib/jwt";
 
 /**
  * Helper to build safe user payload excluding password hashes
@@ -78,6 +62,7 @@ export function sanitizeUser(user: {
  */
 export async function getAuthenticatedCustomer(): Promise<AuthSessionUser | null> {
   try {
+    const { cookies } = await import("next/headers");
     const cookieStore = await cookies();
     const sessionCookie = cookieStore.get(AUTH_COOKIE_NAME);
     if (!sessionCookie?.value) return null;

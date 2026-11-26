@@ -9,7 +9,8 @@ const isStale =
   (!("review" in globalForPrisma.prisma) ||
     !("invoice" in globalForPrisma.prisma) ||
     !("auditLog" in globalForPrisma.prisma) ||
-    !("loyaltyRule" in globalForPrisma.prisma));
+    !("loyaltyRule" in globalForPrisma.prisma) ||
+    !("orderCancellation" in globalForPrisma.prisma));
 
 export const prisma =
   !isStale && globalForPrisma.prisma

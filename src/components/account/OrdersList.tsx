@@ -29,6 +29,7 @@ import {
   BillOrder,
 } from "@/components/invoice/ProfessionalBillModal";
 import { RateAndReviewModal } from "@/components/reviews/RateAndReviewModal";
+import { OrderCancellationModal } from "@/components/orders/OrderCancellationModal";
 
 export type OrderTab =
   | "all"
@@ -180,6 +181,7 @@ export const OrdersList: React.FC = () => {
   } | null>(null);
   const [isInvoiceAction, setIsInvoiceAction] = useState(false);
   const [copiedOrderNum, setCopiedOrderNum] = useState<string | null>(null);
+  const [cancellingOrder, setCancellingOrder] = useState<CustomerOrder | null>(null);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -560,6 +562,12 @@ export const OrdersList: React.FC = () => {
             const isShipped = rawStatus.includes("shipped") || rawStatus.includes("out for delivery");
             const isCancelled = rawStatus.includes("cancelled");
             const isPendingOrProcessing = !isDelivered && !isShipped && !isCancelled;
+            const isCancellable =
+              !isCancelled &&
+              !isDelivered &&
+              !isShipped &&
+              !rawStatus.includes("out for delivery") &&
+              !rawStatus.includes("return");
 
             const isCod =
               ord.paymentMethod?.toLowerCase().includes("cod") ||
@@ -711,7 +719,7 @@ export const OrdersList: React.FC = () => {
                       })}
                     </div>
 
-                    {/* Actions: Track Status / Download Invoice / Review */}
+                    {/* Actions: Track Status / Download Invoice / Review / Cancel */}
                     <div className="pt-2.5 border-t border-slate-100 flex items-center justify-between gap-2 flex-wrap">
                       <div className="flex items-center gap-2">
                         {isDelivered ? (
@@ -733,7 +741,7 @@ export const OrdersList: React.FC = () => {
                             <Star className="w-3.5 h-3.5 fill-[#FFC200] text-[#FFC200]" />
                             <span>Rate &amp; Review</span>
                           </button>
-                        ) : (
+                        ) : !isCancelled ? (
                           <Link
                             href={`/account/orders/${ord.id}`}
                             className="inline-flex items-center gap-1 text-xs font-bold text-[#2563EB] hover:text-[#1D4ED8] bg-blue-50/80 hover:bg-blue-100 px-3 py-1.5 rounded-xl transition-colors cursor-pointer"
@@ -741,7 +749,7 @@ export const OrdersList: React.FC = () => {
                             <span>Track Status</span>
                             <ChevronRight className="w-3 h-3" />
                           </Link>
-                        )}
+                        ) : null}
                       </div>
 
                       <button
@@ -895,8 +903,10 @@ export const OrdersList: React.FC = () => {
                                     Cancelled on {ord.date}
                                   </span>
                                 </div>
-                                <p className="text-xs text-slate-500 pl-4.5">
-                                  Your order was cancelled as per your request.
+                                <p className="text-xs text-slate-500 pl-4.5 leading-relaxed">
+                                  {isCod
+                                    ? "This Cash on Delivery order was cancelled. No refund required."
+                                    : "If you were charged, a refund will be processed and credited to the original payment method within next 3–5 business days."}
                                 </p>
                               </>
                             )}
@@ -904,12 +914,12 @@ export const OrdersList: React.FC = () => {
                             {isPendingOrProcessing && (
                               <>
                                 <div className="flex items-center gap-2">
-                                  <span className="w-2.5 h-2.5 rounded-full bg-amber-500 shrink-0" />
+                                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shrink-0" />
                                   <span className="font-bold text-sm text-slate-900">
                                     Order Placed on {ord.date}
                                   </span>
                                 </div>
-                                <div className="pl-4.5 pt-1">
+                                <div className="pl-4.5 pt-1 flex items-center gap-3">
                                   <span className="text-xs font-bold text-[#2563EB] hover:underline">
                                     Track Order Status
                                   </span>
@@ -989,6 +999,31 @@ export const OrdersList: React.FC = () => {
           isOpen={!!reviewProduct}
           product={reviewProduct}
           onClose={() => setReviewProduct(null)}
+        />
+      )}
+
+      {/* Cancellation Modal */}
+      {cancellingOrder && (
+        <OrderCancellationModal
+          isOpen={!!cancellingOrder}
+          onClose={() => setCancellingOrder(null)}
+          order={cancellingOrder}
+          onSuccess={(res) => {
+            setAllUserOrders((prev) =>
+              prev.map((o) =>
+                o.id === cancellingOrder.id || o.orderNumber === cancellingOrder.orderNumber
+                  ? {
+                      ...o,
+                      status: "Cancelled",
+                      cancellationReferenceId: res.cancellationReferenceId,
+                    }
+                  : o
+              )
+            );
+            if (typeof window !== "undefined") {
+              window.dispatchEvent(new Event("prayog_orders_updated"));
+            }
+          }}
         />
       )}
     </div>

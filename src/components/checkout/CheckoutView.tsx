@@ -12,6 +12,7 @@ import { CheckoutAuthGate } from "@/components/checkout/CheckoutAuthGate";
 import { MOCK_SAVED_ADDRESSES, Address } from "@/data/accountData";
 import { createCustomerOrder } from "@/lib/apiServices";
 import { TruckLoader } from "@/components/TruckLoader";
+import { OrderCancellationModal } from "@/components/orders/OrderCancellationModal";
 import {
   ShoppingBag,
   ShoppingCart,
@@ -727,6 +728,11 @@ export const CheckoutView: React.FC = () => {
   };
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isOrderPlacedDemo, setIsOrderPlacedDemo] = useState(false);
+  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
+  const [cancelledOrderInfo, setCancelledOrderInfo] = useState<{
+    referenceId: string;
+    refundStatus: string;
+  } | null>(null);
   const [placedOrderNumber, setPlacedOrderNumber] = useState<string | null>(
     null,
   );
@@ -1399,12 +1405,25 @@ export const CheckoutView: React.FC = () => {
         {/* Header with Animated Delivery Truck */}
         <div className="bg-white border border-slate-200/80 rounded-2xl p-5 sm:p-6 shadow-xs mb-4 sm:mb-5 flex flex-col md:flex-row items-center justify-between gap-5 bg-gradient-to-br from-slate-50/70 via-white to-blue-50/20">
           <div className="space-y-2 text-center md:text-left min-w-0">
-            <div className="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-700 border border-emerald-200/80 px-2.5 py-0.5 rounded-full text-[11px] font-bold">
-              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-              <span>Order Confirmed</span>
+            <div className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold ${
+              cancelledOrderInfo
+                ? "bg-rose-50 text-rose-700 border border-rose-200/80"
+                : "bg-emerald-50 text-emerald-700 border border-emerald-200/80"
+            }`}>
+              {cancelledOrderInfo ? (
+                <>
+                  <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
+                  <span>Order Cancelled</span>
+                </>
+              ) : (
+                <>
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                  <span>Order Confirmed</span>
+                </>
+              )}
             </div>
             <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-              Thank you for your order!
+              {cancelledOrderInfo ? "Order Cancelled Successfully" : "Thank you for your order!"}
             </h1>
 
             <div className="inline-flex items-center gap-2 bg-slate-50 border border-slate-200/80 rounded-lg px-3 py-1.5 text-xs text-slate-600">
@@ -1432,6 +1451,25 @@ export const CheckoutView: React.FC = () => {
             <TruckLoader bare message="" subtitle="" />
           </div>
         </div>
+
+        {/* Cancellation Details Alert (when cancelled) */}
+        {cancelledOrderInfo && (
+          <div className="bg-rose-50 border border-rose-200 rounded-2xl p-4 sm:p-5 text-xs text-rose-950 space-y-2 mb-4">
+            <div className="flex items-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-rose-500 shrink-0" />
+              <h3 className="font-bold text-sm text-rose-900">Your cancellation has been processed</h3>
+            </div>
+            <p className="text-slate-600 leading-relaxed font-normal">
+              {paymentMethod === "cod"
+                ? "This Cash on Delivery order was cancelled. No payment was collected."
+                : "If payment was deducted, your refund has been initiated to the original payment method and will reflect in 3–5 business days."}
+            </p>
+            <div className="pt-1 flex flex-wrap items-center gap-4 text-[11px] font-mono text-slate-500">
+              <span>Cancellation Ref: <strong className="text-slate-800">{cancelledOrderInfo.referenceId}</strong></span>
+              <span>Refund Status: <strong className="text-emerald-700">{cancelledOrderInfo.refundStatus}</strong></span>
+            </div>
+          </div>
+        )}
 
         {/* Single Unified Order Card */}
         <div className="bg-white border border-slate-200/80 rounded-2xl shadow-xs divide-y divide-slate-100 overflow-hidden">
@@ -1626,14 +1664,16 @@ export const CheckoutView: React.FC = () => {
 
         {/* Action Buttons */}
         <div className="mt-5 flex flex-col sm:flex-row items-center justify-center gap-2.5">
-          <Link
-            href="/track-order"
-            className="w-full sm:w-auto min-w-44 bg-[#2563EB] hover:bg-[#1D4ED8] active:bg-[#1E40AF] text-white font-bold py-2.5 px-5 rounded-xl text-xs flex items-center justify-center gap-2 transition-all shadow-sm cursor-pointer"
-          >
-            <Truck className="w-4 h-4" />
-            <span>Track Shipment</span>
-            <ArrowRight className="w-3.5 h-3.5" />
-          </Link>
+          {!cancelledOrderInfo && (
+            <Link
+              href="/track-order"
+              className="w-full sm:w-auto min-w-44 bg-[#2563EB] hover:bg-[#1D4ED8] active:bg-[#1E40AF] text-white font-bold py-2.5 px-5 rounded-xl text-xs flex items-center justify-center gap-2 transition-all shadow-sm cursor-pointer"
+            >
+              <Truck className="w-4 h-4" />
+              <span>Track Shipment</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          )}
           <Link
             href="/account/orders"
             className="w-full sm:w-auto min-w-36 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-bold py-2.5 px-4 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
@@ -1647,7 +1687,46 @@ export const CheckoutView: React.FC = () => {
           >
             Continue Shopping →
           </Link>
+          {!cancelledOrderInfo && (
+            <button
+              type="button"
+              onClick={() => setIsCancelModalOpen(true)}
+              className="w-full sm:w-auto text-xs font-bold text-rose-600 hover:text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200/80 py-2.5 px-4 rounded-xl transition-all cursor-pointer"
+            >
+              Cancel Order
+            </button>
+          )}
         </div>
+
+        {/* Cancellation Modal */}
+        {isCancelModalOpen && (
+          <OrderCancellationModal
+            isOpen={isCancelModalOpen}
+            onClose={() => setIsCancelModalOpen(false)}
+            order={{
+              id: placedOrderNumber || "PRG-2026-6516",
+              orderNumber: placedOrderNumber || "PRG-2026-6516",
+              status: "Processing",
+              totalAmount: placedOrderTotal || 241,
+              paymentMethod: paymentMethod === "cod" ? "Cash on Delivery" : "Prepaid",
+              items: displayItems.map((it: any) => ({
+                id: it.product?.id,
+                name: it.product?.name,
+                price: it.product?.price || it.price,
+                quantity: it.quantity,
+                sku: it.product?.sku,
+                image: it.product?.image,
+              })),
+            }}
+            onSuccess={(res) => {
+              setCancelledOrderInfo({
+                referenceId: res.cancellationReferenceId,
+                refundStatus: res.refundStatus,
+              });
+              setIsCancelModalOpen(false);
+            }}
+          />
+        )}
 
         {/* Support Footer */}
         <div className="text-center py-3 text-xs text-slate-400 flex items-center justify-center gap-1.5 mt-2">

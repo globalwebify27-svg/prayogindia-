@@ -1,4 +1,3 @@
-import { cookies } from "next/headers";
 import { Role } from "@prisma/client";
 
 export interface AdminSessionUser {
@@ -20,6 +19,7 @@ export { AUTH_STAFF_COOKIE_NAME };
  * Cryptographically verifies JWT session tokens
  */
 export async function getAuthenticatedAdmin(): Promise<AdminSessionUser | null> {
+  const { cookies } = await import("next/headers");
   const cookieStore = await cookies();
 
   // 1. Check primary staff session cookie first

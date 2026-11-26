@@ -14,7 +14,6 @@ import {
   FileText,
   Headphones,
   LogOut,
-  ChevronRight,
 } from "lucide-react";
 
 export const AccountSidebar: React.FC = () => {
@@ -88,10 +87,6 @@ export const AccountSidebar: React.FC = () => {
                   />
                   <span className="truncate">{item.label}</span>
                 </div>
-
-                {!isActive && (
-                  <ChevronRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-slate-700 group-hover:translate-x-0.5 transition-all shrink-0" />
-                )}
               </Link>
             );
           })}
