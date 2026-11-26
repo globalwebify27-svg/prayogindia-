@@ -328,15 +328,15 @@ export const B2BModal: React.FC<B2BModalProps> = ({
   return createPortal(
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-[100] overflow-hidden flex justify-start">
+        <div className="fixed inset-0 z-[110] overflow-hidden flex justify-start">
           {/* Backdrop Overlay */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.25 }}
+            transition={{ duration: 0.35, ease: "easeOut" }}
             onClick={onClose}
-            className="fixed inset-0 bg-slate-950/60 backdrop-blur-xs"
+            className="fixed inset-0 bg-slate-950/60"
             aria-hidden="true"
           />
 
@@ -345,8 +345,12 @@ export const B2BModal: React.FC<B2BModalProps> = ({
             initial={{ x: "-100%" }}
             animate={{ x: 0 }}
             exit={{ x: "-100%" }}
-            transition={{ type: "spring", damping: 28, stiffness: 280 }}
-            className="relative w-full max-w-lg sm:max-w-xl h-full max-h-[100dvh] h-[100dvh] bg-white text-slate-900 shadow-2xl flex flex-col z-10 overflow-hidden border-r border-slate-200"
+            transition={{
+              type: "tween",
+              duration: 0.38,
+              ease: [0.16, 1, 0.3, 1],
+            }}
+            className="relative w-full max-w-lg sm:max-w-xl h-full max-h-[100dvh] h-[100dvh] bg-white text-slate-900 shadow-2xl flex flex-col z-10 overflow-hidden border-r border-slate-200 transform-gpu will-change-transform"
           >
             {/* Header */}
             <div className="px-4 sm:px-6 py-4 border-b border-slate-100 flex items-start justify-between bg-white shrink-0">

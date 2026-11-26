@@ -114,8 +114,12 @@ export const MobileMenuDrawer: React.FC<MobileMenuDrawerProps> = ({
             initial={{ x: "-100%" }}
             animate={{ x: 0 }}
             exit={{ x: "-100%" }}
-            transition={{ type: "spring", damping: 28, stiffness: 280 }}
-            className="relative w-[85vw] max-w-sm h-full max-h-[100dvh] h-[100dvh] bg-white text-slate-900 shadow-2xl flex flex-col z-10 overflow-hidden border-r border-slate-200"
+            transition={{
+              type: "tween",
+              duration: 0.35,
+              ease: [0.16, 1, 0.3, 1],
+            }}
+            className="relative w-[85vw] max-w-sm h-full max-h-[100dvh] h-[100dvh] bg-white text-slate-900 shadow-2xl flex flex-col z-10 overflow-hidden border-r border-slate-200 transform-gpu will-change-transform"
           >
             {/* Top Bar with Brand & Clean Round Close Button */}
             <div className="flex items-center justify-between px-4 py-3 bg-white border-b border-slate-100 shrink-0">
