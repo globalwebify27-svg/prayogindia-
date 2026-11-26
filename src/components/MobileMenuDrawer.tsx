@@ -196,18 +196,17 @@ export const MobileMenuDrawer: React.FC<MobileMenuDrawerProps> = ({
             <div className="flex-1 overflow-y-auto overscroll-contain overscroll-y-contain scrollbar-thin">
               {activeTab === "menu" ? (
                 /* ── MENU TAB CONTENT ── */
-                <div className="divide-y divide-slate-100 py-1">
-                  {/* 1. Home */}
+                <div className="divide-y divide-slate-100 pt-1 pb-2">
+                  {/* 1. Home (No Submenu -> No Arrow) */}
                   <Link
                     href="/"
                     onClick={onClose}
-                    className="flex items-center justify-between px-4 py-3 text-sm font-medium text-slate-700 hover:text-[#2563EB] hover:bg-slate-50/80 transition-colors group"
+                    className="flex items-center px-4 py-3 text-sm font-medium text-slate-700 hover:text-[#2563EB] hover:bg-slate-50/80 transition-colors group"
                   >
                     <div className="flex items-center gap-3">
-                      <Home className="w-4 h-4 text-slate-400 group-hover:text-[#2563EB] transition-colors" />
+                      <Home className="w-4 h-4 text-slate-400 group-hover:text-[#2563EB] transition-colors shrink-0" />
                       <span>Home</span>
                     </div>
-                    <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-slate-500" />
                   </Link>
 
                   {/* 2. Products & Hardware (with Desktop Submenu) */}
@@ -320,20 +319,18 @@ export const MobileMenuDrawer: React.FC<MobileMenuDrawerProps> = ({
                       onClick={() => toggleAccordion("deals")}
                       className="w-full flex items-center justify-between px-4 py-3 text-sm font-medium text-slate-700 hover:text-red-600 hover:bg-red-50/50 transition-colors cursor-pointer group"
                     >
-                      <div className="flex items-center gap-3">
-                        <Flame className="w-4 h-4 text-red-500 group-hover:text-red-600 transition-colors" />
-                        <span>Top Deals</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span className="px-2 py-0.5 rounded-full font-black text-[10px] bg-gradient-to-r from-red-600 via-rose-600 to-amber-600 text-white uppercase tracking-wider shadow-2xs">
-                          Top Deals
+                      <div className="flex items-center gap-3 min-w-0">
+                        <Flame className="w-4 h-4 text-red-500 group-hover:text-red-600 transition-colors shrink-0" />
+                        <span className="font-medium">Top Deals</span>
+                        <span className="px-1.5 py-0.5 rounded-full font-black text-[9px] bg-gradient-to-r from-red-600 via-rose-600 to-amber-600 text-white uppercase tracking-wider shadow-2xs shrink-0">
+                          Hot
                         </span>
-                        <ChevronDown
-                          className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${
-                            activeAccordion === "deals" ? "rotate-180 text-red-600" : ""
-                          }`}
-                        />
                       </div>
+                      <ChevronDown
+                        className={`w-4 h-4 text-slate-400 transition-transform duration-200 shrink-0 ${
+                          activeAccordion === "deals" ? "rotate-180 text-red-600" : ""
+                        }`}
+                      />
                     </button>
 
                     <AnimatePresence>
@@ -396,20 +393,15 @@ export const MobileMenuDrawer: React.FC<MobileMenuDrawerProps> = ({
                       onClick={() => toggleAccordion("services")}
                       className="w-full flex items-center justify-between px-4 py-3 text-sm font-medium text-slate-700 hover:text-[#2563EB] hover:bg-blue-50/40 transition-colors cursor-pointer group"
                     >
-                      <div className="flex items-center gap-3">
-                        <Wrench className="w-4 h-4 text-slate-400 group-hover:text-[#2563EB] transition-colors" />
-                        <span>Lab Setup &amp; Services</span>
+                      <div className="flex items-center gap-3 min-w-0">
+                        <Wrench className="w-4 h-4 text-slate-400 group-hover:text-[#2563EB] transition-colors shrink-0" />
+                        <span className="truncate">Lab Setup &amp; Services</span>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <span className="px-2 py-0.5 rounded-full font-bold text-[10px] bg-[#EFF6FF] text-[#2563EB] border border-blue-100">
-                          Services
-                        </span>
-                        <ChevronDown
-                          className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${
-                            activeAccordion === "services" ? "rotate-180 text-[#2563EB]" : ""
-                          }`}
-                        />
-                      </div>
+                      <ChevronDown
+                        className={`w-4 h-4 text-slate-400 transition-transform duration-200 shrink-0 ${
+                          activeAccordion === "services" ? "rotate-180 text-[#2563EB]" : ""
+                        }`}
+                      />
                     </button>
 
                     <AnimatePresence>
@@ -646,22 +638,19 @@ export const MobileMenuDrawer: React.FC<MobileMenuDrawerProps> = ({
                     </AnimatePresence>
                   </div>
 
-                  {/* 8. Store Location */}
+                  {/* 8. Store Location (No Submenu -> No Arrow) */}
                   <Link
                     href="/walk-in"
                     onClick={onClose}
                     className="flex items-center justify-between px-4 py-3 text-sm font-medium text-slate-800 hover:bg-amber-50/60 transition-colors group"
                   >
-                    <div className="flex items-center gap-3">
-                      <MapPin className="w-4 h-4 text-amber-500 group-hover:text-amber-600 transition-colors" />
-                      <span>Store Location</span>
+                    <div className="flex items-center gap-3 min-w-0">
+                      <MapPin className="w-4 h-4 text-amber-500 group-hover:text-amber-600 transition-colors shrink-0" />
+                      <span className="truncate">Store Location</span>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <span className="px-2.5 py-0.5 rounded-full font-bold text-[11px] bg-[#FFC20E] text-slate-900 shadow-2xs">
-                        Store
-                      </span>
-                      <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-slate-500" />
-                    </div>
+                    <span className="px-2.5 py-1 rounded-full font-bold text-[11px] bg-[#FFC20E] text-slate-900 shadow-2xs shrink-0">
+                      Visit
+                    </span>
                   </Link>
 
                   {/* My Account (Clean Profile Accordion, No Navy Box) */}
@@ -782,11 +771,7 @@ export const MobileMenuDrawer: React.FC<MobileMenuDrawerProps> = ({
                                 }`}
                               />
                             </button>
-                          ) : (
-                            <div className="px-4 text-slate-300">
-                              <ChevronRight className="w-4 h-4" />
-                            </div>
-                          )}
+                          ) : null}
                         </div>
 
                         {hasSubs && (
