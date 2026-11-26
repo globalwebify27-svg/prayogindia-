@@ -496,42 +496,7 @@ export const OrdersList: React.FC = () => {
         </div>
       )}
 
-      {/* ── 2. Prayog India Signature Search Bar (Rounded-2xl with #2563EB CTA) ── */}
-      <div className="bg-white border border-slate-200/90 rounded-2xl shadow-2xs p-1.5 flex items-center gap-2">
-        <div className="relative flex-1 flex items-center">
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => {
-              setSearchQuery(e.target.value);
-              setPage(1);
-            }}
-            placeholder="Search your orders here"
-            className="w-full px-4 py-2.5 text-xs sm:text-sm text-slate-900 placeholder-slate-400 focus:outline-none bg-transparent"
-          />
-          {searchQuery && (
-            <button
-              type="button"
-              onClick={() => {
-                setSearchQuery("");
-                setPage(1);
-              }}
-              className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1 cursor-pointer"
-              title="Clear Search"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          )}
-        </div>
-        <button
-          type="button"
-          onClick={() => setPage(1)}
-          className="bg-[#2563EB] hover:bg-[#1D4ED8] active:bg-[#1E40AF] text-white px-5 sm:px-7 py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 cursor-pointer transition-all shadow-xs shrink-0 active:scale-95"
-        >
-          <Search className="w-4 h-4" />
-          <span className="hidden sm:inline">Search Orders</span>
-        </button>
-      </div>
+
 
       {/* ── 3. Main Prayog Orders List (Rounded-2xl Cards) ── */}
       {loading ? (
