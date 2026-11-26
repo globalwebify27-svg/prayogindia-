@@ -13,23 +13,15 @@ import {
   ShoppingBag,
   Heart,
   User,
-  LogIn,
-  UserPlus,
   LogOut,
   PhoneCall,
   Building2,
-  Truck,
-  ShieldCheck,
   BookOpen,
-  Package,
   MapPin,
-  CreditCard,
-  Gift,
   Home,
-  Bot,
-  Plane,
-  Store,
   Info,
+  Flame,
+  Wrench,
 } from "lucide-react";
 import { PrayogLogo } from "./PrayogLogo";
 import { CATEGORIES_DATA } from "@/data/categories";
@@ -205,169 +197,95 @@ export const MobileMenuDrawer: React.FC<MobileMenuDrawerProps> = ({
               {activeTab === "menu" ? (
                 /* ── MENU TAB CONTENT ── */
                 <div className="divide-y divide-slate-100 py-1">
-                  {/* Home */}
+                  {/* 1. Home */}
                   <Link
                     href="/"
-                    onClick={onClose}
-                    className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-slate-700 hover:text-[#2563EB] hover:bg-slate-50/80 transition-colors group"
-                  >
-                    <Home className="w-4 h-4 text-slate-400 group-hover:text-[#2563EB] transition-colors" />
-                    <span>Home</span>
-                  </Link>
-
-                  {/* Store */}
-                  <Link
-                    href="/products"
-                    onClick={onClose}
-                    className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-slate-700 hover:text-[#2563EB] hover:bg-slate-50/80 transition-colors group"
-                  >
-                    <Store className="w-4 h-4 text-slate-400 group-hover:text-[#2563EB] transition-colors" />
-                    <span>Store</span>
-                  </Link>
-
-                  {/* AI Robots */}
-                  <Link
-                    href="/categories/robotics"
-                    onClick={onClose}
-                    className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-slate-700 hover:text-[#2563EB] hover:bg-slate-50/80 transition-colors group"
-                  >
-                    <Bot className="w-4 h-4 text-slate-400 group-hover:text-[#2563EB] transition-colors" />
-                    <span>AI Robots</span>
-                  </Link>
-
-                  {/* Popular Services (Clean Accordion, Zero Dark Navy Box) */}
-                  <div>
-                    <button
-                      type="button"
-                      onClick={() => toggleAccordion("services")}
-                      className="w-full flex items-center justify-between px-4 py-3 text-sm font-medium text-slate-700 hover:text-[#2563EB] hover:bg-slate-50/80 transition-colors cursor-pointer group"
-                    >
-                      <div className="flex items-center gap-3">
-                        <Package className="w-4 h-4 text-slate-400 group-hover:text-[#2563EB] transition-colors" />
-                        <span>Popular Services</span>
-                      </div>
-                      <ChevronDown
-                        className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${
-                          activeAccordion === "services" ? "rotate-180 text-[#2563EB]" : ""
-                        }`}
-                      />
-                    </button>
-
-                    <AnimatePresence>
-                      {activeAccordion === "services" && (
-                        <motion.div
-                          initial={{ height: 0, opacity: 0 }}
-                          animate={{ height: "auto", opacity: 1 }}
-                          exit={{ height: 0, opacity: 0 }}
-                          className="divide-y divide-slate-100 bg-slate-50/60 pl-11 pr-4 py-1 border-t border-slate-100"
-                        >
-                          <Link
-                            href="/services/drone-lab-setup"
-                            onClick={onClose}
-                            className="block py-2.5 text-xs text-slate-600 font-medium hover:text-[#2563EB] transition-colors"
-                          >
-                            Drone Repair &amp; Maintenance
-                          </Link>
-                          <Link
-                            href="/services/drone-lab-setup"
-                            onClick={onClose}
-                            className="block py-2.5 text-xs text-slate-600 font-medium hover:text-[#2563EB] transition-colors"
-                          >
-                            Drone Pilot Training &amp; Certification
-                          </Link>
-                          <Link
-                            href="/services/consultancy"
-                            onClick={onClose}
-                            className="block py-2.5 text-xs text-slate-600 font-medium hover:text-[#2563EB] transition-colors"
-                          >
-                            Drone Insurance &amp; Compliance
-                          </Link>
-                          <Link
-                            href="/services/stem-lab-setup"
-                            onClick={onClose}
-                            className="block py-2.5 text-xs text-slate-600 font-medium hover:text-[#2563EB] transition-colors"
-                          >
-                            STEM &amp; Atal Tinkering Labs
-                          </Link>
-                          <Link
-                            href="/services/robotics-lab-setup"
-                            onClick={onClose}
-                            className="block py-2.5 text-xs text-slate-600 font-medium hover:text-[#2563EB] transition-colors"
-                          >
-                            Robotics &amp; AI Lab Setup
-                          </Link>
-                          <Link
-                            href="/services/industrial-projects"
-                            onClick={onClose}
-                            className="block py-2.5 text-xs text-slate-600 font-medium hover:text-[#2563EB] transition-colors"
-                          >
-                            Industrial Projects &amp; R&amp;D
-                          </Link>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </div>
-
-                  {/* Drone Services */}
-                  <Link
-                    href="/services/drone-lab-setup"
                     onClick={onClose}
                     className="flex items-center justify-between px-4 py-3 text-sm font-medium text-slate-700 hover:text-[#2563EB] hover:bg-slate-50/80 transition-colors group"
                   >
                     <div className="flex items-center gap-3">
-                      <Plane className="w-4 h-4 text-slate-400 group-hover:text-[#2563EB] transition-colors" />
-                      <span>Drone Services</span>
+                      <Home className="w-4 h-4 text-slate-400 group-hover:text-[#2563EB] transition-colors" />
+                      <span>Home</span>
                     </div>
                     <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-slate-500" />
                   </Link>
 
-                  {/* Learning Hub */}
-                  <div className="border-b border-slate-100/80">
-                    <Link
-                      href="/learning"
-                      onClick={onClose}
-                      className="flex items-center justify-between px-4 py-3 text-sm font-medium text-slate-700 hover:text-[#2563EB] hover:bg-slate-50/80 transition-colors group"
-                    >
-                      <div className="flex items-center gap-3">
-                        <BookOpen className="w-4 h-4 text-slate-400 group-hover:text-[#2563EB] transition-colors" />
-                        <span>Learning Hub</span>
-                      </div>
-                      <div className="flex items-center gap-1.5">
-                        <span className="text-[10px] bg-emerald-50 text-emerald-700 border border-emerald-200/80 font-bold px-1.5 py-0.5 rounded-md">
-                          Programs
-                        </span>
-                        <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-slate-500" />
-                      </div>
-                    </Link>
-                    <div className="pl-11 pr-4 pb-2 space-y-1 text-xs">
-                      <Link
-                        href="/learning?tab=internship"
-                        onClick={onClose}
-                        className="flex items-center justify-between py-1.5 px-2.5 rounded-lg text-slate-600 hover:text-[#2563EB] hover:bg-blue-50/60 transition-colors"
-                      >
-                        <span>Internship Program</span>
-                        <ChevronRight className="w-3 h-3 text-slate-300" />
-                      </Link>
-                      <Link
-                        href="/learning?tab=workshops"
-                        onClick={onClose}
-                        className="flex items-center justify-between py-1.5 px-2.5 rounded-lg text-slate-600 hover:text-[#2563EB] hover:bg-blue-50/60 transition-colors"
-                      >
-                        <span>Workshops</span>
-                        <ChevronRight className="w-3 h-3 text-slate-300" />
-                      </Link>
-                      <Link
-                        href="/learning?tab=certifications"
-                        onClick={onClose}
-                        className="flex items-center justify-between py-1.5 px-2.5 rounded-lg text-slate-600 hover:text-[#2563EB] hover:bg-blue-50/60 transition-colors"
-                      >
-                        <span>Certifications</span>
-                        <ChevronRight className="w-3 h-3 text-slate-300" />
-                      </Link>
+                  {/* 2. Products & Hardware */}
+                  <Link
+                    href="/products"
+                    onClick={onClose}
+                    className="flex items-center justify-between px-4 py-3 text-sm font-medium text-slate-700 hover:text-[#2563EB] hover:bg-slate-50/80 transition-colors group"
+                  >
+                    <div className="flex items-center gap-3">
+                      <ShoppingBag className="w-4 h-4 text-slate-400 group-hover:text-[#2563EB] transition-colors" />
+                      <span>Products &amp; Hardware</span>
                     </div>
-                  </div>
+                    <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-slate-500" />
+                  </Link>
 
-                  {/* Contact */}
+                  {/* 3. Top Deals */}
+                  <Link
+                    href="/offers"
+                    onClick={onClose}
+                    className="flex items-center justify-between px-4 py-3 text-sm font-medium text-slate-700 hover:text-red-600 hover:bg-red-50/50 transition-colors group"
+                  >
+                    <div className="flex items-center gap-3">
+                      <Flame className="w-4 h-4 text-red-500 group-hover:text-red-600 transition-colors" />
+                      <span>Top Deals</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="px-2 py-0.5 rounded-full font-black text-[10px] bg-gradient-to-r from-red-600 via-rose-600 to-amber-600 text-white uppercase tracking-wider shadow-2xs">
+                        Top Deals
+                      </span>
+                      <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-slate-500" />
+                    </div>
+                  </Link>
+
+                  {/* 4. Lab Setup & Services */}
+                  <Link
+                    href="/services"
+                    onClick={onClose}
+                    className="flex items-center justify-between px-4 py-3 text-sm font-medium text-slate-700 hover:text-[#2563EB] hover:bg-blue-50/40 transition-colors group"
+                  >
+                    <div className="flex items-center gap-3">
+                      <Wrench className="w-4 h-4 text-slate-400 group-hover:text-[#2563EB] transition-colors" />
+                      <span>Lab Setup &amp; Services</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="px-2 py-0.5 rounded-full font-bold text-[10px] bg-[#EFF6FF] text-[#2563EB] border border-blue-100">
+                        Services
+                      </span>
+                      <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-slate-500" />
+                    </div>
+                  </Link>
+
+                  {/* 5. Learning Hub */}
+                  <Link
+                    href="/learning"
+                    onClick={onClose}
+                    className="flex items-center justify-between px-4 py-3 text-sm font-medium text-slate-700 hover:text-[#2563EB] hover:bg-slate-50/80 transition-colors group"
+                  >
+                    <div className="flex items-center gap-3">
+                      <BookOpen className="w-4 h-4 text-slate-400 group-hover:text-[#2563EB] transition-colors" />
+                      <span>Learning Hub</span>
+                    </div>
+                    <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-slate-500" />
+                  </Link>
+
+                  {/* 6. About */}
+                  <Link
+                    href="/about"
+                    onClick={onClose}
+                    className="flex items-center justify-between px-4 py-3 text-sm font-medium text-slate-700 hover:text-[#2563EB] hover:bg-slate-50/80 transition-colors group"
+                  >
+                    <div className="flex items-center gap-3">
+                      <Info className="w-4 h-4 text-slate-400 group-hover:text-[#2563EB] transition-colors" />
+                      <span>About</span>
+                    </div>
+                    <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-slate-500" />
+                  </Link>
+
+                  {/* 7. Contact */}
                   <Link
                     href="/contact"
                     onClick={onClose}
@@ -380,17 +298,22 @@ export const MobileMenuDrawer: React.FC<MobileMenuDrawerProps> = ({
                     <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-slate-500" />
                   </Link>
 
-                  {/* About */}
+                  {/* 8. Store Location */}
                   <Link
-                    href="/about"
+                    href="/walk-in"
                     onClick={onClose}
-                    className="flex items-center justify-between px-4 py-3 text-sm font-medium text-slate-700 hover:text-[#2563EB] hover:bg-slate-50/80 transition-colors group"
+                    className="flex items-center justify-between px-4 py-3 text-sm font-medium text-slate-800 hover:bg-amber-50/60 transition-colors group"
                   >
                     <div className="flex items-center gap-3">
-                      <Info className="w-4 h-4 text-slate-400 group-hover:text-[#2563EB] transition-colors" />
-                      <span>About Us</span>
+                      <MapPin className="w-4 h-4 text-amber-500 group-hover:text-amber-600 transition-colors" />
+                      <span>Store Location</span>
                     </div>
-                    <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-slate-500" />
+                    <div className="flex items-center gap-2">
+                      <span className="px-2.5 py-0.5 rounded-full font-bold text-[11px] bg-[#FFC20E] text-slate-900 shadow-2xs">
+                        Store
+                      </span>
+                      <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-slate-500" />
+                    </div>
                   </Link>
 
                   {/* My Account (Clean Profile Accordion, No Navy Box) */}
