@@ -212,6 +212,7 @@ export const B2BModal: React.FC<B2BModalProps> = ({
       case "customerName":
         if (!trimmed) return "Contact person name is required.";
         if (trimmed.length < 2) return "Contact person name must be at least 2 characters.";
+        if (!/[a-zA-Z]/.test(trimmed)) return "Contact person name must contain valid letters.";
         return undefined;
       case "phone": {
         if (!trimmed) return "Mobile number is required.";
@@ -610,7 +611,7 @@ export const B2BModal: React.FC<B2BModalProps> = ({
                           maxLength={10}
                           placeholder="10-digit mobile number"
                           value={phone}
-                          onChange={(e) => handleB2BChange("phone", e.target.value.replace(/\D/g, ""), setPhone)}
+                          onChange={(e) => handleB2BChange("phone", e.target.value.replace(/\D/g, "").slice(0, 10), setPhone)}
                           onBlur={() => handleB2BBlur("phone", phone)}
                           aria-invalid={!!(touched.phone && fieldErrors.phone)}
                           className="w-full px-3 py-2 bg-slate-50/70 hover:bg-slate-50 focus:bg-white font-medium text-xs text-slate-900 outline-none transition-all placeholder:text-slate-400 placeholder:font-normal"

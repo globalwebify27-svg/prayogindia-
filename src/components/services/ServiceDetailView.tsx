@@ -81,13 +81,13 @@ export const ServiceDetailView: React.FC<ServiceDetailProps> = ({ slug }) => {
       case "name":
         if (!trimmed) return "Contact person name is required.";
         if (trimmed.length < 2) return "Contact person name must be at least 2 characters.";
+        if (!/[a-zA-Z]/.test(trimmed)) return "Contact person name must contain valid letters.";
         return undefined;
       case "phone": {
-        if (!trimmed) return "Phone / WhatsApp number is required.";
-        const cleaned = trimmed.replace(/[\s\-\(\)\+]/g, "").replace(/^(?:91|0)/, "");
-        if (!/^[6-9]\d{9}$/.test(cleaned)) {
-          return "Enter a valid 10-digit Indian phone/WhatsApp number (e.g. 9876543210).";
-        }
+        const cleaned = trimmed.replace(/\D/g, "");
+        if (!cleaned) return "Phone / WhatsApp number is required.";
+        if (cleaned.length !== 10) return "Phone number must be exactly 10 digits.";
+        if (!/^[6-9]/.test(cleaned)) return "Indian mobile numbers must start with 6, 7, 8, or 9.";
         return undefined;
       }
       case "email": {
@@ -683,24 +683,29 @@ export const ServiceDetailView: React.FC<ServiceDetailProps> = ({ slug }) => {
                       <label className="block font-bold text-slate-700 text-[10px] sm:text-[11px] uppercase tracking-wider mb-1">
                         Phone / WhatsApp <span className="text-rose-500">*</span>
                       </label>
-                      <div className="relative">
-                        <Phone className={`w-3.5 h-3.5 absolute left-3 top-2.5 transition-colors ${
-                          touched.phone && fieldErrors.phone ? "text-rose-500" : "text-slate-400"
-                        }`} />
+                      <div className={`flex rounded-lg border overflow-hidden transition-all ${
+                        touched.phone && fieldErrors.phone
+                          ? "border-rose-400 bg-rose-50/20 ring-2 ring-rose-400"
+                          : "border-slate-200 focus-within:ring-2 focus-within:ring-[#00AEEF] focus-within:border-[#00AEEF]"
+                      }`}>
+                        <span className="bg-slate-100 text-slate-500 font-bold px-2.5 py-2 border-r border-slate-200 flex items-center select-none text-xs shrink-0">
+                          <Phone className="w-3 h-3 text-slate-400 mr-1.5" />
+                          +91
+                        </span>
                         <input
                           ref={phoneInputRef}
                           type="tel"
-                          maxLength={15}
-                          placeholder="+91..."
+                          inputMode="numeric"
+                          maxLength={10}
+                          placeholder="9876543210"
                           value={formPhone}
-                          onChange={(e) => handleChange("phone", e.target.value, setFormPhone)}
+                          onChange={(e) => {
+                            const digitsOnly = e.target.value.replace(/\D/g, "").slice(0, 10);
+                            handleChange("phone", digitsOnly, setFormPhone);
+                          }}
                           onBlur={() => handleBlur("phone", formPhone)}
                           aria-invalid={!!(touched.phone && fieldErrors.phone)}
-                          className={`w-full pl-9 pr-3 py-2 rounded-lg border font-medium transition-all text-xs placeholder:text-slate-400 outline-none ${
-                            touched.phone && fieldErrors.phone
-                              ? "border-rose-400 bg-rose-50/20 text-slate-900 focus:ring-2 focus:ring-rose-400"
-                              : "bg-slate-50 text-slate-900 border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#00AEEF] focus:bg-white"
-                          }`}
+                          className="w-full px-3 py-2 bg-slate-50 text-slate-900 font-medium transition-all text-xs placeholder:text-slate-400 outline-none focus:bg-white"
                         />
                       </div>
                       {touched.phone && fieldErrors.phone && (
