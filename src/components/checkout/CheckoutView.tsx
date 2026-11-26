@@ -1406,9 +1406,6 @@ export const CheckoutView: React.FC = () => {
             <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
               Thank you for your order!
             </h1>
-            <p className="text-xs sm:text-sm text-slate-500 max-w-sm">
-              We&apos;ve received your order and are packing it for express dispatch.
-            </p>
 
             <div className="inline-flex items-center gap-2 bg-slate-50 border border-slate-200/80 rounded-lg px-3 py-1.5 text-xs text-slate-600">
               <span className="text-slate-400 font-medium">Order Ref:</span>
