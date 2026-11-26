@@ -170,7 +170,7 @@ export default function QuotationsPage() {
   const fetchQuotations = async () => {
     setLoading(true);
     try {
-      const url = `/api/admin/quotations?status=${statusFilter}&storeId=${storeFilter}&search=${encodeURIComponent(searchQuery)}`;
+      const url = `/api/admin/quotations?status=all&storeId=${storeFilter}`;
       const res = await fetch(url);
       const data = await res.json();
       if (data.success && data.data?.items) {
@@ -185,7 +185,7 @@ export default function QuotationsPage() {
 
   useEffect(() => {
     fetchQuotations();
-  }, [statusFilter, storeFilter]);
+  }, [storeFilter]);
 
   const handleAddItem = (product: Product) => {
     setItems((prev) => [
@@ -376,17 +376,7 @@ export default function QuotationsPage() {
   const formTax = Math.round(formSubtotal * (gstRate / 100));
   const formGrandTotal = formSubtotal + formTax + Number(shippingFee);
 
-  const filteredQuotes = quotations.filter((q) => {
-    if (!searchQuery) return true;
-    const s = searchQuery.toLowerCase();
-    return (
-      q.quoteNumber?.toLowerCase().includes(s) ||
-      q.companyName?.toLowerCase().includes(s) ||
-      q.customerName?.toLowerCase().includes(s) ||
-      q.customerEmail?.toLowerCase().includes(s)
-    );
-  });
-
+  const totalCount = quotations.length;
   const requestedCount = useMemo(
     () => quotations.filter((q) => q.status === "REQUESTED").length,
     [quotations],
@@ -402,9 +392,34 @@ export default function QuotationsPage() {
       ).length,
     [quotations],
   );
+  const convertedCount = useMemo(
+    () => quotations.filter((q) => q.status === "CONVERTED").length,
+    [quotations],
+  );
+
+  const filteredQuotes = useMemo(() => {
+    return quotations.filter((q) => {
+      if (statusFilter !== "all") {
+        if (statusFilter === "ACCEPTED") {
+          if (q.status !== "ACCEPTED" && q.status !== "CONVERTED") return false;
+        } else if (q.status !== statusFilter) {
+          return false;
+        }
+      }
+      if (!searchQuery.trim()) return true;
+      const s = searchQuery.toLowerCase().trim();
+      return (
+        q.quoteNumber?.toLowerCase().includes(s) ||
+        q.companyName?.toLowerCase().includes(s) ||
+        q.customerName?.toLowerCase().includes(s) ||
+        q.customerEmail?.toLowerCase().includes(s) ||
+        q.customerPhone?.includes(s)
+      );
+    });
+  }, [quotations, statusFilter, searchQuery]);
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-300">
+    <div className="space-y-6">
       {/* Top Header */}
       <div className="bg-[#0F172A] text-white p-6 rounded-3xl border border-slate-800 shadow-xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
@@ -424,7 +439,7 @@ export default function QuotationsPage() {
             setIsCreatingNew(true);
             setSelectedDoc(null);
           }}
-          className="bg-[#00AEEF] hover:bg-[#0096D6] text-white text-xs font-extrabold px-4 py-2.5 rounded-2xl flex items-center gap-2 shadow-md cursor-pointer transition-all active:scale-95"
+          className="bg-[#00AEEF] hover:bg-[#0096D6] text-white text-xs font-extrabold px-4 py-2.5 rounded-2xl flex items-center gap-2 shadow-md cursor-pointer transition-colors duration-150 active:scale-95"
         >
           <Plus className="w-4 h-4" />
           <span>Generate New Quotation</span>
@@ -435,7 +450,7 @@ export default function QuotationsPage() {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <div
           onClick={() => setStatusFilter("all")}
-          className={`p-4 sm:p-5 rounded-2xl border transition-all cursor-pointer shadow-2xs ${
+          className={`p-4 sm:p-5 rounded-2xl border transition-colors duration-150 cursor-pointer shadow-2xs ${
             statusFilter === "all"
               ? "bg-white border-[#00AEEF] ring-2 ring-[#00AEEF]/20"
               : "bg-white border-slate-200 hover:border-slate-300"
@@ -445,13 +460,13 @@ export default function QuotationsPage() {
             Total B2B Enquiries
           </span>
           <div className="text-2xl sm:text-3xl font-black text-slate-900 mt-1">
-            {quotations.length}
+            {totalCount}
           </div>
         </div>
 
         <div
           onClick={() => setStatusFilter("REQUESTED")}
-          className={`p-4 sm:p-5 rounded-2xl border transition-all cursor-pointer shadow-2xs ${
+          className={`p-4 sm:p-5 rounded-2xl border transition-colors duration-150 cursor-pointer shadow-2xs ${
             statusFilter === "REQUESTED"
               ? "bg-amber-500 text-white border-amber-600 ring-2 ring-amber-400/40"
               : "bg-white border-slate-200 hover:border-amber-400"
@@ -480,7 +495,7 @@ export default function QuotationsPage() {
 
         <div
           onClick={() => setStatusFilter("SENT")}
-          className={`p-4 sm:p-5 rounded-2xl border transition-all cursor-pointer shadow-2xs ${
+          className={`p-4 sm:p-5 rounded-2xl border transition-colors duration-150 cursor-pointer shadow-2xs ${
             statusFilter === "SENT"
               ? "bg-blue-600 text-white border-blue-700 ring-2 ring-blue-400/40"
               : "bg-white border-slate-200 hover:border-blue-400"
@@ -504,7 +519,7 @@ export default function QuotationsPage() {
 
         <div
           onClick={() => setStatusFilter("ACCEPTED")}
-          className={`p-4 sm:p-5 rounded-2xl border transition-all cursor-pointer shadow-2xs ${
+          className={`p-4 sm:p-5 rounded-2xl border transition-colors duration-150 cursor-pointer shadow-2xs ${
             statusFilter === "ACCEPTED" || statusFilter === "CONVERTED"
               ? "bg-emerald-600 text-white border-emerald-700 ring-2 ring-emerald-400/40"
               : "bg-white border-slate-200 hover:border-emerald-400"
@@ -1217,7 +1232,7 @@ export default function QuotationsPage() {
           {/* Quick Stage Filter Tabs */}
           <div className="flex flex-wrap items-center gap-2">
             {[
-              { id: "all", label: "All Enquiries & Quotes", count: quotations.length },
+              { id: "all", label: "All Enquiries & Quotes", count: totalCount },
               {
                 id: "REQUESTED",
                 label: "New Customer Enquiries",
@@ -1229,22 +1244,23 @@ export default function QuotationsPage() {
               {
                 id: "CONVERTED",
                 label: "Converted Orders",
-                count: quotations.filter((q) => q.status === "CONVERTED").length,
+                count: convertedCount,
               },
             ].map((tab) => {
               const active = statusFilter === tab.id;
               return (
                 <button
                   key={tab.id}
+                  type="button"
                   onClick={() => setStatusFilter(tab.id)}
-                  className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-2xs ${
+                  className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-colors duration-150 cursor-pointer shadow-2xs border ${
                     active
                       ? tab.isHot
-                        ? "bg-amber-500 text-white shadow-md shadow-amber-500/20 ring-2 ring-amber-400"
-                        : "bg-[#00AEEF] text-white shadow-md shadow-[#00AEEF]/20 ring-2 ring-[#00AEEF]/30"
+                        ? "border-transparent bg-amber-500 text-white shadow-md shadow-amber-500/20 ring-2 ring-amber-400"
+                        : "border-transparent bg-[#00AEEF] text-white shadow-md shadow-[#00AEEF]/20 ring-2 ring-[#00AEEF]/30"
                       : tab.isHot
-                        ? "bg-amber-50 text-amber-800 border border-amber-200 hover:bg-amber-100"
-                        : "bg-white hover:bg-slate-50 text-slate-700 border border-slate-200"
+                        ? "border-amber-200 bg-amber-50 text-amber-800 hover:bg-amber-100"
+                        : "border-slate-200 bg-white hover:bg-slate-50 text-slate-700"
                   }`}
                 >
                   <span>{tab.label}</span>
@@ -1313,7 +1329,7 @@ export default function QuotationsPage() {
             </div>
           </div>
 
-          <div className="bg-white rounded-3xl border border-slate-200 shadow-xs overflow-hidden">
+          <div className="bg-white rounded-3xl border border-slate-200 shadow-xs overflow-hidden min-h-[420px] flex flex-col">
             <div className="p-4 border-b border-slate-100 flex items-center justify-between">
               <h2 className="text-xs font-black uppercase text-slate-900">
                 B2B Enquiries &amp; Quotations Pipeline
@@ -1334,29 +1350,30 @@ export default function QuotationsPage() {
               </div>
             </div>
 
-            {loading ? (
-              <div className="p-12 text-center text-xs font-bold text-slate-400">
-                Loading quotations...
-              </div>
-            ) : filteredQuotes.length === 0 ? (
-              <div className="p-12 text-center space-y-2">
-                <FileText className="w-8 h-8 text-slate-300 mx-auto" />
-                <div className="text-xs font-bold text-slate-500">
-                  No quotations or enquiries found
+            <div className="flex-1 flex flex-col justify-start">
+              {loading ? (
+                <div className="p-16 text-center text-xs font-bold text-slate-400 m-auto">
+                  Loading quotations...
                 </div>
-              </div>
-            ) : (
-              <div className="divide-y divide-slate-100">
-                {filteredQuotes.map((doc) => (
-                  <div
-                    key={doc.id}
-                    onClick={() => setSelectedDoc(doc)}
-                    className={`p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-colors cursor-pointer ${
-                      doc.status === "REQUESTED"
-                        ? "bg-amber-50/60 hover:bg-amber-50 border-l-4 border-amber-500"
-                        : "hover:bg-slate-50"
-                    }`}
-                  >
+              ) : filteredQuotes.length === 0 ? (
+                <div className="p-16 text-center space-y-2 m-auto">
+                  <FileText className="w-8 h-8 text-slate-300 mx-auto" />
+                  <div className="text-xs font-bold text-slate-500">
+                    No quotations or enquiries found
+                  </div>
+                </div>
+              ) : (
+                <div className="divide-y divide-slate-100">
+                  {filteredQuotes.map((doc) => (
+                    <div
+                      key={doc.id}
+                      onClick={() => setSelectedDoc(doc)}
+                      className={`p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-colors cursor-pointer ${
+                        doc.status === "REQUESTED"
+                          ? "bg-amber-50/60 hover:bg-amber-50 border-l-4 border-amber-500"
+                          : "hover:bg-slate-50"
+                      }`}
+                    >
                     <div className="space-y-1.5 max-w-2xl">
                       <div className="flex flex-wrap items-center gap-2">
                         <span className="font-mono font-black text-slate-900 text-xs">
@@ -1476,6 +1493,7 @@ export default function QuotationsPage() {
                 ))}
               </div>
             )}
+            </div>
           </div>
         </div>
       )}

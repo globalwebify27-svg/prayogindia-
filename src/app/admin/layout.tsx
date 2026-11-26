@@ -74,7 +74,7 @@ export default function AdminLayout({
       />
 
       {/* Main Operational Container (Only this section scrolls) */}
-      <div className="flex-1 h-screen overflow-y-auto overflow-x-hidden flex flex-col min-w-0 bg-[#F4F6FC]">
+      <div className="flex-1 h-screen overflow-y-auto overflow-x-hidden [scrollbar-gutter:stable] flex flex-col min-w-0 bg-[#F4F6FC]">
         <AdminHeader
           adminUser={adminUser}
           onToggleMobileSidebar={() => setMobileSidebarOpen(true)}
