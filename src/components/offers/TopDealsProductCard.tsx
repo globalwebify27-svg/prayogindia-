@@ -15,6 +15,7 @@ import {
 import { Product } from "@/data/mockData";
 import { useCartStore, useWishlistStore } from "@/store";
 import { haptic } from "@/utils/haptics";
+import { triggerFlyToCart } from "@/utils/flyToCart";
 
 const WhatsAppIcon = ({ className = "w-3.5 h-3.5" }: { className?: string }) => (
   <svg
@@ -65,6 +66,9 @@ export const TopDealsProductCard: React.FC<TopDealsProductCardProps> = ({
     e.preventDefault();
     e.stopPropagation();
     haptic?.medium?.();
+
+    // Trigger arc flying animation into cart
+    triggerFlyToCart(e.currentTarget as HTMLElement, product.image);
 
     addToCart(product);
     setIsAdded(true);

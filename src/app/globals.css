@@ -375,6 +375,51 @@
   background-color: #ffffff;
 }
 
+/* Cart Button Landing Bump & Badge Pop Animations */
+@keyframes cartBounceBump {
+  0% {
+    transform: scale(1);
+  }
+  25% {
+    transform: scale(1.18);
+    filter: drop-shadow(0 0 10px rgba(0, 174, 239, 0.6));
+  }
+  50% {
+    transform: scale(0.94);
+  }
+  75% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 0px transparent);
+  }
+}
+
+@keyframes cartBadgePop {
+  0% {
+    transform: scale(1);
+  }
+  30% {
+    transform: scale(1.45);
+    box-shadow: 0 0 12px #FFC20E;
+  }
+  65% {
+    transform: scale(0.9);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.cart-bounce-bump {
+  animation: cartBounceBump 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards !important;
+}
+
+.cart-badge-pop {
+  animation: cartBadgePop 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards !important;
+}
+
 
 /* Horizontal Expanding Feature Card Accordion */
 .expanding-cards-track {

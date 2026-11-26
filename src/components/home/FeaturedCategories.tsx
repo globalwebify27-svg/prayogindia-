@@ -16,6 +16,7 @@ import { Product, PRODUCTS } from "@/data/mockData";
 import { isProductInCategory } from "@/lib/categoryMapping";
 import { useCartStore, useWishlistStore, useUIStore } from "@/store";
 import { haptic } from "@/utils/haptics";
+import { triggerFlyToCart } from "@/utils/flyToCart";
 import {
   getCachedPopularProducts,
   hasCachedPopularProducts,
@@ -422,6 +423,9 @@ const PopularProductCard: React.FC<PopularProductCardProps> = ({
     e.preventDefault();
     e.stopPropagation();
     haptic?.medium?.();
+
+    // Trigger arc flying animation into cart
+    triggerFlyToCart(e.currentTarget as HTMLElement, product.image);
 
     if (onAddToCart) {
       onAddToCart(product);

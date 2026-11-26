@@ -8,6 +8,7 @@ import { getOptimizedImageUrl } from "@/lib/cloudinaryUrl";
 import { Product } from "@/data/mockData";
 import { useCartStore, useWishlistStore } from "@/store";
 import { haptic } from "@/utils/haptics";
+import { triggerFlyToCart } from "@/utils/flyToCart";
 import { getRecentlyViewedProducts, recordProductView } from "@/utils/recentProducts";
 
 const WhatsAppIcon = ({ className = "w-3.5 h-3.5" }: { className?: string }) => (
@@ -161,6 +162,9 @@ export const BrowsingHistorySection: React.FC<BrowsingHistorySectionProps> = ({
     e.preventDefault();
     e.stopPropagation();
     haptic?.medium?.();
+
+    // Trigger arc flying animation into cart
+    triggerFlyToCart(e.currentTarget as HTMLElement, product.image);
 
     if (onAddToCart) {
       onAddToCart(product);

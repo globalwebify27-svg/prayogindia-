@@ -33,6 +33,7 @@ Info,
 } from "lucide-react";
 import { Product, ProductVariant, getProductStock } from "@/data/mockData";
 import { useUIStore, useCartStore } from "@/store";
+import { triggerFlyToCart } from "@/utils/flyToCart";
 
 // Official WhatsApp Vector SVG Icon
 const WhatsAppIcon = ({ className = "w-4 h-4" }: { className?: string }) => (
@@ -415,11 +416,15 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
     return `https://wa.me/918709789641?text=${encodeURIComponent(text)}`;
   };
 
-  const handleAddToCartClick = () => {
+  const handleAddToCartClick = (e?: React.MouseEvent) => {
     if (!currentStock || availableStock <= 0) {
       showStockLimitPopup(0);
       return;
     }
+
+    // Trigger professional arc flying animation to cart
+    const targetEl = (e?.currentTarget as HTMLElement) || document.getElementById("pdp-add-to-cart-btn");
+    triggerFlyToCart(targetEl, product.image);
 
     // Check cart contents to ensure total quantity doesn't exceed stock
     const cart = useCartStore.getState().cart;
@@ -682,6 +687,7 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
               </div>
             ) : (
               <button
+                id="pdp-add-to-cart-btn"
                 type="button"
                 onClick={handleAddToCartClick}
                 className={`flex-initial min-w-[140px] h-11 px-6 rounded-xl text-[15px] font-semibold whitespace-nowrap transition-all duration-200 ease-out flex items-center justify-center cursor-pointer select-none ${

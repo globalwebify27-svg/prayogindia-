@@ -559,6 +559,7 @@ export const Header: React.FC<HeaderProps> = ({
             {/* Right: Circular Cart Button with Floating Badge */}
             <button
               type="button"
+              data-cart-target="true"
               onClick={onOpenCart}
               className="relative w-9 h-9 rounded-full border border-slate-200/90 bg-white flex items-center justify-center text-slate-800 shadow-2xs hover:bg-slate-50 active:scale-95 transition-all cursor-pointer"
               aria-label="Shopping Cart"
@@ -661,6 +662,7 @@ export const Header: React.FC<HeaderProps> = ({
               </Link>
 
               <button
+                data-cart-target="true"
                 onClick={onOpenCart}
                 className="relative p-1.5 text-slate-700 hover:text-[#2563EB] cursor-pointer"
                 aria-label="Cart"
@@ -1675,6 +1677,8 @@ export const Header: React.FC<HeaderProps> = ({
 
             {/* Cart Button Pill */}
             <button
+              id="header-cart-btn"
+              data-cart-target="true"
               onClick={onOpenCart}
               className="relative flex items-center gap-2.5 px-4 py-2 bg-[#0A233F] hover:bg-[#12365D] text-white rounded-full font-black text-xs shadow-xs cursor-pointer active:scale-95 transition-all shrink-0"
               aria-label="Shopping Cart"

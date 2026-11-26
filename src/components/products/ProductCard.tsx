@@ -15,6 +15,7 @@ import {
 import { Product, getProductStock } from "@/data/mockData";
 import { useCartStore, useWishlistStore, useUIStore } from "@/store";
 import { haptic } from "@/utils/haptics";
+import { triggerFlyToCart } from "@/utils/flyToCart";
 import { AddToCartIcon } from "@/components/icons/AddToCartIcon";
 import { recordProductView } from "@/utils/recentProducts";
 
@@ -99,6 +100,9 @@ export const ProductCard: React.FC<ProductCardProps> = ({
     e.preventDefault();
     e.stopPropagation();
     haptic?.medium?.();
+
+    // Trigger professional parabolic arc flying animation into cart
+    triggerFlyToCart(e.currentTarget as HTMLElement, product.image);
 
     if (onAddToCart) {
       onAddToCart(product, selectedVariantId);
