@@ -653,13 +653,10 @@ export const OrdersList: React.FC = () => {
 
                       {isPendingOrProcessing && (
                         <div>
-                          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-50 text-amber-700 border border-amber-200/70 mb-1">
+                          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-50 text-amber-700 border border-amber-200/70">
                             <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
                             <span>Processing Order</span>
                           </div>
-                          <p className="text-xs text-slate-500 leading-relaxed font-normal">
-                            Preparing order at Prayog central warehouse for express dispatch
-                          </p>
                         </div>
                       )}
                     </div>
@@ -912,9 +909,6 @@ export const OrdersList: React.FC = () => {
                                     Order Placed on {ord.date}
                                   </span>
                                 </div>
-                                <p className="text-xs text-slate-500 pl-4.5">
-                                  Processing order at Prayog central warehouse
-                                </p>
                                 <div className="pl-4.5 pt-1">
                                   <span className="text-xs font-bold text-[#2563EB] hover:underline">
                                     Track Order Status
