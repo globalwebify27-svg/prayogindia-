@@ -355,7 +355,7 @@ export const AccountDashboardView: React.FC = () => {
       {/* ======================================================== */}
       {/* 1. TOP WELCOME HERO BANNER                              */}
       {/* ======================================================== */}
-      <div className="bg-gradient-to-r from-[#EBF3FE] via-[#E2EEFD] to-[#D5E6FC] rounded-2xl sm:rounded-3xl p-4 sm:p-5 lg:px-6 lg:py-5 border border-blue-100/60 shadow-xs relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between min-h-[105px] sm:min-h-[115px]">
+      <div className="bg-gradient-to-r from-[#EBF3FE] via-[#E2EEFD] to-[#D5E6FC] rounded-2xl sm:rounded-3xl p-4 sm:p-5 lg:px-6 lg:py-5 border-0 sm:border border-blue-100/60 shadow-xs relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between min-h-[105px] sm:min-h-[115px]">
         {/* Left Copy */}
         <div className="relative z-10 max-w-md sm:max-w-lg">
           <span className="text-xs sm:text-sm font-medium text-slate-600 tracking-tight block">
@@ -483,7 +483,7 @@ export const AccountDashboardView: React.FC = () => {
       {/* ======================================================== */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-3.5 sm:gap-4 items-start">
         {/* ── LEFT COLUMN: RECENT ORDERS (col-span-8) ── */}
-        <div className="lg:col-span-8 bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-5 border border-slate-100 shadow-xs space-y-3">
+        <div className="lg:col-span-8 bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-5 border-0 sm:border border-slate-100 shadow-xs space-y-3">
           {/* Header */}
           <div className="flex items-center justify-between pb-2.5 border-b border-slate-100">
             <h2 className="text-sm sm:text-base font-semibold text-slate-800 flex items-center gap-2 tracking-tight">
@@ -575,7 +575,7 @@ export const AccountDashboardView: React.FC = () => {
                     </div>
 
                     {/* Right: Status Pill + Amount + View Details */}
-                    <div className="flex items-center justify-between sm:justify-end gap-2.5 sm:gap-4 shrink-0 pt-1.5 sm:pt-0 border-t border-slate-100/80 sm:border-0">
+                    <div className="flex items-center justify-between sm:justify-end gap-2.5 sm:gap-4 shrink-0 pt-1.5 sm:pt-0 border-0">
                       {/* Status Pill */}
                       {isDelivered && (
                         <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-emerald-50 text-emerald-700 border border-emerald-200/70 shrink-0">
@@ -730,13 +730,13 @@ export const AccountDashboardView: React.FC = () => {
       {/* ======================================================== */}
       {/* 4. MOBILE-ONLY NAVIGATION LINKS FOR TOUCH USERS          */}
       {/* ======================================================== */}
-      <div className="lg:hidden space-y-3 pt-3 border-t border-slate-200/80">
+      <div className="lg:hidden space-y-3 pt-3 border-t-0 sm:border-t border-slate-200/80">
         <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider px-1 block">
           Account Shortcuts
         </span>
         {mobileMenuSections.map((section) => (
           <div key={section.title} className="space-y-1">
-            <div className="bg-white rounded-2xl border border-slate-200/80 divide-y divide-slate-100 shadow-2xs overflow-hidden">
+            <div className="bg-white rounded-2xl border-0 sm:border border-slate-200/80 divide-y divide-slate-100 shadow-2xs overflow-hidden">
               {section.items.map((item) => {
                 const Icon = item.icon;
                 const content = (
@@ -790,7 +790,7 @@ export const AccountDashboardView: React.FC = () => {
 
         {/* Mobile Logout Button */}
         {isLoggedIn && (
-          <div className="bg-white rounded-2xl border border-slate-200/80 shadow-2xs overflow-hidden">
+          <div className="bg-white rounded-2xl border-0 sm:border border-slate-200/80 shadow-2xs overflow-hidden">
             <button
               type="button"
               onClick={() => {
