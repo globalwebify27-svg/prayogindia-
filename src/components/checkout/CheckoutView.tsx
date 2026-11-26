@@ -3371,7 +3371,11 @@ export const CheckoutView: React.FC = () => {
         </div>
 
         {/* Right Column: Sticky Price Details (Span 4) */}
-        <div className="lg:col-span-4 static lg:sticky lg:top-24 space-y-4">
+        <div
+          className={`lg:col-span-4 static lg:sticky lg:top-24 space-y-4 ${
+            checkoutStep === "address" ? "hidden lg:block" : "block"
+          }`}
+        >
           <CheckoutOrderSummary
             cart={activeCheckoutItems}
             subtotal={subtotal}
