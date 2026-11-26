@@ -210,93 +210,441 @@ export const MobileMenuDrawer: React.FC<MobileMenuDrawerProps> = ({
                     <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-slate-500" />
                   </Link>
 
-                  {/* 2. Products & Hardware */}
-                  <Link
-                    href="/products"
-                    onClick={onClose}
-                    className="flex items-center justify-between px-4 py-3 text-sm font-medium text-slate-700 hover:text-[#2563EB] hover:bg-slate-50/80 transition-colors group"
-                  >
-                    <div className="flex items-center gap-3">
-                      <ShoppingBag className="w-4 h-4 text-slate-400 group-hover:text-[#2563EB] transition-colors" />
-                      <span>Products &amp; Hardware</span>
-                    </div>
-                    <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-slate-500" />
-                  </Link>
+                  {/* 2. Products & Hardware (with Desktop Submenu) */}
+                  <div>
+                    <button
+                      type="button"
+                      onClick={() => toggleAccordion("products")}
+                      className="w-full flex items-center justify-between px-4 py-3 text-sm font-medium text-slate-700 hover:text-[#2563EB] hover:bg-slate-50/80 transition-colors cursor-pointer group"
+                    >
+                      <div className="flex items-center gap-3">
+                        <ShoppingBag className="w-4 h-4 text-slate-400 group-hover:text-[#2563EB] transition-colors" />
+                        <span>Products &amp; Hardware</span>
+                      </div>
+                      <ChevronDown
+                        className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${
+                          activeAccordion === "products" ? "rotate-180 text-[#2563EB]" : ""
+                        }`}
+                      />
+                    </button>
 
-                  {/* 3. Top Deals */}
-                  <Link
-                    href="/offers"
-                    onClick={onClose}
-                    className="flex items-center justify-between px-4 py-3 text-sm font-medium text-slate-700 hover:text-red-600 hover:bg-red-50/50 transition-colors group"
-                  >
-                    <div className="flex items-center gap-3">
-                      <Flame className="w-4 h-4 text-red-500 group-hover:text-red-600 transition-colors" />
-                      <span>Top Deals</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="px-2 py-0.5 rounded-full font-black text-[10px] bg-gradient-to-r from-red-600 via-rose-600 to-amber-600 text-white uppercase tracking-wider shadow-2xs">
-                        Top Deals
-                      </span>
-                      <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-slate-500" />
-                    </div>
-                  </Link>
+                    <AnimatePresence>
+                      {activeAccordion === "products" && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: "auto", opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          className="divide-y divide-slate-100 bg-slate-50/70 pl-11 pr-4 py-1 border-t border-slate-100 overflow-hidden"
+                        >
+                          <Link
+                            href="/categories/arduino-boards"
+                            onClick={onClose}
+                            className="flex items-center justify-between py-2.5 text-xs text-slate-600 font-medium hover:text-[#2563EB] transition-colors"
+                          >
+                            <span>Arduino &amp; Dev Boards</span>
+                            <ChevronRight className="w-3 h-3 text-slate-300" />
+                          </Link>
+                          <Link
+                            href="/categories/raspberry-pi"
+                            onClick={onClose}
+                            className="flex items-center justify-between py-2.5 text-xs text-slate-600 font-medium hover:text-[#2563EB] transition-colors"
+                          >
+                            <span>Raspberry Pi &amp; SBCs</span>
+                            <ChevronRight className="w-3 h-3 text-slate-300" />
+                          </Link>
+                          <Link
+                            href="/categories/robotics"
+                            onClick={onClose}
+                            className="flex items-center justify-between py-2.5 text-xs text-slate-600 font-medium hover:text-[#2563EB] transition-colors"
+                          >
+                            <span>Robotics &amp; DIY Kits</span>
+                            <ChevronRight className="w-3 h-3 text-slate-300" />
+                          </Link>
+                          <Link
+                            href="/categories/sensors-modules"
+                            onClick={onClose}
+                            className="flex items-center justify-between py-2.5 text-xs text-slate-600 font-medium hover:text-[#2563EB] transition-colors"
+                          >
+                            <span>Sensors &amp; Modules</span>
+                            <ChevronRight className="w-3 h-3 text-slate-300" />
+                          </Link>
+                          <Link
+                            href="/categories/motors-drivers"
+                            onClick={onClose}
+                            className="flex items-center justify-between py-2.5 text-xs text-slate-600 font-medium hover:text-[#2563EB] transition-colors"
+                          >
+                            <span>Motors &amp; Motor Drivers</span>
+                            <ChevronRight className="w-3 h-3 text-slate-300" />
+                          </Link>
+                          <Link
+                            href="/categories/drone-technology"
+                            onClick={onClose}
+                            className="flex items-center justify-between py-2.5 text-xs text-slate-600 font-medium hover:text-[#2563EB] transition-colors"
+                          >
+                            <span>Drones &amp; UAV Parts</span>
+                            <ChevronRight className="w-3 h-3 text-slate-300" />
+                          </Link>
+                          <Link
+                            href="/categories/batteries-power"
+                            onClick={onClose}
+                            className="flex items-center justify-between py-2.5 text-xs text-slate-600 font-medium hover:text-[#2563EB] transition-colors"
+                          >
+                            <span>Batteries &amp; Power Hubs</span>
+                            <ChevronRight className="w-3 h-3 text-slate-300" />
+                          </Link>
+                          <Link
+                            href="/categories/electronic-components"
+                            onClick={onClose}
+                            className="flex items-center justify-between py-2.5 text-xs text-slate-600 font-medium hover:text-[#2563EB] transition-colors"
+                          >
+                            <span>Electronic Components</span>
+                            <ChevronRight className="w-3 h-3 text-slate-300" />
+                          </Link>
+                          <Link
+                            href="/products"
+                            onClick={onClose}
+                            className="flex items-center justify-between py-2.5 text-xs text-[#2563EB] font-bold hover:underline transition-colors"
+                          >
+                            <span>View All Products →</span>
+                            <ChevronRight className="w-3.5 h-3.5 text-[#2563EB]" />
+                          </Link>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
 
-                  {/* 4. Lab Setup & Services */}
-                  <Link
-                    href="/services"
-                    onClick={onClose}
-                    className="flex items-center justify-between px-4 py-3 text-sm font-medium text-slate-700 hover:text-[#2563EB] hover:bg-blue-50/40 transition-colors group"
-                  >
-                    <div className="flex items-center gap-3">
-                      <Wrench className="w-4 h-4 text-slate-400 group-hover:text-[#2563EB] transition-colors" />
-                      <span>Lab Setup &amp; Services</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="px-2 py-0.5 rounded-full font-bold text-[10px] bg-[#EFF6FF] text-[#2563EB] border border-blue-100">
-                        Services
-                      </span>
-                      <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-slate-500" />
-                    </div>
-                  </Link>
+                  {/* 3. Top Deals (with Desktop Submenu) */}
+                  <div>
+                    <button
+                      type="button"
+                      onClick={() => toggleAccordion("deals")}
+                      className="w-full flex items-center justify-between px-4 py-3 text-sm font-medium text-slate-700 hover:text-red-600 hover:bg-red-50/50 transition-colors cursor-pointer group"
+                    >
+                      <div className="flex items-center gap-3">
+                        <Flame className="w-4 h-4 text-red-500 group-hover:text-red-600 transition-colors" />
+                        <span>Top Deals</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="px-2 py-0.5 rounded-full font-black text-[10px] bg-gradient-to-r from-red-600 via-rose-600 to-amber-600 text-white uppercase tracking-wider shadow-2xs">
+                          Top Deals
+                        </span>
+                        <ChevronDown
+                          className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${
+                            activeAccordion === "deals" ? "rotate-180 text-red-600" : ""
+                          }`}
+                        />
+                      </div>
+                    </button>
 
-                  {/* 5. Learning Hub */}
-                  <Link
-                    href="/learning"
-                    onClick={onClose}
-                    className="flex items-center justify-between px-4 py-3 text-sm font-medium text-slate-700 hover:text-[#2563EB] hover:bg-slate-50/80 transition-colors group"
-                  >
-                    <div className="flex items-center gap-3">
-                      <BookOpen className="w-4 h-4 text-slate-400 group-hover:text-[#2563EB] transition-colors" />
-                      <span>Learning Hub</span>
-                    </div>
-                    <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-slate-500" />
-                  </Link>
+                    <AnimatePresence>
+                      {activeAccordion === "deals" && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: "auto", opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          className="divide-y divide-slate-100 bg-red-50/40 pl-11 pr-4 py-1 border-t border-red-100/60 overflow-hidden"
+                        >
+                          <Link
+                            href="/offers"
+                            onClick={onClose}
+                            className="flex items-center justify-between py-2.5 text-xs text-slate-600 font-medium hover:text-red-600 transition-colors"
+                          >
+                            <span>Lightning Deals</span>
+                            <ChevronRight className="w-3 h-3 text-slate-300" />
+                          </Link>
+                          <Link
+                            href="/offers"
+                            onClick={onClose}
+                            className="flex items-center justify-between py-2.5 text-xs text-slate-600 font-medium hover:text-red-600 transition-colors"
+                          >
+                            <span>Robotics Kit Bundles</span>
+                            <ChevronRight className="w-3 h-3 text-slate-300" />
+                          </Link>
+                          <Link
+                            href="/offers"
+                            onClick={onClose}
+                            className="flex items-center justify-between py-2.5 text-xs text-slate-600 font-medium hover:text-red-600 transition-colors"
+                          >
+                            <span>Drone Parts Offers</span>
+                            <ChevronRight className="w-3 h-3 text-slate-300" />
+                          </Link>
+                          <Link
+                            href="/offers"
+                            onClick={onClose}
+                            className="flex items-center justify-between py-2.5 text-xs text-slate-600 font-medium hover:text-red-600 transition-colors"
+                          >
+                            <span>Clearance Sale</span>
+                            <ChevronRight className="w-3 h-3 text-slate-300" />
+                          </Link>
+                          <Link
+                            href="/offers"
+                            onClick={onClose}
+                            className="flex items-center justify-between py-2.5 text-xs text-red-600 font-bold hover:underline transition-colors"
+                          >
+                            <span>View All Deals →</span>
+                            <ChevronRight className="w-3.5 h-3.5 text-red-600" />
+                          </Link>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
 
-                  {/* 6. About */}
-                  <Link
-                    href="/about"
-                    onClick={onClose}
-                    className="flex items-center justify-between px-4 py-3 text-sm font-medium text-slate-700 hover:text-[#2563EB] hover:bg-slate-50/80 transition-colors group"
-                  >
-                    <div className="flex items-center gap-3">
-                      <Info className="w-4 h-4 text-slate-400 group-hover:text-[#2563EB] transition-colors" />
-                      <span>About</span>
-                    </div>
-                    <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-slate-500" />
-                  </Link>
+                  {/* 4. Lab Setup & Services (with Desktop Submenu) */}
+                  <div>
+                    <button
+                      type="button"
+                      onClick={() => toggleAccordion("services")}
+                      className="w-full flex items-center justify-between px-4 py-3 text-sm font-medium text-slate-700 hover:text-[#2563EB] hover:bg-blue-50/40 transition-colors cursor-pointer group"
+                    >
+                      <div className="flex items-center gap-3">
+                        <Wrench className="w-4 h-4 text-slate-400 group-hover:text-[#2563EB] transition-colors" />
+                        <span>Lab Setup &amp; Services</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="px-2 py-0.5 rounded-full font-bold text-[10px] bg-[#EFF6FF] text-[#2563EB] border border-blue-100">
+                          Services
+                        </span>
+                        <ChevronDown
+                          className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${
+                            activeAccordion === "services" ? "rotate-180 text-[#2563EB]" : ""
+                          }`}
+                        />
+                      </div>
+                    </button>
 
-                  {/* 7. Contact */}
-                  <Link
-                    href="/contact"
-                    onClick={onClose}
-                    className="flex items-center justify-between px-4 py-3 text-sm font-medium text-slate-700 hover:text-[#2563EB] hover:bg-slate-50/80 transition-colors group"
-                  >
-                    <div className="flex items-center gap-3">
-                      <PhoneCall className="w-4 h-4 text-slate-400 group-hover:text-[#2563EB] transition-colors" />
-                      <span>Contact</span>
-                    </div>
-                    <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-slate-500" />
-                  </Link>
+                    <AnimatePresence>
+                      {activeAccordion === "services" && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: "auto", opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          className="divide-y divide-slate-100 bg-blue-50/40 pl-11 pr-4 py-1 border-t border-blue-100/60 overflow-hidden"
+                        >
+                          <Link
+                            href="/services/stem-lab-setup"
+                            onClick={onClose}
+                            className="flex items-center justify-between py-2.5 text-xs text-slate-600 font-medium hover:text-[#2563EB] transition-colors"
+                          >
+                            <span>STEM &amp; ATL Lab Setup</span>
+                            <ChevronRight className="w-3 h-3 text-slate-300" />
+                          </Link>
+                          <Link
+                            href="/services/robotics-lab-setup"
+                            onClick={onClose}
+                            className="flex items-center justify-between py-2.5 text-xs text-slate-600 font-medium hover:text-[#2563EB] transition-colors"
+                          >
+                            <span>Robotics &amp; AI Research Lab</span>
+                            <ChevronRight className="w-3 h-3 text-slate-300" />
+                          </Link>
+                          <Link
+                            href="/services/drone-lab-setup"
+                            onClick={onClose}
+                            className="flex items-center justify-between py-2.5 text-xs text-slate-600 font-medium hover:text-[#2563EB] transition-colors"
+                          >
+                            <span>Drone &amp; Avionics Center</span>
+                            <ChevronRight className="w-3 h-3 text-slate-300" />
+                          </Link>
+                          <Link
+                            href="/services/industrial-projects"
+                            onClick={onClose}
+                            className="flex items-center justify-between py-2.5 text-xs text-slate-600 font-medium hover:text-[#2563EB] transition-colors"
+                          >
+                            <span>Industrial Prototyping &amp; R&amp;D</span>
+                            <ChevronRight className="w-3 h-3 text-slate-300" />
+                          </Link>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              onClose();
+                              onOpenB2BModal?.();
+                            }}
+                            className="w-full flex items-center justify-between py-2.5 text-xs text-[#2563EB] font-bold hover:underline transition-colors text-left cursor-pointer"
+                          >
+                            <span>B2B Institutional Sales →</span>
+                            <ChevronRight className="w-3.5 h-3.5 text-[#2563EB]" />
+                          </button>
+                          <Link
+                            href="/services"
+                            onClick={onClose}
+                            className="flex items-center justify-between py-2.5 text-xs text-slate-700 font-bold hover:text-[#2563EB] transition-colors"
+                          >
+                            <span>View All Services →</span>
+                            <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
+                          </Link>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+
+                  {/* 5. Learning Hub (with Desktop Submenu) */}
+                  <div>
+                    <button
+                      type="button"
+                      onClick={() => toggleAccordion("learning")}
+                      className="w-full flex items-center justify-between px-4 py-3 text-sm font-medium text-slate-700 hover:text-[#2563EB] hover:bg-slate-50/80 transition-colors cursor-pointer group"
+                    >
+                      <div className="flex items-center gap-3">
+                        <BookOpen className="w-4 h-4 text-slate-400 group-hover:text-[#2563EB] transition-colors" />
+                        <span>Learning Hub</span>
+                      </div>
+                      <ChevronDown
+                        className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${
+                          activeAccordion === "learning" ? "rotate-180 text-[#2563EB]" : ""
+                        }`}
+                      />
+                    </button>
+
+                    <AnimatePresence>
+                      {activeAccordion === "learning" && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: "auto", opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          className="divide-y divide-slate-100 bg-slate-50/70 pl-11 pr-4 py-1 border-t border-slate-100 overflow-hidden"
+                        >
+                          <Link
+                            href="/learning?tab=internship"
+                            onClick={onClose}
+                            className="flex items-center justify-between py-2.5 text-xs text-slate-600 font-medium hover:text-[#2563EB] transition-colors"
+                          >
+                            <span>Internship Program</span>
+                            <ChevronRight className="w-3 h-3 text-slate-300" />
+                          </Link>
+                          <Link
+                            href="/learning?tab=workshops"
+                            onClick={onClose}
+                            className="flex items-center justify-between py-2.5 text-xs text-slate-600 font-medium hover:text-[#2563EB] transition-colors"
+                          >
+                            <span>Workshops</span>
+                            <ChevronRight className="w-3 h-3 text-slate-300" />
+                          </Link>
+                          <Link
+                            href="/learning?tab=certifications"
+                            onClick={onClose}
+                            className="flex items-center justify-between py-2.5 text-xs text-slate-600 font-medium hover:text-[#2563EB] transition-colors"
+                          >
+                            <span>Certifications</span>
+                            <ChevronRight className="w-3 h-3 text-slate-300" />
+                          </Link>
+                          <Link
+                            href="/learning"
+                            onClick={onClose}
+                            className="flex items-center justify-between py-2.5 text-xs text-[#2563EB] font-bold hover:underline transition-colors"
+                          >
+                            <span>View Learning Hub →</span>
+                            <ChevronRight className="w-3.5 h-3.5 text-[#2563EB]" />
+                          </Link>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+
+                  {/* 6. About (with Desktop Submenu) */}
+                  <div>
+                    <button
+                      type="button"
+                      onClick={() => toggleAccordion("about")}
+                      className="w-full flex items-center justify-between px-4 py-3 text-sm font-medium text-slate-700 hover:text-[#2563EB] hover:bg-slate-50/80 transition-colors cursor-pointer group"
+                    >
+                      <div className="flex items-center gap-3">
+                        <Info className="w-4 h-4 text-slate-400 group-hover:text-[#2563EB] transition-colors" />
+                        <span>About</span>
+                      </div>
+                      <ChevronDown
+                        className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${
+                          activeAccordion === "about" ? "rotate-180 text-[#2563EB]" : ""
+                        }`}
+                      />
+                    </button>
+
+                    <AnimatePresence>
+                      {activeAccordion === "about" && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: "auto", opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          className="divide-y divide-slate-100 bg-slate-50/70 pl-11 pr-4 py-1 border-t border-slate-100 overflow-hidden"
+                        >
+                          <Link
+                            href="/about"
+                            onClick={onClose}
+                            className="flex items-center justify-between py-2.5 text-xs text-slate-600 font-medium hover:text-[#2563EB] transition-colors"
+                          >
+                            <span>About Our Mission</span>
+                            <ChevronRight className="w-3 h-3 text-slate-300" />
+                          </Link>
+                          <Link
+                            href="/careers"
+                            onClick={onClose}
+                            className="flex items-center justify-between py-2.5 text-xs text-slate-600 font-medium hover:text-[#2563EB] transition-colors"
+                          >
+                            <span>Careers &amp; Culture</span>
+                            <ChevronRight className="w-3 h-3 text-slate-300" />
+                          </Link>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+
+                  {/* 7. Contact (with Desktop Submenu) */}
+                  <div>
+                    <button
+                      type="button"
+                      onClick={() => toggleAccordion("contact")}
+                      className="w-full flex items-center justify-between px-4 py-3 text-sm font-medium text-slate-700 hover:text-[#2563EB] hover:bg-slate-50/80 transition-colors cursor-pointer group"
+                    >
+                      <div className="flex items-center gap-3">
+                        <PhoneCall className="w-4 h-4 text-slate-400 group-hover:text-[#2563EB] transition-colors" />
+                        <span>Contact</span>
+                      </div>
+                      <ChevronDown
+                        className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${
+                          activeAccordion === "contact" ? "rotate-180 text-[#2563EB]" : ""
+                        }`}
+                      />
+                    </button>
+
+                    <AnimatePresence>
+                      {activeAccordion === "contact" && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: "auto", opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          className="divide-y divide-slate-100 bg-slate-50/70 pl-11 pr-4 py-1 border-t border-slate-100 overflow-hidden"
+                        >
+                          <Link
+                            href="/contact"
+                            onClick={onClose}
+                            className="flex items-center justify-between py-2.5 text-xs text-slate-600 font-medium hover:text-[#2563EB] transition-colors"
+                          >
+                            <span>Customer Support Desk</span>
+                            <ChevronRight className="w-3 h-3 text-slate-300" />
+                          </Link>
+                          <a
+                            href="https://wa.me/918709789641"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={onClose}
+                            className="flex items-center justify-between py-2.5 text-xs text-emerald-600 font-medium hover:text-emerald-700 transition-colors"
+                          >
+                            <span>WhatsApp Support</span>
+                            <ChevronRight className="w-3 h-3 text-emerald-500" />
+                          </a>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              onClose();
+                              onOpenB2BModal?.();
+                            }}
+                            className="w-full flex items-center justify-between py-2.5 text-xs text-amber-700 font-medium hover:text-amber-800 transition-colors text-left cursor-pointer"
+                          >
+                            <span>B2B &amp; Bulk Orders</span>
+                            <ChevronRight className="w-3 h-3 text-amber-600" />
+                          </button>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
 
                   {/* 8. Store Location */}
                   <Link
