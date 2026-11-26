@@ -62,16 +62,17 @@ export function triggerFlyToCart(
   }
 
   // 3. Construct Parabolic Bezier Control Point (Apex)
-  // Curve arches high above the highest point between source and target, remaining inside viewport
+  // Natural elevation proportional to distance: graceful arc without hitting viewport ceiling
   const distance = Math.hypot(endX - startX, endY - startY);
-  const arcHeight = Math.min(260, Math.max(120, distance * 0.32));
-  // Ensure apex stays visible on screen (at least 24px below viewport top)
-  const apexY = Math.max(24, Math.min(startY, endY) - arcHeight);
-  const apexX = startX + (endX - startX) * 0.42;
+  const arcLift = Math.min(180, Math.max(70, distance * 0.22));
+  // Ensure apex stays visible on screen (at least 32px below viewport top)
+  const apexY = Math.max(32, Math.min(startY, endY) - arcLift);
+  const apexX = startX + (endX - startX) * 0.48;
 
   // 4. Render Curvey Trajectory Line (SVG Overlay)
+  // Authentic, simple dashed trajectory line without heavy neon glow or multiple layers
   let svgOverlay: SVGSVGElement | null = null;
-  let tracePath: SVGPathElement | null = null;
+  let maskPath: SVGPathElement | null = null;
   let pathTotalLength = 0;
 
   if (showCurvedLine) {
@@ -88,58 +89,50 @@ export function triggerFlyToCart(
       zIndex: "99997",
       overflow: "visible",
       opacity: "1",
-      transition: "opacity 0.32s ease-out",
+      transition: "opacity 0.25s ease-out",
     });
 
     const uniqueId = `fly-arc-${Math.random().toString(36).slice(2, 9)}`;
 
     svgOverlay.innerHTML = `
       <defs>
-        <linearGradient id="${uniqueId}-grad" x1="0%" y1="100%" x2="100%" y2="0%">
-          <stop offset="0%" stop-color="#00AEEF" stop-opacity="0.35" />
-          <stop offset="60%" stop-color="#00AEEF" stop-opacity="0.9" />
-          <stop offset="100%" stop-color="#38BDF8" stop-opacity="1" />
-        </linearGradient>
-        <filter id="${uniqueId}-glow" x="-20%" y="-20%" width="140%" height="140%">
-          <feGaussianBlur stdDeviation="2.5" result="glow" />
-          <feMerge>
-            <feMergeNode in="glow" />
-            <feMergeNode in="SourceGraphic" />
-          </feMerge>
-        </filter>
+        <mask id="${uniqueId}-mask">
+          <path
+            id="${uniqueId}-mask-path"
+            d="M ${startX} ${startY} Q ${apexX} ${apexY} ${endX} ${endY}"
+            fill="none"
+            stroke="#ffffff"
+            stroke-width="8"
+            stroke-linecap="round"
+          />
+        </mask>
       </defs>
-      <!-- Base subtle guide dotted curve line -->
+      <!-- Single, clean, authentic dashed trajectory arc -->
       <path
         d="M ${startX} ${startY} Q ${apexX} ${apexY} ${endX} ${endY}"
         fill="none"
         stroke="#00AEEF"
         stroke-width="2"
-        stroke-dasharray="5 5"
-        stroke-opacity="0.3"
+        stroke-dasharray="6 5"
         stroke-linecap="round"
-      />
-      <!-- Illuminated glowing trajectory arc that draws with the particle -->
-      <path
-        id="${uniqueId}-trace"
-        d="M ${startX} ${startY} Q ${apexX} ${apexY} ${endX} ${endY}"
-        fill="none"
-        stroke="url(#${uniqueId}-grad)"
-        stroke-width="3"
-        stroke-linecap="round"
-        filter="url(#${uniqueId}-glow)"
+        stroke-linejoin="round"
+        opacity="0.75"
+        mask="url(#${uniqueId}-mask)"
       />
     `;
 
     document.body.appendChild(svgOverlay);
 
-    tracePath = svgOverlay.querySelector<SVGPathElement>(`#${uniqueId}-trace`);
-    if (tracePath && typeof tracePath.getTotalLength === "function") {
+    maskPath = svgOverlay.querySelector<SVGPathElement>(`#${uniqueId}-mask-path`);
+    if (maskPath && typeof maskPath.getTotalLength === "function") {
       try {
-        pathTotalLength = tracePath.getTotalLength();
-        tracePath.style.strokeDasharray = `${pathTotalLength} ${pathTotalLength}`;
-        tracePath.style.strokeDashoffset = `${pathTotalLength}`;
+        pathTotalLength = maskPath.getTotalLength();
+        if (pathTotalLength > 0) {
+          maskPath.style.strokeDasharray = `${pathTotalLength} ${pathTotalLength}`;
+          maskPath.style.strokeDashoffset = `${pathTotalLength}`;
+        }
       } catch {
-        // Fallback if browser limits getTotalLength
+        pathTotalLength = 0;
       }
     }
   }
@@ -198,7 +191,6 @@ export function triggerFlyToCart(
 
   // 6. Parabolic Motion Frame Loop
   const startTime = performance.now();
-  let lastParticleDrop = 0;
 
   function step(now: number) {
     const elapsed = now - startTime;
@@ -211,10 +203,10 @@ export function triggerFlyToCart(
     const currentX = (1 - t) * (1 - t) * startX + 2 * (1 - t) * t * apexX + t * t * endX;
     const currentY = (1 - t) * (1 - t) * startY + 2 * (1 - t) * t * apexY + t * t * endY;
 
-    // Update glowing trajectory path draw length
-    if (tracePath && pathTotalLength > 0) {
+    // Smoothly reveal the clean dashed trajectory line behind the flying item
+    if (maskPath && pathTotalLength > 0) {
       const currentOffset = Math.max(0, pathTotalLength * (1 - progress));
-      tracePath.style.strokeDashoffset = `${currentOffset}`;
+      maskPath.style.strokeDashoffset = `${currentOffset}`;
     }
 
     // Scale calculation:
@@ -239,12 +231,6 @@ export function triggerFlyToCart(
     flyingNode.style.transform = `translate3d(${currentX - badgeSize / 2}px, ${currentY - badgeSize / 2}px, 0px) scale(${scale}) rotate(${rotate}deg)`;
     flyingNode.style.opacity = `${opacity}`;
 
-    // Drop trailing light particle periodically during mid-flight
-    if (progress > 0.12 && progress < 0.85 && now - lastParticleDrop > 60) {
-      lastParticleDrop = now;
-      dropTrailingParticle(currentX, currentY);
-    }
-
     if (progress < 1) {
       requestAnimationFrame(step);
     } else {
@@ -257,7 +243,7 @@ export function triggerFlyToCart(
         svgOverlay.style.opacity = "0";
         setTimeout(() => {
           svgOverlay?.remove();
-        }, 340);
+        }, 260);
       }
 
       options.onComplete?.();
@@ -265,38 +251,6 @@ export function triggerFlyToCart(
   }
 
   requestAnimationFrame(step);
-}
-
-/**
- * Creates a subtle glowing trail particle behind the flying item
- */
-function dropTrailingParticle(x: number, y: number) {
-  const particle = document.createElement("div");
-  particle.setAttribute("aria-hidden", "true");
-  Object.assign(particle.style, {
-    position: "fixed",
-    left: `${x - 4}px`,
-    top: `${y - 4}px`,
-    width: "8px",
-    height: "8px",
-    borderRadius: "50%",
-    backgroundColor: "#38BDF8",
-    boxShadow: "0 0 8px #00AEEF",
-    pointerEvents: "none",
-    zIndex: "99998",
-    opacity: "0.85",
-    transition: "transform 0.35s ease-out, opacity 0.35s ease-out",
-  });
-  document.body.appendChild(particle);
-
-  requestAnimationFrame(() => {
-    particle.style.transform = "scale(0.2)";
-    particle.style.opacity = "0";
-  });
-
-  setTimeout(() => {
-    particle.remove();
-  }, 380);
 }
 
 /**
