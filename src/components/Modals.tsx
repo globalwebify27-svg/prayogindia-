@@ -231,13 +231,29 @@ export const B2BModal: React.FC<B2BModalProps> = ({
     }
   }, [isOpen, user, initialProduct]);
 
-  // Lock background scroll when open
+  // Lock background scroll when open (prevents background cards and page from moving)
   useEffect(() => {
     if (isOpen) {
-      const originalOverflow = document.body.style.overflow;
+      const scrollY = window.scrollY;
+      const originalBodyOverflow = document.body.style.overflow;
+      const originalHtmlOverflow = document.documentElement.style.overflow;
+      const originalBodyPosition = document.body.style.position;
+      const originalBodyTop = document.body.style.top;
+      const originalBodyWidth = document.body.style.width;
+
+      document.documentElement.style.overflow = "hidden";
       document.body.style.overflow = "hidden";
+      document.body.style.position = "fixed";
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.width = "100%";
+
       return () => {
-        document.body.style.overflow = originalOverflow;
+        document.documentElement.style.overflow = originalHtmlOverflow;
+        document.body.style.overflow = originalBodyOverflow;
+        document.body.style.position = originalBodyPosition;
+        document.body.style.top = originalBodyTop;
+        document.body.style.width = originalBodyWidth;
+        window.scrollTo(0, scrollY);
       };
     }
   }, [isOpen]);
@@ -340,7 +356,7 @@ export const B2BModal: React.FC<B2BModalProps> = ({
   return createPortal(
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-[110] overflow-hidden flex justify-start">
+        <div className="fixed inset-0 z-[110] overflow-hidden flex justify-start overscroll-contain">
           {/* Backdrop Overlay */}
           <motion.div
             initial={{ opacity: 0 }}
@@ -348,7 +364,7 @@ export const B2BModal: React.FC<B2BModalProps> = ({
             exit={{ opacity: 0 }}
             transition={{ duration: 0.35, ease: "easeOut" }}
             onClick={onClose}
-            className="fixed inset-0 bg-slate-950/60"
+            className="fixed inset-0 bg-slate-950/60 touch-none"
             aria-hidden="true"
           />
 
@@ -362,7 +378,7 @@ export const B2BModal: React.FC<B2BModalProps> = ({
               duration: 0.38,
               ease: [0.16, 1, 0.3, 1],
             }}
-            className="relative w-full max-w-lg sm:max-w-xl h-full max-h-[100dvh] h-[100dvh] bg-white text-slate-900 shadow-2xl flex flex-col z-10 overflow-hidden border-r border-slate-200 transform-gpu will-change-transform"
+            className="relative w-full max-w-lg sm:max-w-xl h-full max-h-[100dvh] h-[100dvh] bg-white text-slate-900 shadow-2xl flex flex-col z-10 overflow-hidden overscroll-contain border-r border-slate-200 transform-gpu will-change-transform"
           >
             {/* Header */}
             <div className="px-4 sm:px-6 py-4 border-b border-slate-100 flex items-start justify-between bg-white shrink-0">

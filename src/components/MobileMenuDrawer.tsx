@@ -69,16 +69,31 @@ export const MobileMenuDrawer: React.FC<MobileMenuDrawerProps> = ({
     setMounted(true);
   }, []);
 
-  // Lock body scroll when drawer is open
+  // Lock body scroll when drawer is open (prevents background content and cards from moving)
   useEffect(() => {
     if (isOpen) {
+      const scrollY = window.scrollY;
+      const originalBodyOverflow = document.body.style.overflow;
+      const originalHtmlOverflow = document.documentElement.style.overflow;
+      const originalBodyPosition = document.body.style.position;
+      const originalBodyTop = document.body.style.top;
+      const originalBodyWidth = document.body.style.width;
+
+      document.documentElement.style.overflow = "hidden";
       document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
+      document.body.style.position = "fixed";
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.width = "100%";
+
+      return () => {
+        document.documentElement.style.overflow = originalHtmlOverflow;
+        document.body.style.overflow = originalBodyOverflow;
+        document.body.style.position = originalBodyPosition;
+        document.body.style.top = originalBodyTop;
+        document.body.style.width = originalBodyWidth;
+        window.scrollTo(0, scrollY);
+      };
     }
-    return () => {
-      document.body.style.overflow = "";
-    };
   }, [isOpen]);
 
   const toggleAccordion = (id: string) => {
@@ -97,7 +112,7 @@ export const MobileMenuDrawer: React.FC<MobileMenuDrawerProps> = ({
   return createPortal(
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-[100] lg:hidden overflow-hidden flex justify-start">
+        <div className="fixed inset-0 z-[100] lg:hidden overflow-hidden flex justify-start overscroll-contain">
           {/* Backdrop Overlay */}
           <motion.div
             initial={{ opacity: 0 }}
@@ -105,7 +120,7 @@ export const MobileMenuDrawer: React.FC<MobileMenuDrawerProps> = ({
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
             onClick={onClose}
-            className="fixed inset-0 bg-slate-950/60 backdrop-blur-xs"
+            className="fixed inset-0 bg-slate-950/60 backdrop-blur-xs touch-none"
             aria-hidden="true"
           />
 
@@ -119,7 +134,7 @@ export const MobileMenuDrawer: React.FC<MobileMenuDrawerProps> = ({
               duration: 0.35,
               ease: [0.16, 1, 0.3, 1],
             }}
-            className="relative w-[85vw] max-w-sm h-full max-h-[100dvh] h-[100dvh] bg-white text-slate-900 shadow-2xl flex flex-col z-10 overflow-hidden border-r border-slate-200 transform-gpu will-change-transform"
+            className="relative w-[85vw] max-w-sm h-full max-h-[100dvh] h-[100dvh] bg-white text-slate-900 shadow-2xl flex flex-col z-10 overflow-hidden overscroll-contain border-r border-slate-200 transform-gpu will-change-transform"
           >
             {/* Top Bar with Brand & Clean Round Close Button */}
             <div className="flex items-center justify-between px-4 py-3 bg-white border-b border-slate-100 shrink-0">
@@ -186,7 +201,7 @@ export const MobileMenuDrawer: React.FC<MobileMenuDrawerProps> = ({
             </div>
 
             {/* Scrollable Navigation Body */}
-            <div className="flex-1 overflow-y-auto scrollbar-thin">
+            <div className="flex-1 overflow-y-auto overscroll-contain overscroll-y-contain scrollbar-thin">
               {activeTab === "menu" ? (
                 /* ── MENU TAB CONTENT ── */
                 <div className="divide-y divide-slate-100 py-1">

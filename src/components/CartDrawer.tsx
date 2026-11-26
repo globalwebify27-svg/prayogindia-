@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import {
@@ -89,6 +89,33 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
     applyCouponCode(coupon);
   };
 
+  // Lock body scroll when cart drawer is open
+  useEffect(() => {
+    if (isOpen) {
+      const scrollY = window.scrollY;
+      const originalBodyOverflow = document.body.style.overflow;
+      const originalHtmlOverflow = document.documentElement.style.overflow;
+      const originalBodyPosition = document.body.style.position;
+      const originalBodyTop = document.body.style.top;
+      const originalBodyWidth = document.body.style.width;
+
+      document.documentElement.style.overflow = "hidden";
+      document.body.style.overflow = "hidden";
+      document.body.style.position = "fixed";
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.width = "100%";
+
+      return () => {
+        document.documentElement.style.overflow = originalHtmlOverflow;
+        document.body.style.overflow = originalBodyOverflow;
+        document.body.style.position = originalBodyPosition;
+        document.body.style.top = originalBodyTop;
+        document.body.style.width = originalBodyWidth;
+        window.scrollTo(0, scrollY);
+      };
+    }
+  }, [isOpen]);
+
   const FREE_SHIPPING_THRESHOLD = 999;
   const progressPercent = Math.min(
     100,
@@ -96,11 +123,11 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   );
 
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden font-sans">
+    <div className="fixed inset-0 z-50 overflow-hidden font-sans overscroll-contain">
       {/* Backdrop */}
       <div
         onClick={onClose}
-        className="absolute inset-0 bg-slate-950/60 backdrop-blur-xs transition-opacity animate-in fade-in duration-200"
+        className="absolute inset-0 bg-slate-950/60 backdrop-blur-xs transition-opacity animate-in fade-in duration-200 touch-none"
       />
 
       <div className="fixed top-0 bottom-[calc(60px+env(safe-area-inset-bottom))] sm:bottom-0 right-0 max-w-full flex pl-0 sm:pl-10">
@@ -170,7 +197,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
           )}
 
           {/* ── Cart Items List & Empty State ── */}
-          <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-3 sm:space-y-3.5">
+          <div className="flex-1 overflow-y-auto overscroll-contain p-4 sm:p-5 space-y-3 sm:space-y-3.5">
             {hasBatteryOrHazardous && (
               <div className="bg-amber-50 border border-amber-200 rounded-2xl p-3 flex items-center gap-2.5 text-[11px] text-amber-800 font-medium shadow-2xs">
                 <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
