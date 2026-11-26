@@ -219,121 +219,169 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                 const price = item.variant
                   ? item.variant.price
                   : item.product.price;
+                const mrp = item.variant ? item.variant.mrp : item.product.mrp;
                 const sku = item.variant ? item.variant.sku : item.product.sku;
                 const maxStock = getProductStock(item.product, item.variant);
                 const isAtMaxStock = item.quantity >= maxStock;
+                const isInStock =
+                  (item.variant
+                    ? item.variant.inStock
+                    : item.product.inStock) && maxStock > 0;
 
                 return (
                   <div
                     key={`${item.product.id}-${item.variant?.id || "std"}`}
-                    className="flex gap-3 p-3 sm:p-3.5 bg-slate-50/80 hover:bg-white rounded-2xl border border-slate-200/90 hover:border-blue-200 transition-all items-center shadow-2xs group"
+                    className="p-3 sm:p-3.5 bg-white hover:bg-slate-50/50 rounded-2xl border border-slate-200/90 hover:border-blue-200 transition-all shadow-2xs flex items-start justify-between gap-3 group"
                   >
-                    {/* Item Image */}
-                    <div className="w-16 h-16 rounded-xl bg-white p-1.5 border border-slate-200 shrink-0 relative overflow-hidden flex items-center justify-center shadow-2xs">
-                      <Image
-                        src={item.product.image}
-                        alt={item.product.name}
-                        fill
-                        className="object-contain p-1"
-                      />
-                    </div>
+                    <div className="flex items-start gap-3 min-w-0 flex-1">
+                      {/* Product Image */}
+                      <Link
+                        href={`/products/${item.product.slug || item.product.id}`}
+                        onClick={onClose}
+                        className="shrink-0"
+                      >
+                        <div className="relative w-16 h-16 sm:w-18 sm:h-18 rounded-xl bg-slate-50 p-1 border border-slate-200/80 overflow-hidden flex items-center justify-center shadow-2xs group-hover:border-blue-200 transition-colors">
+                          <Image
+                            src={item.product.image}
+                            alt={item.product.name}
+                            fill
+                            className="object-contain p-1"
+                          />
+                        </div>
+                      </Link>
 
-                    {/* Details */}
-                    <div className="flex-1 min-w-0 space-y-0.5">
-                      <h4 className="text-xs font-black text-slate-900 truncate leading-snug">
-                        {item.product.name}
-                      </h4>
-                      <div className="flex items-center gap-1.5 text-[10px] text-slate-400 font-mono">
-                        <span className="truncate">SKU: {sku}</span>
-                        {item.variant && (
-                          <span className="text-[#2563EB] font-bold shrink-0">
-                            • {item.variant.name}
+                      {/* Info */}
+                      <div className="space-y-1 min-w-0 flex-1">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <span className="text-[10px] font-mono text-slate-400">
+                            {sku}
                           </span>
-                        )}
-                      </div>
-                      <div className="text-xs font-black text-slate-900 pt-0.5">
-                        ₹{price.toLocaleString("en-IN")}
-                      </div>
-                      {isAtMaxStock ? (
-                        <div className="text-[10px] font-bold text-amber-600">
-                          Max available stock reached ({maxStock} in stock)
+                          {!isInStock && (
+                            <span className="text-[9px] font-bold uppercase text-red-600 bg-red-50 px-1.5 py-0.5 rounded">
+                              Out of Stock
+                            </span>
+                          )}
+                          {item.variant && (
+                            <span className="text-[10px] text-[#2563EB] font-bold">
+                              • {item.variant.name}
+                            </span>
+                          )}
                         </div>
-                      ) : maxStock <= 5 ? (
-                        <div className="text-[10px] font-bold text-rose-500">
-                          Only {maxStock} left in stock
+
+                        <Link
+                          href={`/products/${item.product.slug || item.product.id}`}
+                          onClick={onClose}
+                        >
+                          <h4 className="text-xs font-semibold text-slate-900 line-clamp-2 hover:text-[#2563EB] transition-colors leading-snug">
+                            {item.product.name}
+                          </h4>
+                        </Link>
+
+                        {/* Price with strikethrough MRP */}
+                        <div className="flex items-baseline gap-2 pt-0.5">
+                          <span className="text-xs sm:text-sm font-bold text-slate-900">
+                            ₹{price.toLocaleString("en-IN")}
+                          </span>
+                          {mrp > price && (
+                            <span className="text-[11px] text-slate-400 line-through">
+                              ₹{mrp.toLocaleString("en-IN")}
+                            </span>
+                          )}
                         </div>
-                      ) : null}
+
+                        {/* Stock status indicator */}
+                        {isAtMaxStock ? (
+                          <div className="text-[10px] font-bold text-amber-600">
+                            Max available stock reached ({maxStock} in stock)
+                          </div>
+                        ) : maxStock <= 5 && maxStock > 0 ? (
+                          <div className="text-[10px] font-bold text-rose-500">
+                            Only {maxStock} left in stock
+                          </div>
+                        ) : null}
+                      </div>
                     </div>
 
-                    {/* Quantity Stepper */}
-                    <div className="flex items-center gap-1 bg-white border border-slate-200 rounded-xl p-0.5 shadow-2xs shrink-0">
-                      <button
-                        onClick={() => {
-                          haptic.light();
-                          onUpdateQuantity(
-                            item.product.id,
-                            -1,
-                            item.variant?.id,
-                          );
-                        }}
-                        className="w-6 h-6 flex items-center justify-center text-slate-500 hover:bg-slate-100 rounded-lg cursor-pointer transition-colors"
-                        aria-label="Decrease quantity"
-                      >
-                        <Minus className="w-3 h-3" />
-                      </button>
-                      <span className="text-xs font-black px-1.5 text-slate-900 min-w-[18px] text-center">
-                        {item.quantity}
-                      </span>
-                      <button
-                        onClick={() => {
-                          haptic.light();
-                          if (isAtMaxStock) {
-                            useUIStore.getState().showToast({
-                              title: `Only ${maxStock} units available in stock`,
-                              type: "error",
-                              duration: 2500,
-                            });
-                            return;
+                    {/* Stepper & Actions (Stacked vertically on right, matching Cart page) */}
+                    <div className="flex flex-col items-end justify-between self-stretch shrink-0 gap-2">
+                      {/* Stepper */}
+                      <div className="flex items-center border border-slate-200 rounded-lg bg-white overflow-hidden shadow-2xs">
+                        <button
+                          onClick={() => {
+                            haptic.light();
+                            onUpdateQuantity(
+                              item.product.id,
+                              -1,
+                              item.variant?.id,
+                            );
+                          }}
+                          className="w-6 h-6 text-slate-600 hover:bg-slate-100 flex items-center justify-center transition-colors cursor-pointer"
+                          aria-label="Decrease quantity"
+                        >
+                          <Minus className="w-3 h-3" />
+                        </button>
+                        <span className="text-xs font-bold px-1.5 text-slate-900 min-w-[18px] text-center">
+                          {item.quantity}
+                        </span>
+                        <button
+                          onClick={() => {
+                            haptic.light();
+                            if (isAtMaxStock) {
+                              useUIStore.getState().showToast({
+                                title: `Only ${maxStock} units available in stock`,
+                                type: "error",
+                                duration: 2500,
+                              });
+                              return;
+                            }
+                            onUpdateQuantity(
+                              item.product.id,
+                              1,
+                              item.variant?.id,
+                            );
+                          }}
+                          disabled={isAtMaxStock}
+                          className={`w-6 h-6 flex items-center justify-center transition-colors ${
+                            isAtMaxStock
+                              ? "text-slate-300 cursor-not-allowed bg-slate-50"
+                              : "text-slate-600 hover:bg-slate-100 cursor-pointer"
+                          }`}
+                          aria-label="Increase quantity"
+                          title={
+                            isAtMaxStock
+                              ? `Only ${maxStock} units available in stock`
+                              : "Increase quantity"
                           }
-                          onUpdateQuantity(item.product.id, 1, item.variant?.id);
-                        }}
-                        disabled={isAtMaxStock}
-                        className={`w-6 h-6 flex items-center justify-center rounded-lg transition-colors ${
-                          isAtMaxStock
-                            ? "text-slate-300 cursor-not-allowed bg-slate-50"
-                            : "text-slate-500 hover:bg-slate-100 cursor-pointer"
-                        }`}
-                        aria-label="Increase quantity"
-                        title={isAtMaxStock ? `Only ${maxStock} units available in stock` : "Increase quantity"}
-                      >
-                        <Plus className="w-3 h-3" />
-                      </button>
-                    </div>
+                        >
+                          <Plus className="w-3 h-3" />
+                        </button>
+                      </div>
 
-                    {/* Quick Actions (Wishlist & Remove) */}
-                    <div className="flex flex-col gap-1 shrink-0 pl-1 border-l border-slate-200/80">
-                      <button
-                        onClick={() => {
-                          haptic.light();
-                          moveToWishlist(item.product, item.variant?.id);
-                        }}
-                        className="p-1 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
-                        title="Save to Wishlist"
-                        aria-label="Save to Wishlist"
-                      >
-                        <Heart className="w-3.5 h-3.5" />
-                      </button>
-                      <button
-                        onClick={() => {
-                          haptic.light();
-                          onRemoveItem(item.product.id, item.variant?.id);
-                        }}
-                        className="p-1 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
-                        title="Remove from Cart"
-                        aria-label="Remove item"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
+                      {/* Quick Actions (Wishlist & Remove side-by-side) */}
+                      <div className="flex items-center gap-1">
+                        <button
+                          onClick={() => {
+                            haptic.light();
+                            moveToWishlist(item.product, item.variant?.id);
+                          }}
+                          className="p-1 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
+                          title="Save to Wishlist"
+                          aria-label="Save to Wishlist"
+                        >
+                          <Heart className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          onClick={() => {
+                            haptic.light();
+                            onRemoveItem(item.product.id, item.variant?.id);
+                          }}
+                          className="p-1 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
+                          title="Remove from Cart"
+                          aria-label="Remove item"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
                     </div>
                   </div>
                 );
