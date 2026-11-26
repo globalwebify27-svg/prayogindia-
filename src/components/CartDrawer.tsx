@@ -194,13 +194,10 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                 </div>
 
                 {/* Main Copy */}
-                <div className="space-y-1 max-w-xs mx-auto">
+                <div className="max-w-xs mx-auto">
                   <h3 className="text-base font-bold text-slate-900 tracking-tight">
                     Your Cart is Empty
                   </h3>
-                  <p className="text-xs text-slate-500 leading-relaxed font-medium">
-                    Explore robotics kits, sensors, and components to get started.
-                  </p>
                 </div>
 
                 {/* Primary Catalog CTA */}
