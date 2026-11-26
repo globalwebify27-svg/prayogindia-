@@ -106,32 +106,27 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
       <div className="fixed top-0 bottom-[calc(60px+env(safe-area-inset-bottom))] sm:bottom-0 right-0 max-w-full flex pl-0 sm:pl-10">
         <div className="w-screen max-w-md bg-white shadow-2xl flex flex-col justify-between border-l border-slate-200 animate-in slide-in-from-right duration-300">
           {/* ── Cart Header ── */}
-          <div className="p-4 sm:p-5 border-b border-slate-200/90 flex items-center justify-between bg-gradient-to-r from-blue-50/70 via-white to-sky-50/50 shrink-0">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-[#0A233F] text-white flex items-center justify-center shadow-xs shrink-0">
-                <ShoppingBag className="w-5 h-5 text-white" />
+          <div className="px-4 py-3.5 sm:px-5 sm:py-4 border-b border-slate-200/90 flex items-center justify-between bg-white shrink-0">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-lg bg-blue-50 text-[#2563EB] flex items-center justify-center shrink-0">
+                <ShoppingBag className="w-4 h-4" />
               </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <h2 className="text-base sm:text-lg font-black text-slate-900 tracking-tight">
-                    Your Cart
-                  </h2>
-                  <span className="bg-[#FFC20E] text-slate-950 text-[11px] font-black px-2.5 py-0.5 rounded-full shadow-2xs">
-                    {totalItemCount} {totalItemCount === 1 ? "item" : "items"}
-                  </span>
-                </div>
-                <p className="text-[11px] text-slate-500 font-medium">
-                  Prayog India Hardware Desk
-                </p>
+              <div className="flex items-center gap-2">
+                <h2 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight">
+                  Your Cart
+                </h2>
+                <span className="bg-slate-100 text-slate-700 text-xs font-semibold px-2 py-0.5 rounded-full">
+                  {totalItemCount} {totalItemCount === 1 ? "item" : "items"}
+                </span>
               </div>
             </div>
 
             <button
               onClick={onClose}
-              className="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-900 flex items-center justify-center transition-all cursor-pointer active:scale-95"
+              className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-900 flex items-center justify-center transition-all cursor-pointer active:scale-95"
               aria-label="Close cart drawer"
             >
-              <X className="w-4 h-4 stroke-[2.5]" />
+              <X className="w-4 h-4" />
             </button>
           </div>
 
@@ -186,9 +181,9 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
             )}
 
             {items.length === 0 ? (
-              <div className="text-center py-10 px-2 space-y-5 animate-in fade-in duration-300">
+              <div className="text-center py-6 sm:py-8 px-2 space-y-3.5 animate-in fade-in duration-300">
                 {/* 3D Robot Empty Cart Illustration */}
-                <div className="relative w-44 h-36 mx-auto -mb-1">
+                <div className="relative w-32 h-28 sm:w-36 sm:h-32 mx-auto">
                   <Image
                     src="/images/empty-cart-robot.png"
                     alt="Your Cart is Empty"
@@ -199,26 +194,37 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                 </div>
 
                 {/* Main Copy */}
-                <div className="space-y-1.5 max-w-xs mx-auto">
-                  <h3 className="text-base font-black text-slate-900 tracking-tight">
+                <div className="space-y-1 max-w-xs mx-auto">
+                  <h3 className="text-base font-bold text-slate-900 tracking-tight">
                     Your Cart is Empty
                   </h3>
                   <p className="text-xs text-slate-500 leading-relaxed font-medium">
-                    You haven&apos;t added any robotics kits, microcontrollers,
-                    or STEM components to your basket yet.
+                    Explore robotics kits, sensors, and components to get started.
                   </p>
                 </div>
 
-                {/* Popular Categories Shortcut */}
+                {/* Primary Catalog CTA */}
                 <div className="pt-1">
-                  <div className="text-[10px] font-black uppercase tracking-wider text-slate-400 mb-2">
-                    Popular Hardware Categories
+                  <Link
+                    href="/products"
+                    onClick={onClose}
+                    className="inline-flex items-center justify-center gap-2 bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-xs sm:text-sm font-semibold px-6 py-2.5 rounded-xl shadow-xs transition-all active:scale-95 cursor-pointer"
+                  >
+                    <span>Browse Catalogue</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </Link>
+                </div>
+
+                {/* Popular Categories Shortcut */}
+                <div className="pt-2">
+                  <div className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-2">
+                    Popular Categories
                   </div>
-                  <div className="flex flex-wrap gap-1.5 justify-center">
+                  <div className="flex flex-wrap gap-1.5 justify-center max-w-xs mx-auto">
                     {[
                       { label: "Robotics Kits", href: "/categories" },
                       { label: "Arduino", href: "/products" },
-                      { label: "Sensors & Modules", href: "/categories" },
+                      { label: "Sensors", href: "/categories" },
                       { label: "Drones & RC", href: "/products" },
                       { label: "Top Deals", href: "/offers" },
                     ].map((cat) => (
@@ -226,41 +232,12 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                         key={cat.label}
                         href={cat.href}
                         onClick={onClose}
-                        className="px-3 py-1.5 rounded-xl bg-slate-50 hover:bg-blue-50 border border-slate-200 hover:border-blue-300 text-xs font-bold text-slate-700 hover:text-[#2563EB] transition-all cursor-pointer shadow-2xs"
+                        className="px-2.5 py-1 rounded-lg bg-slate-50 hover:bg-blue-50 border border-slate-200/80 text-[11px] font-medium text-slate-600 hover:text-[#2563EB] transition-colors cursor-pointer"
                       >
                         {cat.label}
                       </Link>
                     ))}
                   </div>
-                </div>
-
-                {/* Primary Catalog CTA */}
-                <div className="pt-2">
-                  <Link
-                    href="/products"
-                    onClick={onClose}
-                    className="inline-flex items-center gap-2 bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-xs font-black uppercase tracking-wider px-6 py-3.5 rounded-2xl shadow-lg shadow-blue-500/25 hover:shadow-xl transition-all active:scale-95 cursor-pointer"
-                  >
-                    <span>Browse Hardware Catalogue</span>
-                    <ArrowRight className="w-4 h-4 text-[#FFC20E]" />
-                  </Link>
-                </div>
-
-                {/* Trust Highlights */}
-                <div className="pt-4 border-t border-slate-100 flex items-center justify-center gap-4 text-[10px] text-slate-400 font-bold">
-                  <span className="flex items-center gap-1">
-                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />{" "}
-                    100% Genuine
-                  </span>
-                  <span>•</span>
-                  <span className="flex items-center gap-1">
-                    <Truck className="w-3.5 h-3.5 text-[#2563EB]" /> Fast
-                    Dispatch
-                  </span>
-                  <span>•</span>
-                  <span className="flex items-center gap-1">
-                    <Check className="w-3.5 h-3.5 text-slate-600" /> GST Invoice
-                  </span>
                 </div>
               </div>
             ) : (
