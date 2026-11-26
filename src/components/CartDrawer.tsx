@@ -231,7 +231,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                 return (
                   <div
                     key={`${item.product.id}-${item.variant?.id || "std"}`}
-                    className="p-3 sm:p-3.5 bg-white hover:bg-slate-50/50 rounded-2xl border border-slate-200/90 hover:border-blue-200 transition-all shadow-2xs flex items-start justify-between gap-3 group"
+                    className="cart-card-flow p-3 sm:p-3.5 bg-white hover:bg-slate-50/60 rounded-2xl border border-slate-200/90 shadow-2xs flex items-start justify-between gap-3 group cursor-default"
                   >
                     <div className="flex items-start gap-3 min-w-0 flex-1">
                       {/* Product Image */}
@@ -245,7 +245,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                             src={item.product.image}
                             alt={item.product.name}
                             fill
-                            className="object-contain p-1"
+                            className="object-contain p-1 group-hover:scale-105 transition-transform duration-300"
                           />
                         </div>
                       </Link>

@@ -290,6 +290,63 @@
   }
 }
 
+/* Cart Item Card Flow-Through Hover Animation */
+@keyframes flowThroughSweep {
+  0% {
+    transform: translateX(-150%) skewX(-20deg);
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(280%) skewX(-20deg);
+    opacity: 0;
+  }
+}
+
+.cart-card-flow {
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.28s cubic-bezier(0.4, 0, 0.2, 1),
+              border-color 0.28s cubic-bezier(0.4, 0, 0.2, 1),
+              background-color 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.cart-card-flow:hover {
+  transform: translateY(-2px);
+  border-color: rgba(37, 99, 235, 0.4) !important;
+  box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.12), 0 4px 10px -2px rgba(15, 23, 42, 0.05);
+}
+
+.cart-card-flow::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 70%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.75) 40%,
+    rgba(37, 99, 235, 0.22) 65%,
+    transparent 100%
+  );
+  transform: translateX(-150%) skewX(-20deg);
+  pointer-events: none;
+  z-index: 10;
+  opacity: 0;
+}
+
+.cart-card-flow:hover::after {
+  animation: flowThroughSweep 0.85s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
 
 /* Horizontal Expanding Feature Card Accordion */
 .expanding-cards-track {
