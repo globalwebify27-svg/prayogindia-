@@ -164,6 +164,8 @@ interface B2BModalProps {
   initialProduct?: {
     name?: string;
     link?: string;
+    quantity?: string;
+    targetPrice?: string;
   };
 }
 
@@ -211,6 +213,16 @@ export const B2BModal: React.FC<B2BModalProps> = ({
             id: "1",
             name: initialProduct.name,
             link: initialProduct.link || "",
+            quantity: initialProduct.quantity || "1",
+            targetPrice: initialProduct.targetPrice || "",
+          },
+        ]);
+      } else {
+        setProducts([
+          {
+            id: "1",
+            name: "",
+            link: "",
             quantity: "1",
             targetPrice: "",
           },

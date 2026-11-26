@@ -97,6 +97,7 @@ export function useStore() {
     closeCart: uiState.closeCart,
     toggleCart: uiState.toggleCart,
     isB2BModalOpen: uiState.isB2BModalOpen,
+    b2bInitialProduct: uiState.b2bInitialProduct,
     openB2BModal: uiState.openB2BModal,
     closeB2BModal: uiState.closeB2BModal,
     toggleB2BModal: uiState.toggleB2BModal,

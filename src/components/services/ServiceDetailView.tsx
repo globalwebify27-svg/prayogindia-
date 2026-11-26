@@ -4,9 +4,8 @@ import React, { useState, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { CategoryBreadcrumb } from "@/components/categories/CategoryBreadcrumb";
-import { ServiceEnquiryModal } from "@/components/services/ServiceEnquiryModal";
 import { SERVICES_DATA } from "@/data/servicesData";
-import { submitServiceEnquiry } from "@/lib/apiServices";
+import { useUIStore } from "@/store/useUIStore";
 import {
   CheckCircle2,
   ArrowLeft,
@@ -39,7 +38,7 @@ export const ServiceDetailView: React.FC<ServiceDetailProps> = ({ slug }) => {
     SERVICES_DATA.find((s) => s.slug === slug || s.id === slug) ||
     SERVICES_DATA[0];
 
-  const [enquiryOpen, setEnquiryOpen] = useState(false);
+  const openB2BModal = useUIStore((s) => s.openB2BModal);
   const [selectedGalleryImg, setSelectedGalleryImg] = useState<string | null>(
     null,
   );
@@ -61,13 +60,12 @@ export const ServiceDetailView: React.FC<ServiceDetailProps> = ({ slug }) => {
     `Hi Prayog India, I am requesting a quotation for "${service.name}". Please provide an itemized proposal.`,
   );
 
-  const scrollToForm = () => {
-    if (formRef.current) {
-      formRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
-      setTimeout(() => {
-        institutionInputRef.current?.focus();
-      }, 400);
-    }
+  const handleOpenQuotation = () => {
+    openB2BModal({
+      name: service.name,
+      link: typeof window !== "undefined" ? window.location.href : undefined,
+      quantity: "1",
+    });
   };
 
   const handleInlineSubmit = async (e: React.FormEvent) => {
@@ -76,19 +74,34 @@ export const ServiceDetailView: React.FC<ServiceDetailProps> = ({ slug }) => {
     setIsSubmitting(true);
 
     try {
-      const res = await submitServiceEnquiry({
-        serviceName: service.name,
-        name: `${formName} (${formOrg || "Institution"})`,
-        phone: formPhone,
-        email: formEmail,
-        notes: formNotes,
-        message: formNotes || `Quotation request for ${service.name}`,
+      const res = await fetch("/api/quotations/request", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          companyName: formOrg.trim() || `${service.name} Institution`,
+          customerName: formName.trim(),
+          customerEmail: formEmail.trim(),
+          customerPhone: formPhone.trim(),
+          institutionType: "ATL School",
+          notes: formNotes
+            ? `Service Requirement: ${service.name}\n${formNotes}`
+            : `Service Requirement: ${service.name}`,
+          items: [
+            {
+              productName: service.name,
+              productLink:
+                typeof window !== "undefined" ? window.location.href : undefined,
+              quantity: 1,
+            },
+          ],
+        }),
       });
 
-      if (res.success) {
+      const data = await res.json();
+      if (data.success) {
         setFormSuccess(true);
       } else {
-        setFormError(res.message || "Failed. Please contact on WhatsApp.");
+        setFormError(data.message || "Failed. Please contact on WhatsApp.");
       }
     } catch {
       setFormError("Network error. Please reach out on WhatsApp.");
@@ -212,7 +225,7 @@ export const ServiceDetailView: React.FC<ServiceDetailProps> = ({ slug }) => {
               <div className="flex flex-wrap items-center gap-2 sm:gap-3 pt-1 sm:pt-2">
                 <button
                   type="button"
-                  onClick={scrollToForm}
+                  onClick={handleOpenQuotation}
                   className="flex-1 sm:flex-initial bg-[#0B132B] hover:bg-[#00AEEF] text-white px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl font-bold text-xs uppercase tracking-wider transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer active:scale-95"
                 >
                   <Send className="w-3.5 h-3.5" />
@@ -686,13 +699,6 @@ export const ServiceDetailView: React.FC<ServiceDetailProps> = ({ slug }) => {
         </div>
       )}
 
-      {/* Floating Modal */}
-      <ServiceEnquiryModal
-        isOpen={enquiryOpen}
-        onClose={() => setEnquiryOpen(false)}
-        serviceName={service.name}
-      />
-
       {/* ── Mobile Sticky Bottom Action Bar ── */}
       <aside
         aria-label="Mobile service enquiry actions"
@@ -711,7 +717,7 @@ export const ServiceDetailView: React.FC<ServiceDetailProps> = ({ slug }) => {
 
           <button
             type="button"
-            onClick={scrollToForm}
+            onClick={handleOpenQuotation}
             className="h-10 sm:h-11 bg-[#0B132B] hover:bg-[#00AEEF] active:scale-95 text-white rounded-lg sm:rounded-xl font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 shadow-xs transition-all cursor-pointer whitespace-nowrap"
           >
             <Send className="w-3.5 h-3.5 shrink-0" />

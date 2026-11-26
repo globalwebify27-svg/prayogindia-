@@ -6,6 +6,7 @@ import {
   saveStoredServiceEnquiry,
   getStoredServiceEnquiries,
 } from "@/lib/serviceEnquiriesStore";
+import { saveStoredQuotation } from "@/data/quotationsStore";
 
 /**
  * POST /api/service-enquiries
@@ -98,6 +99,54 @@ export async function POST(request: Request) {
           }
         : null,
     });
+
+    // Also persist directly into Central Quotations Store so it appears in /admin/quotations in one place
+    try {
+      const fallbackQuoteNumber = `PRG-QT-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
+      const validUntilDate = new Date();
+      validUntilDate.setDate(validUntilDate.getDate() + 30);
+      saveStoredQuotation({
+        id: `qt-${Date.now()}`,
+        quoteNumber: fallbackQuoteNumber,
+        userId: user?.id || null,
+        storeId: "str-ranchi-01",
+        store: {
+          id: "str-ranchi-01",
+          name: "Prayog India Ranchi Main Branch & Central Hub",
+          code: "RANCHI",
+          city: "Ranchi",
+        },
+        institutionType: "Institutional Service",
+        companyName: name.trim(),
+        customerName: name.trim(),
+        customerEmail: email.trim().toLowerCase(),
+        customerPhone: phone.trim(),
+        status: "REQUESTED",
+        createdAt: new Date().toISOString(),
+        validUntil: validUntilDate.toISOString(),
+        items: [
+          {
+            id: `itm-${Date.now()}-0`,
+            productName: serviceName || "Technical / STEM Service Requirement",
+            productSku: "PRG-SVC",
+            unitPrice: 0,
+            quantity: 1,
+            discountPct: 0,
+            taxRate: 18,
+            total: 0,
+          },
+        ],
+        subtotal: 0,
+        discountAmount: 0,
+        taxRate: 18,
+        taxAmount: 0,
+        shippingCharge: 0,
+        grandTotal: 0,
+        notes: message.trim(),
+      });
+    } catch (storeErr) {
+      console.warn("Failed to mirror service enquiry to quotations store:", storeErr);
+    }
 
     // If Database is accessible, also persist to Prisma
     if (process.env.DATABASE_URL) {

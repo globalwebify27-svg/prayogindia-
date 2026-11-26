@@ -37,6 +37,7 @@ export const AppShell: React.FC<{ children: React.ReactNode }> = ({
   const closeCart = useUIStore((s) => s.closeCart);
   const toggleCart = useUIStore((s) => s.toggleCart);
   const isB2BModalOpen = useUIStore((s) => s.isB2BModalOpen);
+  const b2bInitialProduct = useUIStore((s) => s.b2bInitialProduct);
   const openB2BModal = useUIStore((s) => s.openB2BModal);
   const closeB2BModal = useUIStore((s) => s.closeB2BModal);
 
@@ -98,7 +99,11 @@ export const AppShell: React.FC<{ children: React.ReactNode }> = ({
         }}
       />
 
-      <B2BModal isOpen={isB2BModalOpen} onClose={closeB2BModal} />
+      <B2BModal
+        isOpen={isB2BModalOpen}
+        onClose={closeB2BModal}
+        initialProduct={b2bInitialProduct || undefined}
+      />
 
       <SuccessToast toast={toast} onClose={dismissToast} />
 

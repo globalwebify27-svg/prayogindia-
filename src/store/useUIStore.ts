@@ -1,6 +1,13 @@
 import { create } from "zustand";
 import { ToastData } from "@/components/SuccessToast";
 
+export interface B2BInitialProduct {
+  name?: string;
+  link?: string;
+  quantity?: string;
+  targetPrice?: string;
+}
+
 interface UIState {
   toast: ToastData | null;
   toastTimer: ReturnType<typeof setTimeout> | null;
@@ -14,9 +21,10 @@ interface UIState {
   toggleCart: () => void;
 
   isB2BModalOpen: boolean;
-  openB2BModal: () => void;
+  b2bInitialProduct: B2BInitialProduct | null;
+  openB2BModal: (initialProduct?: B2BInitialProduct) => void;
   closeB2BModal: () => void;
-  toggleB2BModal: () => void;
+  toggleB2BModal: (initialProduct?: B2BInitialProduct) => void;
 }
 
 export const useUIStore = create<UIState>((set, get) => ({
@@ -29,9 +37,18 @@ export const useUIStore = create<UIState>((set, get) => ({
   toggleCart: () => set((state) => ({ isCartOpen: !state.isCartOpen })),
 
   isB2BModalOpen: false,
-  openB2BModal: () => set({ isB2BModalOpen: true }),
-  closeB2BModal: () => set({ isB2BModalOpen: false }),
-  toggleB2BModal: () => set((state) => ({ isB2BModalOpen: !state.isB2BModalOpen })),
+  b2bInitialProduct: null,
+  openB2BModal: (initialProduct) =>
+    set({
+      isB2BModalOpen: true,
+      b2bInitialProduct: initialProduct || null,
+    }),
+  closeB2BModal: () => set({ isB2BModalOpen: false, b2bInitialProduct: null }),
+  toggleB2BModal: (initialProduct) =>
+    set((state) => ({
+      isB2BModalOpen: !state.isB2BModalOpen,
+      b2bInitialProduct: !state.isB2BModalOpen ? (initialProduct || null) : null,
+    })),
 
   dismissToast: () => {
     const currentTimer = get().toastTimer;
@@ -70,4 +87,5 @@ export const useUIStore = create<UIState>((set, get) => ({
 // ── Fine-grained pure selectors
 export const selectIsCartOpen = (state: UIState): boolean => state.isCartOpen;
 export const selectIsB2BModalOpen = (state: UIState): boolean => state.isB2BModalOpen;
+export const selectB2BInitialProduct = (state: UIState): B2BInitialProduct | null => state.b2bInitialProduct;
 export const selectToast = (state: UIState): ToastData | null => state.toast;

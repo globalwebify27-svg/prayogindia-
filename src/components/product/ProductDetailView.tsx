@@ -12,7 +12,6 @@ import { ProductRecommendations } from "@/components/product/ProductRecommendati
 import { PRODUCTS, Product, ProductVariant, getProductStock } from "@/data/mockData";
 import { findMockProduct } from "@/lib/productResolver";
 import { useCartStore, useWishlistStore, useUIStore } from "@/store";
-import { B2BModal } from "@/components/Modals";
 import {
   ShoppingBag,
   ShoppingCart,
@@ -130,8 +129,17 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
     0
   );
   const [stickyAdded, setStickyAdded] = useState(false);
-  const [b2bOpen, setB2bOpen] = useState(false);
+  const openB2BModal = useUIStore((s) => s.openB2BModal);
   const [mounted, setMounted] = useState(false);
+
+  const handleOpenB2BQuotation = () => {
+    openB2BModal({
+      name: product?.name || "Robotics Hardware Component",
+      link: typeof window !== "undefined" ? window.location.href : undefined,
+      quantity: String(stickyQuantity || 1),
+      targetPrice: product?.price ? String(product.price) : "",
+    });
+  };
 
   useEffect(() => {
     setMounted(true);
@@ -433,7 +441,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
             isWishlisted={isProductWishlisted}
             quantity={stickyQuantity}
             onQuantityChange={setStickyQuantity}
-            onOpenB2BModal={() => setB2bOpen(true)}
+            onOpenB2BModal={handleOpenB2BQuotation}
           />
         </div>
       </div>
@@ -470,7 +478,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
 
           <button
             type="button"
-            onClick={() => setB2bOpen(true)}
+            onClick={handleOpenB2BQuotation}
             className="w-full py-2.5 sm:py-3.5 px-4 sm:px-5 bg-[#005CA9] hover:bg-[#004a88] text-white rounded-xl sm:rounded-2xl font-extrabold text-xs sm:text-sm shadow-md shadow-blue-900/15 transition-all cursor-pointer flex items-center justify-center gap-2 hover:scale-[1.01]"
           >
             Submit your Bulk Enquiry Here
@@ -1012,9 +1020,6 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
         </div>,
         document.body
       )}
-
-      {/* ── B2B Institutional & Bulk Order Enquiry Modal ── */}
-      <B2BModal isOpen={b2bOpen} onClose={() => setB2bOpen(false)} />
     </div>
   );
 };

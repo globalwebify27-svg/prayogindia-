@@ -28,9 +28,9 @@ import {
   ContactSection,
   CareersSection,
 } from "@/components/CompanySections";
-import { QuickViewModal, B2BModal } from "@/components/Modals";
+import { QuickViewModal } from "@/components/Modals";
 import { PRODUCTS, Product } from "@/data/mockData";
-import { useCartStore, useWishlistStore } from "@/store";
+import { useCartStore, useWishlistStore, useUIStore } from "@/store";
 import { useRouter } from "next/navigation";
 
 export default function Home() {
@@ -44,7 +44,7 @@ export default function Home() {
   const storeAddToCart = useCartStore((s) => s.addToCart);
   const storeToggleWishlist = useWishlistStore((s) => s.toggleWishlist);
   const wishlist = useWishlistStore((s) => s.wishlist);
-  const [b2bOpen, setB2bOpen] = useState(false);
+  const openB2BModal = useUIStore((s) => s.openB2BModal);
   const [selectedQuickView, setSelectedQuickView] = useState<Product | null>(
     null,
   );
@@ -252,7 +252,7 @@ export default function Home() {
             />
 
             {/* 9. Services Preview */}
-            <ServicesSection onOpenB2BModal={() => setB2bOpen(true)} />
+            <ServicesSection onOpenB2BModal={openB2BModal} />
 
             {/* 10. Why Choose Prayog India */}
             <WhyChoosePrayog />
@@ -266,7 +266,7 @@ export default function Home() {
             {/* 13. Knowledge Center & Blog Guides */}
             <KnowledgeCenterSection />
 
-            <B2BSection onOpenB2BModal={() => setB2bOpen(true)} />
+            <B2BSection onOpenB2BModal={openB2BModal} />
 
             {/* 14. Trust Stats & Capabilities */}
             <StatsSection />
@@ -409,7 +409,7 @@ export default function Home() {
         {/* Tab 7: Services Dedicated Tab */}
         {activeTab === "services" && (
           <div className="py-10 animate-in fade-in duration-300">
-            <ServicesSection onOpenB2BModal={() => setB2bOpen(true)} />
+            <ServicesSection onOpenB2BModal={openB2BModal} />
           </div>
         )}
 
@@ -456,8 +456,6 @@ export default function Home() {
         onClose={() => setSelectedQuickView(null)}
         onAddToCart={handleAddToCart}
       />
-
-      <B2BModal isOpen={b2bOpen} onClose={() => setB2bOpen(false)} />
     </div>
   );
 }
