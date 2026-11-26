@@ -680,7 +680,7 @@ export const WishlistView: React.FC<WishlistViewProps> = ({
       {/* ── Page Header ── */}
       <div className="flex items-center justify-between gap-3 pt-0.5">
         <div>
-          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 tracking-tight">
+          <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
             My Wishlist
           </h1>
           <p className="text-xs text-slate-500 mt-0.5 font-medium">
