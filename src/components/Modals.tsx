@@ -185,7 +185,7 @@ export const B2BModal: React.FC<B2BModalProps> = ({
   const [email, setEmail] = useState("");
   const [notes, setNotes] = useState("");
   const [products, setProducts] = useState<QuotationProductItem[]>([
-    { id: "1", name: "", link: "", quantity: "10", targetPrice: "" },
+    { id: "1", name: "", link: "", quantity: "1", targetPrice: "" },
   ]);
 
   const [mounted, setMounted] = useState(false);
@@ -211,7 +211,7 @@ export const B2BModal: React.FC<B2BModalProps> = ({
             id: "1",
             name: initialProduct.name,
             link: initialProduct.link || "",
-            quantity: "10",
+            quantity: "1",
             targetPrice: "",
           },
         ]);
@@ -453,10 +453,10 @@ export const B2BModal: React.FC<B2BModalProps> = ({
                     <input
                       type="text"
                       required
-                      placeholder="e.g. DPS Ranchi or IIT Delhi"
+                      placeholder="School, college, or company name"
                       value={companyName}
                       onChange={(e) => setCompanyName(e.target.value)}
-                      className="w-full px-3 py-2 bg-slate-50/70 hover:bg-slate-50 focus:bg-white border border-slate-200 focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/15 rounded-lg font-medium text-xs text-slate-900 outline-none transition-all placeholder:text-slate-400"
+                      className="w-full px-3 py-2 bg-slate-50/70 hover:bg-slate-50 focus:bg-white border border-slate-200 focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/15 rounded-lg font-medium text-xs text-slate-900 outline-none transition-all placeholder:text-slate-400 placeholder:font-normal"
                     />
                   </div>
 
@@ -469,10 +469,10 @@ export const B2BModal: React.FC<B2BModalProps> = ({
                       <input
                         type="text"
                         required
-                        placeholder="Full Name"
+                        placeholder="Full name of contact person"
                         value={customerName}
                         onChange={(e) => setCustomerName(e.target.value)}
-                        className="w-full px-3 py-2 bg-slate-50/70 hover:bg-slate-50 focus:bg-white border border-slate-200 focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/15 rounded-lg font-medium text-xs text-slate-900 outline-none transition-all placeholder:text-slate-400"
+                        className="w-full px-3 py-2 bg-slate-50/70 hover:bg-slate-50 focus:bg-white border border-slate-200 focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/15 rounded-lg font-medium text-xs text-slate-900 outline-none transition-all placeholder:text-slate-400 placeholder:font-normal"
                       />
                     </div>
                     <div>
@@ -490,7 +490,7 @@ export const B2BModal: React.FC<B2BModalProps> = ({
                           placeholder="10-digit mobile number"
                           value={phone}
                           onChange={(e) => setPhone(e.target.value.replace(/\D/g, ""))}
-                          className="w-full px-3 py-2 bg-slate-50/70 hover:bg-slate-50 focus:bg-white font-medium text-xs text-slate-900 outline-none transition-all placeholder:text-slate-400"
+                          className="w-full px-3 py-2 bg-slate-50/70 hover:bg-slate-50 focus:bg-white font-medium text-xs text-slate-900 outline-none transition-all placeholder:text-slate-400 placeholder:font-normal"
                         />
                       </div>
                     </div>
@@ -504,10 +504,10 @@ export const B2BModal: React.FC<B2BModalProps> = ({
                     <input
                       type="email"
                       required
-                      placeholder="e.g. contact@institution.edu"
+                      placeholder="contact@institution.edu"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="w-full px-3 py-2 bg-slate-50/70 hover:bg-slate-50 focus:bg-white border border-slate-200 focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/15 rounded-lg font-medium text-xs text-slate-900 outline-none transition-all placeholder:text-slate-400"
+                      className="w-full px-3 py-2 bg-slate-50/70 hover:bg-slate-50 focus:bg-white border border-slate-200 focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/15 rounded-lg font-medium text-xs text-slate-900 outline-none transition-all placeholder:text-slate-400 placeholder:font-normal"
                     />
                   </div>
 
@@ -569,12 +569,12 @@ export const B2BModal: React.FC<B2BModalProps> = ({
                             <input
                               type="text"
                               required
-                              placeholder="e.g. Arduino Uno R3 or Drone Frame"
+                              placeholder="Product name or requirement"
                               value={prod.name}
                               onChange={(e) =>
                                 handleUpdateProduct(prod.id, "name", e.target.value)
                               }
-                              className="w-full px-2.5 py-1.5 bg-white border border-slate-200 focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/15 rounded-lg font-medium text-xs text-slate-900 outline-none transition-all placeholder:text-slate-400"
+                              className="w-full px-2.5 py-1.5 bg-white border border-slate-200 focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/15 rounded-lg font-medium text-xs text-slate-900 outline-none transition-all placeholder:text-slate-400 placeholder:font-normal"
                             />
                           </div>
 
@@ -592,12 +592,12 @@ export const B2BModal: React.FC<B2BModalProps> = ({
                                 <Link2 className="w-3.5 h-3.5 text-slate-400 shrink-0 mr-1.5" />
                                 <input
                                   type="url"
-                                  placeholder="https://... (optional)"
+                                  placeholder="https://example.com/product-link"
                                   value={prod.link}
                                   onChange={(e) =>
                                     handleUpdateProduct(prod.id, "link", e.target.value)
                                   }
-                                  className="w-full bg-transparent font-medium text-xs text-slate-900 placeholder:text-slate-400 outline-none"
+                                  className="w-full bg-transparent font-medium text-xs text-slate-900 placeholder:text-slate-400 placeholder:font-normal outline-none"
                                 />
                               </div>
                             </div>
@@ -611,7 +611,7 @@ export const B2BModal: React.FC<B2BModalProps> = ({
                                 type="number"
                                 min="1"
                                 required
-                                placeholder="10"
+                                placeholder="1"
                                 value={prod.quantity}
                                 onChange={(e) =>
                                   handleUpdateProduct(
@@ -620,7 +620,7 @@ export const B2BModal: React.FC<B2BModalProps> = ({
                                     e.target.value,
                                   )
                                 }
-                                className="w-full px-2.5 py-1.5 bg-white border border-slate-200 focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/15 rounded-lg font-medium text-xs text-slate-900 outline-none transition-all text-center sm:text-left placeholder:text-slate-400"
+                                className="w-full px-2.5 py-1.5 bg-white border border-slate-200 focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/15 rounded-lg font-medium text-xs text-slate-900 outline-none transition-all text-center sm:text-left placeholder:text-slate-400 placeholder:font-normal"
                               />
                             </div>
 
@@ -635,7 +635,7 @@ export const B2BModal: React.FC<B2BModalProps> = ({
                               <input
                                 type="number"
                                 min="0"
-                                placeholder="e.g. 500"
+                                placeholder="Price per unit"
                                 value={prod.targetPrice}
                                 onChange={(e) =>
                                   handleUpdateProduct(
@@ -644,7 +644,7 @@ export const B2BModal: React.FC<B2BModalProps> = ({
                                     e.target.value,
                                   )
                                 }
-                                className="w-full px-2.5 py-1.5 bg-white border border-slate-200 focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/15 rounded-lg font-medium text-xs text-slate-900 outline-none transition-all placeholder:text-slate-400"
+                                className="w-full px-2.5 py-1.5 bg-white border border-slate-200 focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/15 rounded-lg font-medium text-xs text-slate-900 outline-none transition-all placeholder:text-slate-400 placeholder:font-normal"
                               />
                             </div>
                           </div>
@@ -670,10 +670,10 @@ export const B2BModal: React.FC<B2BModalProps> = ({
                     </label>
                     <textarea
                       rows={2}
-                      placeholder="Any specific delivery timeline, batch requirement, or customized notes..."
+                      placeholder="Any specific delivery timeline, batch requirements, or instructions..."
                       value={notes}
                       onChange={(e) => setNotes(e.target.value)}
-                      className="w-full p-2.5 bg-slate-50/70 hover:bg-slate-50 focus:bg-white border border-slate-200 focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/15 rounded-lg font-medium text-xs text-slate-900 outline-none transition-all resize-none placeholder:text-slate-400"
+                      className="w-full p-2.5 bg-slate-50/70 hover:bg-slate-50 focus:bg-white border border-slate-200 focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/15 rounded-lg font-medium text-xs text-slate-900 outline-none transition-all resize-none placeholder:text-slate-400 placeholder:font-normal"
                     />
                   </div>
                 </div>
