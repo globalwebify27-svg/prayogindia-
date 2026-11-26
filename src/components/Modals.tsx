@@ -12,6 +12,7 @@ import {
   Trash2,
   Link2,
   CheckCircle2,
+  AlertCircle,
   Building2,
 } from "lucide-react";
 import { PRODUCTS, Product } from "@/data/mockData";
@@ -191,6 +192,65 @@ export const B2BModal: React.FC<B2BModalProps> = ({
     { id: "1", name: "", link: "", quantity: "1", targetPrice: "" },
   ]);
 
+  interface B2BErrors {
+    companyName?: string;
+    customerName?: string;
+    phone?: string;
+    email?: string;
+    products?: string;
+  }
+  const [fieldErrors, setFieldErrors] = useState<B2BErrors>({});
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
+
+  const validateB2BField = (field: keyof B2BErrors, value: string): string | undefined => {
+    const trimmed = value.trim();
+    switch (field) {
+      case "companyName":
+        if (!trimmed) return "Organization / Lab name is required.";
+        if (trimmed.length < 2) return "Organization name must be at least 2 characters.";
+        return undefined;
+      case "customerName":
+        if (!trimmed) return "Contact person name is required.";
+        if (trimmed.length < 2) return "Contact person name must be at least 2 characters.";
+        return undefined;
+      case "phone": {
+        if (!trimmed) return "Mobile number is required.";
+        const cleaned = trimmed.replace(/\D/g, "");
+        if (!/^[6-9]\d{9}$/.test(cleaned)) {
+          return "Enter a valid 10-digit Indian mobile number.";
+        }
+        return undefined;
+      }
+      case "email": {
+        if (!trimmed) return "Email address is required.";
+        if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(trimmed)) {
+          return "Enter a valid email address.";
+        }
+        return undefined;
+      }
+      default:
+        return undefined;
+    }
+  };
+
+  const handleB2BBlur = (field: keyof B2BErrors, value: string) => {
+    setTouched((prev) => ({ ...prev, [field]: true }));
+    const err = validateB2BField(field, value);
+    setFieldErrors((prev) => ({ ...prev, [field]: err }));
+  };
+
+  const handleB2BChange = (
+    field: keyof B2BErrors,
+    value: string,
+    setter: (val: string) => void,
+  ) => {
+    setter(value);
+    if (touched[field]) {
+      const err = validateB2BField(field, value);
+      setFieldErrors((prev) => ({ ...prev, [field]: err }));
+    }
+  };
+
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -202,6 +262,8 @@ export const B2BModal: React.FC<B2BModalProps> = ({
     if (isOpen) {
       setSubmitted(false);
       setError("");
+      setFieldErrors({});
+      setTouched({});
       if (user) {
         if (user.companyName) setCompanyName(user.companyName);
         if (user.name) setCustomerName(user.name);
@@ -265,9 +327,36 @@ export const B2BModal: React.FC<B2BModalProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setTouched({
+      companyName: true,
+      customerName: true,
+      phone: true,
+      email: true,
+      products: true,
+    });
+
+    const compErr = validateB2BField("companyName", companyName);
+    const custErr = validateB2BField("customerName", customerName);
+    const phoneErr = validateB2BField("phone", phone);
+    const emailErr = validateB2BField("email", email);
+
     const validProducts = products.filter((p) => p.name.trim().length > 0);
-    if (!companyName.trim() || !customerName.trim() || validProducts.length === 0) {
-      setError("Please fill in company name, contact person, and at least one product requirement.");
+    const prodErr =
+      validProducts.length === 0
+        ? "Please specify at least one product requirement."
+        : undefined;
+
+    const newErrors: B2BErrors = {};
+    if (compErr) newErrors.companyName = compErr;
+    if (custErr) newErrors.customerName = custErr;
+    if (phoneErr) newErrors.phone = phoneErr;
+    if (emailErr) newErrors.email = emailErr;
+    if (prodErr) newErrors.products = prodErr;
+
+    setFieldErrors(newErrors);
+
+    if (Object.keys(newErrors).length > 0) {
+      setError("Please fix the highlighted fields before submitting.");
       return;
     }
 
@@ -300,14 +389,15 @@ export const B2BModal: React.FC<B2BModalProps> = ({
         .filter(Boolean)
         .join("\n\n");
 
+      const cleanedPhone = phone.replace(/\D/g, "");
       const res = await fetch("/api/quotations/request", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           companyName: companyName.trim(),
           customerName: customerName.trim(),
-          customerEmail: email.trim() || user?.email || "customer@prayog.in",
-          customerPhone: phone.trim() || "9876543210",
+          customerEmail: email.trim(),
+          customerPhone: `+91 ${cleanedPhone}`,
           institutionType,
           notes: combinedNotes || undefined,
           items: itemsPayload,
@@ -410,11 +500,12 @@ export const B2BModal: React.FC<B2BModalProps> = ({
                 </div>
               </div>
             ) : (
-              <form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0">
+              <form onSubmit={handleSubmit} noValidate className="flex flex-col flex-1 min-h-0">
                 <div className="flex-1 overflow-y-auto overscroll-contain p-4 sm:p-6 space-y-3.5 text-xs">
                   {error && (
-                    <div className="p-2.5 bg-rose-50 border border-rose-200 text-rose-700 text-xs rounded-lg font-medium">
-                      {error}
+                    <div className="p-2.5 bg-rose-50 border border-rose-200 text-rose-700 text-xs rounded-lg font-medium flex items-center gap-2 animate-in fade-in">
+                      <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
+                      <span>{error}</span>
                     </div>
                   )}
 
@@ -457,12 +548,23 @@ export const B2BModal: React.FC<B2BModalProps> = ({
                     </label>
                     <input
                       type="text"
-                      required
                       placeholder="School, college, or company name"
                       value={companyName}
-                      onChange={(e) => setCompanyName(e.target.value)}
-                      className="w-full px-3 py-2 bg-slate-50/70 hover:bg-slate-50 focus:bg-white border border-slate-200 focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/15 rounded-lg font-medium text-xs text-slate-900 outline-none transition-all placeholder:text-slate-400 placeholder:font-normal"
+                      onChange={(e) => handleB2BChange("companyName", e.target.value, setCompanyName)}
+                      onBlur={() => handleB2BBlur("companyName", companyName)}
+                      aria-invalid={!!(touched.companyName && fieldErrors.companyName)}
+                      className={`w-full px-3 py-2 rounded-lg font-medium text-xs outline-none transition-all placeholder:text-slate-400 placeholder:font-normal ${
+                        touched.companyName && fieldErrors.companyName
+                          ? "bg-rose-50/20 border border-rose-400 text-slate-900 focus:ring-2 focus:ring-rose-400"
+                          : "bg-slate-50/70 hover:bg-slate-50 focus:bg-white border border-slate-200 focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/15 text-slate-900"
+                      }`}
                     />
+                    {touched.companyName && fieldErrors.companyName && (
+                      <p className="text-[11px] text-rose-600 font-medium flex items-center gap-1 mt-1 animate-in fade-in">
+                        <AlertCircle className="w-3 h-3 shrink-0" />
+                        <span>{fieldErrors.companyName}</span>
+                      </p>
+                    )}
                   </div>
 
                   {/* Contact Person & Mobile Number */}
@@ -473,31 +575,53 @@ export const B2BModal: React.FC<B2BModalProps> = ({
                       </label>
                       <input
                         type="text"
-                        required
                         placeholder="Full name of contact person"
                         value={customerName}
-                        onChange={(e) => setCustomerName(e.target.value)}
-                        className="w-full px-3 py-2 bg-slate-50/70 hover:bg-slate-50 focus:bg-white border border-slate-200 focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/15 rounded-lg font-medium text-xs text-slate-900 outline-none transition-all placeholder:text-slate-400 placeholder:font-normal"
+                        onChange={(e) => handleB2BChange("customerName", e.target.value, setCustomerName)}
+                        onBlur={() => handleB2BBlur("customerName", customerName)}
+                        aria-invalid={!!(touched.customerName && fieldErrors.customerName)}
+                        className={`w-full px-3 py-2 rounded-lg font-medium text-xs outline-none transition-all placeholder:text-slate-400 placeholder:font-normal ${
+                          touched.customerName && fieldErrors.customerName
+                            ? "bg-rose-50/20 border border-rose-400 text-slate-900 focus:ring-2 focus:ring-rose-400"
+                            : "bg-slate-50/70 hover:bg-slate-50 focus:bg-white border border-slate-200 focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/15 text-slate-900"
+                        }`}
                       />
+                      {touched.customerName && fieldErrors.customerName && (
+                        <p className="text-[11px] text-rose-600 font-medium flex items-center gap-1 mt-1 animate-in fade-in">
+                          <AlertCircle className="w-3 h-3 shrink-0" />
+                          <span>{fieldErrors.customerName}</span>
+                        </p>
+                      )}
                     </div>
                     <div>
                       <label className="block font-bold text-slate-700 mb-1 text-[11px] sm:text-xs">
                         Mobile Number <span className="text-rose-500">*</span>
                       </label>
-                      <div className="flex rounded-lg border border-slate-200 overflow-hidden focus-within:border-[#2563EB] focus-within:ring-2 focus-within:ring-[#2563EB]/15 transition-all">
+                      <div className={`flex rounded-lg border overflow-hidden transition-all ${
+                        touched.phone && fieldErrors.phone
+                          ? "border-rose-400 bg-rose-50/20 ring-2 ring-rose-400"
+                          : "border-slate-200 focus-within:border-[#2563EB] focus-within:ring-2 focus-within:ring-[#2563EB]/15"
+                      }`}>
                         <span className="bg-slate-100 text-slate-500 font-bold px-2.5 py-2 border-r border-slate-200 flex items-center select-none text-xs">
                           +91
                         </span>
                         <input
                           type="tel"
                           maxLength={10}
-                          required
                           placeholder="10-digit mobile number"
                           value={phone}
-                          onChange={(e) => setPhone(e.target.value.replace(/\D/g, ""))}
+                          onChange={(e) => handleB2BChange("phone", e.target.value.replace(/\D/g, ""), setPhone)}
+                          onBlur={() => handleB2BBlur("phone", phone)}
+                          aria-invalid={!!(touched.phone && fieldErrors.phone)}
                           className="w-full px-3 py-2 bg-slate-50/70 hover:bg-slate-50 focus:bg-white font-medium text-xs text-slate-900 outline-none transition-all placeholder:text-slate-400 placeholder:font-normal"
                         />
                       </div>
+                      {touched.phone && fieldErrors.phone && (
+                        <p className="text-[11px] text-rose-600 font-medium flex items-center gap-1 mt-1 animate-in fade-in">
+                          <AlertCircle className="w-3 h-3 shrink-0" />
+                          <span>{fieldErrors.phone}</span>
+                        </p>
+                      )}
                     </div>
                   </div>
 
@@ -508,12 +632,23 @@ export const B2BModal: React.FC<B2BModalProps> = ({
                     </label>
                     <input
                       type="email"
-                      required
                       placeholder="contact@institution.edu"
                       value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="w-full px-3 py-2 bg-slate-50/70 hover:bg-slate-50 focus:bg-white border border-slate-200 focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/15 rounded-lg font-medium text-xs text-slate-900 outline-none transition-all placeholder:text-slate-400 placeholder:font-normal"
+                      onChange={(e) => handleB2BChange("email", e.target.value, setEmail)}
+                      onBlur={() => handleB2BBlur("email", email)}
+                      aria-invalid={!!(touched.email && fieldErrors.email)}
+                      className={`w-full px-3 py-2 rounded-lg font-medium text-xs outline-none transition-all placeholder:text-slate-400 placeholder:font-normal ${
+                        touched.email && fieldErrors.email
+                          ? "bg-rose-50/20 border border-rose-400 text-slate-900 focus:ring-2 focus:ring-rose-400"
+                          : "bg-slate-50/70 hover:bg-slate-50 focus:bg-white border border-slate-200 focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/15 text-slate-900"
+                      }`}
                     />
+                    {touched.email && fieldErrors.email && (
+                      <p className="text-[11px] text-rose-600 font-medium flex items-center gap-1 mt-1 animate-in fade-in">
+                        <AlertCircle className="w-3 h-3 shrink-0" />
+                        <span>{fieldErrors.email}</span>
+                      </p>
+                    )}
                   </div>
 
                   {/* Products & Components */}
@@ -537,6 +672,13 @@ export const B2BModal: React.FC<B2BModalProps> = ({
                         <span>Add Product</span>
                       </button>
                     </div>
+
+                    {touched.products && fieldErrors.products && (
+                      <p className="text-[11px] text-rose-600 font-medium flex items-center gap-1 animate-in fade-in">
+                        <AlertCircle className="w-3 h-3 shrink-0" />
+                        <span>{fieldErrors.products}</span>
+                      </p>
+                    )}
 
                     <div className="space-y-2.5 max-h-[300px] overflow-y-auto pr-0.5">
                       {products.map((prod, index) => (

@@ -8,6 +8,8 @@ import { SERVICES_DATA } from "@/data/servicesData";
 import { useUIStore } from "@/store/useUIStore";
 import {
   CheckCircle2,
+  AlertCircle,
+  Loader2,
   ArrowLeft,
   Send,
   MessageSquare,
@@ -43,7 +45,7 @@ export const ServiceDetailView: React.FC<ServiceDetailProps> = ({ slug }) => {
     null,
   );
 
-  // Quick Inline Form State
+  // Quick Inline Form State & Validation
   const [formName, setFormName] = useState("");
   const [formOrg, setFormOrg] = useState("");
   const [formPhone, setFormPhone] = useState("");
@@ -53,8 +55,93 @@ export const ServiceDetailView: React.FC<ServiceDetailProps> = ({ slug }) => {
   const [formSuccess, setFormSuccess] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
 
+  interface FormErrors {
+    org?: string;
+    name?: string;
+    phone?: string;
+    email?: string;
+    notes?: string;
+  }
+  const [fieldErrors, setFieldErrors] = useState<FormErrors>({});
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
+
   const formRef = useRef<HTMLDivElement>(null);
   const institutionInputRef = useRef<HTMLInputElement>(null);
+  const nameInputRef = useRef<HTMLInputElement>(null);
+  const phoneInputRef = useRef<HTMLInputElement>(null);
+  const emailInputRef = useRef<HTMLInputElement>(null);
+
+  const validateField = (field: keyof FormErrors, value: string): string | undefined => {
+    const trimmed = value.trim();
+    switch (field) {
+      case "org":
+        if (!trimmed) return "Institution or organization name is required.";
+        if (trimmed.length < 2) return "Institution name must be at least 2 characters.";
+        return undefined;
+      case "name":
+        if (!trimmed) return "Contact person name is required.";
+        if (trimmed.length < 2) return "Contact person name must be at least 2 characters.";
+        return undefined;
+      case "phone": {
+        if (!trimmed) return "Phone / WhatsApp number is required.";
+        const cleaned = trimmed.replace(/[\s\-\(\)\+]/g, "").replace(/^(?:91|0)/, "");
+        if (!/^[6-9]\d{9}$/.test(cleaned)) {
+          return "Enter a valid 10-digit Indian phone/WhatsApp number (e.g. 9876543210).";
+        }
+        return undefined;
+      }
+      case "email": {
+        if (!trimmed) return "Official or institutional email is required.";
+        if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(trimmed)) {
+          return "Enter a valid email address (e.g. principal@school.edu).";
+        }
+        return undefined;
+      }
+      case "notes":
+        if (value.length > 1000) return "Notes must not exceed 1000 characters.";
+        return undefined;
+      default:
+        return undefined;
+    }
+  };
+
+  const validateAll = (): { isValid: boolean; errors: FormErrors } => {
+    const orgErr = validateField("org", formOrg);
+    const nameErr = validateField("name", formName);
+    const phoneErr = validateField("phone", formPhone);
+    const emailErr = validateField("email", formEmail);
+    const notesErr = validateField("notes", formNotes);
+
+    const errs: FormErrors = {};
+    if (orgErr) errs.org = orgErr;
+    if (nameErr) errs.name = nameErr;
+    if (phoneErr) errs.phone = phoneErr;
+    if (emailErr) errs.email = emailErr;
+    if (notesErr) errs.notes = notesErr;
+
+    return {
+      isValid: Object.keys(errs).length === 0,
+      errors: errs,
+    };
+  };
+
+  const handleBlur = (field: keyof FormErrors, value: string) => {
+    setTouched((prev) => ({ ...prev, [field]: true }));
+    const err = validateField(field, value);
+    setFieldErrors((prev) => ({ ...prev, [field]: err }));
+  };
+
+  const handleChange = (
+    field: keyof FormErrors,
+    value: string,
+    setter: (val: string) => void,
+  ) => {
+    setter(value);
+    if (touched[field]) {
+      const err = validateField(field, value);
+      setFieldErrors((prev) => ({ ...prev, [field]: err }));
+    }
+  };
 
   const whatsappMessage = encodeURIComponent(
     `Hi Prayog India, I am requesting a quotation for "${service.name}". Please provide an itemized proposal.`,
@@ -71,20 +158,49 @@ export const ServiceDetailView: React.FC<ServiceDetailProps> = ({ slug }) => {
   const handleInlineSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormError(null);
+
+    // Mark all required fields as touched
+    setTouched({
+      org: true,
+      name: true,
+      phone: true,
+      email: true,
+      notes: true,
+    });
+
+    const { isValid, errors } = validateAll();
+    setFieldErrors(errors);
+
+    if (!isValid) {
+      setFormError("Please fill in all required fields accurately before submitting.");
+      if (errors.org) {
+        institutionInputRef.current?.focus();
+      } else if (errors.name) {
+        nameInputRef.current?.focus();
+      } else if (errors.phone) {
+        phoneInputRef.current?.focus();
+      } else if (errors.email) {
+        emailInputRef.current?.focus();
+      }
+      return;
+    }
+
     setIsSubmitting(true);
+    const cleanedPhone = formPhone.replace(/[\s\-\(\)\+]/g, "").replace(/^(?:91|0)/, "");
+    const formattedPhone = cleanedPhone.length === 10 ? `+91 ${cleanedPhone}` : formPhone.trim();
 
     try {
       const res = await fetch("/api/quotations/request", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          companyName: formOrg.trim() || `${service.name} Institution`,
+          companyName: formOrg.trim(),
           customerName: formName.trim(),
           customerEmail: formEmail.trim(),
-          customerPhone: formPhone.trim(),
+          customerPhone: formattedPhone,
           institutionType: "ATL School",
           notes: formNotes
-            ? `Service Requirement: ${service.name}\n${formNotes}`
+            ? `Service Requirement: ${service.name}\n${formNotes.trim()}`
             : `Service Requirement: ${service.name}`,
           items: [
             {
@@ -489,102 +605,177 @@ export const ServiceDetailView: React.FC<ServiceDetailProps> = ({ slug }) => {
               </div>
 
               {!formSuccess ? (
-                <form onSubmit={handleInlineSubmit} className="space-y-3 text-xs">
+                <form onSubmit={handleInlineSubmit} noValidate className="space-y-3 text-xs">
                   {formError && (
-                    <div className="p-2.5 rounded-lg bg-red-50 border border-red-200 text-red-700 font-bold text-xs">
-                      {formError}
+                    <div className="p-2.5 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 font-bold text-xs flex items-center gap-2 animate-in fade-in">
+                      <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
+                      <span>{formError}</span>
                     </div>
                   )}
 
                   {/* Institution Name */}
                   <div>
-                    <label className="block font-bold text-slate-600 text-[10px] sm:text-[11px] uppercase tracking-wider mb-1">
-                      Institution / Organization
+                    <label className="block font-bold text-slate-700 text-[10px] sm:text-[11px] uppercase tracking-wider mb-1">
+                      Institution / Organization <span className="text-rose-500">*</span>
                     </label>
                     <div className="relative">
-                      <Building2 className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-2.5" />
+                      <Building2 className={`w-3.5 h-3.5 absolute left-3 top-2.5 transition-colors ${
+                        touched.org && fieldErrors.org ? "text-rose-500" : "text-slate-400"
+                      }`} />
                       <input
                         ref={institutionInputRef}
                         type="text"
-                        required
                         placeholder="e.g. St. Xavier's School / IIT / ABC Academy"
                         value={formOrg}
-                        onChange={(e) => setFormOrg(e.target.value)}
-                        className="w-full bg-slate-50 text-slate-900 pl-9 pr-3 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#00AEEF] focus:bg-white font-medium transition-all text-xs placeholder:text-slate-400"
+                        onChange={(e) => handleChange("org", e.target.value, setFormOrg)}
+                        onBlur={() => handleBlur("org", formOrg)}
+                        aria-invalid={!!(touched.org && fieldErrors.org)}
+                        className={`w-full pl-9 pr-3 py-2 rounded-lg border font-medium transition-all text-xs placeholder:text-slate-400 outline-none ${
+                          touched.org && fieldErrors.org
+                            ? "border-rose-400 bg-rose-50/20 text-slate-900 focus:ring-2 focus:ring-rose-400"
+                            : "bg-slate-50 text-slate-900 border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#00AEEF] focus:bg-white"
+                        }`}
                       />
                     </div>
+                    {touched.org && fieldErrors.org && (
+                      <p className="text-[11px] text-rose-600 font-semibold flex items-center gap-1 mt-1 animate-in fade-in">
+                        <AlertCircle className="w-3 h-3 shrink-0" />
+                        <span>{fieldErrors.org}</span>
+                      </p>
+                    )}
                   </div>
 
                   {/* Contact Person */}
                   <div>
-                    <label className="block font-bold text-slate-600 text-[10px] sm:text-[11px] uppercase tracking-wider mb-1">
-                      Contact Person Name
+                    <label className="block font-bold text-slate-700 text-[10px] sm:text-[11px] uppercase tracking-wider mb-1">
+                      Contact Person Name <span className="text-rose-500">*</span>
                     </label>
                     <div className="relative">
-                      <User className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-2.5" />
+                      <User className={`w-3.5 h-3.5 absolute left-3 top-2.5 transition-colors ${
+                        touched.name && fieldErrors.name ? "text-rose-500" : "text-slate-400"
+                      }`} />
                       <input
+                        ref={nameInputRef}
                         type="text"
-                        required
                         placeholder="Dr. / Prof. / Principal Name"
                         value={formName}
-                        onChange={(e) => setFormName(e.target.value)}
-                        className="w-full bg-slate-50 text-slate-900 pl-9 pr-3 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#00AEEF] focus:bg-white font-medium transition-all text-xs placeholder:text-slate-400"
+                        onChange={(e) => handleChange("name", e.target.value, setFormName)}
+                        onBlur={() => handleBlur("name", formName)}
+                        aria-invalid={!!(touched.name && fieldErrors.name)}
+                        className={`w-full pl-9 pr-3 py-2 rounded-lg border font-medium transition-all text-xs placeholder:text-slate-400 outline-none ${
+                          touched.name && fieldErrors.name
+                            ? "border-rose-400 bg-rose-50/20 text-slate-900 focus:ring-2 focus:ring-rose-400"
+                            : "bg-slate-50 text-slate-900 border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#00AEEF] focus:bg-white"
+                        }`}
                       />
                     </div>
+                    {touched.name && fieldErrors.name && (
+                      <p className="text-[11px] text-rose-600 font-semibold flex items-center gap-1 mt-1 animate-in fade-in">
+                        <AlertCircle className="w-3 h-3 shrink-0" />
+                        <span>{fieldErrors.name}</span>
+                      </p>
+                    )}
                   </div>
 
                   {/* Contact Number & Email in 2 columns */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                     <div>
-                      <label className="block font-bold text-slate-600 text-[10px] sm:text-[11px] uppercase tracking-wider mb-1">
-                        Phone / WhatsApp
+                      <label className="block font-bold text-slate-700 text-[10px] sm:text-[11px] uppercase tracking-wider mb-1">
+                        Phone / WhatsApp <span className="text-rose-500">*</span>
                       </label>
                       <div className="relative">
-                        <Phone className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-2.5" />
+                        <Phone className={`w-3.5 h-3.5 absolute left-3 top-2.5 transition-colors ${
+                          touched.phone && fieldErrors.phone ? "text-rose-500" : "text-slate-400"
+                        }`} />
                         <input
+                          ref={phoneInputRef}
                           type="tel"
-                          required
+                          maxLength={15}
                           placeholder="+91..."
                           value={formPhone}
-                          onChange={(e) => setFormPhone(e.target.value)}
-                          className="w-full bg-slate-50 text-slate-900 pl-9 pr-3 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#00AEEF] focus:bg-white font-medium transition-all text-xs placeholder:text-slate-400"
+                          onChange={(e) => handleChange("phone", e.target.value, setFormPhone)}
+                          onBlur={() => handleBlur("phone", formPhone)}
+                          aria-invalid={!!(touched.phone && fieldErrors.phone)}
+                          className={`w-full pl-9 pr-3 py-2 rounded-lg border font-medium transition-all text-xs placeholder:text-slate-400 outline-none ${
+                            touched.phone && fieldErrors.phone
+                              ? "border-rose-400 bg-rose-50/20 text-slate-900 focus:ring-2 focus:ring-rose-400"
+                              : "bg-slate-50 text-slate-900 border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#00AEEF] focus:bg-white"
+                          }`}
                         />
                       </div>
+                      {touched.phone && fieldErrors.phone && (
+                        <p className="text-[11px] text-rose-600 font-semibold flex items-center gap-1 mt-1 animate-in fade-in">
+                          <AlertCircle className="w-3 h-3 shrink-0" />
+                          <span>{fieldErrors.phone}</span>
+                        </p>
+                      )}
                     </div>
 
                     <div>
-                      <label className="block font-bold text-slate-600 text-[10px] sm:text-[11px] uppercase tracking-wider mb-1">
-                        Email Address
+                      <label className="block font-bold text-slate-700 text-[10px] sm:text-[11px] uppercase tracking-wider mb-1">
+                        Email Address <span className="text-rose-500">*</span>
                       </label>
                       <div className="relative">
-                        <Mail className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-2.5" />
+                        <Mail className={`w-3.5 h-3.5 absolute left-3 top-2.5 transition-colors ${
+                          touched.email && fieldErrors.email ? "text-rose-500" : "text-slate-400"
+                        }`} />
                         <input
+                          ref={emailInputRef}
                           type="email"
-                          required
                           placeholder="principal@school.edu"
                           value={formEmail}
-                          onChange={(e) => setFormEmail(e.target.value)}
-                          className="w-full bg-slate-50 text-slate-900 pl-9 pr-3 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#00AEEF] focus:bg-white font-medium transition-all text-xs placeholder:text-slate-400"
+                          onChange={(e) => handleChange("email", e.target.value, setFormEmail)}
+                          onBlur={() => handleBlur("email", formEmail)}
+                          aria-invalid={!!(touched.email && fieldErrors.email)}
+                          className={`w-full pl-9 pr-3 py-2 rounded-lg border font-medium transition-all text-xs placeholder:text-slate-400 outline-none ${
+                            touched.email && fieldErrors.email
+                              ? "border-rose-400 bg-rose-50/20 text-slate-900 focus:ring-2 focus:ring-rose-400"
+                              : "bg-slate-50 text-slate-900 border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#00AEEF] focus:bg-white"
+                          }`}
                         />
                       </div>
+                      {touched.email && fieldErrors.email && (
+                        <p className="text-[11px] text-rose-600 font-semibold flex items-center gap-1 mt-1 animate-in fade-in">
+                          <AlertCircle className="w-3 h-3 shrink-0" />
+                          <span>{fieldErrors.email}</span>
+                        </p>
+                      )}
                     </div>
                   </div>
 
                   {/* Notes (Optional) */}
                   <div>
-                    <label className="block font-bold text-slate-600 text-[10px] sm:text-[11px] uppercase tracking-wider mb-1">
-                      Notes (Optional)
-                    </label>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="block font-bold text-slate-700 text-[10px] sm:text-[11px] uppercase tracking-wider">
+                        Notes (Optional)
+                      </label>
+                      {formNotes.length > 800 && (
+                        <span className={`text-[10px] font-semibold ${formNotes.length > 1000 ? "text-rose-600" : "text-slate-400"}`}>
+                          {formNotes.length}/1000
+                        </span>
+                      )}
+                    </div>
                     <div className="relative">
                       <FileText className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-2.5" />
                       <textarea
                         rows={2}
                         placeholder="Estimated budget, student batch size, space dimensions..."
                         value={formNotes}
-                        onChange={(e) => setFormNotes(e.target.value)}
-                        className="w-full bg-slate-50 text-slate-900 pl-9 pr-3 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#00AEEF] focus:bg-white font-medium transition-all text-xs placeholder:text-slate-400"
+                        onChange={(e) => handleChange("notes", e.target.value, setFormNotes)}
+                        onBlur={() => handleBlur("notes", formNotes)}
+                        className={`w-full pl-9 pr-3 py-2 rounded-lg border font-medium transition-all text-xs placeholder:text-slate-400 outline-none ${
+                          touched.notes && fieldErrors.notes
+                            ? "border-rose-400 bg-rose-50/20 text-slate-900 focus:ring-2 focus:ring-rose-400"
+                            : "bg-slate-50 text-slate-900 border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#00AEEF] focus:bg-white"
+                        }`}
                       />
                     </div>
+                    {touched.notes && fieldErrors.notes && (
+                      <p className="text-[11px] text-rose-600 font-semibold flex items-center gap-1 mt-1 animate-in fade-in">
+                        <AlertCircle className="w-3 h-3 shrink-0" />
+                        <span>{fieldErrors.notes}</span>
+                      </p>
+                    )}
                   </div>
 
                   {/* Submit Button */}
@@ -593,12 +784,17 @@ export const ServiceDetailView: React.FC<ServiceDetailProps> = ({ slug }) => {
                     disabled={isSubmitting}
                     className="w-full bg-[#0B132B] hover:bg-[#00AEEF] disabled:opacity-50 text-white py-2.5 sm:py-3 rounded-xl font-bold text-xs uppercase tracking-wider transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer active:scale-95"
                   >
-                    <Send className="w-3.5 h-3.5" />
-                    <span>
-                      {isSubmitting
-                        ? "Submitting Enquiry..."
-                        : "Submit Quotation Request"}
-                    </span>
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        <span>Submitting Enquiry...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Send className="w-3.5 h-3.5" />
+                        <span>Submit Quotation Request</span>
+                      </>
+                    )}
                   </button>
                 </form>
               ) : (
@@ -618,7 +814,17 @@ export const ServiceDetailView: React.FC<ServiceDetailProps> = ({ slug }) => {
                   </div>
                   <button
                     type="button"
-                    onClick={() => setFormSuccess(false)}
+                    onClick={() => {
+                      setFormSuccess(false);
+                      setFormOrg("");
+                      setFormName("");
+                      setFormPhone("");
+                      setFormEmail("");
+                      setFormNotes("");
+                      setFieldErrors({});
+                      setTouched({});
+                      setFormError(null);
+                    }}
                     className="text-xs font-bold text-[#00AEEF] hover:underline cursor-pointer"
                   >
                     Submit another enquiry
