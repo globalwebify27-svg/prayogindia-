@@ -27,6 +27,11 @@ import { X, Search, Clock, TrendingUp, Tag, ShoppingCart, Loader2, PanelLeftClos
 import { useDebounce } from "@/hooks/useDebounce";
 import { useSearchSuggestions } from "@/hooks/useSearchSuggestions";
 import { SearchSuggestionsDropdown } from "@/components/ui/SearchSuggestionsDropdown";
+import {
+  getCachedProducts,
+  hasCachedProducts,
+  fetchAndCacheLiveCatalog,
+} from "@/lib/productCatalogCache";
 
 const POPULAR_SEARCHES = [
   "Arduino UNO R4",
@@ -55,7 +60,7 @@ function ProductsContent() {
     searchParams.get("search") || searchParams.get("q") || "";
 
   // Filter & Search State
-  const [productList, setProductList] = useState<Product[]>(PRODUCTS);
+  const [productList, setProductList] = useState<Product[]>(() => getCachedProducts());
   const [searchQuery, setSearchQuery] = useState(initialSearch);
   const debouncedSearch = useDebounce(searchQuery, 300);
   const { suggestions: liveSuggestions, isLoading: isSearchSuggestLoading } =
@@ -80,87 +85,18 @@ function ProductsContent() {
   const [isFilterOpen, setIsFilterOpen] = useState(true);
 
   useEffect(() => {
-    fetch("/api/products?limit=100")
-      .then((res) => res.json())
-      .then((json) => {
-        if (json?.success && Array.isArray(json.data) && json.data.length > 0) {
-          const apiProducts: Product[] = json.data.map((item: any) => {
-            const primaryImg =
-              item.images?.[0]?.imageUrl ||
-              (Array.isArray(item.images) && typeof item.images[0] === "string"
-                ? item.images[0]
-                : "/placeholder-product.png");
-            const allImages = Array.isArray(item.images)
-              ? item.images.map((im: any) =>
-                  typeof im === "string" ? im : im.imageUrl,
-                )
-              : [primaryImg];
-
-            return {
-              id: item.id,
-              slug: item.slug || item.id,
-              name: item.name,
-              sku: item.sku || `SKU-${item.id.slice(0, 6)}`,
-              brand:
-                item.brand && item.brand.trim().toLowerCase() !== "prayog india"
-                  ? item.brand
-                  : undefined,
-              category: item.category?.name || "Robotics & Components",
-              price: item.price,
-              mrp: item.mrp || item.price * 1.2,
-              discount:
-                item.mrp && item.mrp > item.price
-                  ? `${Math.round(((item.mrp - item.price) / item.mrp) * 100)}% OFF`
-                  : "",
-              rating: item.rating ?? 4.8,
-              reviews: item.reviewCount ?? 12,
-              inStock: item.inStock ?? item.stock > 0,
-              image: primaryImg,
-              images: allImages,
-              badge: item.badge,
-              description: item.description || "",
-              features: item.features || [],
-              specs: (item.specifications as Record<string, string>) || {},
-            };
-          });
-
-          // Prepend newly added database products that aren't already in PRODUCTS
-          const existingIds = new Set(PRODUCTS.map((p) => p.id));
-          const existingSlugs = new Set(
-            PRODUCTS.map((p) => p.slug).filter(Boolean),
-          );
-          const newDbOnly = apiProducts.filter(
-            (p) =>
-              !existingIds.has(p.id) &&
-              (!p.slug || !existingSlugs.has(p.slug)),
-          );
-          // Also update any matching product with live database data
-          const updatedMock = PRODUCTS.map((p) => {
-            const match = apiProducts.find(
-              (ap) =>
-                ap.id === p.id ||
-                (ap.slug && p.slug && ap.slug === p.slug),
-            );
-            return match || p;
-          });
-
-          const combined = [...newDbOnly, ...updatedMock];
-          const seenIds = new Set<string>();
-          const uniqueProducts = combined.filter((p) => {
-            if (!p.id || seenIds.has(p.id)) return false;
-            seenIds.add(p.id);
-            return true;
-          });
-
-          setProductList(uniqueProducts);
-        }
+    let isMounted = true;
+    fetchAndCacheLiveCatalog([])
+      .then(({ products }) => {
+        if (isMounted) setProductList(products);
       })
       .catch((err) => {
-        console.warn(
-          "Could not fetch latest products from API, using fallback",
-          err,
-        );
+        console.warn("Could not fetch latest products from API", err);
       });
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const storeAddToCart = useCartStore((s) => s.addToCart);

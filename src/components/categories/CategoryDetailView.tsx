@@ -19,6 +19,11 @@ import { CategoryData, CATEGORIES_DATA, matchCategory } from "@/data/categories"
 import { PRODUCTS, Product } from "@/data/mockData";
 import { isProductInCategory } from "@/lib/categoryMapping";
 import {
+  getCachedProducts,
+  hasCachedProducts,
+  fetchAndCacheLiveCatalog,
+} from "@/lib/productCatalogCache";
+import {
   ArrowRight,
   ChevronRight,
   Layers,
@@ -88,86 +93,27 @@ export const CategoryDetailView: React.FC<CategoryDetailProps> = ({
     CATEGORIES_DATA.find((c) => matchCategory(c, categorySlug)) ||
     CATEGORIES_DATA[0];
 
-  const [productList, setProductList] = useState<Product[]>(PRODUCTS);
+  const [productList, setProductList] = useState<Product[]>(() => getCachedProducts());
+  const [isLoading, setIsLoading] = useState(() => !hasCachedProducts());
 
   // Fetch live products from DB/API
   useEffect(() => {
-    fetch("/api/products?limit=100")
-      .then((res) => res.json())
-      .then((json) => {
-        if (json?.success && Array.isArray(json.data) && json.data.length > 0) {
-          const apiProducts: Product[] = json.data.map((item: any) => {
-            const primaryImg =
-              item.images?.[0]?.imageUrl ||
-              (Array.isArray(item.images) && typeof item.images[0] === "string"
-                ? item.images[0]
-                : "/placeholder-product.png");
-            const allImages = Array.isArray(item.images)
-              ? item.images.map((im: any) =>
-                  typeof im === "string" ? im : im.imageUrl,
-                )
-              : [primaryImg];
-
-            return {
-              id: item.id,
-              slug: item.slug || item.id,
-              name: item.name,
-              brand:
-                item.brand && item.brand.trim().toLowerCase() !== "prayog india"
-                  ? item.brand
-                  : undefined,
-              category: item.category?.name || item.categoryName || "Robotics & Components",
-              subcategory: item.subcategory,
-              price: item.price,
-              mrp: item.mrp || item.price * 1.2,
-              discount:
-                item.mrp && item.mrp > item.price
-                  ? `${Math.round(((item.mrp - item.price) / item.mrp) * 100)}% OFF`
-                  : "",
-              rating: item.rating ?? 4.8,
-              reviews: item.reviewCount ?? 12,
-              inStock: item.inStock ?? item.stock > 0,
-              image: primaryImg,
-              images: allImages,
-              badge: item.badge,
-              description: item.description || "",
-              features: item.features || [],
-              specs: (item.specifications as Record<string, string>) || {},
-            };
-          });
-
-          const existingIds = new Set(PRODUCTS.map((p) => p.id));
-          const existingSlugs = new Set(
-            PRODUCTS.map((p) => p.slug).filter(Boolean),
-          );
-          const newDbOnly = apiProducts.filter(
-            (p) =>
-              !existingIds.has(p.id) &&
-              (!p.slug || !existingSlugs.has(p.slug)),
-          );
-          const updatedMock = PRODUCTS.map((p) => {
-            const match = apiProducts.find(
-              (ap) =>
-                ap.id === p.id ||
-                (ap.slug && p.slug && ap.slug === p.slug),
-            );
-            return match || p;
-          });
-
-          const combined = [...newDbOnly, ...updatedMock];
-          const seenIds = new Set<string>();
-          const uniqueProducts = combined.filter((p) => {
-            if (!p.id || seenIds.has(p.id)) return false;
-            seenIds.add(p.id);
-            return true;
-          });
-
-          setProductList(uniqueProducts);
+    let isMounted = true;
+    fetchAndCacheLiveCatalog([])
+      .then(({ products }) => {
+        if (isMounted) {
+          setProductList(products);
+          setIsLoading(false);
         }
       })
       .catch((err) => {
         console.warn("CategoryDetailView: API fetch error", err);
+        if (isMounted) setIsLoading(false);
       });
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   // Filter products belonging to this category
@@ -522,7 +468,16 @@ export const CategoryDetailView: React.FC<CategoryDetailProps> = ({
 
         {/* Right Product Grid */}
         <div className="flex-1 min-w-0 space-y-4 sm:space-y-6">
-          {filteredProducts.length === 0 ? (
+          {isLoading ? (
+            <div className={getGridColsClass()}>
+              {[...Array(6)].map((_, i) => (
+                <div
+                  key={i}
+                  className="h-72 rounded-2xl bg-slate-100 animate-pulse border border-slate-200/60"
+                />
+              ))}
+            </div>
+          ) : filteredProducts.length === 0 ? (
             <ProductEmptyState onClearFilters={clearAllFilters} />
           ) : (
             <div className={getGridColsClass()}>

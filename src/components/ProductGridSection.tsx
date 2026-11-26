@@ -5,6 +5,11 @@ import { ArrowRight } from "lucide-react";
 import { PRODUCTS, Product } from "@/data/mockData";
 import { ProductCard } from "@/components/products/ProductCard";
 import { isProductInCategory } from "@/lib/categoryMapping";
+import {
+  getCachedProducts,
+  hasCachedProducts,
+  fetchAndCacheLiveCatalog,
+} from "@/lib/productCatalogCache";
 
 export const isProductInShelfCategory = isProductInCategory;
 
@@ -23,87 +28,21 @@ export const ProductGridSection: React.FC<ProductSectionProps> = ({
   wishlistIds = [],
   onSeeAll,
 }) => {
-  const [liveProducts, setLiveProducts] = useState<Product[]>(PRODUCTS);
+  const [liveProducts, setLiveProducts] = useState<Product[]>(() => getCachedProducts());
 
   useEffect(() => {
-    fetch("/api/products?limit=100")
-      .then((res) => res.json())
-      .then((json) => {
-        if (json?.success && Array.isArray(json.data) && json.data.length > 0) {
-          const apiProducts: Product[] = json.data.map((item: any) => {
-            const primaryImg =
-              item.images?.[0]?.imageUrl ||
-              (Array.isArray(item.images) && typeof item.images[0] === "string"
-                ? item.images[0]
-                : "/placeholder-product.png");
-            const allImages = Array.isArray(item.images)
-              ? item.images.map((im: any) =>
-                  typeof im === "string" ? im : im.imageUrl,
-                )
-              : [primaryImg];
-
-            return {
-              id: item.id,
-              slug: item.slug || item.id,
-              name: item.name,
-              brand:
-                item.brand && item.brand.trim().toLowerCase() !== "prayog india"
-                  ? item.brand
-                  : undefined,
-              category: item.category?.name || "Robotics & Components",
-              price: item.price,
-              mrp: item.mrp || item.price * 1.2,
-              discount:
-                item.mrp && item.mrp > item.price
-                  ? `${Math.round(((item.mrp - item.price) / item.mrp) * 100)}% OFF`
-                  : "",
-              rating: item.rating ?? 4.8,
-              reviews: item.reviewCount ?? 12,
-              inStock: item.inStock ?? item.stock > 0,
-              image: primaryImg,
-              images: allImages,
-              badge: item.badge,
-              description: item.description || "",
-              features: item.features || [],
-              specs: (item.specifications as Record<string, string>) || {},
-            };
-          });
-
-          const existingIds = new Set(PRODUCTS.map((p) => p.id));
-          const existingSlugs = new Set(
-            PRODUCTS.map((p) => p.slug).filter(Boolean),
-          );
-          const newDbOnly = apiProducts.filter(
-            (p) =>
-              !existingIds.has(p.id) &&
-              (!p.slug || !existingSlugs.has(p.slug)),
-          );
-          const updatedMock = PRODUCTS.map((p) => {
-            const match = apiProducts.find(
-              (ap) =>
-                ap.id === p.id ||
-                (ap.slug && p.slug && ap.slug === p.slug),
-            );
-            return match || p;
-          });
-
-          const combined = [...newDbOnly, ...updatedMock];
-          const seenIds = new Set<string>();
-          const uniqueProducts = combined.filter((p) => {
-            if (!p.id || seenIds.has(p.id)) return false;
-            seenIds.add(p.id);
-            return true;
-          });
-
-          setLiveProducts(uniqueProducts);
-        }
+    let isMounted = true;
+    fetchAndCacheLiveCatalog([])
+      .then(({ products }) => {
+        if (isMounted) setLiveProducts(products);
       })
       .catch((err) => {
-        console.warn(
-          "ProductGridSection: Failed to fetch products from API",
-          err,
-        );
+        console.warn("ProductGridSection: Failed to fetch products from API", err);
       });
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   // Distinct Ordered Categories

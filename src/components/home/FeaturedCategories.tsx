@@ -16,6 +16,11 @@ import { Product, PRODUCTS } from "@/data/mockData";
 import { isProductInCategory } from "@/lib/categoryMapping";
 import { useCartStore, useWishlistStore, useUIStore } from "@/store";
 import { haptic } from "@/utils/haptics";
+import {
+  getCachedPopularProducts,
+  hasCachedPopularProducts,
+  fetchAndCacheLiveCatalog,
+} from "@/lib/productCatalogCache";
 
 const WhatsAppIcon = ({ className = "w-3.5 h-3.5" }: { className?: string }) => (
   <svg
@@ -658,92 +663,29 @@ export const FeaturedCategories: React.FC<Props> = ({
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
   const [activeTab, setActiveTab] = useState("all");
-  const [liveCatalog, setLiveCatalog] = useState<PopularProduct[]>(POPULAR_PRODUCTS_DATA);
+  const [liveCatalog, setLiveCatalog] = useState<PopularProduct[]>(() =>
+    getCachedPopularProducts(POPULAR_PRODUCTS_DATA)
+  );
+  const [isLoading, setIsLoading] = useState(() => !hasCachedPopularProducts());
 
   // Sync with live products added from Admin
   useEffect(() => {
-    fetch("/api/products?limit=100")
-      .then((res) => res.json())
-      .then((json) => {
-        if (json?.success && Array.isArray(json.data) && json.data.length > 0) {
-          const apiProducts: PopularProduct[] = json.data.map((item: any) => {
-            const primaryImg =
-              item.images?.[0]?.imageUrl ||
-              (Array.isArray(item.images) && typeof item.images[0] === "string"
-                ? item.images[0]
-                : "/placeholder-product.png");
-            const secondaryImg =
-              item.images?.[1]?.imageUrl ||
-              (Array.isArray(item.images) && typeof item.images[1] === "string"
-                ? item.images[1]
-                : primaryImg);
-            const allImages = Array.isArray(item.images)
-              ? item.images.map((im: any) =>
-                  typeof im === "string" ? im : im.imageUrl,
-                )
-              : [primaryImg];
-
-            return {
-              id: item.id,
-              slug: item.slug || item.id,
-              name: item.name,
-              brand:
-                item.brand && item.brand.trim().toLowerCase() !== "prayog india"
-                  ? item.brand
-                  : undefined,
-              category: item.category?.name || item.categoryName || "Robotics & Components",
-              subcategory: item.subcategory,
-              price: item.price,
-              mrp: item.mrp || item.price * 1.2,
-              discount:
-                item.mrp && item.mrp > item.price
-                  ? `${Math.round(((item.mrp - item.price) / item.mrp) * 100)}% OFF`
-                  : "",
-              rating: item.rating ?? 4.8,
-              reviews: item.reviewCount ?? 12,
-              inStock: item.inStock ?? item.stock > 0,
-              image: primaryImg,
-              secondaryImage: secondaryImg,
-              images: allImages,
-              badge: item.badge,
-              description: item.description || "",
-              features: item.features || [],
-              specs: (item.specifications as Record<string, string>) || {},
-            };
-          });
-
-          const existingIds = new Set(POPULAR_PRODUCTS_DATA.map((p) => p.id));
-          const existingSlugs = new Set(
-            POPULAR_PRODUCTS_DATA.map((p) => p.slug).filter(Boolean),
-          );
-          const newDbOnly = apiProducts.filter(
-            (p) =>
-              !existingIds.has(p.id) &&
-              (!p.slug || !existingSlugs.has(p.slug)),
-          );
-          const updatedMock = POPULAR_PRODUCTS_DATA.map((p) => {
-            const match = apiProducts.find(
-              (ap) =>
-                ap.id === p.id ||
-                (ap.slug && p.slug && ap.slug === p.slug),
-            );
-            return match || p;
-          });
-
-          const combined = [...newDbOnly, ...updatedMock];
-          const seenIds = new Set<string>();
-          const uniqueProducts = combined.filter((p) => {
-            if (!p.id || seenIds.has(p.id)) return false;
-            seenIds.add(p.id);
-            return true;
-          });
-
-          setLiveCatalog(uniqueProducts);
+    let isMounted = true;
+    fetchAndCacheLiveCatalog(POPULAR_PRODUCTS_DATA)
+      .then(({ popular }) => {
+        if (isMounted) {
+          setLiveCatalog(popular);
+          setIsLoading(false);
         }
       })
       .catch((err) => {
         console.warn("FeaturedCategories: API fetch error", err);
+        if (isMounted) setIsLoading(false);
       });
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   // Filtered popular products based on selected category tab
@@ -887,20 +829,29 @@ export const FeaturedCategories: React.FC<Props> = ({
               touchAction: "pan-x pan-y",
             }}
           >
-            {filteredProducts.map((product) => {
-              const isWishlisted = wishlistIds.includes(product.id);
-
-              return (
-                <PopularProductCard
-                  key={product.id}
-                  product={product}
-                  onAddToCart={onAddToCart}
-                  onToggleWishlist={onToggleWishlist}
-                  onQuickView={onQuickView}
-                  isWishlisted={isWishlisted}
+            {isLoading ? (
+              [...Array(6)].map((_, i) => (
+                <div
+                  key={i}
+                  className="w-[160px] sm:w-[220px] h-[340px] rounded-2xl bg-slate-100 animate-pulse shrink-0 border border-slate-200/60"
                 />
-              );
-            })}
+              ))
+            ) : (
+              filteredProducts.map((product) => {
+                const isWishlisted = wishlistIds.includes(product.id);
+
+                return (
+                  <PopularProductCard
+                    key={product.id}
+                    product={product}
+                    onAddToCart={onAddToCart}
+                    onToggleWishlist={onToggleWishlist}
+                    onQuickView={onQuickView}
+                    isWishlisted={isWishlisted}
+                  />
+                );
+              })
+            )}
           </div>
         </div>
       </div>
