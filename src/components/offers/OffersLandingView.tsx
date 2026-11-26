@@ -14,6 +14,7 @@ import { ProductFilters } from "@/components/products/ProductFilters";
 import { ActiveFilters } from "@/components/products/ActiveFilters";
 import { ProductEmptyState } from "@/components/products/ProductEmptyState";
 import { PRODUCTS, Product } from "@/data/mockData";
+import { getProductDiscount } from "@/lib/discount";
 import { OFFERS_DATA, COUPONS_DATA } from "@/data/offersData";
 import { FilterFunnelIcon } from "@/components/icons/FilterFunnelIcon";
 import {
@@ -183,12 +184,8 @@ export const OffersLandingView: React.FC = () => {
     );
 
     // Minimum Discount %
-    if (minDiscount) {
-      list = list.filter((p) => {
-        const mrp = p.mrp || Math.round(p.price * 1.35);
-        const disc = ((mrp - p.price) / mrp) * 100;
-        return disc >= minDiscount;
-      });
+    if (minDiscount !== null && minDiscount > 0) {
+      list = list.filter((p) => getProductDiscount(p) >= minDiscount);
     }
 
     // Minimum Rating

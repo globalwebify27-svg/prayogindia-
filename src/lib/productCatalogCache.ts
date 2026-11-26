@@ -126,7 +126,7 @@ export async function fetchAndCacheLiveCatalog(popularFallback: PopularProduct[]
             category: item.category?.name || item.categoryName || "Robotics & Components",
             subcategory: item.subcategory,
             price: item.price,
-            mrp: item.mrp || item.price * 1.2,
+            mrp: item.mrp && item.mrp > item.price ? item.mrp : item.price,
             discount:
               item.mrp && item.mrp > item.price
                 ? `${Math.round(((item.mrp - item.price) / item.mrp) * 100)}% OFF`

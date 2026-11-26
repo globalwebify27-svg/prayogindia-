@@ -21,6 +21,7 @@ import { QuickViewModal } from "@/components/products/QuickViewModal";
 import { FilterFunnelIcon } from "@/components/icons/FilterFunnelIcon";
 import { PRODUCTS, Product } from "@/data/mockData";
 import { getProductBrand } from "@/data/brands";
+import { getProductDiscount } from "@/lib/discount";
 import { useCartStore, useWishlistStore } from "@/store";
 import { searchProductsFuzzy } from "@/lib/fuzzySearch";
 import { X, Search, Clock, TrendingUp, Tag, ShoppingCart, Loader2, PanelLeftClose, PanelLeftOpen } from "lucide-react";
@@ -223,12 +224,8 @@ function ProductsContent() {
       (p) => p.price >= priceRange[0] && p.price <= priceRange[1],
     );
 
-    if (minDiscount) {
-      result = result.filter((p) => {
-        const mrp = p.mrp || Math.round(p.price * 1.35);
-        const disc = ((mrp - p.price) / mrp) * 100;
-        return disc >= minDiscount;
-      });
+    if (minDiscount !== null && minDiscount > 0) {
+      result = result.filter((p) => getProductDiscount(p) >= minDiscount);
     }
 
     if (minRating) {
@@ -346,8 +343,8 @@ function ProductsContent() {
     (selectedBrand ? 1 : 0) +
     (stockFilter !== "all" ? 1 : 0) +
     (priceRange[0] > 0 || priceRange[1] < 60000 ? 1 : 0) +
-    (minDiscount ? 1 : 0) +
-    (minRating ? 1 : 0);
+    (minDiscount !== null && minDiscount > 0 ? 1 : 0) +
+    (minRating !== null && minRating > 0 ? 1 : 0);
 
   const getGridColsClass = () => {
     if (columns === 1) return "grid grid-cols-1 gap-3 sm:gap-5";

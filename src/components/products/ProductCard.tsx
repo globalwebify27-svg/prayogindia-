@@ -62,9 +62,27 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   );
 
   const displayPrice = Math.round(activeVariant?.price ?? product.price);
-  const displayMrp = Math.round(activeVariant?.mrp ?? product.mrp ?? (displayPrice * 1.3));
-  const discountAmount = displayMrp > displayPrice ? displayMrp - displayPrice : 0;
-  const discountPercent = discountAmount > 0 ? Math.round((discountAmount / displayMrp) * 100) : 0;
+  const rawMrp = activeVariant?.mrp ?? product.mrp;
+  const discountFromStr = product.discount
+    ? product.discount.match(/(\d+)/)?.[1]
+    : null;
+  const parsedStrDiscount = discountFromStr ? parseInt(discountFromStr, 10) : 0;
+
+  const displayMrp =
+    typeof rawMrp === "number" && rawMrp > displayPrice
+      ? Math.round(rawMrp)
+      : parsedStrDiscount > 0 && parsedStrDiscount < 100
+      ? Math.round(displayPrice / (1 - parsedStrDiscount / 100))
+      : displayPrice;
+
+  const discountAmount =
+    displayMrp > displayPrice ? displayMrp - displayPrice : 0;
+  const discountPercent =
+    discountAmount > 0
+      ? Math.round((discountAmount / displayMrp) * 100)
+      : parsedStrDiscount > 0
+      ? parsedStrDiscount
+      : 0;
   const availableStock = getProductStock(product, activeVariant);
   const isInStock = (activeVariant ? activeVariant.inStock : product.inStock) && availableStock > 0;
 

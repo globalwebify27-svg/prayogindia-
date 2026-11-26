@@ -132,7 +132,7 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
   // Accordion toggle states
   const [priceOpen, setPriceOpen] = useState(true);
   const [catOpen, setCatOpen] = useState(true);
-  const [discountOpen, setDiscountOpen] = useState(false);
+  const [discountOpen, setDiscountOpen] = useState(true);
   const [ratingOpen, setRatingOpen] = useState(false);
 
   // Brand Dropdown states
@@ -245,6 +245,8 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
   // Active filters calculation
   const isPriceFiltered =
     priceRange[0] > minPriceLimit || priceRange[1] < maxPriceLimit;
+  const isDiscountFiltered = minDiscount !== null && minDiscount !== undefined && minDiscount > 0;
+  const isRatingFiltered = minRating !== null && minRating !== undefined && minRating > 0;
 
   const activeFiltersCount =
     (selectedCategory && !hideCategories ? 1 : 0) +
@@ -252,8 +254,8 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
     (selectedBrand ? 1 : 0) +
     (isInStockChecked ? 1 : 0) +
     (isPriceFiltered ? 1 : 0) +
-    (minDiscount ? 1 : 0) +
-    (minRating ? 1 : 0);
+    (isDiscountFiltered ? 1 : 0) +
+    (isRatingFiltered ? 1 : 0);
 
   const hasAnyActiveFilter = activeFiltersCount > 0;
 
@@ -695,37 +697,51 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
 
       {/* ── 6. DISCOUNT OFFERS (Clean & Collapsible) ── */}
       <div className="border-b border-slate-100 pb-3 space-y-2">
-        <button
-          type="button"
-          onClick={() => setDiscountOpen(!discountOpen)}
-          className="flex items-center justify-between w-full font-bold text-slate-900 text-xs tracking-wider text-left cursor-pointer uppercase select-none"
-        >
-          <span>Discount</span>
-          {discountOpen ? (
-            <ChevronUp className="w-4 h-4 text-slate-400" />
-          ) : (
-            <ChevronDown className="w-4 h-4 text-slate-400" />
+        <div className="flex items-center justify-between">
+          <button
+            type="button"
+            onClick={() => setDiscountOpen(!discountOpen)}
+            className="flex items-center justify-between w-full font-bold text-slate-900 text-xs tracking-wider text-left cursor-pointer uppercase select-none"
+          >
+            <span>Discount</span>
+            {discountOpen ? (
+              <ChevronUp className="w-4 h-4 text-slate-400" />
+            ) : (
+              <ChevronDown className="w-4 h-4 text-slate-400" />
+            )}
+          </button>
+          {minDiscount !== null && minDiscount !== undefined && minDiscount > 0 && (
+            <button
+              type="button"
+              onClick={() => onMinDiscountChange?.(null)}
+              className="text-[11px] font-semibold text-[#2563EB] hover:text-[#1D4ED8] transition-colors cursor-pointer shrink-0 ml-2"
+            >
+              Reset
+            </button>
           )}
-        </button>
+        </div>
 
         {discountOpen && (
           <div className="flex flex-wrap gap-1.5 pt-1">
-            {[10, 20, 30, 50].map((pct) => (
-              <button
-                key={pct}
-                type="button"
-                onClick={() =>
-                  onMinDiscountChange?.(minDiscount === pct ? null : pct)
-                }
-                className={`px-2.5 py-1 rounded-lg text-[10px] font-bold border transition-all cursor-pointer ${
-                  minDiscount === pct
-                    ? "bg-[#2563EB] text-white border-[#2563EB] shadow-xs"
-                    : "bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100"
-                }`}
-              >
-                {pct}%+ Off
-              </button>
-            ))}
+            {[10, 20, 30, 50].map((pct) => {
+              const isSelected = minDiscount === pct;
+              return (
+                <button
+                  key={pct}
+                  type="button"
+                  onClick={() =>
+                    onMinDiscountChange?.(isSelected ? null : pct)
+                  }
+                  className={`px-2.5 py-1 rounded-lg text-[10px] font-bold border transition-all cursor-pointer ${
+                    isSelected
+                      ? "bg-[#2563EB] text-white border-[#2563EB] shadow-xs ring-1 ring-[#2563EB]"
+                      : "bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100 hover:text-slate-900"
+                  }`}
+                >
+                  {pct}%+ Off
+                </button>
+              );
+            })}
           </div>
         )}
       </div>
