@@ -585,53 +585,83 @@ export const OrdersList: React.FC = () => {
                 key={ord.id}
                 className="bg-white border border-slate-200/90 rounded-2xl hover:shadow-xs transition-all overflow-hidden"
               >
-                {/* ── Mobile Layout (< md): Amazon-Style Order Card ── */}
+                {/* ── Mobile Layout (< md): Amazon-Style Order Card with Prayog India Design System ── */}
                 <div className="md:hidden">
                   {/* Top Order Meta Header Strip */}
-                  <div className="bg-slate-50 border-b border-slate-200/80 px-4 py-2.5 flex items-start justify-between text-xs">
+                  <div className="bg-slate-50/90 border-b border-slate-200/80 px-4 py-2.5 flex items-start justify-between text-xs">
                     <div>
-                      <span className="text-[10px] text-slate-500 uppercase tracking-wider block font-semibold">
+                      <span className="text-[10px] text-slate-400 uppercase tracking-wider block font-bold">
                         ORDER PLACED
                       </span>
-                      <span className="text-xs font-medium text-slate-800">
+                      <span className="text-xs font-semibold text-slate-700">
                         {ord.date}
                       </span>
                     </div>
                     <div className="text-right">
-                      <span className="text-[10px] text-slate-500 uppercase tracking-wider block font-semibold">
-                        ORDER # {ord.orderNumber}
+                      <span className="text-[10px] text-slate-400 uppercase tracking-wider block font-bold">
+                        ORDER #{ord.orderNumber}
                       </span>
                       <Link
                         href={`/account/orders/${ord.id}`}
-                        className="text-xs text-[#2563EB] hover:underline font-medium inline-block mt-0.5"
+                        className="text-xs text-[#2563EB] hover:text-[#1D4ED8] hover:underline font-bold inline-flex items-center gap-0.5 mt-0.5 transition-colors"
                       >
-                        View order details
+                        <span>View order details</span>
+                        <ChevronRight className="w-3 h-3" />
                       </Link>
                     </div>
                   </div>
 
                   {/* Card Content Body */}
-                  <div className="p-4 space-y-3.5">
+                  <div className="p-4 space-y-3">
                     {/* Status Heading & Description */}
-                    <div className="space-y-0.5">
-                      <h3 className="text-sm font-bold text-slate-900">
-                        {isCancelled
-                          ? "Cancelled"
-                          : isDelivered
-                          ? `Delivered on ${ord.date}`
-                          : isShipped
-                          ? `Shipped on ${ord.date}`
-                          : "Processing"}
-                      </h3>
-                      <p className="text-xs text-slate-600 leading-relaxed">
-                        {isCancelled
-                          ? "If you were charged, a refund will be processed and credited to the original payment method within next 3-5 business days"
-                          : isDelivered
-                          ? "Package was handed to resident or delivered to doorstep"
-                          : isShipped
-                          ? `Package is in transit with ${ord.courierName || "Express Logistics"}`
-                          : "Processing order at Prayog central warehouse"}
-                      </p>
+                    <div className="space-y-1">
+                      {isCancelled && (
+                        <div>
+                          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-rose-50 text-rose-700 border border-rose-200/70 mb-1">
+                            <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
+                            <span>Cancelled</span>
+                          </div>
+                          <p className="text-xs text-slate-500 leading-relaxed font-normal">
+                            If you were charged, a refund will be processed and credited to the original payment method within next 3-5 business days
+                          </p>
+                        </div>
+                      )}
+
+                      {isDelivered && (
+                        <div>
+                          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200/70 mb-1">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                            <span>Delivered on {ord.date}</span>
+                          </div>
+                          <p className="text-xs text-slate-500 leading-relaxed font-normal">
+                            Package was handed to customer or delivered to your doorstep.
+                          </p>
+                        </div>
+                      )}
+
+                      {isShipped && (
+                        <div>
+                          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-sky-50 text-sky-700 border border-sky-200/70 mb-1">
+                            <span className="w-1.5 h-1.5 rounded-full bg-sky-500" />
+                            <span>Shipped on {ord.date}</span>
+                          </div>
+                          <p className="text-xs text-slate-500 leading-relaxed font-normal">
+                            Package is in transit with {ord.courierName || "Express Courier Logistics"}
+                          </p>
+                        </div>
+                      )}
+
+                      {isPendingOrProcessing && (
+                        <div>
+                          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-50 text-amber-700 border border-amber-200/70 mb-1">
+                            <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+                            <span>Processing Order</span>
+                          </div>
+                          <p className="text-xs text-slate-500 leading-relaxed font-normal">
+                            Preparing order at Prayog central warehouse for express dispatch
+                          </p>
+                        </div>
+                      )}
                     </div>
 
                     {/* Products in this order */}
@@ -646,9 +676,9 @@ export const OrdersList: React.FC = () => {
                         return (
                           <div
                             key={idx}
-                            className="py-2.5 first:pt-0 last:pb-0 flex items-start gap-3.5"
+                            className="py-2.5 first:pt-0 last:pb-0 flex items-start gap-3"
                           >
-                            <div className="w-16 h-16 shrink-0 relative bg-slate-50 border border-slate-200/80 rounded-xl flex items-center justify-center p-1 overflow-hidden">
+                            <div className="w-16 h-16 shrink-0 relative bg-slate-50 border border-slate-200/80 rounded-xl flex items-center justify-center p-1 overflow-hidden shadow-2xs">
                               <Image
                                 src={itemImg}
                                 alt={item.name}
@@ -661,17 +691,22 @@ export const OrdersList: React.FC = () => {
                             <div className="min-w-0 flex-1 space-y-1">
                               <Link
                                 href={`/account/orders/${ord.id}`}
-                                className="text-xs sm:text-sm font-medium text-[#007185] hover:text-[#C7511F] hover:underline line-clamp-3 leading-snug block"
+                                className="text-xs sm:text-sm font-semibold text-slate-900 hover:text-[#2563EB] line-clamp-2 leading-snug block transition-colors tracking-tight"
                               >
                                 {item.name}
                               </Link>
-                              <div className="flex items-center gap-2 text-xs">
-                                <span className="font-bold text-slate-900">
+                              <div className="flex items-center gap-2 pt-0.5">
+                                <span className="font-extrabold text-xs sm:text-sm text-slate-900 tracking-tight">
                                   ₹{itemTotal.toLocaleString("en-IN")}
                                 </span>
-                                <span className="text-[11px] text-slate-400">
+                                <span className="text-[11px] text-slate-400 font-medium">
                                   Qty: {item.quantity || 1}
                                 </span>
+                                {item.sku && (
+                                  <span className="text-[10px] text-slate-400 font-mono hidden xs:inline">
+                                    • {item.sku}
+                                  </span>
+                                )}
                               </div>
                             </div>
                           </div>
@@ -679,19 +714,43 @@ export const OrdersList: React.FC = () => {
                       })}
                     </div>
 
-                    {/* Actions: Track Status / Download Invoice */}
-                    <div className="pt-2 border-t border-slate-100 flex items-center justify-between gap-2">
-                      <Link
-                        href={`/account/orders/${ord.id}`}
-                        className="text-xs font-bold text-[#2563EB] hover:underline"
-                      >
-                        Track Status
-                      </Link>
+                    {/* Actions: Track Status / Download Invoice / Review */}
+                    <div className="pt-2.5 border-t border-slate-100 flex items-center justify-between gap-2 flex-wrap">
+                      <div className="flex items-center gap-2">
+                        {isDelivered ? (
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              const firstIt = displayItems[0];
+                              setReviewProduct({
+                                id: firstIt?.id || firstIt?.sku || `item-0`,
+                                name: firstIt?.name || "Product",
+                                image: getProductThumbnail(firstIt),
+                                sku: firstIt?.sku,
+                                orderId: ord.id,
+                              });
+                            }}
+                            className="inline-flex items-center gap-1.5 text-xs font-bold text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200/70 px-3 py-1.5 rounded-xl active:scale-95 transition-all cursor-pointer"
+                          >
+                            <Star className="w-3.5 h-3.5 fill-[#FFC200] text-[#FFC200]" />
+                            <span>Rate &amp; Review</span>
+                          </button>
+                        ) : (
+                          <Link
+                            href={`/account/orders/${ord.id}`}
+                            className="inline-flex items-center gap-1 text-xs font-bold text-[#2563EB] hover:text-[#1D4ED8] bg-blue-50/80 hover:bg-blue-100 px-3 py-1.5 rounded-xl transition-colors cursor-pointer"
+                          >
+                            <span>Track Status</span>
+                            <ChevronRight className="w-3 h-3" />
+                          </Link>
+                        )}
+                      </div>
 
                       <button
                         type="button"
                         onClick={() => setSelectedInvoiceOrder(ord)}
-                        className="inline-flex items-center gap-1 text-xs font-medium text-slate-600 bg-slate-50 hover:bg-slate-100 border border-slate-200/80 px-3 py-1.5 rounded-lg transition-colors cursor-pointer"
+                        className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-700 bg-white hover:bg-slate-50 border border-slate-200/90 px-3 py-1.5 rounded-xl transition-all shadow-2xs cursor-pointer ml-auto"
                         title="Download Invoice"
                       >
                         <Download className="w-3.5 h-3.5 text-slate-500" />
