@@ -22,6 +22,7 @@ import { useWishlistStore, CartItem } from "@/store";
 import { useUIStore } from "@/store/useUIStore";
 import { getProductStock } from "@/data/mockData";
 import { haptic } from "@/utils/haptics";
+import { useBodyScrollLock } from "@/hooks/useBodyScrollLock";
 
 interface CartDrawerProps {
   isOpen: boolean;
@@ -43,37 +44,11 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   onUpdateQuantity,
   onRemoveItem,
 }) => {
+  useBodyScrollLock(isOpen);
   const moveToWishlist = useWishlistStore((s) => s.moveToWishlist);
   const [coupon, setCoupon] = useState("");
   const [appliedDiscount, setAppliedDiscount] = useState(0);
   const [appliedCode, setAppliedCode] = useState<string | null>(null);
-
-  // Lock body scroll when cart drawer is open (Hook must ALWAYS execute before any conditional return)
-  useEffect(() => {
-    if (isOpen) {
-      const scrollY = window.scrollY;
-      const originalBodyOverflow = document.body.style.overflow;
-      const originalHtmlOverflow = document.documentElement.style.overflow;
-      const originalBodyPosition = document.body.style.position;
-      const originalBodyTop = document.body.style.top;
-      const originalBodyWidth = document.body.style.width;
-
-      document.documentElement.style.overflow = "hidden";
-      document.body.style.overflow = "hidden";
-      document.body.style.position = "fixed";
-      document.body.style.top = `-${scrollY}px`;
-      document.body.style.width = "100%";
-
-      return () => {
-        document.documentElement.style.overflow = originalHtmlOverflow;
-        document.body.style.overflow = originalBodyOverflow;
-        document.body.style.position = originalBodyPosition;
-        document.body.style.top = originalBodyTop;
-        document.body.style.width = originalBodyWidth;
-        window.scrollTo(0, scrollY);
-      };
-    }
-  }, [isOpen]);
 
   if (!isOpen) return null;
 

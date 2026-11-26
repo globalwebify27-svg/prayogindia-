@@ -17,6 +17,7 @@ import {
 import { PRODUCTS, Product } from "@/data/mockData";
 import { useSearchSuggestions } from "@/hooks/useSearchSuggestions";
 import { useAuth } from "@/store";
+import { useBodyScrollLock } from "@/hooks/useBodyScrollLock";
 
 interface SearchModalProps {
   isOpen: boolean;
@@ -232,31 +233,7 @@ export const B2BModal: React.FC<B2BModalProps> = ({
   }, [isOpen, user, initialProduct]);
 
   // Lock background scroll when open (prevents background cards and page from moving)
-  useEffect(() => {
-    if (isOpen) {
-      const scrollY = window.scrollY;
-      const originalBodyOverflow = document.body.style.overflow;
-      const originalHtmlOverflow = document.documentElement.style.overflow;
-      const originalBodyPosition = document.body.style.position;
-      const originalBodyTop = document.body.style.top;
-      const originalBodyWidth = document.body.style.width;
-
-      document.documentElement.style.overflow = "hidden";
-      document.body.style.overflow = "hidden";
-      document.body.style.position = "fixed";
-      document.body.style.top = `-${scrollY}px`;
-      document.body.style.width = "100%";
-
-      return () => {
-        document.documentElement.style.overflow = originalHtmlOverflow;
-        document.body.style.overflow = originalBodyOverflow;
-        document.body.style.position = originalBodyPosition;
-        document.body.style.top = originalBodyTop;
-        document.body.style.width = originalBodyWidth;
-        window.scrollTo(0, scrollY);
-      };
-    }
-  }, [isOpen]);
+  useBodyScrollLock(isOpen);
 
   const handleAddProduct = () => {
     setProducts((prev) => [

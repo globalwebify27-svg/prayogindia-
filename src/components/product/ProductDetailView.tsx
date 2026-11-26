@@ -129,8 +129,40 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
     0
   );
   const [stickyAdded, setStickyAdded] = useState(false);
+  const [stickyQuantity, setStickyQuantity] = useState(1);
+  const [showStickyBar, setShowStickyBar] = useState(false);
+  const router = useRouter();
   const openB2BModal = useUIStore((s) => s.openB2BModal);
   const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      // 1. When user is at or near the top of the product page, sticky bar is NEVER shown
+      if (typeof window !== "undefined" && window.scrollY < 200) {
+        setShowStickyBar(false);
+        return;
+      }
+
+      const target = document.getElementById("main-product-cta");
+      if (!target) {
+        setShowStickyBar(typeof window !== "undefined" && window.scrollY > 600);
+        return;
+      }
+
+      const rect = target.getBoundingClientRect();
+      const hasScrolledPastMainCta = rect.bottom < 80;
+      setShowStickyBar(hasScrolledPastMainCta);
+    };
+
+    handleScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    window.addEventListener("resize", handleScroll, { passive: true });
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("resize", handleScroll);
+    };
+  }, []);
 
   const handleOpenB2BQuotation = () => {
     openB2BModal({
@@ -316,7 +348,6 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
     },
   ];
 
-  const router = useRouter();
   const handleToggleWishlist = (prod: Product) => {
     storeToggleWishlist(prod);
   };
@@ -339,41 +370,6 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
     storeAddToCart(prod, selectedVariant || undefined, qty);
     router.push("/checkout");
   };
-
-  const [stickyQuantity, setStickyQuantity] = useState(1);
-  const [showStickyBar, setShowStickyBar] = useState(false);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      // 1. When user is at or near the top of the product page, sticky bar is NEVER shown
-      if (typeof window !== "undefined" && window.scrollY < 200) {
-        setShowStickyBar(false);
-        return;
-      }
-
-      const target = document.getElementById("main-product-cta");
-      if (!target) {
-        setShowStickyBar(typeof window !== "undefined" && window.scrollY > 600);
-        return;
-      }
-
-      const rect = target.getBoundingClientRect();
-      // The sticky bottom bar should ONLY appear once the user has scrolled past
-      // the main inline CTA buttons (i.e. the buttons have scrolled up and off the screen).
-      // If the inline buttons are visible anywhere in the viewport, sticky bar stays hidden.
-      const hasScrolledPastMainCta = rect.bottom < 80;
-      setShowStickyBar(hasScrolledPastMainCta);
-    };
-
-    handleScroll();
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    window.addEventListener("resize", handleScroll, { passive: true });
-
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-      window.removeEventListener("resize", handleScroll);
-    };
-  }, [product.id]);
 
   const handleStickyAddToCart = () => {
     const maxStock = getProductStock(product, selectedVariant);

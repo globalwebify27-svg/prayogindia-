@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import { PrayogLogo } from "./PrayogLogo";
 import { CATEGORIES_DATA } from "@/data/categories";
+import { useBodyScrollLock } from "@/hooks/useBodyScrollLock";
 
 interface MobileMenuDrawerProps {
   isOpen: boolean;
@@ -62,31 +63,7 @@ export const MobileMenuDrawer: React.FC<MobileMenuDrawerProps> = ({
   }, []);
 
   // Lock body scroll when drawer is open (prevents background content and cards from moving)
-  useEffect(() => {
-    if (isOpen) {
-      const scrollY = window.scrollY;
-      const originalBodyOverflow = document.body.style.overflow;
-      const originalHtmlOverflow = document.documentElement.style.overflow;
-      const originalBodyPosition = document.body.style.position;
-      const originalBodyTop = document.body.style.top;
-      const originalBodyWidth = document.body.style.width;
-
-      document.documentElement.style.overflow = "hidden";
-      document.body.style.overflow = "hidden";
-      document.body.style.position = "fixed";
-      document.body.style.top = `-${scrollY}px`;
-      document.body.style.width = "100%";
-
-      return () => {
-        document.documentElement.style.overflow = originalHtmlOverflow;
-        document.body.style.overflow = originalBodyOverflow;
-        document.body.style.position = originalBodyPosition;
-        document.body.style.top = originalBodyTop;
-        document.body.style.width = originalBodyWidth;
-        window.scrollTo(0, scrollY);
-      };
-    }
-  }, [isOpen]);
+  useBodyScrollLock(isOpen);
 
   const toggleAccordion = (id: string) => {
     setActiveAccordion((prev) => (prev === id ? null : id));

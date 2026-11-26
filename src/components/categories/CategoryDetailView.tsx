@@ -19,6 +19,7 @@ import { CategoryData, CATEGORIES_DATA, matchCategory } from "@/data/categories"
 import { PRODUCTS, Product } from "@/data/mockData";
 import { isProductInCategory } from "@/lib/categoryMapping";
 import { getProductDiscount } from "@/lib/discount";
+import { useBodyScrollLock } from "@/hooks/useBodyScrollLock";
 import {
   getCachedProducts,
   hasCachedProducts,
@@ -169,24 +170,7 @@ export const CategoryDetailView: React.FC<CategoryDetailProps> = ({
   const [isFilterOpen, setIsFilterOpen] = useState(true);
 
   // Bulletproof lock of background scroll on mobile touch & desktop wheel
-  useEffect(() => {
-    if (mobileFilterOpen) {
-      const scrollY = window.scrollY;
-      document.body.style.position = "fixed";
-      document.body.style.top = `-${scrollY}px`;
-      document.body.style.width = "100%";
-      document.body.style.overflow = "hidden";
-      document.documentElement.style.overflow = "hidden";
-      return () => {
-        document.body.style.position = "";
-        document.body.style.top = "";
-        document.body.style.width = "";
-        document.body.style.overflow = "";
-        document.documentElement.style.overflow = "";
-        window.scrollTo(0, scrollY);
-      };
-    }
-  }, [mobileFilterOpen]);
+  useBodyScrollLock(mobileFilterOpen);
 
   // Stock counts
   const { inStockCount, outOfStockCount } = useMemo(() => {
