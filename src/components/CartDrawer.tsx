@@ -11,10 +11,8 @@ import {
   ShoppingBag,
   ArrowRight,
   ShieldCheck,
-  Tag,
   Heart,
   AlertTriangle,
-  Check,
   CheckCircle2,
   Truck,
 } from "lucide-react";
@@ -46,9 +44,6 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
 }) => {
   useBodyScrollLock(isOpen);
   const moveToWishlist = useWishlistStore((s) => s.moveToWishlist);
-  const [coupon, setCoupon] = useState("");
-  const [appliedDiscount, setAppliedDiscount] = useState(0);
-  const [appliedCode, setAppliedCode] = useState<string | null>(null);
 
   if (!isOpen) return null;
 
@@ -59,7 +54,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
     return sum + price * item.quantity;
   }, 0);
 
-  const total = Math.max(0, subtotal - appliedDiscount);
+  const total = subtotal;
 
   const hasBatteryOrHazardous = items.some((item) => {
     const tag = item.product.shippingTag;
@@ -71,25 +66,6 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
       name.includes("lipo")
     );
   });
-
-  const applyCouponCode = (codeToApply: string) => {
-    const code = codeToApply.trim().toUpperCase();
-    if (code === "PRAYOG10") {
-      setAppliedDiscount(Math.round(subtotal * 0.1));
-      setAppliedCode("PRAYOG10");
-      setCoupon("PRAYOG10");
-    } else if (code === "MAKER500") {
-      setAppliedDiscount(Math.min(subtotal, 500));
-      setAppliedCode("MAKER500");
-      setCoupon("MAKER500");
-    } else {
-      alert("Invalid code. Try PRAYOG10 for 10% demo discount.");
-    }
-  };
-
-  const handleApplyCoupon = () => {
-    applyCouponCode(coupon);
-  };
 
   const FREE_SHIPPING_THRESHOLD = 999;
   const progressPercent = Math.min(
@@ -369,78 +345,14 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
           {/* ── Cart Footer & Checkout ── */}
           {items.length > 0 && (
             <div className="p-4 sm:p-5 border-t border-slate-200/90 bg-slate-50/80 space-y-3 shrink-0">
-              {/* Coupon Row */}
-              <div className="space-y-1.5">
-                <div className="flex gap-2">
-                  <div className="relative flex-1">
-                    <Tag className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-                    <input
-                      type="text"
-                      placeholder="ENTER COUPON CODE"
-                      value={coupon}
-                      onChange={(e) => setCoupon(e.target.value)}
-                      className="w-full bg-white border border-slate-200 rounded-xl pl-8.5 pr-3 py-2 text-xs uppercase font-mono font-bold text-slate-900 placeholder-slate-400 focus:outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-blue-500/10 shadow-2xs"
-                    />
-                  </div>
-                  <button
-                    onClick={handleApplyCoupon}
-                    className="bg-[#2563EB] hover:bg-[#1D4ED8] active:bg-[#1E40AF] text-white text-xs font-black uppercase tracking-wider px-4 py-2 rounded-xl transition-all cursor-pointer active:scale-95 shadow-xs"
-                  >
-                    Apply
-                  </button>
-                </div>
-
-                {!appliedCode && (
-                  <button
-                    type="button"
-                    onClick={() => applyCouponCode("PRAYOG10")}
-                    className="text-[11px] text-slate-500 hover:text-[#2563EB] font-medium flex items-center gap-1 cursor-pointer transition-colors"
-                  >
-                    <Tag className="w-3 h-3 text-[#2563EB]" />
-                    <span>
-                      Click to apply <strong>PRAYOG10</strong> (10% OFF)
-                    </span>
-                  </button>
-                )}
-
-                {appliedCode && (
-                  <div className="text-[11px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-lg flex items-center justify-between">
-                    <span className="flex items-center gap-1">
-                      <Check className="w-3.5 h-3.5 text-emerald-600" />
-                      <span>
-                        Coupon <strong>{appliedCode}</strong> applied (-₹
-                        {appliedDiscount.toLocaleString("en-IN")})
-                      </span>
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setAppliedCode(null);
-                        setAppliedDiscount(0);
-                        setCoupon("");
-                      }}
-                      className="text-slate-400 hover:text-red-500"
-                    >
-                      <X className="w-3 h-3" />
-                    </button>
-                  </div>
-                )}
-              </div>
-
               {/* Calculations Breakdown */}
-              <div className="space-y-1.5 text-xs text-slate-500 pt-1 border-t border-slate-200/70">
+              <div className="space-y-1.5 text-xs text-slate-500">
                 <div className="flex justify-between">
                   <span>Cart Subtotal</span>
                   <span className="font-extrabold text-slate-900">
                     ₹{subtotal.toLocaleString("en-IN")}
                   </span>
                 </div>
-                {appliedDiscount > 0 && (
-                  <div className="flex justify-between text-emerald-600 font-bold">
-                    <span>Discount Voucher</span>
-                    <span>-₹{appliedDiscount.toLocaleString("en-IN")}</span>
-                  </div>
-                )}
                 <div className="flex justify-between text-[11px] text-slate-400">
                   <span>Pan-India Shipping &amp; GST</span>
                   <span className="text-emerald-600 font-bold">
@@ -452,34 +364,41 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                 <div className="flex justify-between text-sm font-black text-slate-900 pt-2 border-t border-slate-200">
                   <span>Grand Total</span>
                   <span className="text-[#2563EB] text-base font-black">
-                    ₹{total.toLocaleString("en-IN")}
+                    ₹{subtotal.toLocaleString("en-IN")}
                   </span>
                 </div>
               </div>
 
-              {/* Action Buttons */}
-              <div className="grid grid-cols-2 gap-2 pt-1">
-                <Link
-                  href="/cart"
-                  onClick={() => {
-                    haptic.light();
-                    onClose();
-                  }}
-                  className="bg-white hover:bg-slate-50 border border-slate-200 hover:border-slate-300 text-slate-700 hover:text-slate-900 py-3 rounded-xl font-black text-xs uppercase tracking-wider text-center transition-all block cursor-pointer"
-                >
-                  View Full Cart
-                </Link>
+              {/* Action Button: Proceed to Buy */}
+              <div className="space-y-2 pt-1">
                 <Link
                   href="/checkout"
                   onClick={() => {
                     haptic.medium();
                     onClose();
                   }}
-                  className="bg-[#2563EB] hover:bg-[#1D4ED8] active:bg-[#1E40AF] text-white py-3 rounded-xl font-black text-xs uppercase tracking-wider text-center transition-all shadow-md shadow-blue-500/25 block flex items-center justify-center gap-1.5 active:scale-95 cursor-pointer"
+                  className="w-full bg-[#2563EB] hover:bg-[#1D4ED8] active:bg-[#1E40AF] text-white py-3.5 px-4 rounded-xl font-bold text-sm text-center transition-all shadow-md shadow-blue-500/25 flex items-center justify-center gap-2 active:scale-98 cursor-pointer"
                 >
-                  <span>Checkout</span>
-                  <ArrowRight className="w-3.5 h-3.5 text-[#FFC20E]" />
+                  <span>
+                    Proceed to Buy ({totalItemCount}{" "}
+                    {totalItemCount === 1 ? "item" : "items"})
+                  </span>
+                  <ArrowRight className="w-4 h-4 text-[#FFC20E]" />
                 </Link>
+
+                <div className="text-center">
+                  <Link
+                    href="/cart"
+                    onClick={() => {
+                      haptic.light();
+                      onClose();
+                    }}
+                    className="text-[11px] font-semibold text-slate-500 hover:text-[#2563EB] hover:underline transition-colors inline-flex items-center gap-1 cursor-pointer"
+                  >
+                    <span>View or edit full cart</span>
+                    <span>→</span>
+                  </Link>
+                </div>
               </div>
 
               {/* Trust Footer */}
