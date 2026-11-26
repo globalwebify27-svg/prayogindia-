@@ -290,61 +290,79 @@
   }
 }
 
-/* Cart Item Card Flow-Through Hover Animation */
-@keyframes flowThroughSweep {
+/* Laser Border Beam Animation */
+@keyframes laserRotate {
   0% {
-    transform: translateX(-150%) skewX(-20deg);
-    opacity: 0;
-  }
-  20% {
-    opacity: 1;
-  }
-  80% {
-    opacity: 1;
+    transform: rotate(0deg);
   }
   100% {
-    transform: translateX(280%) skewX(-20deg);
-    opacity: 0;
+    transform: rotate(360deg);
   }
 }
 
-.cart-card-flow {
+.laser-border-card {
   position: relative;
+  border-radius: 1rem; /* rounded-2xl */
+  padding: 1.5px;
   overflow: hidden;
-  transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1),
-              box-shadow 0.28s cubic-bezier(0.4, 0, 0.2, 1),
-              border-color 0.28s cubic-bezier(0.4, 0, 0.2, 1),
-              background-color 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+  background-color: rgba(226, 232, 240, 0.9); /* border-slate-200/90 */
+  transition: transform 0.28s cubic-bezier(0.25, 1, 0.5, 1),
+              box-shadow 0.28s cubic-bezier(0.25, 1, 0.5, 1),
+              background-color 0.28s ease;
 }
 
-.cart-card-flow:hover {
+.laser-border-card:hover {
   transform: translateY(-2px);
-  border-color: rgba(37, 99, 235, 0.4) !important;
-  box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.12), 0 4px 10px -2px rgba(15, 23, 42, 0.05);
+  box-shadow: 0 10px 25px -4px rgba(37, 99, 235, 0.16), 0 4px 10px -2px rgba(15, 23, 42, 0.05);
 }
 
-.cart-card-flow::after {
-  content: "";
+.laser-border-beam {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 70%;
-  height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(255, 255, 255, 0.75) 40%,
-    rgba(37, 99, 235, 0.22) 65%,
-    transparent 100%
+  inset: -150%;
+  background: conic-gradient(
+    from 0deg at 50% 50%,
+    transparent 0deg,
+    transparent 65deg,
+    #38BDF8 95deg,
+    #00AEEF 108deg,
+    #2563EB 130deg,
+    transparent 160deg,
+    transparent 360deg
   );
-  transform: translateX(-150%) skewX(-20deg);
-  pointer-events: none;
-  z-index: 10;
   opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+  z-index: 0;
 }
 
-.cart-card-flow:hover::after {
-  animation: flowThroughSweep 0.85s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+.laser-border-beam-glow {
+  filter: blur(4px);
+  opacity: 0;
+  z-index: 0;
+}
+
+.laser-border-card:hover .laser-border-beam {
+  opacity: 1;
+  animation: laserRotate 2.4s linear infinite;
+}
+
+.laser-border-card:hover .laser-border-beam-glow {
+  opacity: 0.85;
+  animation: laserRotate 2.4s linear infinite;
+}
+
+.laser-border-inner {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  background-color: #ffffff;
+  border-radius: calc(1rem - 1.5px);
+  transition: background-color 0.25s ease;
+}
+
+.laser-border-card:hover .laser-border-inner {
+  background-color: #fafbfc;
 }
 
 
