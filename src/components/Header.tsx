@@ -803,7 +803,7 @@ export const Header: React.FC<HeaderProps> = ({
                       href="/offers"
                       className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-red-50 hover:text-[#FF3B30] transition-colors group/sub"
                     >
-                      <span>Lightning Deals (&lt; ₹999)</span>
+                      <span>Lightning Deals</span>
                       <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover/sub:text-[#FF3B30] group-hover/sub:translate-x-0.5 transition-all shrink-0" />
                     </Link>
                     <Link
