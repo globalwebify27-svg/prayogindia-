@@ -741,19 +741,19 @@ export const MobileMenuDrawer: React.FC<MobileMenuDrawerProps> = ({
                   )}
                 </div>
               ) : (
-                /* ── CATEGORIES TAB CONTENT (Clean Accordions, No Navy Boxes) ── */
-                <div className="divide-y divide-slate-100 py-1">
+                /* ── CATEGORIES TAB CONTENT (Clean Accordions, Same Font as Menu) ── */
+                <div className="divide-y divide-slate-100 pt-1 pb-2">
                   {CATEGORIES_DATA.map((cat) => {
                     const hasSubs = cat.subcategories && cat.subcategories.length > 0;
                     const isOpen = activeAccordion === cat.id;
 
                     return (
                       <div key={cat.id}>
-                        <div className="flex items-center justify-between hover:bg-slate-50/80 transition-colors">
+                        <div className="flex items-center justify-between hover:bg-slate-50/80 transition-colors group">
                           <Link
                             href={`/categories/${cat.slug}`}
                             onClick={onClose}
-                            className="flex-1 px-4 py-3 text-xs sm:text-sm font-medium text-slate-800 hover:text-[#2563EB] transition-colors"
+                            className="flex-1 px-4 py-3 text-sm font-medium text-slate-700 hover:text-[#2563EB] transition-colors"
                           >
                             <span>{cat.name}</span>
                           </Link>
@@ -762,11 +762,11 @@ export const MobileMenuDrawer: React.FC<MobileMenuDrawerProps> = ({
                             <button
                               type="button"
                               onClick={() => toggleAccordion(cat.id)}
-                              className="p-3 text-slate-400 hover:text-[#2563EB] transition-colors cursor-pointer"
+                              className="px-4 py-3 text-slate-400 hover:text-[#2563EB] transition-colors cursor-pointer"
                               aria-label={`Toggle ${cat.name}`}
                             >
                               <ChevronDown
-                                className={`w-4 h-4 transition-transform duration-200 ${
+                                className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${
                                   isOpen ? "rotate-180 text-[#2563EB]" : ""
                                 }`}
                               />
@@ -781,24 +781,26 @@ export const MobileMenuDrawer: React.FC<MobileMenuDrawerProps> = ({
                                 initial={{ height: 0, opacity: 0 }}
                                 animate={{ height: "auto", opacity: 1 }}
                                 exit={{ height: 0, opacity: 0 }}
-                                className="divide-y divide-slate-100 bg-slate-50/60 pl-8 pr-4 py-1 border-t border-slate-100"
+                                className="divide-y divide-slate-100 bg-slate-50/70 pl-8 pr-4 py-1 border-t border-slate-100 overflow-hidden"
                               >
                                 {cat.subcategories.map((sub) => (
                                   <Link
                                     key={sub.id}
                                     href={`/categories/${cat.slug}/${sub.slug}`}
                                     onClick={onClose}
-                                    className="block py-2.5 text-xs text-slate-600 font-medium hover:text-[#2563EB] transition-colors"
+                                    className="flex items-center justify-between py-2.5 text-xs text-slate-600 font-medium hover:text-[#2563EB] transition-colors"
                                   >
-                                    {sub.name}
+                                    <span>{sub.name}</span>
+                                    <ChevronRight className="w-3 h-3 text-slate-300" />
                                   </Link>
                                 ))}
                                 <Link
                                   href={`/categories/${cat.slug}`}
                                   onClick={onClose}
-                                  className="block py-2 text-xs text-[#2563EB] font-semibold hover:underline"
+                                  className="flex items-center justify-between py-2 text-xs text-[#2563EB] font-bold hover:underline transition-colors"
                                 >
-                                  View All {cat.name} &rarr;
+                                  <span>View All {cat.name} →</span>
+                                  <ChevronRight className="w-3.5 h-3.5 text-[#2563EB]" />
                                 </Link>
                               </motion.div>
                             )}
@@ -811,10 +813,10 @@ export const MobileMenuDrawer: React.FC<MobileMenuDrawerProps> = ({
                   <Link
                     href="/categories"
                     onClick={onClose}
-                    className="flex items-center justify-between px-4 py-3 text-xs font-bold text-[#2563EB] hover:bg-slate-50 transition-colors"
+                    className="flex items-center justify-between px-4 py-3 text-sm font-semibold text-[#2563EB] hover:bg-blue-50/50 transition-colors"
                   >
                     <span>Browse All Categories</span>
-                    <ChevronRight className="w-4 h-4" />
+                    <ChevronRight className="w-4 h-4 text-[#2563EB]" />
                   </Link>
                 </div>
               )}
