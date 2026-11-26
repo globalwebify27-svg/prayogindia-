@@ -10,7 +10,6 @@ import {
   Minus,
   ShoppingBag,
   ArrowRight,
-  ShieldCheck,
   Heart,
   AlertTriangle,
   CheckCircle2,
@@ -370,7 +369,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
               </div>
 
               {/* Action Button: Proceed to Buy */}
-              <div className="space-y-2 pt-1">
+              <div className="pt-1">
                 <Link
                   href="/checkout"
                   onClick={() => {
@@ -385,32 +384,6 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                   </span>
                   <ArrowRight className="w-4 h-4 text-[#FFC20E]" />
                 </Link>
-
-                <div className="text-center">
-                  <Link
-                    href="/cart"
-                    onClick={() => {
-                      haptic.light();
-                      onClose();
-                    }}
-                    className="text-[11px] font-semibold text-slate-500 hover:text-[#2563EB] hover:underline transition-colors inline-flex items-center gap-1 cursor-pointer"
-                  >
-                    <span>View or edit full cart</span>
-                    <span>→</span>
-                  </Link>
-                </div>
-              </div>
-
-              {/* Trust Footer */}
-              <div className="flex items-center justify-center gap-3 text-[10px] text-slate-400 pt-1 font-semibold">
-                <span className="flex items-center gap-1">
-                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-                  <span>100% Genuine</span>
-                </span>
-                <span>•</span>
-                <span>GST Input Credit</span>
-                <span>•</span>
-                <span>Instant Support</span>
               </div>
             </div>
           )}
