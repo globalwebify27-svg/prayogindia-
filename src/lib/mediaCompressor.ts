@@ -41,7 +41,7 @@ export async function compressImageBuffer(
     const image = sharp(inputBuffer);
     const metadata = await image.metadata();
 
-    let pipeline = image
+    const pipeline = image
       .rotate() // auto-rotate based on orientation tag before stripping
       .resize({
         width: maxWidth,

@@ -1,6 +1,5 @@
 import { db } from "@/lib/db";
 import { recordAuditLog } from "@/lib/auditLogger";
-import { CustomerTypeCode } from "@/data/customerTypes";
 
 export interface TierRuleConfig {
   tierCode: string;

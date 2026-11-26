@@ -1,6 +1,5 @@
 import { Product, ProductVariant } from "@/data/mockData";
 import { CustomerType } from "@/data/customerTypes";
-import { ToastData } from "@/components/SuccessToast";
 
 export interface CartItem {
   product: Product;
