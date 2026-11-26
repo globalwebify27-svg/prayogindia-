@@ -533,15 +533,15 @@ export const WishlistView: React.FC<WishlistViewProps> = ({
       <div
         className={
           embedded
-            ? "space-y-6 animate-in fade-in duration-300 w-full"
-            : "w-full px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 py-6 sm:py-10 space-y-8 animate-in fade-in duration-300"
+            ? "space-y-5 animate-in fade-in duration-300 w-full"
+            : "w-full px-3.5 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 py-3.5 sm:py-6 space-y-6 sm:space-y-8 animate-in fade-in duration-300 font-sans"
         }
       >
         {!embedded && <CategoryBreadcrumb items={[{ label: "My Wishlist" }]} />}
 
-        {/* Clean, Simple & Beautiful Empty State */}
-        <div className="py-6 sm:py-10 text-center max-w-2xl mx-auto space-y-3.5">
-          <div className="relative w-48 h-32 sm:w-56 sm:h-38 mx-auto -mb-1">
+        {/* Clean, Simple & Beautiful Empty State (Matches Cart) */}
+        <div className="py-4 sm:py-8 text-center max-w-md mx-auto space-y-3.5">
+          <div className="relative w-36 h-28 sm:w-44 sm:h-34 mx-auto">
             <Image
               src="/images/empty-wishlist-robot.png"
               alt="Your Wishlist is Empty"
@@ -551,48 +551,45 @@ export const WishlistView: React.FC<WishlistViewProps> = ({
             />
           </div>
 
-          <div className="space-y-1">
+          <div className="max-w-xs mx-auto">
             <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
               Your Wishlist is Empty
             </h1>
-            <p className="text-xs sm:text-sm text-slate-500 max-w-xs mx-auto leading-relaxed">
-              Explore robotics kits, sensors, and development boards to save your favorites for later.
-            </p>
           </div>
 
-          <div className="pt-1">
+          {/* Quick Popular Categories */}
+          <div className="space-y-2 pt-1">
+            <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
+              Popular Categories
+            </p>
+            <div className="flex flex-wrap items-center justify-center gap-1.5 max-w-xs mx-auto">
+              {[
+                { label: "Robotics Kits", href: "/categories/robotics" },
+                { label: "Arduino", href: "/categories/development-boards" },
+                { label: "Sensors", href: "/categories/sensors-iot" },
+                { label: "Drones & RC", href: "/categories/drone-technology" },
+                { label: "Top Deals", href: "/offers" },
+              ].map((cat) => (
+                <Link
+                  key={cat.label}
+                  href={cat.href}
+                  className="px-2.5 py-1 rounded-lg border border-slate-200/80 bg-white hover:bg-blue-50 text-[11px] font-medium text-slate-600 hover:text-[#2563EB] hover:border-[#2563EB]/40 transition-colors shadow-2xs"
+                >
+                  {cat.label}
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          {/* Primary Action Button (Below Filter, matching Cart) */}
+          <div className="pt-1.5">
             <Link
               href="/products"
-              className="inline-flex items-center gap-2 bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-xs sm:text-sm font-semibold px-5 py-2.5 rounded-xl transition-all shadow-2xs active:scale-95 cursor-pointer"
+              className="inline-flex items-center justify-center gap-2 bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-xs sm:text-sm font-semibold px-6 py-2.5 rounded-xl shadow-xs transition-all active:scale-95 cursor-pointer"
             >
               <span>Explore Products</span>
-              <ArrowRight className="w-4 h-4" />
+              <ArrowRight className="w-3.5 h-3.5" />
             </Link>
-          </div>
-        </div>
-
-        {/* Quick Popular Categories */}
-        <div className="max-w-2xl mx-auto text-center space-y-3 pt-6 border-t border-slate-100">
-          <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
-            Popular Categories to Explore
-          </p>
-          <div className="flex flex-wrap items-center justify-center gap-2">
-            {[
-              { label: "Arduino Boards", href: "/categories/development-boards" },
-              { label: "Robotics STEM Kits", href: "/categories/robotics" },
-              { label: "Sensors & Modules", href: "/categories/sensors-iot" },
-              { label: "Drone Components", href: "/categories/drone-technology" },
-              { label: "Motors & Drivers", href: "/categories/robotics" },
-              { label: "IoT & Wireless", href: "/categories/sensors-iot" },
-            ].map((cat) => (
-              <Link
-                key={cat.label}
-                href={cat.href}
-                className="px-3 py-1.5 rounded-lg border border-slate-200/80 bg-white hover:bg-slate-50 text-xs font-medium text-slate-700 hover:text-[#2563EB] hover:border-[#2563EB]/40 transition-colors shadow-2xs"
-              >
-                {cat.label}
-              </Link>
-            ))}
           </div>
         </div>
 
