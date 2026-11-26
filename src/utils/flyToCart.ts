@@ -1,7 +1,7 @@
 /**
  * Professional Parabolic Arc Fly-To-Cart Animation
  * Trajectory: Quadratic Bezier Curve from source element to the header cart button
- * Includes visible glowing curved trajectory line, smooth easing, and tactile landing bump
+ * Smooth easing, elegant physics arc, and tactile landing bump without visual clutter
  */
 
 export interface FlyToCartOptions {
@@ -29,9 +29,9 @@ export function triggerFlyToCart(
       : imageSrcOrOptions || {};
 
   const imageSrc = options.imageSrc;
-  // Slower, smoother pacing (~980ms) for high-end professional feel
-  const duration = options.duration || 980;
-  const showCurvedLine = options.showCurvedLine !== false;
+  // Slower, smoother pacing (~920ms) for high-end professional feel
+  const duration = options.duration || 920;
+  const showCurvedLine = options.showCurvedLine === true;
 
   // 1. Calculate Start Coordinates (Center of the source button / event)
   let startX = window.innerWidth / 2;
@@ -69,8 +69,7 @@ export function triggerFlyToCart(
   const apexY = Math.max(32, Math.min(startY, endY) - arcLift);
   const apexX = startX + (endX - startX) * 0.48;
 
-  // 4. Render Curvey Trajectory Line (SVG Overlay)
-  // Authentic, simple dashed trajectory line without heavy neon glow or multiple layers
+  // 4. Optional Trajectory Line (Disabled by default for clean, professional look)
   let svgOverlay: SVGSVGElement | null = null;
   let maskPath: SVGPathElement | null = null;
   let pathTotalLength = 0;
@@ -107,16 +106,15 @@ export function triggerFlyToCart(
           />
         </mask>
       </defs>
-      <!-- Single, clean, authentic dashed trajectory arc -->
       <path
         d="M ${startX} ${startY} Q ${apexX} ${apexY} ${endX} ${endY}"
         fill="none"
         stroke="#00AEEF"
-        stroke-width="2"
-        stroke-dasharray="6 5"
+        stroke-width="1.5"
+        stroke-dasharray="5 5"
         stroke-linecap="round"
         stroke-linejoin="round"
-        opacity="0.75"
+        opacity="0.6"
         mask="url(#${uniqueId}-mask)"
       />
     `;
@@ -203,7 +201,7 @@ export function triggerFlyToCart(
     const currentX = (1 - t) * (1 - t) * startX + 2 * (1 - t) * t * apexX + t * t * endX;
     const currentY = (1 - t) * (1 - t) * startY + 2 * (1 - t) * t * apexY + t * t * endY;
 
-    // Smoothly reveal the clean dashed trajectory line behind the flying item
+    // Optional subtle trajectory line reveal
     if (maskPath && pathTotalLength > 0) {
       const currentOffset = Math.max(0, pathTotalLength * (1 - progress));
       maskPath.style.strokeDashoffset = `${currentOffset}`;
@@ -238,7 +236,7 @@ export function triggerFlyToCart(
       flyingNode.remove();
       bumpCartIcon(cartTarget);
 
-      // Smoothly fade out the curved trajectory line
+      // Clean up overlay if one was created
       if (svgOverlay) {
         svgOverlay.style.opacity = "0";
         setTimeout(() => {
