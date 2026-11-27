@@ -156,8 +156,8 @@ export const DealsAndOffersSection: React.FC<Props> = ({ onShopDeals }) => {
             </div>
 
             {/* Themed Pastel Footer */}
-            <div className="p-2 sm:p-3 bg-gradient-to-b from-rose-50/70 via-white to-red-50/30 border-t border-rose-100/90 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-1.5 sm:gap-2">
-              <div className="flex items-center justify-between gap-1 w-full sm:w-auto">
+            <div className="p-2 sm:p-2.5 bg-gradient-to-b from-rose-50/70 via-white to-red-50/30 border-t border-rose-100/90 flex flex-col gap-1.5 sm:gap-2">
+              <div className="flex items-center justify-between gap-1 w-full">
                 {/* Left: Themed Coupon Button */}
                 <button
                   type="button"
@@ -174,24 +174,24 @@ export const DealsAndOffersSection: React.FC<Props> = ({ onShopDeals }) => {
                   )}
                 </button>
 
-                {/* Center: Highlight Metric */}
-                <div className="border-l border-rose-200 pl-1.5 sm:pl-2 pr-0.5 sm:pr-1 flex flex-col justify-center shrink-0">
+                {/* Right: Highlight Metric */}
+                <div className="text-right flex flex-col justify-center shrink-0">
                   <span className="text-[8px] sm:text-[9px] text-rose-600 font-semibold leading-none">
                     Save up to
                   </span>
-                  <span className="text-[11px] sm:text-sm font-black text-rose-700 leading-tight">
+                  <span className="text-[11px] sm:text-xs font-black text-rose-700 leading-tight">
                     ₹2,500
                   </span>
                 </div>
               </div>
 
-              {/* Right: Vibrant Gradient CTA */}
+              {/* Action Button */}
               <button
                 onClick={handleClaim}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-1 bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white font-bold px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-lg text-[10px] sm:text-[11px] uppercase tracking-wider transition-all cursor-pointer shadow-md shadow-red-500/20 active:scale-95 shrink-0 whitespace-nowrap"
+                className="w-full inline-flex items-center justify-center gap-1.5 bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white font-bold py-1.5 sm:py-2 rounded-lg sm:rounded-xl text-[10px] sm:text-[11px] uppercase tracking-wider transition-all cursor-pointer shadow-md shadow-red-500/20 active:scale-95 whitespace-nowrap"
               >
                 <span>CLAIM DEAL</span>
-                <ArrowRight className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
+                <ArrowRight className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
               </button>
             </div>
           </motion.div>
@@ -240,8 +240,8 @@ export const DealsAndOffersSection: React.FC<Props> = ({ onShopDeals }) => {
             </div>
 
             {/* Themed Pastel Footer */}
-            <div className="p-2 sm:p-3 bg-gradient-to-b from-blue-50/70 via-white to-sky-50/30 border-t border-blue-100/90 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-1.5 sm:gap-2">
-              <div className="flex items-center justify-between gap-1 w-full sm:w-auto">
+            <div className="p-2 sm:p-2.5 bg-gradient-to-b from-blue-50/70 via-white to-sky-50/30 border-t border-blue-100/90 flex flex-col gap-1.5 sm:gap-2">
+              <div className="flex items-center justify-between gap-1 w-full">
                 {/* Left: Themed Coupon Button */}
                 <button
                   type="button"
@@ -258,24 +258,24 @@ export const DealsAndOffersSection: React.FC<Props> = ({ onShopDeals }) => {
                   )}
                 </button>
 
-                {/* Center: Highlight Metric */}
-                <div className="border-l border-blue-200 pl-1.5 sm:pl-2 pr-0.5 sm:pr-1 flex flex-col justify-center shrink-0">
+                {/* Right: Highlight Metric */}
+                <div className="text-right flex flex-col justify-center shrink-0">
                   <span className="text-[8px] sm:text-[9px] text-blue-600 font-semibold leading-none">
                     Instant
                   </span>
-                  <span className="text-[11px] sm:text-sm font-black text-[#005CA9] leading-tight">
+                  <span className="text-[11px] sm:text-xs font-black text-[#005CA9] leading-tight">
                     10% FLAT
                   </span>
                 </div>
               </div>
 
-              {/* Right: Vibrant Gradient CTA */}
+              {/* Action Button */}
               <button
                 onClick={handleClaim}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-1 bg-gradient-to-r from-[#005CA9] to-[#0078D7] hover:from-[#004885] hover:to-[#005CA9] text-white font-bold px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-lg text-[10px] sm:text-[11px] uppercase tracking-wider transition-all cursor-pointer shadow-md shadow-blue-500/20 active:scale-95 shrink-0 whitespace-nowrap"
+                className="w-full inline-flex items-center justify-center gap-1.5 bg-gradient-to-r from-[#005CA9] to-[#0078D7] hover:from-[#004885] hover:to-[#005CA9] text-white font-bold py-1.5 sm:py-2 rounded-lg sm:rounded-xl text-[10px] sm:text-[11px] uppercase tracking-wider transition-all cursor-pointer shadow-md shadow-blue-500/20 active:scale-95 whitespace-nowrap"
               >
                 <span>CLAIM DEAL</span>
-                <ArrowRight className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
+                <ArrowRight className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
               </button>
             </div>
           </motion.div>
@@ -324,8 +324,8 @@ export const DealsAndOffersSection: React.FC<Props> = ({ onShopDeals }) => {
             </div>
 
             {/* Themed Pastel Footer */}
-            <div className="p-2 sm:p-3 bg-gradient-to-b from-amber-50/70 via-white to-orange-50/30 border-t border-amber-100/90 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-1.5 sm:gap-2">
-              <div className="flex items-center justify-between gap-1 w-full sm:w-auto">
+            <div className="p-2 sm:p-2.5 bg-gradient-to-b from-amber-50/70 via-white to-orange-50/30 border-t border-amber-100/90 flex flex-col gap-1.5 sm:gap-2">
+              <div className="flex items-center justify-between gap-1 w-full">
                 {/* Left: Themed Coupon Button */}
                 <button
                   type="button"
@@ -342,24 +342,24 @@ export const DealsAndOffersSection: React.FC<Props> = ({ onShopDeals }) => {
                   )}
                 </button>
 
-                {/* Center: Highlight Metric */}
-                <div className="border-l border-amber-200 pl-1.5 sm:pl-2 pr-0.5 sm:pr-1 flex flex-col justify-center shrink-0">
+                {/* Right: Highlight Metric */}
+                <div className="text-right flex flex-col justify-center shrink-0">
                   <span className="text-[8px] sm:text-[9px] text-amber-700 font-semibold leading-none">
                     Flat Save
                   </span>
-                  <span className="text-[11px] sm:text-sm font-black text-amber-600 leading-tight">
+                  <span className="text-[11px] sm:text-xs font-black text-amber-700 leading-tight">
                     ₹500 OFF
                   </span>
                 </div>
               </div>
 
-              {/* Right: Vibrant Gradient CTA */}
+              {/* Action Button */}
               <button
                 onClick={handleClaim}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-1 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-slate-950 font-black px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-lg text-[10px] sm:text-[11px] uppercase tracking-wider transition-all cursor-pointer shadow-md shadow-amber-500/20 active:scale-95 shrink-0 whitespace-nowrap"
+                className="w-full inline-flex items-center justify-center gap-1.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-slate-950 font-black py-1.5 sm:py-2 rounded-lg sm:rounded-xl text-[10px] sm:text-[11px] uppercase tracking-wider transition-all cursor-pointer shadow-md shadow-amber-500/20 active:scale-95 whitespace-nowrap"
               >
                 <span>CLAIM DEAL</span>
-                <ArrowRight className="w-2.5 h-2.5 sm:w-3 sm:h-3 stroke-[2.5]" />
+                <ArrowRight className="w-3 h-3 sm:w-3.5 sm:h-3.5 stroke-[2.5]" />
               </button>
             </div>
           </motion.div>
@@ -408,32 +408,32 @@ export const DealsAndOffersSection: React.FC<Props> = ({ onShopDeals }) => {
             </div>
 
             {/* Themed Pastel Footer */}
-            <div className="p-2 sm:p-3 bg-gradient-to-b from-emerald-50/70 via-white to-teal-50/30 border-t border-emerald-100/90 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-1.5 sm:gap-2">
-              <div className="flex items-center justify-between gap-1 w-full sm:w-auto">
+            <div className="p-2 sm:p-2.5 bg-gradient-to-b from-emerald-50/70 via-white to-teal-50/30 border-t border-emerald-100/90 flex flex-col gap-1.5 sm:gap-2">
+              <div className="flex items-center justify-between gap-1 w-full">
                 {/* Left: Themed Auto-Applied Perk Badge */}
                 <div className="inline-flex items-center gap-1 bg-white text-emerald-800 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-md sm:rounded-lg border border-emerald-300 text-[10px] sm:text-[11px] font-mono font-bold shadow-2xs">
                   <span className="text-[9px] sm:text-[10px] font-sans text-emerald-600 font-bold">Perk:</span>
                   <span>Auto-Applied</span>
                 </div>
 
-                {/* Center: Highlight Metric */}
-                <div className="border-l border-emerald-200 pl-1.5 sm:pl-2 pr-0.5 sm:pr-1 flex flex-col justify-center shrink-0">
+                {/* Right: Highlight Metric */}
+                <div className="text-right flex flex-col justify-center shrink-0">
                   <span className="text-[8px] sm:text-[9px] text-emerald-600 font-semibold leading-none">
                     Orders over
                   </span>
-                  <span className="text-[11px] sm:text-sm font-black text-emerald-700 leading-tight">
+                  <span className="text-[11px] sm:text-xs font-black text-emerald-700 leading-tight">
                     ₹999
                   </span>
                 </div>
               </div>
 
-              {/* Right: Vibrant Gradient CTA */}
+              {/* Action Button */}
               <button
                 onClick={handleClaim}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-1 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-lg text-[10px] sm:text-[11px] uppercase tracking-wider transition-all cursor-pointer shadow-md shadow-emerald-500/20 active:scale-95 shrink-0 whitespace-nowrap"
+                className="w-full inline-flex items-center justify-center gap-1.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold py-1.5 sm:py-2 rounded-lg sm:rounded-xl text-[10px] sm:text-[11px] uppercase tracking-wider transition-all cursor-pointer shadow-md shadow-emerald-500/20 active:scale-95 whitespace-nowrap"
               >
                 <span>SHOP NOW</span>
-                <ArrowRight className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
+                <ArrowRight className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
               </button>
             </div>
           </motion.div>
