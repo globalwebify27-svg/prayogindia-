@@ -188,7 +188,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
     <div
       id={`product-card-${product.id}`}
       className={cn(
-        "group bg-white rounded-xl sm:rounded-2xl border border-slate-200/90 p-1.5 sm:p-3 flex flex-col justify-between hover:border-[#2563EB] hover:shadow-lg transition-all duration-300 relative overflow-hidden font-sans h-full w-full",
+        "group bg-white rounded-xl sm:rounded-2xl border border-slate-200/90 p-1.5 sm:p-3 flex flex-col justify-between hover:border-[#2563EB] hover:shadow-lg transition-all duration-300 relative overflow-hidden font-sans h-full w-full min-h-[290px] sm:min-h-[350px]",
         className
       )}
     >
@@ -309,20 +309,20 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         className="flex-1 flex flex-col justify-between space-y-0.5 sm:space-y-1 block cursor-pointer"
       >
         <div className="space-y-0.5 sm:space-y-1">
-          {/* Brand Name (Only show if distinct third-party brand and not Prayog India) */}
-          {product.brand && product.brand.trim().toLowerCase() !== "prayog india" && (
-            <div className="text-[9px] sm:text-xs font-black text-slate-900 tracking-wider uppercase truncate">
-              {product.brand}
-            </div>
-          )}
+          {/* Brand or Category: Unified single-line slot to keep title start position identical */}
+          <div className="h-3 sm:h-3.5 text-[9px] sm:text-[10px] font-bold text-slate-400 tracking-wider uppercase truncate">
+            {product.brand && product.brand.trim().toLowerCase() !== "prayog india"
+              ? product.brand
+              : (product.category || "")}
+          </div>
 
-          {/* Product Name Subtitle (Medium weight, 2 lines clamp on mobile) */}
-          <h3 className="text-[11px] sm:text-sm font-medium text-slate-700 line-clamp-2 min-h-[1.25rem] sm:h-9 group-hover:text-[#2563EB] transition-colors leading-tight sm:leading-snug">
+          {/* Product Name Subtitle: Fixed 2-line reserved height for pixel-perfect card alignment */}
+          <h3 className="text-[11px] sm:text-sm font-medium text-slate-700 line-clamp-2 h-7 sm:h-9 group-hover:text-[#2563EB] transition-colors leading-tight sm:leading-snug">
             {product.name}
           </h3>
 
-          {/* Rating Stars + Review Count */}
-          <div className="flex items-center gap-1 text-[10px] sm:text-[11px] text-slate-500 pt-0 sm:pt-0.5">
+          {/* Rating Stars + Review Count: Fixed height slot */}
+          <div className="flex items-center gap-1 text-[10px] sm:text-[11px] text-slate-500 pt-0 sm:pt-0.5 h-4 sm:h-5">
             <div className="flex items-center text-amber-500 gap-0.5">
               {[...Array(5)].map((_, i) => (
                 <Star
@@ -340,26 +340,21 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             </span>
           </div>
 
-          {/* Low Stock Advisory (<= 5 units) */}
-          {isInStock && availableStock <= 5 && (
-            <div className="pt-0.5">
-              <span className="text-[9px] sm:text-[10px] font-bold text-rose-600 tracking-tight block">
-                Only {availableStock} left in stock
-              </span>
-            </div>
-          )}
-
-          {/* Deal Tag Badge (e.g. Limited time deal) */}
-          {discountPercent > 10 && (
-            <div className="pt-0 sm:pt-0.5">
+          {/* Deal Tag / Stock Advisory Slot: Uniform fixed height slot */}
+          <div className="h-4 sm:h-5 flex items-center pt-0.5">
+            {discountPercent > 10 ? (
               <span className="bg-[#CC0C39] text-white text-[8px] sm:text-[10px] font-black px-1.5 py-0.2 sm:py-0.5 rounded-xs tracking-tight uppercase inline-block leading-tight">
                 Limited time deal
               </span>
-            </div>
-          )}
+            ) : isInStock && availableStock <= 5 ? (
+              <span className="text-[9px] sm:text-[10px] font-bold text-rose-600 tracking-tight block">
+                Only {availableStock} left in stock
+              </span>
+            ) : null}
+          </div>
 
-          {/* Price Row: Bold Rupee Price + Strikethrough MRP + Percentage Off */}
-          <div className="pt-0 sm:pt-0.5 min-h-[30px] sm:min-h-0 flex flex-col justify-center leading-tight">
+          {/* Price Row: Fixed height slot for consistent price row alignment */}
+          <div className="pt-0.5 h-7 sm:h-8 flex flex-col justify-center leading-tight">
             <div className="flex items-baseline flex-wrap gap-1 sm:gap-1.5 leading-tight">
               <span className="text-xs sm:text-base font-black text-slate-900 tracking-tight whitespace-nowrap">
                 ₹{displayPrice.toLocaleString("en-IN")}
@@ -420,7 +415,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             <button
               id={`add-to-cart-${product.id}`}
               onClick={handleAddToCart}
-              className={`w-full py-1.5 sm:py-2.5 px-2 sm:px-3 rounded-lg sm:rounded-xl border text-[10px] sm:text-xs font-bold uppercase tracking-normal sm:tracking-wider flex items-center justify-center gap-1 sm:gap-2 transition-all duration-150 active:scale-95 cursor-pointer shadow-2xs whitespace-nowrap overflow-hidden ${
+              className={`w-full h-8 sm:h-9 px-2 sm:px-3 rounded-lg sm:rounded-xl border text-[10px] sm:text-xs font-bold uppercase tracking-normal sm:tracking-wider flex items-center justify-center gap-1 sm:gap-2 transition-all duration-150 active:scale-95 cursor-pointer shadow-2xs whitespace-nowrap overflow-hidden ${
                 isAdded
                   ? "bg-emerald-600 border-emerald-600 text-white"
                   : "border-[#2563EB] text-[#2563EB] bg-white hover:bg-[#2563EB] hover:text-white active:bg-blue-50"
@@ -447,7 +442,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             target="_blank"
             rel="noopener noreferrer"
             onClick={(e) => e.stopPropagation()}
-            className="w-full py-1.5 sm:py-2.5 px-1.5 sm:px-2 rounded-lg sm:rounded-xl bg-[#25D366] hover:bg-[#20bd5a] text-white text-[9px] sm:text-[11px] font-bold tracking-tight flex items-center justify-center gap-1 sm:gap-1.5 transition-all duration-150 active:scale-95 cursor-pointer shadow-2xs whitespace-nowrap overflow-hidden"
+            className="w-full h-8 sm:h-9 px-1.5 sm:px-2 rounded-lg sm:rounded-xl bg-[#25D366] hover:bg-[#20bd5a] text-white text-[9px] sm:text-[11px] font-bold tracking-tight flex items-center justify-center gap-1 sm:gap-1.5 transition-all duration-150 active:scale-95 cursor-pointer shadow-2xs whitespace-nowrap overflow-hidden"
             title="Out of Stock — Inquire on WhatsApp"
           >
             <WhatsAppIcon className="w-3 h-3 sm:w-3.5 sm:h-3.5 fill-white shrink-0" />
