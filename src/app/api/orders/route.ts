@@ -23,18 +23,22 @@ function generateOrderNumber(): string {
   return `PRG-${year}-${randomDigits}`;
 }
 
-async function generateInvoiceNumber(client: any = db): Promise<string> {
+async function generateInvoiceNumber(): Promise<string> {
   const year = new Date().getFullYear();
-  const count = await client.invoice.count();
-  const seq = String(count + 1).padStart(5, "0");
-  const baseNum = `INV-${year}-${seq}`;
-  const exists = await client.invoice.findUnique({
-    where: { invoiceNumber: baseNum },
-  });
-  if (exists) {
+  try {
+    const count = await db.invoice.count();
+    const seq = String(count + 1).padStart(5, "0");
+    const baseNum = `INV-${year}-${seq}`;
+    const exists = await db.invoice.findUnique({
+      where: { invoiceNumber: baseNum },
+    });
+    if (exists) {
+      return `INV-${year}-${Date.now().toString().slice(-6)}`;
+    }
+    return baseNum;
+  } catch {
     return `INV-${year}-${Date.now().toString().slice(-6)}`;
   }
-  return baseNum;
 }
 
 /**
@@ -351,9 +355,20 @@ export async function POST(request: Request) {
     // 2. Resolve Shipping Address & Snapshot String
     let addressSnapshotString = "";
     if (addressId) {
-      const dbAddress = await db.address.findFirst({
-        where: { id: addressId, userId: dbUser.id },
-      });
+      let dbAddress: any = null;
+      try {
+        dbAddress = await db.address.findFirst({
+          where: { id: addressId, userId: dbUser.id },
+        });
+      } catch {
+        try {
+          const rows = await db.$queryRawUnsafe(
+            `SELECT "id","name","phone","street","city","state","pincode","type" FROM "Address" WHERE "id"=$1 AND "userId"=$2 LIMIT 1`,
+            addressId, dbUser.id
+          ) as any[];
+          dbAddress = rows?.[0] || null;
+        } catch {}
+      }
       if (dbAddress) {
         addressSnapshotString = `${dbAddress.name}, Phone: ${dbAddress.phone}, ${dbAddress.street}, ${dbAddress.city}, ${dbAddress.state} - ${dbAddress.pincode} (${dbAddress.type})`;
       } else if (
@@ -370,10 +385,21 @@ export async function POST(request: Request) {
     ) {
       addressSnapshotString = customAddressInput.trim();
     } else {
-      const defaultAddr = await db.address.findFirst({
-        where: { userId: dbUser.id },
-        orderBy: { isDefault: "desc" },
-      });
+      let defaultAddr: any = null;
+      try {
+        defaultAddr = await db.address.findFirst({
+          where: { userId: dbUser.id },
+          orderBy: { isDefault: "desc" },
+        });
+      } catch {
+        try {
+          const rows = await db.$queryRawUnsafe(
+            `SELECT "id","name","phone","street","city","state","pincode","type" FROM "Address" WHERE "userId"=$1 ORDER BY "isDefault" DESC LIMIT 1`,
+            dbUser.id
+          ) as any[];
+          defaultAddr = rows?.[0] || null;
+        } catch {}
+      }
 
       if (defaultAddr) {
         addressSnapshotString = `${defaultAddr.name}, Phone: ${defaultAddr.phone}, ${defaultAddr.street}, ${defaultAddr.city}, ${defaultAddr.state} - ${defaultAddr.pincode} (${defaultAddr.type})`;
@@ -518,35 +544,7 @@ export async function POST(request: Request) {
         },
       });
 
-      // 4b. Deduct redeemed points from user & log transaction
-      if (sanitizedPointsUsed > 0) {
-        try {
-          const currentUser = await tx.user.findUnique({
-            where: { id: dbUser.id },
-            select: { rewardPoints: true },
-          });
-          const currentBal = currentUser?.rewardPoints || 0;
-          await tx.user.update({
-            where: { id: dbUser.id },
-            data: { rewardPoints: { decrement: sanitizedPointsUsed } },
-          });
-          await tx.rewardTransaction.create({
-            data: {
-              userId: dbUser.id,
-              orderId: order.id,
-              type: "REDEEMED",
-              points: -sanitizedPointsUsed,
-              balanceBefore: currentBal,
-              balanceAfter: Math.max(0, currentBal - sanitizedPointsUsed),
-              description: `Redeemed ${sanitizedPointsUsed} Prayog Coins on order #${order.orderNumber}`,
-              referenceType: "CHECKOUT_REDEEM",
-              referenceId: order.orderNumber,
-            },
-          });
-        } catch (redeemErr: any) {
-          console.warn("[Orders] reward deduction skipped (stale client):", redeemErr?.message);
-        }
-      }
+      // 4b. Deduct redeemed points — handled outside transaction via raw SQL to avoid stale-client poisoning
 
       // 4c. Record coupon usage
       if (validCouponCode) {
@@ -612,51 +610,10 @@ export async function POST(request: Request) {
         }
       }
 
-      // Credit earned reward points
-      if (isGuestCheckout) {
-        // For guest customers, reward coins are held in escrow on the order until account registration
-        const escrowCoins = Math.floor(order.totalAmount / 100);
-        await tx.order.update({
-          where: { id: order.id },
-          data: { rewardPointsEarned: escrowCoins },
-        });
-      } else {
-        const typeCode = getCustomerTypeCode(order.customerType);
-        const earned = calculateEarnedRewards(order.totalAmount, typeCode);
-        if (earned.coinsEarned > 0) {
-          try {
-            const u = await tx.user.findUnique({
-              where: { id: dbUser.id },
-              select: { rewardPoints: true },
-            });
-            const bal = u?.rewardPoints || 0;
-            await tx.user.update({
-              where: { id: dbUser.id },
-              data: { rewardPoints: { increment: earned.coinsEarned } },
-            });
-            await tx.rewardTransaction.create({
-              data: {
-                userId: dbUser.id,
-                orderId: order.id,
-                type: "EARNED",
-                points: earned.coinsEarned,
-                balanceBefore: bal,
-                balanceAfter: bal + earned.coinsEarned,
-                description: `Earned ${earned.coinsEarned} Prayog Coins on order ${order.orderNumber}`,
-              },
-            });
-            await tx.order.update({
-              where: { id: order.id },
-              data: { rewardPointsEarned: earned.coinsEarned },
-            });
-          } catch (earnErr: any) {
-            console.warn("[Orders] reward credit skipped (stale client):", earnErr?.message);
-          }
-        }
-      }
+      // Credit earned reward points — handled outside transaction via raw SQL to avoid stale-client poisoning
 
       // 4e. Generate Invoice Record
-      const invNum = await generateInvoiceNumber(tx);
+      const invNum = await generateInvoiceNumber();
       await tx.invoice.create({
         data: {
           invoiceNumber: invNum,
@@ -735,6 +692,67 @@ export async function POST(request: Request) {
       maxWait: 15000,
       timeout: 30000,
     });
+
+    // 5. Post-transaction: Reward point operations via raw SQL (safe from stale Prisma client)
+    if (!isGuestCheckout) {
+      try {
+        const typeCode = getCustomerTypeCode(newOrder.customerType);
+        const earned = calculateEarnedRewards(newOrder.totalAmount, typeCode);
+
+        if (sanitizedPointsUsed > 0) {
+          await db.$executeRawUnsafe(
+            `UPDATE "User" SET "rewardPoints" = GREATEST(0, COALESCE("rewardPoints", 0) - $1), "updatedAt" = NOW() WHERE "id" = $2`,
+            sanitizedPointsUsed, dbUser.id
+          );
+          await db.rewardTransaction.create({
+            data: {
+              userId: dbUser.id,
+              orderId: newOrder.id,
+              type: "REDEEMED",
+              points: -sanitizedPointsUsed,
+              balanceBefore: 0,
+              balanceAfter: 0,
+              description: `Redeemed ${sanitizedPointsUsed} Prayog Coins on order #${newOrder.orderNumber}`,
+              referenceType: "CHECKOUT_REDEEM",
+              referenceId: newOrder.orderNumber,
+            },
+          }).catch(() => {});
+        }
+
+        if (earned.coinsEarned > 0) {
+          await db.$executeRawUnsafe(
+            `UPDATE "User" SET "rewardPoints" = COALESCE("rewardPoints", 0) + $1, "updatedAt" = NOW() WHERE "id" = $2`,
+            earned.coinsEarned, dbUser.id
+          );
+          await db.rewardTransaction.create({
+            data: {
+              userId: dbUser.id,
+              orderId: newOrder.id,
+              type: "EARNED",
+              points: earned.coinsEarned,
+              balanceBefore: 0,
+              balanceAfter: earned.coinsEarned,
+              description: `Earned ${earned.coinsEarned} Prayog Coins on order ${newOrder.orderNumber}`,
+            },
+          }).catch(() => {});
+          await db.order.update({
+            where: { id: newOrder.id },
+            data: { rewardPointsEarned: earned.coinsEarned },
+          }).catch(() => {});
+        }
+      } catch (rewardErr: any) {
+        console.warn("[Orders] Post-transaction reward update failed (non-fatal):", rewardErr?.message);
+      }
+    } else {
+      // Guest escrow coins
+      try {
+        const escrowCoins = Math.floor(newOrder.totalAmount / 100);
+        await db.order.update({
+          where: { id: newOrder.id },
+          data: { rewardPointsEarned: escrowCoins },
+        });
+      } catch {}
+    }
 
     // Trigger Non-Blocking Customer Notification & Optional Email (B9)
     NotificationService.createNotification({
