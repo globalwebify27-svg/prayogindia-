@@ -2004,13 +2004,13 @@ export const CheckoutView: React.FC = () => {
 
 
 
-  // ── Unauthenticated Gate: Show clean, professional Register / Login form
-  if (!isLoggedIn && !guestAllowed) {
+  // ── Mandatory Authentication Gate: Guest checkout is strictly gated behind verified mobile login
+  if (!isLoggedIn) {
     return (
       <CheckoutAuthGate
         cart={cart}
         subtotal={subtotal}
-        onContinueAsGuest={() => setGuestAllowed(true)}
+        onContinueAsGuest={() => {}}
       />
     );
   }

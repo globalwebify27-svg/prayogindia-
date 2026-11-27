@@ -754,16 +754,11 @@ export const CheckoutAuthGate: React.FC<CheckoutAuthGateProps> = ({
           </span>
         </button>
 
-        {/* Dedicated Guest Checkout Option */}
-        <div className="pt-3 mt-3 border-t border-slate-100">
-          <button
-            type="button"
-            onClick={onContinueAsGuest}
-            className="w-full h-10 border border-slate-200 hover:border-slate-300 hover:bg-slate-50 active:scale-[0.99] text-slate-700 font-semibold text-xs rounded-full transition-all flex items-center justify-center gap-1.5 cursor-pointer"
-          >
-            <span>Continue as Guest without Login</span>
-            <ArrowRight className="w-3.5 h-3.5 text-slate-400" />
-          </button>
+        {/* Mandatory Verified Mobile Notice */}
+        <div className="pt-3 mt-3 border-t border-slate-100 text-center">
+          <p className="text-[11px] text-slate-500 font-medium">
+            Fast 10-second checkout with your mobile number. Verified phone required for delivery and dispatch updates.
+          </p>
         </div>
       </div>
 

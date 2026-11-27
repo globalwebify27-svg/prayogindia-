@@ -36,10 +36,22 @@ export const AuthPortal: React.FC<AuthPortalProps> = ({
   const targetRedirect = searchParams.get("redirect") || "/account";
   const isJustRegistered = searchParams.get("registered") === "true";
 
-  // Login Multi-Step (Amazon-style: Identifier -> Password -> Optional OTP)
-  const [loginStep, setLoginStep] = useState<"identifier" | "password" | "otp">("identifier");
+  // Login Multi-Step (Amazon-style: Identifier -> Password -> Optional OTP -> Optional Profile Completion)
+  const [loginStep, setLoginStep] = useState<"identifier" | "password" | "otp" | "complete_profile">("identifier");
   const [identifier, setIdentifier] = useState("");
   const [detectedAccountName, setDetectedAccountName] = useState("");
+  const [verifiedMobileForProfile, setVerifiedMobileForProfile] = useState("");
+
+  // Profile Completion Fields for New Mobile Customers
+  const [profileFullName, setProfileFullName] = useState("");
+  const [profileEmail, setProfileEmail] = useState("");
+  const [profileHouse, setProfileHouse] = useState("");
+  const [profileStreet, setProfileStreet] = useState("");
+  const [profileLandmark, setProfileLandmark] = useState("");
+  const [profileCity, setProfileCity] = useState("");
+  const [profileState, setProfileState] = useState("");
+  const [profilePincode, setProfilePincode] = useState("");
+  const [profileAddressType, setProfileAddressType] = useState<"Home" | "Office" | "Other">("Home");
 
   // Registration Multi-Step (Amazon-style: Form Details -> Mobile OTP Verification)
   const [registerStep, setRegisterStep] = useState<"form" | "otp">("form");
@@ -103,7 +115,7 @@ export const AuthPortal: React.FC<AuthPortalProps> = ({
   };
 
   // ══════════════════════════════════════════════════════════════════════════
-  // LOGIN FLOW (AMAZON-STYLE STEP 1: IDENTIFIER CHECK)
+  // LOGIN FLOW (AMAZON-STYLE STEP 1: IDENTIFIER CHECK & MOBILE OTP PRIMARY)
   // ══════════════════════════════════════════════════════════════════════════
   const handleIdentifierSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -116,6 +128,36 @@ export const AuthPortal: React.FC<AuthPortalProps> = ({
       return;
     }
 
+    const cleanDigits = cleanId.replace(/\D/g, "");
+    const isMobile = cleanDigits.length >= 10 && !cleanId.includes("@");
+
+    // Primary Auth Method: Mobile Number + OTP
+    if (isMobile) {
+      setLoading(true);
+      try {
+        const res = await fetch("/api/auth/mobile/send-otp", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ phone: cleanDigits.slice(-10) }),
+        });
+        const data = await res.json();
+        if (data.success) {
+          setLoginStep("otp");
+          setCountdown(data.cooldownSeconds || 30);
+          setTestOtpNotice(data.testOtp || "1234");
+          setSuccessMsg(`OTP sent to +91 ${cleanDigits.slice(-10)}. Please enter it below.`);
+        } else {
+          setError(data.message || "Failed to send OTP to mobile number.");
+        }
+      } catch {
+        setError("Network error sending mobile OTP. Please try again.");
+      } finally {
+        setLoading(false);
+      }
+      return;
+    }
+
+    // Secondary Auth Method: Email Authentication
     setLoading(true);
     try {
       const res = await fetch("/api/auth/login", {
@@ -126,7 +168,7 @@ export const AuthPortal: React.FC<AuthPortalProps> = ({
       const data = await res.json();
 
       if (!res.ok || !data.success) {
-        setError(data.message || "We cannot find an account with that mobile number or email address.");
+        setError(data.message || "We cannot find an account with that email address. Please create an account.");
         setLoading(false);
         return;
       }
@@ -245,28 +287,94 @@ export const AuthPortal: React.FC<AuthPortalProps> = ({
 
     setLoading(true);
     try {
-      const res = await fetch("/api/auth/verify-login-otp", {
+      const res = await fetch("/api/auth/mobile/verify-otp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ phone: cleanPhone, code }),
       });
       const data = await res.json();
 
-      if (data.success && data.user) {
-        loginUser({
-          id: data.user.id,
-          name: data.user.name,
-          email: data.user.email || "",
-          phone: data.user.phone || `+91 ${cleanPhone}`,
-          customerType: data.user.customerType || "Registered Customer",
-          rewardPoints: data.user.rewardPoints || 100,
-        });
-        router.push(targetRedirect);
+      if (data.success) {
+        if (data.isNewUser) {
+          setVerifiedMobileForProfile(cleanPhone);
+          setLoginStep("complete_profile");
+          setSuccessMsg("Mobile number verified! Please complete your delivery profile.");
+          return;
+        }
+
+        if (data.user) {
+          loginUser({
+            id: data.user.id,
+            name: data.user.name && !data.user.name.startsWith("Customer ") ? data.user.name : "",
+            email: data.user.email || "",
+            phone: data.user.phone || `+91 ${cleanPhone}`,
+            customerType: data.user.customerType || "Registered Customer",
+            companyName: data.user.companyName,
+            gstin: data.user.gstin,
+            rewardPoints: data.user.rewardPoints || 100,
+          });
+          router.push(targetRedirect);
+        }
       } else {
         setError(data.message || "Invalid or expired OTP passcode.");
       }
     } catch {
       setError("Network error verifying code. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCompleteProfileSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    setSuccessMsg(null);
+
+    if (!profileFullName.trim()) {
+      setError("Please enter your full name.");
+      return;
+    }
+
+    if (!profileHouse.trim() || !profileStreet.trim() || !profileCity.trim() || !profileState.trim() || !profilePincode.trim()) {
+      setError("Please fill in all mandatory delivery address fields.");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const res = await fetch("/api/auth/complete-profile", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          verifiedMobile: verifiedMobileForProfile || identifier.replace(/\D/g, "").slice(-10),
+          fullName: profileFullName.trim(),
+          email: profileEmail.trim() || undefined,
+          houseFlatBuilding: profileHouse.trim(),
+          streetArea: profileStreet.trim(),
+          landmark: profileLandmark.trim() || undefined,
+          city: profileCity.trim(),
+          state: profileState.trim(),
+          pincode: profilePincode.trim(),
+          addressType: profileAddressType,
+        }),
+      });
+
+      const data = await res.json();
+      if (data.success && data.user) {
+        loginUser({
+          id: data.user.id,
+          name: data.user.name,
+          email: data.user.email || "",
+          phone: data.user.phone,
+          customerType: data.user.customerType || "Registered Customer",
+          rewardPoints: data.user.rewardPoints || 100,
+        });
+        router.push(targetRedirect);
+      } else {
+        setError(data.message || "Failed to create customer profile.");
+      }
+    } catch {
+      setError("Network error while creating customer profile. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -434,7 +542,7 @@ export const AuthPortal: React.FC<AuthPortalProps> = ({
     }
   };
 
-  // Google Sign-In
+  // Google Sign-In with Unified Identity Verification
   const handleGoogleAuth = async () => {
     setError(null);
     setGoogleLoading(true);
@@ -443,6 +551,45 @@ export const AuthPortal: React.FC<AuthPortalProps> = ({
       const result = await signInWithGoogle();
       const fbUser = result.user;
 
+      // 1. Authenticate via Unified Google Identity API
+      const googleRes = await fetch("/api/auth/google", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          sub: fbUser.uid,
+          email: fbUser.email,
+          name: fbUser.displayName,
+          picture: fbUser.photoURL,
+        }),
+      });
+
+      const googleData = await googleRes.json();
+
+      if (googleData.success && googleData.isLinked && googleData.user) {
+        loginUser({
+          id: googleData.user.id,
+          name: googleData.user.name,
+          email: googleData.user.email || "",
+          phone: googleData.user.phone || "",
+          customerType: googleData.user.customerType || "Registered Customer",
+          rewardPoints: typeof googleData.user.rewardPoints === "number" ? googleData.user.rewardPoints : 100,
+        });
+        router.push(targetRedirect);
+        return;
+      }
+
+      // 2. If not linked, prompt customer to verify mobile number to link account
+      if (googleData.success && !googleData.isLinked) {
+        setSuccessMsg(googleData.message || "Google identity verified. Please verify your mobile number to link your account.");
+        setMode("login");
+        setLoginStep("identifier");
+        if (fbUser.phoneNumber) {
+          setIdentifier(fbUser.phoneNumber.replace(/\D/g, "").slice(-10));
+        }
+        return;
+      }
+
+      // 3. Fallback sync
       const res = await fetch("/api/auth/firebase-sync", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -791,6 +938,151 @@ export const AuthPortal: React.FC<AuthPortalProps> = ({
                     className="w-full h-11 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white rounded-full font-bold text-xs sm:text-sm tracking-wide transition-all shadow-md shadow-emerald-600/20 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
                   >
                     {loading ? <span>Verifying...</span> : <span>Verify &amp; Sign In</span>}
+                  </button>
+                </form>
+              </div>
+            )}
+
+            {/* Step 4: Profile Completion (Phase 4: Mandatory Verified Mobile & Delivery Address) */}
+            {loginStep === "complete_profile" && (
+              <div className="space-y-4">
+                <div>
+                  <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+                    Complete your profile
+                  </h1>
+                  <p className="text-xs text-slate-500 mt-1">
+                    Your mobile number is verified. Enter your delivery address to start shopping.
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-2 text-xs bg-emerald-50 border border-emerald-200 rounded-xl px-3.5 py-2.5 text-emerald-900">
+                  <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <div className="flex-1">
+                    <span className="font-semibold">Verified Mobile:</span>{" "}
+                    <span className="font-bold">+91 {verifiedMobileForProfile || identifier.replace(/\D/g, "").slice(-10)}</span>
+                  </div>
+                </div>
+
+                <form onSubmit={handleCompleteProfileSubmit} className="space-y-3">
+                  <div className="space-y-1">
+                    <label className="block text-xs sm:text-sm font-bold text-slate-900">
+                      Full Name <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={profileFullName}
+                      onChange={(e) => setProfileFullName(e.target.value)}
+                      placeholder="e.g. Om Kumar"
+                      className="w-full bg-white text-slate-900 px-4 py-2.5 text-xs sm:text-sm rounded-full border border-slate-300 focus:outline-none focus:border-slate-900 focus:ring-1 focus:ring-slate-900 transition-all font-medium placeholder:text-slate-400"
+                      autoFocus
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="block text-xs sm:text-sm font-bold text-slate-900">
+                      Email Address <span className="text-slate-400 font-normal">(optional)</span>
+                    </label>
+                    <input
+                      type="email"
+                      value={profileEmail}
+                      onChange={(e) => setProfileEmail(e.target.value)}
+                      placeholder="name@example.com"
+                      className="w-full bg-white text-slate-900 px-4 py-2.5 text-xs sm:text-sm rounded-full border border-slate-300 focus:outline-none focus:border-slate-900 focus:ring-1 focus:ring-slate-900 transition-all font-medium placeholder:text-slate-400"
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="block text-xs sm:text-sm font-bold text-slate-900">
+                      House / Flat / Building <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={profileHouse}
+                      onChange={(e) => setProfileHouse(e.target.value)}
+                      placeholder="Flat No, House No, Building Name"
+                      className="w-full bg-white text-slate-900 px-4 py-2.5 text-xs sm:text-sm rounded-full border border-slate-300 focus:outline-none focus:border-slate-900 focus:ring-1 focus:ring-slate-900 transition-all font-medium placeholder:text-slate-400"
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="block text-xs sm:text-sm font-bold text-slate-900">
+                      Street / Area / Colony <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={profileStreet}
+                      onChange={(e) => setProfileStreet(e.target.value)}
+                      placeholder="Road, Area, Sector, Colony"
+                      className="w-full bg-white text-slate-900 px-4 py-2.5 text-xs sm:text-sm rounded-full border border-slate-300 focus:outline-none focus:border-slate-900 focus:ring-1 focus:ring-slate-900 transition-all font-medium placeholder:text-slate-400"
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="block text-xs sm:text-sm font-bold text-slate-900">
+                      Landmark <span className="text-slate-400 font-normal">(optional)</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={profileLandmark}
+                      onChange={(e) => setProfileLandmark(e.target.value)}
+                      placeholder="e.g. Near City Hospital"
+                      className="w-full bg-white text-slate-900 px-4 py-2.5 text-xs sm:text-sm rounded-full border border-slate-300 focus:outline-none focus:border-slate-900 focus:ring-1 focus:ring-slate-900 transition-all font-medium placeholder:text-slate-400"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1">
+                      <label className="block text-xs font-bold text-slate-900">
+                        City <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={profileCity}
+                        onChange={(e) => setProfileCity(e.target.value)}
+                        placeholder="City"
+                        className="w-full bg-white text-slate-900 px-3.5 py-2.5 text-xs sm:text-sm rounded-full border border-slate-300 focus:outline-none focus:border-slate-900 focus:ring-1 focus:ring-slate-900 transition-all font-medium"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="block text-xs font-bold text-slate-900">
+                        PIN Code <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        maxLength={6}
+                        value={profilePincode}
+                        onChange={(e) => setProfilePincode(e.target.value.replace(/\D/g, ""))}
+                        placeholder="6-digit PIN"
+                        className="w-full bg-white text-slate-900 px-3.5 py-2.5 text-xs sm:text-sm rounded-full border border-slate-300 focus:outline-none focus:border-slate-900 focus:ring-1 focus:ring-slate-900 transition-all font-medium"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="block text-xs sm:text-sm font-bold text-slate-900">
+                      State <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={profileState}
+                      onChange={(e) => setProfileState(e.target.value)}
+                      placeholder="State (e.g. Jharkhand, Bihar, Delhi)"
+                      className="w-full bg-white text-slate-900 px-4 py-2.5 text-xs sm:text-sm rounded-full border border-slate-300 focus:outline-none focus:border-slate-900 focus:ring-1 focus:ring-slate-900 transition-all font-medium placeholder:text-slate-400"
+                    />
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="w-full mt-2 h-11 bg-[#2563EB] hover:bg-[#1D4ED8] active:bg-[#1E40AF] text-white rounded-full font-bold text-xs sm:text-sm tracking-wide transition-all shadow-md shadow-blue-500/20 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                  >
+                    {loading ? <span>Creating account...</span> : <span>Save &amp; Continue</span>}
                   </button>
                 </form>
               </div>
