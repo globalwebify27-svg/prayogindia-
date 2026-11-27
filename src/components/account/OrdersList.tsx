@@ -263,6 +263,7 @@ export const OrdersList: React.FC = () => {
           if (Array.isArray(parsed) && parsed.length > 0) {
             const currentEmail = (user.email || "").toLowerCase().trim();
             const currentUserId = user.id ? String(user.id) : "";
+            const currentPhone = (user.phone || "").replace(/\D/g, "").slice(-10);
 
             const existingOrderNums = new Set(mapped.map((o) => o.orderNumber));
             const userOnlyParsed = parsed.filter((o: any) => {
@@ -275,6 +276,15 @@ export const OrdersList: React.FC = () => {
               )
                 .toLowerCase()
                 .trim();
+              const orderPhone = (
+                o.customerMobile ||
+                o.customerPhone ||
+                o.shippingAddress?.phone ||
+                o.phone ||
+                ""
+              )
+                .replace(/\D/g, "")
+                .slice(-10);
 
               // Match by user ID
               if (currentUserId && orderUserId && String(orderUserId) === currentUserId) {
@@ -282,6 +292,16 @@ export const OrdersList: React.FC = () => {
               }
               // Match by email
               if (currentEmail && orderUserEmail && orderUserEmail === currentEmail) {
+                return true;
+              }
+              // Match by phone number
+              if (
+                currentPhone &&
+                orderPhone &&
+                currentPhone.length >= 10 &&
+                orderPhone.length >= 10 &&
+                currentPhone === orderPhone
+              ) {
                 return true;
               }
               return false;

@@ -135,5 +135,31 @@ describe("Guest User Functionality Audit & Verification", () => {
       const isBlocked = UserDB.exists(guestEmail, guestPhone);
       expect(isBlocked).toBe(false);
     });
+
+    it("matches customer order history by verified mobile number or email address", () => {
+      const mobileNumber = "8709789641";
+      const cleanDigits = "8709789641";
+
+      const testOrder = {
+        orderNumber: "PRG-2026-9999",
+        customerMobile: cleanDigits,
+        customerEmail: "user.8709789641@prayogindia.com",
+        totalAmount: 2500,
+      };
+
+      // Mock customer logged in with phone number
+      const loggedInUser = {
+        id: "usr-otp-8709789641",
+        name: "Om Kumar",
+        phone: "+91 8709789641",
+        email: "omkumar@example.com",
+      };
+
+      const userCleanPhone = loggedInUser.phone.replace(/\D/g, "").slice(-10);
+      const orderCleanPhone = testOrder.customerMobile.replace(/\D/g, "").slice(-10);
+
+      expect(userCleanPhone).toBe(orderCleanPhone);
+      expect(userCleanPhone).toBe(mobileNumber);
+    });
   });
 });

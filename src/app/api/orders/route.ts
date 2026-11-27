@@ -753,12 +753,23 @@ export async function GET(request: Request) {
 
   try {
     // 1. STRICT USER-SPECIFIC ISOLATION:
-    // Only query orders that belong directly to the authenticated user's ID (or authenticated email)
+    // Query orders that belong directly to the authenticated user's ID, email, or verified mobile number
     const userOrConditions: any[] = [{ userId: user.id }];
     if (user.email) {
       userOrConditions.push({
         user: { email: { equals: user.email.trim(), mode: "insensitive" } },
       });
+    }
+    if (user.phone) {
+      const cleanDigits = user.phone.replace(/\D/g, "").slice(-10);
+      if (cleanDigits.length >= 10) {
+        userOrConditions.push({
+          user: { phone: { contains: cleanDigits } },
+        });
+        userOrConditions.push({
+          shippingAddress: { contains: cleanDigits },
+        });
+      }
     }
     const baseUserWhere: any = {
       OR: userOrConditions,

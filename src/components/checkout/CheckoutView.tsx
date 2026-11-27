@@ -238,10 +238,16 @@ export const CheckoutView: React.FC = () => {
   // Sync with logged in user state
   React.useEffect(() => {
     if (user) {
-      if (user.name) setCustomerName(user.name);
+      if (user.name) {
+        setCustomerName(user.name);
+        setAddrFormName((prev) => prev || user.name || "");
+      }
       if (user.email) setCustomerEmail(user.email);
-      if (user.phone)
-        setCustomerMobile(user.phone.replace(/\D/g, "").slice(-10));
+      if (user.phone) {
+        const cleanP = user.phone.replace(/\D/g, "").slice(-10);
+        setCustomerMobile(cleanP);
+        setAddrFormPhone((prev) => prev || cleanP);
+      }
       setIsPhoneVerified(true);
     }
   }, [user]);
@@ -1384,6 +1390,8 @@ export const CheckoutView: React.FC = () => {
         userId: user?.id || (user as any)?._id || undefined,
         user_id: user?.id || (user as any)?._id || undefined,
         customerEmail: customerEmail || user?.email,
+        customerMobile: customerMobile || selectedAddr.phone,
+        customerPhone: customerMobile || selectedAddr.phone,
         user: {
           id: user?.id,
           name: customerName || selectedAddr.name || "Customer",

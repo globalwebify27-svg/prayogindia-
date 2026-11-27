@@ -227,6 +227,9 @@ export const OtpVerificationForm: React.FC = () => {
       const orderRes = await createCustomerOrder(fullAddress, undefined, {
         paymentMethod,
         shippingCost: 0,
+        customerName: name.trim(),
+        customerEmail: email.trim(),
+        customerPhone: `+91 ${cleanNum}`,
       });
 
       if (orderRes && orderRes.success && orderRes.data?.orderNumber) {
