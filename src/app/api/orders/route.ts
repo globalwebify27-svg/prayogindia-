@@ -133,31 +133,67 @@ export async function POST(request: Request) {
         },
       });
     } catch (findErr: any) {
-      console.warn("[Orders] Primary user lookup retry:", findErr?.message);
-      dbUser = await db.user.findUnique({
-        where: { email: effectiveEmail },
-      }).catch(() => null);
+      console.warn("[Orders] Primary user lookup failed, trying raw query:", findErr?.message);
+      try {
+        const rows = (await db.$queryRawUnsafe(
+          `SELECT "id", "name", "email", "phone", "customerType" FROM "User" WHERE "email" = $1 OR "id" = $2 LIMIT 1`,
+          effectiveEmail,
+          user.id,
+        )) as any[];
+        dbUser = rows?.[0] || null;
+      } catch (_) {}
     }
 
     if (!dbUser) {
-      dbUser = await db.user.create({
-        data: {
-          name: effectiveName,
-          email: effectiveEmail,
-          phone: effectivePhone,
-          passwordHash: "GUEST_ACCOUNT_NO_PASSWORD",
-          role: "CUSTOMER",
-          customerType: isGuestCheckout ? "GUEST" : "B2C",
-        },
-      });
+      try {
+        dbUser = await db.user.create({
+          data: {
+            name: effectiveName || "Customer",
+            email: effectiveEmail,
+            phone: effectivePhone || "",
+            passwordHash: "GUEST_ACCOUNT_NO_PASSWORD",
+            role: "CUSTOMER",
+            customerType: isGuestCheckout ? "GUEST" : "B2C",
+          },
+        });
+      } catch (createErr: any) {
+        console.warn("[Orders] prisma.user.create failed, falling back to raw insert:", createErr?.message);
+        const newUserId = `usr-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+        try {
+          await db.$executeRawUnsafe(
+            `INSERT INTO "User" ("id", "name", "email", "phone", "passwordHash", "role", "customerType", "createdAt", "updatedAt") 
+             VALUES ($1, $2, $3, $4, $5, $6::"Role", $7::"CustomerType", NOW(), NOW())
+             ON CONFLICT ("email") DO UPDATE SET "name" = EXCLUDED."name", "phone" = EXCLUDED."phone"`,
+            newUserId,
+            effectiveName || "Customer",
+            effectiveEmail,
+            effectivePhone || "",
+            "GUEST_ACCOUNT_NO_PASSWORD",
+            "CUSTOMER",
+            isGuestCheckout ? "GUEST" : "B2C",
+          );
+          const rows = (await db.$queryRawUnsafe(
+            `SELECT "id", "name", "email", "phone", "customerType" FROM "User" WHERE "email" = $1 LIMIT 1`,
+            effectiveEmail,
+          )) as any[];
+          dbUser = rows?.[0] || { id: newUserId, name: effectiveName || "Customer", email: effectiveEmail, phone: effectivePhone || "", customerType: "B2C" };
+        } catch (rawErr: any) {
+          console.error("[Orders] Raw user insert error:", rawErr?.message);
+          throw rawErr;
+        }
+      }
     } else if (effectiveName || effectivePhone) {
-      dbUser = await db.user.update({
-        where: { id: dbUser.id },
-        data: {
-          ...(effectiveName ? { name: effectiveName } : {}),
-          ...(effectivePhone ? { phone: effectivePhone } : {}),
-        },
-      });
+      try {
+        dbUser = await db.user.update({
+          where: { id: dbUser.id },
+          data: {
+            ...(effectiveName ? { name: effectiveName } : {}),
+            ...(effectivePhone ? { phone: effectivePhone } : {}),
+          },
+        });
+      } catch (updateErr: any) {
+        console.warn("[Orders] prisma.user.update failed, continuing with existing user:", updateErr?.message);
+      }
     }
 
     // Also update in-memory UserDB cache so subsequent lookups immediately have the real name
@@ -465,6 +501,7 @@ export async function POST(request: Request) {
       if (sanitizedPointsUsed > 0) {
         const currentUser = await tx.user.findUnique({
           where: { id: dbUser.id },
+          select: { rewardPoints: true },
         });
         const currentBal = currentUser?.rewardPoints || 0;
         await tx.user.update({
@@ -562,7 +599,10 @@ export async function POST(request: Request) {
         const typeCode = getCustomerTypeCode(order.customerType);
         const earned = calculateEarnedRewards(order.totalAmount, typeCode);
         if (earned.coinsEarned > 0) {
-          const u = await tx.user.findUnique({ where: { id: dbUser.id } });
+          const u = await tx.user.findUnique({
+            where: { id: dbUser.id },
+            select: { rewardPoints: true },
+          });
           const bal = u?.rewardPoints || 0;
           await tx.user.update({
             where: { id: dbUser.id },

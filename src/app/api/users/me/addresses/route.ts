@@ -16,11 +16,15 @@ export async function GET() {
   }
 
   if (process.env.DATABASE_URL) {
-    const dbAddresses = await db.address.findMany({
-      where: { userId: user.id },
-      orderBy: { createdAt: "desc" },
-    });
-    return NextResponse.json({ success: true, data: dbAddresses || [] });
+    try {
+      const dbAddresses = await db.address.findMany({
+        where: { userId: user.id },
+        orderBy: { createdAt: "desc" },
+      });
+      return NextResponse.json({ success: true, data: dbAddresses || [] });
+    } catch (err: any) {
+      console.warn("[Addresses] Error fetching addresses from DB:", err?.message);
+    }
   }
 
   return NextResponse.json({ success: true, data: [] });

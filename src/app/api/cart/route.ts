@@ -13,21 +13,9 @@ export async function GET() {
   }
 
   if (process.env.DATABASE_URL) {
-    let cart = await db.cart.findUnique({
-      where: { userId: user.id },
-      include: {
-        items: {
-          include: {
-            product: { include: { images: true } },
-            variant: true,
-          },
-        },
-      },
-    });
-
-    if (!cart) {
-      cart = await db.cart.create({
-        data: { userId: user.id },
+    try {
+      let cart = await db.cart.findUnique({
+        where: { userId: user.id },
         include: {
           items: {
             include: {
@@ -37,39 +25,59 @@ export async function GET() {
           },
         },
       });
+
+      if (!cart) {
+        cart = await db.cart
+          .create({
+            data: { userId: user.id },
+            include: {
+              items: {
+                include: {
+                  product: { include: { images: true } },
+                  variant: true,
+                },
+              },
+            },
+          })
+          .catch(() => null);
+      }
+
+      if (cart) {
+        const formattedItems = cart.items.map((item) => {
+          const unitPrice = item.variant ? item.variant.price : item.product.price;
+          return {
+            id: item.id,
+            productId: item.productId,
+            variantId: item.variantId,
+            name: item.product.name,
+            image:
+              item.product.images[0]?.imageUrl ||
+              "https://images.unsplash.com/photo-1553406830-ef2513450d76?auto=format&fit=crop&w=600&q=80",
+            unitPrice,
+            lineTotal: unitPrice * item.quantity,
+            quantity: item.quantity,
+            inStock: item.product.inStock,
+          };
+        });
+
+        const subtotal = formattedItems.reduce(
+          (acc, curr) => acc + curr.lineTotal,
+          0,
+        );
+
+        return NextResponse.json({
+          success: true,
+          data: {
+            id: cart.id,
+            items: formattedItems,
+            subtotal,
+          },
+          source: "database",
+        });
+      }
+    } catch (cartErr: any) {
+      console.warn("[Cart] DB cart query notice:", cartErr?.message);
     }
-
-    const formattedItems = cart.items.map((item) => {
-      const unitPrice = item.variant ? item.variant.price : item.product.price;
-      return {
-        id: item.id,
-        productId: item.productId,
-        variantId: item.variantId,
-        name: item.product.name,
-        image:
-          item.product.images[0]?.imageUrl ||
-          "https://images.unsplash.com/photo-1553406830-ef2513450d76?auto=format&fit=crop&w=600&q=80",
-        unitPrice,
-        lineTotal: unitPrice * item.quantity,
-        quantity: item.quantity,
-        inStock: item.product.inStock,
-      };
-    });
-
-    const subtotal = formattedItems.reduce(
-      (acc, curr) => acc + curr.lineTotal,
-      0,
-    );
-
-    return NextResponse.json({
-      success: true,
-      data: {
-        id: cart.id,
-        items: formattedItems,
-        subtotal,
-      },
-      source: "database",
-    });
   }
 
   // Fallback Mock Response for UI compatibility
