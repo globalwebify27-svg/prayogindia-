@@ -423,8 +423,9 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
     }
 
     // Trigger professional arc flying animation to cart
+    const productImage = product.images?.[0] || product.image;
     const targetEl = (e?.currentTarget as HTMLElement) || document.getElementById("pdp-add-to-cart-btn");
-    triggerFlyToCart(targetEl, product.image);
+    triggerFlyToCart(targetEl, productImage);
 
     // Check cart contents to ensure total quantity doesn't exceed stock
     const cart = useCartStore.getState().cart;
@@ -439,9 +440,10 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
     onAddToCart(product, currentQuantity);
     setAddedAnimation(true);
     useUIStore.getState().showToast({
-      title: "Added to Cart",
-      message: `Added ${currentQuantity} x ${product.name} to cart!`,
       type: "success",
+      title: "Product added to cart!",
+      iconType: "cart-add",
+      duration: 3000,
     });
     setTimeout(() => setAddedAnimation(false), 2200);
   };
@@ -656,7 +658,7 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
                   </span>
                   <button
                     type="button"
-                    onClick={() => {
+                    onClick={(e) => {
                       const maxStock = getProductStock(product, selectedVariant);
                       if (currentQuantityInCart >= maxStock) {
                         useUIStore.getState().showToast({
@@ -667,7 +669,15 @@ export const ProductInformation: React.FC<ProductInfoProps> = ({
                         });
                         return;
                       }
+                      const productImage = product.images?.[0] || product.image;
+                      triggerFlyToCart(e.currentTarget as HTMLElement, productImage);
                       storeUpdateCartQty(product.id, 1, selectedVariant?.id);
+                      useUIStore.getState().showToast({
+                        type: "success",
+                        title: "Product added to cart!",
+                        iconType: "cart-add",
+                        duration: 3000,
+                      });
                     }}
                     className="w-8 h-8 rounded-lg hover:bg-white/15 active:bg-white/25 flex items-center justify-center text-white cursor-pointer active:scale-90 transition-all font-bold"
                     title="Add more"

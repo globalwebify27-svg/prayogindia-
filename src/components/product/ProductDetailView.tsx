@@ -26,6 +26,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { AddToCartIcon } from "@/components/icons/AddToCartIcon";
+import { triggerFlyToCart } from "@/utils/flyToCart";
 import { recordProductView } from "@/utils/recentProducts";
 import {
   ProductPromoBanner,
@@ -371,7 +372,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
     router.push("/checkout");
   };
 
-  const handleStickyAddToCart = () => {
+  const handleStickyAddToCart = (e?: React.MouseEvent) => {
     const maxStock = getProductStock(product, selectedVariant);
     if (stickyQuantity > maxStock) {
       useUIStore.getState().showToast({
@@ -382,7 +383,17 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
       });
       return;
     }
+    const productImage = product.images?.[0] || product.image;
+    if (e?.currentTarget) {
+      triggerFlyToCart(e.currentTarget as HTMLElement, productImage);
+    }
     handleAddToCart(product, stickyQuantity);
+    useUIStore.getState().showToast({
+      type: "success",
+      title: "Product added to cart!",
+      iconType: "cart-add",
+      duration: 3000,
+    });
     setStickyAdded(true);
     setTimeout(() => setStickyAdded(false), 1800);
   };
@@ -731,7 +742,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
 
                   <button
                     type="button"
-                    onClick={() => {
+                    onClick={(e) => {
                       const maxStock = getProductStock(product, selectedVariant);
                       if (currentQuantityInCart >= maxStock) {
                         useUIStore.getState().showToast({
@@ -742,7 +753,15 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
                         });
                         return;
                       }
+                      const productImage = product.images?.[0] || product.image;
+                      triggerFlyToCart(e.currentTarget as HTMLElement, productImage);
                       updateQuantity(product.id, 1, selectedVariant?.id);
+                      useUIStore.getState().showToast({
+                        type: "success",
+                        title: "Product added to cart!",
+                        iconType: "cart-add",
+                        duration: 3000,
+                      });
                     }}
                     className="w-9 h-9 rounded-lg hover:bg-white/15 active:bg-white/25 flex items-center justify-center text-white transition-all cursor-pointer font-black active:scale-90"
                     title="Add more"
@@ -754,7 +773,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
               ) : (
                 <button
                   type="button"
-                  onClick={handleStickyAddToCart}
+                  onClick={(e) => handleStickyAddToCart(e)}
                   className={`flex-1 h-12 rounded-xl font-bold text-sm tracking-wide flex items-center justify-center transition-all cursor-pointer shadow-sm active:scale-[0.98] select-none ${
                     stickyAdded
                       ? "bg-emerald-600 text-white shadow-emerald-600/20"
@@ -891,7 +910,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
                       </span>
                       <button
                         type="button"
-                        onClick={() => {
+                        onClick={(e) => {
                           const maxStock = getProductStock(product, selectedVariant);
                           if (currentQuantityInCart >= maxStock) {
                             useUIStore.getState().showToast({
@@ -902,7 +921,15 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
                             });
                             return;
                           }
+                          const productImage = product.images?.[0] || product.image;
+                          triggerFlyToCart(e.currentTarget as HTMLElement, productImage);
                           updateQuantity(product.id, 1, selectedVariant?.id);
+                          useUIStore.getState().showToast({
+                            type: "success",
+                            title: "Product added to cart!",
+                            iconType: "cart-add",
+                            duration: 3000,
+                          });
                         }}
                         className="w-7 sm:w-8 h-full flex items-center justify-center text-white hover:bg-white/15 active:bg-white/25 rounded cursor-pointer transition-colors"
                         title="Add more"
@@ -922,7 +949,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
                 ) : (
                   <button
                     type="button"
-                    onClick={handleStickyAddToCart}
+                    onClick={(e) => handleStickyAddToCart(e)}
                     className={`h-10 sm:h-11 px-3 sm:px-6 rounded-xl font-bold text-xs sm:text-sm uppercase tracking-wider flex items-center justify-center active:scale-95 transition-all cursor-pointer whitespace-nowrap shadow-2xs flex-1 sm:flex-initial min-w-0 ${
                       stickyAdded
                         ? "bg-emerald-600 text-white shadow-emerald-600/20"
