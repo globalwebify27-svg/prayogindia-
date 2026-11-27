@@ -51,6 +51,10 @@ import {
   Minus,
   Plus,
   Edit3,
+  Gift,
+  Sparkles,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 import {
   CustomerType,
@@ -194,6 +198,7 @@ export const CheckoutView: React.FC = () => {
     cart,
     user,
     isLoggedIn,
+    loginUser,
     clearCart,
     redeemRewardPoints,
     updateQuantity,
@@ -754,6 +759,49 @@ export const CheckoutView: React.FC = () => {
   const [placedOrderItems, setPlacedOrderItems] = useState<CartItem[]>([]);
   const [placedOrderTime, setPlacedOrderTime] = useState<string>("");
   const [isOrderIdCopied, setIsOrderIdCopied] = useState(false);
+  const [guestRegisterPassword, setGuestRegisterPassword] = useState("");
+  const [showGuestPassword, setShowGuestPassword] = useState(false);
+  const [guestRegisterLoading, setGuestRegisterLoading] = useState(false);
+  const [guestRegisterSuccess, setGuestRegisterSuccess] = useState(false);
+  const [guestRegisterError, setGuestRegisterError] = useState<string | null>(null);
+
+  const handleGuestAccountCreation = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!guestRegisterPassword || guestRegisterPassword.length < 6) {
+      setGuestRegisterError("Please enter a password with at least 6 characters.");
+      return;
+    }
+    setGuestRegisterLoading(true);
+    setGuestRegisterError(null);
+
+    try {
+      const res = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: customerName || "Prayog Member",
+          email: customerEmail,
+          phone: customerMobile,
+          password: guestRegisterPassword,
+          confirmPassword: guestRegisterPassword,
+        }),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setGuestRegisterSuccess(true);
+        // Log in user locally if returned
+        if (data.user) {
+          loginUser(data.user);
+        }
+      } else {
+        setGuestRegisterError(data.message || "Failed to create account. Please try again.");
+      }
+    } catch {
+      setGuestRegisterError("Network connection error. Please try again later.");
+    } finally {
+      setGuestRegisterLoading(false);
+    }
+  };
   const handleCopyOrderId = () => {
     if (placedOrderNumber) {
       navigator.clipboard.writeText(placedOrderNumber);
@@ -795,7 +843,7 @@ export const CheckoutView: React.FC = () => {
     return sum + mrp * item.quantity;
   }, 0);
 
-  const rewardPointsAvailable = user?.rewardPoints || 1250;
+  const rewardPointsAvailable = (isLoggedIn && user && typeof user.rewardPoints === "number") ? user.rewardPoints : 0;
   const rewardDiscount = Math.round(rewardPointsAvailable * 0.5);
 
   // ── DGCA Shipping Restriction Check
@@ -1673,6 +1721,77 @@ export const CheckoutView: React.FC = () => {
             </div>
           </div>
         </div>
+
+        {/* Optional Guest-to-Registered Account Creation Card */}
+        {!isLoggedIn && !cancelledOrderInfo && (
+          <div className="mt-4 bg-gradient-to-br from-blue-50/80 via-white to-sky-50/60 border border-blue-200 rounded-2xl p-4 sm:p-5 shadow-xs space-y-3">
+            <div className="flex items-start gap-3">
+              <div className="w-9 h-9 rounded-xl bg-[#2563EB] text-white flex items-center justify-center shrink-0 shadow-sm mt-0.5">
+                <Sparkles className="w-4 h-4" />
+              </div>
+              <div className="space-y-0.5 min-w-0 flex-1">
+                <h3 className="text-xs sm:text-sm font-black text-slate-900 tracking-tight flex items-center gap-2">
+                  <span>Activate Your Account &amp; Claim Prayog Coins</span>
+                  <span className="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded-full">
+                    +100 Free Coins
+                  </span>
+                </h3>
+                <p className="text-[11px] text-slate-600">
+                  Save your delivery address, track this order in 1 click, and unlock {Math.floor(placedOrderTotal / 100)} Prayog Coins earned on this purchase.
+                </p>
+              </div>
+            </div>
+
+            {guestRegisterSuccess ? (
+              <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-3 text-xs text-emerald-800 flex items-center gap-2 font-semibold">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                <span>Account activated! Welcome to Prayog India. Your order and loyalty coins are now linked.</span>
+              </div>
+            ) : (
+              <form onSubmit={handleGuestAccountCreation} className="space-y-2 pt-1">
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <div className="relative flex-1">
+                    <input
+                      type={showGuestPassword ? "text" : "password"}
+                      value={guestRegisterPassword}
+                      onChange={(e) => setGuestRegisterPassword(e.target.value)}
+                      placeholder="Create a secure password (min. 6 chars)"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-xs font-semibold focus:outline-none focus:border-[#2563EB] text-slate-900 placeholder:text-slate-400 pr-9"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowGuestPassword(!showGuestPassword)}
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1"
+                    >
+                      {showGuestPassword ? (
+                        <EyeOff className="w-3.5 h-3.5" />
+                      ) : (
+                        <Eye className="w-3.5 h-3.5" />
+                      )}
+                    </button>
+                  </div>
+                  <button
+                    type="submit"
+                    disabled={guestRegisterLoading || !guestRegisterPassword}
+                    className="bg-[#2563EB] hover:bg-[#1D4ED8] active:bg-[#1E40AF] text-white px-5 py-2.5 rounded-xl text-xs font-bold transition-all shadow-sm flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-60 whitespace-nowrap"
+                  >
+                    {guestRegisterLoading ? (
+                      <span>Creating...</span>
+                    ) : (
+                      <>
+                        <span>Create Free Account</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </>
+                    )}
+                  </button>
+                </div>
+                {guestRegisterError && (
+                  <p className="text-[11px] text-rose-600 font-semibold">{guestRegisterError}</p>
+                )}
+              </form>
+            )}
+          </div>
+        )}
 
         {/* Action Buttons */}
         <div className="mt-5 flex flex-col sm:flex-row items-center justify-center gap-2.5">
@@ -2852,6 +2971,15 @@ export const CheckoutView: React.FC = () => {
                       -₹{rewardDiscount}
                     </span>
                   </label>
+                )}
+
+                {!isLoggedIn && (
+                  <div className="flex items-center gap-2 p-2 rounded-lg bg-amber-50/70 border border-amber-200/80 text-[11px] text-amber-800">
+                    <Gift className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                    <span>
+                      Guest Loyalty Perk: You will earn {Math.floor(subtotal / 100)} Prayog Coins on this purchase (held in escrow and unlocked when you create an account upon checkout).
+                    </span>
+                  </div>
                 )}
 
                 {/* Promo Code Input */}

@@ -24,14 +24,15 @@ import { TruckLoader } from "@/components/TruckLoader";
 export const TrackOrderView: React.FC = () => {
   const { user, isLoggedIn } = useStore();
   const [query, setQuery] = useState("");
+  const [contactInput, setContactInput] = useState("");
+  const [verifyingContact, setVerifyingContact] = useState(false);
   const [searched, setSearched] = useState(false);
   const [loading, setLoading] = useState(false);
   const [trackingResult, setTrackingResult] = useState<any>(null);
   const [errorMessage, setErrorMessage] = useState<{ query: string; message: string } | null>(null);
 
-  const handleSearch = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const clean = query.trim();
+  const performTrack = async (targetQuery: string, contactVal?: string) => {
+    const clean = targetQuery.trim();
     if (!clean) return;
 
     setLoading(true);
@@ -42,10 +43,10 @@ export const TrackOrderView: React.FC = () => {
     const startTime = Date.now();
 
     try {
-      const res = await fetch(`/api/orders/track?q=${encodeURIComponent(clean)}`);
+      const contactParam = contactVal ? `&contact=${encodeURIComponent(contactVal.trim())}` : "";
+      const res = await fetch(`/api/orders/track?q=${encodeURIComponent(clean)}${contactParam}`);
       const data = await res.json();
 
-      // Ensure at least 1100ms so user can see the animated truck loader
       const elapsed = Date.now() - startTime;
       const remainingDelay = Math.max(0, 1100 - elapsed);
 
@@ -63,6 +64,7 @@ export const TrackOrderView: React.FC = () => {
           });
         }
         setLoading(false);
+        setVerifyingContact(false);
       }, remainingDelay);
     } catch {
       setTimeout(() => {
@@ -72,8 +74,21 @@ export const TrackOrderView: React.FC = () => {
           message: "Unable to connect to courier server. Please try again in a few moments.",
         });
         setLoading(false);
+        setVerifyingContact(false);
       }, 900);
     }
+  };
+
+  const handleSearch = async (e: React.FormEvent) => {
+    e.preventDefault();
+    performTrack(query, contactInput);
+  };
+
+  const handleVerifyContact = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!contactInput.trim()) return;
+    setVerifyingContact(true);
+    performTrack(query, contactInput);
   };
 
   return (
@@ -209,6 +224,37 @@ export const TrackOrderView: React.FC = () => {
       {/* Tracking Result View */}
       {!loading && searched && trackingResult && (
         <div className="bg-white rounded-2xl sm:rounded-3xl border border-slate-200 p-4 sm:p-7 shadow-sm space-y-5 sm:space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-200">
+          {/* Guest Verification Gate for Order Privacy */}
+          {trackingResult.requiresVerification && (
+            <div className="bg-gradient-to-r from-blue-50/90 via-sky-50/70 to-indigo-50/60 border border-blue-200 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-2xs">
+              <div className="space-y-0.5">
+                <h4 className="text-xs sm:text-sm font-extrabold text-slate-900 flex items-center gap-1.5">
+                  <ShieldCheck className="w-4 h-4 text-[#2563EB]" />
+                  <span>Guest Order Privacy Verification</span>
+                </h4>
+                <p className="text-[11px] text-slate-600">
+                  Enter the mobile number or email used during guest checkout to unlock complete delivery address and recipient details.
+                </p>
+              </div>
+              <form onSubmit={handleVerifyContact} className="flex items-center gap-2 w-full sm:w-auto">
+                <input
+                  type="text"
+                  value={contactInput}
+                  onChange={(e) => setContactInput(e.target.value)}
+                  placeholder="Mobile No. or Email..."
+                  className="px-3 py-2 rounded-xl border border-slate-200 bg-white text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#2563EB] w-full sm:w-48 placeholder:text-slate-400"
+                />
+                <button
+                  type="submit"
+                  disabled={verifyingContact || !contactInput.trim()}
+                  className="bg-[#2563EB] hover:bg-[#1D4ED8] text-white px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-sm shrink-0 cursor-pointer disabled:opacity-60 whitespace-nowrap"
+                >
+                  {verifyingContact ? "Verifying..." : "Verify & Unlock"}
+                </button>
+              </form>
+            </div>
+          )}
+
           {/* Top Status Strip */}
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4 border-b border-slate-100 pb-4 sm:pb-5">
             <div className="space-y-1">

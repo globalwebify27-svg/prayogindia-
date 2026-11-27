@@ -14,15 +14,10 @@ import { couponValidateSchema } from "@/lib/validations";
 export async function POST(request: Request) {
   const headers = getSecurityHeaders();
   const user = await getAuthenticatedCustomer();
-  if (!user) {
-    return NextResponse.json(
-      { success: false, message: "Please sign in to apply a coupon." },
-      { status: 401, headers },
-    );
-  }
-
   const ip = request.headers.get("x-forwarded-for") || "127.0.0.1";
-  const rateLimit = checkRateLimit(`coupon:${user.id}:${ip}`, 15, 60000);
+
+  const rateLimitKey = user ? `coupon:${user.id}:${ip}` : `coupon:guest:${ip}`;
+  const rateLimit = checkRateLimit(rateLimitKey, 15, 60000);
   if (!rateLimit.allowed) {
     return NextResponse.json(
       { success: false, message: "Too many coupon attempts. Wait a moment." },
@@ -49,7 +44,7 @@ export async function POST(request: Request) {
     }
 
     const { code, subtotal, customerType } = parseResult.data;
-    const { cartItems } = body;
+    const { cartItems, customerEmail } = body;
     const normalizedCode = code.toUpperCase().trim();
     const cartTotal = subtotal;
 
@@ -68,47 +63,110 @@ export async function POST(request: Request) {
       );
     }
 
-    // 2. Check per-user usage from DB (if available)
+    // 2. Check per-user usage and guest restrictions
     let userOrderCount = 0;
     let perUserUsageCount = 0;
+    const effectiveEmail = user?.email || (customerEmail ? String(customerEmail).trim().toLowerCase() : "");
 
-    if (process.env.DATABASE_URL) {
-      // Check how many times user has used this coupon
-      perUserUsageCount = await db.couponUsage.count({
-        where: {
-          couponCode: normalizedCode,
-          userId: user.id,
+    // Customer-type eligibility check
+    const resolvedCustomerType = user
+      ? (customerType || "B2C Customer")
+      : (customerType || "Guest Customer");
+
+    if (coupon.customerTypeScope === "B2B-only" && resolvedCustomerType !== "B2B Customer") {
+      return NextResponse.json(
+        {
+          success: false,
+          message: `Coupon "${normalizedCode}" is exclusive to verified B2B accounts.`,
         },
-      });
+        { status: 422, headers },
+      );
+    }
 
-      if (perUserUsageCount >= coupon.usageLimitPerUser) {
+    if (coupon.customerTypeScope === "Walk-in-only") {
+      return NextResponse.json(
+        {
+          success: false,
+          message: `Coupon "${normalizedCode}" is only valid for in-store Walk-in POS checkout.`,
+        },
+        { status: 422, headers },
+      );
+    }
+
+    if (coupon.customerTypeScope === "Registered-customer" && !user) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Please sign in to your registered account to use this coupon.",
+        },
+        { status: 422, headers },
+      );
+    }
+
+    // User-specific coupon check
+    if (coupon.restrictedUserEmails && coupon.restrictedUserEmails.length > 0) {
+      const isAllowedEmail = coupon.restrictedUserEmails.some(
+        (em) => em.toLowerCase() === effectiveEmail.toLowerCase()
+      );
+      if (!isAllowedEmail) {
         return NextResponse.json(
           {
             success: false,
-            message: `You have already used this coupon the maximum allowed ${coupon.usageLimitPerUser} time(s).`,
+            message: user
+              ? "This coupon code is not valid for your email account."
+              : "This exclusive coupon requires signing in with the designated email address.",
           },
           { status: 422, headers },
         );
       }
+    }
 
-      // Check if new customer
-      userOrderCount = await db.order.count({
-        where: {
-          userId: user.id,
-          paymentStatus: "PAID",
-        },
-      });
+    if (process.env.DATABASE_URL) {
+      if (user) {
+        // Check how many times user has used this coupon
+        perUserUsageCount = await db.couponUsage.count({
+          where: {
+            couponCode: normalizedCode,
+            userId: user.id,
+          },
+        });
+
+        if (perUserUsageCount >= coupon.usageLimitPerUser) {
+          return NextResponse.json(
+            {
+              success: false,
+              message: `You have already used this coupon the maximum allowed ${coupon.usageLimitPerUser} time(s).`,
+            },
+            { status: 422, headers },
+          );
+        }
+
+        // Check if new customer
+        userOrderCount = await db.order.count({
+          where: {
+            userId: user.id,
+            paymentStatus: "PAID",
+          },
+        });
+      } else if (effectiveEmail) {
+        // Guest customer checking prior orders by email
+        userOrderCount = await db.order.count({
+          where: {
+            user: { email: effectiveEmail },
+            paymentStatus: "PAID",
+          },
+        });
+      }
     }
 
     const hasPreviousOrders = userOrderCount > 0;
-    const resolvedCustomerType = customerType || "B2C Customer";
 
     // 3. Evaluate coupon via business rules engine
     const evaluation = evaluatePromoCoupon(
       coupon,
       cartTotal,
       resolvedCustomerType,
-      user.email,
+      effectiveEmail,
       hasPreviousOrders,
       false, // Not walk-in POS
       cartItems || [],

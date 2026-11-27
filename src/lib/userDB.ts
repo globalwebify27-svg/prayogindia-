@@ -75,15 +75,21 @@ export const UserDB = {
     const cleanEmail = email.trim().toLowerCase();
     const cleanPhone = phone.replace(/\D/g, "");
 
-    if (GLOBAL_USERS.has(cleanEmail)) return true;
-    if (
-      cleanPhone.length >= 10 &&
-      (GLOBAL_USERS.has(cleanPhone) || GLOBAL_USERS.has(cleanPhone.slice(-10)))
-    ) {
+    const existingByEmail = GLOBAL_USERS.get(cleanEmail);
+    if (existingByEmail && existingByEmail.passwordHash !== "GUEST_ACCOUNT_NO_PASSWORD") {
       return true;
     }
 
+    if (cleanPhone.length >= 10) {
+      const existingByPhone =
+        GLOBAL_USERS.get(cleanPhone) || GLOBAL_USERS.get(cleanPhone.slice(-10));
+      if (existingByPhone && existingByPhone.passwordHash !== "GUEST_ACCOUNT_NO_PASSWORD") {
+        return true;
+      }
+    }
+
     for (const user of GLOBAL_USERS.values()) {
+      if (user.passwordHash === "GUEST_ACCOUNT_NO_PASSWORD") continue;
       if (user.email && user.email.toLowerCase().trim() === cleanEmail)
         return true;
       if (user.phone) {

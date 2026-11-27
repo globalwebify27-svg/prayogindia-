@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { CustomerUser } from "./types";
 import { CustomerType } from "@/data/customerTypes";
+import { useCartStore } from "./useCartStore";
 
 interface AuthState {
   user: CustomerUser | null;
@@ -19,6 +20,17 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   loginUser: (userData: CustomerUser) => {
     set({ user: userData, isLoggedIn: true });
+    // Merge guest cart items into user's account cart upon login
+    try {
+      const localCart = useCartStore.getState().cart;
+      if (localCart.length > 0) {
+        fetch("/api/cart", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ items: localCart }),
+        }).catch(() => {});
+      }
+    } catch {}
   },
 
   logoutUser: () => {
@@ -76,10 +88,22 @@ export const useAuthStore = create<AuthState>((set, get) => ({
             rewardPoints:
               typeof data.user.rewardPoints === "number"
                 ? data.user.rewardPoints
-                : 100,
+                : 0,
           },
           isLoggedIn: true,
         });
+
+        // Merge guest cart items if any existed before session hydration
+        try {
+          const localCart = useCartStore.getState().cart;
+          if (localCart.length > 0) {
+            fetch("/api/cart", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ items: localCart }),
+            }).catch(() => {});
+          }
+        } catch {}
       }
     } catch {
       // Offline / guest session

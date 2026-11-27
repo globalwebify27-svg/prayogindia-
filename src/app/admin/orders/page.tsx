@@ -236,6 +236,10 @@ function matchesOrder(ord: any, rawQuery: string): boolean {
   const company = String(ord.companyName || ord.user?.companyName || "").toLowerCase();
   if (company.includes(cleanQ)) return true;
 
+  // Customer Type search (e.g. "guest", "walk-in", "b2b")
+  const customerType = String(ord.customerType || ord.user?.customerType || "").toLowerCase();
+  if (customerType.includes(cleanQ)) return true;
+
   // 4. Phone matching (ONLY when query contains digits and is phone-like)
   const isNumericPhone = /^[0-9+\s()-]+$/.test(rawQuery.trim());
   const rawPhone = String(ord.customerPhone || ord.user?.phone || "").replace(/\D/g, "");
@@ -1006,11 +1010,30 @@ export default function AdminOrdersPage() {
 
                       {/* Customer */}
                       <td className="p-4">
-                        <div className="font-extrabold text-slate-900">
-                          {ord.user?.name || ord.customerName || "Walk-in Guest"}
+                        <div className="font-extrabold text-slate-900 flex items-center gap-1.5 flex-wrap">
+                          <span>
+                            {ord.user?.name ||
+                              ord.customerName ||
+                              (ordChannel === "WALK_IN"
+                                ? "Walk-in Customer"
+                                : "Guest Customer")}
+                          </span>
+                          {(ord.customerType === "GUEST" ||
+                            ord.user?.customerType === "GUEST" ||
+                            (!ord.user && ordChannel !== "WALK_IN")) ? (
+                            <span className="bg-zinc-100 text-zinc-700 border border-zinc-300 text-[9px] font-bold px-1.5 py-0.2 rounded uppercase">
+                              Guest Customer
+                            </span>
+                          ) : ordChannel === "WALK_IN" ? (
+                            <span className="bg-amber-100 text-amber-800 border border-amber-300 text-[9px] font-bold px-1.5 py-0.2 rounded uppercase">
+                              Walk-in POS
+                            </span>
+                          ) : null}
                         </div>
                         <div className="text-[10px] text-slate-400 font-mono">
-                          {ord.user?.phone || ord.customerPhone || "In-Store Counter"}
+                          {ord.user?.phone ||
+                            ord.customerPhone ||
+                            (ordChannel === "WALK_IN" ? "In-Store Counter" : "Online Checkout")}
                         </div>
                       </td>
 

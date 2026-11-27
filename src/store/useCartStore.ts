@@ -157,15 +157,30 @@ export const useCartStore = create<CartState>()(
         set((state) => {
           const merged = [...state.cart];
           guestCart.forEach((gItem) => {
+            if (!gItem || !gItem.product) return;
+            const maxStock = getProductStock(gItem.product, gItem.variant);
+            if (maxStock <= 0) return; // Skip out-of-stock items
+
             const idx = merged.findIndex(
               (m) =>
                 m.product.id === gItem.product.id &&
                 m.variant?.id === gItem.variant?.id
             );
             if (idx > -1) {
-              merged[idx].quantity += gItem.quantity;
+              const cappedQty = Math.min(
+                merged[idx].quantity + (gItem.quantity || 1),
+                maxStock
+              );
+              merged[idx] = {
+                ...merged[idx],
+                quantity: cappedQty,
+              };
             } else {
-              merged.push(gItem);
+              const cappedQty = Math.min(gItem.quantity || 1, maxStock);
+              merged.push({
+                ...gItem,
+                quantity: cappedQty,
+              });
             }
           });
           return { cart: merged };

@@ -50,6 +50,7 @@ async function generateInvoiceNumber(client: any = db): Promise<string> {
  */
 export async function POST(request: Request) {
   let user: AuthSessionUser | null = await getAuthenticatedUser();
+  const isGuestCheckout = !user || user.id === "usr-guest-checkout";
 
   // If guest customer checkout, fallback to Guest Account representation
   if (!user) {
@@ -134,9 +135,24 @@ export async function POST(request: Request) {
           phone: effectivePhone,
           passwordHash: "GUEST_ACCOUNT_NO_PASSWORD",
           role: "CUSTOMER",
-          customerType: "B2C",
+          customerType: isGuestCheckout ? "GUEST" : "B2C",
         },
       });
+    } else if (isGuestCheckout) {
+      // For existing guest user accounts, safely update contact details
+      const isExistingGuestAccount =
+        dbUser.passwordHash === "GUEST_ACCOUNT_NO_PASSWORD" ||
+        dbUser.customerType === "GUEST";
+      if (isExistingGuestAccount && (customerName || customerPhone)) {
+        dbUser = await db.user.update({
+          where: { id: dbUser.id },
+          data: {
+            name: effectiveName,
+            phone: effectivePhone,
+          },
+        });
+      }
+      // Note: If dbUser is an authenticated registered account, we leave their profile secure and intact
     } else if (customerName || customerPhone) {
       dbUser = await db.user.update({
         where: { id: dbUser.id },
@@ -317,11 +333,15 @@ export async function POST(request: Request) {
         const userOrdersCount = await db.order.count({
           where: { userId: dbUser.id, paymentStatus: "PAID" },
         });
+        const resolvedCustomerTypeForCoupon = isGuestCheckout
+          ? "Guest Customer"
+          : (dbUser.customerType === "B2B" ? "B2B Customer" : "B2C Customer");
+
         const evalResult = evaluatePromoCoupon(
           matchedCoupon,
           calculatedSubtotal,
-          dbUser.customerType || "B2C",
-          dbUser.email,
+          resolvedCustomerTypeForCoupon,
+          effectiveEmail,
           userOrdersCount > 0,
           false,
           orderItemsToCreate.map((i) => ({
@@ -414,10 +434,11 @@ export async function POST(request: Request) {
         data: {
           orderNumber: newOrderNumber,
           userId: dbUser.id,
+          customerType: isGuestCheckout ? "GUEST" : (dbUser.customerType || "B2C"),
           status: initialOrderStatus,
           paymentStatus: initialPaymentStatus,
           paymentMethod: recordedPaymentMethod,
-          rewardPointsUsed: sanitizedPointsUsed,
+          rewardPointsUsed: isGuestCheckout ? 0 : sanitizedPointsUsed,
           couponCode: validCouponCode,
           couponDiscount,
           shippingCost: validatedShippingCost,
@@ -525,30 +546,39 @@ export async function POST(request: Request) {
       }
 
       // Credit earned reward points
-      const typeCode = getCustomerTypeCode(order.customerType);
-      const earned = calculateEarnedRewards(order.totalAmount, typeCode);
-      if (earned.coinsEarned > 0) {
-        const u = await tx.user.findUnique({ where: { id: dbUser.id } });
-        const bal = u?.rewardPoints || 0;
-        await tx.user.update({
-          where: { id: dbUser.id },
-          data: { rewardPoints: { increment: earned.coinsEarned } },
-        });
-        await tx.rewardTransaction.create({
-          data: {
-            userId: dbUser.id,
-            orderId: order.id,
-            type: "EARNED",
-            points: earned.coinsEarned,
-            balanceBefore: bal,
-            balanceAfter: bal + earned.coinsEarned,
-            description: `Earned ${earned.coinsEarned} Prayog Coins on order ${order.orderNumber}`,
-          },
-        });
+      if (isGuestCheckout) {
+        // For guest customers, reward coins are held in escrow on the order until account registration
+        const escrowCoins = Math.floor(order.totalAmount / 100);
         await tx.order.update({
           where: { id: order.id },
-          data: { rewardPointsEarned: earned.coinsEarned },
+          data: { rewardPointsEarned: escrowCoins },
         });
+      } else {
+        const typeCode = getCustomerTypeCode(order.customerType);
+        const earned = calculateEarnedRewards(order.totalAmount, typeCode);
+        if (earned.coinsEarned > 0) {
+          const u = await tx.user.findUnique({ where: { id: dbUser.id } });
+          const bal = u?.rewardPoints || 0;
+          await tx.user.update({
+            where: { id: dbUser.id },
+            data: { rewardPoints: { increment: earned.coinsEarned } },
+          });
+          await tx.rewardTransaction.create({
+            data: {
+              userId: dbUser.id,
+              orderId: order.id,
+              type: "EARNED",
+              points: earned.coinsEarned,
+              balanceBefore: bal,
+              balanceAfter: bal + earned.coinsEarned,
+              description: `Earned ${earned.coinsEarned} Prayog Coins on order ${order.orderNumber}`,
+            },
+          });
+          await tx.order.update({
+            where: { id: order.id },
+            data: { rewardPointsEarned: earned.coinsEarned },
+          });
+        }
       }
 
       // 4e. Generate Invoice Record

@@ -89,6 +89,73 @@ export async function POST(request: Request) {
         });
 
         if (existingUser) {
+          const isGuestAccount =
+            existingUser.passwordHash === "GUEST_ACCOUNT_NO_PASSWORD" ||
+            existingUser.customerType === "GUEST";
+
+          if (isGuestAccount) {
+            // ── Seamless Guest-to-Registered Account Conversion ──
+            const newPasswordHash = await hashPassword(password);
+            const isB2B = Boolean(b2b?.companyName?.trim());
+            const companyName = b2b?.companyName?.trim() || existingUser.companyName;
+            const gstin = b2b?.gstNumber?.trim() || existingUser.gstin;
+
+            // Tally any escrow coins earned from previous guest orders
+            const guestOrders = await db.order.findMany({
+              where: { userId: existingUser.id },
+              select: { id: true, rewardPointsEarned: true },
+            });
+            const escrowCoins = guestOrders.reduce(
+              (acc, o) => acc + (o.rewardPointsEarned || 0),
+              0,
+            );
+
+            const convertedUser = await db.user.update({
+              where: { id: existingUser.id },
+              data: {
+                name: displayName || existingUser.name,
+                email: cleanEmail,
+                phone: cleanPhone ? `+91 ${cleanPhone.slice(-10)}` : existingUser.phone,
+                passwordHash: newPasswordHash,
+                customerType: isB2B ? "B2B" : "REGISTERED",
+                companyName,
+                gstin,
+                rewardPoints: 100 + escrowCoins, // 100 welcome bonus + unlocked escrow coins
+              },
+            });
+
+            // Create welcome reward transaction
+            await db.rewardTransaction.create({
+              data: {
+                userId: convertedUser.id,
+                type: "EARNED",
+                points: 100 + escrowCoins,
+                balanceBefore: 0,
+                balanceAfter: 100 + escrowCoins,
+                description: `Welcome bonus (100 coins) + ${escrowCoins} unlocked guest order coins`,
+              },
+            });
+
+            return NextResponse.json(
+              {
+                success: true,
+                message:
+                  "Guest account successfully activated and registered! Your previous orders and reward points are now linked.",
+                email: cleanEmail,
+                user: {
+                  id: convertedUser.id,
+                  name: convertedUser.name,
+                  email: convertedUser.email,
+                  phone: convertedUser.phone,
+                  customerType: isB2B ? "B2B Customer" : "Registered Customer",
+                  rewardPoints: convertedUser.rewardPoints,
+                },
+              },
+              { headers },
+            );
+          }
+
+          // Otherwise, user is a genuine registered account with a password
           const isEmailMatch = existingUser.email.toLowerCase() === cleanEmail;
           return NextResponse.json(
             {

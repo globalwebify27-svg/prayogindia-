@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { getAuthenticatedCustomer } from "@/lib/authUtils";
 
 // Predefined demo/sample tracking numbers for preview & testing
 const DEMO_SAMPLES: Record<string, any> = {
@@ -119,6 +120,7 @@ const DEMO_SAMPLES: Record<string, any> = {
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const q = searchParams.get("q")?.trim() || "";
+  const contact = searchParams.get("contact")?.trim() || "";
 
   if (!q) {
     return NextResponse.json(
@@ -128,6 +130,7 @@ export async function GET(request: Request) {
   }
 
   const cleanQuery = q.toUpperCase();
+  const authUser = await getAuthenticatedCustomer();
 
   // 1. Check live database if configured
   if (process.env.DATABASE_URL) {
@@ -142,94 +145,153 @@ export async function GET(request: Request) {
         },
         include: {
           shipment: true,
+          user: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              phone: true,
+            },
+          },
         },
       });
 
       if (order) {
-        if (!order.shipment) {
-          return NextResponse.json({
-            success: true,
-            data: {
-              orderNumber: order.orderNumber,
-              awb: "PENDING_DISPATCH",
-              courier: "Prayog Logistics",
-              courierCode: "prayog",
-              estimatedDelivery: "Preparing for Dispatch",
-              destination: order.shippingAddress || "Registered Delivery Address",
-              status: "Order Confirmed - Packaging in Progress",
-              currentLocation: "Prayog Fulfilment Hub",
-              checkpoints: [
-                {
-                  title: "Order Placed & Confirmed",
-                  time: new Date(order.createdAt).toLocaleDateString("en-IN", {
-                    day: "numeric",
-                    month: "short",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  }),
-                  location: "Prayog Central Hub",
-                  done: true,
-                  current: true,
-                },
-                {
-                  title: "Packing & Quality Testing",
-                  time: "In Progress",
-                  location: "Fulfilment Centre",
-                  done: false,
-                },
-                {
-                  title: "Handover to Courier",
-                  time: "Awaiting Dispatch",
-                  location: "Courier Hub",
-                  done: false,
-                },
-              ],
-            },
-          });
+        // Privacy Gate: Verify ownership before disclosing full destination address
+        const isOwner = Boolean(
+          authUser && (authUser.id === order.userId || authUser.role === "ADMIN"),
+        );
+
+        let isContactVerified = isOwner;
+        if (!isContactVerified && contact) {
+          const cleanInput = contact.toLowerCase();
+          const inputDigits = cleanInput.replace(/\D/g, "");
+          const userPhoneDigits = (order.user?.phone || "").replace(/\D/g, "");
+          const userEmail = (order.user?.email || "").toLowerCase();
+          const shippingStr = (order.shippingAddress || "").toLowerCase();
+
+          const matchesEmail = userEmail && userEmail === cleanInput;
+          const matchesPhone =
+            inputDigits.length >= 10 &&
+            (userPhoneDigits.endsWith(inputDigits.slice(-10)) ||
+              shippingStr.includes(inputDigits.slice(-10)));
+
+          if (matchesEmail || matchesPhone) {
+            isContactVerified = true;
+          } else {
+            return NextResponse.json(
+              {
+                success: false,
+                error: "VERIFICATION_FAILED",
+                message:
+                  "The mobile number or email entered does not match this order. Please verify your registered contact details.",
+              },
+              { status: 403 },
+            );
+          }
         }
 
-        const rawEvents = Array.isArray(order.shipment.trackingEvents)
-          ? (order.shipment.trackingEvents as any[])
-          : [];
+        // Mask destination if unverified to prevent PII harvesting
+        let destinationText = order.shippingAddress || "Registered Delivery Address";
+        if (!isContactVerified) {
+          // Extract city/pincode or mask street address
+          const parts = destinationText.split(",");
+          const lastPart = parts[parts.length - 1]?.trim() || "India";
+          destinationText = `Protected Destination (${lastPart.slice(-10)})`;
+        }
 
-        const checkpoints = rawEvents.length > 0
-          ? rawEvents.map((evt, idx) => ({
-              title: evt.status || evt.title || "In Transit",
-              time: evt.timestamp ? new Date(evt.timestamp).toLocaleString("en-IN") : "Recent",
-              location: evt.location || "Logistics Hub",
-              done: true,
-              current: idx === rawEvents.length - 1,
-            }))
-          : [
-              {
-                title: "Package Dispatched",
-                time: order.shipment.shippedAt
-                  ? new Date(order.shipment.shippedAt).toLocaleString("en-IN")
-                  : "Dispatched",
-                location: "Prayog Fulfilment Hub",
-                done: true,
-                current: true,
-              },
-            ];
+        // Standard timeline: Order Placed -> Payment Confirmed -> Processing -> Packed -> Shipped -> Out for Delivery -> Delivered
+        const statusOrderMap: Record<string, number> = {
+          ORDER_PLACED: 1,
+          PAYMENT_CONFIRMED: 2,
+          PROCESSING: 3,
+          PACKED: 4,
+          SHIPPED: 5,
+          OUT_FOR_DELIVERY: 6,
+          DELIVERED: 7,
+        };
+
+        const currentStep = statusOrderMap[order.status] || (order.paymentStatus === "PAID" ? 2 : 1);
+
+        const standardCheckpoints = [
+          {
+            title: "Order Placed",
+            time: new Date(order.createdAt).toLocaleDateString("en-IN", {
+              day: "numeric",
+              month: "short",
+              hour: "2-digit",
+              minute: "2-digit",
+            }),
+            location: "Prayog India Online Store",
+            done: currentStep >= 1,
+            current: currentStep === 1,
+          },
+          {
+            title: "Payment Confirmed",
+            time: order.paymentStatus === "PAID" ? "Verified" : "Pending",
+            location: "Secure Payment Gateway",
+            done: currentStep >= 2,
+            current: currentStep === 2,
+          },
+          {
+            title: "Processing & Technical Inspection",
+            time: currentStep >= 3 ? "Completed" : "In Queue",
+            location: "Prayog Hardware Lab Hub",
+            done: currentStep >= 3,
+            current: currentStep === 3,
+          },
+          {
+            title: "Quality Tested & Packed",
+            time: currentStep >= 4 ? "Packed" : "Awaiting Packing",
+            location: "Prayog ESD Fulfilment Centre",
+            done: currentStep >= 4,
+            current: currentStep === 4,
+          },
+          {
+            title: "Handed over to Courier",
+            time: order.shipment?.shippedAt
+              ? new Date(order.shipment.shippedAt).toLocaleString("en-IN")
+              : "Awaiting Dispatch",
+            location: order.shipment?.courierName || "Express Linehaul Logistics",
+            done: currentStep >= 5,
+            current: currentStep === 5,
+          },
+          {
+            title: "Out for Final Delivery",
+            time: currentStep >= 6 ? "Out with delivery agent" : "Pending destination arrival",
+            location: "Destination Delivery Hub",
+            done: currentStep >= 6,
+            current: currentStep === 6,
+          },
+          {
+            title: "Delivered to Customer",
+            time: currentStep >= 7 ? "Delivered" : "Expected in 2–4 Business Days",
+            location: destinationText,
+            done: currentStep >= 7,
+            current: currentStep === 7,
+          },
+        ];
 
         return NextResponse.json({
           success: true,
           data: {
             orderNumber: order.orderNumber,
-            awb: order.shipment.trackingNumber || "N/A",
-            courier: order.shipment.courierName || "Express Courier",
-            courierCode: order.shipment.courierCode || "delhivery",
-            estimatedDelivery: order.shipment.estimatedDelivery
+            awb: order.shipment?.trackingNumber || "PENDING_DISPATCH",
+            courier: order.shipment?.courierName || "Prayog Express Logistics",
+            courierCode: order.shipment?.courierCode || "prayog",
+            estimatedDelivery: order.shipment?.estimatedDelivery
               ? new Date(order.shipment.estimatedDelivery).toLocaleDateString("en-IN", {
                   day: "numeric",
                   month: "short",
                   year: "numeric",
                 })
-              : "In 2-3 Business Days",
-            destination: order.shippingAddress || "Customer Address",
-            status: order.shipment.status || "In Transit",
-            currentLocation: "Hub Sorting Facility",
-            checkpoints,
+              : "In 2–4 Business Days",
+            destination: destinationText,
+            status: order.shipment?.status || (order.status === "DELIVERED" ? "Delivered Successfully" : "Order Confirmed - Packaging in Progress"),
+            currentLocation: order.shipment ? "Hub Sorting Facility" : "Prayog Fulfilment Hub",
+            checkpoints: standardCheckpoints,
+            isVerified: isContactVerified,
+            requiresVerification: !isContactVerified,
           },
         });
       }
