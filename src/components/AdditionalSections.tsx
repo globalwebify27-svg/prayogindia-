@@ -26,52 +26,6 @@ interface AdditionalSectionsProps {
   onOpenB2BModal: () => void;
 }
 
-export const IndustriesSection: React.FC = () => {
-  return (
-    <section
-      id="industries"
-      className="py-8 bg-slate-50/60 border-t border-slate-100"
-    >
-      <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12">
-        <div className="text-center max-w-3xl mx-auto mb-12">
-          <div className="inline-block bg-blue-50 text-[#1E56A0] text-xs font-extrabold tracking-widest uppercase px-3.5 py-1 rounded-full mb-3">
-            SECTORS SERVED
-          </div>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-[#0A1128] tracking-tight">
-            Technology Across Industries
-          </h2>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {INDUSTRIES.map((ind) => (
-            <div
-              key={ind.id}
-              className="group relative rounded-3xl overflow-hidden h-64 border border-slate-200 shadow-card-premium hover:shadow-card-hover transition-all duration-300 cursor-pointer"
-            >
-              <Image
-                src={ind.image}
-                alt={ind.title}
-                fill
-                className="object-cover group-hover:scale-110 transition-transform duration-500"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#0A1128]/90 via-[#0A1128]/40 to-transparent"></div>
-
-              <div className="absolute bottom-5 left-5 right-5 text-white">
-                <h3 className="text-lg font-bold group-hover:text-[#D4AF37] transition-colors mb-1">
-                  {ind.title}
-                </h3>
-                <p className="text-xs text-slate-300 line-clamp-2">
-                  {ind.description}
-                </p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-};
-
 export const LearningHubSection: React.FC = () => {
   const [activeFilter, setActiveFilter] = useState<
     "all" | "internship" | "workshops" | "certifications"
@@ -337,80 +291,7 @@ export const LearningHubSection: React.FC = () => {
   );
 };
 
-export const WhyPrayogSection: React.FC = () => {
-  const features = [
-    {
-      title: "Authentic Technology Products",
-      desc: "Direct sourcing from certified manufacturers with 100% component verification.",
-      icon: Shield,
-    },
-    {
-      title: "Expert Engineering Support",
-      desc: "Dedicated technical support engineers for circuit debugging & UAV setup.",
-      icon: Headset,
-    },
-    {
-      title: "STEM & Robotics Learning",
-      desc: "Step-by-step schematics, sample codes, and instructional video guides.",
-      icon: GraduationCap,
-    },
-    {
-      title: "Fast & Reliable Delivery",
-      desc: "Express Pan-India courier dispatch with real-time tracking.",
-      icon: Truck,
-    },
-    {
-      title: "B2B & Institutional Support",
-      desc: "GST invoice compliance, bulk quotation desk & educational discounts.",
-      icon: Award,
-    },
-    {
-      title: "Professional Tech Solutions",
-      desc: "Custom robotics hardware design and drone payload customization.",
-      icon: Layers,
-    },
-  ];
 
-  return (
-    <section
-      id="why-prayog"
-      className="py-8 bg-slate-50/70 border-y border-slate-100"
-    >
-      <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12">
-        <div className="text-center max-w-3xl mx-auto mb-14">
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-[#0A1128] tracking-tight">
-            More Than a Store. A Technology Ecosystem.
-          </h2>
-          <p className="text-slate-600 text-base mt-3">
-            Prayog India by Dilay Robotics provides complete end-to-end hardware
-            procurement, STEM learning resources, and technical support.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
-          {features.map((f, idx) => (
-            <div
-              key={idx}
-              className="bg-white p-6 rounded-3xl border border-slate-100 shadow-card-premium flex items-start gap-4"
-            >
-              <div className="w-12 h-12 rounded-2xl bg-blue-50 text-[#1E56A0] flex items-center justify-center shrink-0">
-                <f.icon className="w-6 h-6" />
-              </div>
-              <div>
-                <h3 className="text-base font-bold text-[#0A1128] mb-1">
-                  {f.title}
-                </h3>
-                <p className="text-xs text-slate-500 leading-relaxed">
-                  {f.desc}
-                </p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-};
 
 export const B2BSection: React.FC<AdditionalSectionsProps> = ({
   onOpenB2BModal,
