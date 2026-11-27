@@ -222,6 +222,7 @@ export const CheckoutView: React.FC = () => {
   );
   const hasInitializedMobileRef = React.useRef(false);
   const mobileInputRef = React.useRef<HTMLInputElement>(null);
+  const emailInputRef = React.useRef<HTMLInputElement>(null);
   const [isPhoneVerified, setIsPhoneVerified] = useState(true);
   const [showOtpModal, setShowOtpModal] = useState(false);
   const [checkoutOtp, setCheckoutOtp] = useState("");
@@ -654,6 +655,15 @@ export const CheckoutView: React.FC = () => {
       setValidationError("Please enter a valid 10-digit Mobile Phone Number starting with 6, 7, 8, or 9.");
       setCheckoutStep("address");
       setIsEditingAddress(true);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return false;
+    }
+
+    if (!customerEmail.trim() || !customerEmail.includes("@")) {
+      setValidationError("Please enter a valid Email Address for invoice delivery.");
+      setCheckoutStep("address");
+      setIsEditingAddress(true);
+      setTimeout(() => emailInputRef.current?.focus(), 100);
       window.scrollTo({ top: 0, behavior: "smooth" });
       return false;
     }
@@ -1206,6 +1216,8 @@ export const CheckoutView: React.FC = () => {
     // 1. Mandatory Customer Contact Validation
     if (!customerName.trim() || customerName.trim().length < 2) {
       setValidationError("Please enter a valid Full Name.");
+      setCheckoutStep("address");
+      setIsEditingAddress(true);
       window.scrollTo({ top: 0, behavior: "smooth" });
       return;
     }
@@ -1214,6 +1226,9 @@ export const CheckoutView: React.FC = () => {
       customerMobile.replace(/\D/g, "").length < 10
     ) {
       setValidationError("Please enter a valid 10-digit Mobile Phone Number.");
+      setCheckoutStep("address");
+      setIsEditingAddress(true);
+      setTimeout(() => mobileInputRef.current?.focus(), 100);
       window.scrollTo({ top: 0, behavior: "smooth" });
       return;
     }
@@ -1221,6 +1236,9 @@ export const CheckoutView: React.FC = () => {
       setValidationError(
         "Please enter a valid Email Address for invoice delivery.",
       );
+      setCheckoutStep("address");
+      setIsEditingAddress(true);
+      setTimeout(() => emailInputRef.current?.focus(), 100);
       window.scrollTo({ top: 0, behavior: "smooth" });
       return;
     }
@@ -2365,11 +2383,60 @@ export const CheckoutView: React.FC = () => {
         items={[{ label: "Cart", href: "/cart" }, { label: "Secure Checkout" }]}
       />
 
-      {/* Compact Professional Header */}
-      <div className="pb-1.5 border-b border-slate-100 mb-4">
+      {/* Compact Professional Header with Step Navigation */}
+      <div className="pb-2 border-b border-slate-100 mb-3 space-y-2">
         <h1 className="text-base sm:text-xl font-extrabold text-slate-900 tracking-tight">
           Checkout
         </h1>
+        {/* Amazon-style 3-Step Navigation */}
+        <div className="flex items-center gap-1.5 sm:gap-2 text-[11px] sm:text-xs font-semibold flex-wrap">
+          <button
+            type="button"
+            onClick={() => {
+              setCheckoutStep("address");
+              setIsEditingAddress(true);
+            }}
+            className={`flex items-center gap-1 px-2.5 py-1 rounded-lg transition-all cursor-pointer ${
+              checkoutStep === "address"
+                ? "bg-[#2563EB] text-white shadow-xs"
+                : "text-slate-600 hover:text-blue-600 hover:bg-slate-100"
+            }`}
+          >
+            <span>1. Delivery Address &amp; Email</span>
+          </button>
+          <span className="text-slate-300 font-bold">&gt;</span>
+          <button
+            type="button"
+            onClick={() => {
+              if (handleSaveAddressForm()) {
+                setCheckoutStep("summary");
+              }
+            }}
+            className={`flex items-center gap-1 px-2.5 py-1 rounded-lg transition-all cursor-pointer ${
+              checkoutStep === "summary"
+                ? "bg-[#2563EB] text-white shadow-xs"
+                : "text-slate-600 hover:text-blue-600 hover:bg-slate-100"
+            }`}
+          >
+            <span>2. Order Summary</span>
+          </button>
+          <span className="text-slate-300 font-bold">&gt;</span>
+          <button
+            type="button"
+            onClick={() => {
+              if (handleSaveAddressForm()) {
+                setCheckoutStep("payment");
+              }
+            }}
+            className={`flex items-center gap-1 px-2.5 py-1 rounded-lg transition-all cursor-pointer ${
+              checkoutStep === "payment"
+                ? "bg-[#2563EB] text-white shadow-xs"
+                : "text-slate-600 hover:text-blue-600 hover:bg-slate-100"
+            }`}
+          >
+            <span>3. Payment</span>
+          </button>
+        </div>
       </div>
 
       {/* 2-Column Checkout Grid: Left Column (~65-70%, Span 8) & Right Column (~30-35%, Span 4) */}
@@ -2378,13 +2445,45 @@ export const CheckoutView: React.FC = () => {
         <div className="lg:col-span-8 space-y-4">
           {/* Validation Error Banner */}
           {validationError && (
-            <div className="bg-red-50 border border-red-200 rounded-xl p-3 flex items-start gap-2.5 text-red-900 text-xs animate-in fade-in">
-              <AlertTriangle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
-              <div>
-                <h4 className="font-bold text-red-950">Validation Error</h4>
-                <p className="text-red-800 font-medium mt-0.5 leading-relaxed">
-                  {validationError}
-                </p>
+            <div className="bg-red-50 border border-red-200 rounded-xl p-3.5 flex items-start justify-between gap-3 text-red-900 text-xs animate-in fade-in">
+              <div className="flex items-start gap-2.5 min-w-0">
+                <AlertTriangle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
+                <div className="space-y-1">
+                  <h4 className="font-bold text-red-950">Validation Error</h4>
+                  <p className="text-red-800 font-medium leading-relaxed">
+                    {validationError}
+                  </p>
+                  {(validationError.toLowerCase().includes("email") ||
+                    validationError.toLowerCase().includes("address") ||
+                    validationError.toLowerCase().includes("name") ||
+                    validationError.toLowerCase().includes("mobile") ||
+                    validationError.toLowerCase().includes("phone")) && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setCheckoutStep("address");
+                        setIsEditingAddress(true);
+                        setTimeout(() => {
+                          if (validationError.toLowerCase().includes("email")) {
+                            emailInputRef.current?.focus();
+                          } else if (validationError.toLowerCase().includes("name")) {
+                            window.scrollTo({ top: 0, behavior: "smooth" });
+                          } else if (validationError.toLowerCase().includes("mobile") || validationError.toLowerCase().includes("phone")) {
+                            mobileInputRef.current?.focus();
+                          }
+                          window.scrollTo({ top: 0, behavior: "smooth" });
+                        }, 100);
+                      }}
+                      className="mt-1.5 inline-flex items-center gap-1.5 px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg text-[11px] shadow-xs cursor-pointer transition-colors"
+                    >
+                      <span>
+                        {validationError.toLowerCase().includes("email")
+                          ? "Go to Email Address Field →"
+                          : "Edit Delivery Details →"}
+                      </span>
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
           )}
@@ -2614,19 +2713,37 @@ export const CheckoutView: React.FC = () => {
                   <div className="space-y-1">
                     <div className="flex items-baseline justify-between">
                       <label className="block text-[11px] font-semibold text-slate-600">
-                        Email Address
+                        Email Address <span className="text-red-500">*</span>
                       </label>
                       <span className="text-[10.5px] text-slate-400">
                         Invoice &amp; tracking updates
                       </span>
                     </div>
-                    <input
-                      type="email"
-                      value={customerEmail}
-                      onChange={(e) => setCustomerEmail(e.target.value)}
-                      placeholder="email@example.com"
-                      className="w-full bg-slate-50/60 focus:bg-white border border-slate-200 focus:border-[#2563EB] focus:ring-2 focus:ring-blue-500/10 rounded-lg sm:rounded-xl px-3 py-2 sm:px-3.5 sm:py-2.5 text-xs sm:text-sm font-medium text-slate-900 outline-none transition-all placeholder:text-slate-400 placeholder:font-normal shadow-2xs"
-                    />
+                    <div className="relative flex items-center">
+                      <input
+                        ref={emailInputRef}
+                        type="email"
+                        required
+                        value={customerEmail}
+                        onChange={(e) => setCustomerEmail(e.target.value)}
+                        placeholder="email@example.com"
+                        className="w-full bg-slate-50/60 focus:bg-white border border-slate-200 focus:border-[#2563EB] focus:ring-2 focus:ring-blue-500/10 rounded-lg sm:rounded-xl px-3 py-2 sm:px-3.5 sm:py-2.5 text-xs sm:text-sm font-medium text-slate-900 outline-none transition-all placeholder:text-slate-400 placeholder:font-normal shadow-2xs pr-8"
+                      />
+                      {customerEmail ? (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setCustomerEmail("");
+                            emailInputRef.current?.focus();
+                          }}
+                          title="Clear email"
+                          aria-label="Clear email"
+                          className="absolute right-2.5 p-1 text-slate-400 hover:text-slate-600 rounded-full hover:bg-slate-200/60 cursor-pointer transition-colors"
+                        >
+                          <X className="w-3.5 h-3.5" />
+                        </button>
+                      ) : null}
+                    </div>
                   </div>
 
                   {/* Street Address */}
@@ -3199,6 +3316,56 @@ export const CheckoutView: React.FC = () => {
           {/* ═══════════════════════════════════════════════════════════════════════════ */}
           {checkoutStep === "payment" && (
             <div className="space-y-3.5">
+              {/* Delivery & Invoice Contact Bar with Direct Edit Link */}
+              <div className="bg-white border border-slate-200/90 rounded-xl sm:rounded-2xl p-3 sm:p-4 flex items-center justify-between gap-3 shadow-xs">
+                <div className="min-w-0 space-y-1">
+                  <div className="flex items-center gap-1.5">
+                    <MapPin className="w-3.5 h-3.5 text-[#2563EB] shrink-0" />
+                    <span className="text-xs font-bold text-slate-900 truncate">
+                      Delivering to: {customerName || addrFormName || "Customer"} (+91 {customerMobile || addrFormPhone})
+                    </span>
+                  </div>
+                  <div className="text-[11px] text-slate-500 pl-5 flex items-center gap-2 flex-wrap">
+                    <span className="truncate max-w-[280px]">
+                      {addrFormStreet ? `${addrFormStreet}, ${addrFormCity}` : "Address entered"}
+                    </span>
+                    <span className="text-slate-300">•</span>
+                    <span>
+                      Invoice Email:{" "}
+                      {customerEmail ? (
+                        <strong className="text-slate-800 font-semibold">{customerEmail}</strong>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setCheckoutStep("address");
+                            setIsEditingAddress(true);
+                            setTimeout(() => emailInputRef.current?.focus(), 100);
+                          }}
+                          className="text-red-600 font-bold hover:underline cursor-pointer"
+                        >
+                          Missing (Click to Enter)
+                        </button>
+                      )}
+                    </span>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setCheckoutStep("address");
+                    setIsEditingAddress(true);
+                    setTimeout(() => {
+                      emailInputRef.current?.focus();
+                      window.scrollTo({ top: 0, behavior: "smooth" });
+                    }, 100);
+                  }}
+                  className="text-xs font-bold text-[#2563EB] hover:text-blue-800 hover:underline cursor-pointer shrink-0 py-1.5 px-3 rounded-lg hover:bg-blue-50 transition-colors"
+                >
+                  Edit Email / Address →
+                </button>
+              </div>
+
               {/* Total Payable Amount Header Card */}
               <div className="bg-white border border-slate-200/90 rounded-xl sm:rounded-2xl p-3.5 sm:p-4.5 flex items-center justify-between shadow-xs">
                 <div>
