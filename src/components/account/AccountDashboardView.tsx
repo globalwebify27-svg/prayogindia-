@@ -664,16 +664,21 @@ export const AccountDashboardView: React.FC = () => {
             </h3>
 
             <div className="grid grid-cols-3 gap-1.5 text-center pt-1">
-              {/* Continue Shopping */}
+              {/* View Cart */}
               <Link
-                href="/shop"
+                href="/account/cart"
                 className="group flex flex-col items-center justify-center p-1.5 rounded-2xl hover:bg-blue-50/40 transition-colors"
               >
-                <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-blue-50 text-[#2563EB] group-hover:scale-105 active:scale-95 flex items-center justify-center transition-all shadow-2xs">
+                <div className="relative w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-blue-50 text-[#2563EB] group-hover:scale-105 active:scale-95 flex items-center justify-center transition-all shadow-2xs">
                   <ShoppingCart className="w-4.5 h-4.5" />
+                  {cart && cart.length > 0 && (
+                    <span className="absolute -top-0.5 -right-0.5 min-w-4 h-4 px-1 bg-[#2563EB] text-white text-[9px] font-bold rounded-full flex items-center justify-center shadow-xs">
+                      {cart.reduce((sum, i) => sum + i.quantity, 0)}
+                    </span>
+                  )}
                 </div>
                 <span className="text-[10px] sm:text-[11px] font-medium text-slate-600 mt-1.5 block leading-tight">
-                  Continue Shopping
+                  View Cart
                 </span>
               </Link>
 
