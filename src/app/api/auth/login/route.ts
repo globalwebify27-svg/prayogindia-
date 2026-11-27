@@ -24,6 +24,67 @@ export async function POST(request: Request) {
 
   try {
     const body = await request.json();
+    // Support Step 1 Identifier Check (Amazon-style multi-step sign-in)
+    if (body.action === "check" || body.checkOnly) {
+      const rawId = (body.identifier || body.email || "").toString().trim();
+      if (!rawId) {
+        return NextResponse.json(
+          { success: false, message: "Please enter your email or mobile phone number." },
+          { status: 400, headers },
+        );
+      }
+      const cEmail = normalizeEmail(rawId);
+      const cDigits = rawId.replace(/\D/g, "");
+      const cPhone = cDigits.length >= 10 ? cDigits.slice(-10) : "";
+
+      const existingRecord = UserDB.findByEmailOrPhone(rawId);
+      let existingDbUser: any = null;
+      if (!existingRecord && isDatabaseAvailable()) {
+        try {
+          existingDbUser = await db.user.findFirst({
+            where: {
+              OR: [
+                ...(cEmail && cEmail.includes("@") ? [{ email: cEmail }] : []),
+                ...(cPhone ? [{ phone: { contains: cPhone } }] : []),
+              ],
+            },
+          });
+        } catch {}
+      }
+
+      const found = existingRecord || existingDbUser;
+      if (!found) {
+        return NextResponse.json(
+          {
+            success: false,
+            exists: false,
+            message: "We cannot find an account with that mobile number or email address.",
+          },
+          { status: 404, headers },
+        );
+      }
+
+      const isBlocked = found.status === "BLOCKED";
+      if (isBlocked) {
+        return NextResponse.json(
+          {
+            success: false,
+            exists: true,
+            isBlocked: true,
+            message: "This account has been suspended or blocked. Please contact Prayog support.",
+          },
+          { status: 403, headers },
+        );
+      }
+
+      return NextResponse.json({
+        success: true,
+        exists: true,
+        name: found.name,
+        hasPassword: Boolean(found.passwordHash && found.passwordHash !== "GUEST_ACCOUNT_NO_PASSWORD"),
+      });
+    }
+
     const validation = loginSchema.safeParse(body);
 
     if (!validation.success) {
@@ -81,6 +142,18 @@ export async function POST(request: Request) {
             "Invalid email/mobile or password. Please verify your credentials or register.",
         },
         { status: 401, headers },
+      );
+    }
+
+    // Check blocked account status
+    const targetStatus = userRecord?.status || dbUser?.status;
+    if (targetStatus === "BLOCKED") {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "This account has been suspended or blocked. Please contact Prayog customer support.",
+        },
+        { status: 403, headers },
       );
     }
 

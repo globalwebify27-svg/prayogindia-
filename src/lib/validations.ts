@@ -10,13 +10,24 @@ export const loginSchema = z.object({
 export const registerSchema = z
   .object({
     name: z.string().max(70).optional(),
-    email: z.string().email("Invalid email address").max(100),
-    phone: z.string().max(20).optional(),
+    email: z
+      .string()
+      .max(100)
+      .refine((val) => !val || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val), {
+        message: "Invalid email address",
+      })
+      .optional()
+      .or(z.literal("")),
+    phone: z.string().max(20).optional().or(z.literal("")),
     password: z
       .string()
       .min(6, "Password must be at least 6 characters")
       .max(128),
     confirmPassword: z.string().optional(),
+    action: z.enum(["initiate", "verify", "resend"]).optional(),
+    code: z.string().optional(),
+    otp: z.string().optional(),
+    requireOtp: z.boolean().optional(),
     b2b: z
       .object({
         companyName: z.string().min(2).max(120),
@@ -24,6 +35,19 @@ export const registerSchema = z
       })
       .optional(),
   })
+  .refine(
+    (data) => {
+      if (data.action === "verify") return true;
+      if (!data.email && !data.phone) {
+        return false;
+      }
+      return true;
+    },
+    {
+      message: "Please provide either a mobile number or email address.",
+      path: ["phone"],
+    },
+  )
   .refine(
     (data) => {
       if (data.confirmPassword && data.password !== data.confirmPassword) {

@@ -8,6 +8,9 @@ export interface UserRecord {
   gstin?: string;
   rewardPoints: number;
   customerType: "Registered Customer" | "B2B Customer" | "B2C Customer";
+  status?: "ACTIVE" | "BLOCKED";
+  emailVerified?: boolean;
+  mobileVerified?: boolean;
   createdAt: string;
 }
 

@@ -294,6 +294,9 @@ model User {
   companyName   String?
   gstin         String?
   rewardPoints  Int             @default(0)
+  status        String          @default("ACTIVE") // ACTIVE | BLOCKED
+  emailVerified Boolean         @default(false)
+  mobileVerified Boolean        @default(false)
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
 
@@ -310,6 +313,31 @@ model User {
 
   @@index([email])
   @@index([phone])
+}
+
+// 1.1 Customer OTP Verifications
+model OtpVerification {
+  id          String    @id @default(uuid())
+  identifier  String    // mobile number or email
+  otpHash     String
+  purpose     String    @default("REGISTRATION") // REGISTRATION | LOGIN | PASSWORD_RESET
+  attempts    Int       @default(0)
+  expiresAt   DateTime
+  verifiedAt  DateTime?
+  createdAt   DateTime  @default(now())
+
+  @@index([identifier])
+}
+
+// 1.2 Customer Active Sessions
+model CustomerSession {
+  id               String   @id @default(uuid())
+  userId           String
+  refreshTokenHash String?
+  expiresAt        DateTime
+  createdAt        DateTime @default(now())
+
+  @@index([userId])
 }
 
 // 2. Customer Addresses
