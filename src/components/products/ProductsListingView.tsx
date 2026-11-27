@@ -24,7 +24,8 @@ import { getProductBrand } from "@/data/brands";
 import { getProductDiscount } from "@/lib/discount";
 import { useCartStore, useWishlistStore } from "@/store";
 import { searchProductsFuzzy } from "@/lib/fuzzySearch";
-import { X, Search, Clock, TrendingUp, Tag, ShoppingCart, Loader2, PanelLeftClose, PanelLeftOpen } from "lucide-react";
+import { X, Search, Clock, TrendingUp, Tag, Loader2, PanelLeftClose, PanelLeftOpen } from "lucide-react";
+import { AddToCartIcon } from "@/components/icons/AddToCartIcon";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useSearchSuggestions } from "@/hooks/useSearchSuggestions";
 import { SearchSuggestionsDropdown } from "@/components/ui/SearchSuggestionsDropdown";
@@ -585,7 +586,7 @@ function ProductsContent() {
                             onClick={() => storeAddToCart(product)}
                             className="border border-[#2563EB] text-[#2563EB] hover:bg-[#2563EB] hover:text-white text-xs font-bold uppercase tracking-wider px-3.5 py-2 rounded-xl cursor-pointer transition-all duration-150 active:scale-95 flex items-center gap-1.5 shadow-2xs"
                           >
-                            <ShoppingCart className="w-3.5 h-3.5" />
+                            <AddToCartIcon className="w-3.5 h-3.5" />
                             <span>ADD TO CART</span>
                           </button>
                         </div>

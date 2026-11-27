@@ -7,11 +7,11 @@ import { getOptimizedImageUrl } from "@/lib/cloudinaryUrl";
 import {
   Star,
   Heart,
-  ShoppingCart,
   Zap,
   Flame,
   Check,
 } from "lucide-react";
+import { AddToCartIcon } from "@/components/icons/AddToCartIcon";
 import { Product } from "@/data/mockData";
 import { useCartStore, useWishlistStore } from "@/store";
 import { haptic } from "@/utils/haptics";
@@ -258,7 +258,7 @@ export const TopDealsProductCard: React.FC<TopDealsProductCardProps> = ({
                 </>
               ) : (
                 <>
-                  <ShoppingCart className="w-3.5 h-3.5 shrink-0" />
+                  <AddToCartIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
                   <span className="whitespace-nowrap font-bold">ADD TO CART</span>
                 </>
               )}

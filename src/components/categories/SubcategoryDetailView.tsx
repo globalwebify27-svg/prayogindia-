@@ -23,10 +23,10 @@ import {
   Layers,
   X,
   ShieldCheck,
-  ShoppingCart,
   PanelLeftClose,
   PanelLeftOpen,
 } from "lucide-react";
+import { AddToCartIcon } from "@/components/icons/AddToCartIcon";
 import { useStore } from "@/context/StoreContext";
 
 interface SubcategoryDetailProps {
@@ -351,7 +351,7 @@ export const SubcategoryDetailView: React.FC<SubcategoryDetailProps> = ({
                         onClick={() => store?.addToCart?.(product)}
                         className="border border-[#2563EB] text-[#2563EB] hover:bg-[#2563EB] hover:text-white text-xs font-bold uppercase tracking-wider px-3.5 py-2 rounded-xl cursor-pointer transition-all duration-150 active:scale-95 flex items-center gap-1.5 shadow-2xs"
                       >
-                        <ShoppingCart className="w-3.5 h-3.5" />
+                        <AddToCartIcon className="w-3.5 h-3.5" />
                         <span>ADD TO CART</span>
                       </button>
                     </div>

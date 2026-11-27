@@ -7,11 +7,11 @@ import {
   ChevronLeft,
   ChevronRight,
   Star,
-  ShoppingCart,
   Check,
   Maximize2,
   Heart,
 } from "lucide-react";
+import { AddToCartIcon } from "@/components/icons/AddToCartIcon";
 import { Product, PRODUCTS } from "@/data/mockData";
 import { isProductInCategory } from "@/lib/categoryMapping";
 import { useCartStore, useWishlistStore, useUIStore } from "@/store";
@@ -632,7 +632,7 @@ const PopularProductCard: React.FC<PopularProductCardProps> = ({
               </>
             ) : (
               <>
-                <ShoppingCart className="w-3.5 h-3.5 shrink-0" />
+                <AddToCartIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
                 <span className="whitespace-nowrap font-bold">ADD TO CART</span>
               </>
             )}

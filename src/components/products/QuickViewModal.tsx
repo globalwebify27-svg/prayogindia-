@@ -8,7 +8,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   X,
   Star,
-  ShoppingCart,
   Heart,
   Check,
   CheckCircle,
@@ -32,6 +31,7 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import { useUIStore } from "@/store";
+import { AddToCartIcon } from "@/components/icons/AddToCartIcon";
 import { Product, PRODUCTS, getProductStock, getStoreProductStock } from "@/data/mockData";
 import { STORES, StoreId } from "@/data/storeConfig";
 
@@ -877,7 +877,7 @@ const QuickViewModalContent: React.FC<{
                       </>
                     ) : (
                       <>
-                        <ShoppingCart className="w-4 h-4 stroke-[2.2]" />
+                        <AddToCartIcon className="w-4 h-4" />
                         <span>ADD TO CART</span>
                       </>
                     )}
