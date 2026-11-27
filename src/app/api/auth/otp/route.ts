@@ -114,12 +114,11 @@ export async function POST(request: Request) {
       let existing = UserDB.findByEmailOrPhone(cleanPhone);
 
       if (!existing && !existingDbUser) {
-        const dummyEmail = `user.${cleanPhone}@prayogindia.com`;
         const displayName = `Customer ${cleanPhone.slice(-4)}`;
 
         existing = UserDB.create({
           name: displayName,
-          email: dummyEmail,
+          email: "",
           phone: `+91 ${cleanPhone}`,
           passwordHash: "",
           customerType: "Registered Customer",
@@ -131,7 +130,7 @@ export async function POST(request: Request) {
             existingDbUser = await db.user.create({
               data: {
                 name: displayName,
-                email: dummyEmail,
+                email: `${cleanPhone}@otp.prayogindia.local`,
                 phone: `+91 ${cleanPhone}`,
                 passwordHash: "",
                 role: "CUSTOMER",
@@ -145,10 +144,19 @@ export async function POST(request: Request) {
         }
       }
 
+      // Never auto-generate or expose dummy/internal emails to customer
+      const rawEmail = existingDbUser?.email || existing?.email || "";
+      const isDummyEmail =
+        !rawEmail ||
+        rawEmail.includes("@otp.") ||
+        rawEmail.includes("@prayogindia.com") ||
+        rawEmail.startsWith("user.");
+      const cleanEmail = isDummyEmail ? "" : rawEmail;
+
       const userPayload: AuthSessionUser = {
         id: existingDbUser?.id || existing?.id || `usr-otp-${cleanPhone}`,
         name: existingDbUser?.name || existing?.name || `Customer ${cleanPhone.slice(-4)}`,
-        email: existingDbUser?.email || existing?.email || `user.${cleanPhone}@prayogindia.com`,
+        email: cleanEmail,
         phone: existingDbUser?.phone || existing?.phone || `+91 ${cleanPhone}`,
         customerType:
           existing?.customerType ||

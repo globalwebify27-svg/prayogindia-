@@ -143,7 +143,7 @@ describe("Guest User Functionality Audit & Verification", () => {
       const testOrder = {
         orderNumber: "PRG-2026-9999",
         customerMobile: cleanDigits,
-        customerEmail: "user.8709789641@prayogindia.com",
+        customerEmail: "",
         totalAmount: 2500,
       };
 

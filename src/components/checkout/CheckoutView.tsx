@@ -207,8 +207,17 @@ export const CheckoutView: React.FC = () => {
   } = useStore();
 
   // ── Customer Profile Information (Auto-populated only if logged in, otherwise blank)
-  const [customerName, setCustomerName] = useState(user?.name || "");
-  const [customerEmail, setCustomerEmail] = useState(user?.email || "");
+  const [customerName, setCustomerName] = useState(
+    user?.name && !user.name.startsWith("Customer ") ? user.name : "",
+  );
+  const [customerEmail, setCustomerEmail] = useState(
+    user?.email &&
+      !user.email.includes("@prayogindia.com") &&
+      !user.email.includes("@otp.") &&
+      !user.email.startsWith("user.")
+      ? user.email
+      : "",
+  );
   const [customerMobile, setCustomerMobile] = useState(
     user?.phone?.replace(/\D/g, "").slice(-10) || "",
   );
@@ -238,11 +247,23 @@ export const CheckoutView: React.FC = () => {
   // Sync with logged in user state
   React.useEffect(() => {
     if (user) {
-      if (user.name) {
+      if (user.name && !user.name.startsWith("Customer ")) {
         setCustomerName(user.name);
         setAddrFormName((prev) => prev || user.name || "");
+      } else {
+        setCustomerName("");
+        setAddrFormName("");
       }
-      if (user.email) setCustomerEmail(user.email);
+      if (
+        user.email &&
+        !user.email.includes("@prayogindia.com") &&
+        !user.email.includes("@otp.") &&
+        !user.email.startsWith("user.")
+      ) {
+        setCustomerEmail(user.email);
+      } else {
+        setCustomerEmail("");
+      }
       if (user.phone) {
         const cleanP = user.phone.replace(/\D/g, "").slice(-10);
         setCustomerMobile(cleanP);
@@ -294,14 +315,21 @@ export const CheckoutView: React.FC = () => {
 
       let loaded: Address[] = [];
 
-      // 1. Check persistent localStorage cache
+      // 1. Check persistent localStorage cache (clean out any legacy demo/mock addresses)
       if (typeof window !== "undefined") {
         try {
           const stored = localStorage.getItem("prayog_saved_addresses");
           if (stored) {
             const parsed = JSON.parse(stored);
             if (Array.isArray(parsed) && parsed.length > 0) {
-              loaded = parsed;
+              const cleaned = parsed.filter(
+                (a: any) =>
+                  !a.street?.includes("Green Glen Tech Park") &&
+                  a.id !== "addr_1" &&
+                  !a.pincode?.includes("560103"),
+              );
+              loaded = cleaned;
+              localStorage.setItem("prayog_saved_addresses", JSON.stringify(cleaned));
             }
           }
         } catch {}
@@ -313,20 +341,23 @@ export const CheckoutView: React.FC = () => {
         if (res.ok) {
           const data = await res.json();
           if (data.success && Array.isArray(data.data) && data.data.length > 0) {
-            loaded = data.data;
-            if (typeof window !== "undefined") {
-              try {
-                localStorage.setItem("prayog_saved_addresses", JSON.stringify(data.data));
-              } catch {}
+            const cleanedServer = data.data.filter(
+              (a: any) =>
+                !a.street?.includes("Green Glen Tech Park") &&
+                a.id !== "addr_1" &&
+                !a.pincode?.includes("560103"),
+            );
+            if (cleanedServer.length > 0) {
+              loaded = cleanedServer;
+              if (typeof window !== "undefined") {
+                try {
+                  localStorage.setItem("prayog_saved_addresses", JSON.stringify(cleanedServer));
+                } catch {}
+              }
             }
           }
         }
       } catch {}
-
-      // 3. Fallback to mock addresses if still empty and user is logged in
-      if (loaded.length === 0 && Array.isArray(MOCK_SAVED_ADDRESSES) && MOCK_SAVED_ADDRESSES.length > 0) {
-        loaded = MOCK_SAVED_ADDRESSES;
-      }
 
       const deduped = deduplicateAddresses(loaded);
       if (deduped.length > 0) {
@@ -356,8 +387,14 @@ export const CheckoutView: React.FC = () => {
         }
         setCheckoutStep("summary");
       } else {
+        setAddresses([]);
+        setSelectedShippingAddressId("");
         setCheckoutStep("address");
         setIsEditingAddress(true);
+        setAddrFormStreet("");
+        setAddrFormCity("");
+        setAddrFormState("");
+        setAddrFormPincode("");
       }
     };
 
@@ -456,7 +493,9 @@ export const CheckoutView: React.FC = () => {
   // Add/Edit Address Form State (Empty defaults - no auto-fill)
   const [editingAddressId, setEditingAddressId] = useState<string | null>(null);
   const [showAddressModal, setShowAddressModal] = useState(false);
-  const [addrFormName, setAddrFormName] = useState(user?.name || "");
+  const [addrFormName, setAddrFormName] = useState(
+    user?.name && !user.name.startsWith("Customer ") ? user.name : "",
+  );
   const [addrFormPhone, setAddrFormPhone] = useState(user?.phone?.replace(/\D/g, "").slice(-10) || "");
   const [addrFormStreet, setAddrFormStreet] = useState("");
   const [addrFormCity, setAddrFormCity] = useState("");
@@ -1389,14 +1428,28 @@ export const CheckoutView: React.FC = () => {
         orderNumber: confirmedOrderNumber,
         userId: user?.id || (user as any)?._id || undefined,
         user_id: user?.id || (user as any)?._id || undefined,
-        customerEmail: customerEmail || user?.email,
+        customerEmail:
+          customerEmail ||
+          (user?.email &&
+          !user.email.includes("@prayogindia.com") &&
+          !user.email.includes("@otp.") &&
+          !user.email.startsWith("user.")
+            ? user.email
+            : ""),
         customerMobile: customerMobile || selectedAddr.phone,
         customerPhone: customerMobile || selectedAddr.phone,
         user: {
           id: user?.id,
           name: customerName || selectedAddr.name || "Customer",
-          email: customerEmail || user?.email || "customer@prayogindia.com",
-          phone: customerMobile || selectedAddr.phone || "+91 8709789641",
+          email:
+            customerEmail ||
+            (user?.email &&
+            !user.email.includes("@prayogindia.com") &&
+            !user.email.includes("@otp.") &&
+            !user.email.startsWith("user.")
+              ? user.email
+              : ""),
+          phone: customerMobile || selectedAddr.phone || "",
         },
         totalAmount: grandTotal,
         subtotal: subtotal,

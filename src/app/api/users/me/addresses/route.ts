@@ -20,10 +20,10 @@ export async function GET() {
       where: { userId: user.id },
       orderBy: { createdAt: "desc" },
     });
-    return NextResponse.json({ success: true, data: dbAddresses });
+    return NextResponse.json({ success: true, data: dbAddresses || [] });
   }
 
-  return NextResponse.json({ success: true, data: MOCK_SAVED_ADDRESSES });
+  return NextResponse.json({ success: true, data: [] });
 }
 
 // POST /api/users/me/addresses

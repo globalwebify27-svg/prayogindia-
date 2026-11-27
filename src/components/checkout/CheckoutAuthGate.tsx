@@ -135,7 +135,13 @@ export const CheckoutAuthGate: React.FC<CheckoutAuthGateProps> = ({
         loginUser({
           id: data.user.id,
           name: data.user.name || `Customer ${cleanPhone.slice(-4)}`,
-          email: data.user.email || `user.${cleanPhone}@prayogindia.com`,
+          email:
+            data.user.email &&
+            !data.user.email.includes("@prayogindia.com") &&
+            !data.user.email.includes("@otp.") &&
+            !data.user.email.startsWith("user.")
+              ? data.user.email
+              : "",
           phone: `+91 ${cleanPhone}`,
           customerType: data.user.customerType || "Registered Customer",
           rewardPoints: data.user.rewardPoints || 100,
