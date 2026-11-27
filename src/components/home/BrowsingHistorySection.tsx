@@ -3,6 +3,7 @@
 import React, { useRef, useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { ChevronLeft, ChevronRight, Star, ShoppingCart, Check, Eye } from "lucide-react";
 import { getOptimizedImageUrl } from "@/lib/cloudinaryUrl";
 import { Product } from "@/data/mockData";
@@ -36,6 +37,7 @@ export const BrowsingHistorySection: React.FC<BrowsingHistorySectionProps> = ({
   onToggleWishlist,
   onQuickView,
 }) => {
+  const router = useRouter();
   const addToCartStore = useCartStore((s) => s.addToCart);
   const toggleWishlistStore = useWishlistStore((s) => s.toggleWishlist);
   const wishlist = useWishlistStore((s) => s.wishlist);
@@ -188,7 +190,7 @@ export const BrowsingHistorySection: React.FC<BrowsingHistorySectionProps> = ({
     } else {
       addToCartStore(product);
     }
-    window.location.href = "/cart";
+    router.push("/checkout");
   };
 
   const handleToggleWishlist = (e: React.MouseEvent, product: Product) => {

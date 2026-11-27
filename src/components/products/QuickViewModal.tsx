@@ -377,7 +377,7 @@ const QuickViewModalContent: React.FC<{
       } else {
         onAddToCart?.(fullProduct, selectedVariantId, quantity);
         onClose();
-        router.push("/cart");
+        router.push("/checkout");
       }
     };
 
