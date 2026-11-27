@@ -188,7 +188,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
     <div
       id={`product-card-${product.id}`}
       className={cn(
-        "group bg-white rounded-xl sm:rounded-2xl border border-slate-200/90 p-1.5 sm:p-3 flex flex-col justify-between hover:border-[#2563EB] hover:shadow-lg transition-all duration-300 relative overflow-hidden font-sans h-full",
+        "group bg-white rounded-xl sm:rounded-2xl border border-slate-200/90 p-1.5 sm:p-3 flex flex-col justify-between hover:border-[#2563EB] hover:shadow-lg transition-all duration-300 relative overflow-hidden font-sans h-full w-full",
         className
       )}
     >

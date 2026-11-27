@@ -532,7 +532,7 @@ export const FeaturedCategories: React.FC<Props> = ({
               [...Array(6)].map((_, i) => (
                 <div
                   key={i}
-                  className="w-[160px] sm:w-[220px] h-[340px] rounded-2xl bg-slate-100 animate-pulse shrink-0 border border-slate-200/60"
+                  className="w-[200px] sm:w-[225px] md:w-[240px] h-[340px] rounded-2xl bg-slate-100 animate-pulse shrink-0 border border-slate-200/60"
                 />
               ))
             ) : (
@@ -542,7 +542,7 @@ export const FeaturedCategories: React.FC<Props> = ({
                 return (
                   <div
                     key={product.id}
-                    className="w-[200px] xs:w-[215px] sm:w-[230px] md:w-[245px] shrink-0 snap-start flex"
+                    className="w-[200px] sm:w-[225px] md:w-[240px] shrink-0 snap-start flex flex-col"
                   >
                     <ProductCard
                       product={product}
@@ -550,6 +550,7 @@ export const FeaturedCategories: React.FC<Props> = ({
                       onToggleWishlist={onToggleWishlist}
                       onQuickView={onQuickView}
                       isWishlisted={isWishlisted}
+                      className="w-full"
                     />
                   </div>
                 );
