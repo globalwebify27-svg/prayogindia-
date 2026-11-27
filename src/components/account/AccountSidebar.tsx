@@ -26,7 +26,7 @@ export const AccountSidebar: React.FC = () => {
 
   const navItems = [
     { label: "Dashboard", href: "/account", icon: LayoutGrid },
-    { label: "My Profile", href: "/account/profile", icon: User },
+    { label: "Edit Profile", href: "/account/profile", icon: User },
     { label: "My Orders", href: "/account/orders", icon: ShoppingBag },
     {
       label: "View Cart",

@@ -210,7 +210,7 @@ export const ProfileForm: React.FC = () => {
     <div className="w-full lg:w-1/2 bg-white rounded-2xl border border-slate-200/80 p-5 sm:p-7 shadow-2xs space-y-5 text-slate-900 relative">
       <div>
         <h2 className="text-xl font-bold text-slate-900 tracking-tight">
-          My Profile
+          Edit Profile
         </h2>
         <p className="text-xs text-slate-500 mt-0.5">
           Manage your personal and business details.
