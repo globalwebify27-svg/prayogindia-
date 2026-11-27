@@ -35,6 +35,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   logoutUser: () => {
     fetch("/api/auth/logout", { method: "POST" }).catch(() => {});
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.removeItem("prayog_saved_addresses");
+      } catch {}
+    }
     set({ user: null, isLoggedIn: false });
   },
 

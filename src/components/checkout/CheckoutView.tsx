@@ -268,6 +268,24 @@ export const CheckoutView: React.FC = () => {
   // Auto-load and initialize saved addresses so customer never has to re-enter
   React.useEffect(() => {
     const loadSavedAddresses = async () => {
+      // If NOT logged in (Guest User), guest shoppers must start fresh without auto-filling someone else's saved addresses
+      if (!isLoggedIn) {
+        setAddresses([]);
+        setSelectedShippingAddressId("");
+        setCheckoutStep("address");
+        setIsEditingAddress(true);
+        setCustomerName("");
+        setCustomerEmail("");
+        setCustomerMobile("");
+        setAddrFormStreet("");
+        setAddrFormCity("");
+        setAddrFormState("Jharkhand");
+        setAddrFormPincode("");
+        setAddrFormName("");
+        setAddrFormPhone("");
+        return;
+      }
+
       let loaded: Address[] = [];
 
       // 1. Check persistent localStorage cache
@@ -284,25 +302,23 @@ export const CheckoutView: React.FC = () => {
       }
 
       // 2. If logged in, fetch user's saved addresses from server
-      if (isLoggedIn) {
-        try {
-          const res = await fetch("/api/users/me/addresses");
-          if (res.ok) {
-            const data = await res.json();
-            if (data.success && Array.isArray(data.data) && data.data.length > 0) {
-              loaded = data.data;
-              if (typeof window !== "undefined") {
-                try {
-                  localStorage.setItem("prayog_saved_addresses", JSON.stringify(data.data));
-                } catch {}
-              }
+      try {
+        const res = await fetch("/api/users/me/addresses");
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success && Array.isArray(data.data) && data.data.length > 0) {
+            loaded = data.data;
+            if (typeof window !== "undefined") {
+              try {
+                localStorage.setItem("prayog_saved_addresses", JSON.stringify(data.data));
+              } catch {}
             }
           }
-        } catch {}
-      }
+        }
+      } catch {}
 
       // 3. Fallback to mock addresses if still empty and user is logged in
-      if (loaded.length === 0 && isLoggedIn && Array.isArray(MOCK_SAVED_ADDRESSES) && MOCK_SAVED_ADDRESSES.length > 0) {
+      if (loaded.length === 0 && Array.isArray(MOCK_SAVED_ADDRESSES) && MOCK_SAVED_ADDRESSES.length > 0) {
         loaded = MOCK_SAVED_ADDRESSES;
       }
 
