@@ -143,16 +143,18 @@ export const CheckoutOrderSummary: React.FC<CheckoutSummaryProps> = ({
             type="button"
             onClick={onProceed}
             disabled={isSubmitting}
-            className="bg-[#2563EB] hover:bg-[#1D4ED8] active:bg-[#1E40AF] text-white px-6 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all shadow-md shadow-blue-500/20 active:scale-[0.98] cursor-pointer disabled:opacity-50 flex items-center gap-2"
+            className="bg-[#2563EB] hover:bg-[#1D4ED8] active:bg-[#1E40AF] text-white px-6 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all shadow-md shadow-blue-500/20 active:scale-[0.98] cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
           >
             {isSubmitting ? (
               <span>Processing...</span>
             ) : activeStep === "payment" ? (
               <span>Place Order</span>
             ) : (
-              <span>Continue</span>
+              <>
+                <span>Continue</span>
+                <ArrowRight className="w-4 h-4" />
+              </>
             )}
-            <ArrowRight className="w-4 h-4" />
           </button>
         </div>
       )}

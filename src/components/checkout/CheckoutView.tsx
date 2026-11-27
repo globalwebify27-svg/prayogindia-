@@ -3588,16 +3588,18 @@ export const CheckoutView: React.FC = () => {
           type="button"
           onClick={handleProceedFromRightColumn}
           disabled={isSubmitting}
-          className="bg-[#2563EB] hover:bg-[#1D4ED8] active:bg-[#1E40AF] text-white px-5 py-2.5 rounded-xl font-bold text-xs transition-all shadow-md shadow-blue-500/20 flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+          className="bg-[#2563EB] hover:bg-[#1D4ED8] active:bg-[#1E40AF] text-white px-5 py-2.5 rounded-xl font-bold text-xs transition-all shadow-md shadow-blue-500/20 flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
         >
           {isSubmitting ? (
             <span>Processing...</span>
           ) : checkoutStep === "payment" ? (
             <span>Place Order</span>
           ) : (
-            <span>Continue</span>
+            <>
+              <span>Continue</span>
+              <ArrowRight className="w-4 h-4" />
+            </>
           )}
-          <ArrowRight className="w-4 h-4" />
         </button>
       </div>
     </div>
