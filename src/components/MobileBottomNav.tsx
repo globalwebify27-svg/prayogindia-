@@ -202,6 +202,9 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
               activeItem.onClick();
             }
           }}
+          {...(activeItem.id === "cart"
+            ? { "data-cart-target": "true", id: "mobile-active-cart-btn" }
+            : {})}
           aria-label={`Active Tab: ${activeItem.label}`}
           className="absolute -top-[24px] -translate-x-1/2 left-1/2 w-[48px] h-[48px] rounded-full bg-gradient-to-tr from-[#0A233F] via-[#12365D] to-[#2563EB] text-white flex items-center justify-center shadow-[0_8px_22px_rgba(10,35,63,0.28)] hover:shadow-[0_10px_26px_rgba(37,99,235,0.38)] active:scale-95 transition-all duration-200 cursor-pointer group"
         >
@@ -268,6 +271,9 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
               <button
                 key={item.id}
                 type="button"
+                {...(item.id === "cart"
+                  ? { "data-cart-target": "true", id: "mobile-bottom-cart-btn" }
+                  : {})}
                 onClick={() => {
                   if (item.id === "cart" && isCartOpen && onCloseCart) {
                     onCloseCart();

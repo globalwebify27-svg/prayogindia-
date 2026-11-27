@@ -8,7 +8,20 @@ export interface FlyToCartOptions {
   imageSrc?: string | null;
   duration?: number;
   showCurvedLine?: boolean;
+  disableOnMobile?: boolean;
   onComplete?: () => void;
+}
+
+/**
+ * Detects whether the current viewport is in mobile / tablet layout (< 1024px)
+ */
+export function isMobileViewport(): boolean {
+  if (typeof window === "undefined") return false;
+  return (
+    window.innerWidth < 1024 ||
+    (typeof window.matchMedia === "function" &&
+      window.matchMedia("(max-width: 1023px)").matches)
+  );
 }
 
 export function triggerFlyToCart(
@@ -17,16 +30,25 @@ export function triggerFlyToCart(
 ) {
   if (typeof window === "undefined" || !source) return;
 
-  // Respect user preference for reduced motion
-  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-    bumpCartIcon();
-    return;
-  }
-
   const options: FlyToCartOptions =
     typeof imageSrcOrOptions === "string" || imageSrcOrOptions === null
       ? { imageSrc: imageSrcOrOptions }
       : imageSrcOrOptions || {};
+
+  // Respect user preference for reduced motion
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    bumpCartIcon();
+    options.onComplete?.();
+    return;
+  }
+
+  // In mobile view, do not show moving in arcs: clean, uncluttered mobile UX
+  const disableOnMobile = options.disableOnMobile !== false;
+  if (disableOnMobile && isMobileViewport()) {
+    bumpCartIcon();
+    options.onComplete?.();
+    return;
+  }
 
   const imageSrc = options.imageSrc;
   // Slower, smoother pacing (~920ms) for high-end professional feel
@@ -256,6 +278,8 @@ export function triggerFlyToCart(
  */
 function findVisibleCartTarget(): HTMLElement | null {
   const candidates = [
+    document.getElementById("mobile-active-cart-btn"),
+    document.getElementById("mobile-bottom-cart-btn"),
     document.querySelector<HTMLElement>('[data-cart-target="true"]'),
     document.getElementById("header-cart-btn"),
     document.querySelector<HTMLElement>('header button[aria-label*="Cart"]'),
