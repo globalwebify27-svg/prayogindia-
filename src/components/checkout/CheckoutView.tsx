@@ -770,16 +770,17 @@ export const CheckoutView: React.FC = () => {
   // ── Cart Calculations
   const subtotal = activeCheckoutItems.reduce((sum, item) => {
     const rawPrice = item.variant ? item.variant.price : item.product.price;
-    const { unitPrice } = calculateCustomerPrice(
-      rawPrice,
-      activeCustomerType,
-      item.quantity,
-    );
+    const unitPrice =
+      activeCustomerType === "B2B Customer"
+        ? calculateCustomerPrice(rawPrice, activeCustomerType, item.quantity).unitPrice
+        : rawPrice;
     return sum + unitPrice * item.quantity;
   }, 0);
 
   const mrpTotal = activeCheckoutItems.reduce((sum, item) => {
-    const mrp = item.variant ? item.variant.mrp : item.product.mrp;
+    const rawPrice = item.variant ? item.variant.price : item.product.price;
+    const rawMrp = item.variant ? item.variant.mrp : item.product.mrp;
+    const mrp = rawMrp && rawMrp > 0 ? rawMrp : rawPrice;
     return sum + mrp * item.quantity;
   }, 0);
 
@@ -899,8 +900,8 @@ export const CheckoutView: React.FC = () => {
           customerType: activeCustomerType,
           cartItems: activeCheckoutItems.map((item) => ({
             category: item.product.category,
-            sku: item.product.sku,
-            price: item.product.price,
+            sku: item.variant?.sku || item.product.sku,
+            price: item.variant?.price ?? item.product.price,
             quantity: item.quantity,
           })),
         }),
@@ -935,8 +936,8 @@ export const CheckoutView: React.FC = () => {
           false,
           activeCheckoutItems.map((item) => ({
             category: item.product.category,
-            sku: item.product.sku,
-            price: item.product.price,
+            sku: item.variant?.sku || item.product.sku,
+            price: item.variant?.price ?? item.product.price,
             quantity: item.quantity,
           })),
         );
@@ -2674,12 +2675,16 @@ export const CheckoutView: React.FC = () => {
                 )}
                 {activeCheckoutItems.map((item) => {
                   const rawPrice = item.variant ? item.variant.price : item.product.price;
-                  const { unitPrice } = calculateCustomerPrice(
-                    rawPrice,
-                    activeCustomerType,
-                    item.quantity,
-                  );
-                  const mrp = item.variant ? item.variant.mrp : item.product.mrp;
+                  const unitPrice =
+                    activeCustomerType === "B2B Customer"
+                      ? calculateCustomerPrice(
+                          rawPrice,
+                          activeCustomerType,
+                          item.quantity,
+                        ).unitPrice
+                      : rawPrice;
+                  const rawMrp = item.variant ? item.variant.mrp : item.product.mrp;
+                  const mrp = rawMrp && rawMrp > 0 ? rawMrp : rawPrice;
                   const discountPercent = mrp > unitPrice ? Math.round(((mrp - unitPrice) / mrp) * 100) : 0;
                   const itemTotal = unitPrice * item.quantity;
                   const itemMrpTotal = mrp * item.quantity;

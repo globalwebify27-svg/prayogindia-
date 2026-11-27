@@ -59,15 +59,15 @@ export const CheckoutOrderSummary: React.FC<CheckoutSummaryProps> = ({
       {/* Calculations Breakdown */}
       <div className="space-y-3 text-xs text-slate-600 font-medium">
         <div className="flex justify-between items-center">
-          <span>Selling Price ({totalItems} {totalItems === 1 ? "item" : "items"})</span>
+          <span>{catalogueSavings > 0 ? "Total MRP" : "Price"} ({totalItems} {totalItems === 1 ? "item" : "items"})</span>
           <span className="text-slate-900 font-semibold">
-            ₹{mrpTotal.toLocaleString("en-IN")}
+            ₹{(catalogueSavings > 0 ? mrpTotal : subtotal).toLocaleString("en-IN")}
           </span>
         </div>
 
         {catalogueSavings > 0 && (
           <div className="flex justify-between items-center text-emerald-600 font-bold">
-            <span>Catalogue Discount</span>
+            <span>Discount on MRP</span>
             <span>-₹{catalogueSavings.toLocaleString("en-IN")}</span>
           </div>
         )}
