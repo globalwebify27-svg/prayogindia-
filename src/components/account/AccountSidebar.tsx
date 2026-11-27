@@ -9,6 +9,7 @@ import {
   LayoutGrid,
   User,
   ShoppingBag,
+  ShoppingCart,
   Heart,
   MapPin,
   FileText,
@@ -19,13 +20,26 @@ import {
 export const AccountSidebar: React.FC = () => {
   const pathname = usePathname();
   const router = useRouter();
-  const { user, logoutUser } = useStore();
+  const { user, logoutUser, cart, wishlist } = useStore();
+
+  const cartCount = cart?.reduce((sum, item) => sum + item.quantity, 0) || 0;
 
   const navItems = [
     { label: "Dashboard", href: "/account", icon: LayoutGrid },
     { label: "My Profile", href: "/account/profile", icon: User },
     { label: "My Orders", href: "/account/orders", icon: ShoppingBag },
-    { label: "Saved Wishlist", href: "/account/wishlist", icon: Heart },
+    {
+      label: "View Cart",
+      href: "/cart",
+      icon: ShoppingCart,
+      badge: cartCount > 0 ? cartCount : undefined,
+    },
+    {
+      label: "Saved Wishlist",
+      href: "/account/wishlist",
+      icon: Heart,
+      badge: wishlist?.length ? wishlist.length : undefined,
+    },
     { label: "Saved Addresses", href: "/account/addresses", icon: MapPin },
     {
       label: "My Quotations (B2B)",
@@ -87,6 +101,17 @@ export const AccountSidebar: React.FC = () => {
                   />
                   <span className="truncate">{item.label}</span>
                 </div>
+                {typeof item.badge === "number" && item.badge > 0 && (
+                  <span
+                    className={`px-2 py-0.5 text-[10px] font-bold rounded-full leading-none shrink-0 ${
+                      item.href === "/cart"
+                        ? "bg-blue-50 text-[#2563EB] border border-blue-200/60"
+                        : "bg-rose-50 text-rose-600 border border-rose-200/60"
+                    }`}
+                  >
+                    {item.badge}
+                  </span>
+                )}
               </Link>
             );
           })}

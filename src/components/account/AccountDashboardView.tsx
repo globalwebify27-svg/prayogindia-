@@ -86,7 +86,7 @@ function getProductThumbnail(item?: { id?: string; name?: string; image?: string
 }
 
 export const AccountDashboardView: React.FC = () => {
-  const { user, isLoggedIn, wishlist, logoutUser } = useStore();
+  const { user, isLoggedIn, cart, wishlist, logoutUser } = useStore();
   const router = useRouter();
   const [orders, setOrders] = useState<CustomerOrder[]>([]);
   const [totalOrders, setTotalOrders] = useState<number>(0);
@@ -309,6 +309,13 @@ export const AccountDashboardView: React.FC = () => {
           href: "/account/orders",
           icon: Truck,
           badge: totalOrders > 0 ? `${totalOrders} Orders` : undefined,
+          badgeColor: "bg-blue-50 text-[#2563EB] border-blue-200/60 font-medium",
+        },
+        {
+          label: "View Cart",
+          href: "/cart",
+          icon: ShoppingCart,
+          badge: cart?.length ? `${cart.reduce((sum, i) => sum + i.quantity, 0)} Items` : undefined,
           badgeColor: "bg-blue-50 text-[#2563EB] border-blue-200/60 font-medium",
         },
         {
