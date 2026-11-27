@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { getOptimizedImageUrl } from "@/lib/cloudinaryUrl";
 import {
   Star,
@@ -10,10 +11,12 @@ import {
   Zap,
   Flame,
   Check,
+  Plus,
+  Minus,
 } from "lucide-react";
 import { AddToCartIcon } from "@/components/icons/AddToCartIcon";
-import { Product } from "@/data/mockData";
-import { useCartStore, useWishlistStore } from "@/store";
+import { Product, getProductStock } from "@/data/mockData";
+import { useCartStore, useWishlistStore, useUIStore } from "@/store";
 import { haptic } from "@/utils/haptics";
 import { triggerFlyToCart } from "@/utils/flyToCart";
 
@@ -43,7 +46,15 @@ export const TopDealsProductCard: React.FC<TopDealsProductCardProps> = ({
   claimedPercentage,
   featured = false,
 }) => {
+  const router = useRouter();
+  const showToast = useUIStore((s) => s.showToast);
   const addToCart = useCartStore((s) => s.addToCart);
+  const updateQuantity = useCartStore((s) => s.updateQuantity);
+  const cartItem = useCartStore((s) =>
+    s.cart.find((item) => item.product.id === product.id)
+  );
+  const cartQuantity = cartItem ? cartItem.quantity : 0;
+
   const toggleWishlist = useWishlistStore((s) => s.toggleWishlist);
   const isWishlisted = useWishlistStore((s) =>
     s.wishlist.some((p) => p.id === product.id)
@@ -75,6 +86,39 @@ export const TopDealsProductCard: React.FC<TopDealsProductCardProps> = ({
     setTimeout(() => {
       setIsAdded(false);
     }, 2000);
+  };
+
+  const handleDecrement = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    haptic?.selection?.();
+    updateQuantity(product.id, -1);
+  };
+
+  const handleIncrement = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    haptic?.selection?.();
+    const maxStock = getProductStock(product);
+    if (cartQuantity >= maxStock) {
+      showToast({
+        title: `Only ${maxStock} units available in stock`,
+        type: "info",
+        iconType: "stock-limit",
+      });
+      return;
+    }
+    updateQuantity(product.id, 1);
+  };
+
+  const handleBuyNow = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    haptic?.medium?.();
+    if (cartQuantity === 0) {
+      addToCart(product);
+    }
+    router.push("/checkout");
   };
 
   const handleToggleWishlist = (e: React.MouseEvent) => {
@@ -239,30 +283,66 @@ export const TopDealsProductCard: React.FC<TopDealsProductCardProps> = ({
             </div>
           </div>
 
-          {/* ── Action: Add to Cart Button ── */}
+          {/* ── Action: Add to Cart or Stepper + Buy Now ── */}
           {product.inStock ? (
-            <button
-              id={`add-deal-${product.id}`}
-              type="button"
-              onClick={handleAddToCart}
-              className={`w-full py-2 sm:py-2.5 px-2 sm:px-3 rounded-xl border text-[11px] sm:text-xs font-bold uppercase tracking-normal sm:tracking-wider flex items-center justify-center gap-1.5 sm:gap-2 transition-all duration-150 active:scale-95 cursor-pointer shadow-2xs whitespace-nowrap overflow-hidden ${
-                isAdded
-                  ? "bg-emerald-600 border-emerald-600 text-white"
-                  : "border-[#2563EB] text-[#2563EB] bg-white hover:bg-[#2563EB] hover:text-white active:bg-blue-50"
-              }`}
-            >
-              {isAdded ? (
-                <>
-                  <Check className="w-3.5 h-3.5 shrink-0" />
-                  <span className="whitespace-nowrap font-bold">ADDED!</span>
-                </>
-              ) : (
-                <>
-                  <AddToCartIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
-                  <span className="whitespace-nowrap font-bold">ADD TO CART</span>
-                </>
-              )}
-            </button>
+            cartQuantity > 0 ? (
+              <div className="flex items-center gap-1.5 w-full">
+                {/* Stepper: - [qty] + (dark navy pill) */}
+                <div className="flex-1 min-w-0 h-8 sm:h-9 bg-[#0A233F] text-white rounded-lg sm:rounded-xl px-1.5 sm:px-2 flex items-center justify-between shadow-xs select-none">
+                  <button
+                    type="button"
+                    onClick={handleDecrement}
+                    aria-label="Decrease quantity"
+                    className="w-6 h-full flex items-center justify-center text-white/90 hover:text-white active:scale-90 transition-transform cursor-pointer"
+                  >
+                    <Minus className="w-3 h-3 sm:w-3.5 sm:h-3.5 stroke-[2.8]" />
+                  </button>
+                  <span className="font-black text-xs sm:text-sm text-white px-1">
+                    {cartQuantity}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={handleIncrement}
+                    aria-label="Increase quantity"
+                    className="w-6 h-full flex items-center justify-center text-white/90 hover:text-white active:scale-90 transition-transform cursor-pointer"
+                  >
+                    <Plus className="w-3 h-3 sm:w-3.5 sm:h-3.5 stroke-[2.8]" />
+                  </button>
+                </div>
+
+                {/* Buy Now Button (bright blue pill) */}
+                <button
+                  type="button"
+                  onClick={handleBuyNow}
+                  className="flex-1 min-w-0 h-8 sm:h-9 bg-[#2563EB] hover:bg-[#1D4ED8] active:bg-[#1E40AF] text-white font-bold text-[11px] sm:text-xs rounded-lg sm:rounded-xl flex items-center justify-center transition-all active:scale-95 shadow-sm shadow-blue-500/20 cursor-pointer select-none"
+                >
+                  <span>Buy Now</span>
+                </button>
+              </div>
+            ) : (
+              <button
+                id={`add-deal-${product.id}`}
+                type="button"
+                onClick={handleAddToCart}
+                className={`w-full py-2 sm:py-2.5 px-2 sm:px-3 rounded-xl border text-[11px] sm:text-xs font-bold uppercase tracking-normal sm:tracking-wider flex items-center justify-center gap-1.5 sm:gap-2 transition-all duration-150 active:scale-95 cursor-pointer shadow-2xs whitespace-nowrap overflow-hidden ${
+                  isAdded
+                    ? "bg-emerald-600 border-emerald-600 text-white"
+                    : "border-[#2563EB] text-[#2563EB] bg-white hover:bg-[#2563EB] hover:text-white active:bg-blue-50"
+                }`}
+              >
+                {isAdded ? (
+                  <>
+                    <Check className="w-3.5 h-3.5 shrink-0" />
+                    <span className="whitespace-nowrap font-bold">ADDED!</span>
+                  </>
+                ) : (
+                  <>
+                    <AddToCartIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
+                    <span className="whitespace-nowrap font-bold">ADD TO CART</span>
+                  </>
+                )}
+              </button>
+            )
           ) : (
             <a
               href={`https://wa.me/918709789641?text=${encodeURIComponent(
