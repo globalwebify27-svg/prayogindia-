@@ -366,4 +366,31 @@ export const UserDB = {
   revokeAllSessions: (userId: string): void => {
     GLOBAL_SESSIONS.set(userId, []);
   },
+
+  createOrUpdate: (data: Partial<UserRecord> & { id: string }): UserRecord => {
+    let existing = GLOBAL_USERS.get(data.id);
+    if (existing) {
+      Object.assign(existing, data);
+      indexUser(existing);
+      return existing;
+    }
+    const now = new Date().toISOString();
+    const newRecord: UserRecord = {
+      id: data.id,
+      name: data.name || "",
+      email: data.email || "",
+      phone: data.phone || "",
+      passwordHash: data.passwordHash || "OTP_AUTH_VERIFIED",
+      customerType: data.customerType || "Registered Customer",
+      companyName: data.companyName,
+      gstin: data.gstin,
+      rewardPoints: data.rewardPoints ?? 100,
+      mobileVerified: data.mobileVerified ?? true,
+      emailVerified: data.emailVerified ?? false,
+      status: "ACTIVE",
+      createdAt: now,
+    };
+    indexUser(newRecord);
+    return newRecord;
+  },
 };

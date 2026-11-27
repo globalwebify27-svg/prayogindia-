@@ -148,7 +148,7 @@ export const UnifiedAuthService = {
     // Check if customer already exists
     let isExistingCustomer = false;
     const userInMem = UserDB.findByEmailOrPhone(clean10) || UserDB.findUserByIdentity("mobile", clean10);
-    if (userInMem && userInMem.passwordHash !== "GUEST_ACCOUNT_NO_PASSWORD") {
+    if (userInMem) {
       isExistingCustomer = true;
     } else if (isDatabaseAvailable()) {
       try {
@@ -160,10 +160,30 @@ export const UnifiedAuthService = {
             ],
           },
         });
-        if (dbUser && dbUser.passwordHash !== "GUEST_ACCOUNT_NO_PASSWORD") {
+        if (dbUser) {
           isExistingCustomer = true;
         }
       } catch (_) {}
+
+      if (!isExistingCustomer) {
+        try {
+          const raw = await db.$queryRawUnsafe(
+            `SELECT "id" FROM "User" WHERE "phone" LIKE $1 LIMIT 1`,
+            `%${clean10}%`
+          ) as any[];
+          if (raw && raw.length > 0) isExistingCustomer = true;
+        } catch (_) {}
+      }
+
+      if (!isExistingCustomer) {
+        try {
+          const rawOrder = await db.$queryRawUnsafe(
+            `SELECT "id" FROM "Order" WHERE "shippingAddress" LIKE $1 LIMIT 1`,
+            `%${clean10}%`
+          ) as any[];
+          if (rawOrder && rawOrder.length > 0) isExistingCustomer = true;
+        } catch (_) {}
+      }
     }
 
     return {
@@ -252,79 +272,194 @@ export const UnifiedAuthService = {
           },
           include: { authIdentities: true, addresses: true },
         });
+      } catch (findErr: any) {
+        console.warn("[UnifiedAuth] Stale prisma findFirst in verifyMobileOtp:", findErr?.message);
+      }
 
-        if (customer && customer.passwordHash !== "GUEST_ACCOUNT_NO_PASSWORD") {
-          // Ensure mobileVerified is true
-          if (!customer.mobileVerified) {
-            await db.user.update({
-              where: { id: customer.id },
-              data: { mobileVerified: true },
-            });
-            customer.mobileVerified = true;
+      // 1b. Raw SQL fallback if Prisma returned nothing or threw schema error
+      if (!customer) {
+        try {
+          const rawRows = await db.$queryRawUnsafe(
+            `SELECT "id", "name", "email", "phone", "role", "customerType", "companyName", "gstin", "rewardPoints", "passwordHash", "mobileVerified"
+             FROM "User"
+             WHERE "phone" LIKE $1
+             ORDER BY "createdAt" DESC
+             LIMIT 1`,
+            `%${clean10}%`
+          ) as any[];
+          if (rawRows && rawRows.length > 0) {
+            customer = rawRows[0];
           }
+        } catch (_) {}
+      }
 
-          // Ensure identity is linked
-          const hasIdentity = customer.authIdentities?.some(
-            (i: any) => i.provider === "mobile" && i.providerUserId === clean10,
-          );
-          if (!hasIdentity) {
-            try {
-              await db.customerAuthIdentity.create({
-                data: {
-                  userId: customer.id,
-                  provider: "mobile",
-                  providerUserId: clean10,
-                  verified: true,
-                },
-              });
-            } catch (_) {}
+      // 1c. If still not found by direct phone on User, check past orders or addresses with this phone
+      if (!customer) {
+        try {
+          const orderRows = await db.$queryRawUnsafe(
+            `SELECT "userId", "shippingAddress" FROM "Order" WHERE "shippingAddress" LIKE $1 ORDER BY "createdAt" DESC LIMIT 1`,
+            `%${clean10}%`
+          ) as any[];
+          if (orderRows && orderRows[0]?.userId) {
+            const userRows = await db.$queryRawUnsafe(
+              `SELECT "id", "name", "email", "phone", "role", "customerType", "companyName", "gstin", "rewardPoints", "passwordHash", "mobileVerified"
+               FROM "User" WHERE "id" = $1 LIMIT 1`,
+              orderRows[0].userId
+            ) as any[];
+            if (userRows && userRows.length > 0) {
+              customer = userRows[0];
+            }
           }
-        } else {
-          customer = null;
-        }
-      } catch (dbErr) {
-        console.warn("DB lookup during mobile OTP verification:", dbErr);
+        } catch (_) {}
+      }
+
+      if (!customer) {
+        try {
+          const addrRows = await db.$queryRawUnsafe(
+            `SELECT "userId", "name" FROM "Address" WHERE "phone" LIKE $1 ORDER BY "createdAt" DESC LIMIT 1`,
+            `%${clean10}%`
+          ) as any[];
+          if (addrRows && addrRows[0]?.userId) {
+            const userRows = await db.$queryRawUnsafe(
+              `SELECT "id", "name", "email", "phone", "role", "customerType", "companyName", "gstin", "rewardPoints", "passwordHash", "mobileVerified"
+               FROM "User" WHERE "id" = $1 LIMIT 1`,
+              addrRows[0].userId
+            ) as any[];
+            if (userRows && userRows.length > 0) {
+              customer = userRows[0];
+            }
+          }
+        } catch (_) {}
       }
     }
 
     // 2. Fallback to in-memory UserDB
     if (!customer) {
       const memUser = UserDB.findByEmailOrPhone(clean10) || UserDB.findUserByIdentity("mobile", clean10);
-      if (memUser && memUser.passwordHash !== "GUEST_ACCOUNT_NO_PASSWORD") {
-        memUser.mobileVerified = true;
-        UserDB.linkIdentity(memUser.id, "mobile", clean10, true);
+      if (memUser) {
         customer = memUser;
       }
     }
 
-    // Case A: Existing Registered Customer -> Authenticate directly
+    // Case A: Existing Customer Found! Authenticate directly without asking for profile completion
     if (customer) {
+      // 1. Upgrade mobileVerified and ensure valid auth status
+      if (isDatabaseAvailable()) {
+        try {
+          await db.$executeRawUnsafe(
+            `UPDATE "User" SET "mobileVerified" = true, "updatedAt" = NOW() WHERE "id" = $1`,
+            customer.id
+          );
+        } catch (_) {}
+
+        // Ensure identity is linked
+        try {
+          await db.$executeRawUnsafe(
+            `INSERT INTO "CustomerAuthIdentity" ("id", "userId", "provider", "providerUserId", "verified", "createdAt", "updatedAt")
+             VALUES ($1, $2, 'mobile', $3, true, NOW(), NOW())
+             ON CONFLICT DO NOTHING`,
+            `id-mob-${customer.id}-${clean10}`,
+            customer.id,
+            clean10
+          );
+        } catch (_) {}
+      }
+
+      if (customer.mobileVerified !== undefined) {
+        customer.mobileVerified = true;
+      }
+
+      // 2. Resolve real name from past Orders/Addresses if name is missing or "Customer XXXX"
+      let resolvedName = customer.name && !customer.name.startsWith("Customer ") ? customer.name : "";
+      if (!resolvedName && isDatabaseAvailable()) {
+        try {
+          const pastOrders = await db.$queryRawUnsafe(
+            `SELECT "shippingAddress" FROM "Order" WHERE "userId" = $1 OR "shippingAddress" LIKE $2 ORDER BY "createdAt" DESC LIMIT 1`,
+            customer.id,
+            `%${clean10}%`
+          ) as any[];
+          if (pastOrders && pastOrders[0]?.shippingAddress) {
+            const parts = pastOrders[0].shippingAddress.split(",");
+            if (parts[0] && parts[0].trim().length >= 2 && !parts[0].trim().startsWith("Customer ")) {
+              resolvedName = parts[0].trim();
+            }
+          }
+
+          if (!resolvedName) {
+            const pastAddrs = await db.$queryRawUnsafe(
+              `SELECT "name" FROM "Address" WHERE "userId" = $1 OR "phone" LIKE $2 ORDER BY "createdAt" DESC LIMIT 1`,
+              customer.id,
+              `%${clean10}%`
+            ) as any[];
+            if (pastAddrs && pastAddrs[0]?.name && !pastAddrs[0].name.startsWith("Customer ")) {
+              resolvedName = pastAddrs[0].name.trim();
+            }
+          }
+
+          if (resolvedName) {
+            await db.$executeRawUnsafe(
+              `UPDATE "User" SET "name" = $1, "updatedAt" = NOW() WHERE "id" = $2`,
+              resolvedName,
+              customer.id
+            );
+            customer.name = resolvedName;
+          }
+        } catch (_) {}
+      }
+
+      // 3. Clean email: do not expose dummy placeholder emails
+      const rawEmail = customer.email || "";
+      const isPlaceholderEmail =
+        !rawEmail ||
+        rawEmail.includes("@otp.") ||
+        rawEmail.includes("@prayogindia.local") ||
+        rawEmail.startsWith("user.");
+      const cleanEmail = isPlaceholderEmail ? "" : rawEmail;
+
       const userPayload: AuthSessionUser = {
         id: customer.id,
-        name: customer.name && !customer.name.startsWith("Customer ") ? customer.name : "",
-        email: customer.email && !customer.email.includes("@otp.") && !customer.email.includes("@prayogindia.local") ? customer.email : "",
+        name: resolvedName || customer.name || "",
+        email: cleanEmail,
         phone: customer.phone || fullFormatted,
         role: customer.role === "ADMIN" ? "ADMIN" : "CUSTOMER",
-        customerType: customer.customerType || "Registered Customer",
+        customerType:
+          customer.customerType === "B2B"
+            ? "B2B Customer"
+            : customer.customerType === "B2C"
+              ? "B2C Customer"
+              : (customer.customerType as any) || "Registered Customer",
         companyName: customer.companyName || null,
         gstin: customer.gstin || null,
-        rewardPoints: customer.rewardPoints ?? 100,
+        rewardPoints: typeof customer.rewardPoints === "number" ? customer.rewardPoints : 100,
       };
 
       const sessionToken = await signSessionToken(userPayload, "7d");
 
-      // Record session
+      // Record session in memory & DB
       UserDB.createSession(customer.id, sessionToken.slice(-16), deviceInfo || "Web Browser");
+      UserDB.createOrUpdate({
+        id: customer.id,
+        name: userPayload.name,
+        email: userPayload.email,
+        phone: userPayload.phone,
+        customerType: (userPayload.customerType || "Registered Customer") as
+          | "Registered Customer"
+          | "B2B Customer"
+          | "B2C Customer",
+        rewardPoints: userPayload.rewardPoints,
+        mobileVerified: true,
+      });
+
       if (isDatabaseAvailable()) {
         try {
-          await db.customerSession.create({
-            data: {
-              userId: customer.id,
-              refreshTokenHash: sessionToken.slice(-16),
-              deviceInfo: deviceInfo || "Web Browser",
-              expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-            },
-          });
+          await db.$executeRawUnsafe(
+            `INSERT INTO "CustomerSession" ("id", "userId", "refreshTokenHash", "deviceInfo", "expiresAt", "createdAt")
+             VALUES ($1, $2, $3, $4, NOW() + INTERVAL '7 days', NOW())`,
+            `sess-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+            customer.id,
+            sessionToken.slice(-16),
+            deviceInfo || "Web Browser"
+          );
         } catch (_) {}
       }
 
@@ -404,84 +539,139 @@ export const UnifiedAuthService = {
     // 2. Create in PostgreSQL if available
     if (isDatabaseAvailable()) {
       try {
-        const existingDb = await db.user.findFirst({
-          where: {
-            OR: [
-              { phone: { contains: clean10 } },
-              ...(cleanEmail ? [{ email: cleanEmail }] : []),
-            ],
-          },
-        });
-
-        if (existingDb && existingDb.passwordHash !== "GUEST_ACCOUNT_NO_PASSWORD") {
-          return {
-            success: false,
-            message: "An account with this mobile number or email already exists. Please Sign In.",
-          };
+        let existingDb: any = null;
+        try {
+          existingDb = await db.user.findFirst({
+            where: {
+              OR: [
+                { phone: { contains: clean10 } },
+                ...(cleanEmail ? [{ email: cleanEmail }] : []),
+              ],
+            },
+          });
+        } catch (_) {
+          try {
+            const raw = await db.$queryRawUnsafe(
+              `SELECT "id", "name", "email", "phone", "role", "customerType" FROM "User" WHERE "phone" LIKE $1 LIMIT 1`,
+              `%${clean10}%`
+            ) as any[];
+            existingDb = raw?.[0] || null;
+          } catch (_) {}
         }
 
-        // Create user and first address in transaction
-        const result = await db.$transaction(async (tx) => {
-          const user = await tx.user.create({
-            data: {
-              name: cleanName,
-              phone: fullFormatted,
-              email: cleanEmail || `${clean10}@prayogindia.local`,
-              passwordHash: "OTP_AUTH_VERIFIED",
-              role: "CUSTOMER",
-              customerType: data.companyName ? "B2B" : "B2C",
-              companyName: data.companyName?.trim() || null,
-              gstin: data.gstin?.trim() || null,
-              mobileVerified: true,
-              emailVerified: Boolean(cleanEmail),
-              rewardPoints: 100,
-            },
-          });
+        if (existingDb) {
+          // If customer already exists, update their name/profile and add the delivery address
+          try {
+            await db.$executeRawUnsafe(
+              `UPDATE "User" SET "name" = $1, "companyName" = $2, "gstin" = $3, "mobileVerified" = true, "updatedAt" = NOW() WHERE "id" = $4`,
+              cleanName,
+              data.companyName?.trim() || null,
+              data.gstin?.trim() || null,
+              existingDb.id,
+            );
+          } catch (_) {}
 
-          // Create first delivery address
-          await tx.address.create({
-            data: {
-              userId: user.id,
-              name: cleanName,
-              phone: fullFormatted,
-              street: fullStreet,
-              addressLine2: data.streetArea.trim(),
-              landmark: data.landmark?.trim() || null,
-              city: data.city.trim(),
-              state: data.state.trim(),
-              pincode: cleanPincode,
-              type: data.addressType || "Home",
-              isDefault: true,
-            },
-          });
+          try {
+            await db.$executeRawUnsafe(
+              `INSERT INTO "Address" ("id", "userId", "name", "phone", "street", "city", "state", "pincode", "type", "isDefault", "createdAt", "updatedAt")
+               VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, true, NOW(), NOW())`,
+              `addr-${Date.now()}`,
+              existingDb.id,
+              cleanName,
+              fullFormatted,
+              fullStreet,
+              data.city.trim(),
+              data.state.trim(),
+              cleanPincode,
+              data.addressType || "Home",
+            );
+          } catch (_) {}
 
-          // Link mobile identity
-          await tx.customerAuthIdentity.create({
-            data: {
-              userId: user.id,
-              provider: "mobile",
-              providerUserId: clean10,
-              verified: true,
-            },
-          });
+          customerId = existingDb.id;
+          createdUser = {
+            ...existingDb,
+            name: cleanName,
+            phone: fullFormatted,
+            companyName: data.companyName?.trim() || null,
+            gstin: data.gstin?.trim() || null,
+          };
+        } else {
+          // Create new user and first address
+          try {
+            const result = await db.$transaction(async (tx) => {
+              const user = await tx.user.create({
+                data: {
+                  name: cleanName,
+                  phone: fullFormatted,
+                  email: cleanEmail || `${clean10}@prayogindia.local`,
+                  passwordHash: "OTP_AUTH_VERIFIED",
+                  role: "CUSTOMER",
+                  customerType: data.companyName ? "B2B" : "B2C",
+                  companyName: data.companyName?.trim() || null,
+                  gstin: data.gstin?.trim() || null,
+                  mobileVerified: true,
+                  emailVerified: Boolean(cleanEmail),
+                  rewardPoints: 100,
+                },
+              });
 
-          // Link email identity if provided
-          if (cleanEmail) {
-            await tx.customerAuthIdentity.create({
-              data: {
-                userId: user.id,
-                provider: "email",
-                providerUserId: cleanEmail,
-                verified: true,
-              },
+              await tx.address.create({
+                data: {
+                  userId: user.id,
+                  name: cleanName,
+                  phone: fullFormatted,
+                  street: fullStreet,
+                  addressLine2: data.streetArea.trim(),
+                  landmark: data.landmark?.trim() || null,
+                  city: data.city.trim(),
+                  state: data.state.trim(),
+                  pincode: cleanPincode,
+                  type: data.addressType || "Home",
+                  isDefault: true,
+                },
+              });
+
+              return user;
             });
+            customerId = result.id;
+            createdUser = result;
+          } catch (txErr: any) {
+            console.warn("[UnifiedAuth] Transaction create fallback:", txErr?.message);
+            const newId = `usr-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
+            await db.$executeRawUnsafe(
+              `INSERT INTO "User" ("id", "name", "phone", "email", "passwordHash", "role", "customerType", "rewardPoints", "mobileVerified", "createdAt", "updatedAt")
+               VALUES ($1, $2, $3, $4, 'OTP_AUTH_VERIFIED', 'CUSTOMER'::"Role", 'B2C'::"CustomerType", 100, true, NOW(), NOW())
+               ON CONFLICT ("email") DO UPDATE SET "name" = EXCLUDED."name", "phone" = EXCLUDED."phone"`,
+              newId,
+              cleanName,
+              fullFormatted,
+              cleanEmail || `${clean10}@prayogindia.local`,
+            );
+            await db.$executeRawUnsafe(
+              `INSERT INTO "Address" ("id", "userId", "name", "phone", "street", "city", "state", "pincode", "type", "isDefault", "createdAt", "updatedAt")
+               VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, true, NOW(), NOW())`,
+              `addr-${Date.now()}`,
+              newId,
+              cleanName,
+              fullFormatted,
+              fullStreet,
+              data.city.trim(),
+              data.state.trim(),
+              cleanPincode,
+              data.addressType || "Home",
+            );
+            customerId = newId;
+            createdUser = {
+              id: newId,
+              name: cleanName,
+              phone: fullFormatted,
+              email: cleanEmail,
+              role: "CUSTOMER",
+              customerType: "B2C",
+              rewardPoints: 100,
+            };
           }
-
-          return user;
-        });
-
-        customerId = result.id;
-        createdUser = result;
+        }
       } catch (dbErr) {
         console.warn("DB Customer registration fallback to UserDB:", dbErr);
       }

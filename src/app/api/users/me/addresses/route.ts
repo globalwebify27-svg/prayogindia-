@@ -18,12 +18,29 @@ export async function GET() {
   if (process.env.DATABASE_URL) {
     try {
       const dbAddresses = await db.address.findMany({
-        where: { userId: user.id },
+        where: {
+          OR: [
+            { userId: user.id },
+            ...(user.phone ? [{ phone: { contains: user.phone.replace(/\D/g, "").slice(-10) } }] : []),
+          ],
+        },
         orderBy: { createdAt: "desc" },
       });
       return NextResponse.json({ success: true, data: dbAddresses || [] });
     } catch (err: any) {
       console.warn("[Addresses] Error fetching addresses from DB:", err?.message);
+      try {
+        const cleanDigits = (user.phone || "").replace(/\D/g, "").slice(-10);
+        const rows = await db.$queryRawUnsafe(
+          `SELECT "id", "userId", "name", "phone", "street", "city", "state", "pincode", "type", "isDefault", "createdAt"
+           FROM "Address"
+           WHERE "userId" = $1 OR ("phone" != '' AND "phone" LIKE $2)
+           ORDER BY "createdAt" DESC`,
+          user.id,
+          cleanDigits ? `%${cleanDigits}%` : "---",
+        ) as any[];
+        return NextResponse.json({ success: true, data: rows || [] });
+      } catch (_) {}
     }
   }
 
