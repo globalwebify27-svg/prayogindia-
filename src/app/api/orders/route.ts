@@ -125,11 +125,19 @@ export async function POST(request: Request) {
         ? customerPhone.trim()
         : user.phone;
 
-    let dbUser = await db.user.findFirst({
-      where: {
-        OR: [{ email: effectiveEmail }, { id: user.id }],
-      },
-    });
+    let dbUser: any = null;
+    try {
+      dbUser = await db.user.findFirst({
+        where: {
+          OR: [{ email: effectiveEmail }, { id: user.id }],
+        },
+      });
+    } catch (findErr: any) {
+      console.warn("[Orders] Primary user lookup retry:", findErr?.message);
+      dbUser = await db.user.findUnique({
+        where: { email: effectiveEmail },
+      }).catch(() => null);
+    }
 
     if (!dbUser) {
       dbUser = await db.user.create({

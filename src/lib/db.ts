@@ -2,15 +2,28 @@ import { PrismaClient } from "@prisma/client";
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
+  __schemaVersion?: number;
 };
 
+const CURRENT_SCHEMA_VERSION = 3;
+
 const isStale =
-  globalForPrisma.prisma &&
-  (!("review" in globalForPrisma.prisma) ||
-    !("invoice" in globalForPrisma.prisma) ||
-    !("auditLog" in globalForPrisma.prisma) ||
-    !("loyaltyRule" in globalForPrisma.prisma) ||
-    !("orderCancellation" in globalForPrisma.prisma));
+  !globalForPrisma.prisma ||
+  globalForPrisma.__schemaVersion !== CURRENT_SCHEMA_VERSION ||
+  !("review" in globalForPrisma.prisma) ||
+  !("invoice" in globalForPrisma.prisma) ||
+  !("auditLog" in globalForPrisma.prisma) ||
+  !("loyaltyRule" in globalForPrisma.prisma) ||
+  !("orderCancellation" in globalForPrisma.prisma) ||
+  !("customerAuthIdentity" in globalForPrisma.prisma) ||
+  !("customerSession" in globalForPrisma.prisma) ||
+  !("otpVerification" in globalForPrisma.prisma);
+
+if (isStale && globalForPrisma.prisma) {
+  try {
+    globalForPrisma.prisma.$disconnect();
+  } catch (_) {}
+}
 
 export const prisma =
   !isStale && globalForPrisma.prisma
@@ -22,7 +35,10 @@ export const prisma =
             : ["error"],
       });
 
-if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
+if (process.env.NODE_ENV !== "production") {
+  globalForPrisma.prisma = prisma;
+  globalForPrisma.__schemaVersion = CURRENT_SCHEMA_VERSION;
+}
 
 export const db = prisma;
 
