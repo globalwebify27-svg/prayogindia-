@@ -152,6 +152,36 @@ export async function GET() {
       });
     }
 
+    // Resolve real customer name from past Orders/Addresses if name is a placeholder
+    if (!dbUser.name || dbUser.name === "Customer" || dbUser.name === "Prayog Customer" || dbUser.name.startsWith("Customer ")) {
+      try {
+        const cleanPhone = (user.phone || dbUser.phone || "").replace(/\D/g, "").slice(-10);
+        if (cleanPhone.length >= 10) {
+          const pastOrder = (await db.$queryRawUnsafe(
+            `SELECT "shippingAddress" FROM "Order" WHERE "shippingAddress" LIKE $1 ORDER BY "createdAt" DESC LIMIT 1`,
+            `%${cleanPhone}%`,
+          )) as any[];
+          if (pastOrder && pastOrder[0]?.shippingAddress) {
+            const parts = pastOrder[0].shippingAddress.split(",");
+            if (parts[0] && parts[0].trim().length >= 2 && !parts[0].trim().startsWith("Customer ")) {
+              const realName = parts[0].trim();
+              dbUser.name = realName;
+              await db.$executeRawUnsafe(
+                `UPDATE "User" SET "name" = $1, "updatedAt" = NOW() WHERE "id" = $2`,
+                realName,
+                dbUser.id,
+              );
+            }
+          }
+        }
+      } catch (_) {}
+    }
+
+    // Never leak placeholder dummy emails to frontend
+    if (dbUser.email && (dbUser.email.includes("@otp.") || dbUser.email.includes("@prayogindia.local") || dbUser.email.startsWith("user."))) {
+      dbUser.email = "";
+    }
+
     return NextResponse.json({ success: true, data: dbUser });
   } catch (error: any) {
     return NextResponse.json(

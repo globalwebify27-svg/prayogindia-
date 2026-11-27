@@ -286,22 +286,17 @@ export const OrdersList: React.FC = () => {
                 .replace(/\D/g, "")
                 .slice(-10);
 
-              // Match by user ID
-              if (currentUserId && orderUserId && String(orderUserId) === currentUserId) {
-                return true;
+              // If customer is authenticated with a phone number, strictly isolate by phone!
+              if (currentPhone && currentPhone.length >= 10) {
+                return orderPhone.length >= 10 && (orderPhone === currentPhone || orderPhone.endsWith(currentPhone));
               }
+
               // Match by email
-              if (currentEmail && orderUserEmail && orderUserEmail === currentEmail) {
+              if (currentEmail && !currentEmail.includes("@otp.") && orderUserEmail && orderUserEmail === currentEmail) {
                 return true;
               }
-              // Match by phone number
-              if (
-                currentPhone &&
-                orderPhone &&
-                currentPhone.length >= 10 &&
-                orderPhone.length >= 10 &&
-                currentPhone === orderPhone
-              ) {
+              // Match by user ID only if non-guest
+              if (currentUserId && currentUserId !== "usr-guest-checkout" && orderUserId && String(orderUserId) === currentUserId) {
                 return true;
               }
               return false;

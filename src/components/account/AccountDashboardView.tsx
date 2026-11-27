@@ -145,10 +145,23 @@ export const AccountDashboardView: React.FC = () => {
           if (Array.isArray(parsed) && parsed.length > 0) {
             const currentEmail = (user.email || "").toLowerCase().trim();
             const currentUserId = user.id ? String(user.id) : "";
+            const currentPhone = (user.phone || "").replace(/\D/g, "").slice(-10);
 
             const existingOrderNums = new Set(mapped.map((o) => o.orderNumber));
             const userOnlyParsed = parsed.filter((o: any) => {
               if (existingOrderNums.has(o.orderNumber)) return false;
+              const orderPhone = (
+                o.customerMobile ||
+                o.customerPhone ||
+                o.shippingAddress ||
+                ""
+              ).replace(/\D/g, "");
+
+              // If customer is authenticated with mobile number, strictly isolate by phone!
+              if (currentPhone && currentPhone.length >= 10) {
+                return orderPhone.includes(currentPhone);
+              }
+
               const orderUserId = o.userId || o.user_id || o.user?.id;
               const orderUserEmail = (
                 o.customerEmail ||
@@ -158,12 +171,12 @@ export const AccountDashboardView: React.FC = () => {
                 .toLowerCase()
                 .trim();
 
-              // Match by user ID
-              if (currentUserId && orderUserId && String(orderUserId) === currentUserId) {
+              // Match by user email
+              if (currentEmail && !currentEmail.includes("@otp.") && orderUserEmail && orderUserEmail === currentEmail) {
                 return true;
               }
-              // Match by user email
-              if (currentEmail && orderUserEmail && orderUserEmail === currentEmail) {
+              // Match by user ID only if no phone number was specified
+              if (currentUserId && currentUserId !== "usr-guest-checkout" && orderUserId && String(orderUserId) === currentUserId) {
                 return true;
               }
               return false;

@@ -129,23 +129,52 @@ export async function POST(request: Request) {
         ? customerPhone.trim()
         : user.phone;
 
+    const phone10 = (effectivePhone || "").replace(/\D/g, "").slice(-10);
     let dbUser: any = null;
-    try {
-      dbUser = await db.user.findFirst({
-        where: {
-          OR: [{ email: effectiveEmail }, { id: user.id }],
-        },
-      });
-    } catch (findErr: any) {
-      console.warn("[Orders] Primary user lookup failed, trying raw query:", findErr?.message);
+
+    if (phone10.length === 10) {
       try {
-        const rows = (await db.$queryRawUnsafe(
-          `SELECT "id", "name", "email", "phone", "customerType" FROM "User" WHERE "email" = $1 OR "id" = $2 LIMIT 1`,
-          effectiveEmail,
-          user.id,
-        )) as any[];
-        dbUser = rows?.[0] || null;
-      } catch (_) {}
+        dbUser = await db.user.findFirst({
+          where: {
+            OR: [
+              { phone: { contains: phone10 } },
+              ...(effectiveEmail ? [{ email: effectiveEmail }] : []),
+            ],
+          },
+        });
+      } catch (_) {
+        try {
+          const rows = (await db.$queryRawUnsafe(
+            `SELECT "id", "name", "email", "phone", "customerType" FROM "User" WHERE "phone" LIKE $1 OR ("email" != '' AND "email" = $2) LIMIT 1`,
+            `%${phone10}%`,
+            effectiveEmail || "---",
+          )) as any[];
+          dbUser = rows?.[0] || null;
+        } catch (_) {}
+      }
+    }
+
+    if (!dbUser) {
+      try {
+        dbUser = await db.user.findFirst({
+          where: {
+            OR: [
+              ...(effectiveEmail ? [{ email: effectiveEmail }] : []),
+              ...(user.id && user.id !== "usr-guest-checkout" ? [{ id: user.id }] : []),
+            ],
+          },
+        });
+      } catch (findErr: any) {
+        console.warn("[Orders] Primary user lookup failed, trying raw query:", findErr?.message);
+        try {
+          const rows = (await db.$queryRawUnsafe(
+            `SELECT "id", "name", "email", "phone", "customerType" FROM "User" WHERE "email" = $1 OR "id" = $2 LIMIT 1`,
+            effectiveEmail,
+            user.id || "",
+          )) as any[];
+          dbUser = rows?.[0] || null;
+        } catch (_) {}
+      }
     }
 
     if (!dbUser) {
@@ -845,27 +874,30 @@ export async function GET(request: Request) {
 
   try {
     // 1. STRICT USER-SPECIFIC ISOLATION:
-    // Query orders that belong directly to the authenticated user's ID, email, or verified mobile number
-    const userOrConditions: any[] = [{ userId: user.id }];
-    if (user.email) {
-      userOrConditions.push({
-        user: { email: { equals: user.email.trim(), mode: "insensitive" } },
-      });
-    }
-    if (user.phone) {
-      const cleanDigits = user.phone.replace(/\D/g, "").slice(-10);
-      if (cleanDigits.length >= 10) {
+    // When a customer is authenticated via their verified mobile number, strictly isolate orders by their phone number!
+    const cleanDigits = user.phone ? user.phone.replace(/\D/g, "").slice(-10) : "";
+
+    let baseUserWhere: any;
+
+    if (cleanDigits.length >= 10) {
+      baseUserWhere = {
+        OR: [
+          { shippingAddress: { contains: cleanDigits } },
+          { user: { phone: { contains: cleanDigits } } },
+          { invoice: { customerPhone: { contains: cleanDigits } } },
+        ],
+      };
+    } else {
+      const userOrConditions: any[] = [{ userId: user.id }];
+      if (user.email && !user.email.includes("@otp.") && !user.email.includes("@prayogindia.local")) {
         userOrConditions.push({
-          user: { phone: { contains: cleanDigits } },
-        });
-        userOrConditions.push({
-          shippingAddress: { contains: cleanDigits },
+          user: { email: { equals: user.email.trim(), mode: "insensitive" } },
         });
       }
+      baseUserWhere = {
+        OR: userOrConditions,
+      };
     }
-    const baseUserWhere: any = {
-      OR: userOrConditions,
-    };
 
     const andConditions: any[] = [baseUserWhere];
 
