@@ -64,7 +64,7 @@ export const CategoriesHeader: React.FC<CategoriesHeaderProps> = ({
           </button>
 
           <Link
-            href="/offers"
+            href="/#top-deals"
             className="inline-flex items-center gap-1 text-[11px] sm:text-xs font-bold text-[#2563EB] hover:text-[#1D4ED8] hover:underline transition-colors px-1 py-1"
           >
             <span>Best Sellers</span>

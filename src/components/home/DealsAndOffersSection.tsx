@@ -88,7 +88,7 @@ export const DealsAndOffersSection: React.FC<Props> = ({ onShopDeals }) => {
   };
 
   return (
-    <section className="py-4 sm:py-10 bg-white">
+    <section id="top-deals" className="py-4 sm:py-10 bg-white scroll-mt-20">
       {/* Full width container matching page grid */}
       <div className="w-full px-3 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 space-y-3 sm:space-y-6">
         {/* Section Header */}

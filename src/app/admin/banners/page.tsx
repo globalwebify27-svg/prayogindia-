@@ -60,7 +60,7 @@ const PRESET_LINKS = [
   { label: "IoT & AI Modules", url: "/categories/iot" },
   { label: "Arduino Boards", url: "/categories/arduino-development-boards" },
   { label: "Lab Services", url: "/services" },
-  { label: "Deals & Offers", url: "/offers" },
+  { label: "Deals & Offers", url: "/#top-deals" },
 ];
 
 export default function AdminHeroBannersPage() {

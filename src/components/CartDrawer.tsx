@@ -188,7 +188,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                       { label: "Arduino", href: "/products" },
                       { label: "Sensors", href: "/categories" },
                       { label: "Drones & RC", href: "/products" },
-                      { label: "Top Deals", href: "/offers" },
+                      { label: "Top Deals", href: "/#top-deals" },
                     ].map((cat) => (
                       <Link
                         key={cat.label}

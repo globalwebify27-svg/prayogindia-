@@ -568,7 +568,7 @@ export const WishlistView: React.FC<WishlistViewProps> = ({
                 { label: "Arduino", href: "/categories/development-boards" },
                 { label: "Sensors", href: "/categories/sensors-iot" },
                 { label: "Drones & RC", href: "/categories/drone-technology" },
-                { label: "Top Deals", href: "/offers" },
+                { label: "Top Deals", href: "/#top-deals" },
               ].map((cat) => (
                 <Link
                   key={cat.label}

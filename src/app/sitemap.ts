@@ -1,7 +1,6 @@
 import { MetadataRoute } from "next";
 import { PRODUCTS } from "@/data/mockData";
 import { SERVICES_DATA } from "@/data/servicesData";
-import { OFFERS_DATA } from "@/data/offersData";
 import { JOB_OPENINGS } from "@/data/companyData";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -12,7 +11,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/categories",
     "/products",
     "/services",
-    "/offers",
     "/about",
     "/contact",
     "/careers",
@@ -57,13 +55,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
   }));
 
-  const offerRoutes = OFFERS_DATA.map((o) => ({
-    url: `${baseUrl}/offers/${o.slug}`,
-    lastModified: new Date(),
-    changeFrequency: "weekly" as const,
-    priority: 0.6,
-  }));
-
   const careerRoutes = JOB_OPENINGS.map((j) => ({
     url: `${baseUrl}/careers/${j.slug}`,
     lastModified: new Date(),
@@ -75,7 +66,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...staticRoutes,
     ...productRoutes,
     ...serviceRoutes,
-    ...offerRoutes,
     ...careerRoutes,
   ];
 }

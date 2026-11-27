@@ -32,7 +32,7 @@ import {
 } from "@/data/notificationSlider";
 
 const QUICK_LINKS = [
-  { label: "Deals & Offers Page", value: "/offers" },
+  { label: "Top Deals (Home Section)", value: "/#top-deals" },
   { label: "All Products Catalogue", value: "/products" },
   { label: "Product Categories", value: "/categories" },
   { label: "Store / Walk-in Shopping", value: "/store-pos" },

@@ -319,7 +319,7 @@ export const MobileMenuDrawer: React.FC<MobileMenuDrawerProps> = ({
                           className="divide-y divide-slate-100 bg-red-50/40 pl-11 pr-4 py-1 border-t border-red-100/60 overflow-hidden"
                         >
                           <Link
-                            href="/offers"
+                            href="/#top-deals"
                             onClick={onClose}
                             className="flex items-center justify-between py-2.5 text-xs text-slate-600 font-medium hover:text-red-600 transition-colors"
                           >
@@ -327,7 +327,7 @@ export const MobileMenuDrawer: React.FC<MobileMenuDrawerProps> = ({
                             <ChevronRight className="w-3 h-3 text-slate-300" />
                           </Link>
                           <Link
-                            href="/offers"
+                            href="/#top-deals"
                             onClick={onClose}
                             className="flex items-center justify-between py-2.5 text-xs text-slate-600 font-medium hover:text-red-600 transition-colors"
                           >
@@ -335,7 +335,7 @@ export const MobileMenuDrawer: React.FC<MobileMenuDrawerProps> = ({
                             <ChevronRight className="w-3 h-3 text-slate-300" />
                           </Link>
                           <Link
-                            href="/offers"
+                            href="/#top-deals"
                             onClick={onClose}
                             className="flex items-center justify-between py-2.5 text-xs text-slate-600 font-medium hover:text-red-600 transition-colors"
                           >
@@ -343,7 +343,7 @@ export const MobileMenuDrawer: React.FC<MobileMenuDrawerProps> = ({
                             <ChevronRight className="w-3 h-3 text-slate-300" />
                           </Link>
                           <Link
-                            href="/offers"
+                            href="/#top-deals"
                             onClick={onClose}
                             className="flex items-center justify-between py-2.5 text-xs text-slate-600 font-medium hover:text-red-600 transition-colors"
                           >
@@ -351,7 +351,7 @@ export const MobileMenuDrawer: React.FC<MobileMenuDrawerProps> = ({
                             <ChevronRight className="w-3 h-3 text-slate-300" />
                           </Link>
                           <Link
-                            href="/offers"
+                            href="/#top-deals"
                             onClick={onClose}
                             className="flex items-center justify-between py-2.5 text-xs text-red-600 font-bold hover:underline transition-colors"
                           >

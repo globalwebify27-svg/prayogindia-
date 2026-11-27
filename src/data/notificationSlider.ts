@@ -20,7 +20,7 @@ export const DEFAULT_NOTIFICATIONS: WebsiteNotification[] = [
     id: "notif-1",
     badgeTag: "FESTIVAL SALE",
     text: "Festival Sale Live Now — Use coupon code PRAYOG10 for 10% instant off on all robotics kits!",
-    link: "/offers",
+    link: "/#top-deals",
     linkText: "Shop Deals",
     priority: "HIGH",
     displayOrder: 1,

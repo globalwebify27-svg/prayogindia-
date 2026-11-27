@@ -167,9 +167,15 @@ export default function Home() {
       case "learning-hub":
         router.push("/learning");
         break;
-      case "offers":
-        router.push("/offers");
+      case "offers": {
+        const el = document.getElementById("top-deals");
+        if (el) {
+          el.scrollIntoView({ behavior: "smooth" });
+        } else {
+          router.push("/#top-deals");
+        }
         break;
+      }
       case "about":
         router.push("/about");
         break;
@@ -235,7 +241,7 @@ export default function Home() {
 
             {/* 6. Deals & Offers */}
             <DealsAndOffersSection
-              onShopDeals={() => handleTabChange("offers")}
+              onShopDeals={() => handleTabChange("products")}
             />
 
             {/* 6.5 Recent View Carousel */}

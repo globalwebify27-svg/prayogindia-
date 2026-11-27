@@ -496,7 +496,7 @@ export const Header: React.FC<HeaderProps> = ({
 
                     <div className="relative h-4 flex-1 min-w-0 max-w-3xl lg:max-w-4xl overflow-hidden flex items-center">
                       <Link
-                        href={activeItem.link || "/offers"}
+                        href={activeItem.link || "/#top-deals"}
                         className="hover:text-[#FFC20E] transition-colors truncate font-semibold text-[11px] flex items-center gap-1.5"
                       >
                         <span className="truncate">{activeItem.text}</span>
@@ -792,7 +792,7 @@ export const Header: React.FC<HeaderProps> = ({
               {/* 3. Top Deals (Highlighted badge) */}
               <div className="relative group py-1.5">
                 <Link
-                  href="/offers"
+                  href="/#top-deals"
                   className="px-3 py-1.5 rounded-full font-black text-xs inline-flex items-center bg-gradient-to-r from-red-600 via-rose-600 to-amber-600 text-white shadow-xs hover:shadow-sm hover:brightness-110 active:scale-95 transition-all"
                 >
                   <span>Top Deals</span>
@@ -802,28 +802,28 @@ export const Header: React.FC<HeaderProps> = ({
                 <div className="absolute top-full left-0 pt-1.5 opacity-0 translate-y-1 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto transition-all duration-150 ease-out z-50">
                   <div className="w-56 bg-white rounded-xl shadow-xl border border-red-100 p-1.5 space-y-0.5 text-xs font-semibold text-slate-700 normal-case">
                     <Link
-                      href="/offers"
+                      href="/#top-deals"
                       className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-red-50 hover:text-[#FF3B30] transition-colors group/sub"
                     >
                       <span>Lightning Deals</span>
                       <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover/sub:text-[#FF3B30] group-hover/sub:translate-x-0.5 transition-all shrink-0" />
                     </Link>
                     <Link
-                      href="/offers"
+                      href="/#top-deals"
                       className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-red-50 hover:text-[#FF3B30] transition-colors group/sub"
                     >
                       <span>Robotics Kit Bundles</span>
                       <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover/sub:text-[#FF3B30] group-hover/sub:translate-x-0.5 transition-all shrink-0" />
                     </Link>
                     <Link
-                      href="/offers"
+                      href="/#top-deals"
                       className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-red-50 hover:text-[#FF3B30] transition-colors group/sub"
                     >
                       <span>Drone Parts Offers</span>
                       <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover/sub:text-[#FF3B30] group-hover/sub:translate-x-0.5 transition-all shrink-0" />
                     </Link>
                     <Link
-                      href="/offers"
+                      href="/#top-deals"
                       className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-red-50 hover:text-[#FF3B30] transition-colors group/sub"
                     >
                       <span>Clearance Sale</span>
@@ -831,7 +831,7 @@ export const Header: React.FC<HeaderProps> = ({
                     </Link>
                     <div className="border-t border-slate-100 my-1 pt-0.5" />
                     <Link
-                      href="/offers"
+                      href="/#top-deals"
                       className="flex items-center justify-between px-3 py-2 rounded-lg text-[#FF3B30] hover:bg-red-50 font-bold transition-colors"
                     >
                       <span>View All Deals →</span>
