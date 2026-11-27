@@ -327,6 +327,10 @@ export const CheckoutView: React.FC = () => {
             setCustomerMobile(defaultAddr.phone.replace(/\D/g, "").slice(-10));
           }
         }
+        setCheckoutStep("summary");
+      } else {
+        setCheckoutStep("address");
+        setIsEditingAddress(true);
       }
     };
 
@@ -462,6 +466,10 @@ export const CheckoutView: React.FC = () => {
       if (addr.name) setCustomerName(addr.name);
       if (addr.phone) setCustomerMobile(addr.phone.replace(/\D/g, "").slice(-10));
     }
+    setCheckoutStep("summary");
+    if (typeof window !== "undefined") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
   };
 
   const handleStartEditAddress = (id: string) => {
@@ -523,6 +531,9 @@ export const CheckoutView: React.FC = () => {
         if (addr.type) setAddrFormType(addr.type as any);
       }
     }
+    if (addresses.length > 0 || addrFormStreet) {
+      setCheckoutStep("summary");
+    }
   };
 
   // ── GST Details & Company Information
@@ -559,8 +570,8 @@ export const CheckoutView: React.FC = () => {
   const [cardName, setCardName] = useState("");
   const [saveCardForFuture, setSaveCardForFuture] = useState(true);
 
-  // ── Flipkart-Style 3-Step Checkout Flow: Step 1: Address, Step 2: Order Summary, Step 3: Payment
-  const [checkoutStep, setCheckoutStep] = useState<"address" | "summary" | "payment">("address");
+  // ── Streamlined Checkout Flow: Defaults directly to Order Summary (Step 2)
+  const [checkoutStep, setCheckoutStep] = useState<"address" | "summary" | "payment">("summary");
   const [showMobileOrderDetails, setShowMobileOrderDetails] = useState(false);
 
   const getFormattedDate = (daysAhead: number) => {
@@ -2152,120 +2163,10 @@ export const CheckoutView: React.FC = () => {
       />
 
       {/* Compact Professional Header */}
-      <div className="pb-1.5 border-b border-slate-100">
+      <div className="pb-1.5 border-b border-slate-100 mb-4">
         <h1 className="text-base sm:text-xl font-extrabold text-slate-900 tracking-tight">
           Checkout
         </h1>
-      </div>
-
-      {/* Sleek, Professional Linear Progress Stepper */}
-      <div className="py-1 mb-3">
-        <div className="grid grid-cols-3 gap-2 sm:gap-4">
-          {/* Step 1: Address */}
-          <button
-            type="button"
-            onClick={() => {
-              setCheckoutStep("address");
-              setIsEditingAddress(true);
-              window.scrollTo({ top: 0, behavior: "smooth" });
-            }}
-            className="group text-left cursor-pointer transition-all"
-          >
-            <div className="flex items-center justify-between mb-1">
-              <span
-                className={`text-[11px] sm:text-xs tracking-tight transition-colors ${
-                  checkoutStep === "address"
-                    ? "font-extrabold text-[#2563EB]"
-                    : "font-semibold text-slate-700 group-hover:text-slate-900"
-                }`}
-              >
-                1. Address
-              </span>
-            </div>
-            <div
-              className={`h-0.5 rounded-full transition-all duration-300 ${
-                checkoutStep === "address"
-                  ? "bg-[#2563EB]"
-                  : "bg-emerald-500"
-              }`}
-            />
-          </button>
-
-          {/* Step 2: Order Summary */}
-          <button
-            type="button"
-            onClick={() => {
-              if (validateAddressData()) {
-                setIsEditingAddress(false);
-                setCheckoutStep("summary");
-                window.scrollTo({ top: 0, behavior: "smooth" });
-              }
-            }}
-            className={`text-left transition-all ${
-              checkoutStep === "address"
-                ? "cursor-not-allowed opacity-40"
-                : "cursor-pointer group"
-            }`}
-          >
-            <div className="flex items-center justify-between mb-1">
-              <span
-                className={`text-[11px] sm:text-xs tracking-tight transition-colors ${
-                  checkoutStep === "summary"
-                    ? "font-extrabold text-[#2563EB]"
-                    : checkoutStep === "payment"
-                    ? "font-semibold text-slate-700 group-hover:text-slate-900"
-                    : "font-medium text-slate-400"
-                }`}
-              >
-                2. Summary
-              </span>
-            </div>
-            <div
-              className={`h-0.5 rounded-full transition-all duration-300 ${
-                checkoutStep === "summary"
-                  ? "bg-[#2563EB]"
-                  : checkoutStep === "payment"
-                  ? "bg-emerald-500"
-                  : "bg-slate-200"
-              }`}
-            />
-          </button>
-
-          {/* Step 3: Payment */}
-          <button
-            type="button"
-            onClick={() => {
-              if (validateAddressData()) {
-                setCheckoutStep("payment");
-                window.scrollTo({ top: 0, behavior: "smooth" });
-              }
-            }}
-            className={`text-left transition-all ${
-              checkoutStep === "payment"
-                ? "cursor-pointer"
-                : "cursor-not-allowed opacity-40"
-            }`}
-          >
-            <div className="flex items-center justify-between mb-1">
-              <span
-                className={`text-[11px] sm:text-xs tracking-tight transition-colors ${
-                  checkoutStep === "payment"
-                    ? "font-extrabold text-[#2563EB]"
-                    : "font-medium text-slate-400"
-                }`}
-              >
-                3. Payment
-              </span>
-            </div>
-            <div
-              className={`h-0.5 rounded-full transition-all duration-300 ${
-                checkoutStep === "payment"
-                  ? "bg-[#2563EB]"
-                  : "bg-slate-200"
-              }`}
-            />
-          </button>
-        </div>
       </div>
 
       {/* 2-Column Checkout Grid: Left Column (~65-70%, Span 8) & Right Column (~30-35%, Span 4) */}
@@ -2299,15 +2200,28 @@ export const CheckoutView: React.FC = () => {
           )}
 
           {/* ═══════════════════════════════════════════════════════════════════════════ */}
-          {/* STEP 1: DELIVERY ADDRESS (When on Step 1) */}
+          {/* STEP 1: DELIVERY ADDRESS (When editing / selecting address) */}
           {/* ═══════════════════════════════════════════════════════════════════════════ */}
           {checkoutStep === "address" && (
             <div className="-mx-3.5 sm:mx-0 bg-white border-0 sm:border border-slate-200/90 rounded-none sm:rounded-2xl p-3.5 sm:p-5 shadow-none sm:shadow-xs space-y-4">
-              <div className="pb-2 border-b border-slate-100">
+              <div className="pb-2 border-b border-slate-100 flex items-center justify-between">
                 <div className="flex items-center gap-1.5 min-w-0">
                   <MapPin className="w-3.5 h-3.5 text-[#2563EB] shrink-0" />
                   <span className="text-xs font-bold text-slate-800 tracking-tight">Delivery Address</span>
                 </div>
+                {(addresses.length > 0 || addrFormStreet) && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsEditingAddress(false);
+                      setIsAddingNewAddress(false);
+                      setCheckoutStep("summary");
+                    }}
+                    className="text-xs font-semibold text-[#2563EB] hover:underline cursor-pointer"
+                  >
+                    Back to Order Summary &rarr;
+                  </button>
+                )}
               </div>
 
               {/* Saved Addresses Quick Selector (if customer has saved addresses) */}
