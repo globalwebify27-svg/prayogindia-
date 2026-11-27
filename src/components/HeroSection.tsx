@@ -245,121 +245,107 @@ export const HeroSection: React.FC<HeroProps> = ({
               {/* Only render HTML Content Layer on desktop/tablets if hasTextOverlay is enabled (on mobile, banner is shown 100% full and clean) */}
               {hasTextOverlay && (
                 <div className="hidden sm:flex relative z-10 w-full h-full max-w-7xl mx-auto px-6 sm:px-10 lg:px-14 items-center pointer-events-auto">
-                  <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-8 items-center py-2 sm:py-4 relative z-10">
-                    {/* 7 Columns: Text Content */}
-                    <div className="lg:col-span-7 flex flex-col justify-center text-left space-y-2 sm:space-y-3 lg:space-y-4">
-                      {/* 1. Main Headline First (~3x body text size) */}
-                      {(activeSlide.titlePrefix || activeSlide.titleHighlight) && (
-                        <motion.h1
-                          initial={prefersReducedMotion ? false : { opacity: 0, y: 14 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ duration: 0.35, ease: "easeOut" }}
-                          className="text-2xl sm:text-3xl lg:text-[44px] font-extrabold tracking-tight leading-tight text-slate-950 font-sans"
-                        >
-                          {activeSlide.titlePrefix}{" "}
-                          {activeSlide.titleHighlight && (
-                            <span className="text-[#2563EB] block sm:inline">
-                              {activeSlide.titleHighlight}
-                            </span>
-                          )}
-                        </motion.h1>
+                  <div className="w-full max-w-xl lg:max-w-2xl flex flex-col justify-center text-left space-y-2 sm:space-y-3 lg:space-y-4 py-2 sm:py-4 relative z-10">
+                    {/* 1. Main Headline First (~3x body text size) */}
+                    {(activeSlide.titlePrefix || activeSlide.titleHighlight) && (
+                      <motion.h1
+                        initial={prefersReducedMotion ? false : { opacity: 0, y: 14 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.35, ease: "easeOut" }}
+                        className="text-2xl sm:text-3xl lg:text-[44px] font-extrabold tracking-tight leading-tight text-slate-950 font-sans"
+                      >
+                        {activeSlide.titlePrefix}{" "}
+                        {activeSlide.titleHighlight && (
+                          <span className="text-[#2563EB] block sm:inline">
+                            {activeSlide.titleHighlight}
+                          </span>
+                        )}
+                      </motion.h1>
+                    )}
+
+                    {/* 2. Supporting text immediately after headline */}
+                    <motion.div
+                      initial={prefersReducedMotion ? false : { opacity: 0, y: 14 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{
+                        duration: 0.35,
+                        delay: prefersReducedMotion ? 0 : 0.08,
+                        ease: "easeOut",
+                      }}
+                      className="space-y-1 sm:space-y-2"
+                    >
+                      {/* Subtitle with Separators */}
+                      {activeSlide.subtitle && (
+                        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 text-xs sm:text-sm font-bold text-slate-700 tracking-wide">
+                          {activeSlide.subtitle
+                            .split("|")
+                            .map((p) => p.trim())
+                            .filter(Boolean)
+                            .map((word, idx, arr) => (
+                              <React.Fragment key={idx}>
+                                <span
+                                  className={
+                                    idx === arr.length - 1
+                                      ? "text-[#2563EB]"
+                                      : "text-slate-800"
+                                  }
+                                >
+                                  {word}
+                                </span>
+                                {idx < arr.length - 1 && (
+                                  <span className="text-slate-300 font-light">•</span>
+                                )}
+                              </React.Fragment>
+                            ))}
+                        </div>
                       )}
 
-                      {/* 2. Supporting text immediately after headline */}
-                      <motion.div
-                        initial={prefersReducedMotion ? false : { opacity: 0, y: 14 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{
-                          duration: 0.35,
-                          delay: prefersReducedMotion ? 0 : 0.08,
-                          ease: "easeOut",
-                        }}
-                        className="space-y-1 sm:space-y-2"
-                      >
-                        {/* Subtitle with Separators */}
-                        {activeSlide.subtitle && (
-                          <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 text-xs sm:text-sm font-bold text-slate-700 tracking-wide">
-                            {activeSlide.subtitle
-                              .split("|")
-                              .map((p) => p.trim())
-                              .filter(Boolean)
-                              .map((word, idx, arr) => (
-                                <React.Fragment key={idx}>
-                                  <span
-                                    className={
-                                      idx === arr.length - 1
-                                        ? "text-[#2563EB]"
-                                        : "text-slate-800"
-                                    }
-                                  >
-                                    {word}
-                                  </span>
-                                  {idx < arr.length - 1 && (
-                                    <span className="text-slate-300 font-light">•</span>
-                                  )}
-                                </React.Fragment>
-                              ))}
-                          </div>
-                        )}
+                      {/* Description */}
+                      {activeSlide.description && !isTextEmpty(activeSlide.description) && (
+                        <p className="text-slate-600 text-xs sm:text-sm leading-relaxed max-w-xl line-clamp-2 sm:line-clamp-3">
+                          {activeSlide.description}
+                        </p>
+                      )}
+                    </motion.div>
 
-                        {/* Description */}
-                        {activeSlide.description && !isTextEmpty(activeSlide.description) && (
-                          <p className="text-slate-600 text-xs sm:text-sm leading-relaxed max-w-xl line-clamp-2 sm:line-clamp-3">
-                            {activeSlide.description}
-                          </p>
-                        )}
-                      </motion.div>
+                    {/* 3. CTA Action Buttons animated after supporting text */}
+                    <motion.div
+                      initial={prefersReducedMotion ? false : { opacity: 0, y: 14 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{
+                        duration: 0.35,
+                        delay: prefersReducedMotion ? 0 : 0.16,
+                        ease: "easeOut",
+                      }}
+                      className="flex flex-wrap items-center gap-2 sm:gap-3 pt-1 z-20"
+                    >
+                      {activeSlide.primaryButtonText && (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handlePrimaryClick();
+                          }}
+                          className="bg-[#2563EB] hover:bg-[#1D4ED8] active:scale-[0.98] text-white font-bold px-5 sm:px-6 lg:px-8 py-2 sm:py-2.5 lg:py-3 rounded-xl text-xs sm:text-sm uppercase tracking-wider transition-all duration-150 flex items-center gap-2 shadow-sm hover:shadow-md cursor-pointer select-none group"
+                        >
+                          <span>{activeSlide.primaryButtonText}</span>
+                          <ArrowRight className="w-3.5 h-3.5 stroke-[2.5] text-white transition-transform group-hover:translate-x-0.5" />
+                        </button>
+                      )}
 
-                      {/* 3. CTA Action Buttons animated after supporting text */}
-                      <motion.div
-                        initial={prefersReducedMotion ? false : { opacity: 0, y: 14 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{
-                          duration: 0.35,
-                          delay: prefersReducedMotion ? 0 : 0.16,
-                          ease: "easeOut",
-                        }}
-                        className="flex flex-wrap items-center gap-2 sm:gap-3 pt-1 z-20"
-                      >
-                        {activeSlide.primaryButtonText && (
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handlePrimaryClick();
-                            }}
-                            className="bg-[#2563EB] hover:bg-[#1D4ED8] active:scale-[0.98] text-white font-bold px-5 sm:px-6 lg:px-8 py-2 sm:py-2.5 lg:py-3 rounded-xl text-xs sm:text-sm uppercase tracking-wider transition-all duration-150 flex items-center gap-2 shadow-sm hover:shadow-md cursor-pointer select-none group"
-                          >
-                            <span>{activeSlide.primaryButtonText}</span>
-                            <ArrowRight className="w-3.5 h-3.5 stroke-[2.5] text-white transition-transform group-hover:translate-x-0.5" />
-                          </button>
-                        )}
-
-                        {activeSlide.secondaryButtonText && (
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleSecondaryClick();
-                            }}
-                            className="bg-white hover:bg-slate-50 active:scale-[0.98] text-slate-800 font-semibold px-4 sm:px-5 lg:px-7 py-2 sm:py-2.5 lg:py-3 rounded-xl text-xs sm:text-sm border border-slate-200/90 hover:border-slate-300 transition-all duration-150 flex items-center gap-2 shadow-2xs cursor-pointer select-none"
-                          >
-                            <span>{activeSlide.secondaryButtonText}</span>
-                          </button>
-                        )}
-                      </motion.div>
-                    </div>
-
-                    {/* 5 Columns: Visual Image Content */}
-                    <div className="hidden lg:flex lg:col-span-5 items-center justify-center p-2 relative h-full">
-                      <div className="relative w-full h-[240px] xl:h-[280px] rounded-2xl overflow-hidden shadow-sm border border-slate-200/50 bg-white/40">
-                        <img
-                          src={activeSlide.image}
-                          alt={activeSlide.alt || "Prayog Robotics"}
-                          className="w-full h-full object-cover object-center"
-                        />
-                      </div>
-                    </div>
+                      {activeSlide.secondaryButtonText && (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleSecondaryClick();
+                          }}
+                          className="bg-white hover:bg-slate-50 active:scale-[0.98] text-slate-800 font-semibold px-4 sm:px-5 lg:px-7 py-2 sm:py-2.5 lg:py-3 rounded-xl text-xs sm:text-sm border border-slate-200/90 hover:border-slate-300 transition-all duration-150 flex items-center gap-2 shadow-2xs cursor-pointer select-none"
+                        >
+                          <span>{activeSlide.secondaryButtonText}</span>
+                        </button>
+                      )}
+                    </motion.div>
                   </div>
                 </div>
               )}
