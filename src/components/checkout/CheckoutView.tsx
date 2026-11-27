@@ -207,10 +207,8 @@ export const CheckoutView: React.FC = () => {
     moveToWishlist,
   } = useStore();
 
-  // ── Customer Profile Information (Auto-populated only if logged in, otherwise blank)
-  const [customerName, setCustomerName] = useState(
-    user?.name && !user.name.startsWith("Customer ") ? user.name : "",
-  );
+  // ── Customer Profile Information (Only Mobile number auto-populates; Name is left blank for customer to enter)
+  const [customerName, setCustomerName] = useState("");
   const [customerEmail, setCustomerEmail] = useState(
     user?.email &&
       !user.email.includes("@prayogindia.com") &&
@@ -245,16 +243,12 @@ export const CheckoutView: React.FC = () => {
     return match.length > 0 ? match : cart;
   }, [cart, singleCheckoutItemId]);
 
-  // Sync with logged in user state
+  // Sync with logged in user state (Only mobile number is auto-filled)
   React.useEffect(() => {
     if (user) {
-      if (user.name && !user.name.startsWith("Customer ")) {
-        setCustomerName(user.name);
-        setAddrFormName((prev) => prev || user.name || "");
-      } else {
-        setCustomerName("");
-        setAddrFormName("");
-      }
+      // Name is not auto-filled so customer can enter their name
+      setCustomerName("");
+      setAddrFormName("");
       if (
         user.email &&
         !user.email.includes("@prayogindia.com") &&
@@ -268,7 +262,7 @@ export const CheckoutView: React.FC = () => {
       if (user.phone) {
         const cleanP = user.phone.replace(/\D/g, "").slice(-10);
         setCustomerMobile(cleanP);
-        setAddrFormPhone((prev) => prev || cleanP);
+        setAddrFormPhone(cleanP);
       }
       setIsPhoneVerified(true);
     }
@@ -392,6 +386,8 @@ export const CheckoutView: React.FC = () => {
         setSelectedShippingAddressId("");
         setCheckoutStep("address");
         setIsEditingAddress(true);
+        setCustomerName("");
+        setAddrFormName("");
         setAddrFormStreet("");
         setAddrFormCity("");
         setAddrFormState("");
@@ -402,19 +398,12 @@ export const CheckoutView: React.FC = () => {
     loadSavedAddresses();
   }, [isLoggedIn]);
 
-  // When mobile number changes and does not match logged-in user phone, require re-verification
+  // When customer edits mobile number in delivery form, update state freely
   const handleMobileChange = (val: string) => {
-    const clean = val.replace(/\D/g, "");
+    const clean = val.replace(/\D/g, "").slice(0, 10);
     setCustomerMobile(clean);
-    if (
-      user &&
-      user.phone &&
-      user.phone.replace(/\D/g, "").slice(-10) === clean
-    ) {
-      setIsPhoneVerified(true);
-    } else {
-      setIsPhoneVerified(false);
-    }
+    setAddrFormPhone(clean);
+    setIsPhoneVerified(true);
   };
 
   const handleSendCheckoutOtp = async () => {
@@ -491,12 +480,10 @@ export const CheckoutView: React.FC = () => {
   const [selectedBillingAddressId, setSelectedBillingAddressId] =
     useState<string>("");
 
-  // Add/Edit Address Form State (Empty defaults - no auto-fill)
+  // Add/Edit Address Form State (Empty defaults - no auto-fill for name)
   const [editingAddressId, setEditingAddressId] = useState<string | null>(null);
   const [showAddressModal, setShowAddressModal] = useState(false);
-  const [addrFormName, setAddrFormName] = useState(
-    user?.name && !user.name.startsWith("Customer ") ? user.name : "",
-  );
+  const [addrFormName, setAddrFormName] = useState("");
   const [addrFormPhone, setAddrFormPhone] = useState(user?.phone?.replace(/\D/g, "").slice(-10) || "");
   const [addrFormStreet, setAddrFormStreet] = useState("");
   const [addrFormCity, setAddrFormCity] = useState("");
@@ -568,10 +555,8 @@ export const CheckoutView: React.FC = () => {
     setAddrFormState("");
     setAddrFormPincode("");
     setAddrFormType("Home");
-    if (user?.name) {
-      setAddrFormName(user.name);
-      setCustomerName(user.name);
-    }
+    setAddrFormName("");
+    setCustomerName("");
     if (user?.phone) {
       const cleanPhone = user.phone.replace(/\D/g, "").slice(-10);
       setAddrFormPhone(cleanPhone);
@@ -2559,20 +2544,9 @@ export const CheckoutView: React.FC = () => {
                     </div>
 
                     <div className="space-y-1">
-                      <div className="flex items-center justify-between">
-                        <label className="block text-[11px] font-semibold text-slate-600">
-                          Mobile Number <span className="text-red-500">*</span>
-                        </label>
-                        {!isPhoneVerified && customerMobile.length === 10 && (
-                          <button
-                            type="button"
-                            onClick={handleSendCheckoutOtp}
-                            className="text-[11px] text-[#2563EB] font-bold hover:underline cursor-pointer"
-                          >
-                            Verify OTP
-                          </button>
-                        )}
-                      </div>
+                      <label className="block text-[11px] font-semibold text-slate-600">
+                        Mobile Number <span className="text-red-500">*</span>
+                      </label>
                       <div className="relative flex items-center">
                         <span className="absolute left-3 text-xs font-bold text-slate-500 pointer-events-none border-r border-slate-200 pr-2">
                           +91
