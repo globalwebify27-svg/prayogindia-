@@ -431,13 +431,12 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                     haptic.medium();
                     onClose();
                   }}
-                  className="w-full bg-[#2563EB] hover:bg-[#1D4ED8] active:bg-[#1E40AF] text-white py-3.5 px-4 rounded-xl font-bold text-sm text-center transition-all shadow-md shadow-blue-500/25 flex items-center justify-center gap-2 active:scale-98 cursor-pointer"
+                  className="w-full bg-[#2563EB] hover:bg-[#1D4ED8] active:bg-[#1E40AF] text-white py-3.5 px-4 rounded-xl font-bold text-sm text-center transition-all shadow-md shadow-blue-500/25 flex items-center justify-center active:scale-98 cursor-pointer"
                 >
                   <span>
                     Proceed to Buy ({totalItemCount}{" "}
                     {totalItemCount === 1 ? "item" : "items"})
                   </span>
-                  <ArrowRight className="w-4 h-4 text-[#FFC20E]" />
                 </Link>
               </div>
             </div>
