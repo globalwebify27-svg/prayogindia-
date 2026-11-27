@@ -466,6 +466,8 @@ const PopularProductCard: React.FC<PopularProductCardProps> = ({
       });
       return;
     }
+    // Trigger arc flying animation into cart
+    triggerFlyToCart(e.currentTarget as HTMLElement, product.image);
     updateQuantity(product.id, 1);
   };
 

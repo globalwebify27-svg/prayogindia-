@@ -142,6 +142,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({
       });
       return;
     }
+    // Trigger arc flying animation into cart
+    triggerFlyToCart(e.currentTarget as HTMLElement, product.image);
     updateQuantity(product.id, 1, selectedVariantId);
   };
 

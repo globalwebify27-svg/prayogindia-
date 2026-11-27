@@ -108,6 +108,8 @@ export const TopDealsProductCard: React.FC<TopDealsProductCardProps> = ({
       });
       return;
     }
+    // Trigger arc flying animation into cart
+    triggerFlyToCart(e.currentTarget as HTMLElement, product.image);
     updateQuantity(product.id, 1);
   };
 
