@@ -145,6 +145,14 @@ export const ProductCard: React.FC<ProductCardProps> = ({
     // Trigger arc flying animation into cart
     triggerFlyToCart(e.currentTarget as HTMLElement, product.image);
     updateQuantity(product.id, 1, selectedVariantId);
+    showToast({
+      type: "success",
+      title: "Product added to cart!",
+      message: product.name,
+      product,
+      iconType: "cart-add" as any,
+      duration: 2000,
+    });
   };
 
   const handleBuyNow = (e: React.MouseEvent) => {
