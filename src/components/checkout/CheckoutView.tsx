@@ -220,6 +220,8 @@ export const CheckoutView: React.FC = () => {
   const [customerMobile, setCustomerMobile] = useState(
     user?.phone?.replace(/\D/g, "").slice(-10) || "",
   );
+  const hasInitializedMobileRef = React.useRef(false);
+  const mobileInputRef = React.useRef<HTMLInputElement>(null);
   const [isPhoneVerified, setIsPhoneVerified] = useState(true);
   const [showOtpModal, setShowOtpModal] = useState(false);
   const [checkoutOtp, setCheckoutOtp] = useState("");
@@ -259,10 +261,11 @@ export const CheckoutView: React.FC = () => {
       } else {
         setCustomerEmail("");
       }
-      if (user.phone) {
+      if (user.phone && !hasInitializedMobileRef.current) {
         const cleanP = user.phone.replace(/\D/g, "").slice(-10);
         setCustomerMobile(cleanP);
         setAddrFormPhone(cleanP);
+        hasInitializedMobileRef.current = true;
       }
       setIsPhoneVerified(true);
     }
@@ -404,6 +407,7 @@ export const CheckoutView: React.FC = () => {
     setCustomerMobile(clean);
     setAddrFormPhone(clean);
     setIsPhoneVerified(true);
+    hasInitializedMobileRef.current = true;
   };
 
   const handleSendCheckoutOtp = async () => {
@@ -2115,7 +2119,7 @@ export const CheckoutView: React.FC = () => {
                   required
                   maxLength={10}
                   value={addrFormPhone}
-                  onChange={(e) => setAddrFormPhone(e.target.value)}
+                  onChange={(e) => setAddrFormPhone(e.target.value.replace(/\D/g, "").slice(0, 10))}
                   className="w-full bg-white border border-slate-300 focus:border-[#2563EB] focus:ring-1 focus:ring-[#2563EB] p-2.5 rounded-lg font-medium text-slate-900 outline-none transition-all max-w-2xl"
                 />
                 <p className="text-[11px] text-slate-500 mt-1">
@@ -2542,14 +2546,29 @@ export const CheckoutView: React.FC = () => {
                     </div>
 
                     <div className="space-y-1">
-                      <label className="block text-[11px] font-semibold text-slate-600">
-                        Mobile Number <span className="text-red-500">*</span>
-                      </label>
+                      <div className="flex items-center justify-between">
+                        <label className="block text-[11px] font-semibold text-slate-600">
+                          Mobile Number <span className="text-red-500">*</span>
+                        </label>
+                        {customerMobile ? (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              handleMobileChange("");
+                              mobileInputRef.current?.focus();
+                            }}
+                            className="text-[11px] font-semibold text-[#2563EB] hover:text-blue-700 hover:underline cursor-pointer flex items-center gap-1"
+                          >
+                            <span>Change Number</span>
+                          </button>
+                        ) : null}
+                      </div>
                       <div className="relative flex items-center">
                         <span className="absolute left-3 text-xs font-bold text-slate-500 pointer-events-none border-r border-slate-200 pr-2">
                           +91
                         </span>
                         <input
+                          ref={mobileInputRef}
                           type="tel"
                           required
                           maxLength={10}
@@ -2559,8 +2578,34 @@ export const CheckoutView: React.FC = () => {
                             setAddrFormPhone(e.target.value);
                           }}
                           placeholder="10-digit mobile number"
-                          className="w-full bg-slate-50/60 focus:bg-white border border-slate-200 focus:border-[#2563EB] focus:ring-2 focus:ring-blue-500/10 rounded-lg sm:rounded-xl pl-13 pr-3 py-2 sm:pl-14 sm:pr-3.5 sm:py-2.5 text-xs sm:text-sm font-medium text-slate-900 outline-none transition-all placeholder:text-slate-400 placeholder:font-normal shadow-2xs"
+                          className="w-full bg-slate-50/60 focus:bg-white border border-slate-200 focus:border-[#2563EB] focus:ring-2 focus:ring-blue-500/10 rounded-lg sm:rounded-xl pl-13 pr-9 py-2 sm:pl-14 sm:pr-9 sm:py-2.5 text-xs sm:text-sm font-medium text-slate-900 outline-none transition-all placeholder:text-slate-400 placeholder:font-normal shadow-2xs"
                         />
+                        {customerMobile ? (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              handleMobileChange("");
+                              mobileInputRef.current?.focus();
+                            }}
+                            title="Clear and enter new number"
+                            aria-label="Clear mobile number"
+                            className="absolute right-2.5 p-1 text-slate-400 hover:text-slate-600 rounded-full hover:bg-slate-200/60 cursor-pointer transition-colors"
+                          >
+                            <X className="w-3.5 h-3.5" />
+                          </button>
+                        ) : null}
+                      </div>
+                      <div className="flex items-center justify-between text-[10.5px] text-slate-400 pt-0.5">
+                        <span>Courier updates &amp; delivery calls will be sent here</span>
+                        {customerMobile && customerMobile.length === 10 && /^[6-9]\d{9}$/.test(customerMobile) ? (
+                          <span className="text-emerald-600 font-medium inline-flex items-center gap-0.5">
+                            <Check className="w-3 h-3" /> Valid
+                          </span>
+                        ) : customerMobile && customerMobile.length > 0 ? (
+                          <span className="text-amber-600 font-medium">
+                            {10 - customerMobile.length} more digits
+                          </span>
+                        ) : null}
                       </div>
                     </div>
                   </div>
