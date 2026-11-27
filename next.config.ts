@@ -18,6 +18,18 @@ const nextConfig: NextConfig = {
   experimental: {
     optimizePackageImports: ['lucide-react', 'framer-motion'],
   },
+  async rewrites() {
+    return [
+      {
+        source: '/terms-of-service',
+        destination: '/terms',
+      },
+      {
+        source: '/privacy-policy',
+        destination: '/privacy',
+      },
+    ];
+  },
 };
 
 export default nextConfig;

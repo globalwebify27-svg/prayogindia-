@@ -7,6 +7,41 @@ const globalForPrisma = globalThis as unknown as {
 
 const CURRENT_SCHEMA_VERSION = 3;
 
+/**
+ * Ensures optimal connection pooling parameters for Supabase PgBouncer in serverless (Vercel) environments.
+ * - connection_limit=1 prevents lambda pool exhaustion
+ * - connect_timeout=10 and pool_timeout=10 prevent indefinitely blocked requests
+ */
+function getOptimizedDatabaseUrl(): string | undefined {
+  const rawUrl = process.env.DATABASE_URL;
+  if (!rawUrl) return undefined;
+  try {
+    const url = new URL(rawUrl);
+    const isPooler =
+      url.port === "6543" ||
+      url.searchParams.get("pgbouncer") === "true" ||
+      url.hostname.includes("pooler.supabase.com");
+
+    if (isPooler) {
+      if (!url.searchParams.has("pgbouncer")) {
+        url.searchParams.set("pgbouncer", "true");
+      }
+      if (!url.searchParams.has("connection_limit")) {
+        url.searchParams.set("connection_limit", "1");
+      }
+      if (!url.searchParams.has("pool_timeout")) {
+        url.searchParams.set("pool_timeout", "10");
+      }
+      if (!url.searchParams.has("connect_timeout")) {
+        url.searchParams.set("connect_timeout", "10");
+      }
+    }
+    return url.toString();
+  } catch {
+    return rawUrl;
+  }
+}
+
 const isStale =
   !globalForPrisma.prisma ||
   globalForPrisma.__schemaVersion !== CURRENT_SCHEMA_VERSION ||
@@ -25,20 +60,28 @@ if (isStale && globalForPrisma.prisma) {
   } catch (_) {}
 }
 
+const optimizedUrl = getOptimizedDatabaseUrl();
+
 export const prisma =
   !isStale && globalForPrisma.prisma
     ? globalForPrisma.prisma
     : new PrismaClient({
+        datasources: optimizedUrl
+          ? {
+              db: {
+                url: optimizedUrl,
+              },
+            }
+          : undefined,
         log:
           process.env.NODE_ENV === "development"
-            ? ["query", "error", "warn"]
+            ? ["error", "warn"]
             : ["error"],
       });
 
-if (process.env.NODE_ENV !== "production") {
-  globalForPrisma.prisma = prisma;
-  globalForPrisma.__schemaVersion = CURRENT_SCHEMA_VERSION;
-}
+// Persist prisma singleton globally across all environments (including Vercel warm lambdas)
+globalForPrisma.prisma = prisma;
+globalForPrisma.__schemaVersion = CURRENT_SCHEMA_VERSION;
 
 export const db = prisma;
 

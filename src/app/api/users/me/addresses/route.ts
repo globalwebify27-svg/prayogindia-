@@ -81,17 +81,51 @@ export async function POST(request: Request) {
     };
 
     if (process.env.DATABASE_URL) {
+      // Ensure user exists in PostgreSQL to satisfy foreign key constraint
+      let verifiedUserId = user.id;
+      try {
+        const u = await db.user.findUnique({ where: { id: user.id }, select: { id: true } });
+        if (!u) {
+          const cleanPhone = (user.phone || phone || "").replace(/\D/g, "").slice(-10);
+          if (cleanPhone) {
+            const byPhone = await db.user.findFirst({
+              where: { phone: { contains: cleanPhone } },
+              select: { id: true },
+            });
+            if (byPhone) {
+              verifiedUserId = byPhone.id;
+            } else {
+              const nu = await db.user.create({
+                data: {
+                  id: user.id,
+                  name: user.name || name || "Customer",
+                  email: user.email && !user.email.includes("@otp.") ? user.email : `${cleanPhone}@otp.prayogindia.local`,
+                  phone: cleanPhone,
+                  passwordHash: "OTP_AUTH_USER",
+                  role: "CUSTOMER",
+                  customerType: "B2C",
+                  rewardPoints: 100,
+                },
+              });
+              verifiedUserId = nu.id;
+            }
+          }
+        }
+      } catch (userCheckErr: any) {
+        console.warn("[Addresses POST] user verification notice:", userCheckErr?.message);
+      }
+
       if (isDefault) {
         // Unset previous default address using transaction safety
         await db.address.updateMany({
-          where: { userId: user.id },
+          where: { userId: verifiedUserId },
           data: { isDefault: false },
         });
       }
 
       const created = await db.address.create({
         data: {
-          userId: user.id,
+          userId: verifiedUserId,
           name,
           phone,
           street,

@@ -20,7 +20,7 @@ export async function GET() {
   let freshUser: AuthSessionUser = user;
   if (isDatabaseAvailable() && user.id) {
     try {
-      const dbRecord = await db.user.findUnique({
+      const dbPromise = db.user.findUnique({
         where: { id: user.id },
         select: {
           id: true,
@@ -34,6 +34,13 @@ export async function GET() {
           rewardPoints: true,
         },
       });
+
+      // Guard against database lag or cold-start timeouts by racing with a 3-second fallback
+      const timeoutPromise = new Promise<null>((resolve) =>
+        setTimeout(() => resolve(null), 3000),
+      );
+
+      const dbRecord = await Promise.race([dbPromise, timeoutPromise]);
 
       if (dbRecord) {
         freshUser = {

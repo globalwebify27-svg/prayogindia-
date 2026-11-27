@@ -136,9 +136,28 @@ export async function POST(request: Request) {
     }
 
     if (process.env.DATABASE_URL) {
-      let cart = await db.cart.findUnique({ where: { userId: user.id } });
+      let cartUserId = user.id;
+      try {
+        const userExists = await db.user.findUnique({ where: { id: user.id }, select: { id: true } });
+        if (!userExists) {
+          const cleanPhone = (user.phone || "").replace(/\D/g, "").slice(-10);
+          if (cleanPhone) {
+            const byPhone = await db.user.findFirst({ where: { phone: { contains: cleanPhone } }, select: { id: true } });
+            if (byPhone) cartUserId = byPhone.id;
+          }
+        }
+      } catch (_) {}
+
+      let cart = await db.cart.findUnique({ where: { userId: cartUserId } });
       if (!cart) {
-        cart = await db.cart.create({ data: { userId: user.id } });
+        cart = await db.cart.create({ data: { userId: cartUserId } }).catch(() => null);
+      }
+
+      if (!cart) {
+        return NextResponse.json({
+          success: true,
+          message: "Guest cart merge skipped (user record initializing).",
+        });
       }
 
       for (const item of items) {
