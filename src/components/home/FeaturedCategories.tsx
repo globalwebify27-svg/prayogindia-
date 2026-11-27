@@ -12,6 +12,7 @@ import {
   getCachedPopularProducts,
   hasCachedPopularProducts,
   fetchAndCacheLiveCatalog,
+  getCachedProducts,
 } from "@/lib/productCatalogCache";
 
 export interface PopularProduct extends Product {
@@ -388,13 +389,14 @@ export const FeaturedCategories: React.FC<Props> = ({
   }, []);
 
   // Filtered popular products based on selected category tab
+  // Requirements: 8-10 cards under "ALL", 7-8 cards under specific category
   const filteredProducts = React.useMemo(() => {
     if (activeTab === "all") {
-      return liveCatalog;
+      return liveCatalog.slice(0, 10);
     }
     const currentTabObj = POPULAR_TABS.find((t) => t.id === activeTab);
     if (!currentTabObj) {
-      return liveCatalog;
+      return liveCatalog.slice(0, 10);
     }
 
     const matches = liveCatalog.filter((p) => {
@@ -411,7 +413,28 @@ export const FeaturedCategories: React.FC<Props> = ({
       return false;
     });
 
-    return matches.length > 0 ? matches : liveCatalog;
+    const results = [...matches];
+    const seenIds = new Set(results.map((r) => r.id));
+
+    // If matching popular items are fewer than 8, backfill with matching products from the broader catalog
+    if (results.length < 8) {
+      const fullCatalog = getCachedProducts();
+      for (const p of fullCatalog) {
+        if (seenIds.has(p.id)) continue;
+        if (
+          isProductInCategory(p, currentTabObj.id) ||
+          isProductInCategory(p, currentTabObj.label) ||
+          (currentTabObj.match && currentTabObj.match.some((m) => isProductInCategory(p, m)))
+        ) {
+          results.push(p);
+          seenIds.add(p.id);
+          if (results.length >= 8) break;
+        }
+      }
+    }
+
+    // Target 7-8 scrollable cards under specific category
+    return results.slice(0, 8);
   }, [activeTab, liveCatalog]);
 
   // Check scroll boundary state for arrows
