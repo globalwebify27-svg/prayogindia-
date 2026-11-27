@@ -113,11 +113,39 @@ export async function POST(request: Request) {
 
       let existing = UserDB.findByEmailOrPhone(cleanPhone);
 
-      if (!existing && !existingDbUser) {
-        const displayName = `Customer ${cleanPhone.slice(-4)}`;
+      // Fetch real name entered at order time or address for this mobile number (never auto-generate Customer XXXX)
+      let orderTimeName = "";
+      if (isDatabaseAvailable()) {
+        try {
+          const pastOrder = await db.order.findFirst({
+            where: {
+              OR: [
+                { user: { phone: { contains: cleanPhone } } },
+                { shippingAddress: { contains: cleanPhone } },
+              ],
+            },
+            orderBy: { createdAt: "desc" },
+            select: { shippingAddress: true, user: { select: { name: true } } },
+          });
 
+          if (pastOrder?.user?.name && !pastOrder.user.name.startsWith("Customer ")) {
+            orderTimeName = pastOrder.user.name;
+          } else if (pastOrder?.shippingAddress) {
+            const parts = pastOrder.shippingAddress.split(",");
+            if (parts[0] && parts[0].trim().length >= 2 && !parts[0].trim().startsWith("Customer ")) {
+              orderTimeName = parts[0].trim();
+            }
+          }
+        } catch {}
+      }
+
+      const existingDbName = existingDbUser?.name && !existingDbUser.name.startsWith("Customer ") ? existingDbUser.name : "";
+      const existingMemName = existing?.name && !existing.name.startsWith("Customer ") ? existing.name : "";
+      const resolvedCustomerName = existingDbName || existingMemName || orderTimeName || "";
+
+      if (!existing && !existingDbUser) {
         existing = UserDB.create({
-          name: displayName,
+          name: resolvedCustomerName,
           email: "",
           phone: `+91 ${cleanPhone}`,
           passwordHash: "",
@@ -129,7 +157,7 @@ export async function POST(request: Request) {
           try {
             existingDbUser = await db.user.create({
               data: {
-                name: displayName,
+                name: resolvedCustomerName,
                 email: `${cleanPhone}@otp.prayogindia.local`,
                 phone: `+91 ${cleanPhone}`,
                 passwordHash: "",
@@ -141,6 +169,19 @@ export async function POST(request: Request) {
           } catch (dbErr) {
             console.warn("DB user create during OTP login fallback:", dbErr);
           }
+        }
+      } else if (orderTimeName) {
+        // If user already existed with a placeholder name, upgrade it to their real order-time name
+        if (existingDbUser && (!existingDbUser.name || existingDbUser.name.startsWith("Customer "))) {
+          try {
+            existingDbUser = await db.user.update({
+              where: { id: existingDbUser.id },
+              data: { name: orderTimeName },
+            });
+          } catch {}
+        }
+        if (existing && (!existing.name || existing.name.startsWith("Customer "))) {
+          existing.name = orderTimeName;
         }
       }
 
@@ -155,7 +196,7 @@ export async function POST(request: Request) {
 
       const userPayload: AuthSessionUser = {
         id: existingDbUser?.id || existing?.id || `usr-otp-${cleanPhone}`,
-        name: existingDbUser?.name || existing?.name || `Customer ${cleanPhone.slice(-4)}`,
+        name: resolvedCustomerName,
         email: cleanEmail,
         phone: existingDbUser?.phone || existing?.phone || `+91 ${cleanPhone}`,
         customerType:

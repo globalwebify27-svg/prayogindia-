@@ -199,6 +199,7 @@ export const CheckoutView: React.FC = () => {
     user,
     isLoggedIn,
     loginUser,
+    updateUser,
     clearCart,
     redeemRewardPoints,
     updateQuantity,
@@ -1419,6 +1420,25 @@ export const CheckoutView: React.FC = () => {
       setIsSubmitting(false);
       setValidationError("Failed to receive verified order confirmation from server.");
       return;
+    }
+
+    // Immediately update customer profile with real name entered in order form
+    const realCustomerName = (customerName || selectedAddr.name || "").trim();
+    if (realCustomerName && !realCustomerName.startsWith("Customer ")) {
+      updateUser({
+        name: realCustomerName,
+        phone: customerMobile || selectedAddr.phone,
+      });
+
+      // Persist permanently to backend
+      fetch("/api/users/me", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: realCustomerName,
+          phone: customerMobile || selectedAddr.phone,
+        }),
+      }).catch(() => {});
     }
 
     // Cache order in browser storage so Admin Operations & Customer Orders reflect it instantly

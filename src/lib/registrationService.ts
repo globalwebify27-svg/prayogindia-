@@ -44,7 +44,7 @@ export const RegistrationService = {
   }) => {
     const cleanPhone = (data.phone || "").replace(/\D/g, "").slice(-10);
     const cleanEmail = data.email ? normalizeEmail(data.email) : "";
-    const cleanName = (data.name || "").trim() || (cleanEmail ? cleanEmail.split("@")[0] : `Customer ${cleanPhone.slice(-4)}`);
+    const cleanName = (data.name || "").trim() || (cleanEmail ? cleanEmail.split("@")[0] : "");
 
     if (!cleanPhone || cleanPhone.length < 10) {
       return {

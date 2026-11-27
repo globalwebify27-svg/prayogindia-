@@ -3,6 +3,7 @@ export const revalidate = 0;
 
 import { NextResponse } from "next/server";
 import { db, isDatabaseAvailable } from "@/lib/db";
+import { UserDB } from "@/lib/userDB";
 import { getAuthenticatedCustomer, AuthSessionUser } from "@/lib/authUtils";
 import { NotificationService } from "@/lib/notifications";
 import { OrderStatus, PaymentStatus } from "@prisma/client";
@@ -111,9 +112,12 @@ export async function POST(request: Request) {
     const effectiveName =
       customerName &&
       typeof customerName === "string" &&
-      customerName.trim().length > 0
+      customerName.trim().length > 0 &&
+      !customerName.startsWith("Customer ")
         ? customerName.trim()
-        : user.name;
+        : user.name && !user.name.startsWith("Customer ")
+        ? user.name
+        : "";
     const effectivePhone =
       customerPhone &&
       typeof customerPhone === "string" &&
@@ -138,30 +142,23 @@ export async function POST(request: Request) {
           customerType: isGuestCheckout ? "GUEST" : "B2C",
         },
       });
-    } else if (isGuestCheckout) {
-      // For existing guest user accounts, safely update contact details
-      const isExistingGuestAccount =
-        dbUser.passwordHash === "GUEST_ACCOUNT_NO_PASSWORD" ||
-        dbUser.customerType === "GUEST";
-      if (isExistingGuestAccount && (customerName || customerPhone)) {
-        dbUser = await db.user.update({
-          where: { id: dbUser.id },
-          data: {
-            name: effectiveName,
-            phone: effectivePhone,
-          },
-        });
-      }
-      // Note: If dbUser is an authenticated registered account, we leave their profile secure and intact
-    } else if (customerName || customerPhone) {
+    } else if (effectiveName || effectivePhone) {
       dbUser = await db.user.update({
         where: { id: dbUser.id },
         data: {
-          name: effectiveName,
-          phone: effectivePhone,
+          ...(effectiveName ? { name: effectiveName } : {}),
+          ...(effectivePhone ? { phone: effectivePhone } : {}),
         },
       });
     }
+
+    // Also update in-memory UserDB cache so subsequent lookups immediately have the real name
+    try {
+      const u = UserDB.findByEmailOrPhone(effectivePhone || effectiveEmail);
+      if (u && effectiveName) {
+        u.name = effectiveName;
+      }
+    } catch (_) {}
 
     // 1. Resolve Items to Create: Priority to Client Items, Fallback to DB Cart
     let calculatedSubtotal = 0;

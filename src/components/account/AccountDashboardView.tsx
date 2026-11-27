@@ -277,9 +277,15 @@ export const AccountDashboardView: React.FC = () => {
     return s.includes("delivered") || s.includes("arrived");
   }).length;
 
-  // User display name
+  // User display name (never display placeholder Customer XXXX)
   const displayName =
-    user?.name || (user?.email ? user.email.split("@")[0] : "Customer");
+    user?.name && !user.name.startsWith("Customer ")
+      ? user.name
+      : user?.phone
+      ? user.phone
+      : user?.email && !user.email.includes("@otp.")
+      ? user.email.split("@")[0]
+      : "Member";
 
   // Mobile navigation list
   const mobileMenuSections: Array<{

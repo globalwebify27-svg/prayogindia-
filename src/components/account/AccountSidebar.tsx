@@ -58,10 +58,12 @@ export const AccountSidebar: React.FC = () => {
         </div>
         <div className="min-w-0 flex-1">
           <h3 className="text-xs sm:text-sm font-bold text-white tracking-tight truncate">
-            {user?.name ||
-              (typeof user?.email === "string" && user.email.includes("@")
-                ? user.email.split("@")[0]
-                : "My Account")}
+            {user?.name && !user.name.startsWith("Customer ")
+              ? user.name
+              : user?.phone ||
+                (typeof user?.email === "string" && user.email.includes("@") && !user.email.includes("@otp.")
+                  ? user.email.split("@")[0]
+                  : "My Account")}
           </h3>
           <p className="text-[11px] text-slate-400 font-normal truncate mt-0.5">
             {user?.email || user?.phone || "Signed In"}

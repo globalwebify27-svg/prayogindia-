@@ -134,7 +134,10 @@ export const CheckoutAuthGate: React.FC<CheckoutAuthGateProps> = ({
         setSuccessMsg("Mobile verified successfully! Redirecting to delivery address...");
         loginUser({
           id: data.user.id,
-          name: data.user.name || `Customer ${cleanPhone.slice(-4)}`,
+          name:
+            data.user.name && !data.user.name.startsWith("Customer ")
+              ? data.user.name
+              : "",
           email:
             data.user.email &&
             !data.user.email.includes("@prayogindia.com") &&

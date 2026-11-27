@@ -88,7 +88,7 @@ export async function POST(request: Request) {
     const { name, email, phone, password, confirmPassword, b2b, action, requireOtp } = parseResult.data;
     const cleanEmail = email ? normalizeEmail(email) : "";
     const cleanPhone = phone ? phone.replace(/\D/g, "") : "";
-    const displayName = (name && name.trim()) || (cleanEmail ? cleanEmail.split("@")[0] : `Customer ${cleanPhone.slice(-4)}`);
+    const displayName = (name && name.trim()) || (cleanEmail ? cleanEmail.split("@")[0] : "");
 
     // 4. Confirm Password Verification
     if (confirmPassword && password !== confirmPassword) {

@@ -1061,21 +1061,21 @@ export const Header: React.FC<HeaderProps> = ({
                     user.avatarUrl ? (
                       <img
                         src={user.avatarUrl}
-                        alt={user.name}
+                        alt={user.name || "Customer"}
                         className="w-full h-full rounded-full object-cover"
                       />
-                    ) : (
+                    ) : user.name && !user.name.startsWith("Customer ") ? (
                       <span className="text-xs font-black">
                         {user.name
-                          ? user.name
-                              .trim()
-                              .split(/\s+/)
-                              .map((n: string) => n[0])
-                              .slice(0, 2)
-                              .join("")
-                              .toUpperCase()
-                          : "OK"}
+                          .trim()
+                          .split(/\s+/)
+                          .map((n: string) => n[0])
+                          .slice(0, 2)
+                          .join("")
+                          .toUpperCase()}
                       </span>
+                    ) : (
+                      <User className="w-4 h-4 xl:w-5 xl:h-5 stroke-[2]" />
                     )
                   ) : (
                     <User className="w-4 h-4 xl:w-5 xl:h-5 stroke-[2]" />
@@ -1097,26 +1097,30 @@ export const Header: React.FC<HeaderProps> = ({
                               {user.avatarUrl ? (
                                 <img
                                   src={user.avatarUrl}
-                                  alt={user.name}
+                                  alt={user.name || "Customer"}
                                   className="w-full h-full rounded-full object-cover"
                                 />
-                              ) : (
+                              ) : user.name && !user.name.startsWith("Customer ") ? (
                                 <span>
                                   {user.name
-                                    ? user.name
-                                        .trim()
-                                        .split(/\s+/)
-                                        .map((n: string) => n[0])
-                                        .slice(0, 2)
-                                        .join("")
-                                        .toUpperCase()
-                                    : "OK"}
+                                    .trim()
+                                    .split(/\s+/)
+                                    .map((n: string) => n[0])
+                                    .slice(0, 2)
+                                    .join("")
+                                    .toUpperCase()}
                                 </span>
+                              ) : (
+                                <User className="w-5 h-5 text-white/90" />
                               )}
                             </div>
                             <div className="min-w-0 flex-1">
                               <div className="text-sm font-bold text-slate-900 truncate">
-                                {user.name || (user.email ? user.email.split("@")[0] : "Member")}
+                                {user.name && !user.name.startsWith("Customer ")
+                                  ? user.name
+                                  : user.phone
+                                  ? user.phone
+                                  : (user.email ? user.email.split("@")[0] : "Member")}
                               </div>
                               <div className="text-[11px] text-slate-400 truncate">
                                 {user.email || user.phone || "customer@prayogindia.com"}
@@ -1129,7 +1133,7 @@ export const Header: React.FC<HeaderProps> = ({
                           </div>
 
                           <div className="px-3 py-1 text-xs font-bold text-slate-500 uppercase tracking-wider">
-                            Hello, {user.name ? user.name.split(" ")[0] : "Member"}
+                            Hello, {user.name && !user.name.startsWith("Customer ") ? user.name.split(" ")[0] : "Member"}
                           </div>
 
                           <Link
