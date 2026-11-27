@@ -30,7 +30,7 @@ export const AccountSidebar: React.FC = () => {
     { label: "My Orders", href: "/account/orders", icon: ShoppingBag },
     {
       label: "View Cart",
-      href: "/cart",
+      href: "/account/cart",
       icon: ShoppingCart,
       badge: cartCount > 0 ? cartCount : undefined,
     },
@@ -104,7 +104,7 @@ export const AccountSidebar: React.FC = () => {
                 {typeof item.badge === "number" && item.badge > 0 && (
                   <span
                     className={`px-2 py-0.5 text-[10px] font-bold rounded-full leading-none shrink-0 ${
-                      item.href === "/cart"
+                      item.href === "/account/cart" || item.href === "/cart"
                         ? "bg-blue-50 text-[#2563EB] border border-blue-200/60"
                         : "bg-rose-50 text-rose-600 border border-rose-200/60"
                     }`}

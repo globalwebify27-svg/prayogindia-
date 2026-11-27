@@ -29,7 +29,11 @@ import {
 
 type DeliveryMethod = "express" | "surface" | "store_pickup";
 
-export const CartView: React.FC = () => {
+export interface CartViewProps {
+  embedded?: boolean;
+}
+
+export const CartView: React.FC<CartViewProps> = ({ embedded = false }) => {
   const {
     cart,
     wishlist,
@@ -149,20 +153,49 @@ export const CartView: React.FC = () => {
   };
 
   return (
-    <div className="w-full px-3 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 py-4 sm:py-6 pb-32 sm:pb-12 space-y-5 sm:space-y-8 animate-in fade-in duration-300">
+    <div
+      className={
+        embedded
+          ? "w-full space-y-4 sm:space-y-6 animate-in fade-in duration-300"
+          : "w-full px-3 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 py-4 sm:py-6 pb-32 sm:pb-12 space-y-5 sm:space-y-8 animate-in fade-in duration-300"
+      }
+    >
       {/* 1. Breadcrumb */}
-      <CategoryBreadcrumb items={[{ label: "Shopping Cart" }]} />
+      {!embedded && <CategoryBreadcrumb items={[{ label: "Shopping Cart" }]} />}
 
       {/* 2. Page Header */}
-      <div className="border-b border-slate-200 pb-4 sm:pb-6">
-        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 tracking-tight">
-          Your Shopping Cart
-        </h1>
-      </div>
+      {!embedded ? (
+        <div className="border-b border-slate-200 pb-4 sm:pb-6">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 tracking-tight">
+            Your Shopping Cart
+          </h1>
+        </div>
+      ) : (
+        <div className="flex items-center justify-between pb-3 border-b border-slate-200">
+          <div>
+            <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
+              My Cart
+            </h1>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Review and manage items before heading to secure checkout.
+            </p>
+          </div>
+          <span className="text-xs font-bold text-[#2563EB] bg-blue-50 px-2.5 py-1 rounded-full border border-blue-200/60">
+            {cart.reduce((sum, item) => sum + item.quantity, 0)}{" "}
+            {cart.reduce((sum, item) => sum + item.quantity, 0) === 1
+              ? "Item"
+              : "Items"}
+          </span>
+        </div>
+      )}
 
       {/* 3. Empty State */}
       {cart.length === 0 ? (
-        <div className="py-24 text-center bg-gradient-to-br from-slate-50 to-white rounded-3xl border border-slate-200 space-y-4 max-w-lg mx-auto my-8">
+        <div
+          className={`text-center bg-gradient-to-br from-slate-50 to-white rounded-3xl border border-slate-200 space-y-4 max-w-lg mx-auto ${
+            embedded ? "py-12 my-3" : "py-24 my-8"
+          }`}
+        >
           <div className="relative w-52 h-40 sm:w-64 sm:h-48 mx-auto -mb-1">
             <Image
               src="/images/empty-cart-robot.png"

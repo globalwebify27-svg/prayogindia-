@@ -313,7 +313,7 @@ export const AccountDashboardView: React.FC = () => {
         },
         {
           label: "View Cart",
-          href: "/cart",
+          href: "/account/cart",
           icon: ShoppingCart,
           badge: cart?.length ? `${cart.reduce((sum, i) => sum + i.quantity, 0)} Items` : undefined,
           badgeColor: "bg-blue-50 text-[#2563EB] border-blue-200/60 font-medium",

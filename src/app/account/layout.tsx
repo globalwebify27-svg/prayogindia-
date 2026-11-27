@@ -8,6 +8,7 @@ import { ChevronLeft } from "lucide-react";
 
 const pageTitles: Record<string, string> = {
   "/account/orders": "My Orders",
+  "/account/cart": "Shopping Cart",
   "/account/wishlist": "Saved Wishlist",
   "/account/addresses": "Saved Addresses",
   "/account/quotations": "My Quotations",
