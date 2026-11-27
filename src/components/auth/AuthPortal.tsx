@@ -117,6 +117,31 @@ export const AuthPortal: React.FC<AuthPortalProps> = ({
   // ══════════════════════════════════════════════════════════════════════════
   // LOGIN FLOW (AMAZON-STYLE STEP 1: IDENTIFIER CHECK & MOBILE OTP PRIMARY)
   // ══════════════════════════════════════════════════════════════════════════
+  const handleIdentifierChange = (val: string) => {
+    setError(null);
+    const trimmed = val.trim();
+
+    // If input is digits only (or pasted numbers), strictly enforce 10-digit limit
+    if (/^\d+$/.test(trimmed)) {
+      if (trimmed.length <= 10) {
+        setIdentifier(trimmed);
+      }
+      return;
+    }
+
+    // If pasted with +91 prefix
+    if (trimmed.startsWith("+91")) {
+      const digits = trimmed.slice(3).replace(/\D/g, "");
+      if (digits.length <= 10) {
+        setIdentifier(digits);
+      }
+      return;
+    }
+
+    // Email or alphanumeric input
+    setIdentifier(val);
+  };
+
   const handleIdentifierSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -128,55 +153,73 @@ export const AuthPortal: React.FC<AuthPortalProps> = ({
       return;
     }
 
-    const cleanDigits = cleanId.replace(/\D/g, "");
-    const isMobile = cleanDigits.length >= 10 && !cleanId.includes("@");
+    const hasAtSymbol = cleanId.includes("@");
 
-    // Primary Auth Method: Mobile Number + OTP
-    if (isMobile) {
+    // Case 1: Email Address validation & login check
+    if (hasAtSymbol) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(cleanId)) {
+        setError("Please enter a valid email address (e.g. name@example.com).");
+        return;
+      }
+
       setLoading(true);
       try {
-        const res = await fetch("/api/auth/mobile/send-otp", {
+        const res = await fetch("/api/auth/login", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ phone: cleanDigits.slice(-10) }),
+          body: JSON.stringify({ action: "check", identifier: cleanId }),
         });
         const data = await res.json();
-        if (data.success) {
-          setLoginStep("otp");
-          setCountdown(data.cooldownSeconds || 30);
-          setTestOtpNotice(data.testOtp || "1234");
-          setSuccessMsg(`OTP sent to +91 ${cleanDigits.slice(-10)}. Please enter it below.`);
-        } else {
-          setError(data.message || "Failed to send OTP to mobile number.");
+
+        if (!res.ok || !data.success) {
+          setError(data.message || "We cannot find an account with that email address. Please create an account.");
+          setLoading(false);
+          return;
         }
+
+        setDetectedAccountName(data.name || "");
+        setLoginStep("password");
       } catch {
-        setError("Network error sending mobile OTP. Please try again.");
+        setError("Network error while verifying account. Please try again.");
       } finally {
         setLoading(false);
       }
       return;
     }
 
-    // Secondary Auth Method: Email Authentication
+    // Case 2: Mobile Phone Number validation
+    const cleanDigits = cleanId.replace(/\D/g, "");
+    let phone10 = cleanDigits;
+    if (cleanDigits.length === 12 && cleanDigits.startsWith("91")) {
+      phone10 = cleanDigits.slice(2);
+    }
+
+    // Strict Mobile Number Validation: Must be exactly 10 digits and start with 6, 7, 8, or 9
+    if (phone10.length !== 10 || !/^[6-9]\d{9}$/.test(phone10)) {
+      setError("Please enter a valid 10-digit mobile number starting with 6, 7, 8, or 9.");
+      return;
+    }
+
+    // Primary Auth Method: Mobile Number + OTP
     setLoading(true);
     try {
-      const res = await fetch("/api/auth/login", {
+      const res = await fetch("/api/auth/mobile/send-otp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "check", identifier: cleanId }),
+        body: JSON.stringify({ phone: phone10 }),
       });
       const data = await res.json();
-
-      if (!res.ok || !data.success) {
-        setError(data.message || "We cannot find an account with that email address. Please create an account.");
-        setLoading(false);
-        return;
+      if (data.success) {
+        setLoginStep("otp");
+        setCountdown(data.cooldownSeconds || 30);
+        setTestOtpNotice(data.testOtp || "1234");
+        setSuccessMsg(`OTP sent to +91 ${phone10}. Please enter it below.`);
+      } else {
+        setError(data.message || "Failed to send OTP to mobile number.");
       }
-
-      setDetectedAccountName(data.name || "");
-      setLoginStep("password");
     } catch {
-      setError("Network error while verifying account. Please try again.");
+      setError("Network error sending mobile OTP. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -685,7 +728,7 @@ export const AuthPortal: React.FC<AuthPortalProps> = ({
                       type="text"
                       required
                       value={identifier}
-                      onChange={(e) => setIdentifier(e.target.value)}
+                      onChange={(e) => handleIdentifierChange(e.target.value)}
                       placeholder="e.g. 9876543210 or name@example.com"
                       className="w-full bg-white text-slate-900 px-4 py-3 text-xs sm:text-sm rounded-full border border-slate-300 focus:outline-none focus:border-slate-900 focus:ring-1 focus:ring-slate-900 transition-all font-medium placeholder:text-slate-400"
                       autoFocus

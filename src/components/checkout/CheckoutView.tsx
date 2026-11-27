@@ -645,11 +645,9 @@ export const CheckoutView: React.FC = () => {
       window.scrollTo({ top: 0, behavior: "smooth" });
       return false;
     }
-    if (
-      !customerMobile.trim() ||
-      customerMobile.replace(/\D/g, "").length < 10
-    ) {
-      setValidationError("Please enter a valid 10-digit Mobile Phone Number.");
+    const cleanP = customerMobile.replace(/\D/g, "");
+    if (cleanP.length !== 10 || !/^[6-9]\d{9}$/.test(cleanP)) {
+      setValidationError("Please enter a valid 10-digit Mobile Phone Number starting with 6, 7, 8, or 9.");
       setCheckoutStep("address");
       setIsEditingAddress(true);
       window.scrollTo({ top: 0, behavior: "smooth" });

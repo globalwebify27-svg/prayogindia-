@@ -78,8 +78,8 @@ export const CheckoutAuthGate: React.FC<CheckoutAuthGateProps> = ({
     setError(null);
     setSuccessMsg(null);
 
-    if (!cleanPhone || cleanPhone.length < 10) {
-      setError("Please enter a valid 10-digit mobile number.");
+    if (!cleanPhone || cleanPhone.length !== 10 || !/^[6-9]\d{9}$/.test(cleanPhone)) {
+      setError("Please enter a valid 10-digit mobile number starting with 6, 7, 8, or 9.");
       return;
     }
 
