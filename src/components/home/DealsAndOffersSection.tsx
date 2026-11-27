@@ -188,10 +188,9 @@ export const DealsAndOffersSection: React.FC<Props> = ({ onShopDeals }) => {
               {/* Action Button */}
               <button
                 onClick={handleClaim}
-                className="w-full inline-flex items-center justify-center gap-1.5 bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white font-bold py-1.5 sm:py-2 rounded-lg sm:rounded-xl text-[10px] sm:text-[11px] uppercase tracking-wider transition-all cursor-pointer shadow-md shadow-red-500/20 active:scale-95 whitespace-nowrap"
+                className="w-full inline-flex items-center justify-center bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white font-bold py-1.5 sm:py-2 rounded-lg sm:rounded-xl text-[10px] sm:text-[11px] uppercase tracking-wider transition-all cursor-pointer shadow-md shadow-red-500/20 active:scale-95 whitespace-nowrap"
               >
                 <span>CLAIM DEAL</span>
-                <ArrowRight className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
               </button>
             </div>
           </motion.div>
@@ -272,10 +271,9 @@ export const DealsAndOffersSection: React.FC<Props> = ({ onShopDeals }) => {
               {/* Action Button */}
               <button
                 onClick={handleClaim}
-                className="w-full inline-flex items-center justify-center gap-1.5 bg-gradient-to-r from-[#005CA9] to-[#0078D7] hover:from-[#004885] hover:to-[#005CA9] text-white font-bold py-1.5 sm:py-2 rounded-lg sm:rounded-xl text-[10px] sm:text-[11px] uppercase tracking-wider transition-all cursor-pointer shadow-md shadow-blue-500/20 active:scale-95 whitespace-nowrap"
+                className="w-full inline-flex items-center justify-center bg-gradient-to-r from-[#005CA9] to-[#0078D7] hover:from-[#004885] hover:to-[#005CA9] text-white font-bold py-1.5 sm:py-2 rounded-lg sm:rounded-xl text-[10px] sm:text-[11px] uppercase tracking-wider transition-all cursor-pointer shadow-md shadow-blue-500/20 active:scale-95 whitespace-nowrap"
               >
                 <span>CLAIM DEAL</span>
-                <ArrowRight className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
               </button>
             </div>
           </motion.div>
@@ -356,10 +354,9 @@ export const DealsAndOffersSection: React.FC<Props> = ({ onShopDeals }) => {
               {/* Action Button */}
               <button
                 onClick={handleClaim}
-                className="w-full inline-flex items-center justify-center gap-1.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-slate-950 font-black py-1.5 sm:py-2 rounded-lg sm:rounded-xl text-[10px] sm:text-[11px] uppercase tracking-wider transition-all cursor-pointer shadow-md shadow-amber-500/20 active:scale-95 whitespace-nowrap"
+                className="w-full inline-flex items-center justify-center bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-slate-950 font-black py-1.5 sm:py-2 rounded-lg sm:rounded-xl text-[10px] sm:text-[11px] uppercase tracking-wider transition-all cursor-pointer shadow-md shadow-amber-500/20 active:scale-95 whitespace-nowrap"
               >
                 <span>CLAIM DEAL</span>
-                <ArrowRight className="w-3 h-3 sm:w-3.5 sm:h-3.5 stroke-[2.5]" />
               </button>
             </div>
           </motion.div>
@@ -430,10 +427,9 @@ export const DealsAndOffersSection: React.FC<Props> = ({ onShopDeals }) => {
               {/* Action Button */}
               <button
                 onClick={handleClaim}
-                className="w-full inline-flex items-center justify-center gap-1.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold py-1.5 sm:py-2 rounded-lg sm:rounded-xl text-[10px] sm:text-[11px] uppercase tracking-wider transition-all cursor-pointer shadow-md shadow-emerald-500/20 active:scale-95 whitespace-nowrap"
+                className="w-full inline-flex items-center justify-center bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold py-1.5 sm:py-2 rounded-lg sm:rounded-xl text-[10px] sm:text-[11px] uppercase tracking-wider transition-all cursor-pointer shadow-md shadow-emerald-500/20 active:scale-95 whitespace-nowrap"
               >
                 <span>SHOP NOW</span>
-                <ArrowRight className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
               </button>
             </div>
           </motion.div>
