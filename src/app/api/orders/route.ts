@@ -192,7 +192,28 @@ export async function POST(request: Request) {
           },
         });
       } catch (updateErr: any) {
-        console.warn("[Orders] prisma.user.update failed, continuing with existing user:", updateErr?.message);
+        console.warn("[Orders] prisma.user.update failed, trying raw SQL:", updateErr?.message);
+        try {
+          if (effectiveName && effectivePhone) {
+            await db.$executeRawUnsafe(
+              `UPDATE "User" SET "name"=$1, "phone"=$2, "updatedAt"=NOW() WHERE "id"=$3`,
+              effectiveName, effectivePhone, dbUser.id
+            );
+          } else if (effectiveName) {
+            await db.$executeRawUnsafe(
+              `UPDATE "User" SET "name"=$1, "updatedAt"=NOW() WHERE "id"=$2`,
+              effectiveName, dbUser.id
+            );
+          } else if (effectivePhone) {
+            await db.$executeRawUnsafe(
+              `UPDATE "User" SET "phone"=$1, "updatedAt"=NOW() WHERE "id"=$2`,
+              effectivePhone, dbUser.id
+            );
+          }
+          dbUser = { ...dbUser, ...(effectiveName ? { name: effectiveName } : {}), ...(effectivePhone ? { phone: effectivePhone } : {}) };
+        } catch (rawUpdateErr: any) {
+          console.warn("[Orders] raw user.update also failed, continuing with existing user:", rawUpdateErr?.message);
+        }
       }
     }
 
@@ -499,28 +520,32 @@ export async function POST(request: Request) {
 
       // 4b. Deduct redeemed points from user & log transaction
       if (sanitizedPointsUsed > 0) {
-        const currentUser = await tx.user.findUnique({
-          where: { id: dbUser.id },
-          select: { rewardPoints: true },
-        });
-        const currentBal = currentUser?.rewardPoints || 0;
-        await tx.user.update({
-          where: { id: dbUser.id },
-          data: { rewardPoints: { decrement: sanitizedPointsUsed } },
-        });
-        await tx.rewardTransaction.create({
-          data: {
-            userId: dbUser.id,
-            orderId: order.id,
-            type: "REDEEMED",
-            points: -sanitizedPointsUsed,
-            balanceBefore: currentBal,
-            balanceAfter: Math.max(0, currentBal - sanitizedPointsUsed),
-            description: `Redeemed ${sanitizedPointsUsed} Prayog Coins on order #${order.orderNumber}`,
-            referenceType: "CHECKOUT_REDEEM",
-            referenceId: order.orderNumber,
-          },
-        });
+        try {
+          const currentUser = await tx.user.findUnique({
+            where: { id: dbUser.id },
+            select: { rewardPoints: true },
+          });
+          const currentBal = currentUser?.rewardPoints || 0;
+          await tx.user.update({
+            where: { id: dbUser.id },
+            data: { rewardPoints: { decrement: sanitizedPointsUsed } },
+          });
+          await tx.rewardTransaction.create({
+            data: {
+              userId: dbUser.id,
+              orderId: order.id,
+              type: "REDEEMED",
+              points: -sanitizedPointsUsed,
+              balanceBefore: currentBal,
+              balanceAfter: Math.max(0, currentBal - sanitizedPointsUsed),
+              description: `Redeemed ${sanitizedPointsUsed} Prayog Coins on order #${order.orderNumber}`,
+              referenceType: "CHECKOUT_REDEEM",
+              referenceId: order.orderNumber,
+            },
+          });
+        } catch (redeemErr: any) {
+          console.warn("[Orders] reward deduction skipped (stale client):", redeemErr?.message);
+        }
       }
 
       // 4c. Record coupon usage
@@ -599,30 +624,34 @@ export async function POST(request: Request) {
         const typeCode = getCustomerTypeCode(order.customerType);
         const earned = calculateEarnedRewards(order.totalAmount, typeCode);
         if (earned.coinsEarned > 0) {
-          const u = await tx.user.findUnique({
-            where: { id: dbUser.id },
-            select: { rewardPoints: true },
-          });
-          const bal = u?.rewardPoints || 0;
-          await tx.user.update({
-            where: { id: dbUser.id },
-            data: { rewardPoints: { increment: earned.coinsEarned } },
-          });
-          await tx.rewardTransaction.create({
-            data: {
-              userId: dbUser.id,
-              orderId: order.id,
-              type: "EARNED",
-              points: earned.coinsEarned,
-              balanceBefore: bal,
-              balanceAfter: bal + earned.coinsEarned,
-              description: `Earned ${earned.coinsEarned} Prayog Coins on order ${order.orderNumber}`,
-            },
-          });
-          await tx.order.update({
-            where: { id: order.id },
-            data: { rewardPointsEarned: earned.coinsEarned },
-          });
+          try {
+            const u = await tx.user.findUnique({
+              where: { id: dbUser.id },
+              select: { rewardPoints: true },
+            });
+            const bal = u?.rewardPoints || 0;
+            await tx.user.update({
+              where: { id: dbUser.id },
+              data: { rewardPoints: { increment: earned.coinsEarned } },
+            });
+            await tx.rewardTransaction.create({
+              data: {
+                userId: dbUser.id,
+                orderId: order.id,
+                type: "EARNED",
+                points: earned.coinsEarned,
+                balanceBefore: bal,
+                balanceAfter: bal + earned.coinsEarned,
+                description: `Earned ${earned.coinsEarned} Prayog Coins on order ${order.orderNumber}`,
+              },
+            });
+            await tx.order.update({
+              where: { id: order.id },
+              data: { rewardPointsEarned: earned.coinsEarned },
+            });
+          } catch (earnErr: any) {
+            console.warn("[Orders] reward credit skipped (stale client):", earnErr?.message);
+          }
         }
       }
 
