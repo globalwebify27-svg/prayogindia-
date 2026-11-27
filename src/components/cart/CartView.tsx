@@ -16,12 +16,10 @@ import {
   Heart,
   ArrowRight,
   ShieldCheck,
-  Tag,
   Truck,
   AlertTriangle,
   CheckCircle2,
   MapPin,
-  Coins,
   LogIn,
   RotateCcw,
   Check,
@@ -43,19 +41,7 @@ export const CartView: React.FC = () => {
     removeFromCart,
     moveToWishlist,
     clearCart,
-    redeemRewardPoints,
   } = useStore();
-
-  // ── Coupon State
-  const [couponCode, setCouponCode] = useState("");
-  const [appliedCoupon, setAppliedCoupon] = useState<string | null>(null);
-  const [couponDiscount, setCouponDiscount] = useState(0);
-  const [couponError, setCouponError] = useState<string | null>(null);
-
-  // ── Reward Points State
-  const [pointsInput, setPointsInput] = useState("");
-  const [redeemedDiscount, setRedeemedDiscount] = useState(0);
-  const [pointsError, setPointsError] = useState<string | null>(null);
 
   const [pincode, setPincode] = useState("");
   const [pincodeStatus, setPincodeStatus] = useState<string | null>(null);
@@ -118,9 +104,9 @@ export const CartView: React.FC = () => {
     return sum + price * item.quantity;
   }, 0);
 
-  // Customer segment discount (e.g. B2B 15% off, Registered 5% off)
+  // Customer segment discount (only for B2B institutional procurement; retail/registered accounts pay catalog price matching checkout)
   const segmentDiscount =
-    customerDiscountPercent > 0
+    currentCustomerType === "B2B Customer" && customerDiscountPercent > 0
       ? Math.round(baseCatalogSubtotal * (customerDiscountPercent / 100))
       : 0;
 
@@ -142,50 +128,10 @@ export const CartView: React.FC = () => {
   // Grand total
   const grandTotal = Math.max(
     0,
-    discountedSubtotal - couponDiscount - redeemedDiscount + deliveryFee,
+    discountedSubtotal + deliveryFee,
   );
 
   // ── Handlers
-  const handleApplyCoupon = () => {
-    setCouponError(null);
-    const code = couponCode.trim().toUpperCase();
-    if (code === "PRAYOG10") {
-      const discount = Math.round(discountedSubtotal * 0.1);
-      setCouponDiscount(discount);
-      setAppliedCoupon("PRAYOG10 (10% OFF)");
-    } else if (code === "MAKER500") {
-      const discount = Math.min(discountedSubtotal, 500);
-      setCouponDiscount(discount);
-      setAppliedCoupon("MAKER500 (Flat ₹500 OFF)");
-    } else if (code === "ROBOTICS20" && discountedSubtotal >= 3000) {
-      const discount = Math.round(discountedSubtotal * 0.2);
-      setCouponDiscount(discount);
-      setAppliedCoupon("ROBOTICS20 (20% OFF)");
-    } else {
-      setCouponError("Invalid or ineligible code. Try PRAYOG10 or MAKER500.");
-    }
-  };
-
-  const handleRedeemPoints = () => {
-    setPointsError(null);
-    const pts = parseInt(pointsInput, 10);
-    if (isNaN(pts) || pts <= 0) {
-      setPointsError("Enter a valid number of coins.");
-      return;
-    }
-    if (!user || user.rewardPoints < pts) {
-      setPointsError(
-        `Insufficient coins. You have ${user?.rewardPoints || 0} coins.`,
-      );
-      return;
-    }
-    const maxRedeemablePts = Math.floor(discountedSubtotal / 0.5);
-    const appliedPts = Math.min(pts, maxRedeemablePts);
-    const discount = redeemRewardPoints(appliedPts);
-    setRedeemedDiscount((prev) => prev + discount);
-    setPointsInput("");
-  };
-
   const handleCheckPincode = () => {
     if (pincode.trim().length === 6 && /^\d+$/.test(pincode)) {
       if (hasBatteryOrHazardous) {
@@ -599,79 +545,8 @@ export const CartView: React.FC = () => {
                 </span>
               </div>
 
-              {/* 1. Coupon Section */}
-              <div className="space-y-1.5">
-                <label className="text-[11px] font-semibold text-slate-600 flex items-center gap-1">
-                  <Tag className="w-3 h-3 text-[#2563EB]" /> Have a Coupon?
-                </label>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    placeholder="e.g. PRAYOG10"
-                    value={couponCode}
-                    onChange={(e) => setCouponCode(e.target.value)}
-                    className="flex-1 bg-white text-slate-900 text-xs px-3 py-2 rounded-lg border border-slate-200 focus:outline-none focus:border-[#2563EB] uppercase font-mono font-bold"
-                  />
-                  <button
-                    onClick={handleApplyCoupon}
-                    className="bg-[#2563EB] hover:bg-[#1D4ED8] active:bg-[#1E40AF] text-white text-xs font-bold px-3.5 py-2 rounded-lg transition-colors cursor-pointer shrink-0 shadow-xs"
-                  >
-                    Apply
-                  </button>
-                </div>
-                {appliedCoupon && (
-                  <p className="text-xs font-bold text-emerald-600 flex items-center gap-1">
-                    <Check className="w-3 h-3" /> Applied {appliedCoupon}
-                  </p>
-                )}
-                {couponError && (
-                  <p className="text-xs font-semibold text-red-500">
-                    {couponError}
-                  </p>
-                )}
-              </div>
-
-              {/* 2. Reward Points Redemption (if logged in) */}
-              {isLoggedIn && user && user.rewardPoints > 0 && (
-                <div className="space-y-1.5 pt-3 border-t border-slate-200">
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="font-semibold text-slate-600 flex items-center gap-1">
-                      <Coins className="w-3 h-3 text-amber-500" /> Prayog Coins
-                    </span>
-                    <span className="text-[11px] text-amber-600 font-bold">
-                      {user.rewardPoints} Available
-                    </span>
-                  </div>
-                  <div className="flex gap-2">
-                    <input
-                      type="number"
-                      placeholder="Coins to redeem"
-                      value={pointsInput}
-                      onChange={(e) => setPointsInput(e.target.value)}
-                      className="flex-1 bg-white text-slate-900 text-xs px-3 py-2 rounded-lg border border-slate-200 focus:outline-none focus:border-[#2563EB]"
-                    />
-                    <button
-                      onClick={handleRedeemPoints}
-                      className="bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-bold px-3.5 py-2 rounded-lg transition-colors cursor-pointer shrink-0"
-                    >
-                      Redeem
-                    </button>
-                  </div>
-                  {redeemedDiscount > 0 && (
-                    <p className="text-xs font-bold text-emerald-600">
-                      ✓ Redeemed ₹{redeemedDiscount.toLocaleString("en-IN")} off
-                    </p>
-                  )}
-                  {pointsError && (
-                    <p className="text-xs font-semibold text-red-500">
-                      {pointsError}
-                    </p>
-                  )}
-                </div>
-              )}
-
-              {/* 3. Detailed Calculation Matrix */}
-              <div className="space-y-2 text-xs text-slate-600 pt-3 border-t border-slate-200">
+              {/* Detailed Calculation Matrix */}
+              <div className="space-y-2 text-xs text-slate-600">
                 <div className="flex justify-between">
                   <span>Total MRP</span>
                   <span className="text-slate-400 line-through">
@@ -700,20 +575,6 @@ export const CartView: React.FC = () => {
                   </span>
                 </div>
 
-                {couponDiscount > 0 && (
-                  <div className="flex justify-between text-emerald-600 font-medium">
-                    <span>Coupon Discount</span>
-                    <span>-₹{couponDiscount.toLocaleString("en-IN")}</span>
-                  </div>
-                )}
-
-                {redeemedDiscount > 0 && (
-                  <div className="flex justify-between text-emerald-600 font-medium">
-                    <span>Coins Redeemed</span>
-                    <span>-₹{redeemedDiscount.toLocaleString("en-IN")}</span>
-                  </div>
-                )}
-
                 <div className="flex justify-between">
                   <span className="flex items-center gap-1">
                     GST 18% <Info className="w-3 h-3 text-slate-400" />
@@ -738,6 +599,11 @@ export const CartView: React.FC = () => {
                   </span>
                 </div>
               </div>
+
+              {/* Note about checkout coupons & rewards */}
+              <p className="text-[11px] text-slate-500 text-center">
+                Coupons and Prayog Coins can be applied at checkout.
+              </p>
 
               {/* 4. Checkout Action */}
               <div className="space-y-2 pt-1">
