@@ -1356,10 +1356,10 @@ export default function AdminOrdersPage() {
                   Delivery Status
                 </span>
                 <div className="text-xs font-black text-emerald-600">
-                  {selectedOrderForShipping.deliveryStatus}
+                  {selectedOrderForShipping.deliveryStatus || "Manifest Created"}
                 </div>
                 <div className="text-[10px] text-slate-400">
-                  {selectedOrderForShipping.trackingStatus}
+                  {selectedOrderForShipping.trackingStatus || "Ready for Dispatch"}
                 </div>
               </div>
             </div>

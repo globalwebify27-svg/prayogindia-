@@ -220,16 +220,39 @@ export async function GET(request: Request) {
               ? "Store Walk-in POS"
               : "Prayog Website Store";
 
+        const hasRestrictedItem =
+          ord.items?.some((i: any) => {
+            const name = (i.productName || i.name || "").toLowerCase();
+            return (
+              name.includes("battery") ||
+              name.includes("lipo") ||
+              name.includes("li-ion") ||
+              name.includes("chemical") ||
+              name.includes("drone")
+            );
+          }) || false;
+
         return {
           ...ord,
           orderSource,
           channelName,
-          awbNumber: isWalkIn ? "Counter Handover" : ord.shipment?.trackingNumber || null,
-          courierProvider: isWalkIn ? "In-Store Fulfillment" : ord.shipment?.courierName || "Delhivery Surface",
+          awbNumber: isWalkIn
+            ? "Counter Handover"
+            : ord.shipment?.trackingNumber || "PENDING AWB",
+          courierProvider: isWalkIn
+            ? "In-Store Fulfillment"
+            : ord.shipment?.courierName || "Delhivery Surface",
           weightGm: ord.shipment?.weightKg
             ? Math.round(ord.shipment.weightKg * 1000)
             : 500,
           freightMode: isWalkIn ? "Store Handover" : "Surface Express",
+          hasRestrictedItem,
+          deliveryStatus:
+            ord.shipment?.status ||
+            (ord.status ? String(ord.status).replace(/_/g, " ") : "Order Placed"),
+          trackingStatus: ord.shipment?.estimatedDelivery
+            ? `Est. ${ord.shipment.estimatedDelivery}`
+            : "Ready for Dispatch",
         };
       });
 
