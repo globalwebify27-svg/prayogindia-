@@ -140,6 +140,7 @@ describe("Prayog India Authentication System Audit & Validation", () => {
         passwordHash: hash,
         customerType: "Registered Customer",
         rewardPoints: 250,
+        mobileVerified: true,
       });
     });
 

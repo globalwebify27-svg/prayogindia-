@@ -174,7 +174,37 @@ export async function POST(request: Request) {
       );
     }
 
-    // 6. Construct Authenticated User Payload
+    // 6. Check if email login requires mobile number verification
+    const isEmailLogin = identifier.includes("@");
+    const isMobileVerified = Boolean(
+      userRecord?.mobileVerified || dbUser?.mobileVerified,
+    );
+    const existingRawPhone = userRecord?.phone || dbUser?.phone || "";
+    const cleanExistingPhone = existingRawPhone.replace(/\D/g, "").slice(-10);
+
+    if (isEmailLogin && (!isMobileVerified || !cleanExistingPhone)) {
+      let testOtp = "";
+      if (cleanExistingPhone && cleanExistingPhone.length === 10) {
+        try {
+          const { UnifiedAuthService } = await import("@/lib/unifiedAuthService");
+          const otpResult = await UnifiedAuthService.sendMobileOtp(cleanExistingPhone);
+          testOtp = otpResult?.testOtp || "1234";
+        } catch (_) {}
+      }
+
+      return NextResponse.json({
+        success: true,
+        requiresMobileVerification: true,
+        phone: cleanExistingPhone,
+        userId: userRecord?.id || dbUser?.id,
+        testOtp: process.env.NODE_ENV !== "production" ? testOtp || "1234" : undefined,
+        message: cleanExistingPhone
+          ? `Mobile verification required. An OTP has been sent to +91 ${cleanExistingPhone}.`
+          : "Please enter and verify your mobile number with OTP to complete sign in.",
+      });
+    }
+
+    // 7. Construct Authenticated User Payload
     const userPayload: AuthSessionUser | null = userRecord
       ? {
           id: userRecord.id,

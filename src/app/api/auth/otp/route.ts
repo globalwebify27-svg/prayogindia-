@@ -158,12 +158,13 @@ export async function POST(request: Request) {
             existingDbUser = await db.user.create({
               data: {
                 name: resolvedCustomerName,
-                email: `${cleanPhone}@otp.prayogindia.local`,
+                email: null,
                 phone: `+91 ${cleanPhone}`,
                 passwordHash: "",
                 role: "CUSTOMER",
                 customerType: "B2C",
                 rewardPoints: 100,
+                mobileVerified: true,
               },
             });
           } catch (dbErr) {

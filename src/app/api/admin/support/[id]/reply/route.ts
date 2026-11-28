@@ -76,7 +76,7 @@ export async function POST(
             ticketNumber: ticket.ticketNumber,
             messageSnippet: text.trim().substring(0, 100),
           },
-          customerEmail: ticket.user?.email,
+          customerEmail: ticket.user?.email || undefined,
         }).catch((err) =>
           console.warn("Support reply notification failed", err),
         );

@@ -191,7 +191,7 @@ export async function POST(request: Request) {
             );
           }
 
-          const isEmailMatch = existingUser.email.toLowerCase() === cleanEmail;
+          const isEmailMatch = (existingUser.email?.toLowerCase() || "") === cleanEmail;
           return NextResponse.json(
             {
               success: false,
@@ -233,7 +233,7 @@ export async function POST(request: Request) {
         dbNewUser = await db.user.create({
           data: {
             name: displayName,
-            email: cleanEmail || `${cleanPhone}@otp.prayogindia.local`,
+            email: cleanEmail || null,
             phone: cleanPhone ? `+91 ${cleanPhone.slice(-10)}` : "",
             passwordHash,
             role: "CUSTOMER",

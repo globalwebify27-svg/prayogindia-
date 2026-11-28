@@ -603,7 +603,7 @@ export const UnifiedAuthService = {
                 data: {
                   name: cleanName,
                   phone: fullFormatted,
-                  email: cleanEmail || `${clean10}@prayogindia.local`,
+                  email: cleanEmail || null,
                   passwordHash: "OTP_AUTH_VERIFIED",
                   role: "CUSTOMER",
                   customerType: data.companyName ? "B2B" : "B2C",
@@ -640,12 +640,11 @@ export const UnifiedAuthService = {
             const newId = `usr-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
             await db.$executeRawUnsafe(
               `INSERT INTO "User" ("id", "name", "phone", "email", "passwordHash", "role", "customerType", "rewardPoints", "mobileVerified", "createdAt", "updatedAt")
-               VALUES ($1, $2, $3, $4, 'OTP_AUTH_VERIFIED', 'CUSTOMER'::"Role", 'B2C'::"CustomerType", 100, true, NOW(), NOW())
-               ON CONFLICT ("email") DO UPDATE SET "name" = EXCLUDED."name", "phone" = EXCLUDED."phone"`,
+               VALUES ($1, $2, $3, $4, 'OTP_AUTH_VERIFIED', 'CUSTOMER'::"Role", 'B2C'::"CustomerType", 100, true, NOW(), NOW())`,
               newId,
               cleanName,
               fullFormatted,
-              cleanEmail || `${clean10}@prayogindia.local`,
+              cleanEmail || null,
             );
             await db.$executeRawUnsafe(
               `INSERT INTO "Address" ("id", "userId", "name", "phone", "street", "city", "state", "pincode", "type", "isDefault", "createdAt", "updatedAt")

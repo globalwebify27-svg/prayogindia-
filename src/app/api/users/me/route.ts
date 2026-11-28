@@ -81,7 +81,7 @@ export async function GET() {
 
     if (!dbUser && (user.email || user.phone)) {
       // Auto-create in PostgreSQL if missing
-      const cleanEmail = user.email ? normalizeEmail(user.email) : `${(user.phone || "").replace(/\D/g, "").slice(-10)}@otp.prayogindia.local`;
+      const cleanEmail = user.email ? normalizeEmail(user.email) : null;
       try {
         const created = await db.user.create({
           data: {
@@ -92,6 +92,7 @@ export async function GET() {
             role: "CUSTOMER",
             customerType: "B2C",
             rewardPoints: user.rewardPoints || 100,
+            mobileVerified: Boolean(user.phone),
           },
         });
 
@@ -256,14 +257,14 @@ export async function PATCH(request: Request) {
     }
 
     if (phone !== undefined) {
-      const cleanPhone = String(phone).replace(/\D/g, "");
-      if (cleanPhone.length < 10) {
-        return NextResponse.json(
-          { success: false, message: "Enter a valid 10-digit phone number." },
-          { status: 400, headers },
-        );
-      }
-      updateData.phone = `+91${cleanPhone.slice(-10)}`;
+      return NextResponse.json(
+        {
+          success: false,
+          message:
+            "Mobile phone number updates require OTP verification. Please use the verified Change Number feature.",
+        },
+        { status: 400, headers },
+      );
     }
 
     if (companyName !== undefined) {
@@ -351,19 +352,18 @@ export async function PATCH(request: Request) {
 
     // 2. If not found in DB, create record
     if (!targetUser) {
-      const cleanEmail = normalizeEmail(
-        user.email || `${cleanPhone || Date.now()}@otp.prayogindia.local`,
-      );
+      const cleanEmail = user.email ? normalizeEmail(user.email) : null;
       try {
         targetUser = await db.user.create({
           data: {
             name: updateData.name || user.name || "Prayog Customer",
             email: cleanEmail,
-            phone: updateData.phone || user.phone || "",
+            phone: user.phone || "",
             passwordHash: "",
             role: "CUSTOMER",
             customerType: "B2C",
             rewardPoints: user.rewardPoints || 100,
+            mobileVerified: Boolean(user.phone),
           },
         });
       } catch (createErr: any) {
@@ -371,21 +371,21 @@ export async function PATCH(request: Request) {
         const newId = user.id || `usr-${Date.now()}`;
         try {
           await db.$executeRawUnsafe(
-            `INSERT INTO "User" ("id", "name", "email", "phone", "passwordHash", "role", "customerType", "rewardPoints", "createdAt", "updatedAt")
-             VALUES ($1, $2, $3, $4, '', 'CUSTOMER'::"Role", 'B2C'::"CustomerType", 100, NOW(), NOW())
-             ON CONFLICT ("email") DO NOTHING`,
+            `INSERT INTO "User" ("id", "name", "email", "phone", "passwordHash", "role", "customerType", "rewardPoints", "mobileVerified", "createdAt", "updatedAt")
+             VALUES ($1, $2, $3, $4, '', 'CUSTOMER'::"Role", 'B2C'::"CustomerType", 100, true, NOW(), NOW())`,
             newId,
             updateData.name || user.name || "Prayog Customer",
             cleanEmail,
-            updateData.phone || user.phone || ""
+            user.phone || ""
           );
           targetUser = {
             id: newId,
             name: updateData.name || user.name || "Prayog Customer",
             email: cleanEmail,
-            phone: updateData.phone || user.phone || "",
+            phone: user.phone || "",
             customerType: "B2C",
             rewardPoints: 100,
+            mobileVerified: true,
           };
         } catch (_) {}
       }

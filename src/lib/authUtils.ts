@@ -36,7 +36,7 @@ export async function verifyPassword(
 export function sanitizeUser(user: {
   id: string;
   name: string;
-  email: string;
+  email?: string | null;
   phone: string;
   role?: string;
   customerType?: string;
@@ -47,7 +47,7 @@ export function sanitizeUser(user: {
   return {
     id: user.id,
     name: user.name,
-    email: user.email,
+    email: user.email || "",
     phone: user.phone,
     role: user.role === "ADMIN" ? "ADMIN" : "CUSTOMER",
     customerType: user.customerType || "Registered Customer",

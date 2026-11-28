@@ -233,7 +233,7 @@ export async function getAllReviews(options?: {
           .map((r) => ({
             id: r.id,
             author: r.user?.name || "Customer",
-            email: r.user?.email,
+            email: r.user?.email || undefined,
             userId: r.userId,
             rating: r.rating,
             date: new Date(r.createdAt).toLocaleDateString("en-IN", {

@@ -181,11 +181,11 @@ export async function POST(request: Request) {
         try {
           await db.user.update({
             where: { id: user.id },
-            data: { phone: formattedPhone },
+            data: { phone: formattedPhone, mobileVerified: true },
           });
         } catch {
           await db.$executeRawUnsafe(
-            `UPDATE "User" SET "phone"=$1, "updatedAt"=NOW() WHERE "id"=$2`,
+            `UPDATE "User" SET "phone"=$1, "mobileVerified"=true, "updatedAt"=NOW() WHERE "id"=$2`,
             formattedPhone,
             user.id,
           );

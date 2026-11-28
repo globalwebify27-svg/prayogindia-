@@ -352,7 +352,7 @@ export async function POST(
         cancellationReferenceId: canRefId,
         refundStatus,
       },
-      customerEmail: order.user?.email,
+      customerEmail: order.user?.email || undefined,
     }).catch(console.warn);
 
     return NextResponse.json({

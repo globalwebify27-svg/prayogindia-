@@ -244,7 +244,7 @@ export async function POST(request: Request) {
           orderId: order.id,
           userId: user.id,
           customerName: order.user.name,
-          customerEmail: order.user.email,
+          customerEmail: order.user.email || "",
           customerPhone: order.user.phone,
           customerGstin: order.user.gstin || null,
           companyName: order.user.companyName || null,
@@ -296,7 +296,7 @@ export async function POST(request: Request) {
         totalAmount: order.totalAmount,
         paymentId: razorpay_payment_id,
       },
-      customerEmail: order.user.email,
+      customerEmail: order.user.email || undefined,
     }).catch((err) => console.warn("[Non-blocking notification error]", err));
 
     return NextResponse.json({

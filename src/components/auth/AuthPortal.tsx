@@ -258,6 +258,21 @@ export const AuthPortal: React.FC<AuthPortalProps> = ({
         return;
       }
 
+      if (data.requiresMobileVerification) {
+        if (data.phone) {
+          setIdentifier(data.phone);
+          setLoginStep("otp");
+          setCountdown(30);
+          setTestOtpNotice(data.testOtp || "1234");
+          setSuccessMsg(data.message || `OTP sent to +91 ${data.phone}. Please enter it to verify your mobile number.`);
+        } else {
+          setLoginStep("identifier");
+          setError("Your account requires a verified mobile phone number. Please enter your 10-digit mobile number below to verify via OTP.");
+        }
+        setLoading(false);
+        return;
+      }
+
       if (data?.user) {
         loginUser({
           id: data.user.id,

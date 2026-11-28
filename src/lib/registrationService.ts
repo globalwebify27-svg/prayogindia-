@@ -303,7 +303,7 @@ export const RegistrationService = {
           dbUser = await db.user.create({
             data: {
               name: pending.name,
-              email: pending.email || `${cleanPhone}@otp.prayogindia.local`,
+              email: pending.email || null,
               phone: `+91 ${cleanPhone}`,
               passwordHash,
               role: "CUSTOMER",

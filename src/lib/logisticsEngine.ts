@@ -259,7 +259,7 @@ export class LogisticsEngine {
           trackingUrl,
           estimatedDelivery,
         },
-        customerEmail: order.user?.email,
+        customerEmail: order.user?.email || undefined,
       });
     } catch (notifErr) {
       console.warn("[LogisticsEngine] Notification error:", notifErr);
@@ -458,7 +458,7 @@ export class LogisticsEngine {
           orderNumber: shipment.order.orderNumber,
           awb: shipment.trackingNumber,
         },
-        customerEmail: shipment.order.user?.email,
+        customerEmail: shipment.order.user?.email || undefined,
       }).catch((e) =>
         console.warn("[LogisticsEngine] Delivery notify error:", e),
       );

@@ -167,7 +167,7 @@ export async function POST(request: Request) {
               orderId: order.id,
               userId: order.userId,
               customerName: order.user.name,
-              customerEmail: order.user.email,
+              customerEmail: order.user.email || "",
               customerPhone: order.user.phone,
               billingAddress: order.shippingAddress,
               shippingAddress: order.shippingAddress,

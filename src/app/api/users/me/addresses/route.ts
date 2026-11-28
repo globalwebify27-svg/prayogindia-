@@ -99,12 +99,13 @@ export async function POST(request: Request) {
                 data: {
                   id: user.id,
                   name: user.name || name || "Customer",
-                  email: user.email && !user.email.includes("@otp.") ? user.email : `${cleanPhone}@otp.prayogindia.local`,
+                  email: user.email && !user.email.includes("@otp.") ? user.email : null,
                   phone: cleanPhone,
                   passwordHash: "OTP_AUTH_USER",
                   role: "CUSTOMER",
                   customerType: "B2C",
                   rewardPoints: 100,
+                  mobileVerified: true,
                 },
               });
               verifiedUserId = nu.id;
