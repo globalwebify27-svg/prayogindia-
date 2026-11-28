@@ -813,7 +813,7 @@ model Invoice {
   order           Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
   userId          String
   customerName    String
-  customerEmail   String
+  customerEmail   String?
   customerPhone   String
   customerGstin   String?  // B2B GSTIN
   companyName     String?  // B2B company

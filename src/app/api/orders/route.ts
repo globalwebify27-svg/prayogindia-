@@ -114,7 +114,9 @@ export async function POST(request: Request) {
       typeof customerEmail === "string" &&
       customerEmail.includes("@")
         ? customerEmail.trim().toLowerCase()
-        : user.email.toLowerCase();
+        : user?.email
+        ? user.email.toLowerCase()
+        : "";
     const effectiveName =
       customerName &&
       typeof customerName === "string" &&
@@ -217,18 +219,25 @@ export async function POST(request: Request) {
           throw rawErr;
         }
       }
-    } else if (effectiveName || effectivePhone) {
+    } else if (effectiveName || effectivePhone || (effectiveEmail && !dbUser.email)) {
       try {
         dbUser = await db.user.update({
           where: { id: dbUser.id },
           data: {
             ...(effectiveName ? { name: effectiveName } : {}),
             ...(effectivePhone ? { phone: effectivePhone } : {}),
+            ...(effectiveEmail && !dbUser.email ? { email: effectiveEmail } : {}),
           },
         });
       } catch (updateErr: any) {
         console.warn("[Orders] prisma.user.update failed, trying raw SQL:", updateErr?.message);
         try {
+          if (effectiveEmail && !dbUser.email) {
+            await db.$executeRawUnsafe(
+              `UPDATE "User" SET "email"=$1, "updatedAt"=NOW() WHERE "id"=$2 AND ("email" IS NULL OR "email" = '')`,
+              effectiveEmail, dbUser.id
+            );
+          }
           if (effectiveName && effectivePhone) {
             await db.$executeRawUnsafe(
               `UPDATE "User" SET "name"=$1, "phone"=$2, "updatedAt"=NOW() WHERE "id"=$3`,
@@ -245,7 +254,7 @@ export async function POST(request: Request) {
               effectivePhone, dbUser.id
             );
           }
-          dbUser = { ...dbUser, ...(effectiveName ? { name: effectiveName } : {}), ...(effectivePhone ? { phone: effectivePhone } : {}) };
+          dbUser = { ...dbUser, ...(effectiveName ? { name: effectiveName } : {}), ...(effectivePhone ? { phone: effectivePhone } : {}), ...(effectiveEmail && !dbUser.email ? { email: effectiveEmail } : {}) };
         } catch (rawUpdateErr: any) {
           console.warn("[Orders] raw user.update also failed, continuing with existing user:", rawUpdateErr?.message);
         }
@@ -650,14 +659,19 @@ export async function POST(request: Request) {
 
       // 4e. Generate Invoice Record
       const invNum = await generateInvoiceNumber();
+      const invoiceCustomerEmail =
+        (effectiveEmail && effectiveEmail.includes("@") ? effectiveEmail : null) ||
+        (dbUser.email && dbUser.email.includes("@") ? dbUser.email : null) ||
+        null;
+
       await tx.invoice.create({
         data: {
           invoiceNumber: invNum,
           orderId: order.id,
           userId: dbUser.id,
-          customerName: dbUser.name,
-          customerEmail: dbUser.email,
-          customerPhone: dbUser.phone,
+          customerName: dbUser.name || effectiveName || "Customer",
+          customerEmail: invoiceCustomerEmail,
+          customerPhone: dbUser.phone || effectivePhone || "9999999999",
           customerGstin: dbUser.gstin || null,
           companyName: dbUser.companyName || null,
           billingAddress: order.shippingAddress,
