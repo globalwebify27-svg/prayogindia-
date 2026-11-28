@@ -1364,6 +1364,8 @@ export const CheckoutView: React.FC = () => {
         rewardPointsUsed: useRewardPoints ? rewardPointsAvailable : 0,
         paymentMethod,
         shippingCost: shippingFee,
+        shippingMethod: selectedDeliveryMethod,
+        deliveryMethod: selectedDeliveryMethod,
         items: orderPayloadItems,
         customerName: customerName || selectedAddr.name,
         customerEmail: customerEmail,

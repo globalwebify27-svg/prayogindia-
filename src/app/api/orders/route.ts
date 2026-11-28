@@ -86,6 +86,8 @@ export async function POST(request: Request) {
       totalAmount: clientTotal,
       orderSource: requestedOrderSource,
       channel: requestedChannel,
+      shippingMethod: requestedShippingMethod,
+      deliveryMethod: requestedDeliveryMethod,
     } = body;
 
     const isMobileAppOrder =
@@ -260,6 +262,7 @@ export async function POST(request: Request) {
 
     // 1. Resolve Items to Create: Priority to Client Items, Fallback to DB Cart
     let calculatedSubtotal = 0;
+    let totalConsignmentWeightGm = 0;
     const orderItemsToCreate: Array<{
       productId: string;
       variantId?: string | null;
@@ -313,6 +316,8 @@ export async function POST(request: Request) {
           }
 
           calculatedSubtotal += unitPrice * qty;
+          const prodWeight = Number(dbProd.weight) > 0 ? Number(dbProd.weight) : 250;
+          totalConsignmentWeightGm += prodWeight * qty;
           orderItemsToCreate.push({
             productId: dbProd.id,
             variantId: resolvedVariantId,
@@ -358,6 +363,8 @@ export async function POST(request: Request) {
 
           const lineTotal = trustedPrice * item.quantity;
           calculatedSubtotal += lineTotal;
+          const prodWeight = Number(item.product.weight) > 0 ? Number(item.product.weight) : 250;
+          totalConsignmentWeightGm += prodWeight * item.quantity;
           orderItemsToCreate.push({
             productId: item.productId,
             variantId: resolvedVariantId,
@@ -676,16 +683,64 @@ export async function POST(request: Request) {
         },
       });
 
-      // 4f. Initialize Shipment record
+      // 4f. Initialize Shipment record with customer's selected shipping method and actual product weight
+      const effectiveDeliveryMethod = (
+        requestedShippingMethod ||
+        requestedDeliveryMethod ||
+        body.shippingMethod ||
+        body.deliveryMethod ||
+        ""
+      ).toLowerCase().trim();
+
+      let shipmentCourierName = "Delhivery Surface";
+      let shipmentCourierCode = "DELHIVERY";
+      let shipmentTrackingNumber = "PENDING AWB";
+      let shipmentEstimatedDelivery = "2-4 Business Days";
+
+      if (
+        effectiveDeliveryMethod === "faster_express" ||
+        effectiveDeliveryMethod === "air" ||
+        effectiveDeliveryMethod.includes("express_air")
+      ) {
+        shipmentCourierName = "BlueDart Air Express";
+        shipmentCourierCode = "BLUEDART_AIR";
+        shipmentEstimatedDelivery = "1-2 Business Days";
+      } else if (
+        effectiveDeliveryMethod === "store_pickup" ||
+        effectiveDeliveryMethod === "pickup"
+      ) {
+        shipmentCourierName = "In-Store Pickup (Prayog Hub)";
+        shipmentCourierCode = "STORE_PICKUP";
+        shipmentTrackingNumber = "Counter Handover";
+        shipmentEstimatedDelivery = "Ready in 2 Hours";
+      } else if (
+        effectiveDeliveryMethod === "ranchi_24h" ||
+        effectiveDeliveryMethod.includes("ranchi")
+      ) {
+        shipmentCourierName = "Prayog Express Fleet";
+        shipmentCourierCode = "LOCAL_FLEET";
+        shipmentTrackingNumber = "LOCAL-FLEET-RCH";
+        shipmentEstimatedDelivery = "Within 24 Hours";
+      } else {
+        shipmentCourierName = "Delhivery Surface";
+        shipmentCourierCode = "DELHIVERY";
+        shipmentEstimatedDelivery = "2-4 Business Days";
+      }
+
+      const calculatedWeightKg =
+        totalConsignmentWeightGm > 0
+          ? Math.max(0.05, Math.round((totalConsignmentWeightGm / 1000) * 100) / 100)
+          : 0.5;
+
       await tx.shipment.create({
         data: {
           orderId: order.id,
-          courierName: "Delhivery Surface",
-          courierCode: "DELHIVERY",
-          trackingNumber: "PENDING AWB",
+          courierName: shipmentCourierName,
+          courierCode: shipmentCourierCode,
+          trackingNumber: shipmentTrackingNumber,
           status: "Manifest Created",
-          weightKg: 0.5,
-          estimatedDelivery: "2-4 Business Days",
+          weightKg: calculatedWeightKg,
+          estimatedDelivery: shipmentEstimatedDelivery,
         },
       });
 

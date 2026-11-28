@@ -284,6 +284,8 @@ export interface CreateCustomerOrderOptions {
   rewardPointsUsed?: number;
   paymentMethod?: string;
   shippingCost?: number;
+  shippingMethod?: string;
+  deliveryMethod?: string;
   items?: CreateCustomerOrderItem[];
   customerName?: string;
   customerEmail?: string;
@@ -309,6 +311,8 @@ export async function createCustomerOrder(
         rewardPointsUsed: options?.rewardPointsUsed,
         paymentMethod: options?.paymentMethod,
         shippingCost: options?.shippingCost,
+        shippingMethod: options?.shippingMethod || options?.deliveryMethod,
+        deliveryMethod: options?.deliveryMethod || options?.shippingMethod,
         items: options?.items,
         customerName: options?.customerName,
         customerEmail: options?.customerEmail,

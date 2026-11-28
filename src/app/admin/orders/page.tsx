@@ -1394,10 +1394,17 @@ export default function AdminOrdersPage() {
                       className="p-2 flex items-center justify-between text-xs"
                     >
                       <div className="flex items-center gap-2">
-                        <Package className="w-4 h-4 text-slate-400" />
-                        <span className="font-bold text-slate-900">
-                          {item.name || item.productName || "Product Item"}
-                        </span>
+                        <Package className="w-4 h-4 text-slate-400 shrink-0" />
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <span className="font-bold text-slate-900">
+                            {item.name || item.productName || "Product Item"}
+                          </span>
+                          {item.weightGrams ? (
+                            <span className="text-[10px] text-slate-500 font-mono bg-slate-100 px-1 py-0.2 rounded">
+                              {item.weightGrams}g
+                            </span>
+                          ) : null}
+                        </div>
                         {item.isRestricted && (
                           <span className="text-[9px] bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded font-black uppercase">
                             Battery

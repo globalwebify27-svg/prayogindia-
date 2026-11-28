@@ -166,7 +166,18 @@ export async function GET(request: Request) {
             user: {
               select: { id: true, name: true, email: true, phone: true, companyName: true },
             },
-            items: true,
+            items: {
+              include: {
+                product: {
+                  select: {
+                    id: true,
+                    name: true,
+                    weight: true,
+                    tags: true,
+                  },
+                },
+              },
+            },
             shipment: true,
             quotation: {
               select: { id: true, quoteNumber: true, companyName: true },
@@ -220,32 +231,88 @@ export async function GET(request: Request) {
               ? "Store Walk-in POS"
               : "Prayog Website Store";
 
+        const mappedItems = (ord.items || []).map((i: any) => {
+          const prodWeight = Number(i.product?.weight) > 0 ? Number(i.product.weight) : 250;
+          const name = i.productName || i.name || i.product?.name || "Product Item";
+          const tags = (i.product?.tags || []).map((t: string) => t.toLowerCase());
+          const isRestricted =
+            tags.some((t: string) => t.includes("battery") || t.includes("lipo") || t.includes("haz")) ||
+            name.toLowerCase().includes("battery") ||
+            name.toLowerCase().includes("lipo") ||
+            name.toLowerCase().includes("li-ion") ||
+            name.toLowerCase().includes("chemical");
+
+          return {
+            ...i,
+            name,
+            weightGrams: prodWeight,
+            isRestricted,
+          };
+        });
+
         const hasRestrictedItem =
-          ord.items?.some((i: any) => {
-            const name = (i.productName || i.name || "").toLowerCase();
-            return (
-              name.includes("battery") ||
-              name.includes("lipo") ||
-              name.includes("li-ion") ||
-              name.includes("chemical") ||
-              name.includes("drone")
-            );
-          }) || false;
+          mappedItems.some((i: any) => i.isRestricted) || false;
+
+        const totalCalculatedItemsWeightGm = mappedItems.reduce((sum: number, it: any) => {
+          return sum + (it.weightGrams || 250) * (Number(it.quantity || it.qty) || 1);
+        }, 0);
+
+        const weightGm =
+          totalCalculatedItemsWeightGm > 0
+            ? Math.round(totalCalculatedItemsWeightGm)
+            : ord.shipment?.weightKg
+            ? Math.round(ord.shipment.weightKg * 1000)
+            : 500;
+
+        const rawCourier = ord.shipment?.courierName || "";
+        const isAir =
+          rawCourier.toLowerCase().includes("air") ||
+          rawCourier.toLowerCase().includes("bluedart") ||
+          ord.shippingAddress?.toLowerCase().includes("air");
+        const isStorePickup =
+          isWalkIn ||
+          rawCourier.toLowerCase().includes("pickup") ||
+          rawCourier.toLowerCase().includes("store") ||
+          ord.shippingAddress?.toLowerCase().includes("store") ||
+          ord.shippingAddress?.toLowerCase().includes("walk-in");
+        const isLocalFleet =
+          rawCourier.toLowerCase().includes("fleet") ||
+          rawCourier.toLowerCase().includes("ranchi") ||
+          rawCourier.toLowerCase().includes("local");
+
+        let courierProvider = rawCourier || "Delhivery Surface";
+        let freightMode = "Surface Express";
+        let awbNumber = isWalkIn
+          ? "Counter Handover"
+          : ord.shipment?.trackingNumber || "PENDING AWB";
+
+        if (isStorePickup) {
+          courierProvider = rawCourier || "In-Store Fulfillment";
+          freightMode = "Store Handover";
+          awbNumber = "Counter Handover";
+        } else if (isAir) {
+          courierProvider = rawCourier || "BlueDart Air Express";
+          freightMode = "Air Priority Express";
+        } else if (isLocalFleet) {
+          courierProvider = rawCourier || "Prayog Express Fleet";
+          freightMode = "Local Hub Express";
+          if (!ord.shipment?.trackingNumber || ord.shipment.trackingNumber === "PENDING AWB") {
+            awbNumber = "LOCAL-FLEET-RCH";
+          }
+        } else {
+          courierProvider = rawCourier || "Delhivery Surface";
+          freightMode = "Surface Express";
+        }
 
         return {
           ...ord,
+          items: mappedItems,
           orderSource,
           channelName,
-          awbNumber: isWalkIn
-            ? "Counter Handover"
-            : ord.shipment?.trackingNumber || "PENDING AWB",
-          courierProvider: isWalkIn
-            ? "In-Store Fulfillment"
-            : ord.shipment?.courierName || "Delhivery Surface",
-          weightGm: ord.shipment?.weightKg
-            ? Math.round(ord.shipment.weightKg * 1000)
-            : 500,
-          freightMode: isWalkIn ? "Store Handover" : "Surface Express",
+          awbNumber,
+          courierProvider,
+          weightGm,
+          freightMode,
           hasRestrictedItem,
           deliveryStatus:
             ord.shipment?.status ||
