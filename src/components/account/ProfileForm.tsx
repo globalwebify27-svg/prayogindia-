@@ -28,18 +28,41 @@ const formatDisplay = (raw: string) => {
   return d.length === 10 ? `+91 ${d}` : raw;
 };
 
+const isDummyEmail = (em?: string | null): boolean => {
+  if (!em) return true;
+  const lower = em.toLowerCase().trim();
+  return (
+    lower.includes("@otp.") ||
+    lower.includes("@prayogindia.local") ||
+    lower.startsWith("user.")
+  );
+};
+
 // ─── Component ─────────────────────────────────────────────────────────────
 export const ProfileForm: React.FC = () => {
   const { user, updateUser } = useStore();
 
+  const getCleanEmail = useCallback(
+    (em?: string | null) => (em && !isDummyEmail(em) ? em : ""),
+    [],
+  );
+
   // ── Profile form state ────────────────────────────────────────────────────
   const [name, setName] = useState(user?.name || "");
-  const [email] = useState(user?.email || "");
+  const [email, setEmail] = useState(getCleanEmail(user?.email));
   const [companyName, setCompanyName] = useState(user?.companyName || "");
   const [gstin, setGstin] = useState(user?.gstin || "");
   const [saving, setSaving] = useState(false);
   const [savedSuccess, setSavedSuccess] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
+
+  // Keep state synced when user profile changes
+  useEffect(() => {
+    if (user?.name) setName(user.name);
+    setEmail(getCleanEmail(user?.email));
+    if (user?.companyName) setCompanyName(user.companyName);
+    if (user?.gstin) setGstin(user.gstin);
+  }, [user, getCleanEmail]);
 
   // ── Change-phone modal state ───────────────────────────────────────────────
   const [cpStep, setCpStep] = useState<ChangePhoneStep>("idle");
@@ -186,20 +209,31 @@ export const ProfileForm: React.FC = () => {
     }
   };
 
-  // ── Save profile (name / company / gstin) ─────────────────────────────────
+  // ── Save profile (name / email / company / gstin) ─────────────────────────
   const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
     setSaveError(null);
     try {
+      const cleanEmailVal = email.trim();
       const res = await fetch("/api/users/me", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, companyName, gstin }),
+        body: JSON.stringify({
+          name: name.trim(),
+          email: cleanEmailVal || undefined,
+          companyName: companyName.trim() || null,
+          gstin: gstin.trim() || null,
+        }),
       });
       const data = await res.json();
       if (data.success) {
-        updateUser({ name, companyName, gstin });
+        updateUser({
+          name: name.trim(),
+          email: cleanEmailVal,
+          companyName: companyName.trim() || undefined,
+          gstin: gstin.trim() || undefined,
+        });
         setSavedSuccess(true);
         setTimeout(() => setSavedSuccess(false), 4000);
       } else {
@@ -299,24 +333,36 @@ export const ProfileForm: React.FC = () => {
           </p>
         </div>
 
-        {/* ── Registered Email (read-only) ── */}
+        {/* ── Registered Email Address ── */}
         <div className="space-y-1">
-          <label className="font-bold text-slate-700 block">
-            Registered Email Address
-          </label>
+          <div className="flex items-center justify-between">
+            <label className="font-bold text-slate-700 block">
+              Registered Email Address
+            </label>
+            {!email ? (
+              <span className="text-[10px] font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
+                Optional
+              </span>
+            ) : (
+              <span className="text-[10px] font-bold text-emerald-600 flex items-center gap-1">
+                <ShieldCheck className="w-3 h-3" /> Invoices & Updates
+              </span>
+            )}
+          </div>
           <div className="relative">
             <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
               type="email"
               value={email}
-              readOnly
-              disabled
-              className="w-full bg-slate-100 text-slate-500 pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 font-semibold cursor-not-allowed"
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="e.g. name@example.com"
+              className="w-full bg-slate-50 text-slate-900 pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 font-semibold transition-colors"
             />
           </div>
           <p className="text-[10px] text-slate-400">
-            Email is tied to your primary identity. Contact support to request
-            email changes.
+            {email
+              ? "We'll send order confirmations, tracking alerts, and GST tax invoices to this email."
+              : "Add your email address to receive order confirmations, tracking alerts, and GST tax invoices."}
           </p>
         </div>
 

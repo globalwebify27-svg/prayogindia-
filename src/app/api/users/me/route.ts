@@ -226,8 +226,8 @@ export async function PATCH(request: Request) {
   try {
     const body = await request.json();
 
-    // Whitelist updatable fields — NEVER allow email, role, rewardPoints from client
-    const { name, phone, companyName, gstin, customerType } = body;
+    // Whitelist updatable fields — name, email, phone, companyName, gstin, customerType
+    const { name, email, phone, companyName, gstin, customerType } = body;
 
     const updateData: Record<string, any> = {};
 
@@ -239,6 +239,20 @@ export async function PATCH(request: Request) {
         );
       }
       updateData.name = name.trim();
+    }
+
+    if (email !== undefined) {
+      const trimmedEmail = typeof email === "string" ? email.trim() : "";
+      if (trimmedEmail) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(trimmedEmail)) {
+          return NextResponse.json(
+            { success: false, message: "Please enter a valid email address." },
+            { status: 400, headers },
+          );
+        }
+        updateData.email = normalizeEmail(trimmedEmail);
+      }
     }
 
     if (phone !== undefined) {
@@ -379,6 +393,30 @@ export async function PATCH(request: Request) {
 
     const resolvedUserId = targetUser?.id || user.id;
 
+    // If customer is updating their email, verify it is not already taken by another user
+    if (updateData.email) {
+      try {
+        const emailConflict = await db.user.findFirst({
+          where: {
+            email: updateData.email,
+            NOT: { id: resolvedUserId },
+          },
+          select: { id: true },
+        });
+        if (emailConflict) {
+          return NextResponse.json(
+            {
+              success: false,
+              message: "This email address is already registered to another account.",
+            },
+            { status: 409, headers },
+          );
+        }
+      } catch (confErr: any) {
+        console.warn("[Users/Me PATCH] Email conflict check skipped:", confErr?.message);
+      }
+    }
+
     // 3. Update database record
     let updatedUser: any = null;
     try {
@@ -406,6 +444,10 @@ export async function PATCH(request: Request) {
         if (updateData.name !== undefined) {
           setClauses.push(`"name" = $${idx++}`);
           values.push(updateData.name);
+        }
+        if (updateData.email !== undefined) {
+          setClauses.push(`"email" = $${idx++}`);
+          values.push(updateData.email);
         }
         if (updateData.phone !== undefined) {
           setClauses.push(`"phone" = $${idx++}`);
@@ -446,14 +488,33 @@ export async function PATCH(request: Request) {
     }
 
     // 4. Update session cookie
+    const cleanDisplayEmail = (em?: string | null) => {
+      if (!em) return "";
+      const lower = em.toLowerCase().trim();
+      if (
+        lower.includes("@otp.") ||
+        lower.includes("@prayogindia.local") ||
+        lower.startsWith("user.")
+      ) {
+        return "";
+      }
+      return em.trim();
+    };
+
+    const finalEmail =
+      cleanDisplayEmail(updatedUser?.email) ||
+      cleanDisplayEmail(updateData.email) ||
+      cleanDisplayEmail(user.email);
+
     const updatedPayload = {
       ...user,
-      id: updatedUser.id,
-      name: updatedUser.name,
-      phone: updatedUser.phone,
-      customerType: updatedUser.customerType,
-      companyName: updatedUser.companyName,
-      gstin: updatedUser.gstin,
+      id: updatedUser?.id || resolvedUserId,
+      name: updatedUser?.name || updateData.name || user.name,
+      email: finalEmail,
+      phone: updatedUser?.phone || updateData.phone || user.phone,
+      customerType: updatedUser?.customerType || user.customerType,
+      companyName: updatedUser?.companyName ?? user.companyName,
+      gstin: updatedUser?.gstin ?? user.gstin,
     };
 
     const sessionToken = await signSessionToken(updatedPayload, "7d");

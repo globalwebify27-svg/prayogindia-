@@ -2,6 +2,19 @@ import { NextResponse } from "next/server";
 import { getAuthenticatedCustomer, AuthSessionUser } from "@/lib/authUtils";
 import { db, isDatabaseAvailable } from "@/lib/db";
 
+function cleanDisplayEmail(email?: string | null): string {
+  if (!email) return "";
+  const lower = email.toLowerCase().trim();
+  if (
+    lower.includes("@otp.") ||
+    lower.includes("@prayogindia.local") ||
+    lower.startsWith("user.")
+  ) {
+    return "";
+  }
+  return email.trim();
+}
+
 export async function GET() {
   const user = await getAuthenticatedCustomer();
 
@@ -17,7 +30,11 @@ export async function GET() {
     );
   }
 
-  let freshUser: AuthSessionUser = user;
+  let freshUser: AuthSessionUser = {
+    ...user,
+    email: cleanDisplayEmail(user.email),
+  };
+
   if (isDatabaseAvailable() && user.id) {
     try {
       const dbPromise = db.user.findUnique({
@@ -46,7 +63,7 @@ export async function GET() {
         freshUser = {
           id: dbRecord.id,
           name: dbRecord.name,
-          email: dbRecord.email,
+          email: cleanDisplayEmail(dbRecord.email),
           phone: dbRecord.phone,
           role: (dbRecord.role as any) === "ADMIN" ? "ADMIN" : "CUSTOMER",
           customerType:

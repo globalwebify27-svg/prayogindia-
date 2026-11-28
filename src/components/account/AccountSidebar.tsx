@@ -17,12 +17,31 @@ import {
   LogOut,
 } from "lucide-react";
 
+const digits10 = (raw: string) => raw.replace(/\D/g, "").slice(-10);
+const formatDisplay = (raw: string) => {
+  const d = digits10(raw);
+  return d.length === 10 ? `+91 ${d}` : raw;
+};
+
 export const AccountSidebar: React.FC = () => {
   const pathname = usePathname();
   const router = useRouter();
   const { user, logoutUser, cart, wishlist } = useStore();
 
   const cartCount = cart?.reduce((sum, item) => sum + item.quantity, 0) || 0;
+
+  const isRealEmail =
+    typeof user?.email === "string" &&
+    user.email.includes("@") &&
+    !user.email.includes("@otp.") &&
+    !user.email.includes("@prayogindia.local") &&
+    !user.email.startsWith("user.");
+
+  const displaySubtitle = isRealEmail
+    ? user?.email
+    : user?.phone
+      ? formatDisplay(user.phone)
+      : "Signed In";
 
   const navItems = [
     { label: "Dashboard", href: "/account", icon: LayoutGrid },
@@ -66,7 +85,7 @@ export const AccountSidebar: React.FC = () => {
                   : "My Account")}
           </h3>
           <p className="text-[11px] text-slate-400 font-normal truncate mt-0.5">
-            {user?.email || user?.phone || "Signed In"}
+            {displaySubtitle}
           </p>
         </div>
       </div>
